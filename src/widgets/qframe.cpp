@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#53 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#53 $");
 
 
 /*!
@@ -496,7 +496,7 @@ void QFrame::drawFrame( QPainter *p )
 		qDrawPlainRect( p, r, g.foreground(), lwidth );
 	    else
 		qDrawShadeRect( p, r, g, style == Sunken, lwidth,
-				mwidth );
+				midLineWidth() );
 	    break;
 
 	case Panel:
@@ -531,7 +531,7 @@ void QFrame::drawFrame( QPainter *p )
 	    }
 	    else
 		qDrawShadeLine( p, p1, p2, g, style == Sunken,
-				lwidth, mwidth );
+				lwidth, midLineWidth() );
 	    break;
     }
 }
