@@ -510,7 +510,8 @@ void QWorkspace::place( QWidget* w)
 {
     QPtrList<QWidget> widgets;
     for(QPtrListIterator<QWorkspaceChild> it( d->windows ); it.current(); ++it)
-	widgets.append((*it));
+	if ((*it) != w)
+	    widgets.append((*it));
 
     int overlap, minOverlap = 0;
     int possible;
@@ -538,22 +539,21 @@ void QWorkspace::place( QWidget* w)
 	    while ( it.current () ) {
 		l = it.current();
 		++it;
-		if (! d->icons.contains(l) && ! l->isHidden() && l != w ) {
-		    if ( d->maxWindow == l )
-			r2 = d->maxRestore;
-		    else
-			r2.setRect(l->x(), l->y(), l->width(), l->height());
+		
+		if ( d->maxWindow == l )
+		    r2 = d->maxRestore;
+		else
+		    r2.setRect(l->x(), l->y(), l->width(), l->height());
 
-		    if (r2.intersects(r1)) {
-			r2.setCoords(QMAX(r1.left(), r2.left()),
-				     QMAX(r1.top(), r2.top()),
-				     QMIN(r1.right(), r2.right()),
-				     QMIN(r1.bottom(), r2.bottom())
-				     );
+		if (r2.intersects(r1)) {
+		    r2.setCoords(QMAX(r1.left(), r2.left()),
+				 QMAX(r1.top(), r2.top()),
+				 QMIN(r1.right(), r2.right()),
+				 QMIN(r1.bottom(), r2.bottom())
+				 );
 
-			overlap += (r2.right() - r2.left()) *
-				   (r2.bottom() - r2.top());
-		    }
+		    overlap += (r2.right() - r2.left()) *
+			       (r2.bottom() - r2.top());
 		}
 	    }
 	}
@@ -580,21 +580,19 @@ void QWorkspace::place( QWidget* w)
 	    while ( it.current () ) {
 		l = it.current();
 		++it;
-		if (! d->icons.contains(l) && ! l->isHidden() && l != w ) {
-		    if ( d->maxWindow == l )
-			r2 = d->maxRestore;
-		    else
-			r2.setRect(l->x(), l->y(), l->width(), l->height());
+		if ( d->maxWindow == l )
+		    r2 = d->maxRestore;
+		else
+		    r2.setRect(l->x(), l->y(), l->width(), l->height());
 
-		    if( ( y < r2.bottom() ) && ( r2.top() < w->height() + y ) ) {
-			if( r2.right() > x )
-			    possible = possible < r2.right() ?
-				       possible : r2.right();
+		if( ( y < r2.bottom() ) && ( r2.top() < w->height() + y ) ) {
+		    if( r2.right() > x )
+			possible = possible < r2.right() ?
+				   possible : r2.right();
 
-			if( r2.left() - w->width() > x )
-			    possible = possible < r2.left() - w->width() ?
-				       possible : r2.left() - w->width();
-		    }
+		    if( r2.left() - w->width() > x )
+			possible = possible < r2.left() - w->width() ?
+				   possible : r2.left() - w->width();
 		}
 	    }
 
@@ -610,20 +608,18 @@ void QWorkspace::place( QWidget* w)
 	    while ( it.current () ) {
 		l = it.current();
 		++it;
-		if (l != w && ! d->icons.contains(w)) {
-		    if ( d->maxWindow == l )
-			r2 = d->maxRestore;
-		    else
-			r2.setRect(l->x(), l->y(), l->width(), l->height());
+		if ( d->maxWindow == l )
+		    r2 = d->maxRestore;
+		else
+		    r2.setRect(l->x(), l->y(), l->width(), l->height());
 
-		    if( r2.bottom() > y)
-			possible = possible < r2.bottom() ?
-				   possible : r2.bottom();
+		if( r2.bottom() > y)
+		    possible = possible < r2.bottom() ?
+			       possible : r2.bottom();
 
-		    if( r2.top() - w->height() > y )
-			possible = possible < r2.top() - w->height() ?
-				   possible : r2.top() - w->height();
-		}
+		if( r2.top() - w->height() > y )
+		    possible = possible < r2.top() - w->height() ?
+			       possible : r2.top() - w->height();
 	    }
 
 	    y = possible;
