@@ -1851,9 +1851,9 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
                     tpdi.adornment = kHIThemeTabPaneAdornmentNormal;
                 }
                 HIThemeDrawTabPane(&hirect, &tpdi, cg, kHIThemeOrientationNormal);
-            } else
+            }
 #else
-            {
+             else {
                 HIThemeGroupBoxDrawInfo gdi;
                 gdi.version = qt_mac_hitheme_version;
                 gdi.state = tds;

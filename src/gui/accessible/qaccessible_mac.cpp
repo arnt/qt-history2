@@ -18,6 +18,7 @@
 #include "qhash.h"
 #include "qpointer.h"
 #include "qapplication.h"
+#include <CoreFoundation/CoreFoundation.h>
 
 /*****************************************************************************
   QAccessible debug facilities
@@ -169,7 +170,7 @@ static AXUIElementRef qt_mac_find_uielement(QObject *object, int child=0)
   QAccessible Bindings
  *****************************************************************************/
 //hardcoded bindings between control info and (known) QWidgets
-struct {
+static struct {
     int qt;
     CFStringRef mac;
     bool settable;
