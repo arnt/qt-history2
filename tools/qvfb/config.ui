@@ -33,8 +33,6 @@
       </property>
       <item row="0" column="1" >
         <widget class="QGroupBox" name="ButtonGroup2" >
-          <attribute name="buttonGroup" value="group1" />
-
           <property name="objectName" >
             <cstring>ButtonGroup2</cstring>
           </property>
@@ -42,6 +40,9 @@
             <string>Depth</string>
           </property>
           <widget class="QRadioButton" name="depth_1" >
+            <attribute name="buttonGroup">
+              <string>group1</string>
+            </attribute>
             <property name="objectName" >
               <cstring>depth_1</cstring>
             </property>
@@ -58,6 +59,9 @@
             </property>
           </widget>
           <widget class="QRadioButton" name="depth_4gray" >
+            <attribute name="buttonGroup">
+              <string>group1</string>
+            </attribute>
             <property name="objectName" >
               <cstring>depth_4gray</cstring>
             </property>
@@ -74,6 +78,9 @@
             </property>
           </widget>
           <widget class="QRadioButton" name="depth_8" >
+            <attribute name="buttonGroup">
+              <string>group1</string>
+            </attribute>
             <property name="objectName" >
               <cstring>depth_8</cstring>
             </property>
@@ -90,6 +97,9 @@
             </property>
           </widget>
           <widget class="QRadioButton" name="depth_12" >
+            <attribute name="buttonGroup">
+              <string>group1</string>
+            </attribute>
             <property name="objectName" >
               <cstring>depth_12</cstring>
             </property>
@@ -106,6 +116,9 @@
             </property>
           </widget>
           <widget class="QRadioButton" name="depth_16" >
+            <attribute name="buttonGroup">
+              <string>group1</string>
+            </attribute>
             <property name="objectName" >
               <cstring>depth_16</cstring>
             </property>
@@ -122,6 +135,9 @@
             </property>
           </widget>
           <widget class="QRadioButton" name="depth_32" >
+            <attribute name="buttonGroup">
+              <string>group1</string>
+            </attribute>
             <property name="objectName" >
               <cstring>depth_32</cstring>
             </property>
@@ -1486,6 +1502,9 @@
             </property>
             <item>
               <widget class="QRadioButton" name="size_240_320" >
+                <attribute name="buttonGroup">
+                  <string>group2</string>
+                </attribute>
                 <property name="objectName" >
                   <cstring>size_240_320</cstring>
                 </property>
@@ -1496,6 +1515,9 @@
             </item>
             <item>
               <widget class="QRadioButton" name="size_320_240" >
+                <attribute name="buttonGroup">
+                  <string>group2</string>
+                </attribute>
                 <property name="objectName" >
                   <cstring>size_320_240</cstring>
                 </property>
@@ -1506,6 +1528,9 @@
             </item>
             <item>
               <widget class="QRadioButton" name="size_640_480" >
+                <attribute name="buttonGroup">
+                  <string>group2</string>
+                </attribute>
                 <property name="objectName" >
                   <cstring>size_640_480</cstring>
                 </property>
@@ -1531,6 +1556,9 @@
                   </property>
                   <item>
                     <widget class="QRadioButton" name="size_custom" >
+                      <attribute name="buttonGroup">
+                        <string>group2</string>
+                      </attribute>
                       <property name="objectName" >
                         <cstring>size_custom</cstring>
                       </property>
@@ -1597,6 +1625,9 @@
                   </property>
                   <item>
                     <widget class="QRadioButton" name="size_skin" >
+                      <attribute name="buttonGroup">
+                        <string>group2</string>
+                      </attribute>
                       <property name="objectName" >
                         <cstring>size_skin</cstring>
                       </property>
