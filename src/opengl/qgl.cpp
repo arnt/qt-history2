@@ -178,8 +178,10 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
 QGLFormat::QGLFormat()
 {
-    opts = DoubleBuffer | DepthBuffer | Rgba | DirectRendering;
-    pln = 0;
+    d = new QGLFormatPrivate;
+    d->opts = DoubleBuffer | DepthBuffer | Rgba | DirectRendering;
+    d->pln = 0;
+    d->depthSize = d->alphaSize = d->stencilSize = d->accumSize = 1;
 }
 
 
@@ -220,13 +222,37 @@ QGLFormat::QGLFormat()
 
 QGLFormat::QGLFormat(int options, int plane)
 {
+    d = new QGLFormatPrivate;
     uint newOpts = options;
-    opts = defaultFormat().opts;
-    opts |= (newOpts & 0xffff);
-    opts &= ~(newOpts >> 16);
-    pln = plane;
+    d->opts = defaultFormat().d->opts;
+    d->opts |= (newOpts & 0xffff);
+    d->opts &= ~(newOpts >> 16);
+    d->pln = plane;
 }
 
+/*!
+    Constructs a copy of \a other.
+*/
+
+QGLFormat::QGLFormat(const QGLFormat &other)
+{
+    d = new QGLFormatPrivate;
+    *d = *other.d;
+}
+
+QGLFormat QGLFormat::operator=(const QGLFormat &other)
+{
+    *d = *other.d;
+    return *this;
+}
+
+/*!
+    Destroys the QGLFormat.
+*/
+QGLFormat::~QGLFormat()
+{
+    delete d;
+}
 
 /*!
     \fn bool QGLFormat::doubleBuffer() const
@@ -494,7 +520,7 @@ void QGLFormat::setOverlay(bool enable)
 */
 int QGLFormat::plane() const
 {
-    return pln;
+    return d->pln;
 }
 
 /*!
@@ -512,7 +538,7 @@ int QGLFormat::plane() const
 */
 void QGLFormat::setPlane(int plane)
 {
-    pln = plane;
+    d->pln = plane;
 }
 
 /*!
@@ -524,9 +550,9 @@ void QGLFormat::setPlane(int plane)
 void QGLFormat::setOption(FormatOption opt)
 {
     if (opt & 0xffff)
-        opts |= opt;
+        d->opts |= opt;
     else
-       opts &= ~(opt >> 16);
+       d->opts &= ~(opt >> 16);
 }
 
 
@@ -540,12 +566,74 @@ void QGLFormat::setOption(FormatOption opt)
 bool QGLFormat::testOption(FormatOption opt) const
 {
     if (opt & 0xffff)
-       return (opts & opt) != 0;
+       return (d->opts & opt) != 0;
     else
-       return (opts & (opt >> 16)) == 0;
+       return (d->opts & (opt >> 16)) == 0;
 }
 
+/*!
+    Set the preferred depth buffer size.
+*/
+void QGLFormat::setDepthBufferSize(int size)
+{
+    d->depthSize = size;
+}
 
+/*!
+    Returns the depth buffer size.
+*/
+int QGLFormat::depthBufferSize() const
+{
+   return d->depthSize;
+}
+
+/*!
+    Set the preferred alpha buffer size.
+*/
+void QGLFormat::setAlphaBufferSize(int size)
+{
+    d->alphaSize = size;
+}
+
+/*!
+    Returns the alpha buffer size.
+*/
+int QGLFormat::alphaBufferSize() const
+{
+   return d->alphaSize;
+}
+
+/*!
+    Set the preferred accumulation buffer size.
+*/
+void QGLFormat::setAccumBufferSize(int size)
+{
+    d->accumSize = size;
+}
+
+/*!
+    Returns the accumulation buffer size.
+*/
+int QGLFormat::accumBufferSize() const
+{
+   return d->accumSize;
+}
+
+/*!
+    Set the preferred stencil buffer size.
+*/
+void QGLFormat::setStencilBufferSize(int size)
+{
+    d->stencilSize = size;
+}
+
+/*!
+    Returns the stencil buffer size.
+*/
+int QGLFormat::stencilBufferSize() const
+{
+   return d->stencilSize;
+}
 
 /*!
     \fn bool QGLFormat::hasOpenGL()
@@ -638,8 +726,8 @@ QGLFormat QGLFormat::defaultOverlayFormat()
 {
     if (!qgl_default_overlay_format) {
         qgl_default_overlay_format = new QGLFormat;
-        qgl_default_overlay_format->opts = DirectRendering;
-        qgl_default_overlay_format->pln = 1;
+        qgl_default_overlay_format->d->opts = DirectRendering;
+        qgl_default_overlay_format->d->pln = 1;
         qgl_cleanup_format.add(&qgl_default_overlay_format);
     }
     return *qgl_default_overlay_format;
@@ -700,7 +788,9 @@ void QGLFormat::setDefaultOverlayFormat(const QGLFormat &f)
 
 bool operator==(const QGLFormat& a, const QGLFormat& b)
 {
-    return (a.opts == b.opts) && (a.pln == b.pln);
+    return a.d->opts == b.d->opts && a.d->pln == b.d->pln && a.d->alphaSize == b.d->alphaSize
+        && a.d->accumSize == b.d->accumSize && a.d->stencilSize == b.d->stencilSize
+        && a.d->depthSize == b.d->depthSize;
 }
 
 

@@ -55,15 +55,15 @@ class Q_OPENGL_EXPORT QGL
 {
 public:
     enum FormatOption {
-        DoubleBuffer                = 0x0001,
-        DepthBuffer                = 0x0002,
-        Rgba                        = 0x0004,
-        AlphaChannel                = 0x0008,
-        AccumBuffer                = 0x0010,
-        StencilBuffer                = 0x0020,
-        StereoBuffers                = 0x0040,
-        DirectRendering                = 0x0080,
-        HasOverlay                = 0x0100,
+        DoubleBuffer            = 0x0001,
+        DepthBuffer             = 0x0002,
+        Rgba                    = 0x0004,
+        AlphaChannel            = 0x0008,
+        AccumBuffer             = 0x0010,
+        StencilBuffer           = 0x0020,
+        StereoBuffers           = 0x0040,
+        DirectRendering         = 0x0080,
+        HasOverlay              = 0x0100,
         SingleBuffer            = DoubleBuffer  << 16,
         NoDepthBuffer           = DepthBuffer   << 16,
         ColorIndex              = Rgba          << 16,
@@ -72,17 +72,33 @@ public:
         NoStencilBuffer         = StencilBuffer << 16,
         NoStereoBuffers         = StereoBuffers << 16,
         IndirectRendering       = DirectRendering << 16,
-        NoOverlay                = HasOverlay << 16
+        NoOverlay               = HasOverlay << 16
     };
 };
 
 
+class QGLFormatPrivate;
 
 class Q_OPENGL_EXPORT QGLFormat : public QGL
 {
 public:
     QGLFormat();
     QGLFormat(int options, int plane = 0);
+    QGLFormat(const QGLFormat &other);
+    QGLFormat operator=(const QGLFormat &other);
+    ~QGLFormat();
+
+    void setDepthBufferSize(int size);
+    int  depthBufferSize() const;
+
+    void setAccumBufferSize(int size);
+    int  accumBufferSize() const;
+
+    void setAlphaBufferSize(int size);
+    int  alphaBufferSize() const;
+
+    void setStencilBufferSize(int size);
+    int  stencilBufferSize() const;
 
     bool doubleBuffer() const;
     void setDoubleBuffer(bool enable);
@@ -123,8 +139,7 @@ public:
     friend Q_OPENGL_EXPORT bool operator!=(const QGLFormat&,
                                              const QGLFormat&);
 private:
-    uint opts;
-    int pln;
+    QGLFormatPrivate *d;
 };
 
 
@@ -142,11 +157,11 @@ public:
     virtual bool create(const QGLContext* shareContext = 0);
     bool isValid() const;
     bool isSharing() const;
-    virtual void reset();
+    void reset();
 
     QGLFormat format() const;
     QGLFormat requestedFormat() const;
-    virtual void setFormat(const QGLFormat& format);
+    void setFormat(const QGLFormat& format);
 
     virtual void makeCurrent();
     virtual void doneCurrent();
@@ -228,25 +243,23 @@ public:
 
     bool isValid() const;
     bool isSharing() const;
-    virtual void makeCurrent();
+    void makeCurrent();
     void doneCurrent();
 
     bool doubleBuffer() const;
-    virtual void swapBuffers();
+    void swapBuffers();
 
     QGLFormat format() const;
-    virtual void setFormat(const QGLFormat& format);
+    void setFormat(const QGLFormat& format);
 
     const QGLContext* context() const;
-    virtual void setContext(QGLContext* context,
-                             const QGLContext* shareContext = 0,
-                             bool deleteOldContext = true);
+    void setContext(QGLContext* context, const QGLContext* shareContext = 0,
+                    bool deleteOldContext = true);
 
-    virtual QPixmap renderPixmap(int w = 0, int h = 0,
-                                  bool useContext = false);
-    virtual QImage grabFrameBuffer(bool withAlpha = false);
+    QPixmap renderPixmap(int w = 0, int h = 0, bool useContext = false);
+    QImage grabFrameBuffer(bool withAlpha = false);
 
-    virtual void makeOverlayCurrent();
+    void makeOverlayCurrent();
     const QGLContext* overlayContext() const;
 
     static QImage convertToGLFormat(const QImage& img);

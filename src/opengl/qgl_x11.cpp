@@ -293,14 +293,18 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_DOUBLEBUFFER, &res);
     d->glFormat.setDoubleBuffer(res);
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_DEPTH_SIZE, &res);
+    d->glFormat.setDepthBufferSize(res);
     d->glFormat.setDepth(res);
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_RGBA, &res);
     d->glFormat.setRgba(res);
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_ALPHA_SIZE, &res);
+    d->glFormat.setAlphaBufferSize(res);
     d->glFormat.setAlpha(res);
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_ACCUM_RED_SIZE, &res);
+    d->glFormat.setAccumBufferSize(res);
     d->glFormat.setAccum(res);
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_STENCIL_SIZE, &res);
+    d->glFormat.setStencilBufferSize(res);
     d->glFormat.setStencil(res);
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_STEREO, &res);
     d->glFormat.setStereo(res);
@@ -475,14 +479,14 @@ void *QGLContext::tryVisual(const QGLFormat& f, int bufDepth)
         spec[i++] = GLX_DOUBLEBUFFER;
     if (f.depth()) {
         spec[i++] = GLX_DEPTH_SIZE;
-        spec[i++] = 1;
+        spec[i++] = f.depthBufferSize();
     }
     if (f.stereo()) {
         spec[i++] = GLX_STEREO;
     }
     if (f.stencil()) {
         spec[i++] = GLX_STENCIL_SIZE;
-        spec[i++] = 1;
+        spec[i++] = f.stencilBufferSize();
     }
     if (f.rgba()) {
         spec[i++] = GLX_RGBA;
@@ -494,18 +498,18 @@ void *QGLContext::tryVisual(const QGLFormat& f, int bufDepth)
         spec[i++] = 1;
         if (f.alpha()) {
             spec[i++] = GLX_ALPHA_SIZE;
-            spec[i++] = 1;
+            spec[i++] = f.alphaBufferSize();
         }
         if (f.accum()) {
             spec[i++] = GLX_ACCUM_RED_SIZE;
-            spec[i++] = 1;
+            spec[i++] = f.accumBufferSize();
             spec[i++] = GLX_ACCUM_GREEN_SIZE;
-            spec[i++] = 1;
+            spec[i++] = f.accumBufferSize();
             spec[i++] = GLX_ACCUM_BLUE_SIZE;
-            spec[i++] = 1;
+            spec[i++] = f.accumBufferSize();
             if (f.alpha()) {
                 spec[i++] = GLX_ACCUM_ALPHA_SIZE;
-                spec[i++] = 1;
+                spec[i++] = f.accumBufferSize();
             }
         }
     }

@@ -26,6 +26,17 @@ class QPixmap;
 class QMacWindowChangeEvent;
 #endif
 
+class QGLFormatPrivate
+{
+public:
+    uint opts;
+    int pln;
+    int depthSize;
+    int accumSize;
+    int stencilSize;
+    int alphaSize;
+};
+
 class QGLWidgetPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QGLWidget)
