@@ -105,6 +105,8 @@ public slots:
     virtual void	setValue( int );
     void	addStep();
     void	subtractStep();
+    void	addLine();
+    void	subtractLine();
 
 signals:
     void	valueChanged( int value );

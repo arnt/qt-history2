@@ -616,6 +616,22 @@ void QSlider::setValue( int value )
 }
 
 
+/*! \reimp 
+*/
+
+void QSlider::addLine()
+{
+    QRangeControl::addLine();
+}
+
+/*! \reimpl
+*/
+
+void QSlider::subtractLine()
+{
+    QRangeControl::subtractLine();
+}
+
 /*!
   Moves the slider one pageStep() up or right.
 */
