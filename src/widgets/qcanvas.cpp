@@ -2722,6 +2722,7 @@ static QPainter* dbg_ptr=0;
 #endif
 
 class QPolygonalProcessor {
+public:
     QPolygonalProcessor(QCanvas* c, const QPointArray& pa) :
 	canvas(c)
     {
