@@ -1259,11 +1259,13 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
             QTextFormat fmt = eng->formats->format(si.format);
             Q_ASSERT(fmt.isCharFormat());
             QTextCharFormat chf = fmt.toCharFormat();
-            QColor c = chf.color();
-            if (!c.isValid() && eng->textColorFromPalette) {
-                c = eng->pal->color(QPalette::Text);
+            if (selection == -1) {
+                QColor c = chf.color();
+                if (!c.isValid() && eng->textColorFromPalette) {
+                    c = eng->pal->color(QPalette::Text);
+                }
+                p->setPen(c);
             }
-            p->setPen(c);
             f = chf.font();
         }
         QFontEngine *fe = f.d->engineForScript((QFont::Script)si.analysis.script);
