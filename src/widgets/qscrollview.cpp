@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#3 $
 **
 ** Implementation of QScrollView class
 **
@@ -46,8 +46,7 @@ struct QScrollViewData {
     QScrollView::ScrollBarMode	hMode		: 2;
 };
 
-/*!
-\class QScrollView qviewp.h
+/*! \class QScrollView qscrollview.h
 \brief The QScrollView widget provides a scrolling area with on-demand scrollbars.
 
 The QScrollView can be used in two ways:
