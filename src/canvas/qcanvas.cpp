@@ -954,8 +954,11 @@ viewing this QCanvas. The QCanvasView class calls this.
 void QCanvas::addView(QCanvasView* view)
 {
     d->viewList.append(view);
-    if (htiles>1 || vtiles>1 || pm.isNull())
-        view->viewport()->setBackgroundColor(backgroundColor());
+    if (htiles>1 || vtiles>1 || pm.isNull()) {
+	QPalette p(view->viewport()->palette());
+	p.setColor(view->viewport()->backgroundRole(), backgroundColor());
+	view->viewport()->setPalette(p);
+    }
 }
 
 /*!
@@ -1592,9 +1595,9 @@ void QCanvas::setBackgroundColor(const QColor& c)
     if (bgcolor != c) {
         bgcolor = c;
         for (int i = 0; i < d->viewList.size(); ++i) {
-            /* XXX this doesn't look right. Shouldn't this
-               be more like setBackgroundPixmap? : Ian */
-            d->viewList.at(i)->viewport()->setEraseColor(bgcolor);
+	    QPalette p(d->viewList.at(i)->viewport()->palette());
+	    p.setColor(d->viewList.at(i)->viewport()->backgroundRole(), bgcolor);
+	    d->viewList.at(i)->viewport()->setPalette(p);
         }
         setAllChanged();
     }
@@ -3584,21 +3587,8 @@ void QCanvasView::updateContentsSize()
 #else
         br = QRect(0,0,viewing->width(),viewing->height());
 #endif
-
-        if (br.width() < contentsWidth()) {
-            QRect r(contentsToViewport(QPoint(br.width(),0)),
-                    QSize(contentsWidth()-br.width(),contentsHeight()));
-            viewport()->erase(r);
-        }
-        if (br.height() < contentsHeight()) {
-            QRect r(contentsToViewport(QPoint(0,br.height())),
-                    QSize(contentsWidth(),contentsHeight()-br.height()));
-            viewport()->erase(r);
-        }
-
         resizeContents(br.width(),br.height());
     } else {
-        viewport()->erase();
         resizeContents(1,1);
     }
 }
