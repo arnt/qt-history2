@@ -1537,6 +1537,7 @@ Qt::HANDLE QPainter::handle() const
 {
     Q_ASSERT(isActive());
     Q_ASSERT(d->engine);
+    d->engine->updateState(d->state);
     return d->engine->handle();
 }
 
