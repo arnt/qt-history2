@@ -88,6 +88,14 @@ void DatabaseSupport::initPreview( const QString &connection, const QString &tab
     form = new QSqlForm( o, table );
     autoDeleteCursors.resize( 1 );
     autoDeleteCursors.setAutoDelete( TRUE );
+    if ( !hasCursorSupport() ) {
+	for ( QMap<QString, QString>::Iterator it = dbControls.begin(); it != dbControls.end(); ++it ) {
+	    QObject *chld = parent->child( it.key(), "QWidget" );
+	    if ( !chld )
+		continue;
+	    form->insert( (QWidget*)chld, *it );
+	}
+    }
 }
 
 QSqlCursor* DatabaseSupport::defCursor()

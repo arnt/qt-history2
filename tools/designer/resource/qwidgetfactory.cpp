@@ -231,9 +231,8 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	for( ; cit != widgetFactory->sqlWidgetConnections.end(); ++cit ) {
 	    if ( cit.key()->inherits( "QDesignerSqlDataForm" ) )
 		( (QDesignerSqlDataForm*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
-	    // ### some init needed here????
-// 	    else if ( cit.key()->inherits( "QDesignerSqlDataView" ) )
-// 		( (QDesignerSqlDataView*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
+ 	    else if ( cit.key()->inherits( "QDesignerSqlDataView" ) )
+ 		( (QDesignerSqlDataView*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
 	}
 	
 	for ( QMap<QString, QStringList>::Iterator it = widgetFactory->dbTables.begin(); it != widgetFactory->dbTables.end(); ++it ) {

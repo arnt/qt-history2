@@ -37,12 +37,14 @@ class DatabaseSupport
 {
 public:
     DatabaseSupport();
+    virtual ~DatabaseSupport() {}
 
     void initPreview( const QString &connection, const QString &table, QObject *o,
 		      const QMap<QString, QString> &databaseControls );
 
     QSqlCursor* defCursor();
     QSqlForm* defForm();
+    virtual bool hasCursorSupport() { return TRUE; }
 
 protected:
     QSqlDatabase* defaultConnection;
@@ -76,6 +78,7 @@ class QDesignerSqlDataView : public QSqlDataView, public DatabaseSupport
 
 public:
     QDesignerSqlDataView( QWidget *parent, const char *name );
+    bool hasCursorSupport() { return FALSE; }
 
 protected:
     bool event( QEvent* e );
