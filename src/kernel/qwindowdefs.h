@@ -156,7 +156,6 @@ class QApplication;
 
 // Global platform-independent types and functions
 
-
 typedef Q_INT32 QCOORD;				// coordinate type
 const QCOORD QCOORD_MAX =  2147483647;
 const QCOORD QCOORD_MIN = -QCOORD_MAX - 1;
@@ -164,7 +163,6 @@ const QCOORD QCOORD_MIN = -QCOORD_MAX - 1;
 typedef unsigned int QRgb;			// RGB triplet
 
 Q_EXPORT const char *qAppName();		// get application name
-
 
 // Misc functions
 

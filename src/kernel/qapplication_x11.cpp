@@ -5,7 +5,7 @@
 **
 ** Created : 931029
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -94,10 +94,22 @@
 
 #if defined(Q_OS_UNIX)
 
-// strcasecmp() in documented to live in <strings.h> by XPG4v2 and XPG5.
+// 1) strcasecmp() in documented to live in <strings.h> by XPG4v2 and XPG5.
+// 2) X11 libraries need macro FD_ZERO. Macro FD_ZERO is defined using
+//    bzero() in <sys/time.h> and bzero() is defined in <strings.h>.
+//    However ON AIX neither <sys/time.h> nor X11 header files include
+//    <strings.h>.  So we include it ourselves.  Seen on AIX 4.3.3.
+// ### Caution, this may not work on pre-XPG4v2 systems.
 #include <strings.h>
 
-// FIONREAD and ioctl() hackery.
+// ### FIONREAD and ioctl() hackery.
+// ### We need this hackery because we're including the wrong files on
+// ### modern XPG4v2 systems.  Maybe we should include XPG4v2 style
+// ### header <stropts.h> instead of <sys/ioctl.h>, except for BSDs.
+// ### Also we should be using I_NREAD instead of FIONREAD. Oh well...
+// ### ioctl() and I_NREAD live in <stropts.h> according to SUS/XPG4v2.
+// ### Seen on HP-UX 10.20, Solaris 2.5.1, 7, 8, Irix 6.3, Tru64 4.0F,
+// ### Tru64 5.0A, AIX 4.3.3.
 
 #if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
 // Needed for FIONREAD.
@@ -138,24 +150,18 @@ static int qt_thread_pipe[2];
 #include "qt_x11.h"
 
 #ifndef X11R4
-#include <X11/Xlocale.h>
-#endif
-
-#if defined(Q_OS_IRIX)
-// Please add comments! Which version of Irix?
-// Why <bstring.h> instead of <strings.h>?
-#include <bstring.h>
+#  include <X11/Xlocale.h>
 #endif
 
 #if defined(Q_OS_AIX) && defined(Q_CC_GNU)
-// Please add comments! Which version of AIX? Why?
-// Adding some #defines ought to be enough.
-#include <sys/time.h>
-#include <sys/select.h>
+// Please add comments! Why and which version of AIX?
+#  include <sys/time.h>
+#  include <sys/select.h>
 #endif
 
 #if defined(Q_OS_QNX)
-#include <sys/select.h>
+// Please add comments! Why?
+#  include <sys/select.h>
 #endif
 
 #if defined(Q_CC_MSVC)
@@ -164,9 +170,10 @@ static int qt_thread_pipe[2];
 #undef close
 #endif
 
+// ### Why all this #undef'inery on Windows?
 #if defined(Q_OS_WIN32) && defined(gettimeofday)
-#undef gettimeofday
-#include <sys/timeb.h>
+#  undef gettimeofday
+#  include <sys/timeb.h>
 inline void gettimeofday( struct timeval *t, struct timezone * )
 {
     struct _timeb tb;
@@ -175,11 +182,11 @@ inline void gettimeofday( struct timeval *t, struct timezone * )
     t->tv_usec = tb.millitm * 1000;
 }
 #else
-#undef gettimeofday
+#  undef gettimeofday
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif // Q_OS_WIN32 etc.
 #if !defined(Q_OS_WIN32)
-#undef select
+#  undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 #endif
 
@@ -192,14 +199,14 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 // implement _Xsetlocale just in case X calls it - redirecting it to
 // the real libC version.
 //
-#ifndef setlocale
+#  ifndef setlocale
 extern "C" char *_Xsetlocale(int category, const char *locale);
 char *_Xsetlocale(int category, const char *locale)
 {
     //qDebug("_Xsetlocale(%d,%s),category,locale");
     return setlocale(category,locale);
 }
-#endif
+#  endif
 #endif
 
 // resolve the conflict between X11's FocusIn and QEvent::FocusIn
@@ -212,12 +219,6 @@ const int XKeyPress = KeyPress;
 const int XKeyRelease = KeyRelease;
 #undef KeyPress
 #undef KeyRelease
-
-#if defined(Q_OS_AIX) && !defined(bzero)
-// For FD_ZERO, which the X11 libraries define to use bzero(), even
-// though the system libraries don't have that function.
-#define bzero( s, n ) memset( (s), 0, (n) )
-#endif
 
 // Fix old X libraries
 #ifndef XK_KP_Home
@@ -305,7 +306,7 @@ Atom		qt_selection_sentinel	= 0;
 Atom		qt_wm_state		= 0;
 static Atom	qt_desktop_properties	= 0;	// Qt desktop properties
 static Atom     qt_desktop_prop_stamp   = 0;    // Qt desktop properties timestamp
-static Atom	qt_input_encoding		= 0;	// Qt desktop properties
+static Atom	qt_input_encoding	= 0;	// Qt desktop properties
 static Atom	qt_resource_manager	= 0;	// X11 Resource manager
 Atom		qt_sizegrip		= 0;	// sizegrip
 Atom		qt_wm_client_leader	= 0;
@@ -328,7 +329,7 @@ Atom            qt_net_wm_window_type_normal	= 0;
 Atom            qt_net_wm_window_type_dialog	= 0;
 Atom            qt_net_wm_window_type_toolbar	= 0;
 Atom            qt_net_wm_window_type_override	= 0;	// KDE extension
-Atom		qt_net_wm_frame_strut	= 0;	// KDE extension
+Atom		qt_net_wm_frame_strut		= 0;	// KDE extension
 Atom		qt_net_wm_state_stays_on_top	= 0;	// KDE extension
 // Enlightenment support
 Atom		qt_enlightenment_desktop	= 0;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#10 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#11 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -37,16 +37,11 @@
 #include <errno.h>
 
 
-// this mess (it's not yet a mess but I'm sure it'll be one before
-// it's done) defines SOCKLEN_T to socklen_t or whatever else, for
-// this system.  Single Unix 2 says it's to be socklen_t, classically
-// it's int, who knows what it might be on different modern unixes.
-
 #if defined(SOCKLEN_T)
 #undef SOCKLEN_T
 #endif
 
-#define SOCKLEN_T int // #### What's that really?
+#define SOCKLEN_T int // #### Winsock 1.1
 
 
 static void cleanupWinSock() // post-routine
