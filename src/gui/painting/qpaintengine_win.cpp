@@ -1434,7 +1434,9 @@ static const HatchStyle qt_hatchstyle_map[] = {
     { HatchStyleDiagonalCross }   	// Qt::DiagCrossPattern
 };
 
-static inline Color convertColor(const QColor &c) { return Color(c.red(), c.green(), c.blue()); }
+static inline Color conv(const QColor &c) { return Color(c.red(), c.green(), c.blue()); }
+static inline Point conv(const QPoint &p) { return Point(p.x(), p.y()); }
+static inline Rect conv(const QRect &r) { return Rect(r.x(), r.y(), r.width(), r.height()); }
 
 QGdiplusPaintEngine::QGdiplusPaintEngine(QPaintDevice *dev)
     : QPaintEngine(*(new QGdiplusPaintEnginePrivate),
@@ -1504,7 +1506,7 @@ bool QGdiplusPaintEngine::end()
 void QGdiplusPaintEngine::updatePen(QPainterState *ps)
 {
     d->pen->SetWidth(ps->pen.width());
-    d->pen->SetColor(convertColor(ps->pen.color()));
+    d->pen->SetColor(conv(ps->pen.color()));
 
     Qt::PenStyle style = ps->pen.style();
     if (style == Qt::NoPen) {
@@ -1530,12 +1532,20 @@ void QGdiplusPaintEngine::updateBrush(QPainterState *ps)
 	break;
     case Qt::SolidPattern:
 	if (!d->cachedSolidBrush) {
-	    d->cachedSolidBrush = new SolidBrush(convertColor(ps->brush.color()));
+	    d->cachedSolidBrush = new SolidBrush(conv(ps->brush.color()));
 	    d->brush = d->cachedSolidBrush;
 	} else {
-	    d->cachedSolidBrush->SetColor(convertColor(ps->brush.color()));
+	    d->cachedSolidBrush->SetColor(conv(ps->brush.color()));
 	    d->brush = d->cachedSolidBrush;
 	}
+	break;
+    case Qt::LinearGradientPattern: {
+	QBrush &b = ps->brush;
+	d->brush = new LinearGradientBrush(conv(b.gradientStart()), conv(b.gradientStop()),
+					   conv(b.color()), conv(b.gradientColor()));
+	d->temporaryBrush = true;
+	break;
+    }
     case Qt::CustomPattern: {
 	QPixmap *pm = ps->brush.pixmap();
 	if (pm) {
@@ -1548,8 +1558,8 @@ void QGdiplusPaintEngine::updateBrush(QPainterState *ps)
     default: // HatchBrush
 	Q_ASSERT(ps->brush.style() > Qt::SolidPattern && ps->brush.style() < Qt::CustomPattern);
 	d->brush = new HatchBrush(qt_hatchstyle_map[ps->brush.style()],
-				  convertColor(ps->brush.color()),
-				  convertColor(ps->bgBrush.color()));
+				  conv(ps->brush.color()),
+				  conv(ps->bgBrush.color()));
 	d->graphics->SetRenderingOrigin(state->bgOrigin.x(), state->bgOrigin.y());
 	d->temporaryBrush = true;
     }
@@ -1599,13 +1609,15 @@ void QGdiplusPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 
 void QGdiplusPaintEngine::drawRect(const QRect &r)
 {
+    int subtract = d->usePen && !d->antiAliasEnabled ? 1 : 0;
     if (d->brush) {
-	int subtract = d->usePen ? -1 : 0;
-	d->graphics->FillRectangle(d->brush, r.x(), r.y(),
-				   r.width() - subtract, r.height() - subtract);
+	d->graphics->FillRectangle(d->brush, r.x()+subtract, r.y()+subtract,
+				   r.width()-subtract, r.height()-subtract);
     }
-    if (d->usePen)
-	d->graphics->DrawRectangle(d->pen, r.x(), r.y(), r.width()-1, r.height()-1);
+    if (d->usePen) {
+ 	d->graphics->DrawRectangle(d->pen, r.x(), r.y(),
+				   r.width()-subtract, r.height()-subtract);
+    }
 }
 
 void QGdiplusPaintEngine::drawPoint(const QPoint &p)
@@ -1664,6 +1676,7 @@ void QGdiplusPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 
 void QGdiplusPaintEngine::drawEllipse(const QRect &r)
 {
+    int subtract = d->usePen && !d->antiAliasEnabled ? 1 : 0;
     if (d->brush)
 	d->graphics->FillEllipse(d->brush, r.x(), r.y(), r.width(), r.height());
     if (d->usePen)
@@ -1812,7 +1825,7 @@ QPainter::RenderHints QGdiplusPaintEngine::supportedRenderHints() const
 QPainter::RenderHints QGdiplusPaintEngine::renderHints() const
 {
     QPainter::RenderHints hints;
-    if (d->graphics->GetSmoothingMode() == SmoothingModeHighQuality)
+    if (d->antiAliasEnabled)
 	hints |= QPainter::LineAntialiasing;
     return hints;
 }
@@ -1820,8 +1833,9 @@ QPainter::RenderHints QGdiplusPaintEngine::renderHints() const
 void QGdiplusPaintEngine::setRenderHint(QPainter::RenderHint hint, bool enable)
 {
     if (hint & QPainter::LineAntialiasing) {
-	qDebug() << "setting rendering hing..." << hint << "to" << enable;
 	d->graphics->SetSmoothingMode(enable ? SmoothingModeHighQuality : SmoothingModeHighSpeed);
+// 	d->graphics->SetPixelOffsetMode(enable ? PixelOffsetModeHalf : PixelOffsetModeNone );
+	d->antiAliasEnabled = enable;
     }
 }
 

@@ -110,7 +110,8 @@ public:
 	cachedSolidBrush(0),
 	usesTempDC(false),
 	usePen(false),
-	temporaryBrush(false)
+	temporaryBrush(false),
+	antiAliasEnabled(false)
     {
     }
 
@@ -127,6 +128,7 @@ public:
     uint usesTempDC : 1;
     uint usePen : 1;
     uint temporaryBrush : 1;
+    uint antiAliasEnabled : 1;
 };
 #endif // QT_GDIPLUS_SUPPORT
 
