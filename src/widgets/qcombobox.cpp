@@ -426,7 +426,7 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     } else {
 	d->ed = 0;
     }
-    setBackgroundMode( NoBackground );
+    setBackgroundMode( PaletteButton );
     setPalettePropagation( AllChildren );
     setFontPropagation( AllChildren );
 }
