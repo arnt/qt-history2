@@ -34,7 +34,7 @@ static void (*qt_sa_old_sigchld_handler)(int) = 0;
 static void qt_sa_sigchld_handler(int signum)
 {
     ::write(qt_qprocess_deadChild_pipe[1], "", 1);
-    if (qt_sa_old_sigchld_handler)
+    if (qt_sa_old_sigchld_handler && qt_sa_old_sigchld_handler != SIG_IGN)
         qt_sa_old_sigchld_handler(signum);
 }
 
@@ -62,8 +62,9 @@ public:
             action.sa_handler = qt_sa_sigchld_handler;
             action.sa_flags = SA_NOCLDSTOP;
             ::sigaction(SIGCHLD, &action, &oldAction);
-            if (oldAction.sa_handler != qt_sa_sigchld_handler)
+            if (oldAction.sa_handler != qt_sa_sigchld_handler) {
                 old_sigchld_handler = qt_sa_old_sigchld_handler = oldAction.sa_handler;
+	    }
 
             if (QAbstractEventDispatcher::instance(thread())) {
                 shutdownNotifier = new QSocketNotifier(qt_qprocess_deadChild_pipe[0],
