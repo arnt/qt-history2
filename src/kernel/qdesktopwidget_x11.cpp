@@ -251,6 +251,8 @@ const QRect& QDesktopWidget::availableGeometry( int screen ) const
 	} else {
 	    d->workareas[screen] = screenGeometry(screen);
 	}
+	if ( data )
+	    XFree( data );
     } else {
 	d->workareas[screen] = screenGeometry(screen);
     }
