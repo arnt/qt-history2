@@ -1225,7 +1225,7 @@ QCoreVariant QMetaProperty::read(const QObject *obj) const
     const_cast<QObject*>(obj)->qt_metacall(QMetaObject::ReadProperty,
                      idx[QMetaObject::ReadProperty] + mobj[QMetaObject::ReadProperty]->propertyOffset(),
                      argv);
-    if (argv[0] != value.data() && t != 0xffffffff)
+    if (t != 0xffffffff && argv[0] != value.data())
         return QCoreVariant(t, argv[0]);
     return value;
 }
