@@ -1280,10 +1280,9 @@ ProjectBuilderMakefileGenerator::fixListForOutput(const QString &where)
     QString ret;
     const QStringList &l = project->variables()[where];
     for(int i = 0; i < l.count(); i++) {
-        fixForOutput(l[i]);
         if(!ret.isEmpty())
             ret += " ";
-        ret += l[i];
+        ret += fixForOutput(l[i]);
     }
     return ret;
 }
