@@ -26,11 +26,8 @@
 #include "qpalette.h"
 #include "qpen.h"
 #include "qpixmap.h"
-#include "qpoint.h"
 #include "qpointarray.h"
-#include "qrect.h"
 #include "qregion.h"
-#include "qsize.h"
 #include "qsizepolicy.h"
 
 extern QDataStream &qt_stream_out_qcolorgroup(QDataStream &s, const QColorGroup &g);
@@ -80,18 +77,6 @@ static void construct(QVariant::Private *x, const void *v)
         case QVariant::Brush:
             x->data.shared = new QCoreVariant::PrivateShared(
                      new QBrush(*static_cast<const QBrush *>(v)));
-            break;
-        case QVariant::Point:
-            x->data.shared = new QCoreVariant::PrivateShared(
-                     new QPoint(*static_cast<const QPoint *>(v)));
-            break;
-        case QVariant::Rect:
-            x->data.shared = new QCoreVariant::PrivateShared(
-                     new QRect(*static_cast<const QRect *>(v)));
-            break;
-        case QVariant::Size:
-            x->data.shared = new QCoreVariant::PrivateShared(
-                     new QSize(*static_cast<const QSize *>(v)));
             break;
         case QVariant::Color:
             x->data.shared = new QCoreVariant::PrivateShared(
@@ -163,15 +148,6 @@ static void construct(QVariant::Private *x, const void *v)
             // ## Force a detach
             // ((QBrush*)value.ptr)->setColor(((QBrush*)value.ptr)->color());
             break;
-        case QVariant::Point:
-            x->data.shared = new QCoreVariant::PrivateShared(new QPoint);
-            break;
-        case QVariant::Rect:
-            x->data.shared = new QCoreVariant::PrivateShared(new QRect);
-            break;
-        case QVariant::Size:
-            x->data.shared = new QCoreVariant::PrivateShared(new QSize);
-            break;
         case QVariant::Color:
             x->data.shared = new QCoreVariant::PrivateShared(new QColor);
             break;
@@ -242,15 +218,6 @@ static void clear(QVariant::Private *p)
     case QVariant::Brush:
         delete static_cast<QBrush *>(p->data.shared->value.ptr);
         break;
-    case QVariant::Point:
-        delete static_cast<QPoint *>(p->data.shared->value.ptr);
-        break;
-    case QVariant::Rect:
-        delete static_cast<QRect *>(p->data.shared->value.ptr);
-        break;
-    case QVariant::Size:
-        delete static_cast<QSize *>(p->data.shared->value.ptr);
-        break;
     case QVariant::Color:
         delete static_cast<QColor *>(p->data.shared->value.ptr);
         break;
@@ -305,12 +272,6 @@ static bool isNull(const QVariant::Private *d)
         return static_cast<QPixmap *>(d->data.shared->value.ptr)->isNull();
     case QVariant::Image:
         return static_cast<QImage *>(d->data.shared->value.ptr)->isNull();
-    case QVariant::Point:
-        return static_cast<QPoint *>(d->data.shared->value.ptr)->isNull();
-    case QVariant::Rect:
-        return static_cast<QRect *>(d->data.shared->value.ptr)->isNull();
-    case QVariant::Size:
-        return static_cast<QSize *>(d->data.shared->value.ptr)->isNull();
 #ifndef QT_NO_ICON
     case QVariant::Icon:
         return static_cast<QIcon *>(d->data.shared->value.ptr)->isNull();
@@ -371,15 +332,6 @@ static void load(QVariant::Private *d, QDataStream &s)
 #endif
     case QVariant::Brush:
         s >> *static_cast<QBrush *>(d->data.shared->value.ptr);
-        break;
-    case QVariant::Rect:
-        s >> *static_cast<QRect *>(d->data.shared->value.ptr);
-        break;
-    case QVariant::Point:
-        s >> *static_cast<QPoint *>(d->data.shared->value.ptr);
-        break;
-    case QVariant::Size:
-        s >> *static_cast<QSize *>(d->data.shared->value.ptr);
         break;
     case QVariant::Color:
         s >> *static_cast<QColor *>(d->data.shared->value.ptr);
@@ -457,15 +409,6 @@ static void save(const QVariant::Private *d, QDataStream &s)
     case QVariant::Brush:
         s << *static_cast<QBrush *>(d->data.shared->value.ptr);
         break;
-    case QVariant::Point:
-        s << *static_cast<QPoint *>(d->data.shared->value.ptr);
-        break;
-    case QVariant::Rect:
-        s << *static_cast<QRect *>(d->data.shared->value.ptr);
-        break;
-    case QVariant::Size:
-        s << *static_cast<QSize *>(d->data.shared->value.ptr);
-        break;
     case QVariant::Color:
         s << *static_cast<QColor *>(d->data.shared->value.ptr);
         break;
@@ -537,15 +480,6 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
     case QVariant::Brush:
         return *static_cast<QBrush *>(a->data.shared->value.ptr)
             == *static_cast<QBrush *>(b->data.shared->value.ptr);
-    case QVariant::Point:
-        return *static_cast<QPoint *>(a->data.shared->value.ptr)
-            == *static_cast<QPoint *>(b->data.shared->value.ptr);
-    case QVariant::Rect:
-        return *static_cast<QRect *>(a->data.shared->value.ptr)
-            == *static_cast<QRect *>(b->data.shared->value.ptr);
-    case QVariant::Size:
-        return *static_cast<QSize *>(a->data.shared->value.ptr)
-            == *static_cast<QSize *>(b->data.shared->value.ptr);
     case QVariant::Color:
         return *static_cast<QColor *>(a->data.shared->value.ptr)
             == *static_cast<QColor *>(b->data.shared->value.ptr);
@@ -781,24 +715,6 @@ const QVariant::Handler qt_gui_variant_handler = {
 */
 
 /*!
-  \fn QVariant::QVariant(const QPoint &val)
-
-    Constructs a new variant with a point value of \a val.
-*/
-
-/*!
-  \fn QVariant::QVariant(const QRect &val)
-
-    Constructs a new variant with a rect value of \a val.
-*/
-
-/*!
-  \fn QVariant::QVariant(const QSize &val)
-
-    Constructs a new variant with a size value of \a val.
-*/
-
-/*!
   \fn QVariant::QVariant(const QSizePolicy &val)
 
     Constructs a new variant with a size policy value of \a val.
@@ -995,10 +911,6 @@ void QVariant::create(int type, const void *copy)
 }
 
 
-QVariant::QVariant(const QPoint &pt) { create(Point, &pt); }
-QVariant::QVariant(const QRect &r) { create(Rect, &r); }
-QVariant::QVariant(const QSize &s) { create(Size, &s); }
-
 QVariant::QVariant(const QFont &val) { create(Font, &val); }
 QVariant::QVariant(const QPixmap &val) { create(Pixmap, &val); }
 
@@ -1126,27 +1038,6 @@ QVariant::QVariant(const QSizePolicy &val) { create(SizePolicy, &val); }
     SizePolicy; otherwise returns a minimally initialized QSizePolicy.
 */
 
-/*!
-    \fn QPoint QVariant::toPoint() const
-
-    Returns the variant as a QPoint if the variant has type()
-    Point; otherwise returns a null QPoint.
-*/
-
-/*!
-    \fn QRect QVariant::toRect() const
-
-    Returns the variant as a QRect if the variant has type()
-    Rect; otherwise returns an invalid QRect.
-*/
-
-/*!
-    \fn QSize QVariant::toSize() const
-
-    Returns the variant as a QSize if the variant has type()
-    Size; otherwise returns an invalid QSize.
-*/
-
 #ifndef QT_NO_ACCEL
 
 /*!
@@ -1161,31 +1052,6 @@ QVariant::QVariant(const QSizePolicy &val) { create(SizePolicy, &val); }
 */
 
 #endif // QT_NO_ACCEL
-
-QPoint QVariant::toPoint() const
-{
-    if (d.type != Point)
-        return QPoint();
-
-    return *static_cast<QPoint *>(d.data.shared->value.ptr);
-}
-
-QRect QVariant::toRect() const
-{
-    if (d.type != Rect)
-        return QRect();
-
-    return *static_cast<QRect *>(d.data.shared->value.ptr);
-}
-
-QSize QVariant::toSize() const
-{
-    if (d.type != Size)
-        return QSize();
-
-    return *static_cast<QSize *>(d.data.shared->value.ptr);
-}
-
 
 const QImage QVariant::toImage() const
 {
@@ -1432,12 +1298,6 @@ template<> QPen QVariant_to_helper<QPen>(const QCoreVariant &v, const QPen*)
 { return static_cast<const QVariant &>(v).toPen(); }
 template<> QSizePolicy QVariant_to_helper<QSizePolicy>(const QCoreVariant &v, const QSizePolicy*)
 { return static_cast<const QVariant &>(v).toSizePolicy(); }
-template<> QPoint QVariant_to_helper<QPoint>(const QCoreVariant &v, const QPoint*)
-{ return static_cast<const QVariant &>(v).toPoint(); }
-template<> QRect QVariant_to_helper<QRect>(const QCoreVariant &v, const QRect*)
-{ return static_cast<const QVariant &>(v).toRect(); }
-template<> QSize QVariant_to_helper<QSize>(const QCoreVariant &v, const QSize*)
-{ return static_cast<const QVariant &>(v).toSize(); }
 
 #else
 
@@ -1473,13 +1333,6 @@ template<> QPen QVariant_to<QPen>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toPen(); }
 template<> QSizePolicy QVariant_to<QSizePolicy>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toSizePolicy(); }
-template<> QPoint QVariant_to<QPoint>(const QCoreVariant &v)
-{ return static_cast<const QVariant &>(v).toPoint(); }
-template<> QRect QVariant_to<QRect>(const QCoreVariant &v)
-{ return static_cast<const QVariant &>(v).toRect(); }
-template<> QSize QVariant_to<QSize>(const QCoreVariant &v)
-{ return static_cast<const QVariant &>(v).toSize(); }
-
 #endif
 
 
@@ -1574,24 +1427,6 @@ template<> QSize QVariant_to<QSize>(const QCoreVariant &v)
     \fn QSizePolicy& QVariant::asSizePolicy()
 
     Use toSizePolicy() instead.
-*/
-
-/*!
-    \fn QPoint& QVariant::asPoint()
-
-    Use toPoint() instead.
-*/
-
-/*!
-    \fn QRect& QVariant::asRect()
-
-    Use toRect() instead.
-*/
-
-/*!
-    \fn QSize &QVariant::asSize()
-
-    Use toSize() instead.
 */
 
 /*!

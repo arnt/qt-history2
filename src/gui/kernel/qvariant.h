@@ -38,9 +38,6 @@ class QKeySequence;
 class QPen;
 class QVariant;
 class QApplicationPrivate;
-class QPoint;
-class QRect;
-class QSize;
 class QImage;
 class QPixmap;
 
@@ -110,10 +107,6 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     QVariant(const QMap<QString, QVariant> &map);
 #endif
 
-    QVariant(const QSize &size);
-    QVariant(const QRect &rect);
-    QVariant(const QPoint &pt);
-
     QFont toFont() const;
     QPixmap toPixmap() const;
     const QImage toImage() const;
@@ -135,11 +128,6 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
 #endif
     QPen toPen() const;
     QSizePolicy toSizePolicy() const;
-
-    QPoint toPoint() const;
-    QRect toRect() const;
-    QSize toSize() const;
-
 
 #ifdef QT_COMPAT
     QIcon toIconSet() const;
@@ -166,9 +154,6 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     inline QT_COMPAT QPen& asPen() { return *static_cast<QPen *>(castOrDetach(Pen)); }
     inline QT_COMPAT QSizePolicy& asSizePolicy()
         { return *static_cast<QSizePolicy *>(castOrDetach(SizePolicy)); }
-    inline QT_COMPAT QPoint& asPoint() { return *static_cast<QPoint *>(castOrDetach(Point)); }
-    inline QT_COMPAT QRect& asRect() { return *static_cast<QRect *>(castOrDetach(Rect)); }
-    inline QT_COMPAT QSize &asSize() { return *static_cast<QSize *>(castOrDetach(Size)); }
     inline QT_COMPAT QPixmap& asPixmap() { return *static_cast<QPixmap *>(castOrDetach(Pixmap)); }
 #endif //QT_COMPAT
 
@@ -237,9 +222,6 @@ template<> QKeySequence QVariant_to_helper<QKeySequence>(const QCoreVariant &v, 
 #endif
 template<> QPen QVariant_to_helper<QPen>(const QCoreVariant &v, const QPen*);
 template<> QSizePolicy QVariant_to_helper<QSizePolicy>(const QCoreVariant &v, const QSizePolicy*);
-template<> QPoint QVariant_to_helper<QPoint>(const QCoreVariant &v, const QPoint*);
-template<> QRect QVariant_to_helper<QRect>(const QCoreVariant &v, const QRect*);
-template<> QSize QVariant_to_helper<QSize>(const QCoreVariant &v, const QSize*);
 
 #else
 
@@ -261,9 +243,6 @@ template<> QKeySequence QVariant_to<QKeySequence>(const QCoreVariant &v);
 #endif
 template<> QPen QVariant_to<QPen>(const QCoreVariant &v);
 template<> QSizePolicy QVariant_to<QSizePolicy>(const QCoreVariant &v);
-template<> QPoint QVariant_to<QPoint>(const QCoreVariant &v);
-template<> QRect QVariant_to<QRect>(const QCoreVariant &v);
-template<> QSize QVariant_to<QSize>(const QCoreVariant &v);
 
 #endif
 

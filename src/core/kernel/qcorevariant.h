@@ -24,10 +24,12 @@ class QBitArray;
 class QDataStream;
 class QDate;
 class QDateTime;
-class QCoreVariant;
 class QString;
 class QStringList;
 class QTime;
+class QPoint;
+class QSize;
+class QRect;
 
 template <class Key, class Type> class QMap;
 
@@ -111,6 +113,10 @@ class Q_CORE_EXPORT QCoreVariant
     QCoreVariant(const QMap<QString,QCoreVariant> &map);
 #endif
 
+    QCoreVariant(const QSize &size);
+    QCoreVariant(const QRect &rect);
+    QCoreVariant(const QPoint &pt);
+
     QCoreVariant& operator=(const QCoreVariant &other);
 
     bool operator==(const QCoreVariant &other) const;
@@ -151,6 +157,10 @@ class Q_CORE_EXPORT QCoreVariant
     QMap<QString,QCoreVariant> toMap() const;
 #endif
 
+    QPoint toPoint() const;
+    QRect toRect() const;
+    QSize toSize() const;
+
 #ifdef QT_COMPAT
     inline QT_COMPAT int &asInt();
     inline QT_COMPAT uint &asUInt();
@@ -169,6 +179,9 @@ class Q_CORE_EXPORT QCoreVariant
     inline QT_COMPAT QList<QCoreVariant> &asList();
     inline QT_COMPAT QMap<QString,QCoreVariant> &asMap();
 #endif
+    inline QT_COMPAT QPoint &asPoint();
+    inline QT_COMPAT QRect &asRect();
+    inline QT_COMPAT QSize &asSize();
 #endif //QT_COMPAT
 
 #ifndef QT_NO_DATASTREAM
@@ -306,6 +319,12 @@ inline QList<QCoreVariant>& QCoreVariant::asList()
 inline QMap<QString, QCoreVariant>& QCoreVariant::asMap()
 { return *static_cast<QMap<QString, QCoreVariant> *>(castOrDetach(Map)); }
 #endif
+inline QPoint &QCoreVariant::asPoint()
+{ return *static_cast<QPoint *>(castOrDetach(Point)); }
+inline QRect &QCoreVariant::asRect()
+{ return *static_cast<QRect *>(castOrDetach(Rect)); }
+inline QSize &QCoreVariant::asSize()
+{ return *static_cast<QSize *>(castOrDetach(Size)); }
 #endif //QT_COMPAT
 
 #ifndef QT_NO_DATASTREAM
@@ -348,6 +367,9 @@ template<> QList<QCoreVariant>
 QVariant_to_helper<QList<QCoreVariant> >(const QCoreVariant &v, const QList<QCoreVariant>*);
 template<> QMap<QString,QCoreVariant>
 QVariant_to_helper<QMap<QString,QCoreVariant> >(const QCoreVariant &v, const QMap<QString,QCoreVariant>*);
+template<> QPoint QVariant_to_helper<QPoint>(const QCoreVariant &v, const QPoint*);
+template<> QRect QVariant_to_helper<QRect>(const QCoreVariant &v, const QRect*);
+template<> QSize QVariant_to_helper<QSize>(const QCoreVariant &v, const QSize*);
 #endif
 
 #else
@@ -373,7 +395,9 @@ template<> QDateTime QVariant_to<QDateTime>(const QCoreVariant &v);
 template<> QList<QCoreVariant> QVariant_to<QList<QCoreVariant> >(const QCoreVariant &v);
 template<> QMap<QString,QCoreVariant> QVariant_to<QMap<QString,QCoreVariant> >(const QCoreVariant &v);
 #endif
-
+template<> QPoint QVariant_to<QPoint>(const QCoreVariant &v);
+template<> QRect QVariant_to<QRect>(const QCoreVariant &v);
+template<> QSize QVariant_to<QSize>(const QCoreVariant &v);
 #endif
 
 Q_DECLARE_SHARED(QCoreVariant);

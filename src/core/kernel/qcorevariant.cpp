@@ -22,6 +22,9 @@
 #include "qlist.h"
 #include "qstring.h"
 #include "qstringlist.h"
+#include "qpoint.h"
+#include "qrect.h"
+#include "qsize.h"
 
 #include <float.h>
 
@@ -48,6 +51,12 @@ template<> QMap<QString,QCoreVariant>
 QVariant_to_helper<QMap<QString,QCoreVariant> >(const QCoreVariant &v, const QMap<QString,QCoreVariant>*)
 { return v.toMap(); }
 #endif
+template<> QPoint QVariant_to_helper<QPoint>(const QCoreVariant &v, const QPoint*)
+{ return static_cast<const QVariant &>(v).toPoint(); }
+template<> QRect QVariant_to_helper<QRect>(const QCoreVariant &v, const QRect*)
+{ return static_cast<const QVariant &>(v).toRect(); }
+template<> QSize QVariant_to_helper<QSize>(const QCoreVariant &v, const QSize*)
+{ return static_cast<const QVariant &>(v).toSize(); }
 
 #else
 
@@ -64,6 +73,12 @@ template<> QList<QCoreVariant> QVariant_to<QList<QCoreVariant> >(const QCoreVari
 template<> QMap<QString,QCoreVariant> QVariant_to<QMap<QString,QCoreVariant> >(const QCoreVariant &v)
 { return v.toMap(); }
 #endif
+template<> QPoint QVariant_to<QPoint>(const QCoreVariant &v)
+{ return v.toPoint(); }
+template<> QRect QVariant_to<QRect>(const QCoreVariant &v)
+{ return v.toRect(); }
+template<> QSize QVariant_to<QSize>(const QCoreVariant &v)
+{ return v.toSize(); }
 
 #endif
 
@@ -130,6 +145,15 @@ static void construct(QCoreVariant::Private *x, const void *copy)
             break;
         case QCoreVariant::BitArray:
             QCONSTRUCT(QBitArray);
+            break;
+        case QCoreVariant::Size:
+            QCONSTRUCT(QSize);
+            break;
+        case QCoreVariant::Rect:
+            QCONSTRUCT(QRect);
+            break;
+        case QCoreVariant::Point:
+            QCONSTRUCT(QPoint);
             break;
         case QCoreVariant::Int:
             x->data.i = *static_cast<const int *>(copy);
@@ -201,6 +225,15 @@ static void construct(QCoreVariant::Private *x, const void *copy)
             break;
         case QCoreVariant::BitArray:
             QCONSTRUCT_EMPTY(QBitArray);
+            break;
+        case QCoreVariant::Size:
+            QCONSTRUCT_EMPTY(QSize);
+            break;
+        case QCoreVariant::Point:
+            QCONSTRUCT_EMPTY(QPoint);
+            break;
+        case QCoreVariant::Rect:
+            QCONSTRUCT_EMPTY(QRect);
             break;
         case QCoreVariant::Int:
             x->data.i = 0;
@@ -278,6 +311,12 @@ static void clear(QCoreVariant::Private *d)
     case QCoreVariant::BitArray:
         QCLEAR(QBitArray);
         break;
+    case QCoreVariant::Point:
+        QCLEAR(QPoint);
+    case QCoreVariant::Size:
+        QCLEAR(QSize);
+    case QCoreVariant::Rect:
+        QCLEAR(QRect);
     case QCoreVariant::LongLong:
     case QCoreVariant::ULongLong:
     case QCoreVariant::Double:
@@ -328,6 +367,12 @@ static bool isNull(const QCoreVariant::Private *d)
         QISNULL(QByteArray);
     case QCoreVariant::BitArray:
         QISNULL(QBitArray);
+    case QCoreVariant::Size:
+        QISNULL(QSize);
+    case QCoreVariant::Rect:
+        QISNULL(QRect);
+    case QCoreVariant::Point:
+        QISNULL(QPoint);
     case QCoreVariant::StringList:
 #ifndef QT_NO_TEMPLATE_VARIANT
     case QCoreVariant::Map:
@@ -380,6 +425,15 @@ static void load(QCoreVariant::Private *d, QDataStream &s)
         break;
     case QCoreVariant::StringList:
         QLOAD(QStringList);
+        break;
+    case QCoreVariant::Size:
+        QLOAD(QSize);
+        break;
+    case QCoreVariant::Rect:
+        QLOAD(QSize);
+        break;
+    case QCoreVariant::Point:
+        QLOAD(QPoint);
         break;
     case QCoreVariant::Int:
         s >> d->data.i;
@@ -447,6 +501,15 @@ static void save(const QCoreVariant::Private *d, QDataStream &s)
         break;
     case QCoreVariant::StringList:
         QSAVE(QStringList);
+        break;
+    case QCoreVariant::Size:
+        QSAVE(QSize);
+        break;
+    case QCoreVariant::Point:
+        QSAVE(QPoint);
+        break;
+    case QCoreVariant::Rect:
+        QSAVE(QRect);
         break;
     case QCoreVariant::Int:
         s << d->data.i;
@@ -526,6 +589,12 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
         QCOMPARE(QChar);
     case QCoreVariant::StringList:
         QCOMPARE(QStringList);
+    case QCoreVariant::Size:
+        QCOMPARE(QSize);
+    case QCoreVariant::Rect:
+        QCOMPARE(QRect);
+    case QCoreVariant::Point:
+        QCOMPARE(QPoint);
     case QCoreVariant::Int:
         return a->data.i == b->data.i;
     case QCoreVariant::UInt:
@@ -1301,6 +1370,23 @@ QCoreVariant::QCoreVariant(const char *val)
     Constructs a new variant with a bitarray value, \a val.
 */
 
+/*!
+  \fn QCoreVariant::QCoreVariant(const QPoint &val)
+
+  Constructs a new variant with a point value of \a val.
+ */
+
+/*!
+  \fn QCoreVariant::QCoreVariant(const QRect &val)
+
+  Constructs a new variant with a rect value of \a val.
+ */
+
+/*!
+  \fn QCoreVariant::QCoreVariant(const QSize &val)
+
+  Constructs a new variant with a size value of \a val.
+ */
 
 /*!
   \fn QCoreVariant::QCoreVariant(int val)
@@ -1391,6 +1477,9 @@ QCoreVariant::QCoreVariant(const QList<QCoreVariant> &list)
 QCoreVariant::QCoreVariant(const QMap<QString,QCoreVariant> &map)
 { create(Map, &map); }
 #endif
+QCoreVariant::QCoreVariant(const QPoint &pt) { create(Point, &pt); }
+QCoreVariant::QCoreVariant(const QRect &r) { create(Rect, &r); }
+QCoreVariant::QCoreVariant(const QSize &s) { create(Size, &s); }
 
 /*!
     Returns the storage type of the value stored in the variant.
@@ -1688,6 +1777,9 @@ Q_VARIANT_TO(Time)
 Q_VARIANT_TO(DateTime)
 Q_VARIANT_TO(ByteArray)
 Q_VARIANT_TO(Char)
+Q_VARIANT_TO(Rect)
+Q_VARIANT_TO(Size)
+Q_VARIANT_TO(Point)
 
 /*!
   \fn QString QCoreVariant::toString() const
@@ -1792,6 +1884,27 @@ QCoreVariantMap QCoreVariant::toMap() const
     Returns the variant as a QByteArray if the variant has type()
     ByteArray; otherwise returns an empty bytearray.
 */
+
+/*!
+  \fn QPoint QCoreVariant::toPoint() const
+
+  Returns the variant as a QPoint if the variant has type()
+  Point; otherwise returns a null QPoint.
+ */
+
+/*!
+  \fn QRect QCoreVariant::toRect() const
+
+  Returns the variant as a QRect if the variant has type()
+  Rect; otherwise returns an invalid QRect.
+ */
+
+/*!
+  \fn QSize QCoreVariant::toSize() const
+
+  Returns the variant as a QSize if the variant has type()
+  Size; otherwise returns an invalid QSize.
+ */
 
 /*!
     Returns the variant as a QBitArray if the variant has type()
@@ -2093,6 +2206,12 @@ const void *QCoreVariant::constData() const
         QDATA(QChar);
     case StringList:
         QDATA(QStringList);
+    case Rect:
+        QDATA(QRect);
+    case Point:
+        QDATA(QPoint);
+    case Size:
+        QDATA(QSize);
 #ifndef QT_NO_TEMPLATE_VARIANT
     case Map:
         QDATA(QCoreVariantMap);
@@ -2328,5 +2447,22 @@ QDebug operator<<(QDebug dbg, const QCoreVariant &v)
     Use toByteArray() instead.
 */
 
+/*!
+    \fn QPoint& QVariant::asPoint()
+
+    Use toPoint() instead.
+ */
+
+/*!
+    \fn QRect& QVariant::asRect()
+
+    Use toRect() instead.
+ */
+
+/*!
+    \fn QSize &QVariant::asSize()
+
+    Use toSize() instead.
+ */
 
 #endif //QT_NO_VARIANT
