@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#146 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#147 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -1180,8 +1180,8 @@ HRGN bitmapToRegion(QBitmap bitmap)
     int n=0;
 
     // deal with 0<->1 problem
-    int zero=(qGray(image.color(0)) < qGray(image.color(1))
-	    ? 0x00 : 0xff);
+    int zero=0x00; //(qGray(image.color(0)) < qGray(image.color(1))
+	    //? 0x00 : 0xff);
 
     for (int y=0; y<image.height(); y++) {
 	uchar *line = image.scanLine(y);
