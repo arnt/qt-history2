@@ -96,6 +96,7 @@ enum ConfigurationTypes {
     typeGeneric        = 10
 };
 enum debugOption {
+    debugUnknown = -1,
     debugDisabled,
     debugOldStyleInfo,
     debugLineInfoOnly,
@@ -299,6 +300,7 @@ enum pchOption {
     pchUseUsingSpecific
 };
 enum preprocessOption {
+    preprocessUnknown = -1,
     preprocessNo,
     preprocessYes,
     preprocessNoLineNumbers
@@ -314,6 +316,7 @@ enum RemoteDebuggerType {
     DbgRemoteTCPIP
 };
 enum runtimeLibraryOption {
+    rtUnknown = -1,
     rtMultiThreaded,
     rtMultiThreadedDebug,
     rtMultiThreadedDLL,
@@ -363,6 +366,7 @@ enum useOfMfc {
     useMfcDynamic
 };
 enum warningLevelOption {
+    warningLevelUnknown = -1,
     warningLevel_0,
     warningLevel_1,
     warningLevel_2,
@@ -595,9 +599,9 @@ public:
 
     // Variables
     QStringList		    AdditionalDependencies;
-    QString		    CommandLine;
+    QStringList		    CommandLine;
     QString		    Description;
-    QString		    Outputs;
+    QStringList		    Outputs;
     QString		    ToolName;
     QString		    ToolPath;
 };
@@ -705,6 +709,7 @@ public:
     ~VCFilter(){}
     void generateMOC( QTextStream &strm, QString str ) const;
     void generateUIC( QTextStream &strm, const QString& str ) const;
+    void addPCHstage( QTextStream &strm, const QString& str ) const;
 
     // Variables
     QString		Name;

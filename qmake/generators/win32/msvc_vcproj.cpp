@@ -203,6 +203,16 @@ QUuid VcprojGenerator::increaseUUID(const QUuid &id)
     return result;
 }
 
+QString 
+VcprojGenerator::realPrecompH( const QString &sourcePath )
+{
+    QFileInfo srcInfo(sourcePath);
+    return fileFixify(precomph, 
+		      (srcInfo.isDir()?srcInfo.absFilePath():srcInfo.dirPath(TRUE)),
+		      QDir::currentDirPath(),
+		      TRUE);
+}
+
 void VcprojGenerator::writeSubDirs(QTextStream &t)
 {
     if(project->first("TEMPLATE") == "subdirs") {
@@ -380,6 +390,19 @@ void VcprojGenerator::init()
 	else
 	    projectTarget = SharedLib;
     }
+
+    // Figure out the PCH settings
+    if ( project->variables()["PRECOMPCPP"].size() > 1 )
+	warn_msg(WarnLogic, "vcproj generator doesn't support multiple files in PRECOMPCPP, only first one used" );
+    precomph     = Option::fixPathToTargetOS(project->first("PRECOMPH"));
+    precompcpp   = Option::fixPathToTargetOS(project->first("PRECOMPCPP"));
+    pch          = QString(precomph).replace(".h", ".pch");
+    usePCH       = !precomph.isEmpty();
+    deletePCHcpp = precompcpp.isEmpty();
+    // Change name for generated PCH cpp file
+    if(usePCH && deletePCHcpp)
+	precompcpp = project->first("TARGET") + "_pch.cpp";
+
     initProject(); // Fills the whole project with proper data
 }
 
@@ -509,7 +532,12 @@ void VcprojGenerator::initCompilerTool()
     RConf.compiler.AssemblerListingLocation = placement ;
     RConf.compiler.ProgramDataBaseFileName = ".\\" ;
     RConf.compiler.ObjectFile = placement ;
-    //RConf.compiler.PrecompiledHeaderFile = placement + project->first("QMAKE_ORIG_TARGET") + ".pch";
+    // PCH
+    if ( usePCH ) {
+	RConf.compiler.PrecompiledHeaderFile = pch;
+	RConf.compiler.PrecompiledHeaderThrough = precomph;
+	RConf.compiler.UsePrecompiledHeader = pchUseUsingSpecific;
+    }
 
     RConf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS"]);
     if(project->isActiveConfig("debug")){
@@ -782,6 +810,8 @@ void VcprojGenerator::initSourceFiles()
     vcProject.SourceFiles.Name = "Source Files";
     vcProject.SourceFiles.Filter = "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat";
     vcProject.SourceFiles.Files += project->variables()["SOURCES"];
+    if (usePCH && deletePCHcpp) // Generated PCH cpp file
+	vcProject.SourceFiles.Files += precompcpp;
     nonflatDir_BubbleSort( vcProject.SourceFiles.Files,
 			   vcProject.SourceFiles.flat_files );
     vcProject.SourceFiles.Project = this;

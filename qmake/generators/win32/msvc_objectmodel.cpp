@@ -326,6 +326,7 @@ VCCLCompilerTool::VCCLCompilerTool()
 	Optimization( optimizeCustom ),
 	OptimizeForProcessor( procOptimizeBlended ),
 	OptimizeForWindowsApplication( unset ),
+	ProgramDataBaseFileName( "" ),
 	RuntimeLibrary( rtMultiThreaded ),
 	RuntimeTypeInfo( unset ),
 	ShowIncludes( unset ),
@@ -360,7 +361,7 @@ QTextStream &operator<<( QTextStream &strm, const VCCLCompilerTool &tool )
     if ( tool.CompileAs != compileAsDefault )		    strm << EPair( _CompileAs, tool.CompileAs );
     if ( tool.CompileAsManaged != managedDefault )	    strm << EPair( _CompileAsManaged, tool.CompileAsManaged );
     strm << TPair( _CompileOnly, tool.CompileOnly );
-    strm << EPair( _DebugInformationFormat, tool.DebugInformationFormat );
+    if ( tool.DebugInformationFormat != debugUnknown )	    strm << EPair( _DebugInformationFormat, tool.DebugInformationFormat );
     strm << TPair( _DefaultCharIsUnsigned, tool.DefaultCharIsUnsigned );
     strm << TPair( _Detect64BitPortabilityProblems, tool.Detect64BitPortabilityProblems );
     strm << TPair( _DisableLanguageExtensions, tool.DisableLanguageExtensions );
@@ -374,7 +375,7 @@ QTextStream &operator<<( QTextStream &strm, const VCCLCompilerTool &tool )
     strm << TPair( _ForceConformanceInForLoopScope, tool.ForceConformanceInForLoopScope );
     strm << XPair( _ForcedIncludeFiles, tool.ForcedIncludeFiles );
     strm << XPair( _ForcedUsingFiles, tool.ForcedUsingFiles );
-    strm << EPair( _GeneratePreprocessedFile, tool.GeneratePreprocessedFile );
+    if ( tool.GeneratePreprocessedFile != preprocessUnknown)strm << EPair( _GeneratePreprocessedFile, tool.GeneratePreprocessedFile );
     strm << TPair( _GlobalOptimizations, tool.GlobalOptimizations ); 
     strm << TPair( _IgnoreStandardIncludePath, tool.IgnoreStandardIncludePath );
     strm << TPair( _ImproveFloatingPointConsistency, tool.ImproveFloatingPointConsistency );
@@ -390,8 +391,8 @@ QTextStream &operator<<( QTextStream &strm, const VCCLCompilerTool &tool )
     strm << SPair( _PrecompiledHeaderFile, tool.PrecompiledHeaderFile );
     strm << SPair( _PrecompiledHeaderThrough, tool.PrecompiledHeaderThrough );
     strm << XPair( _PreprocessorDefinitions, tool.PreprocessorDefinitions );
-    strm << _ProgramDataBaseFileName << tool.ProgramDataBaseFileName.latin1() << "\"";
-    strm << EPair( _RuntimeLibrary, tool.RuntimeLibrary );
+    if ( !tool.ProgramDataBaseFileName.isNull() ) strm << _ProgramDataBaseFileName << tool.ProgramDataBaseFileName.latin1() << "\"";
+    if ( tool.RuntimeLibrary != rtUnknown ) strm << EPair( _RuntimeLibrary, tool.RuntimeLibrary );
     strm << TPair( _RuntimeTypeInfo, tool.RuntimeTypeInfo );
     strm << TPair( _ShowIncludes, tool.ShowIncludes );
     strm << TPair( _SmallerTypeCheck, tool.SmallerTypeCheck );
@@ -406,7 +407,7 @@ QTextStream &operator<<( QTextStream &strm, const VCCLCompilerTool &tool )
 	 !tool.PrecompiledHeaderThrough.isEmpty() )
 	strm << EPair( _UsePrecompiledHeader, tool.UsePrecompiledHeader );
     strm << TPair( _WarnAsError, tool.WarnAsError );
-    strm << EPair( _WarningLevel, tool.WarningLevel );
+    if ( tool.WarningLevel != warningLevelUnknown ) strm << EPair( _WarningLevel, tool.WarningLevel );
     strm << TPair( _WholeProgramOptimization, tool.WholeProgramOptimization );
     strm << "/>";
 return strm;
@@ -1681,9 +1682,9 @@ QTextStream &operator<<( QTextStream &strm, const VCCustomBuildTool &tool )
     strm << _begTool3;
     strm << SPair( _ToolName, tool.ToolName );
     strm << XPair( _AdditionalDependencies4, tool.AdditionalDependencies, ";" );
-    strm << SPair( _CommandLine4, tool.CommandLine );
+    strm << XPair( _CommandLine4, tool.CommandLine, "\n" );
     strm << SPair( _Description4, tool.Description );
-    strm << SPair( _Outputs4, tool.Outputs );
+    strm << XPair( _Outputs4, tool.Outputs, ";" );
     strm << SPair( _ToolPath, tool.ToolPath );
     strm << "/>";
    return strm;
@@ -1802,37 +1803,52 @@ VCFilter::VCFilter()
 {
 }
 
-void VCFilter::generateMOC( QTextStream &strm, QString str ) const
+void VCFilter::generateMOC( QTextStream &strm, QString filename ) const
 {
-    QString mocOutput = Project->findMocDestination( str );
+    QString mocOutput = Project->findMocDestination( filename );
     QString mocApp = Project->var( "QMAKE_MOC" );
+    QString pchOption;
 
-    if( mocOutput.isEmpty() ) {
+    if( mocOutput.isEmpty() && filename.endsWith(".moc") ) {
         // In specialcases we DO moc .cpp files
 	// when the result is an .moc file
-	if ( !str.endsWith(".moc") )
-	    return;
-	mocOutput = str;
-	str = Project->findMocSource( mocOutput );
+	mocOutput = filename;
+	filename = Project->findMocSource( mocOutput );
     }
 
-    for ( int i = 0; i < Config->count(); i++ ) {
+    bool doMoc = !mocOutput.isEmpty();
+    bool doPch = Project->usePCH && Project->deletePCHcpp && (Project->precomph == filename);
+    if ( !doMoc && !doPch )
+	return;
+    if ( Project->usePCH )
+        pchOption = " -pch " + Project->precomph;
+
+    VCCustomBuildTool tool;
+    if ( doPch ) { // Setup PCH cpp stage
+	tool.Description += "Creating PCH cpp ";
+	tool.CommandLine = "@echo #include &quot;" 
+			    + Project->realPrecompH(Project->precompcpp) 
+			    + "&quot; &gt; " + Project->precompcpp;
+	tool.Outputs = Project->precompcpp;
+    }
+    if ( doMoc ) { // Setup Moc stage
+	if ( !tool.Description.isEmpty() )
+	    tool.Description += "and ";
+	tool.Description = "Moc&apos;ing ";
+	tool.CommandLine += (mocApp + pchOption + " " 
+			    + filename + " -o " + mocOutput);
+	tool.AdditionalDependencies = mocApp;
+	tool.Outputs += mocOutput;
+    }
+    tool.Description += filename + "...";
+    
+    // Output custom build for all configurations
+    for ( uint i = 0; i < Config->count(); i++ ) {
 	strm << _begFileConfiguration;
 	strm << _Name5;
 	strm << (*Config)[i].Name;
 	strm << "\">";
-	strm << _begTool5;
-	strm << _VCCustomBuildTool;
-	strm << _Description6;
-	strm << "Moc'ing " << str << "...\"";
-	strm << _CommandLine6;
-	strm << mocApp;
-	strm << " " << str << " -o " << mocOutput << "\"";
-	strm << _AdditionalDependencies6;
-	strm << mocApp << "\"";
-	strm << _Outputs6;
-	strm << mocOutput << "\"";
-	strm << "/>";
+	strm << tool;
 	strm << _endFileConfiguration;
     }
 }
@@ -1874,7 +1890,10 @@ void VCFilter::generateUIC( QTextStream &strm, const QString& str ) const
     if ( mocDir.isEmpty() )
 	mocDir = pname;
 
-    for ( int i = 0; i < Config->count(); i++ ) {
+    QString pchOption;
+    if (Project->usePCH)
+	pchOption = " -pch " + Project->precomph;
+    for ( uint i = 0; i < Config->count(); i++ ) {
 	strm << _begFileConfiguration;
 	strm << _Name5;
 	strm << (*Config)[i].Name;
@@ -1885,13 +1904,47 @@ void VCFilter::generateUIC( QTextStream &strm, const QString& str ) const
 	strm << "Uic'ing " << str << "...\"";
 	strm << _CommandLine6;
 	strm << uicApp << " " << str << " -o " << uiHeaders << fname << ".h &amp;&amp; ";				// Create .h from .ui file
-	strm << uicApp << " " << str << " -i " << fname << ".h -o " << uiSources << fname << ".cpp &amp;&amp; ";	// Create .cpp from .ui file
-	strm << mocApp << " " << uiHeaders << fname << ".h -o " << mocDir << Option::h_moc_mod << fname << Option::h_moc_ext << "\"";
+	strm << uicApp << pchOption << " " << str << " -i " << fname << ".h -o " << uiSources << fname << ".cpp &amp;&amp; ";	// Create .cpp from .ui file
+	strm << mocApp << pchOption << " " << uiHeaders << fname << ".h -o " << mocDir << Option::h_moc_mod << fname << Option::h_moc_ext << "\"";
 	strm << _AdditionalDependencies6;
 	strm << mocApp << ";" << uicApp << "\"";
 	strm << _Outputs6;
 	strm << uiHeaders << fname << ".h;" << uiSources << fname << ".cpp;" << mocDir << Option::h_moc_mod << fname << Option::h_moc_ext << "\"";
 	strm << "/>";
+	strm << _endFileConfiguration;
+    }
+}
+
+void VCFilter::addPCHstage( QTextStream &strm, const QString& str ) const
+{
+    if ( !Project->usePCH || !str.endsWith(".cpp") )
+	return;
+
+    bool createPCH = (Project->precompcpp == str);
+    QString realPCHh = Project->realPrecompH(str);
+
+    VCCLCompilerTool tool;
+    // Unset some default options
+    tool.BufferSecurityCheck = unset;
+    tool.DebugInformationFormat = debugUnknown;
+    tool.ExceptionHandling = unset;
+    tool.GeneratePreprocessedFile = preprocessUnknown;
+    tool.Optimization = optimizeDefault;
+    tool.ProgramDataBaseFileName = QString::null;
+    tool.RuntimeLibrary = rtUnknown;
+    tool.WarningLevel = warningLevelUnknown;
+    // Setup PCH options
+    tool.UsePrecompiledHeader = (createPCH ? pchCreateUsingSpecific : pchUseUsingSpecific);
+    tool.PrecompiledHeaderThrough = realPCHh;
+    tool.PrecompiledHeaderFile = Project->pch;
+
+    // Output custom build for all configurations
+    for ( uint i = 0; i < Config->count(); i++ ) {
+	strm << _begFileConfiguration;
+	strm << _Name5;
+	strm << (*Config)[i].Name;
+	strm << "\">";
+	strm << tool;
 	strm << _endFileConfiguration;
     }
 }
@@ -1945,6 +1998,8 @@ QTextStream &operator<<( QTextStream &strm, const VCFilter &tool )
 	    tool.generateMOC( strm, *it );
 	else if ( tool.CustomBuild == uic )
 	    tool.generateUIC( strm, *it );
+	else 
+	    tool.addPCHstage( strm, *it );
 	strm << _endFile;
     }
     // close remaining open filters, in non-flat mode

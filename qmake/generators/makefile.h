@@ -47,8 +47,6 @@ protected:
     void writeInstalls(QTextStream &t, const QString &installs);
     void writeImageObj(QTextStream &t, const QString &obj);
     void writeImageSrc(QTextStream &t, const QString &images);
-    // Used for adding PCH stages for NMake
-    QString precomph;
 
 protected:
 
@@ -123,6 +121,8 @@ public:
     static MakefileGenerator *create(QMakeProject *);
     virtual bool write();
     virtual bool openOutput(QFile &) const;
+    // Used for adding PCH stages for NMake
+    QString precomph;
 };
 
 inline QString MakefileGenerator::findMocSource(const QString &moc_file) const
