@@ -53,17 +53,16 @@ void GLWidget::paintEvent(QPaintEvent *)
     static int i = 0;
     QPainter p(this);
 
-    p.setBrush(QBrush(QPoint(0,0), QColor(20+60, 60+60, 190+60), QPoint(width(), height()), Qt::white));
+    p.setBrush(QBrush(QPoint(0,0), Qt::white,
+ 		      QPoint(width(), height()), Qt::black));
     p.drawRect(0, 0, width(), height());
-
     p.translate(width()/2, height()/2);
     p.rotate(++i % 360);
     p.shear(dw->xfunc(i*0.8), dw->yfunc(i*0.8));
     p.translate(-width()/2, -height()/2);
     dw->fillBackground(&p);
-    p.resetXForm();
-
     drawShadedCube(dw, &p, 2, 5, step);
+    p.resetXForm();
     drawPrimitives(dw, &p, 150, 0.3, step);
 }
 
