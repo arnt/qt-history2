@@ -309,7 +309,8 @@ static char * parsePrintersConf( QListView * printers )
 			   printerDesc[j] != ',' )
 			j++;
 		    // that's our default printer
-		    defaultPrinter = qstrdup( printerDesc.mid( i, j-i ).ascii() );
+		    defaultPrinter =
+			qstrdup( printerDesc.mid( i, j-i ).ascii() );
 		    printerName = "";
 		    printerDesc = "";
 		} else if ( printerName == QString::fromLatin1("_all") ) {
@@ -354,12 +355,15 @@ static char * parsePrintersConf( QListView * printers )
 			       printerDesc[j] != ',' )
 			    j++;
 			if ( printerName != printerDesc.mid( i, j-i ) ) {
-			    printerComment = QString::fromLatin1("Remote name: ");
+			    printerComment = 
+				QString::fromLatin1("Remote name: ");
 			    printerComment += printerDesc.mid( i, j-i );
 			}
 		    }
 		}
 	    }
+	    if ( printerComment == ':' )
+		printerComment = ""; // for cups
 	    if ( printerName.length() )
 		perhapsAddPrinter( printers, printerName, printerHost,
 				   printerComment );
@@ -499,7 +503,7 @@ static void parseQconfig( QListView * printers )
 	line = line.simplifyWhiteSpace();
 
 	if ( indented && line.contains( '=' ) ) { // line in stanza
-	
+
 	    int i = line.find( '=' );
 	    QString variable = line.left( i ).simplifyWhiteSpace();
 	    QString value=line.mid( i+1, line.length() ).simplifyWhiteSpace();
@@ -539,7 +543,7 @@ static void parseQconfig( QListView * printers )
 #if defined(_OS_VMS_)
 static void parseDollarPrinters( QListView * printers )
 {
-    const char* dollarNames[] = { "PRINTER", "PRINTER2", 
+    const char* dollarNames[] = { "PRINTER", "PRINTER2",
 				  "PRINTER3", "PRINTER4", 0 };
     int i = 0;
     while( dollarNames[i] ) {
@@ -1211,7 +1215,7 @@ void QPrintDialog::setPrinter( QPrinter * p, bool pickUpSettings )
 	// orientation
 	d->orientationCombo->setCurrentItem( (int)p->orientation() );
 	orientSelected( p->orientation() );
-	
+
 	// page size
 	d->sizeCombo->setCurrentItem( (int)p->pageSize() );
 	paperSizeSelected( p->pageSize() );
@@ -1249,7 +1253,7 @@ void QPrintDialog::setPrinter( QPrinter * p, bool pickUpSettings )
 	d->printRange->setButton( some );
 	printRangeSelected( some );
     } else {
-	d->printRange->setButton( 0 );	
+	d->printRange->setButton( 0 );
 	d->printRangeButton->setEnabled( FALSE );
 	d->firstPage->setEnabled( FALSE );
 	d->lastPage->setEnabled( FALSE );
