@@ -295,11 +295,11 @@ public:
     void setTableCellRowSpan(int tableCellRowSpan)
     { setProperty(TableCellRowSpan, tableCellRowSpan); }
     int tableCellRowSpan() const
-    { return intProperty(TableCellRowSpan); }
+    { return intProperty(TableCellRowSpan, 1); }
     void setTableCellColSpan(int tableCellColSpan)
     { setProperty(TableCellColSpan, tableCellColSpan); }
     int tableCellColSpan() const
-    { return intProperty(TableCellColSpan); }
+    { return intProperty(TableCellColSpan, 1); }
 
     void setNonBreakableLines(bool b)
     { setProperty(BlockNonBreakableLines, b); }
@@ -323,7 +323,7 @@ public:
 	, ListStyleUndefined = -1
 #endif
     };
- 
+
     void setStyle(Style style)
     { setProperty(ListStyle, int(style)); }
     Style style() const
