@@ -277,8 +277,11 @@ bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
     if ( mainwindow && formwindow )
 	mainwindow->insertFormWindow( formwindow );
 
-    if ( formwindow )
+    if ( formwindow ) {
 	formwindow->killAccels( formwindow );
+	formwindow->resize( formwindow->size().expandedTo( formwindow->minimumSize().
+							   expandedTo( formwindow->minimumSizeHint() ) ) );
+    }
 
     return TRUE;
 }
