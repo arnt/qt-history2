@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#210 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#211 $
 **
 ** Implementation of QObject class
 **
@@ -2022,7 +2022,7 @@ bool QObject::setProperty( const char *_name, const QVariant& _value )
 {
   if ( _value.isEmpty() )
     return TRUE;
-  
+
   typedef void (QObject::*Proto3)( const char* );
 
   typedef void (QObject::*ProtoString)( QString );
@@ -2070,7 +2070,7 @@ bool QObject::setProperty( const char *_name, const QVariant& _value )
     debug("Attribute %s::%s does not exist", className(), _name );
     return FALSE;
   }
-  
+
   if ( p->enumType )
   {
     if ( _value.type() != QVariant::String )
@@ -2093,13 +2093,12 @@ bool QObject::setProperty( const char *_name, const QVariant& _value )
     qDebug("Trying to set attribute %s with wrong type", _name );
     return FALSE;
   }
-  
+
 
   if ( _value.type() == QVariant::String )
   {
     if ( strcmp( _name, "name" ) == 0 )
     {
-      qDebug("Setting name property to '%s'\n", _value.stringValue().ascii() );
       Proto3 m;
       m = *((Proto3*)&p->set);
       (this->*m)( _value.stringValue() );
@@ -2802,10 +2801,7 @@ bool QObject::configure( const QDomElement& element )
   {
     QMetaProperty* p = queryMetaObject()->property( *it, TRUE );
     if ( p && !p->readonly )
-    {
-      qDebug("Trying property %s\n", (*it).latin1());
       setProperty( p, element );
-    }
   }
 
   QDomElement e = element.firstChild().toElement();
@@ -2843,14 +2839,14 @@ bool QObject::configure( const QDomElement& element )
 	receiver = this;
       if ( !receiver )
 	qDebug("Did not find receiver object %s\n", tmp.ascii());
- 
+
       if ( !sender || !receiver )
 	return FALSE;
 
       connect( sender, signal, receiver, slot );
     }
   }
-  
+
   return TRUE;
 }
 
@@ -2865,7 +2861,7 @@ bool QObject::setProperty( const QMetaProperty* p, const QDomElement& element )
   switch( type )
   {
   case QVariant::String:
-    { 
+    {
       if ( name == "name" )
 	return setProperty( name, QVariant( element.attribute( "name" ) ) );
 
@@ -2876,31 +2872,31 @@ bool QObject::setProperty( const QMetaProperty* p, const QDomElement& element )
       return FALSE;
     }
     case QVariant::Bool:
-      {    
+      {
 	if ( element.hasAttribute( name ) )
 	  return setProperty( name, QVariant( (bool)element.attribute( name ).toInt() ) );
 	return FALSE;
       }
     case QVariant::Int:
-      {    
+      {
 	if ( element.hasAttribute( name ) )
 	  return setProperty( name, QVariant( element.attribute( name ).toInt() ) );
 	return FALSE;
       }
     case QVariant::Double:
-      {    
+      {
 	if ( element.hasAttribute( name ) )
 	  return setProperty( name, QVariant( element.attribute( name ).toDouble() ) );
 	return FALSE;
       }
     case QVariant::Color:
-      {    
+      {
 	if ( element.hasAttribute( name ) )
 	  return setProperty( name, QVariant( QColor( element.attribute( name ) ) ) );
 	return FALSE;
       }
     case QVariant::Font:
-      {    
+      {
 	QDomElement n = element.namedItem( name ).toElement();
 	if ( n.isNull() )
 	  return FALSE;
@@ -2908,7 +2904,7 @@ bool QObject::setProperty( const QMetaProperty* p, const QDomElement& element )
 	return setProperty( name, n.toFont() );
       }
     case QVariant::Rect:
-      {    
+      {
 	QDomElement n = element.namedItem( name ).toElement();
 	if ( n.isNull() )
 	  return FALSE;
@@ -2916,7 +2912,7 @@ bool QObject::setProperty( const QMetaProperty* p, const QDomElement& element )
 	return setProperty( name, n.toRect() );
       }
     case QVariant::Size:
-      {    
+      {
 	QDomElement n = element.namedItem( name ).toElement();
 	if ( n.isNull() )
 	  return FALSE;
@@ -2924,7 +2920,7 @@ bool QObject::setProperty( const QMetaProperty* p, const QDomElement& element )
 	return setProperty( name, n.toSize() );
       }
     case QVariant::Point:
-      {    
+      {
 	QDomElement n = element.namedItem( name ).toElement();
 	if ( n.isNull() )
 	  return FALSE;
@@ -2932,7 +2928,7 @@ bool QObject::setProperty( const QMetaProperty* p, const QDomElement& element )
 	return setProperty( name, n.toPoint() );
       }
     case QVariant::StringList:
-      {    
+      {
 	QDomElement n = element.namedItem( name ).toElement();
 	if ( n.isNull() )
 	  return FALSE;
@@ -2946,7 +2942,7 @@ bool QObject::setProperty( const QMetaProperty* p, const QDomElement& element )
 	return setProperty( name, QVariant( lst ) );
       }
     case QVariant::IntList:
-      {    
+      {
 	QDomElement n = element.namedItem( name ).toElement();
 	if ( n.isNull() )
 	  return FALSE;
@@ -2960,7 +2956,7 @@ bool QObject::setProperty( const QMetaProperty* p, const QDomElement& element )
 	return setProperty( name, QVariant( lst ) );
       }
     case QVariant::DoubleList:
-      {    
+      {
 	QDomElement n = element.namedItem( name ).toElement();
 	if ( n.isNull() )
 	  return FALSE;
@@ -2972,7 +2968,7 @@ bool QObject::setProperty( const QMetaProperty* p, const QDomElement& element )
 	    lst.append( e.attribute( "value" ).toInt() );
 
 	return setProperty( name, QVariant( lst ) );
-      } 
+      }
     case QVariant::Pixmap:
     case QVariant::Brush:
     case QVariant::Palette:
@@ -2985,7 +2981,7 @@ bool QObject::setProperty( const QMetaProperty* p, const QDomElement& element )
     case QVariant::Empty:
       // Do nothing
       break;
-    } 
+    }
 
   return FALSE;
 }

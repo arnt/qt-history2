@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#51 $
 **
 ** Implementation of QMetaObject class
 **
@@ -457,10 +457,7 @@ QStringList QMetaObject::propertyNames()
 {
   QStringList l;
   for( int i = 0; i < nPropData; ++i )
-  {
-    qDebug("Adding prop %s\n", propData[i].name );
     l.append( propData[i].name );
-  }
 
   if ( superclass )
   {

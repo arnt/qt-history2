@@ -1,9 +1,9 @@
 #include "qdom.h"
 #include "qxml.h"
-
-#include <qtextstream.h>
-#include <qiodevice.h>
-#include <qmime.h>
+#include "qmap.h"
+#include "qtextstream.h"
+#include "qiodevice.h"
+#include "qpixmap.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -361,7 +361,7 @@ QDOM_NodePrivate::QDOM_NodePrivate( QDOM_NodePrivate* n, bool deep )
   m_nextSibling = 0;
   m_firstChild = 0;
   m_lastChild = 0;
-  
+
   if ( !deep )
     return;
 
@@ -676,7 +676,7 @@ QDOM_NodePrivate* QDOM_NodePrivate::cloneNode( bool deep )
   // We are not interested in this node
   p->deref();
   return p;
-} 
+}
 
 void QDOM_NodePrivate::save( QTextStream& s ) const
 {
@@ -695,7 +695,7 @@ void QDOM_NodePrivate::save( QTextStream& s ) const
  **************************************************************/
 
 #define IMPL ((QDOM_NodePrivate*)impl)
-  
+
 QDomNode::QDomNode()
 {
   impl = 0;
@@ -1020,7 +1020,7 @@ QDOM_NodePrivate* QDOM_NamedNodeMapPrivate::item( int index ) const
   QDictIterator<QDOM_NodePrivate> it( m_map );
   for( int i = 0; i < index; ++i ) { }
 
-  return it.current();    
+  return it.current();
 }
 
 uint QDOM_NamedNodeMapPrivate::length() const
@@ -1152,7 +1152,7 @@ public:
   virtual QDOM_NodePrivate* replaceChild( QDOM_NodePrivate* newChild, QDOM_NodePrivate* oldChild );
   virtual QDOM_NodePrivate* removeChild( QDOM_NodePrivate* oldChild );
   virtual QDOM_NodePrivate* appendChild( QDOM_NodePrivate* newChild );
-  
+
   // Overloaded from QDOM_DocumentTypePrivate
   virtual bool isDocumentType() { return true; }
   virtual void save( QTextStream& s ) const;
@@ -1236,7 +1236,7 @@ QDOM_NodePrivate* QDOM_DocumentTypePrivate::insertAfter( QDOM_NodePrivate* newCh
   if ( p && p->isEntity() )
     m_entities->m_map.insert( p->nodeName(), p );
   else if ( p && p->isNotation() )
-    m_notations->m_map.insert( p->nodeName(), p );  
+    m_notations->m_map.insert( p->nodeName(), p );
 
   return p;
 }
@@ -1252,7 +1252,7 @@ QDOM_NodePrivate* QDOM_DocumentTypePrivate::replaceChild( QDOM_NodePrivate* newC
       m_entities->m_map.remove( oldChild->nodeName() );
     else if ( oldChild && oldChild->isNotation() )
       m_notations->m_map.remove( oldChild->nodeName() );
-    
+
     if ( p->isEntity() )
       m_entities->m_map.insert( p->nodeName(), p );
     else if ( p->isNotation() )
@@ -1271,7 +1271,7 @@ QDOM_NodePrivate* QDOM_DocumentTypePrivate::removeChild( QDOM_NodePrivate* oldCh
     m_entities->m_map.remove( p->nodeName() );
   else if ( p && p->isNotation() )
     m_notations->m_map.remove( p ->nodeName() );
-    
+
   return p;
 }
 
@@ -1317,7 +1317,7 @@ void QDOM_DocumentTypePrivate::save( QTextStream& s ) const
  **************************************************************/
 
 #define IMPL ((QDOM_DocumentTypePrivate*)impl)
-  
+
 QDomDocumentType::QDomDocumentType() : QDomNode()
 {
 }
@@ -1421,7 +1421,7 @@ QDOM_DocumentFragmentPrivate::~QDOM_DocumentFragmentPrivate()
 QDOM_NodePrivate* QDOM_DocumentFragmentPrivate::cloneNode( bool deep)
 {
   return new QDOM_DocumentFragmentPrivate( this, deep );
-} 
+}
 
 /**************************************************************
  *
@@ -1527,7 +1527,7 @@ QDOM_CharacterDataPrivate::~QDOM_CharacterDataPrivate()
 QDOM_NodePrivate* QDOM_CharacterDataPrivate::cloneNode( bool deep )
 {
   return new QDOM_CharacterDataPrivate( this, deep );
-} 
+}
 
 uint QDOM_CharacterDataPrivate::length() const
 {
@@ -1723,7 +1723,7 @@ QDOM_AttrPrivate::~QDOM_AttrPrivate()
 QDOM_NodePrivate* QDOM_AttrPrivate::cloneNode( bool deep )
 {
   return new QDOM_AttrPrivate( this, deep );
-} 
+}
 
 bool QDOM_AttrPrivate::specified() const
 {
@@ -1905,7 +1905,7 @@ QDOM_ElementPrivate::~QDOM_ElementPrivate()
 QDOM_NodePrivate* QDOM_ElementPrivate::cloneNode( bool deep)
 {
   return new QDOM_ElementPrivate( this, deep );
-} 
+}
 
 QString QDOM_ElementPrivate::attribute( const QString& name ) const
 {
@@ -1961,7 +1961,7 @@ QDomNodeList* QDOM_ElementPrivate::elementsByTagName( const QString& name )
   NodeList* l = new NodeList( FALSE );
 
   qElementsByTagName( this, name, l );
-   
+
   return l;
 }
 */
@@ -2013,7 +2013,7 @@ void QDOM_ElementPrivate::save( QTextStream& s ) const
       s << " ";
     }
   }
-   
+
   if ( hasChildNodes() )
   {
     s << ">" << endl;
@@ -2094,6 +2094,15 @@ void QDomElement::setAttribute( const QString& name, const QString& value )
 }
 
 void QDomElement::setAttribute( const QString& name, int value )
+{
+  if ( !impl )
+    return;
+  QString x;
+  x.setNum( value );
+  IMPL->setAttribute( name, x );
+}
+
+void QDomElement::setAttribute( const QString& name, uint value )
 {
   if ( !impl )
     return;
@@ -2201,7 +2210,7 @@ QPen QDomElement::toPen() const
 {
   if ( !impl )
     return QPen();
-  
+
   bool ok;
   QPen p;
   p.setStyle( (Qt::PenStyle)attribute("style").toInt( &ok ) );
@@ -2209,7 +2218,7 @@ QPen QDomElement::toPen() const
 
   p.setWidth( attribute("width").toInt( &ok ) );
   if ( !ok ) return QPen();
- 
+
   p.setColor( QColor( attribute("color") ) );
 
   return p;
@@ -2273,7 +2282,7 @@ QDOM_TextPrivate::~QDOM_TextPrivate()
 QDOM_NodePrivate* QDOM_TextPrivate::cloneNode( bool deep)
 {
   return new QDOM_TextPrivate( this, deep );
-} 
+}
 
 QDOM_TextPrivate* QDOM_TextPrivate::splitText( int offset )
 {
@@ -2399,7 +2408,7 @@ QDOM_CommentPrivate::~QDOM_CommentPrivate()
 QDOM_NodePrivate* QDOM_CommentPrivate::cloneNode( bool deep)
 {
   return new QDOM_CommentPrivate( this, deep );
-} 
+}
 
 void QDOM_CommentPrivate::save( QTextStream& s ) const
 {
@@ -2503,7 +2512,7 @@ QDOM_CDATASectionPrivate::~QDOM_CDATASectionPrivate()
 QDOM_NodePrivate* QDOM_CDATASectionPrivate::cloneNode( bool deep)
 {
   return new QDOM_CDATASectionPrivate( this, deep );
-} 
+}
 
 void QDOM_CDATASectionPrivate::save( QTextStream& s ) const
 {
@@ -2610,7 +2619,7 @@ QDOM_NotationPrivate::~QDOM_NotationPrivate()
 QDOM_NodePrivate* QDOM_NotationPrivate::cloneNode( bool deep)
 {
   return new QDOM_NotationPrivate( this, deep );
-} 
+}
 
 void QDOM_NotationPrivate::save( QTextStream& s ) const
 {
@@ -2745,7 +2754,7 @@ QDOM_EntityPrivate::~QDOM_EntityPrivate()
 QDOM_NodePrivate* QDOM_EntityPrivate::cloneNode( bool deep)
 {
   return new QDOM_EntityPrivate( this, deep );
-} 
+}
 
 void QDOM_EntityPrivate::save( QTextStream& s ) const
 {
@@ -3070,8 +3079,8 @@ public:
   ~QDOM_DocumentPrivate();
 
   bool setContent( const QString& text );
-  QMimeSourceFactory* mimeSourceFactory();
-  void setMimeSourceFactory( QMimeSourceFactory* );
+  QDomMimeSourceFactory* mimeSourceFactory();
+  void setMimeSourceFactory( QDomMimeSourceFactory* );
 
   // Attributes
   QDOM_DocumentTypePrivate* doctype() { return type; };
@@ -3098,7 +3107,7 @@ public:
   // Variables
   QDOM_ImplementationPrivate* impl;
   QDOM_DocumentTypePrivate* type;
-  QMimeSourceFactory* m_mimeSourceFactory;
+  QDomMimeSourceFactory* m_mimeSourceFactory;
 
   static QString* s_docName;
 };
@@ -3153,15 +3162,15 @@ void QDOM_DocumentPrivate::clear()
   QDOM_NodePrivate::clear();
 }
 
-QMimeSourceFactory* QDOM_DocumentPrivate::mimeSourceFactory()
+QDomMimeSourceFactory* QDOM_DocumentPrivate::mimeSourceFactory()
 {
   if ( m_mimeSourceFactory )
     return m_mimeSourceFactory;
 
-  return QMimeSourceFactory::defaultFactory();
+  return 0;
 }
 
-void QDOM_DocumentPrivate::setMimeSourceFactory( QMimeSourceFactory* f )
+void QDOM_DocumentPrivate::setMimeSourceFactory( QDomMimeSourceFactory* f )
 {
   m_mimeSourceFactory = f;
 }
@@ -3274,7 +3283,7 @@ QDomNodeList* QDOM_DocumentPrivate::elementsByTagName( const QString& tagname )
   NodeList* l = new NodeList( FALSE );
 
   qElementsByTagName( this, tagname, l );
-   
+
   return l;
 }
 */
@@ -3507,13 +3516,11 @@ bool QDomDocument::isDocument() const
 }
 
 /*!
-  Returns the factory attached to this document. If no
-  factory was attached until now to this document, then the default
-  factory as delivered by QMimeSourceFactory::defaultFactory is returned.
+  Returns the factory attached to this document.
 
   \sa setMimeSourceFactory()
 */
-QMimeSourceFactory* QDomDocument::mimeSourceFactory()
+QDomMimeSourceFactory* QDomDocument::mimeSourceFactory()
 {
   if ( !impl )
     return 0;
@@ -3521,13 +3528,11 @@ QMimeSourceFactory* QDomDocument::mimeSourceFactory()
 }
 
 /*!
-  Returns the factory attached to this document. If no
-  factory was attached until now to this document, then the default
-  factory as delivered by QMimeSourceFactory::defaultFactory is returned.
+  Returns the factory attached to this document.
 
   \sa setMimeSourceFactory()
 */
-const QMimeSourceFactory* QDomDocument::mimeSourceFactory() const
+const QDomMimeSourceFactory* QDomDocument::mimeSourceFactory() const
 {
   if ( !impl )
     return 0;
@@ -3536,7 +3541,7 @@ const QMimeSourceFactory* QDomDocument::mimeSourceFactory() const
 
 /*!
   Changes the factory for this document. If it is set to zero, then
-  the default factory as delivered by QMimeSourceFactory::defaultFactory is
+  the default factory as delivered by QDomMimeSourceFactory::defaultFactory is
   used.
 
   The factory is used to access external data such as pictures which reside
@@ -3544,7 +3549,7 @@ const QMimeSourceFactory* QDomDocument::mimeSourceFactory() const
 
   \sa mimeSourceFactory()
 */
-void QDomDocument::setMimeSourceFactory( QMimeSourceFactory* f )
+void QDomDocument::setMimeSourceFactory( QDomMimeSourceFactory* f )
 {
   if ( !impl )
     return;
@@ -3710,7 +3715,7 @@ bool QDomConsumer::tagStart( const QString& name )
     if ( name != doc->doctype()->nodeName() )
       return FALSE;
   }
-  printf("Start=%s\n",name.ascii() );
+  // printf("Start=%s\n",name.ascii() );
 
   QDOM_NodePrivate* n = doc->createElement( name );
   node->appendChild( n );
@@ -3721,10 +3726,10 @@ bool QDomConsumer::tagStart( const QString& name )
 
 bool QDomConsumer::tagEnd( const QString& name )
 {
-  qDebug("End=%s\n",name.ascii());
+    // qDebug("End=%s\n",name.ascii());
   if ( node == doc )
     return FALSE;
-  
+
   if ( node->nodeName() != name )
   {
     qDebug("Tag %s does not close %s\n",name.ascii(),node->nodeName().ascii() );
@@ -3774,7 +3779,7 @@ bool QDomConsumer::entityRef( const QString& name )
     qWarning( "Entity of name %s unsupported", name.latin1() );
     return FALSE;
   }
-  
+
   node->appendChild( doc->createEntityReference( name ) );
 
   return TRUE;
@@ -3801,9 +3806,9 @@ bool QDomConsumer::doctypeExtern( const QString& publicId, const QString& system
   return TRUE;
 }
 
-bool QDomConsumer::element( const QString& data )
+bool QDomConsumer::element( const QString& )
 {
-  printf("ELEMENT %s\n", data.ascii());
+    // printf("ELEMENT %s\n", data.ascii());
   return TRUE;
 }
 
@@ -3866,31 +3871,50 @@ bool QDomConsumer::finished()
 
 /**************************************************
  *
- * Convenience functions
+ * QDomMimeSourceFactory
  *
  **************************************************/
 
-/*
-QDomElement* QDomrectToElement( QDomDocument* doc, const QRect& r, const QString& name )
+class QDOM_MimeSourceFactoryPrivate
 {
-  Element* e = doc->createElement( name );
+public:
+    QMap<int,QString> m_map;
+};
 
-  QString str;
-  str.setNum( r.x() );
-  e->setAttribute( "x", str );
-  str.setNum( r.y() );
-  e->setAttribute( "y", str );
-  str.setNum( r.width() );
-  e->setAttribute( "width", str );
-  str.setNum( r.height() );
-  e->setAttribute( "height", str );
-
-  return e;
+QDomMimeSourceFactory::QDomMimeSourceFactory()
+{
+    d = new QDOM_MimeSourceFactoryPrivate;
 }
 
-QRect QDomelementToRect( const QDomElement* e )
+QDomMimeSourceFactory::~QDomMimeSourceFactory()
 {
-  return QRect( e->attribute( "x" ).toInt(), e->attribute( "y" ).toInt(),
-		e->attribute( "width" ).toInt(), e->attribute( "height" ).toInt() );
+    delete d;
 }
-*/
+    
+QPixmap QDomMimeSourceFactory::pixmap( const QString& name )
+{
+    QPixmap pix;
+    const QMimeSource* m = data( name );
+    
+    if ( m && m->provides( "image/x-xpm" ) )
+	pix = m->encodedData( "image/x-xpm" );
+    if ( m && m->provides( "image/png" ) )
+	pix = QPixmap( m->encodedData( "image/png" ) );
+    if ( m && m->provides( "image/jpeg" ) )
+	pix = QPixmap( m->encodedData( "image/jpeg" ) );
+    
+    if ( pix.isNull() )
+	return pix;
+    
+    d->m_map[ pix.serialNumber() ] = name;
+    
+    return pix;
+}
+
+QString QDomMimeSourceFactory::pixmapName( const QPixmap& pix ) const
+{
+    QMap<int,QString>::Iterator it = d->m_map.find( pix.serialNumber() );
+    if ( it == d->m_map.end() )
+	return QString::null;
+    return it.data();
+}

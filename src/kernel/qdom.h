@@ -9,11 +9,11 @@
 #include <qpoint.h>
 #include <qsize.h>
 #include <qvariant.h>
+#include <qmime.h>
 
 class QWidget;
 class QLayout;
 class QIODevice;
-class QMimeSourceFactory;
 
 class QDOM_DocumentPrivate;
 class QDOM_DocumentTypePrivate;
@@ -53,11 +53,11 @@ class QDomNode;
 class QDomEntity;
 class QDomNotation;
 class QDomCharacterData;
+class QDomMimeSourceFactory;
 
-
-  class QDomImplementation
-  {
-  public:
+class QDomImplementation
+{
+public:
     QDomImplementation();
     QDomImplementation( const QDomImplementation& );
     virtual ~QDomImplementation();
@@ -67,32 +67,32 @@ class QDomCharacterData;
 
     virtual bool hasFeature( const QString& feature, const QString& version );
 
-  private:
+private:
     QDomImplementation( QDOM_ImplementationPrivate* );
 
     QDOM_ImplementationPrivate* impl;
 
     friend class QDomDocument;
-  };
+};
 
-  class QDomNode // Ok
-  {
-  public:
+class QDomNode // Ok
+{
+public:
     enum NodeType {
-      BaseNode                  = 0,
-      ElementNode               = 1,
-      AttributeNode             = 2,
-      TextNode                  = 3,
-      CDATASectionNode          = 4,
-      EntityReferenceNode       = 5,
-      EntityNode                = 6,
-      ProcessingInstructionNode = 7,
-      CommentNode               = 8,
-      DocumentNode              = 9,
-      DocumentTypeNode          = 10,
-      DocumentFragmentNode      = 11,
-      NotationNode              = 12,
-      CharacterDataNode         = 13
+	BaseNode                  = 0,
+	ElementNode               = 1,
+	AttributeNode             = 2,
+	TextNode                  = 3,
+	CDATASectionNode          = 4,
+	EntityReferenceNode       = 5,
+	EntityNode                = 6,
+	ProcessingInstructionNode = 7,
+	CommentNode               = 8,
+	DocumentNode              = 9,
+	DocumentTypeNode          = 10,
+	DocumentFragmentNode      = 11,
+	NotationNode              = 12,
+	CharacterDataNode         = 13
     };
 
     QDomNode();
@@ -161,20 +161,20 @@ class QDomCharacterData;
 
     void save( QTextStream& ) const;
 
-  protected:
+protected:
     QDOM_NodePrivate* impl;
     QDomNode( QDOM_NodePrivate* );
 
-  private:
+private:
     friend class QDomDocument;
     friend class QDomDocumentType;
     friend class QDomNodeList;
     friend class QDomNamedNodeMap;
-  };
+};
 
-  class QDomNodeList // Ok
-  {
-  public:
+class QDomNodeList // Ok
+{
+public:
     QDomNodeList();
     QDomNodeList( const QDomNodeList& );
     QDomNodeList& operator= ( const QDomNodeList& );
@@ -185,17 +185,17 @@ class QDomCharacterData;
     virtual QDomNode item( int index ) const;
     virtual uint length() const;
 
-  protected:
+protected:
     friend class QDomNode;
 
     QDomNodeList( QDOM_NodeListPrivate* );
 
     QDOM_NodeListPrivate* impl;
-  };
+};
 
-  class QDomDocumentType : public QDomNode
-  {
-  public:
+class QDomDocumentType : public QDomNode
+{
+public:
     QDomDocumentType();
     QDomDocumentType( const QDomDocumentType& x );
     QDomDocumentType& operator= ( const QDomDocumentType& );
@@ -210,16 +210,16 @@ class QDomCharacterData;
     // virtual QDomNode cloneNode( bool deep) const;
     virtual bool isDocumentType() const;
 
-  private:
+private:
     QDomDocumentType( QDOM_DocumentTypePrivate* );
 
     friend class QDomDocument;
     friend class QDomNode;
-  };
+};
 
-  class QDomDocument : public QDomNode
-  {
-  public:
+class QDomDocument : public QDomNode
+{
+public:
     QDomDocument();
     QDomDocument( const QString& name );
     QDomDocument( QIODevice* dev );
@@ -229,9 +229,9 @@ class QDomCharacterData;
 
     // Qt extensions
     bool setContent( const QString& text );
-    QMimeSourceFactory* mimeSourceFactory();
-    const QMimeSourceFactory* mimeSourceFactory() const;
-    void setMimeSourceFactory( QMimeSourceFactory* );
+    QDomMimeSourceFactory* mimeSourceFactory();
+    const QDomMimeSourceFactory* mimeSourceFactory() const;
+    void setMimeSourceFactory( QDomMimeSourceFactory* );
 
     // QDomAttributes
     QDomDocumentType doctype() const;
@@ -259,15 +259,15 @@ class QDomCharacterData;
     virtual NodeType nodeType() const;
     virtual bool isDocument() const;
 
-  private:
+private:
     QDomDocument( QDOM_DocumentPrivate* );
 
     friend class QDomNode;
-  };
+};
 
-  class QDomNamedNodeMap
-  {
-  public:
+class QDomNamedNodeMap
+{
+public:
     QDomNamedNodeMap();
     QDomNamedNodeMap( const QDomNamedNodeMap& );
     QDomNamedNodeMap& operator= ( const QDomNamedNodeMap& );
@@ -282,7 +282,7 @@ class QDomCharacterData;
     uint length() const;
     bool contains( const QString& name ) const;
 
-  private:
+private:
     friend class QDomNode;
     friend class QDomDocumentType;
     friend class QDomElement;
@@ -290,11 +290,11 @@ class QDomCharacterData;
     QDomNamedNodeMap( QDOM_NamedNodeMapPrivate* );
 
     QDOM_NamedNodeMapPrivate* impl;
-  };
+};
 
-  class QDomDocumentFragment : public QDomNode
-  {
-  public:
+class QDomDocumentFragment : public QDomNode
+{
+public:
     QDomDocumentFragment();
     QDomDocumentFragment( const QDomDocumentFragment& x );
     QDomDocumentFragment& operator= ( const QDomDocumentFragment& );
@@ -305,16 +305,16 @@ class QDomCharacterData;
     // virtual QDomNode cloneNode( bool deep) const;
     virtual bool isDocumentFragment() const;
 
-  private:
+private:
     QDomDocumentFragment( QDOM_DocumentFragmentPrivate* );
 
     friend class QDomDocument;
     friend class QDomNode;
-  };
+};
 
-  class QDomCharacterData : public QDomNode
-  {
-  public:
+class QDomCharacterData : public QDomNode
+{
+public:
     QDomCharacterData();
     QDomCharacterData( const QDomCharacterData& x );
     QDomCharacterData& operator= ( const QDomCharacterData& );
@@ -335,18 +335,18 @@ class QDomCharacterData;
     // virtual QDomNode cloneNode( bool deep) const;
     virtual bool isCharacterData() const;
 
-  private:
+private:
     QDomCharacterData( QDOM_CharacterDataPrivate* );
 
     friend class QDomDocument;
     friend class QDomText;
     friend class QDomComment;
     friend class QDomNode;
-  };
+};
 
-  class QDomAttr : public QDomNode
-  {
-  public:
+class QDomAttr : public QDomNode
+{
+public:
     QDomAttr();
     QDomAttr( const QDomAttr& x );
     QDomAttr& operator= ( const QDomAttr& );
@@ -362,17 +362,17 @@ class QDomCharacterData;
     // virtual QDomNode cloneNode( bool deep) const;
     virtual bool isAttr() const;
 
-  private:
+private:
     QDomAttr( QDOM_AttrPrivate* );
 
     friend class QDomDocument;
     friend class QDomElement;
     friend class QDomNode;
-  };
+};
 
-  class QDomElement : public QDomNode
-  {
-  public:
+class QDomElement : public QDomNode
+{
+public:
     QDomElement();
     QDomElement( const QDomElement& x );
     QDomElement& operator= ( const QDomElement& );
@@ -383,6 +383,7 @@ class QDomCharacterData;
     QString  attribute( const QString& name ) const;
     void     setAttribute( const QString& name, const QString& value );
     void     setAttribute( const QString& name, int value );
+    void     setAttribute( const QString& name, uint value );
     void     setAttribute( const QString& name, double value );
     void     removeAttribute( const QString& name );
     QDomAttr     attributeNode( const QString& name);
@@ -413,16 +414,16 @@ class QDomCharacterData;
 
     QString text() const;
 
-  private:
+private:
     QDomElement( QDOM_ElementPrivate* );
 
     friend class QDomDocument;
     friend class QDomNode;
-  };
+};
 
-  class QDomText : public QDomCharacterData
-  {
-  public:
+class QDomText : public QDomCharacterData
+{
+public:
     QDomText();
     QDomText( const QDomText& x );
     QDomText& operator= ( const QDomText& );
@@ -435,17 +436,17 @@ class QDomCharacterData;
     // virtual QDomNode cloneNode( bool deep) const;
     virtual bool isText() const;
 
-  private:
+private:
     QDomText( QDOM_TextPrivate* );
 
     friend class QDomCDATASection;
     friend class QDomDocument;
     friend class QDomNode;
-  };
+};
 
-  class QDomComment : public QDomCharacterData
-  {
-  public:
+class QDomComment : public QDomCharacterData
+{
+public:
     QDomComment();
     QDomComment( const QDomComment& x );
     QDomComment& operator= ( const QDomComment& );
@@ -456,16 +457,16 @@ class QDomCharacterData;
     // virtual QDomNode cloneNode( bool deep) const;
     virtual bool isComment() const;
 
-  private:    
+private:
     QDomComment( QDOM_CommentPrivate* );
 
     friend class QDomDocument;
     friend class QDomNode;
-  };
+};
 
-  class QDomCDATASection : public QDomText
-  {
-  public:
+class QDomCDATASection : public QDomText
+{
+public:
     QDomCDATASection();
     QDomCDATASection( const QDomCDATASection& x );
     QDomCDATASection& operator= ( const QDomCDATASection& );
@@ -476,16 +477,16 @@ class QDomCharacterData;
     // virtual QDomNode cloneNode( bool deep) const;
     virtual bool isCDATASection() const;
 
-  private:
+private:
     QDomCDATASection( QDOM_CDATASectionPrivate* );
 
     friend class QDomDocument;
     friend class QDomNode;
-  };
+};
 
-  class QDomNotation : public QDomNode
-  {
-  public:
+class QDomNotation : public QDomNode
+{
+public:
     QDomNotation();
     QDomNotation( const QDomNotation& x );
     QDomNotation& operator= ( const QDomNotation& );
@@ -499,16 +500,16 @@ class QDomCharacterData;
     // virtual QDomNode cloneNode( bool deep) const;
     virtual bool isNotation() const;
 
-  private:
+private:
     QDomNotation( QDOM_NotationPrivate* );
 
     friend class QDomDocument;
     friend class QDomNode;
-  };
+};
 
-  class QDomEntity : public QDomNode
-  {
-  public:
+class QDomEntity : public QDomNode
+{
+public:
     QDomEntity();
     QDomEntity( const QDomEntity& x );
     QDomEntity& operator= ( const QDomEntity& );
@@ -523,15 +524,15 @@ class QDomCharacterData;
     // virtual QDomNode cloneNode( bool deep) const;
     virtual bool isEntity() const;
 
-  private:
+private:
     QDomEntity( QDOM_EntityPrivate* );
 
     friend class QDomNode;
-  };
+};
 
-  class QDomEntityReference : public QDomNode
-  {
-  public:
+class QDomEntityReference : public QDomNode
+{
+public:
     QDomEntityReference();
     QDomEntityReference( const QDomEntityReference& x );
     QDomEntityReference& operator= ( const QDomEntityReference& );
@@ -542,16 +543,16 @@ class QDomCharacterData;
     // virtual QDomNode cloneNode( bool deep) const;
     virtual bool isEntityReference() const;
 
-  private:
+private:
     QDomEntityReference( QDOM_EntityReferencePrivate* );
 
     friend class QDomDocument;
     friend class QDomNode;
-  };
+};
 
-  class QDomProcessingInstruction : public QDomNode
-  {
-  public:
+class QDomProcessingInstruction : public QDomNode
+{
+public:
     QDomProcessingInstruction();
     QDomProcessingInstruction( const QDomProcessingInstruction& x );
     QDomProcessingInstruction& operator= ( const QDomProcessingInstruction& );
@@ -566,13 +567,28 @@ class QDomCharacterData;
     // virtual QDomNode cloneNode( bool deep) const;
     virtual bool isProcessingInstruction() const;
 
-  private:
+private:
     QDomProcessingInstruction( QDOM_ProcessingInstructionPrivate* );
 
     friend class QDomDocument;
     friend class QDomNode;
-  };
+};
 
+class QDOM_MimeSourceFactoryPrivate;
+
+class QDomMimeSourceFactory : public QMimeSourceFactory
+{
+public:
+    QDomMimeSourceFactory();
+    ~QDomMimeSourceFactory();
+    
+    QPixmap pixmap( const QString& name );
+    QString pixmapName( const QPixmap& pix ) const;
+    
+private:
+    QDOM_MimeSourceFactoryPrivate* d;
+};
+		       
 QTextStream& operator<<( QTextStream&, const QDomNode& );
 
 #endif
