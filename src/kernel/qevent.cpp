@@ -5,7 +5,7 @@
 **
 ** Created : 931029
 **
-** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -2491,10 +2491,6 @@ QCustomEvent::QCustomEvent( int type )
   Destroys the event. If it was \link
   QApplication::postEvent() posted \endlink,
   it will be removed from the list of events to be posted.
-
-  \internal
-  It used to print an error (useful for people who posted events
-  that were on the stack).
 */
 
 QEvent::~QEvent()
@@ -2502,4 +2498,3 @@ QEvent::~QEvent()
     if ( posted && qApp )
 	QApplication::removePostedEvent( this );
 }
-
