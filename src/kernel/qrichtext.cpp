@@ -238,14 +238,10 @@ QTextCursor *QTextDeleteCommand::unexecute( QTextCursor *c )
     cursor.setIndex( index );
     QString str = QTextString::toString( text );
     cursor.insert( str, TRUE, &text );
+    if ( c )
+	*c = cursor;
     cursor.setParagraph( s );
     cursor.setIndex( index );
-    if ( c ) {
-	c->setParagraph( s );
-	c->setIndex( index );
-	for ( int i = 0; i < (int)text.size(); ++i )
-	    c->gotoNextLetter();
-    }
 
 #ifndef QT_NO_DATASTREAM
     if ( !styleInformation.isEmpty() ) {
@@ -1200,7 +1196,8 @@ bool QTextCursor::remove()
 {
     tmpIndex = -1;
     if ( !atParagEnd() ) {
-	para->remove( idx, 1 );
+	int next = para->layout()->nextCursorPosition( idx );
+	para->remove( idx, next-idx );
 	int h = para->rect().height();
 	para->format( -1, TRUE );
 	if ( h != para->rect().height() )
@@ -1209,6 +1206,31 @@ bool QTextCursor::remove()
 	    para->document()->nextDoubleBuffered = TRUE;
 	return FALSE;
     } else if ( para->next() ) {
+	para->join( para->next() );
+	invalidateNested();
+	return TRUE;
+    }
+    return FALSE;
+}
+
+/* needed to implement backspace the correct way */
+bool QTextCursor::removePreviousChar()
+{
+    tmpIndex = -1;
+    if ( !atParagStart() ) {
+	para->remove( idx-1, 1 );
+	int h = para->rect().height();
+	idx--;
+	// shouldn't be needed, just to make sure.
+	fixCursorPosition();
+	para->format( -1, TRUE );
+	if ( h != para->rect().height() )
+	    invalidateNested();
+	else if ( para->document() && para->document()->parent() )
+	    para->document()->nextDoubleBuffered = TRUE;
+	return FALSE;
+    } else if ( para->prev() ) {
+	para = para->prev();
 	para->join( para->next() );
 	invalidateNested();
 	return TRUE;
@@ -1231,6 +1253,11 @@ void QTextCursor::indent()
 
 void QTextCursor::fixCursorPosition()
 {
+    if ( !para ) {
+	idx = 0;
+	return;
+    }
+
     QTextLayout *l = para->layout();
     // searches for the closest valid cursor position
     if ( l->validCursorPosition( idx ) )
@@ -2846,60 +2873,68 @@ void QTextDocument::removeSelectedText( int id, QTextCursor *cursor )
     if ( it == selections.end() )
 	return;
 
-    QTextDocumentSelection sel = *it;
-
-    QTextCursor c1 = sel.startCursor;
-    QTextCursor c2 = sel.endCursor;
-    if ( sel.swapped ) {
-	c2 = sel.startCursor;
-	c1 = sel.endCursor;
-    }
-
-    // ### no support for editing tables yet
-    if ( c1.nestedDepth() || c2.nestedDepth() )
-	return;
-
-    c2.restoreState();
-    c1.restoreState();
-
-    *cursor = c1;
-    removeSelection( id );
-
-    if ( c1.paragraph() == c2.paragraph() ) {
-	c1.paragraph()->remove( c1.index(), c2.index() - c1.index() );
-	return;
-    }
-
-    if ( c1.paragraph() == fParag && c1.index() == 0 &&
-	 c2.paragraph() == lParag && c2.index() == lParag->length() - 1 )
-	cursor->setValid( FALSE );
-
+    QTextParagraph *end = 0;
+    QTextParagraph *start = 0;
     bool didGoLeft = FALSE;
-    if (  c1.index() == 0 && c1.paragraph() != fParag ) {
-	cursor->gotoPreviousLetter();
-	if ( cursor->isValid() )
-	    didGoLeft = TRUE;
+
+    {
+	QTextDocumentSelection sel = *it;
+	selections.remove( it );
+	QTextCursor c1 = sel.startCursor;
+	QTextCursor c2 = sel.endCursor;
+	if ( sel.swapped ) {
+	    c2 = sel.startCursor;
+	    c1 = sel.endCursor;
+	}
+	start = c1.paragraph();
+	end = c2.paragraph();
+
+	// ### no support for editing tables yet
+	if ( c1.nestedDepth() || c2.nestedDepth() )
+	    return;
+
+	c2.restoreState();
+	c1.restoreState();
+
+	*cursor = c1;
+	removeSelection( id );
+
+	if ( c1.paragraph() == c2.paragraph() ) {
+	    c1.paragraph()->remove( c1.index(), c2.index() - c1.index() );
+	    return;
+	}
+
+	if ( c1.paragraph() == fParag && c1.index() == 0 &&
+	     c2.paragraph() == lParag && c2.index() == lParag->length() - 1 )
+	    cursor->setValid( FALSE );
+
+	if (  c1.index() == 0 && c1.paragraph() != fParag ) {
+	    cursor->gotoPreviousLetter();
+	    didGoLeft = cursor->isValid();
+	}
+
+	c1.paragraph()->remove( c1.index(), c1.paragraph()->length() - 1 - c1.index() );
+	QTextParagraph *p = c1.paragraph()->next();
+	int dy = 0;
+	QTextParagraph *tmp;
+	while ( p && p != c2.paragraph() ) {
+	    tmp = p->next();
+	    dy -= p->rect().height();
+	    delete p;
+	    p = tmp;
+	}
+	c2.paragraph()->remove( 0, c2.index() );
+	while ( p ) {
+	    p->move( dy );
+	    p->invalidate( 0 );
+	    p->setEndState( -1 );
+	    p = p->next();
+	}
+
+	// delete the temp cursors we don't run into trouble because c2 gets deleted after c2.paragraph()
     }
 
-    c1.paragraph()->remove( c1.index(), c1.paragraph()->length() - 1 - c1.index() );
-    QTextParagraph *p = c1.paragraph()->next();
-    int dy = 0;
-    QTextParagraph *tmp;
-    while ( p && p != c2.paragraph() ) {
-	tmp = p->next();
-	dy -= p->rect().height();
-	delete p;
-	p = tmp;
-    }
-    c2.paragraph()->remove( 0, c2.index() );
-    while ( p ) {
-	p->move( dy );
-	p->invalidate( 0 );
-	p->setEndState( -1 );
-	p = p->next();
-    }
-
-    c1.paragraph()->join( c2.paragraph() );
+    start->join( end );
 
     if ( didGoLeft )
 	cursor->gotoNextLetter();
@@ -4049,6 +4084,8 @@ QTextParagraph::~QTextParagraph()
     if ( n )
 	n->setPrev( p );
 
+    if ( numCursors )
+	qWarning("paragraph deleted while cursor points to it!");
     delete _layout;
     _layout = 0;
 }

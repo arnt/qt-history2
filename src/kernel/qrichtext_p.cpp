@@ -158,6 +158,7 @@ void QTextCursor::gotoPosition( QTextParagraph* p, int index )
 
     tmpIndex = -1;
     idx = index;
+    fixCursorPosition();
 }
 
 bool QTextDocument::hasSelection( int id, bool visible ) const

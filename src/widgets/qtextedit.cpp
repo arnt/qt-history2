@@ -1640,7 +1640,10 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 		    undoRedoInfo.index = cursor->index();
 		    undoRedoInfo.d->text = QString::null;
 		}
-		undoRedoInfo.d->text.insert( undoRedoInfo.d->text.length(), cursor->paragraph()->at( cursor->index() ), TRUE );
+		int idx = cursor->index();
+		do {
+		    undoRedoInfo.d->text.insert( undoRedoInfo.d->text.length(), cursor->paragraph()->at( idx++ ), TRUE );
+		} while ( !cursor->validCursorPosition( idx ) );
 	    }
 	    cursor->remove();
 	} else {
@@ -1692,13 +1695,10 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 		    undoRedoInfo.index = cursor->index();
 		    undoRedoInfo.d->text = QString::null;
 		}
+		undoRedoInfo.d->text.insert( 0, cursor->paragraph()->at( cursor->index()-1 ), TRUE );
+		undoRedoInfo.index = cursor->index()-1;
 	    }
-	    cursor->gotoPreviousLetter();
-	    if ( undoEnabled ) {
-		undoRedoInfo.d->text.insert( 0, cursor->paragraph()->at( cursor->index() ), TRUE );
-		undoRedoInfo.index = cursor->index();
-	    }
-	    cursor->remove();
+	    cursor->removePreviousChar();
 	    lastFormatted = cursor->paragraph();
 	} else if ( cursor->paragraph()->prev()
 		    || (action == ActionWordBackspace
@@ -1818,31 +1818,33 @@ void QTextEdit::removeSelection( int selNum )
 
 void QTextEdit::removeSelectedText( int selNum )
 {
-    QTextCursor c1 = doc->selectionStartCursor( selNum );
-    c1.restoreState();
-    QTextCursor c2 = doc->selectionEndCursor( selNum );
-    c2.restoreState();
+    {
+	QTextCursor c1 = doc->selectionStartCursor( selNum );
+	c1.restoreState();
+	QTextCursor c2 = doc->selectionEndCursor( selNum );
+	c2.restoreState();
 
-    // ### no support for editing tables yet, plus security for broken selections
-    if ( c1.nestedDepth() || c2.nestedDepth() )
-	return;
+	// ### no support for editing tables yet, plus security for broken selections
+	if ( c1.nestedDepth() || c2.nestedDepth() )
+	    return;
 
-    for ( int i = 0; i < (int)doc->numSelections(); ++i ) {
-	if ( i == selNum )
-	    continue;
-	doc->removeSelection( i );
-    }
-
-    drawCursor( FALSE );
-    if ( undoEnabled ) {
-	checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
-	if ( !undoRedoInfo.valid() ) {
-	    doc->selectionStart( selNum, undoRedoInfo.id, undoRedoInfo.index );
-	    undoRedoInfo.d->text = QString::null;
+	for ( int i = 0; i < (int)doc->numSelections(); ++i ) {
+	    if ( i == selNum )
+		continue;
+	    doc->removeSelection( i );
 	}
-	readFormats( c1, c2, undoRedoInfo.d->text, TRUE );
-    }
 
+	drawCursor( FALSE );
+	if ( undoEnabled ) {
+	    checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
+	    if ( !undoRedoInfo.valid() ) {
+		doc->selectionStart( selNum, undoRedoInfo.id, undoRedoInfo.index );
+		undoRedoInfo.d->text = QString::null;
+	    }
+	    readFormats( c1, c2, undoRedoInfo.d->text, TRUE );
+	}
+	// make sure cursors are deleted before we remove the selection.
+    }
 
     doc->removeSelectedText( selNum, cursor );
     if ( cursor->isValid() ) {

@@ -272,12 +272,13 @@ public:
     QTextParagraph *paragraph() const;
 #endif
 
-    void setParagraph( QTextParagraph*p ) { gotoPosition(p, 0 ); }
     QTextDocument *document() const;
     int index() const;
-    void setIndex( int index ) { gotoPosition(paragraph(), index ); }
 
     void gotoPosition( QTextParagraph* p, int index = 0);
+    void setIndex( int index ) { gotoPosition(paragraph(), index ); }
+    void setParagraph( QTextParagraph*p ) { gotoPosition(p, 0 ); }
+
     void gotoLeft();
     void gotoRight();
     void gotoNextLetter();
@@ -298,7 +299,9 @@ public:
     void insert( const QString &s, bool checkNewLine, QMemArray<QTextStringChar> *formatting = 0 );
     void splitAndInsertEmptyParagraph( bool ind = TRUE, bool updateIds = TRUE );
     bool remove();
+    bool removePreviousChar();
     void indent();
+    bool validCursorPosition( int idx );
 
     bool atParagStart();
     bool atParagEnd();
@@ -1742,6 +1745,12 @@ inline QTextCursor::Paragraph &QTextCursor::Paragraph::operator = ( QTextParagra
 inline QTextParagraph *QTextCursor::Paragraph::next() const
 {
     return para->next();
+}
+
+
+inline bool QTextCursor::validCursorPosition( int idx )
+{
+    return para.layout()->validCursorPosition( idx );
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
