@@ -193,7 +193,7 @@ void QTipManager::add( const QRect &gm, QWidget *w,
 	tips->take( w );
 	if (h->autoDelete) {
 	    t->next = h->next;
-	    delete(h);
+	    delete h;
 	}
     } else
 	connect( w, SIGNAL(destroyed()), this, SLOT(clientWidgetDestroyed()) );
