@@ -242,7 +242,7 @@ QRect QAccessibleScrollBar::rect(int child) const
                                                               &option,
                                                               QStyle::SC_SliderHandle,
                                                               scrollBar());
-    int sz = scrollBar()->style().pixelMetric(QStyle::PM_ScrollBarExtent, 0, scrollBar());
+    int sz = scrollBar()->style().pixelMetric(QStyle::PM_ScrollBarExtent, &option, scrollBar());
     switch (child) {
     case LineUp:
         rect = QRect(0, 0, sz, sz);
