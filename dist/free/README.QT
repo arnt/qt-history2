@@ -1,8 +1,8 @@
 %SPECIAL-snapshot
 This software is dependent on specific functionality included only
-in Qt snapshot version %VERSION%.  It will not work with any other
-releases of Qt.  Upgrade/downgrade to that version, or look for a
-new version of this software.
+in Qt snapshot version %VERSION%.  It will not work with any
+other releases of Qt.  Upgrade/downgrade to that version, or look
+for a new version of this software.
 
 %Qt is a complete and well-developed object-oriented framework for
 developing graphical user interface (GUI) applications using C++.
