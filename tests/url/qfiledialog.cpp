@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#12 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#13 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1334,7 +1334,8 @@ QFileDialogPrivate::MCItem::MCItem( QListBox * lb, QListViewItem * item )
     : QListBoxItem(), selectable( TRUE )
 {
     i = item;
-    lb->insertItem( this );
+    if ( lb )
+	lb->insertItem( this );
 }
 
 void QFileDialogPrivate::MCItem::setSelectable( bool sel )
@@ -3497,9 +3498,44 @@ void QFileDialog::clearView()
 
 void QFileDialog::insertEntry( const QUrlInfo &inf )
 {
-    QFileDialogPrivate::File * i = new QFileDialogPrivate::File(d, &inf ,files );
-    QFileDialogPrivate::MCItem *i2 = new QFileDialogPrivate::MCItem( d->moreFiles , i );
+    QListViewItemIterator it( files );
+    QListViewItem *item = 0;
+    int index = -1;
+    if ( inf.isDir() ) {
+	for ( ; it.current(); ++it, ++index ) {
+	    if ( ( (QFileDialogPrivate::File*)it.current() )->info.isFile() )
+		break;
+	}
+	it = QListViewItemIterator( files );
+	for ( ; it.current(); ++it, ++index ) {
+	    item = it.current();
+	    if ( ( (QFileDialogPrivate::File*)it.current() )->info.name() < inf.name() ) {
+		item = it.current();
+		break;
+	    }
+	}
+    } else {
+	for ( ; it.current(); ++it, ++index ) {
+	    item = it.current();
+	    if ( ( (QFileDialogPrivate::File*)it.current() )->info.isDir() )
+		continue;
+	    if ( ( (QFileDialogPrivate::File*)it.current() )->info.name() < inf.name() ) {
+		item = it.current();
+		break;
+	    }
+	}
+	
+    }
+    
+    QFileDialogPrivate::File * i = 0;
+    if ( item )
+	i = new QFileDialogPrivate::File(d, &inf ,files, item );
+    else
+	i = new QFileDialogPrivate::File(d, &inf ,files );
+    QFileDialogPrivate::MCItem *i2 = new QFileDialogPrivate::MCItem( 0 , i );
     i->i = i2;
+    qDebug( "%s %d", inf.name().latin1(), index );
+    d->moreFiles->insertItem( i2, index );
 }									
 
 void QFileDialog::removeEntry( const QString &filename )
