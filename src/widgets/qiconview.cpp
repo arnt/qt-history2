@@ -1598,7 +1598,7 @@ void QIconViewItem::calcTmpText()
   \brief The QIconView class
 
   The QIconView provides a widget which can contain lots of iconview items which can
-  be selected, dragged and so on. 
+  be selected, dragged and so on.
 
   Items can be inserted in a grid and can flow from top to bottom (South) or from
   left to right (East). The text can be either displayed at the bottom of the icons
@@ -2495,27 +2495,6 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 {
     QRect r = QRect( cx, cy, cw, ch );
 
-#if 0 // old slow drawing
-    p->save();
-    p->resetXForm();
-    r = QRect( contentsToViewport( QPoint( cx, cy ) ), QSize( cw, ch ) );
-    if ( d->drawAllBack )
-	p->setClipRect( r );
-    else {
-	QRegion reg = d->clipRegion.intersect( r );
-	p->setClipRegion( reg );
-    }
-    drawBackground( p, r );
-    p->restore();
-
-    if ( !d->firstItem )
-	return;
-
-    QIconViewItem *item = d->firstItem;
-    for ( ; item; item = item->next )
- 	if ( item->rect().intersects( r ) && !item->dirty )
- 	    item->paintItem( p, colorGroup(), font() );
-#else // optimized drawing
     QIconViewPrivate::ItemContainer *c = d->firstContainer;
     if ( !c && d->firstItem ) {
 	qWarning( "ItemContainers are not built - have to do this now!" );
@@ -2534,9 +2513,9 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    QRect r2 = c->rect;
 	    r2 = r2.intersect( r );
 	    QRect r3( contentsToViewport( QPoint( r2.x(), r2.y() ) ), QSize( r2.width(), r2.height() ) );
-	    if ( d->drawAllBack )
+	    if ( d->drawAllBack ) {
 		p->setClipRect( r3 );
-	    else {
+	    } else {
 		QRegion reg = d->clipRegion.intersect( r3 );
 		p->setClipRegion( reg );
 	    }
@@ -2569,7 +2548,6 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	drawBackground( p, remaining.boundingRect() );
 	p->restore();
     }
-#endif
 
     if ( ( hasFocus() || viewport()->hasFocus() ) && d->currentItem &&
 	 d->currentItem->rect().intersects( r ) )
@@ -3134,7 +3112,7 @@ void QIconView::setAlignMode( AlignMode am )
 	return;
 
     d->alignMode = am;
-    
+
     if ( d->alignMode == East ) {
 	setHScrollBarMode( AlwaysOff );
 	setVScrollBarMode( Auto );
@@ -3142,7 +3120,7 @@ void QIconView::setAlignMode( AlignMode am )
 	setVScrollBarMode( AlwaysOff );
 	setHScrollBarMode( Auto );
     }
-    
+
     viewport()->setUpdatesEnabled( FALSE );
     resizeContents( viewport()->width(), viewport()->height() );
     viewport()->setUpdatesEnabled( TRUE );
@@ -4924,6 +4902,7 @@ void QIconView::rebuildContainers()
 	    c->items.append( item );
 	    item->d->container2 = c;
 	    item = item->next;
+	    c = c->p;
 	} else {
 	    if ( d->alignMode == East ) {
 		if ( item->y() < c->rect.y() && c->p ) {
