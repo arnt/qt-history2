@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#83 $
 **
 ** Implementation of QScrollView class
 **
@@ -232,6 +232,7 @@ void QScrollView::hslide( int pos )
 {
     if ( !signal_choke ) {
 	moveContents( -pos, -contentsY() );
+	QApplication::syncX();
     }
 }
 
@@ -239,6 +240,7 @@ void QScrollView::vslide( int pos )
 {
     if ( !signal_choke ) {
 	moveContents( -contentsX(), -pos );
+	QApplication::syncX();
     }
 }
 
