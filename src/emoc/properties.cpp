@@ -23,6 +23,8 @@ static const char* TorbensHack[] = {
   "+", "QLabel", "", "", "",
     "void", "setText", "", "const QString&", ")",
     "QString", "text", "const", ")",
+    "void", "setPixmap", "", "const QPixmap&", ")",
+    "Qpixmap*", "pixmap", "const", ")",
 
   "+", "QPushButton", "A push button", "", "",
   "void", "setToggleButton", "", "bool", ")",
@@ -42,7 +44,7 @@ static const char* TorbensHack[] = {
   "+", "QGroupBox", "", "", "",
   "+", "QMultiLineEdit", "", "", "",
   "+", "QPopupMenu", "", "", "",
-  
+
   "+", "QFrame", "", "", "",
   "enum", "Shape",
           "NoFrame", "Box", "Panel",
