@@ -787,11 +787,9 @@ void QPainter::drawPoint( int x, int y )
     if ( cpen.style() != NoPen ) {
 	initPaintDevice();
 	updatePen();
-	::RGBColor f;
-	f.red = cpen.color().red()*256;
-	f.green = cpen.color().green()*256;
-	f.blue = cpen.color().blue()*256;
-	SetCPixel(x+offx,y+offy,&f);
+	PenSize(1, 0);
+	MoveTo(x + offx, y+offy);
+	Line(0,1);
     }
 }
 
