@@ -324,6 +324,7 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
 
     d->penAlphaColor = false;
     d->brushAlphaColor = false;
+    d->advancedModeUsed = false;
 
     setActive(true);
     d->pdev = pdev;
@@ -611,15 +612,14 @@ void QWin32PaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
         yRnd = 99;
 
     int w = r.width(), h = r.height();
-#ifdef NO_NATIVE_XFORM
-    if (d->penStyle == Qt::NoPen) {
+
+    if (d->advancedMode) {
+        --w;
+        --h;
+    } else if (d->penStyle == Qt::NoPen) {
         ++w;
         ++h;
     }
-#else
-    --w;
-    --h;
-#endif
 
     if (d->nocolBrush)
         SetTextColor(d->hdc, d->bColor);
@@ -632,20 +632,21 @@ void QWin32PaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 void QWin32PaintEngine::drawEllipse(const QRect &r)
 {
     Q_ASSERT(isActive());
-     if (d->tryGdiplus()) {
+    if (d->tryGdiplus()) {
         d->gdiplusEngine->drawEllipse(r);
         return;
     }
-   // Workaround for Windows GDI
-//     QPen oldPen = d->cpen;
-//     if (d->cpen == PS_NULL) {
-// //         setPen(d->bColor);
-// //         updatePen();
-//     }
+
     int w = r.width();
     int h = r.height();
-    --w;
-    --h;
+
+    if (d->advancedModeUsed) {
+        --w;
+        --h;
+    } else if (d->penStyle == Qt::NoPen) {
+        ++w;
+        ++h;
+    }
 
     if (d->nocolBrush)
         SetTextColor(d->hdc, d->bColor);
@@ -655,9 +656,6 @@ void QWin32PaintEngine::drawEllipse(const QRect &r)
         Ellipse(d->hdc, r.x(), r.y(), r.x()+w, r.y()+h);
     if (d->nocolBrush)
         SetTextColor(d->hdc, d->pColor);
-
-//     if (oldPen == PS_NULL)
-//         setPen(oldPen);
 }
 
 void QWin32PaintEngine::drawArc(const QRect &r, int a, int alen)
@@ -1508,6 +1506,7 @@ void QWin32PaintEngine::updateXForm(const QWMatrix &mtx)
             qSystemWarning("QWin32PaintEngine::updateXForm(), SetWorldTransformation() failed..");
         }
         d->advancedMode = true;
+        d->advancedModeUsed = true;
     } else {
         m.eM11 = m.eM22 = (float)1.0;
         m.eM12 = m.eM21 = m.eDx = m.eDy = (float)0.0;

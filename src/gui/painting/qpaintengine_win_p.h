@@ -98,6 +98,7 @@ public:
         brushAlphaColor(false),
         noNativeXform(false),
         advancedMode(false),
+        advancedModeUsed(false),
         penStyle(Qt::SolidLine),
         brushStyle(Qt::SolidPattern),
         pWidth(0),
@@ -130,6 +131,7 @@ public:
     uint brushAlphaColor:1;     // Set if brush has alpha color
     uint noNativeXform:1;
     uint advancedMode:1;        // Set if running in advanced graphics mode
+    uint advancedModeUsed:1;    // Set if advancedMode was used once.
 
     Qt::PenStyle penStyle;
     Qt::BrushStyle brushStyle;
