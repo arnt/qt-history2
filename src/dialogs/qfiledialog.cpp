@@ -1779,12 +1779,13 @@ void QFileDialog::init()
 
     d->paths = new QComboBox( TRUE, this, "directory history/editor" );
     d->paths->setEnableMultipleInsertion( FALSE );
+    d->paths->setInsertionPolicy( QComboBox::NoInsertion );
     const QFileInfoList * rootDrives = QDir::drives();
     QFileInfoListIterator it( *rootDrives );
     QFileInfo *fi;
     while ( (fi = it.current()) != 0 ) {
 	++it;
-	d->paths->insertItem( fi->absFilePath() );
+	d->paths->insertItem( *openFolderIcon, fi->absFilePath() );
     }
     connect( d->paths, SIGNAL(activated(const QString&)),
 	     this, SLOT(setDir(const QString&)) );
@@ -3886,7 +3887,7 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	if ( i < d->paths->count() )
 	    i++;
 	if ( i == d->paths->count() || d->paths->text( i ) != cp )
-	    d->paths->insertItem( d->url, i );
+	    d->paths->insertItem( *openFolderIcon, d->url, i );
 	d->paths->setCurrentItem( i );
 	d->last = 0;
 	d->hadDotDot = FALSE;

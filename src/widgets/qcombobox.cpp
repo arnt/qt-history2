@@ -198,7 +198,7 @@ public:
 
 struct QComboData
 {
-    QComboData( QComboBox *cb ): usingLBox( FALSE ), pop( 0 ), lBox( 0 ), combo( cb ) 
+    QComboData( QComboBox *cb ): usingLBox( FALSE ), pop( 0 ), lBox( 0 ), combo( cb )
     { multipleInsertion = TRUE; }
     ~QComboData()
     {
@@ -210,7 +210,7 @@ struct QComboData
     QListBox * listBox() { ASSERT(usingLBox); return lBox; }
     QComboBoxPopup * popup() { ASSERT(!usingLBox); return pop; }
     void updateLinedGeometry();
-    
+
     void setListBox( QListBox *l ) { lBox = l ; usingLBox = TRUE;
     				l->setMouseTracking( TRUE );}
 
@@ -238,14 +238,14 @@ private:
     QComboBoxPopup *pop;
     QListBox   *lBox;
     QComboBox *combo;
-    
+
 };
 
 void QComboData::updateLinedGeometry()
 {
     if ( !ed || !combo || current == 0 && combo->count() == 0 )
 	return;
-    
+
     const QPixmap *pix = combo->pixmap( current );
     QRect r( combo->style().comboButtonRect( 0, 0, combo->width(), combo->height() ) );
     if ( pix && pix->width() < r.width() )
@@ -653,7 +653,7 @@ void QComboBox::insertItem( const QString &t, int index )
     if ( index == d->current && d->current < count()  ) {
 	if ( d->ed ) {
 	    d->ed->setText( text( d->current ) );
-		d->updateLinedGeometry();
+	    d->updateLinedGeometry();
 	} else
 	    repaint();
     }
@@ -671,15 +671,21 @@ void QComboBox::insertItem( const QString &t, int index )
 void QComboBox::insertItem( const QPixmap &pixmap, int index )
 {
     int cnt = count();
-    bool append = index < 0 || index == cnt;
     if ( !checkInsertIndex( "insertItem", name(), cnt, &index ) )
 	return;
     if ( d->usingListBox() )
 	d->listBox()->insertItem( pixmap, index );
     else
 	d->popup()->insertItem( pixmap, index, index );
-    if ( !append )
+    if ( index != cnt )
 	reIndex();
+    if ( index == d->current && d->current < count()  ) {
+	if ( d->ed ) {
+	    d->ed->setText( text( d->current ) );
+	    d->updateLinedGeometry();
+	} else
+	    repaint();
+    }
     if ( index == d->current )
 	currentChanged();
 }
@@ -694,15 +700,21 @@ void QComboBox::insertItem( const QPixmap &pixmap, int index )
 void QComboBox::insertItem( const QPixmap &pixmap, const QString& text, int index )
 {
     int cnt = count();
-    bool append = index < 0 || index == cnt;
     if ( !checkInsertIndex( "insertItem", name(), cnt, &index ) )
 	return;
     if ( d->usingListBox() )
 	d->listBox()->insertItem( pixmap, text, index );
     else
 	d->popup()->insertItem( pixmap, text, index, index );
-    if ( !append )
+    if ( index != cnt )
 	reIndex();
+    if ( index == d->current && d->current < count()  ) {
+	if ( d->ed ) {
+	    d->ed->setText( this->text( d->current ) );
+	    d->updateLinedGeometry();
+	} else
+	    repaint();
+    }
     if ( index == d->current )
 	currentChanged();
 }
