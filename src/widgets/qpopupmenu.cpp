@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#197 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#198 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -706,7 +706,7 @@ void QPopupMenu::byeMenuBar()
   it is a separator item.
 */
 
-int QPopupMenu::itemAtPos( const QPoint &pos )
+int QPopupMenu::itemAtPos( const QPoint &pos ) const
 {
     int row = findRow( pos.y() );		// ask table for row
     int col = findCol( pos.x() );		// ask table for column
@@ -1756,3 +1756,23 @@ void QPopupMenu::setActiveItem( int i )
     if ( i >= 0 && i != lastActItem )
 	updateRow( i );
 }
+
+
+/*!
+  Return the id of the item at \e pos, or -1 if there is no item
+  there, or if it is a separator item.
+ */
+int QPopupMenu::idAt( const QPoint& pos ) const
+{
+    return idAt( itemAtPos( pos ) );
+}
+
+
+/*!\fn int QPopupMenu::idAt( const QPoint& pos ) const
+  
+  Returns the identifier of the menu item at position \a index in the internal
+  list, or -1 if \a index is out of range.
+  
+  \sa QMenuData::setId(), QMenuData::indexOf()
+*/
+
