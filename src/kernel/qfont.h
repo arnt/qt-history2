@@ -79,6 +79,7 @@ public:
 		     Serif	= Times,
 		     TypeWriter = Courier,
 		     Decorative = OldEnglish};
+    enum StyleStrategie { NoStrategie, BitmapFont, DeviceFont, OutlineFont };
     enum Weight	   { Light = 25, Normal = 50, DemiBold = 63,
 		     Bold  = 75, Black	= 87 };
     QFont();					// default font
@@ -113,6 +114,8 @@ public:
     void	setFixedPitch( bool );
     StyleHint	styleHint()	const;
     void	setStyleHint( StyleHint );
+    StyleStrategie styleStrategie() const;
+    void	setStyleHint( StyleHint, StyleStrategie );
     CharSet	charSet()	const;
     void	setCharSet( CharSet );
 
