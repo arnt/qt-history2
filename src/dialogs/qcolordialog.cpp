@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QColorDialog class
 **
 ** Created : 990222
 **
-** Copyright (C) 1999-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1999-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the dialogs module of the Qt GUI Toolkit.
 **
@@ -1517,6 +1517,16 @@ QRgb QColorDialog::getRgba( QRgb initial, bool *ok,
 
     int allocContext = QColor::enterAllocContext();
     QColorDialog *dlg = new QColorDialog( parent, name, TRUE );  //modal
+
+    Q_CHECK_PTR( dlg );
+#ifndef QT_NO_WIDGET_TOPEXTRA
+    if ( parent && parent->icon() && !parent->icon()->isNull() )
+	dlg->setIcon( *parent->icon() );
+    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
+	dlg->setIcon( *qApp->mainWidget()->icon() );
+
+    dlg->setCaption( QColorDialog::tr( "Select color" ) );
+#endif
     dlg->setColor( initial );
     dlg->selectColor( initial );
     dlg->setSelectedAlpha( qAlpha(initial) );
