@@ -609,7 +609,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 		    wattr |= kWindowCloseBoxAttribute;
 	    }
 	}
-
+	
 #if 0
 	long macos_version=0;
 	Gestalt(gestaltSystemVersion, &macos_version);
@@ -643,6 +643,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	    ChangeWindowAttributes((WindowRef)id, 0, kWindowHideOnSuspendAttribute |
 				   kWindowNoActivatesAttribute);
 #ifdef Q_WS_MACX
+	if(dialog && !parentWidget())
+	    grp = GetWindowGroupOfClass(kDocumentWindowClass);
 	if(testWFlags(WStyle_StaysOnTop)) {
 	    createTLExtra();
 	    if(extra->topextra->group)
@@ -1251,6 +1253,7 @@ void QWidget::showMaximized()
 	return;
     if(isTopLevel()) {
 	Rect bounds;
+	fstrut_dirty = TRUE;
 	QDesktopWidget *dsk = QApplication::desktop();
 	QRect avail = dsk->availableGeometry(dsk->screenNumber(this));
 	SetRect(&bounds, avail.x(), avail.y(), avail.x() + avail.width(), avail.y() + avail.height());
