@@ -20,9 +20,58 @@
 #include <qdict.h>
 #include <quuid.h>
 #include <stdlib.h>
+#include <qsettings.h>
 
 //#define DEBUG_SOLUTION_GEN
 //#define DEBUG_PROJECT_GEN
+
+// Registry keys for .NET version detection -------------------------
+const char* _regNet2002		= "Microsoft\\VisualStudio\\7.0\\Setup\\VC\\ProductDir";
+const char* _regNet2003		= "Microsoft\\VisualStudio\\7.1\\Setup\\VC\\ProductDir";
+
+bool use_net2003_version()
+{
+#ifndef Q_OS_WIN32
+    return FALSE; // Always generate 7.0 versions on other platforms
+#else
+    // Only search for the version once
+    static int current_version = -1;
+    if (current_version!=-1)
+	return (current_version==71);
+
+    // Fallback to .NET 2002
+    current_version = 70;
+
+    // Get registry entries for both versions
+    bool ok = false;
+    QSettings setting;
+    QString path2002 = setting.readEntry(_regNet2002);
+    QString path2003 = setting.readEntry(_regNet2003);
+
+    if ( path2002.isNull() || path2003.isNull() ) {
+	// Only have one MSVC, so use that one
+	current_version = (path2003.isNull() ? 70 : 71);
+    } else {
+	// Have both, so figure out the current
+	QString paths = getenv("PATH");
+	QStringList pathlist = QStringList::split(";", paths.lower());
+
+	path2003 = path2003.lower();
+	QStringList::iterator it;
+	for(it=pathlist.begin(); it!=pathlist.end(); ++it) {
+	    if ((*it).contains(path2003)) {
+		current_version = 71;
+	    } else if ((*it).contains(path2002)
+		       && current_version == 71) {
+		fprintf( stderr, "Both .NET 2002 & .NET 2003 directories for VC found in you PATH variable!\nFallback to .NET 2002 project generation" );
+		current_version = 70;
+		break;
+	    }
+	}
+    }
+    return (current_version==71);
+#endif
+};
 
 // Flatfile Tags ----------------------------------------------------
 const char* _snlHeader		= "Microsoft Visual Studio Solution File, Format Version 7.00";
@@ -356,7 +405,7 @@ void VcprojGenerator::initProject()
 
     // Own elements -----------------------------
     vcProject.Name = project->first("QMAKE_ORIG_TARGET");
-    vcProject.Version = "7.00";
+    vcProject.Version = use_net2003_version() ? "7.10" : "7.00";
     vcProject.ProjectGUID = getProjectUUID().toString().upper();
     vcProject.PlatformName = ( vcProject.Configuration.idl.TargetEnvironment == midlTargetWin64 ? "Win64" : "Win32" );
     // These are not used by Qt, but may be used by customers
