@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#24 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -28,6 +28,8 @@
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 #include "qlayout.h"
+#include "qbutton.h"
+#include "qbuttongroup.h"
 
 class QWidgetStackPrivate {
 };
@@ -77,6 +79,7 @@ QWidgetStack::QWidgetStack( QWidget * parent, const char *name )
 {
     d = 0;
     dict = new QIntDict<QWidget>;
+    focusWidgets = 0;
     l = 0;
     topWidget = 0;
     setFontPropagation( AllChildren );
@@ -161,9 +164,21 @@ void QWidgetStack::raiseWidget( QWidget * w )
     while ( f && f->parent() != this )
 	f = f->parentWidget();
     if ( f && f->parent() == this ) {
+	if ( !focusWidgets )
+	    focusWidgets = new QPtrDict<QWidget>( 17 );
+	focusWidgets->replace( f, w->focusWidget() );
 	if ( w->focusPolicy() != QWidget::NoFocus ) {
 	    w->setFocus();
 	} else {
+	    // look for the best focus widget we can find
+	    // best == what we had (which may be deleted)
+	    QWidget * fw = focusWidgets->find( w );
+	    if ( fw )
+		focusWidgets->take( w );
+	    // second best == selected button from button group
+	    QWidget * fb = 0;
+	    // third best == whatever candidate we see first
+	    QWidget * fc = 0;
 	    bool done = FALSE;
 	    const QObjectList * c = w->children();
 	    if ( c ) {
@@ -173,12 +188,29 @@ void QWidgetStack::raiseWidget( QWidget * w )
 		    ++it;
 		    if ( wc->isWidgetType() ) {
 			f = (QWidget *)wc;
-			if ( f->focusPolicy() == QWidget::StrongFocus ||
-			     f->focusPolicy() == QWidget::TabFocus ) {
-			    f->setFocus();
+			if ( f == fw ) {
+			    fw->setFocus();
 			    done = TRUE;
+			} else if ( f->focusPolicy() == QWidget::StrongFocus ||
+				    f->focusPolicy() == QWidget::TabFocus ) {
+			    QButton * b = (QButton *)f;
+			    if ( f->inherits( "QButton" ) &&
+				 b->group() && b->isOn() &&
+				 b->group()->isExclusive() &&
+				 ( fc == 0 ||
+				   !fc->inherits( "QButton" ) ||
+				   ((QButton*)fc)->group() == b->group() ) )
+				fb = b;
+			    else if ( !fc )
+				fc = f;
 			}
 		    }
+		}
+		if ( !done ) {
+		    if ( fb )
+			fb->setFocus();
+		    else if ( fc )
+			fc->setFocus();
 		}
 	    }
 	}
