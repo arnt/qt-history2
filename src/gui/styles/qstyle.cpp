@@ -513,7 +513,7 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value PE_PanelDockWindow  Panel frame for dock windows and toolbars.
     \value PE_PanelTabWidget  Panel frame for tab widgets.
     \value PE_PanelLineEdit  Panel frame for line edits.
-    \value PE_PanelGroupBox  Panel frame for group boxes.
+    \value PE_PanelGroupBox  Panel frame around group boxes.
 
     \value PE_TabBarBase  Area below tabs in a tab widget, for example,
         QTab.
@@ -528,8 +528,6 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value PE_StatusBarSection  Section of a status bar; see also
         QStatusBar.
 
-    \value PE_GroupBoxFrame  Frame around a group box; see also
-        QGroupBox.
     \value PE_WindowFrame  Frame around a MDI window or a docking window.
 
     \value PE_Separator  Generic separator.

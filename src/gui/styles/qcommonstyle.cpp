@@ -506,10 +506,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
     case PE_WindowFrame:
         drawPrimitive(PE_Panel, opt, p, widget);
         break;
-    case PE_PanelGroupBox: //We really do not need PE_GroupBoxFrame anymore, nasty holdover ###
-        drawPrimitive(PE_GroupBoxFrame, opt, p, widget);
-        break;
-    case PE_GroupBoxFrame:
+    case PE_PanelGroupBox:
         if (const QStyleOptionFrame *frame = qt_cast<const QStyleOptionFrame *>(opt)) {
             int lwidth = frame->lineWidth,
                mlwidth = frame->midLineWidth;

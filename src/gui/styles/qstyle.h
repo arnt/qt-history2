@@ -153,8 +153,6 @@ public:
         PE_HeaderArrow,
         PE_StatusBarSection,
 
-        PE_GroupBoxFrame,
-
         PE_Separator,
 
         PE_SizeGrip,
@@ -173,7 +171,6 @@ public:
 
         PE_PanelLineEdit,
         PE_PanelTabWidget,
-
         PE_WindowFrame,
 
         PE_CheckListController,
