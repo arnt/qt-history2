@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#17 $
 **
 ** Implementation of QPrinter class for X-Windows
 **
@@ -21,7 +21,7 @@
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#16 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#17 $")
 
 
 /*****************************************************************************
@@ -200,7 +200,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
   Use the QPaintDeviceMetrics class instead.
 
   \internal
-  Hard coded return values for PostScrip under X.
+  Hard coded return values for PostScript under X.
  ----------------------------------------------------------------------------*/
 
 int QPrinter::metric( int m ) const
