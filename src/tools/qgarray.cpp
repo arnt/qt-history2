@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#14 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#15 $
 **
 ** Implementation of QGArray class
 **
@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#15 $";
 #endif
 
 
@@ -308,13 +308,14 @@ QGArray &QGArray::duplicate( const char *d, uint len )
 {						// deep copy
     bool overlap = d >= p->data && d < p->data + p->len;
     char *oldptr = 0;
+    bool null = !(d && len);
     if ( p->count > 1 ) {			// disconnect this
 	p->count--;
 	p = newData();
 	CHECK_PTR( p );
     }
     else {					// just a single reference
-	if ( len == p->len ) {			// same size; copy the data
+	if ( len == p->len && !null ) {		// same size; copy the data
 	    if ( overlap )
 		memmove( p->data, d, len );
 	    else
@@ -326,9 +327,9 @@ QGArray &QGArray::duplicate( const char *d, uint len )
 	else if ( p->data )
 	    DELETE(p->data);
     }
-    if ( !(d && len) ) {			// null value
+    if ( null ) {				// null value
 	p->data = 0;
-	p->len = 0;
+	p->len  = 0;
     }
     else {					// duplicate data
 	p->data = NEW(char,len);
