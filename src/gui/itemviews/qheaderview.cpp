@@ -99,7 +99,7 @@ static const int default_height = 30;
 
     Each header has an orientation() and a number of sections, given by
     the count() function. Sections can be moved and resized using
-    moveSection() and resizeSection(), and they can be hidden and shown
+    moveSection() and resizeSection(); they can be hidden and shown
     with hideSection() and showSection().
 
     Each section of a header is described by a section ID, specified by
