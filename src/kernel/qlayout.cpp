@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#71 $
 **
 ** Implementation of layout classes
 **
@@ -51,6 +51,9 @@ public:
     bool isEmpty() const { return item->isEmpty(); }
     QLayoutItem::SearchResult removeWidget( QWidget *w ) { return item->removeW(w); }
 
+    bool hasHeightForWidth() const { return item->hasHeightForWidth(); }
+    int heightForWidth( int w ) const { return item->heightForWidth(w); }
+    
     void setAlignment( int a ) { item->setAlignment( a ); }
     void setGeometry( const QRect &r ) { item->setGeometry( r ); }
     int alignment() const { return item->alignment(); }
@@ -101,23 +104,25 @@ public:
     void setDirty() { needRecalc = TRUE; hfw_width = -1; }
 
     bool hasHeightForWidth();
-    int heightForWidth( int );
+    int heightForWidth( int, int defB );
 
     bool findWidget( QWidget* w, int *row, int *col );
-    
+
 private:
-    void recalcHFW( int w );
+    void recalcHFW( int w, int s );
     void init();
     QSize findSize( QCOORD QLayoutStruct::*, int ) const;
     void addData ( QLayoutBox *b, bool r = TRUE, bool c = TRUE );
     void setSize( int rows, int cols );
     void setupLayoutData();
+    void setupHfwLayoutData();
     int rr;
     int cc;
     bool hReversed;
     bool vReversed;
     QArray<QLayoutStruct> rowData;
     QArray<QLayoutStruct> colData;
+    QArray<QLayoutStruct> *hfwData;
     QList<QLayoutBox> things;
     QList<QMultiBox> *multi;
     bool needRecalc;
@@ -125,7 +130,6 @@ private:
     int hfw_width;
     int hfw_height;
 };
-
 
 QLayoutArray::QLayoutArray()
 {
@@ -139,11 +143,19 @@ QLayoutArray::QLayoutArray( int nRows, int nCols )
     setSize( nRows, nCols );
 }
 
+QLayoutArray::~QLayoutArray()
+{
+    delete multi;
+    delete hfwData;
+}
+
+
 void QLayoutArray::init()
 {
     setDirty();
     multi = 0;
     rr = cc = 0;
+    hfwData = 0;
     things.setAutoDelete( TRUE );
     hReversed = vReversed = FALSE;
 }
@@ -154,26 +166,40 @@ bool QLayoutArray::hasHeightForWidth()
     return has_hfw;
 }
 
-void QLayoutArray::recalcHFW( int w )
+/* Assumes that setupLayoutData has been called.
+   And that qGeomCalc has filled in colData with appropriate values
+*/
+void QLayoutArray::recalcHFW( int w, int spacing )
 {
-    int h = -1;
-    setupLayoutData();
-
-    //now do qGeomCalc( w )
-	
-    //then go through all children, using colData and heightForWidth()
+    //go through all children, using colData and heightForWidth()
     //and put the results in hfw_rowData
+    if ( !hfwData )
+	hfwData = new QArray<QLayoutStruct>( rr );
+    setupHfwLayoutData();
+    QArray<QLayoutStruct> &rData = *hfwData;
 
-    //
+    int h = 0;
+    int n = 0;
+    for ( int r = 0; r < rr; r++ ) {
+	h = h + rData[r].sizeHint;
+	if ( !rData[r].empty )
+	    n++;
+    }
+    if ( n )
+	h += (n-1)*spacing;
+    h = QMIN( QCOORD_MAX, h );//not 32-bit safe
 
     hfw_height = h;
     hfw_width = w;
 }
 
-int QLayoutArray::heightForWidth( int w )
+int QLayoutArray::heightForWidth( int w, int spacing )
 {
-    if ( needRecalc || w != hfw_width )
-	recalcHFW( w );
+    setupLayoutData();
+    if ( has_hfw && w != hfw_width ) {
+	qGeomCalc( colData, cc, 0, w, spacing );
+	recalcHFW( w, spacing );
+    }
     return hfw_height;
 }
 
@@ -212,7 +238,7 @@ bool QLayoutArray::findWidget( QWidget* w, int *row, int *col )
     return FALSE;
 
 }
-    
+
 
 
 
@@ -423,28 +449,95 @@ static void distributeMultiBox( QArray<QLayoutStruct> &chain,
 
 
 
-//#define QT_LAYOUT_DISABLE_CACHING
+
 void QLayoutArray::setupLayoutData()
 {
 #ifndef QT_LAYOUT_DISABLE_CACHING
     if ( !needRecalc )
-	return;
+        return;
 #endif
     has_hfw = FALSE;
     int i;
     for ( i = 0; i < rr; i++ ) {
-	rowData[i].initParameters();
+        rowData[i].initParameters();
     }
     for ( i = 0; i < cc; i++ ) {
-	colData[i].initParameters();
+        colData[i].initParameters();
+    }
+    QListIterator<QLayoutBox> it( things );
+    QLayoutBox * box;
+    while ( (box=it.current()) != 0 ) {
+        ++it;
+        addData( box );
+        has_hfw = has_hfw || box->item->hasHeightForWidth();
+
+    }
+
+    if ( multi ) {
+        QListIterator<QMultiBox> it( *multi );
+        QMultiBox * mbox;
+        while ( (mbox=it.current()) != 0 ) {
+            ++it;
+            QLayoutBox *box = mbox->box();
+            int r1 = box->row;
+            int c1 = box->col;
+            int r2 = mbox->torow;
+            int c2 = mbox->tocol;
+            if ( r2 < 0 )
+                r2 = rr-1;
+            if ( c2 < 0 )
+                c2 = cc-1;
+            QSize hint = box->sizeHint();
+            QSize min = box->minimumSize();
+            if ( r1 == r2 ) {
+                addData( box, TRUE, FALSE );
+            } else {
+                distributeMultiBox( rowData, r1, r2,
+                                    min.height(), hint.height() );
+            }
+            if ( c1 == c2 ) {
+                addData( box, FALSE, TRUE );
+            } else {
+                distributeMultiBox( colData, c1, c2,
+                                    min.width(), hint.width() );
+            }
+        }
+    }
+    for ( i = 0; i < rr; i++ ) {
+        rowData[i].expansive = rowData[i].maximumSize > rowData[i].sizeHint &&
+                            ( rowData[i].expansive || rowData[i].stretch > 0 );
+    }
+    for ( i = 0; i < cc; i++ ) {
+        colData[i].expansive = colData[i].maximumSize > colData[i].sizeHint &&
+                            ( colData[i].expansive || colData[i].stretch > 0 );
+    }
+
+
+    needRecalc = FALSE;
+}
+
+/*
+  similar to setupLayoutData, but uses 
+  heightForWidth( colData ) instead of sizeHint
+  assumes that setupLayoutData and qGeomCalc( colData ) has been called
+ */
+void QLayoutArray::setupHfwLayoutData()
+{
+    QArray<QLayoutStruct> &rData = *hfwData;
+    int i;
+    for ( i = 0; i < rr; i++ ) {
+	rData[i] = rowData[i];
+	rData[i].sizeHint = 0;
     }
     QListIterator<QLayoutBox> it( things );
     QLayoutBox * box;
     while ( (box=it.current()) != 0 ) {
 	++it;
-	addData( box );
-	has_hfw = has_hfw || box->item->hasHeightForWidth();
-	
+	int hint = box->sizeHint().height();
+	if ( box->hasHeightForWidth() )
+	    hint = box->heightForWidth( colData[box->col].size );
+	rData[box->row].sizeHint = QMAX( hint,
+					 rData[box->row].sizeHint );
     }
 
     if ( multi ) {
@@ -453,59 +546,55 @@ void QLayoutArray::setupLayoutData()
 	while ( (mbox=it.current()) != 0 ) {
 	    ++it;
 	    QLayoutBox *box = mbox->box();
-	    int r1 = box->row;
-	    int c1 = box->col;
-	    int r2 = mbox->torow;
-	    int c2 = mbox->tocol;
-	    if ( r2 < 0 )
-		r2 = rr-1;
-	    if ( c2 < 0 )
-		c2 = cc-1;
-	    QSize hint = box->sizeHint();
+            int r1 = box->row;
+            int c1 = box->col;
+            int r2 = mbox->torow;
+            int c2 = mbox->tocol;
+            if ( r2 < 0 )
+                r2 = rr-1;
+            if ( c2 < 0 )
+                c2 = cc-1;
+	    QSize hint = box->sizeHint(); //#### must hfw-ify!
+	    //(however, distributeMultiBox ignores sizeHint now...)
 	    QSize min = box->minimumSize();
 	    if ( r1 == r2 ) {
 		addData( box, TRUE, FALSE );
 	    } else {
-		distributeMultiBox( rowData, r1, r2,
+		distributeMultiBox( rData, r1, r2,
 				    min.height(), hint.height() );
-	    }
-	    if ( c1 == c2 ) {
-		addData( box, FALSE, TRUE );
-	    } else {
-		distributeMultiBox( colData, c1, c2,
-				    min.width(), hint.width() );
 	    }
 	}
     }
     for ( i = 0; i < rr; i++ ) {
-	rowData[i].expansive = rowData[i].maximumSize > rowData[i].sizeHint &&
-			    ( rowData[i].expansive || rowData[i].stretch > 0 );
+	rData[i].expansive = rData[i].maximumSize > rData[i].sizeHint &&
+			     ( rData[i].expansive || rData[i].stretch > 0 );
     }
-    for ( i = 0; i < cc; i++ ) {
-	colData[i].expansive = colData[i].maximumSize > colData[i].sizeHint &&
-			    ( colData[i].expansive || colData[i].stretch > 0 );
-    }
-
-
-    needRecalc = FALSE;
 }
 
 void QLayoutArray::distribute( QRect r, int spacing )
 {
-    //setDirty(); (???) --- so we know that it is clean
     setupLayoutData();
 
     qGeomCalc( colData, cc, r.x(), r.width(), spacing );
-    qGeomCalc( rowData, rr, r.y(), r.height(), spacing );
-
+    QArray<QLayoutStruct> *rDataPtr;
+    if ( has_hfw ) {
+	recalcHFW( r.width(), spacing );
+	qGeomCalc( *hfwData, rr, r.y(), r.height(), spacing );
+	rDataPtr = hfwData;
+    } else {
+	qGeomCalc( rowData, rr, r.y(), r.height(), spacing );
+	rDataPtr = &rowData;
+    }
+    QArray<QLayoutStruct> &rData = *rDataPtr; //cannot assign to reference
+    
     QListIterator<QLayoutBox> it( things );
     QLayoutBox * box;
     while ( (box=it.current()) != 0 ) {
 	++it;
 	int x = colData[box->col].pos;
-	int y = rowData[box->row].pos;
+	int y = rData[box->row].pos;
 	int w = colData[box->col].size;
-	int h = rowData[box->row].size;
+	int h = rData[box->row].size;
 	if ( hReversed )
 	    x = r.left() + r.right() - x - w;
 	if ( vReversed )
@@ -527,9 +616,9 @@ void QLayoutArray::distribute( QRect r, int spacing )
 		c2 = cc-1;
 
 	    int x = colData[box->col].pos;
-	    int y = rowData[box->row].pos;
+	    int y = rData[box->row].pos;
 	    int x2 = colData[c2].pos + colData[c2].size;
-	    int y2 = rowData[r2].pos + rowData[r2].size;
+	    int y2 = rData[r2].pos + rData[r2].size;
 	    int w = x2 - x + 1;
 	    int h = y2 - y + 1;
 	    // this code is copied from above:
@@ -803,7 +892,7 @@ bool QGridLayout::hasHeightForWidth() const
 
 int QGridLayout::heightForWidth( int w ) const
 {
-    return ((QGridLayout*)this)->array->heightForWidth( w );
+    return ((QGridLayout*)this)->array->heightForWidth( w, defaultBorder() );
 }
 
 
@@ -813,7 +902,7 @@ int QGridLayout::heightForWidth( int w ) const
   Searches for \a w in this layout (not including child layouts).  If
   \a w is found, it sets \a row and \a col to the row and column and
   returns TRUE. If \a w is not found, FALSE is returned.
-  
+
   \warning If a widget spans  multiple rows/columns, the top-left cell is returne
 */
 
@@ -1331,7 +1420,7 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 /*!
   Sets the stretch factor for widget \a w to \a stretch and returns
   TRUE, if \a w is found in this layout (not including child layouts).
-  
+
   Returns FALSE if \a w is not found.
 */
 
