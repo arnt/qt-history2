@@ -25,16 +25,16 @@ public:
     }
 
     virtual void paint(QPainter *painter, const QStyleOptionViewItem &options,
-                       const QModelIndex &index) const;
+                       const QAbstractItemModel *model, const QModelIndex &index) const;
     virtual QSize sizeHint(const QFontMetrics &, const QStyleOptionViewItem &,
-                           const QModelIndex &) const
+                           const QAbstractItemModel *model, const QModelIndex &) const
     {
         return QSize(100, 30);
     }
 };
 
 void ItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &options,
-                         const QModelIndex &index) const
+                         const QAbstractItemModel *model, const QModelIndex &index) const
 {
     QColor base = qApp->palette().color(QPalette::Base);
 
@@ -61,7 +61,7 @@ void ItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &options,
     QRect textRect = r;
     if (selected)
         textRect.moveBy(1, 1);
-    painter->drawText(textRect, Qt::AlignCenter, model()->data(index).toString());
+    painter->drawText(textRect, Qt::AlignCenter, model->data(index).toString());
 
     painter->setPen(selected ? Qt::white : Qt::black);
     painter->drawEdges(r, Qt::RectangleEdges(Qt::BottomEdge | Qt::RightEdge));
