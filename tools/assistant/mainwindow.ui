@@ -453,4 +453,5 @@
   </actionGroup>
  </widget>
  <layoutDefault spacing="6" margin="11" />
+ <pixmapFunction>qPixmapFromMimeSource</pixmapFunction>
 </UI>
