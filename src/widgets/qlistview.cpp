@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#5 $
 **
 ** Implementation of something useful
 **
@@ -16,13 +16,13 @@
 #include "qscrbar.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#5 $");
 
 /*!
   \class QListViewItem qlistview.h
   \brief The QListViewItem class implements a listview item.
 
-  This class is not documented
+  This class is not finished.
  */
 
 
@@ -285,7 +285,16 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 }
 
 
-/*!  
+/*!  Paints a set of branches from this item to (some of) its children.
+
+  \a p is set up with clipping and translation so that you can draw
+  only in the rectangle you need to; \a cg is the color group to use,
+  0,top is the top left corner of the update rectangle, w-1,top is the
+  top right corner, 0,bottom-1 is the bottom left corner and the
+  bottom right corner is left as an excercise for the reader.
+
+  The update rectangle is in an undefined state when this function is
+  called; this function must draw on \e all of the pixels.
 */
 
 void QListViewItem::paintTreeBranches( QPainter * p, const QColorGroup & cg,
@@ -387,17 +396,15 @@ void QListViewRoot::invalidateHeight()
 
 /*!
   \class QListView qlistview.h
-  \brief The QListView class implements a list view.
+  \brief The QListView class implements a tree/list view.
 
-  This class is not documented at all
- */
-
-
-
-
-/* !
-
+  Lots of things don't work yet.  The tree view functionality hasn't
+  been tested since the last extensive changes, focus stuff doesn't
+  work, input is ignored and so on.
 */
+
+/*!  Creates a new empty list view, with \a parent as a parent and \a
+  name as object name. */
 
 QListView::QListView( QWidget * parent, const char * name )
     : QScrollView( parent, name )
@@ -420,9 +427,8 @@ QListView::QListView( QWidget * parent, const char * name )
 }
 
 
-/* !
-
-*/
+/*!  Deletes the list view and all items in it, and frees all
+  allocated resources.  */
 
 QListView::~QListView()
 {
@@ -430,8 +436,10 @@ QListView::~QListView()
 }
 
 
-/* !
-
+/*!  Calls QListViewItem::paintCell() and/or
+  QListViewItem::paintTreeBranches() for all list view items that
+  require repainting.  See the documentation for those functions for
+  details.
 */
 
 void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
@@ -617,9 +625,8 @@ void QListView::insertItem( QListViewItem * i )
 }
 
 
-/* !
-
-*/
+/*!  Remove all the list view items from the list, and trigger an
+  update. \sa triggerUpdate() */
 
 void QListView::clear()
 {
@@ -633,9 +640,9 @@ void QListView::clear()
 }
 
 
-/* !
-
-*/
+/*!  Sets the header for column \a column to be labelled \a label and
+  be \a size pixels wide.  If \a column is negative (as it is by
+  default) setColumn() adds a new column at the right end. */
 
 void QListView::setColumn( const char * label, int size, int column )
 {
@@ -646,9 +653,8 @@ void QListView::setColumn( const char * label, int size, int column )
 }
 
 
-/* !
-
-*/
+/*!  Reimplemented to set the correct background mode and viewed area
+  size. */
 
 void QListView::show()
 {
@@ -656,13 +662,13 @@ void QListView::show()
     if ( v )
 	v->setBackgroundMode( NoBackground );
 
-    viewResize( 250, root->totalHeight() );
+    viewResize( 250, root->totalHeight() ); // ### 250
     QScrollView::show();
 }
 
 
-/* !
-
+/*!  Updates the sizes of the viewport, header, scrollbars and so on.
+  Don't call this directly; call triggerUpdates() instead.
 */
 
 void QListView::updateContents()
@@ -676,35 +682,23 @@ void QListView::updateContents()
 			  frameRect().width(), h );
     setMargins( 0, h, 0, 0 );
 
-    viewResize( w, root->totalHeight() );
+    viewResize( w, root->totalHeight() );  // repaints
 }
 
 
-/* !
+/*!  Trigger a size-and-stuff update during the next iteration of the
+  event loop.  Cleverly makes sure that there'll be just one.
 
 */
 
 void QListView::triggerUpdate()
 {
     root->timer->start( 0, TRUE );
-    viewport()->repaint();
 }
 
 
-/* !
-
-*/
-
-void QListView::resizeEvent( QResizeEvent * e )
-{
-    QScrollView::resizeEvent( e );
-    updateContents();
-}
-
-
-/* !
-
-*/
+/*!  Does nothing at present.  Intended to deliver relevant input
+   events to the appropriate QListViewItem. */
 
 bool QListView::eventFilter( QObject * o, QEvent * e )
 {

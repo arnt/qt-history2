@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#1 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#2 $
 **
 ** Definition of 
 **
@@ -84,7 +84,6 @@ signals:
 
 protected:
     bool eventFilter( QObject * o, QEvent * );
-    void resizeEvent( QResizeEvent * );
     void drawContentsOffset( QPainter *, int ox, int oy,
 			     int cx, int cy, int cw, int ch );
 
