@@ -32,13 +32,11 @@ void ConfigToolboxDialog::init()
     QObject::connect( commonDnd, SIGNAL( dropped( QListViewItem * ) ),
 			commonDnd, SLOT( confirmDrop( QListViewItem * ) ) );
 
-    QDict<QListViewItem> groups;
-    QAction *a;
-    for ( a = MainWindow::self->toolActions.last();
-	  a;
-	  a = MainWindow::self->toolActions.prev() ) {
+    QHash<QString, QListViewItem *> groups;
+    for(QList<QAction*>::Iterator it = MainWindow::self->toolActions.end(); it != MainWindow::self->toolActions.begin(); --it) {
+	QAction *a = (*it);
 	QString grp = ( (WidgetAction*)a )->group();
-	QListViewItem *parent = groups.find( grp );
+	QListViewItem *parent = groups.value( grp );
 	if ( !parent ) {
 	    parent = new QListViewItem( listViewTools );
 	    parent->setText( 0, grp );
@@ -49,8 +47,8 @@ void ConfigToolboxDialog::init()
 	i->setText( 0, a->text() );
 	i->setPixmap( 0, a->iconSet().pixmap() );
     }
-    for ( a = MainWindow::self->commonWidgetsPage.last(); a;
-    a = MainWindow::self->commonWidgetsPage.prev() ) {
+    for(QList<QAction*>::Iterator it = MainWindow::self->toolActions.end(); it != MainWindow::self->toolActions.begin(); --it) {
+	QAction *a = (*it);
 	QListViewItem *i = new QListViewItem( listViewCommon );
 	i->setText( 0, a->text() );
 	i->setPixmap( 0, a->iconSet().pixmap() );
@@ -189,14 +187,14 @@ void ConfigToolboxDialog::ok()
     MainWindow::self->commonWidgetsPage.clear();
     QListViewItem *item = listViewCommon->firstChild();
     for ( int j = 0; j < listViewCommon->childCount(); item = item->itemBelow(), ++j ) {
-        QAction *a = 0;
-	for ( a = MainWindow::self->toolActions.last();
-	    a;
-	    a = MainWindow::self->toolActions.prev() ) {
-	    if ( a->text() == item->text( 0 ) )
+	QAction *found = NULL;
+	for(QList<QAction*>::Iterator it = MainWindow::self->toolActions.end(); it != MainWindow::self->toolActions.begin(); --it) {
+	    if ( (*it)->text() == item->text( 0 ) ) {
+		found = (*it);
 		break;
+	    }
 	}
-	if ( a )
-	    MainWindow::self->commonWidgetsPage.insert( j, a );
+	if ( found )
+	    MainWindow::self->commonWidgetsPage.insert( j, found );
     }
 }

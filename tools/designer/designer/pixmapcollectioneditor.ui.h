@@ -69,8 +69,8 @@ void PixmapCollectionEditor::updateView()
 
     viewPixmaps->clear();
 
-    QValueList<PixmapCollection::Pixmap> pixmaps = project->pixmapCollection()->pixmaps();
-    for ( QValueList<PixmapCollection::Pixmap>::Iterator it = pixmaps.begin(); it != pixmaps.end(); ++it ) {
+    QList<PixmapCollection::Pixmap> pixmaps = project->pixmapCollection()->pixmaps();
+    for ( QList<PixmapCollection::Pixmap>::Iterator it = pixmaps.begin(); it != pixmaps.end(); ++it ) {
 	// #### might need to scale down the pixmap
 	QIconViewItem *item = new QIconViewItem( viewPixmaps, (*it).name, scaledPixmap( (*it).pix ) );
 	//item->setRenameEnabled( TRUE ); // this will be a bit harder to implement

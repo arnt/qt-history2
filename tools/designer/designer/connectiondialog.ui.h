@@ -80,9 +80,9 @@ void ConnectionDialog::init()
 	validConnection = new QPixmap( valid_connection );
     }
 
-    QValueList<MetaDataBase::Connection> conns =
+    QList<MetaDataBase::Connection> conns =
 	MetaDataBase::connections( MainWindow::self->formWindow() );
-    for ( QValueList<MetaDataBase::Connection>::Iterator it = conns.begin();
+    for ( QList<MetaDataBase::Connection>::Iterator it = conns.begin();
 	  it != conns.end(); ++it ) {
 	ConnectionContainer *c = addConnection( (*it).sender, (*it).receiver,
 						(*it).signal, (*it).slot );
@@ -187,7 +187,7 @@ void ConnectionDialog::updateConnectionState( ConnectionContainer *c )
 
 void ConnectionDialog::okClicked()
 {
-    QValueList<MetaDataBase::Connection> oldConnections =
+    QList<MetaDataBase::Connection> oldConnections =
 	MetaDataBase::connections( MainWindow::self->formWindow() );
     QPtrList<Command> newConnectionCmds;
     QPtrList<Command> oldConnectionCmds;
@@ -214,9 +214,8 @@ void ConnectionDialog::okClicked()
     }
 
 
-    QValueList<MetaDataBase::Connection> conns =
-	MetaDataBase::connections( MainWindow::self->formWindow() );
-    for ( QValueList<MetaDataBase::Connection>::Iterator it = conns.begin();
+    QList<MetaDataBase::Connection> conns = MetaDataBase::connections( MainWindow::self->formWindow() );
+    for ( QList<MetaDataBase::Connection>::Iterator it = conns.begin();
 	  it != conns.end(); ++it ) {
 	RemoveConnectionCommand *cmd = new RemoveConnectionCommand( tr( "Remove Signal/Slot "
 									"Connection" ),
