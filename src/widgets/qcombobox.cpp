@@ -1437,12 +1437,18 @@ void QComboBox::wheelEvent( QWheelEvent *e )
     } else {
 	if ( e->delta() > 0 ) {
 	    int c = currentItem();
-	    if ( c > 0 )
+	    if ( c > 0 ) {
 		setCurrentItem( c-1 );
+		emit activated( currentItem() );
+		emit activated( currentText() );
+	    }
 	} else {
 	    int c = currentItem();
-	    if ( ++c < count() )
+	    if ( ++c < count() ) {
 		setCurrentItem( c );
+		emit activated( currentItem() );
+		emit activated( currentText() );
+	    }
 	}
 	e->accept();
     }
