@@ -1,43 +1,25 @@
 #include <qabstracttextdocumentlayout.h>
 #include <qtextformat.h>
-#include <private/qobject_p.h>
-#include <qhash.h>
 
-struct Handler
-{
-    QTextInlineObjectInterface *iface;
-    QObject *component;
-};
-typedef QHash<int, Handler> HandlerHash;
-
-class QAbstractTextDocumentLayoutPrivate : public QObjectPrivate
-{
-public:
-    Q_DECLARE_PUBLIC(QAbstractTextDocumentLayout);
-
-    HandlerHash handlers;
-
-    QSize pageSize;
-};
-
+#include "qabstracttextdocumentlayout_p.h"
 #define d d_func()
 #define q q_func()
 
-QAbstractTextDocumentLayout::QAbstractTextDocumentLayout(QObject *parent)
-    : QObject(*new QAbstractTextDocumentLayoutPrivate, parent)
+QAbstractTextDocumentLayout::QAbstractTextDocumentLayout()
+    : QObject(*new QAbstractTextDocumentLayoutPrivate, 0)
 {
 }
 
 
 void QAbstractTextDocumentLayout::registerHandler(int formatType, QObject *component)
 {
-    QTextInlineObjectInterface *iface = qt_cast<QTextInlineObjectInterface *>(component);
+    QTextObjectInterface *iface = qt_cast<QTextObjectInterface *>(component);
     if (!iface)
 	return; // ### print error message on terminal?
 
     connect(component, SIGNAL(destroyed(QObject *)), this, SLOT(handlerDestroyed(QObject *)));
 
-    Handler h;
+    QTextObjectHandler h;
     h.iface = iface;
     h.component = component;
     d->handlers.insert(formatType, h);
@@ -45,15 +27,16 @@ void QAbstractTextDocumentLayout::registerHandler(int formatType, QObject *compo
 
 void QAbstractTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &format)
 {
-    Handler handler = d->handlers.value(format.type());
+    QTextObjectHandler handler = d->handlers.value(format.type());
     if (!handler.component)
 	return;
     handler.iface->layoutObject(item, format);
 }
 
-void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QPoint &position, QTextObject item, const QTextFormat &format, QTextLayout::SelectionType selType)
+void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QPoint &position, QTextObject item,
+					     const QTextFormat &format, QTextLayout::SelectionType selType)
 {
-    Handler handler = d->handlers.value(format.type());
+    QTextObjectHandler handler = d->handlers.value(format.type());
     if (!handler.component)
 	return;
     handler.iface->drawObject(p, position, item, format, selType);

@@ -17,6 +17,8 @@ class QAbstractTextDocumentLayout : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QAbstractTextDocumentLayout);
+    friend class QTextDocument;
+
 public:
     struct PaintContext
     {
@@ -25,7 +27,7 @@ public:
 	bool showCursor;
     };
 
-    QAbstractTextDocumentLayout(QObject *parent);
+    QAbstractTextDocumentLayout();
 
     virtual void draw(QPainter *painter, const PaintContext &context) = 0;
     virtual int hitTest(const QPoint &point, QText::HitTestAccuracy accuracy) const = 0;
@@ -52,12 +54,12 @@ private slots:
     void handlerDestroyed(QObject *obj);
 };
 
-class QTextInlineObjectInterface
+class QTextObjectInterface
 {
 public:
     virtual void layoutObject(QTextObject object, const QTextFormat &format) = 0;
     virtual void drawObject(QPainter *painter, const QPoint &position, QTextObject object, const QTextFormat &format, QTextLayout::SelectionType selection) = 0;
 };
-Q_DECLARE_INTERFACE(QTextInlineObjectInterface)
+Q_DECLARE_INTERFACE(QTextObjectInterface)
 
 #endif

@@ -10,6 +10,8 @@
 #include <qtextlayout.h>
 #include <qdebug.h>
 
+#include "qtextdocument_p.h"
+
 enum {
     AdjustPrev = 0x1,
     AdjustUp = 0x3,
@@ -157,10 +159,10 @@ void QTextCursorPrivate::adjustCursor(int dir)
     QTextTablePrivate *t_position = 0;
 
     if (t_anchor_)
-	t_anchor = t_anchor_->d;
+	t_anchor = t_anchor_->d_func();
 
     if (t_position_)
-	t_position = t_position_->d;
+	t_position = t_position_->d_func();
 
     // first adjust position if needed
     if (t_position) {
@@ -363,9 +365,9 @@ QTextCursor::QTextCursor()
     Constructs a cursor pointing to the beginning of \a document.
  */
 QTextCursor::QTextCursor(QTextDocument *document)
-    : d(new QTextCursorPrivate(const_cast<const QTextDocument*>(document)->pieceTable))
+    : d(new QTextCursorPrivate(const_cast<const QTextDocument*>(document)->d_func()->pieceTable))
 {
-    Q_ASSERT(document->pieceTable->blocksBegin() != document->pieceTable->blocksEnd());
+    Q_ASSERT(d->pieceTable->blocksBegin() != d->pieceTable->blocksEnd());
 }
 
 /*!

@@ -11,7 +11,7 @@
 class QTextImageFormat;
 
 class QTextImageHandler : public QObject,
-			public QTextInlineObjectInterface
+			  public QTextObjectInterface
 {
     Q_OBJECT
 public:

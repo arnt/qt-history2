@@ -6,10 +6,12 @@
 #include "qtextcursor.h"
 #include "qtexttable.h"
 
-#include <private/qobject_p.h>
 #include <qdebug.h>
 
 #include <stdlib.h>
+
+#define d d_func()
+#define q q_func()
 
 QTextTableManager::QTextTableManager(QTextPieceTable *table)
     : QObject(table)

@@ -3,19 +3,15 @@
 
 #ifndef QT_H
 #include <qobject.h>
-#include <qshareddatapointer.h>
 #endif // QT_H
 
 class QTextFormatCollection;
-class QTextListManager;
-class QTextTableManager;
 class QTextListFormat;
 class QTextPieceTable;
 class QSize;
 class QRect;
 class QPainter;
-
-typedef QExplicitlySharedDataPointer<QTextPieceTable> QTextPieceTablePointer;
+class QAbstractTextDocumentLayout;
 
 namespace QText
 {
@@ -35,14 +31,18 @@ inline QAbstractUndoItem::~QAbstractUndoItem()
 {
 }
 
+class QTextDocumentPrivate;
+
 class Q_GUI_EXPORT QTextDocument : public QObject
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QTextDocument);
     friend class QTextEditor; // ####
     friend class QTextCursor;
 public:
     QTextDocument(QObject *parent = 0);
     QTextDocument(const QString &text, QObject *parent = 0);
+    QTextDocument(QAbstractTextDocumentLayout *documentLayout, QObject *parent = 0);
     ~QTextDocument();
 
     QString plainText() const;
@@ -54,8 +54,10 @@ public:
 
     bool isUndoRedoAvailable() const;
 
-    // ###
-    inline QTextPieceTablePointer &table() { return pieceTable; }
+    QAbstractTextDocumentLayout *documentLayout() const;
+
+//     // ###
+//     inline QTextPieceTablePointer &table() { return pieceTable; }
 
     QString documentTitle() const;
 
@@ -76,9 +78,6 @@ public slots:
 
 private:
     void undoRedo(bool undo);
-    void init();
-
-    QTextPieceTablePointer pieceTable;
 
 #if defined(Q_DISABLE_COPY)
     QTextDocument(const QTextDocument &);

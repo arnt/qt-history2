@@ -7,6 +7,10 @@
 #include "qtextpiecetable_p.h"
 #include <private/qtextformat_p.h>
 #endif // QT_H
+
+#include <qshareddatapointer.h>
+typedef QExplicitlySharedDataPointer<QTextPieceTable> QTextPieceTablePointer;
+
 class QTextCursorPrivate : public QSharedObject
 {
 public:

@@ -118,7 +118,7 @@ public:
     };
 
 
-    QTextPieceTable();
+    QTextPieceTable(QAbstractTextDocumentLayout *layout);
     ~QTextPieceTable();
 
     void insert(int pos, const QString &text, int format = -1);

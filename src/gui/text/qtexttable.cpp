@@ -6,11 +6,14 @@
 #include "qtextlist_p.h"
 #include <private/qtextformat_p.h>
 
+#define d d_func()
+#define q q_func()
+
 QTextTableCellProperties::QTextTableCellProperties()
     : r(-1), c(-1), rSpan(0), cSpan(0)
 {}
 
-QTextTableCellProperties::QTextTableCellProperties(QTextTablePrivate *p, QTextPieceTable *pieceTable, int row, int col)
+QTextTableCellProperties::QTextTableCellProperties(const QTextTablePrivate *p, QTextPieceTable *pieceTable, int row, int col)
 	: r(row), c(col)
 {
     // + 1, see comment in QTextTable::start() why
@@ -44,14 +47,13 @@ QTextTableCellProperties::QTextTableCellProperties(QTextTablePrivate *p, QTextPi
 QTextTableCellProperties::~QTextTableCellProperties() {}
 
 QTextTable::QTextTable(QTextPieceTable *pt, QObject *parent)
-    : QObject(parent), d(new QTextTablePrivate), pieceTable(pt)
+    : QObject(*new QTextTablePrivate, parent), pieceTable(pt)
 {
     Q_ASSERT(pt);
 }
 
 QTextTable::~QTextTable()
 {
-    delete d;
 }
 
 

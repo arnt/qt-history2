@@ -3,18 +3,33 @@
 #include <qtextformat.h>
 #include "qtextdocumentlayout_p.h"
 
-QTextDocument::QTextDocument(QObject *parent)
-    : QObject(parent), pieceTable(new QTextPieceTable)
+#include "qtextdocument_p.h"
+#define d d_func()
+#define q q_func()
+
+static void init(QTextDocumentPrivate *priv, QAbstractTextDocumentLayout *layout = 0)
 {
-    init();
+    priv->pieceTable = new QTextPieceTable(layout);
+    QObject::connect(priv->pieceTable, SIGNAL(contentsChanged()), priv->q, SIGNAL(contentsChanged()));
+}
+
+QTextDocument::QTextDocument(QObject *parent)
+    : QObject(*new QTextDocumentPrivate, parent)
+{
+    init(d);
 }
 
 QTextDocument::QTextDocument(const QString &text, QObject *parent)
-    : QObject(parent), pieceTable(new QTextPieceTable)
+    : QObject(*new QTextDocumentPrivate, parent)
 {
-    init();
-
+    init(d);
     QTextCursor(this).insertText(text);
+}
+
+QTextDocument::QTextDocument(QAbstractTextDocumentLayout *documentLayout, QObject *parent)
+    : QObject(*new QTextDocumentPrivate, parent)
+{
+    init(d, documentLayout);
 }
 
 QTextDocument::~QTextDocument()
@@ -23,7 +38,7 @@ QTextDocument::~QTextDocument()
 
 QString QTextDocument::plainText() const
 {
-    QString txt = pieceTable->plainText();
+    QString txt = d->pieceTable->plainText();
     txt.replace(QTextParagraphSeparator, "\n");
     // remove initial paragraph
     txt.remove(0, 1);
@@ -34,12 +49,12 @@ bool QTextDocument::isEmpty() const
 {
     /* because if we're empty we still have one single paragraph as
      * one single fragment */
-    return pieceTable->length() <= 1;
+    return d->pieceTable->length() <= 1;
 }
 
 void QTextDocument::undoRedo(bool undo)
 {
-    pieceTable->undoRedo(undo);
+    d->pieceTable->undoRedo(undo);
 }
 
 /*!
@@ -47,7 +62,7 @@ void QTextDocument::undoRedo(bool undo)
 */
 void QTextDocument::appendUndoItem(QAbstractUndoItem *item)
 {
-    pieceTable->appendUndoItem(item);
+    d->pieceTable->appendUndoItem(item);
 }
 
 /*!
@@ -58,40 +73,41 @@ void QTextDocument::appendUndoItem(QAbstractUndoItem *item)
 */
 void QTextDocument::enableUndoRedo(bool enable)
 {
-    pieceTable->enableUndoRedo(enable);
+    d->pieceTable->enableUndoRedo(enable);
 }
 
 bool QTextDocument::isUndoRedoEnabled() const
 {
-    return pieceTable->isUndoRedoEnabled();
+    return d->pieceTable->isUndoRedoEnabled();
 }
 
 bool QTextDocument::isUndoRedoAvailable() const
 {
-    return pieceTable->isUndoRedoAvailable();
+    return d->pieceTable->isUndoRedoAvailable();
 }
+
+QAbstractTextDocumentLayout *QTextDocument::documentLayout() const
+{
+    return d->pieceTable->layout();
+}
+
 
 QString QTextDocument::documentTitle() const
 {
-    return pieceTable->config()->title;
-}
-
-void QTextDocument::init()
-{
-    connect(pieceTable, SIGNAL(contentsChanged()), this, SIGNAL(contentsChanged()));
+    return d->pieceTable->config()->title;
 }
 
 void QTextDocument::setPageSize(const QSize &s)
 {
-    pieceTable->layout()->setPageSize(s);
+    d->pieceTable->layout()->setPageSize(s);
 }
 
 QSize QTextDocument::pageSize() const
 {
-    return pieceTable->layout()->pageSize();
+    return d->pieceTable->layout()->pageSize();
 }
 
 int QTextDocument::numPages() const
 {
-    return pieceTable->layout()->numPages();
+    return d->pieceTable->layout()->numPages();
 }

@@ -13,11 +13,10 @@
 #include <qrect.h>
 #include <qpalette.h>
 
-QTextDocumentLayout::QTextDocumentLayout(QTextPieceTable *parent)
-    : QAbstractTextDocumentLayout(parent)
+QTextDocumentLayout::QTextDocumentLayout()
+    : QAbstractTextDocumentLayout()
 {
     registerHandler(QTextFormat::ImageFormat, new QTextImageHandler(this));
-    recreateAllBlocks();
 }
 
 

@@ -59,7 +59,7 @@ bool UndoCommand::tryMerge(const UndoCommand &other)
     return false;
 }
 
-QTextPieceTable::QTextPieceTable()
+QTextPieceTable::QTextPieceTable(QAbstractTextDocumentLayout *layout)
 {
     undoBlock = 0;
     undoPosition = 0;
@@ -70,8 +70,11 @@ QTextPieceTable::QTextPieceTable()
 
     lists = new QTextListManager(this);
     tables = new QTextTableManager(this);
-    // ##### should be handled by the document
-    lout = new QTextDocumentLayout(this);
+    if (!layout)
+	layout = new QTextDocumentLayout();
+    lout = layout;
+    // take ownership
+    lout->setParent(this);
 }
 
 QTextPieceTable::~QTextPieceTable()
@@ -190,7 +193,7 @@ void QTextPieceTable::insertBlockSeparator(int pos, int blockFormat)
     appendUndoItem(c);
     Q_ASSERT(undoPosition == undoStack.size());
 
-    if (!undoBlock)
+    if (!undoBlock && lout)
 	lout->documentChange(pos, 0, 1);
 }
 
@@ -228,7 +231,7 @@ void QTextPieceTable::insert(int pos, int strPos, int strLength, int format)
     appendUndoItem(c);
     Q_ASSERT(undoPosition == undoStack.size());
 
-    if (!undoBlock)
+    if (!undoBlock && lout)
 	lout->documentChange(pos, 0, strLength);
 }
 
@@ -278,7 +281,7 @@ void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
 	cursors.at(i)->adjustPosition(pos, -length, op);
     emit contentsChanged();
 
-    if (!undoBlock)
+    if (!undoBlock && lout)
 	lout->documentChange(pos, length, 0);
 }
 
@@ -505,7 +508,7 @@ void QTextPieceTable::endUndoBlock()
     undoStack[undoPosition - 1].block = false;
 
     // #### cache the changed region so the layouter doesn't do too much work.
-    if (!undoBlock)
+    if (!undoBlock && lout)
 	lout->documentChange(0, length(), length());
 }
 

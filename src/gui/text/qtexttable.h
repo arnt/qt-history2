@@ -35,7 +35,7 @@ public:
 
 private:
     friend class QTextTable;
-    QTextTableCellProperties(QTextTablePrivate *p, QTextPieceTable *pt, int row, int col);
+    QTextTableCellProperties(const QTextTablePrivate *p, QTextPieceTable *pt, int row, int col);
 
     int r, c;
     QTextCursor s;
@@ -47,6 +47,7 @@ private:
 class Q_GUI_EXPORT QTextTable : public QObject
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QTextTable);
 public:
     ~QTextTable();
 
@@ -73,13 +74,6 @@ public:
     void setFormat(const QTextTableFormat &format);
     QTextTableFormat format() const;
 
-    inline bool operator == (const QTextTable &o) {
-	return (d == o.d);
-    }
-    inline bool operator != (const QTextTable &o) {
-	return (d != o.d);
-    }
-
 private:
     friend class QTextCursor;
     friend class QTextCursorPrivate;
@@ -87,7 +81,6 @@ private:
 
     QTextTable(QTextPieceTable *pt, QObject *parent);
 
-    QTextTablePrivate *d;
     QTextPieceTable *pieceTable;
 #if defined(Q_DISABLE_COPY)
     QTextTable(const QTextTable &o);

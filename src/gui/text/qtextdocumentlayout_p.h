@@ -11,7 +11,7 @@ class QTextListFormat;
 class QTextDocumentLayout : public QAbstractTextDocumentLayout
 {
 public:
-    QTextDocumentLayout(QTextPieceTable *parent);
+    QTextDocumentLayout();
 
     // from the abstract layout
     void draw(QPainter *painter, const PaintContext &context);

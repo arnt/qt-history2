@@ -7,6 +7,8 @@
 #include <qhash.h>
 #include "qtextpiecetable_p.h"
 #include "qfragmentmap_p.h"
+#include <private/qobject_p.h>
+#include "qtexttable.h"
 #endif // QT_H
 
 
@@ -45,8 +47,9 @@ private:
 
 
 
-class QTextTablePrivate
+class QTextTablePrivate : public QObjectPrivate
 {
+    Q_DECLARE_PUBLIC(QTextTable);
 public:
     QTextTablePrivate()
 	: cell_idx(-1), eor_idx(-1),grid(0), nCols(0), nRows(0), dirty(true) {}
