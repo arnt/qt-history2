@@ -3914,6 +3914,14 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
 #define        XK_ISO_Left_Tab                                        0xFE20
 #endif
 
+#ifndef XK_dead_hook
+#define XK_dead_hook 0xFE61
+#endif
+
+#ifndef XK_dead_horn
+#define XK_dead_horn 0xFE62
+#endif
+
 // the next lines are taken from XFree > 4.0 (X11/XF86keysyms.h), defining some special
 // multimedia keys. They are included here as not every system has them.
 #define XF86XK_Standby                0x1008FF10
