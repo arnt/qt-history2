@@ -30,7 +30,7 @@ static void report_error(int code, const char *where, const char *what)
 
 /*! \class QReadWriteLock
 
-    \brief The QtReadWriteLock class provides read-write locking.
+    \brief The QReadWriteLock class provides read-write locking.
 
     It is useful for synchronizing multithreaded access to resources
     that support multiple readers, but only one writer.
