@@ -15,9 +15,10 @@ QComponentInterface * DesignerApplicationInterface::queryInterface( const QStrin
 {
     MainWindow* mw = (MainWindow*)qApp->mainWidget();
     FormList* fl = mw->formlist();
-    if ( request == "DesignerMainWindowInterface" )
+
+    if ( request == "DesignerMainWindowInterface" && mw )
 	return mwIface ? mwIface : ( mwIface = new DesignerMainWindowInterface( mw ) );
-    else if ( request == "DesignerFormListInterface" )
+    else if ( request == "DesignerFormListInterface" && fl )
 	return flIface ? flIface : ( flIface = new QComponentInterface( fl ) );
     return 0;
 }
