@@ -325,10 +325,10 @@ void VcprojGenerator::initLinkerTool()
     vcProject.Configuration.linker.OutputFile += project->first("MSVCPROJ_TARGET");
     vcProject.Configuration.linker.ProgramDatabaseFile = project->first("OBJECTS_DIR") + project->first("QMAKE_ORIG_TARGET") + ".pdb";
 
-    if ( project->isActiveConfig("release") ){
-        vcProject.Configuration.linker.parseOptions( project->variables()["QMAKE_LFLAGS_RELEASE"] );
-    } else {
+    if ( project->isActiveConfig("debug") ){
 	vcProject.Configuration.linker.parseOptions( project->variables()["QMAKE_LFLAGS_DEBUG"] );
+    } else {
+        vcProject.Configuration.linker.parseOptions( project->variables()["QMAKE_LFLAGS_RELEASE"] );
     }
 
     if ( project->isActiveConfig("dll") ){
