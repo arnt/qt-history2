@@ -453,7 +453,12 @@ bool QHttpHeader::isValid() const
 */
 bool QHttpHeader::parse( const QString& str )
 {
-    QStringList lst = QStringList::split( "\r\n", str.stripWhiteSpace(), FALSE );
+    QStringList lst;
+    int pos = str.find( '\n' );
+    if ( pos > 0 && str.at( pos - 1 ) == '\r' )
+	lst = QStringList::split( "\r\n", str.stripWhiteSpace(), FALSE );
+    else
+	lst = QStringList::split( "\n", str.stripWhiteSpace(), FALSE );
 
     if ( lst.isEmpty() )
 	return TRUE;
@@ -1960,7 +1965,7 @@ void QHttp::slotReadyRead()
 	QString tmp;
 	while ( !end && d->socket.canReadLine() ) {
 	    tmp = d->socket.readLine();
-	    if ( tmp == "\r\n" )
+	    if ( tmp == "\r\n" || tmp == "\n" )
 		end = TRUE;
 	    else
 		d->headerStr += tmp;
@@ -1973,6 +1978,9 @@ void QHttp::slotReadyRead()
 	    d->readHeader = FALSE;
 	    d->response = QHttpResponseHeader( d->headerStr );
 	    d->headerStr = "";
+#if defined(QHTTP_DEBUG)
+	    qDebug( "QHttp: read response header:\n---{\n%s}---", d->response.toString().latin1() );
+#endif
 	    // Check header
 	    if ( !d->response.isValid() ) {
 		finishedWithError( tr("Invalid HTTP response header"), InvalidResponseHeader );
@@ -2018,7 +2026,8 @@ void QHttp::slotReadyRead()
 
 		    // read trailer
 		    while ( d->chunkedSize == -2 && d->socket.canReadLine() ) {
-			if( d->socket.readLine() == "\r\n" )
+			QString read = d->socket.readLine();
+			if ( read == "\r\n" || read == "\n" )
 			    d->chunkedSize = -1;
 		    }
 		    if ( d->chunkedSize == -1 ) {
