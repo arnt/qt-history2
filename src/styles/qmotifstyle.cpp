@@ -1180,6 +1180,8 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 				 &cg.brush( QColorGroup::Button ));
 	    }
 	}
+
+	p->setPen(cg.buttonText());
 	break;
 
     case CC_ScrollBar:
