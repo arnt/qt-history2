@@ -9,10 +9,6 @@
 **
 ****************************************************************************/
 
-#if defined(QT_DEBUG)
-static char ident[] = "$Id: $";
-#endif
-
 /*! \page netscape-plugin.html
 
 \title Qt Netscape Plugin Extension

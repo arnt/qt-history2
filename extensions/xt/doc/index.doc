@@ -9,10 +9,6 @@
 **
 ****************************************************************************/
 
-#if defined(QT_DEBUG)
-static char ident[] = "$Id: $";
-#endif
-
 /*! \page xt.html
 
 \title Qt Xt/Motif Support Extension

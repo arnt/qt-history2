@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 
-# $Id$
-
 # really primitive spell checker
 
 use File::Find;

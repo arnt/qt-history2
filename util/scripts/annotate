@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 
-# $Id: $
-
 # Interpolate change information into a source listing of a p4 file.
 # Takes a file name or depot filename, with #<ref> or @<change>.
 # Contributed by Bob Sidebotham.

@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 
-# $Id$
-
 open( I, "/local/bin/p4 opened -a |" ) || die "cannot run p4 opened, stopped";
 
 $d = undef;

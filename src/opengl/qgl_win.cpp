@@ -44,11 +44,8 @@ public:
  *****************************************************************************/
 
 /****************************************************************************
-** $Id: $
 **
 ** Definition of QColorMap class
-**
-** Created : 20000510
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS.  All rights reserved.
 **
@@ -67,8 +64,6 @@ public:
 ** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
-
-
 
 #ifndef QGLCMAP_H
 #define QGLCMAP_H
@@ -1091,4 +1086,3 @@ void QGLWidget::cleanupColormaps()
     }
     return;
 }
-

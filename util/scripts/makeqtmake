@@ -1,6 +1,5 @@
 #!/usr/bin/perl
 ############################################################################
-# $Id$
 #
 # Makes Qt makefiles and a project file - internal Trolltech tool.
 #
