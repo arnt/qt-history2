@@ -192,13 +192,16 @@ QTextCodec *Qt::codecForHtml(const QByteArray &ba)
              && (uchar)ba[1] == 0xbb
              && (uchar)ba[2] == 0xbf) {
         mib = 106; // utf-8
-    } else if ((pos = ba.indexOf("http-equiv=")) != -1) {
-        pos = ba.indexOf("charset=", pos) + strlen("charset=");
-        if (pos != -1) {
-            int pos2 = ba.indexOf('\"', pos+1);
-            QByteArray cs = ba.mid(pos, pos2-pos);
-//            qDebug("found charset: %s", cs.data());
-            c = QTextCodec::codecForName(cs);
+    } else {
+        QByteArray header = ba.left(512).toLower();
+        if ((pos = header.indexOf("http-equiv=")) != -1) {
+            pos = header.indexOf("charset=", pos) + strlen("charset=");
+            if (pos != -1) {
+                int pos2 = header.indexOf('\"', pos+1);
+                QByteArray cs = header.mid(pos, pos2-pos);
+                //            qDebug("found charset: %s", cs.data());
+                c = QTextCodec::codecForName(cs);
+            }
         }
     }
     if (!c)
