@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -211,7 +211,7 @@ bool QDragger::noWidgets( QWidget *w )
     const QObjectList *l = w->children();
     if ( !l )
 	return TRUE;
-    QObjectListIt iter( *l );
+    QObjectListIterator iter( *l );
     QObject *tmp;
     while( (tmp = iter.current()) ) {
 	++iter;
@@ -226,7 +226,7 @@ void QDragger::sendAllChildrenHome( QWidget *w )
     const QObjectList *l = w->children();
     if ( !l )
 	return;
-    QObjectListIt iter( *l );
+    QObjectListIterator iter( *l );
     QObject *tmp;
     while( (tmp = iter.current()) ) {
 	++iter;
@@ -430,7 +430,7 @@ void QDragger::killDropWindow( DropInfo *di )
     const QObjectList *l = di->w->children();
     if ( !l )
 	return;
-    QObjectListIt iter( *l );
+    QObjectListIterator iter( *l );
     QObject *tmp;
     while( (tmp = iter.current()) ) {
 	++iter;
