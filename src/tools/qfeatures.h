@@ -372,10 +372,6 @@
 	Motif style
     */
     #define QT_NO_STYLE_MOTIF
-    /*!
-	Platinum style
-    */
-    #define QT_NO_STYLE_PLATINUM
 #endif
 
 #if defined(QT_NO_WIDGETS)
@@ -431,6 +427,12 @@
 	SGI style
     */
     #define QT_NO_STYLE_SGI
+#endif
+#if defined(QT_NO_STYLE_WINDOWS)
+    /*!
+	Platinum style
+    */
+    #define QT_NO_STYLE_PLATINUM
 #endif
 
 #if defined(QT_NO_DIALOGS) || defined(QT_NO_LISTVIEW) || defined(QT_NO_NETWORKPROTOCOL)
