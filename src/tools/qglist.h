@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#5 $
+** $Id: //depot/qt/main/src/tools/qglist.h#6 $
 **
 ** Definition of QGList and QGListIterator classes
 **
 ** Author  : Haavard Nord
 ** Created : 920624
 **
-** Copyright (C) 1992-1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

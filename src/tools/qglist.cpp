@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#4 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#5 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
 ** Author  : Haavard Nord
 ** Created : 920624
 **
-** Copyright (C) 1992-1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#5 $";
 #endif
 
 
@@ -212,6 +212,7 @@ bool QGList::insertAt( uint index, GCI d )	// add at i'th position
     numNodes++;
     return TRUE;
 }
+
 
 Qdnode *QGList::unlink()			// unlink current node
 {
