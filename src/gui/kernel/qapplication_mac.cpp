@@ -896,7 +896,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
         }
         priv->argc = j;
 
-        if(qt_is_gui_used && argv[0] && *argv[0] != '/')
+        if(qt_is_gui_used && argv[0] && *argv[0] != '/' && qMacVersion() < Qt::MV_PANTHER)
             qWarning("Qt: QApplication: Warning argv[0] == '%s' is relative.\n"
                      "In order to dispatch events correctly Mac OS X may "
                      "require applications to be run with the *full* path to the "
