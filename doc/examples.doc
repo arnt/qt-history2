@@ -989,54 +989,6 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 */
 
-/*! \example qbrowser/main.cpp
-
-  <h1 align=center>Simple HTML Browser</h1><br clear="all">
-
-  The QBrowser exampple implements a simple HTML browser using Qt's Richtext widget.
-
-  <hr>
-
-  Header file:
-
-  \include qbrowser/helpwindow.h
-
-  <hr>
-
-  Implementation:
-
-  \include qbrowser/helpwindow.cpp
-
-  <hr>
-
-  Main:
-
-*/	
-
-/*! \example qbrowser/main.cpp
-
-  <h1 align=center>Simple HTML Browser</h1><br clear="all">
-
-  The QBrowser exampple implements a simple HTML browser using Qt's Richtext widget.
-
-  <hr>
-
-  Header file:
-
-  \include qbrowser/helpwindow.h
-
-  <hr>
-
-  Implementation:
-
-  \include qbrowser/helpwindow.cpp
-
-  <hr>
-
-  Main:
-
-*/	
-
 /*! \example qdir/qdir.cpp
 
   <h1 align=center>QDir</h1><br clear="all">
@@ -1066,44 +1018,6 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
   Implementation:
 
   \include qfd/fontdisplayer.cpp
-
-  <hr>
-
-  Main:
-
-*/	
-
-/*! \example qfileiconview/main.cpp
-
-  <h1 align=center>Simple Filemanager</h1><br clear="all">
-
-  This example implements a simple and not full functional filemanager using
-  a widget derived from QIconView to display the current directory and the
-  widget of the DirectoryView example to display the directory tree.
-
-  <hr>
-
-  Header file of the fileiconview:
-
-  \include qfileiconview/qfileiconview.h
-
-  <hr>
-
-  Implementation of the fileiconview:
-
-  \include qfileiconview/qfileiconview.cpp
-
-  <hr>
-
-  Header file of the mainwindow:
-
-  \include qfileiconview/mainwindow.h
-
-  <hr>
-
-  Implementation of the mainwindow:
-
-  \include qfileiconview/mainwindow.cpp
 
   <hr>
 
