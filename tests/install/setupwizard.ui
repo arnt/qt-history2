@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>473</width>
-            <height>335</height>
+            <width>465</width>
+            <height>331</height>
         </rect>
     </property>
     <property name="caption">
@@ -87,7 +87,7 @@
                 </property>
                 <grid>
                     <property name="margin">
-                        <number>11</number>
+                        <number>0</number>
                     </property>
                     <property name="spacing">
                         <number>6</number>
@@ -737,12 +737,9 @@
                             <bool>false</bool>
                         </property>
                     </widget>
-                    <widget class="QMultiLineEdit">
+                    <widget class="QTextView">
                         <property name="name">
                             <cstring>filesDisplay</cstring>
-                        </property>
-                        <property name="readOnly">
-                            <bool>true</bool>
                         </property>
                     </widget>
                 </vbox>
@@ -914,14 +911,14 @@
         <receiver>SetupWizard</receiver>
         <slot>licenseAction(int)</slot>
     </connection>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
     <slot access="public" language="C++" returnType="void">clickedDevSysPath()</slot>
     <slot access="public" language="C++" returnType="void">clickedEnvironmentButton()</slot>
     <slot access="public" language="C++" returnType="void">clickedFolderPath()</slot>
     <slot access="public" language="C++" returnType="void">clickedPath()</slot>
     <slot access="public" language="C++" returnType="void">clickedSystem(int)</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
     <slot access="public" language="C++" returnType="void">licenseAction(int)</slot>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
 </connections>
 <tabstops>
     <tabstop>introText</tabstop>

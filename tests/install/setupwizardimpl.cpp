@@ -85,14 +85,10 @@ void SetupWizardImpl::clickedSystem( int sys )
 
 void SetupWizardImpl::licenseAction( int act )
 {
-    if( act ) {
-	setFinishEnabled( introPage, true );
+    if( act )
 	setNextEnabled( introPage, false );
-    }
-    else {
+    else
 	setNextEnabled( introPage, true );
-	setFinishEnabled( introPage, false );
-    }
 }
 
 void SetupWizardImpl::readConfigureOutput()
@@ -595,7 +591,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    if( installTutorials->isChecked() )
 		readArchive( "tutorial.arq", installPath->text() );
 #else
-	    operationProgress->setTotalSteps( 3010 );
+	    operationProgress->setTotalSteps( 3500 );
 	    copyFiles( QDir::currentDirPath(), installPath->text(), true );
 
 	    QFile inFile( installPath->text() + "\\bin\\quninstall.exe" );
