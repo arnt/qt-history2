@@ -634,7 +634,7 @@ public:
     QMap( const Q_TYPENAME std::map<Key,T>& m )
     {
 	sh = new QMapPrivate<Key,T>;
-	std::map<Key,T>::const_iterator it = m.begin();
+	Q_TYPENAME std::map<Key,T>::const_iterator it = m.begin();
 	for ( ; it != m.end(); ++it ) {
 	    value_type p( (*it).first, (*it).second );
 	    insert( p );
@@ -651,7 +651,7 @@ public:
     QMap<Key,T>& operator= ( const Q_TYPENAME std::map<Key,T>& m )
     {
 	clear();
-	std::map<Key,T>::const_iterator it = m.begin();
+	Q_TYPENAME std::map<Key,T>::const_iterator it = m.begin();
 	for ( ; it != m.end(); ++it ) {
 	    value_type p( (*it).first, (*it).second );
 	    insert( p );
