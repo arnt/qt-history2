@@ -286,16 +286,15 @@ bool
 Win32MakefileGenerator::findLibraries(const QString &where)
 {
     QStringList &l = project->variables()[where];
-    QList<MakefileDependDir*> dirs;
+    QList<MakefileDependDir> dirs;
     {
 	QStringList &libpaths = project->variables()["QMAKE_LIBDIR"];
 	for(QStringList::Iterator libpathit = libpaths.begin(); libpathit != libpaths.end(); ++libpathit) {
 	    QString r = (*libpathit), l = r;
 	    fixEnvVariables(l);
-	    dirs.append(new MakefileDependDir(r.replace("\"",""), l.replace("\"","")));
+	    dirs.append(MakefileDependDir(r.replace("\"",""), l.replace("\"","")));
 	}
     }
-    dirs.setAutoDelete(TRUE);
     for(QStringList::Iterator it = l.begin(); it != l.end();) {
 	QChar quote;
 	bool modified_opt = FALSE, remove = FALSE;
@@ -306,25 +305,23 @@ Win32MakefileGenerator::findLibraries(const QString &where)
 	}
 	if(opt.startsWith("/LIBPATH:")) {
             QString r = opt.mid(9), l = Option::fixPathToLocalOS(r);
-            dirs.append(new MakefileDependDir(r.replace("\"",""),
-                                              l.replace("\"","")));
+            dirs.append(MakefileDependDir(r.replace("\"",""), l.replace("\"","")));
         } else if(opt.startsWith("-L") || opt.startsWith("/L")) {
             QString r = opt.mid(2), l = Option::fixPathToLocalOS(r);
-            dirs.append(new MakefileDependDir(r.replace("\"",""),
-                                              l.replace("\"","")));
+            dirs.append(MakefileDependDir(r.replace("\"",""), l.replace("\"","")));
             remove = TRUE; //we eat this switch
         } else if(opt.startsWith("-l") || opt.startsWith("/l")) {
             QString lib = opt.right(opt.length() - 2), out;
             if(!lib.isEmpty()) {
-		for(QList<MakefileDependDir*>::Iterator it = dirs.begin(); it != dirs.end(); ++it) {
+		for(QList<MakefileDependDir>::Iterator it = dirs.begin(); it != dirs.end(); ++it) {
 		    QString extension;
-                    int ver = findHighestVersion((*it)->local_dir, lib);
+                    int ver = findHighestVersion((*it).local_dir, lib);
 		    if(ver > 0)
 			extension += QString::number(ver);
 		    extension += ".lib";
-		    if(QMakeMetaInfo::libExists((*it)->local_dir + Option::dir_sep + lib) ||
-		       QFile::exists((*it)->local_dir + Option::dir_sep + lib + extension)) {
-			out = (*it)->real_dir + Option::dir_sep + lib + extension;
+		    if(QMakeMetaInfo::libExists((*it).local_dir + Option::dir_sep + lib) ||
+		       QFile::exists((*it).local_dir + Option::dir_sep + lib + extension)) {
+			out = (*it).real_dir + Option::dir_sep + lib + extension;
 			break;
 		    }
                 }
@@ -336,13 +333,13 @@ Win32MakefileGenerator::findLibraries(const QString &where)
                 (*it) = out;
 	    }
         } else if(!QFile::exists(Option::fixPathToLocalOS(opt))) {
-	    QList<MakefileDependDir*> lib_dirs;
+	    QList<MakefileDependDir> lib_dirs;
 	    QString file = opt;
             int slsh = file.lastIndexOf(Option::dir_sep);
             if(slsh != -1) {
                 QString r = file.left(slsh+1), l = r;
 		fixEnvVariables(l);
-		lib_dirs.append(new MakefileDependDir(r.replace("\"",""), l.replace("\"","")));
+		lib_dirs.append(MakefileDependDir(r.replace("\"",""), l.replace("\"","")));
                 file = file.right(file.length() - slsh - 1);
             } else {
 		lib_dirs = dirs;
@@ -351,16 +348,16 @@ Win32MakefileGenerator::findLibraries(const QString &where)
 		if(file.endsWith(".lib")) {
 		    file = file.left(file.length() - 4);
 		    if(!file.at(file.length()-1).isNumber()) {
-			for(QList<MakefileDependDir*>::Iterator dep_it = lib_dirs.begin(); dep_it != lib_dirs.end(); ++dep_it) {
+			for(QList<MakefileDependDir>::Iterator dep_it = lib_dirs.begin(); dep_it != lib_dirs.end(); ++dep_it) {
 			    QString lib_tmpl(file + "%1" + ".lib");
-			    int ver = findHighestVersion((*dep_it)->local_dir, file);
+			    int ver = findHighestVersion((*dep_it).local_dir, file);
 			    if(ver != -1) {
 				if(ver)
 				    lib_tmpl = lib_tmpl.arg(ver);
 				else
 				     lib_tmpl = lib_tmpl.arg("");
 				if(slsh != -1) {
-				    QString dir = (*dep_it)->real_dir;
+				    QString dir = (*dep_it).real_dir;
 				    if(!dir.endsWith(Option::dir_sep))
 					dir += Option::dir_sep;
 				    lib_tmpl.prepend(dir);
@@ -389,15 +386,13 @@ void
 Win32MakefileGenerator::processPrlFiles()
 {
     QHash<QString, bool> processed;
-    QList<MakefileDependDir*> libdirs;
-    libdirs.setAutoDelete(TRUE);
+    QList<MakefileDependDir> libdirs;
     {
 	QStringList &libpaths = project->variables()["QMAKE_LIBDIR"];
 	for(QStringList::Iterator libpathit = libpaths.begin(); libpathit != libpaths.end(); ++libpathit) {
 	    QString r = (*libpathit), l = r;
 	    fixEnvVariables(l);
-	    libdirs.append(new MakefileDependDir(r.replace("\"",""),
-						 l.replace("\"","")));
+	    libdirs.append(MakefileDependDir(r.replace("\"",""), l.replace("\"","")));
 	}
     }
     for(bool ret = FALSE; TRUE; ret = FALSE) {
@@ -413,8 +408,7 @@ Win32MakefileGenerator::processPrlFiles()
 		if(opt.startsWith("/LIBPATH:")) {
 		    QString r = opt.mid(9), l = r;
 		    fixEnvVariables(l);
-		    libdirs.append(new MakefileDependDir(r.replace("\"",""),
-							 l.replace("\"","")));
+		    libdirs.append(MakefileDependDir(r.replace("\"",""), l.replace("\"","")));
 		}
 	    } else {
 		if(!processed[opt]) {
@@ -422,8 +416,8 @@ Win32MakefileGenerator::processPrlFiles()
 			processed.insert(opt, true);
 			ret = TRUE;
 		    } else {
-			for(QList<MakefileDependDir*>::Iterator it = libdirs.begin(); it != libdirs.end(); ++it) {
-			    QString prl = (*it)->local_dir + Option::dir_sep + opt;
+			for(QList<MakefileDependDir>::Iterator it = libdirs.begin(); it != libdirs.end(); ++it) {
+			    QString prl = (*it).local_dir + Option::dir_sep + opt;
 			    if(processed[prl]) {
 				break;
 			    } else if(processPrlFile(prl)) {

@@ -210,13 +210,12 @@ ProjectGenerator::init()
 	return;
     }
 
-    QList<MakefileDependDir*> deplist;
-    deplist.setAutoDelete(TRUE);
+    QList<MakefileDependDir> deplist;
     {
 	QStringList &d = v["DEPENDPATH"];
 	for(QStringList::Iterator it = d.begin(); it != d.end(); ++it) {
 	    QString r = (*it), l = Option::fixPathToLocalOS((*it));
-	    deplist.append(new MakefileDependDir(r, l));
+	    deplist.append(MakefileDependDir(r, l));
 	}
     }
     QStringList &h = v["HEADERS"];
@@ -232,9 +231,9 @@ ProjectGenerator::init()
 			QString file_dir = (*dep_it).section(Option::dir_sep, 0, -2),
 			    file_no_path = (*dep_it).section(Option::dir_sep, -1);
 			if(!file_dir.isEmpty()) {
-			    for(QList<MakefileDependDir*>::Iterator it = deplist.begin(); it != deplist.end(); ++it) {
-				if((*it)->local_dir == file_dir && !v["INCLUDEPATH"].contains((*it)->real_dir))
-				    v["INCLUDEPATH"] += (*it)->real_dir;
+			    for(QList<MakefileDependDir>::Iterator it = deplist.begin(); it != deplist.end(); ++it) {
+				if((*it).local_dir == file_dir && !v["INCLUDEPATH"].contains((*it).real_dir))
+				    v["INCLUDEPATH"] += (*it).real_dir;
 			    }
 			}
 			if(no_qt_files && file_no_path.indexOf(QRegExp("^q[a-z_0-9].h$")) != -1)

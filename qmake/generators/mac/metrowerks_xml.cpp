@@ -691,8 +691,7 @@ MetrowerksMakefileGenerator::fixifyToMacPath(QString &p, QString &v, bool )
 void
 MetrowerksMakefileGenerator::processPrlFiles()
 {
-    QList<MakefileDependDir*> libdirs;
-    libdirs.setAutoDelete(TRUE);
+    QList<MakefileDependDir> libdirs;
     const QString lflags[] = { "QMAKE_LIBS", QString::null };
     for(int i = 0; !lflags[i].isNull(); i++) {
 	for(bool ret = FALSE; TRUE; ret = FALSE) {
@@ -704,15 +703,14 @@ MetrowerksMakefileGenerator::processPrlFiles()
 		    if(opt.startsWith("-L")) {
 			QString r = opt.right(opt.length() - 2), l = r;
 			fixEnvVariables(l);
-			libdirs.append(new MakefileDependDir(r.replace( "\"", ""),
-							     l.replace( "\"", "")));
+			libdirs.append(MakefileDependDir(r.replace( "\"", ""), l.replace( "\"", "")));
 		    } else if(opt.left(2) == "-l") {
 			QString lib = opt.right(opt.length() - 2), prl;
-			for(QList<MakefileDependDir*>::Iterator dep_it = libdirs.begin(); dep_it != libdirs.end(); ++dep_it) {
-			    prl = (*dep_it)->local_dir + Option::dir_sep + "lib" + lib;
+			for(QList<MakefileDependDir>::Iterator dep_it = libdirs.begin(); dep_it != libdirs.end(); ++dep_it) {
+			    prl = (*dep_it).local_dir + Option::dir_sep + "lib" + lib;
 			    if(processPrlFile(prl)) {
-				if(prl.startsWith((*dep_it)->local_dir))
-				    prl.replace(0, (*dep_it)->local_dir.length(), (*dep_it)->real_dir);
+				if(prl.startsWith((*dep_it).local_dir))
+				    prl.replace(0, (*dep_it).local_dir.length(), (*dep_it).real_dir);
 				QRegExp reg("^.*lib(" + lib + "[^.]*)\\." + 
 					    project->first("QMAKE_EXTENSION_SHLIB") + "$");
 				if(reg.exactMatch(prl))

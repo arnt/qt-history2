@@ -218,7 +218,7 @@ MakefileGenerator::generateMocList(const QString &fn_target)
 }
 
 bool
-MakefileGenerator::generateDependencies(QList<MakefileDependDir*> &dirs, const QString &f, bool recurse)
+MakefileGenerator::generateDependencies(QList<MakefileDependDir> &dirs, const QString &f, bool recurse)
 {
     if(processedDependencies(f))
 	return TRUE;
@@ -431,10 +431,10 @@ MakefileGenerator::generateDependencies(QList<MakefileDependDir*> &dirs, const Q
 		     Option::target_mode == Option::TARG_QNX6_MODE ||
 		     Option::target_mode == Option::TARG_MACX_MODE) &&
 		    inc[0] != '/')) {
-		    for(QList<MakefileDependDir*>::Iterator it = dirs.begin(); it != dirs.end(); ++it) {
-			if(!stat((*it)->local_dir + QDir::separator() + inc, &fst) &&
+		    for(QList<MakefileDependDir>::Iterator it = dirs.begin(); it != dirs.end(); ++it) {
+			if(!stat((*it).local_dir + QDir::separator() + inc, &fst) &&
 			   !S_ISDIR(fst.st_mode)) {
-			    fqn = (*it)->real_dir + QDir::separator() + inc;
+			    fqn = (*it).real_dir + QDir::separator() + inc;
 			    goto handle_fqn;
 			}
 		    }
@@ -728,8 +728,7 @@ MakefileGenerator::init()
 	cache_file.prepend(Option::output_dir + QDir::separator());
     if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT ||
 	Option::mkfile::do_deps || Option::mkfile::do_mocs) && !noIO()) {
-	QList<MakefileDependDir*> deplist;
-	deplist.setAutoDelete(TRUE);
+	QList<MakefileDependDir> deplist;
 	if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT || Option::mkfile::do_deps) &&
 	   doDepends()) {
 	    QStringList incDirs = v["DEPENDPATH"] + v["QMAKE_ABSOLUTE_SOURCE_PATH"];
@@ -737,8 +736,7 @@ MakefileGenerator::init()
 		incDirs += v["INCLUDEPATH"];
 	    for(QStringList::Iterator it = incDirs.begin(); it != incDirs.end(); ++it) {
 		QString r = (*it), l = Option::fixPathToLocalOS((*it));
-		deplist.append(new MakefileDependDir(r.replace("\"",""),
-						     l.replace("\"","")));
+		deplist.append(MakefileDependDir(r.replace("\"",""), l.replace("\"","")));
 	    }
 	    debug_msg(1, "Dependency Directories: %s", incDirs.join(" :: ").latin1());
 	    if(Option::output.name() != "-" && project->isActiveConfig("qmake_cache")) {

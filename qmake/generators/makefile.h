@@ -58,7 +58,7 @@ protected:
 	MakefileDependDir(const QString &r, const QString &l) : real_dir(r), local_dir(l) { }
 	QString real_dir, local_dir;
     };
-    bool generateDependencies(QList<MakefileDependDir*> &dirs, const QString &x, bool recurse);
+    bool generateDependencies(QList<MakefileDependDir> &dirs, const QString &x, bool recurse);
 
     QString buildArgs();
 

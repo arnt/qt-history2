@@ -215,8 +215,6 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 
     QHash<QString, VcsolutionDepend*> solution_depends;
     QList<VcsolutionDepend*> solution_cleanup;
-    solution_cleanup.setAutoDelete(TRUE);
-
     
     QStringList subdirs = project->variables()["SUBDIRS"];
     QString oldpwd = QDir::currentDirPath();
@@ -353,6 +351,10 @@ nextfile:
     t << _snlProjConfEnd;
     t << _snlExtSections;
     t << _snlGlobalEnd;
+
+
+    while (!solution_cleanup.isEmpty())
+	delete solution_cleanup.takeFirst();
 }
 
 // ------------------------------------------------------------------------------------------------
