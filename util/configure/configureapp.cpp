@@ -972,9 +972,9 @@ void Configure::generateCachefile()
 	cacheStream << "QT_INSTALL_TRANSLATIONS=" << dictionary[ "QT_INSTALL_TRANSLATIONS" ] << endl;
 	cacheStream << "docs.path=" << dictionary[ "QT_INSTALL_DOCS" ] << endl;
 	cacheStream << "headers.path=" << dictionary[ "QT_INSTALL_HEADERS" ] << endl;
-	cacheStream << "plugins.path=" << dictionary[ "QT_INSTALL_PLUGINS" ] << "/plugins" << endl;
-	cacheStream << "libs.path=" << dictionary[ "QT_INSTALL_LIBS" ] << "/lib" << endl;
-	cacheStream << "bins.path=" << dictionary[ "QT_INSTALL_BINS" ] << "/bin" << endl;
+	cacheStream << "plugins.path=" << dictionary[ "QT_INSTALL_PLUGINS" ] << endl;
+	cacheStream << "libs.path=" << dictionary[ "QT_INSTALL_LIBS" ] << endl;
+	cacheStream << "bins.path=" << dictionary[ "QT_INSTALL_BINS" ] << endl;
 	cacheStream << "data.path=" << dictionary[ "QT_INSTALL_DATA" ] << endl;
 	cacheStream << "translations.path=" << dictionary[ "QT_INSTALL_TRANSLATIONS" ] << endl;
 
