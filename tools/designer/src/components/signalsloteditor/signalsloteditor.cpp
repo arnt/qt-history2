@@ -408,6 +408,8 @@ Connection *SignalSlotEditor::createConnection(QWidget *source, QWidget *destina
         con->setDestination(destination);
         con->setSignal(dialog->signal());
         con->setSlot(dialog->slot());
+    
+        con->setLabelItems(new CELabelItem(this), new CELabelItem(this));
     }
 
     delete dialog;
@@ -484,9 +486,10 @@ void SignalSlotEditor::fromUi(DomConnections *connections, QWidget *parent)
         SignalSlotConnection *con = new SignalSlotConnection(this);
         con->setSource(source);
         con->setDestination(destination);
-        initConnection(con, hint_list);
+        con->setLabelItems(new CELabelItem(this), new CELabelItem(this));
         con->setSignal(dom_con->elementSignal());
         con->setSlot(dom_con->elementSlot());
+        initConnection(con, hint_list);
     }
 }
 

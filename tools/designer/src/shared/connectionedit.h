@@ -43,6 +43,7 @@ public:
     Status status() const;
     bool underMouse() const;
     virtual bool selectable() const;
+    void disableSelect(bool b);
 
     bool visible() const;
     void setVisible(bool b);
@@ -67,6 +68,7 @@ protected:
 
 private:
     bool m_visible;
+    bool m_disable_select;
 };
 
 class QT_SHARED_EXPORT CELabelItem : public CEItem
@@ -184,6 +186,8 @@ public:
     void setEnterPos(const QPoint &pos);
 
     virtual Type type() const;
+    
+    bool visibleAt(const QPoint &pos) const;
 
 public slots:
     void endPointDestroyed(QObject *o);
@@ -303,6 +307,10 @@ protected:
     void initConnection(Connection *con, const Connection::HintList &hint_list);
 
     virtual QWidget *widgetAt(const QPoint &pos) const;
+    CEWidgetItem *widgetItem(QWidget *widget) const;
+
+    enum Mode { DrawMode, EditMode, DragMode };
+    inline Mode mode() const;
 
 private:
     QWidget *m_bg_widget;
@@ -341,9 +349,6 @@ private:
     void initConnection(Connection *con, const ItemList &item_list);
     void insertEndPoint(const QPoint &pos);
 
-    enum Mode { DrawMode, EditMode, DragMode };
-    inline Mode mode() const;
-
     void insertItem(CEItem *item);
     void deleteItem(CEItem *item);
     void deleteItems(ItemList item_list);
@@ -366,7 +371,6 @@ private:
 
     void dumpItems();
 
-    CEWidgetItem *widgetItem(QWidget *widget) const;
     CEItem *itemUnderMouse(CEItem::Type type) const;
     CEItem *itemUnderMouse() const;
 
@@ -390,7 +394,10 @@ inline bool CEItem::underMouse() const
     { return edit()->isUnderMouse(this); }
 
 inline bool CEItem::selectable() const
-    { return true; }
+    { return !m_disable_select; }
+
+inline void CEItem::disableSelect(bool b)
+    { m_disable_select = b; }
 
 inline bool CEItem::visible() const
     { return m_visible; }
@@ -409,7 +416,7 @@ inline QPoint CELabelItem::pos() const
     { return m_rect.topLeft(); }
 
 inline bool CELabelItem::selectable() const
-    { return true; }
+    { return CEItem::selectable(); }
 
 inline QString CELabelItem::text() const
     { return m_text; }
@@ -431,7 +438,7 @@ inline QPoint CEEndPointItem::pos() const
     { return m_pos; }
 
 inline bool CEEndPointItem::selectable() const
-    { return edit()->mode() == ConnectionEdit::EditMode; }
+    { return edit()->mode() == ConnectionEdit::EditMode && CEItem::selectable(); }
 
 inline int CEEndPointItem::edgeCount() const
     { return m_edge_list.size(); }
@@ -459,7 +466,7 @@ inline QRect CEWidgetItem::rect() const
     { return m_rect; }
 
 inline bool CEWidgetItem::selectable() const
-    { return true; }
+    { return  CEItem::selectable(); }
 
 inline QWidget *CEWidgetItem::widget() const
     { return m_widget; }
@@ -481,7 +488,7 @@ inline CEEndPointItem *CEEdgeItem::endPoint2() const
     { return m_ep2; }
 
 inline bool CEEdgeItem::selectable() const
-    { return edit()->mode() == ConnectionEdit::EditMode; }
+    { return edit()->mode() == ConnectionEdit::EditMode && CEItem::selectable(); }
 
 inline QPoint CEEdgeItem::exitPos() const
     { return m_exit_pos; }

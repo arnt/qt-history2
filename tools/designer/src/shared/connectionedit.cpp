@@ -160,6 +160,7 @@ CEItem::CEItem(ConnectionEdit *edit)
     : QObject(edit)
 {
     m_visible = true;
+    m_disable_select = false;
 }
 
 void CEItem::paint(QPainter *p)
@@ -509,8 +510,6 @@ bool CEWidgetItem::updateGeometry()
 {
     QRect new_rect = widgetRect();
 
-    qDebug() << "CEWidgetItem::updateGeometry():" << new_rect << rect();
-
     if (rect() == new_rect)
         return false;
 
@@ -814,6 +813,9 @@ void CEEdgeItem::setExitPos(const QPoint &pos)
     if (pos == m_exit_pos)
         return;
     m_exit_pos = pos;
+    
+    qDebug() << "CEEdgeItem::setExitPos():" << this << pos;
+    
     update();
 }
 
@@ -825,6 +827,8 @@ void CEEdgeItem::setEnterPos(const QPoint &pos)
     m_enter_pos = pos;
     m_arrow_head.clear();
 
+    qDebug() << "CEEdgeItem::setEnterPos():" << this << pos;
+    
     if (m_enter_pos != QPoint(-1, -1)) {
         double alpha = angle(m_pos1, m_pos2);
 
@@ -838,6 +842,24 @@ void CEEdgeItem::setEnterPos(const QPoint &pos)
     }
 
     update();
+}
+
+bool CEEdgeItem::visibleAt(const QPoint &pos) const
+{
+    QPoint p1 = m_exit_pos;
+    if (p1.x() == -1)
+        p1 = m_pos1;
+    QPoint p2 = m_enter_pos;
+    if (p2.x() == -1)
+        p2 = m_pos2;
+        
+    QPoint p3(qMin(p1.x(), p2.x()), qMin(p1.y(), p2.y()));
+    QPoint p4(qMax(p1.x(), p2.x()), qMax(p1.y(), p2.y()));
+        
+    QRect r(p3, p4);
+    r = expand(r, ENDPOINT_RADIUS);
+    qDebug() << "CEEdgeItem::visibleAt():" << m_exit_pos << m_enter_pos << r;
+    return r.contains(pos);
 }
 
 /*******************************************************************************
@@ -1067,8 +1089,12 @@ void ConnectionEdit::initConnection(Connection *con, const Connection::HintList 
 
     initConnection(con, item_list);
 
-    con->sourceLabelItem()->move(source_label_hint.pos - con->sourceLabelItem()->pos());
-    con->destinationLabelItem()->move(destination_label_hint.pos - con->destinationLabelItem()->pos());
+    CELabelItem *source_label = con->sourceLabelItem();
+    CELabelItem *destination_label = con->destinationLabelItem();
+    if (source_label != 0)
+        source_label->move(source_label_hint.pos - source_label->pos());
+    if (destination_label != 0)
+        destination_label->move(destination_label_hint.pos - destination_label->pos());
 }
 
 void ConnectionEdit::initConnection(Connection *con, const ItemList &item_list)
@@ -1082,14 +1108,17 @@ void ConnectionEdit::initConnection(Connection *con, const ItemList &item_list)
     foreach (CEItem *item, item_list)
         m_connection_map.insert(item, con);
 
-    CELabelItem *source_label = new CELabelItem(this);
-    CELabelItem *destination_label = new CELabelItem(this);
-    con->setLabelItems(source_label, destination_label);
-    insertItem(source_label);
-    insertItem(destination_label);
-    m_connection_map.insert(source_label, con);
-    m_connection_map.insert(destination_label, con);
-
+    CELabelItem *source_label = con->sourceLabelItem();
+    CELabelItem *destination_label = con->destinationLabelItem();
+    if (source_label != 0) {
+        insertItem(source_label);
+        m_connection_map.insert(source_label, con);
+    }
+    if (destination_label != 0) {
+        insertItem(destination_label);
+        m_connection_map.insert(destination_label, con);
+    }
+        
     m_connection_list.append(con);
 
     updateLine(con);
@@ -1233,8 +1262,11 @@ void ConnectionEdit::updateUnderMouse(const QPoint &pos)
             continue;
         }
 
-        if (item->rect().contains(pos) && item->contains(pos))
-            m_items_under_mouse.append(item);
+        if (item->selectable() && item->rect().contains(pos) && item->contains(pos)) {
+            CEEdgeItem *edge_item = qt_cast<CEEdgeItem*>(item);
+            if (edge_item == 0 || edge_item->visibleAt(pos))
+                m_items_under_mouse.append(item);
+        }
 
         ++i;
     }
@@ -1734,17 +1766,16 @@ void ConnectionEdit::deleteItems(ItemList item_list)
 
 void ConnectionEdit::dumpItems()
 {
-#if 0
     qDebug() << "========== Items ============";
     foreach (CEItem *item, m_item_list) {
         if (CEEndPointItem *ep_item = qt_cast<CEEndPointItem*>(item))
-            qDebug() << ep_item << ep_item->edgeList() << ep_item->xRatio() << ep_item->yRatio();
+            qDebug() << ep_item << ep_item->edgeList() << ep_item->xRatio() << ep_item->yRatio()
+                        << ep_item->rect() << ep_item->visible();
         else if (CEEdgeItem *edge_item = qt_cast<CEEdgeItem*>(item))
-            qDebug() << edge_item << edge_item->endPoint1() << edge_item->endPoint2();
+            qDebug() << edge_item << edge_item->endPoint1() << edge_item->endPoint2() << edge_item->visible();
         else
-            qDebug() << item;
+            qDebug() << item << item->visible();
     }
-#endif
 }
 
 void ConnectionEdit::deleteItems()
@@ -1823,7 +1854,7 @@ void ConnectionEdit::updateLine(Connection *con)
 {
     ItemList item_list = m_connection_map.keys(con);
 
-    if (!con->source()->isVisible() || !con->destination()->isVisible()) {
+    if (!con->source()->isShown() || !con->destination()->isShown()) {
         foreach (CEItem *item, item_list) {
             item->setVisible(false);
             if (CEWidgetItem *widget_item = qt_cast<CEWidgetItem*>(item)) {
@@ -1862,7 +1893,7 @@ void ConnectionEdit::updateLine(Connection *con)
             updateLine(some_edge);
     }
 }
-
+/*
 static int rectDist(const QRect &r1, const QRect &r2)
 {
     int hdist = 0, vdist = 0;
@@ -1877,6 +1908,7 @@ static int rectDist(const QRect &r1, const QRect &r2)
 
     return qMax(hdist, vdist);
 }
+*/
 
 void ConnectionEdit::updateLine(CEEdgeItem *e)
 {
@@ -1914,8 +1946,8 @@ void ConnectionEdit::updateLine(CEEdgeItem *e)
         edge->setExitPos(pos);
         if (con != 0) {
             CELabelItem *sl = con->sourceLabelItem();
-            Q_ASSERT(sl != 0);
-            sl->setAnchorPos(pos);
+            if (sl)
+                sl->setAnchorPos(pos);
         }
         break;
     }
@@ -1942,17 +1974,13 @@ void ConnectionEdit::updateLine(CEEdgeItem *e)
 
             Q_ASSERT(!b1 && b2);
 
-            QPoint pos;
-            if (!sr.intersects(tr) && rectDist(sr, tr) <= 4*ENDPOINT_RADIUS)
-                pos = pos2;
-            else
-                pos = enterPos(pos1, pos2, tr);
+            QPoint pos = enterPos(pos1, pos2, tr);
 
             edge->setEnterPos(pos);
             if (con != 0) {
                 CELabelItem *dl = con->destinationLabelItem();
-                Q_ASSERT(dl != 0);
-                dl->setAnchorPos(pos);
+                if (dl)
+                    dl->setAnchorPos(pos);
             }
             break;
         }

@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include <QLabel>
 #include "buddyeditor.h"
 
 /*******************************************************************************
@@ -34,11 +35,21 @@ BuddyEditor::BuddyEditor(AbstractFormWindow *form_window, QWidget *parent)
 
 QWidget *BuddyEditor::widgetAt(const QPoint &pos) const
 {
-    return ConnectionEdit::widgetAt(pos);
+    QWidget *w = ConnectionEdit::widgetAt(pos);
+    
+    if (mode() == EditMode) {
+        if (qt_cast<QLabel*>(w) == 0)
+            return 0;
+    }
+        
+    return w;
 }
 
 Connection *BuddyEditor::createConnection(QWidget *source, QWidget *destination)
 {
-    return ConnectionEdit::createConnection(source, destination);
+    Connection *con = ConnectionEdit::createConnection(source, destination);
+    widgetItem(con->source())->disableSelect(true);
+    widgetItem(con->destination())->disableSelect(true);
+    return con;
 }
 
