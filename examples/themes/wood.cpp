@@ -23,6 +23,7 @@
 #include "qrangecontrol.h"
 #include "qscrollbar.h"
 #include <limits.h>
+#include "qstylefactory.h"
 
 /* XPM */
 static const char *polish_xpm[] = {
@@ -754,7 +755,7 @@ static void get_combo_parameters( const QRect &r,
 				  int &ay, int &sh, int &dh,
 				  int &sy );
 
-static int get_combo_extra_width( int h, int *return_awh=0 );
+static int get_combo_extra_width( int h, int *return_awh );
 
 NorwegianWoodStyle::NorwegianWoodStyle() : QWindowsStyle()
 {
@@ -1119,9 +1120,13 @@ void NorwegianWoodStyle::drawComplexControl( ComplexControl control,
 				  ew, awh, ax, ay, sh, dh, sy );
 	
 	    drawPrimitive( PE_ButtonCommand, p, r, cg, Style_Default );
-	
-	    qDrawArrow( p, DownArrow, MotifStyle, FALSE, ax, ay, awh,
-			awh, cg, TRUE );
+
+	    QStyle *mstyle = QStyleFactory::create( "Motif" );
+	    if ( mstyle )
+		mstyle->drawPrimitive( PE_ArrowDown, p, QRect(ax, ay, awh, awh), cg, how );
+	    else
+		drawPrimitive( PE_ArrowDown, p, QRect(ax, ay, awh, awh), cg, how );
+
 	    p->setPen( cg.light() );
 	    p->drawLine( ax, sy, ax + awh - 1, sy );
 	    p->drawLine( ax, sy, ax, sy + sh - 1 );
@@ -1148,7 +1153,7 @@ void NorwegianWoodStyle::drawComplexControlMask( ComplexControl control,
 						 QPainter *p,
 						 const QWidget *widget,
 						 const QRect &r,
-						 void **data = 0 ) const
+						 void **data ) const
 {
     switch ( control ) {
     case CC_ComboBox:
@@ -1178,7 +1183,7 @@ QRect NorwegianWoodStyle::querySubControlMetrics( ComplexControl control,
 	    case SC_ComboBoxEditField:
 		{
 		    rect = subRect( SR_PushButtonContents, widget );
-		    int ew = get_combo_extra_width( rect.height() );
+		    int ew = get_combo_extra_width( rect.height(), 0 );
 		    rect.setRect( rect.x() + 1, rect.y() + 1,
 				  rect.width() - 2 - ew, rect.height() - 2 );
 		    break;
@@ -1265,7 +1270,7 @@ static QRegion roundRectRegion( const QRect& g, int r )
 
 
 
-static int get_combo_extra_width( int h, int *return_awh=0 )
+static int get_combo_extra_width( int h, int *return_awh )
 {
     int awh;
     if ( h < 8 ) {
