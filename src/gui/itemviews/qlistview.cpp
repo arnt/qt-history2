@@ -778,6 +778,7 @@ QStyleOptionViewItem QListView::viewOptions() const
     } else {
         option.decorationSize = QStyleOptionViewItem::Large;
         option.decorationPosition = QStyleOptionViewItem::Top;
+        option.displayAlignment = Qt::AlignHCenter|Qt::AlignBottom;
     }
     return option;
 }

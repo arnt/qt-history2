@@ -89,6 +89,7 @@ public:
 
 public slots:
     void setOffset(int offset);
+    void headerDataChanged(Qt::Orientation orientation, int first, int last);
 
 signals:
     void sectionIndexChanged(int section, int oldIndex, int newIndex);

@@ -180,24 +180,28 @@ QHeaderView::~QHeaderView()
 void QHeaderView::setModel(QAbstractItemModel *model)
 {
     if (d->orientation == Qt::Horizontal) {
-        QObject::disconnect(model, SIGNAL(columnsInserted(const QModelIndex&, int, int)),
+        QObject::disconnect(d->model, SIGNAL(columnsInserted(const QModelIndex&, int, int)),
                             this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
-        QObject::disconnect(model, SIGNAL(columnsRemoved(const QModelIndex&, int, int)),
+        QObject::disconnect(d->model, SIGNAL(columnsRemoved(const QModelIndex&, int, int)),
                             this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
         QObject::connect(model, SIGNAL(columnsInserted(const QModelIndex&, int, int)),
                          this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
         QObject::connect(model, SIGNAL(columnsRemoved(const QModelIndex&, int, int)),
                          this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
     } else {
-        QObject::disconnect(model, SIGNAL(rowsInserted(const QModelIndex&, int, int)),
+        QObject::disconnect(d->model, SIGNAL(rowsInserted(const QModelIndex&, int, int)),
                             this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
-        QObject::disconnect(model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
+        QObject::disconnect(d->model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
                             this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
         QObject::connect(model, SIGNAL(rowsInserted(const QModelIndex&, int, int)),
                          this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
         QObject::connect(model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
                          this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
     }
+    QObject::disconnect(d->model, SIGNAL(headerDataChanged(Qt::Orientation, int, int)),
+                        this, SLOT(headerDataChanged(Qt::Orientation, int, int)));
+    QObject::connect(d->model, SIGNAL(headerDataChanged(Qt::Orientation, int, int)),
+                     this, SLOT(headerDataChanged(Qt::Orientation, int, int)));
     QAbstractItemView::setModel(model);
     // Users want to set sizes and modes before the widget is shown.
     // Thus, we have to initialize when the model is set,
@@ -244,6 +248,24 @@ void QHeaderView::setOffset(int o)
         d->viewport->scroll(QApplication::reverseLayout() ? -ndelta : ndelta, 0);
     else
         d->viewport->scroll(0, ndelta);
+}
+
+/*!
+  Updates the changed header sections
+*/
+void QHeaderView::headerDataChanged(Qt::Orientation orientation, int first, int last)
+{
+    if (d->orientation != orientation)
+        return;
+    if (orientation == Qt::Horizontal) {
+        int left = sectionPosition(first);
+        int right = sectionPosition(last) + sectionSize(last);
+        d->viewport->update(left, 0, right - left, d->viewport->height());
+    } else {
+        int top = sectionPosition(first);
+        int bottom = sectionPosition(last) + sectionSize(last);
+        d->viewport->update(0, top, d->viewport->width(), bottom - top);
+    }
 }
 
 /*!
@@ -388,21 +410,17 @@ QSize QHeaderView::sectionSizeFromContents(int section) const
                                     QAbstractItemModel::DisplayRole).toString();
     opt.icon = d->model->headerData(section, orientation(),
                                     QAbstractItemModel::DecorationRole).toIconSet();    
-    return style().sizeFromContents(QStyle::CT_HeaderSection, &opt, size, fontMetrics(), this);
+    size = style().sizeFromContents(QStyle::CT_HeaderSection, &opt, size, fontMetrics(), this);
 
-    // FIXME: sort indicators
+    if (sortIndicatorSection() == section) {
+        int margin = style().pixelMetric(QStyle::PM_HeaderMargin);
+        if (orientation() == Qt::Horizontal)
+            size.rwidth() += size.height() + margin;
+        else
+            size.rheight() += size.width() + margin;
+    }
 
-    //     int margin = style().pixelMetric(QStyle::PM_HeaderMargin);
-//     if (orientation() == Qt::Vertical) {
-//         int hint = size.height() + margin;
-//         if (sortIndicatorSection() == section)
-//             hint += size.width();
-//         return hint;
-//     }
-//     hint = size.width() + margin;
-//     if (sortIndicatorSection() == section)
-//         hint += size.height();
-//     return hint;
+    return size;
 }
 
 /*!
@@ -903,6 +921,7 @@ void QHeaderView::resizeSection(int section, int size)
         sections += 4;
         num -= 4;
     }
+
     if (num > 0) {
         sections[0].position += diff;
         if (num > 1) {
@@ -976,19 +995,6 @@ bool QHeaderView::isSectionHidden(int section) const
 QModelIndex QHeaderView::itemAt(int x, int y) const
 {
     return QModelIndex::Null;
-//     int row = 0;
-//     int column = 0;
-//     if (d->orientation == Qt::Horizontal) {
-//         column = sectionAt(x + offset());
-//         if (column < 0)
-//             return QModelIndex::Null;
-//         return model()->index(0, column, QModelIndex::Null, QModelIndex::HorizontalHeader);
-//     } else {
-//         row = sectionAt(y + offset());
-//         if (row < 0)
-//             return QModelIndex::Null;
-//         return model()->index(row, 0, QModelIndex::Null, QModelIndex::VerticalHeader);
-//     }
 }
 
 /*!
@@ -1046,13 +1052,7 @@ QModelIndex QHeaderView::moveCursor(QAbstractItemView::CursorAction, Qt::ButtonS
 
 QRect QHeaderView::itemViewportRect(const QModelIndex &index) const
 {
-    if (!index.isValid())
-        return QRect();
-    if (orientation() == Qt::Horizontal)
-        return QRect(sectionPosition(index.column()) - offset(),
-                     0, sectionSize(index.column()), height());
-    return QRect(0, sectionPosition(index.row()) - offset(),
-                 width(), sectionSize(index.row()));
+    return QRect();
 }
 
 /*!

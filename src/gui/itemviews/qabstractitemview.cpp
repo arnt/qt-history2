@@ -573,7 +573,6 @@ void QAbstractItemView::reset()
         itemDelegate()->releaseEditor(it.value());
     }
     d->editors.clear();
-
     d->state = NoState;
     if (isVisible())
         doItemsLayout();
