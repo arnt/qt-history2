@@ -1,7 +1,7 @@
 #include <qapplication.h>
 #include <qwidget.h>
 #include <qgl.h>
-#include <qcolormap.h>
+#include <qglcolormap.h>
 #include <qpushbutton.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -166,27 +166,36 @@ int main( int argc, char ** argv )
     QGLFormat f;
     f.setRgba( FALSE );
     QGLFormat::setDefaultFormat( f );
-    MyGl gl( 0, "mygl" );
-    MyGl gl2( 0, "mygl2" );
-    app.setMainWidget( &gl );
+    QWidget w(0);
+    MyGl gl( &w, "mygl" );
+    MyGl gl2( &w, "mygl2" );
+    app.setMainWidget( &w );
     
+    gl.resize( 200, 200 );
+    gl2.resize( 200, 200 );
+    
+    gl.move( 2, 2 );
+    gl2.move( gl.width() + 4, 2 );
+    w.resize( 400, 400 );
     // Install a custom colormap
-    QColormap cmap1;
+    QGLColormap cmap1;
     QRgb colors[256];
     
     for ( int i = 0; i < 256; i++ )
   	colors[i] = qRgb( i, i, i );
     
-    cmap1.setRgb( 0, 256, colors );
+    cmap1.setEntries( 0, 256, colors );
     
-    QColormap cmap2 ( cmap1 );
-    for ( int x = 150; x < cmap2.size(); x++ )
-  	cmap2.setRgb( x, qRgb( x, x, 0 ) );
-     
     gl.setColormap( cmap1 );
+    
+    QGLColormap cmap2( cmap1 );
+    for ( int x = 100; x < 256; x++ )
+  	cmap2.setEntry( x, qRgb( x, x, 0 ) );
+     
     gl2.setColormap( cmap2 );
     
-    gl.show();
-    gl2.show();
+//     gl.show();
+//     gl2.show();
+    w.show();
     return app.exec();
 }
