@@ -1223,3 +1223,15 @@ void QWidget::setName( const char * name )
 void QWidget::setFontSys()
 {
 }
+
+void QWidget::grabKeyboard()
+{
+}
+
+void QWidget::releaseKeyboard()
+{
+}
+
+void QWidget::scroll( int dx, int dy, const QRect& r )
+{
+}

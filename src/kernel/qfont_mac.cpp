@@ -119,6 +119,11 @@ int QFontMetrics::minLeftBearing() const
   return 0;
 }
 
+int QFontMetrics::leftBearing(QChar ch) const
+{
+    return 0;
+}
+
 int QFontMetrics::underlinePos() const
 {
   //printf("%s %d\n",__FILE__,__LINE__);

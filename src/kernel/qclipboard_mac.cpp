@@ -6,12 +6,12 @@ void QClipboard::ownerDestroyed()
   printf("%s %d\n",__FILE__,__LINE__);
 }
 
-void QClipboard::connectNotify(const char *)
+void QClipboard::connectNotify( const char * )
 {
   printf("%s %d\n",__FILE__,__LINE__);
 }
 
-bool QClipboard::event(QEvent * e)
+bool QClipboard::event( QEvent * e )
 {
   printf("%s %d\n",__FILE__,__LINE__);
   return false;
@@ -22,7 +22,14 @@ void QClipboard::clear()
   printf("%s %d\n",__FILE__,__LINE__);
 }
 
+void QClipboard::setData( QMimeSource* src )
+{
+}
 
+QMimeSource * QClipBoard::data() const
+{
+    return 0;
+}
 
 
 

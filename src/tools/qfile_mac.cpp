@@ -32,6 +32,18 @@
 
 bool qt_file_access( const QString& fn, int t )
 {
+    FSSpec myspec;
+    char bigbuf[257];
+    const char * wingle=fn.ascii();
+    strcpy(bigbuf+1,wingle);
+    bigbuf[0]=strlen(wingle);
+    OSErr ret;
+    ret=FSMakeFSSpec((short)0,(long)0,(const unsigned char *)bigbuf,&myspec);
+    if(ret!=noErr) {
+        qWarning("Make FS spec in qt_file_access error %d",ret);
+        return false;
+    } 
+    // The Mac isn't big on permissions
     return true;
 }
 

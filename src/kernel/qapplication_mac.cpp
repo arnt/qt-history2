@@ -795,7 +795,7 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
   return true;
 }
 
-QSessionManager::QSessionManager( QApplication * app,QString &session ) 
+QSessionManager::QSessionManager( QApplication * app,QString &session )
 {
 }
 
@@ -857,7 +857,7 @@ void QSessionManager::setProperty( const QString& name, const QString& value )
 {
 }
 
-void QSessionManager::setProperty( const QString& name, 
+void QSessionManager::setProperty( const QString& name,
 				   const QStringList& value )
 {
 }
@@ -869,6 +869,16 @@ bool QSessionManager::isPhase2() const
 
 void QSessionManager::requestPhase2()
 {
+}
+
+int QApplication::cursorFlashTime()
+{
+    return 10;
+}
+
+int QApplication::doubleClickInterval()
+{
+    return 10;
 }
 
 QObject * qt_clipboard=0;
