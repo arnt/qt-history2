@@ -334,7 +334,7 @@ QThread::QThread( unsigned int stackSize )
 */
 QThread::~QThread()
 {
-    QMutexLocker locker( qt_thread_mutexpool->get( d ) );
+    QMutexLocker locker( qt_thread_mutexpool ? qt_thread_mutexpool->get( d ) : 0 );
     if ( d->running && !d->finished ) {
 #ifdef QT_CHECK_STATE
 	qWarning("QThread object destroyed while thread is still running.");
