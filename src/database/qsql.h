@@ -27,10 +27,11 @@ struct Q_EXPORT QSqlResultShared : public QShared
 class Q_EXPORT QSql
 {
 public:
-    explicit QSql( QSqlResult * r )
+    QSql( QSqlResult * r )
     {
 	d = new QSqlResultShared( r );
     }
+    QSql( const QString& databaseName = "default" );
     virtual ~QSql();
     QSql( const QSql& other )
     : d(other.d)

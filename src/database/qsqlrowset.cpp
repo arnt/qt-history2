@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "qsqlrowset.h"
 #include "qsqldatabase.h"
+#include "qsqlconnection.h"
 #include "qsqlresult.h"
 #include "qsqldriver.h"
 

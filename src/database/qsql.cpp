@@ -4,6 +4,8 @@
 
 #include "qsqlresult.h"
 #include "qsqldriver.h"
+#include "qsqldatabase.h"
+#include "qsqlconnection.h"
 
 QSqlResultShared::~QSqlResultShared()
 {
@@ -79,6 +81,15 @@ QSql::~QSql()
 /*! \fn QSql::QSql( const QSql& other )
     Copy constructor.  QSql is implicitly shared.
 */
+
+/*!
+    Creates a QSql object which uses database \a databaseName.
+*/
+QSql::QSql( const QString& databaseName )
+{
+    *this = ( QSqlConnection::database( databaseName )->driver()->createResult() );
+}
+
 
 /*! \fn QSql& QSql::operator=( const QSql& other )
     Assigns \a other.  QSql is implicitly shared.
