@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qinterlacestyle.h#3 $
+** $Id: //depot/qt/main/src/styles/qinterlacestyle.h#4 $
 **
 ** Implementation of QInterlaceStyle widget class
 **
@@ -46,7 +46,7 @@
 
 #include <qpalette.h>
 
-class QInterlaceStyle : public QMotifStyle
+class Q_EXPORT QInterlaceStyle : public QMotifStyle
 {
 public:
     QInterlaceStyle();
