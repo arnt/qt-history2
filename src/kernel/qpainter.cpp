@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#38 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,13 +22,17 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#37 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#38 $";
 #endif
 
 
 /*!
   \class QPainter qpainter.h
+
   \brief The QPainter class paints on paint devices.
+
+  \ingroup uiclasses
+  \ingroup drawing
 
   The painter provides graphics rendering on any QPaintDevice object.
 
@@ -944,8 +948,11 @@ QDataStream &operator>>( QDataStream &s, QBrush &b )
 
 /*!
   \class QPen qpen.h
+
   \brief The QPen class defines how the QPainter should draw lines and outlines
   of shapes.
+
+  \ingroup drawing
 
   A pen has a style, a width and a color.
 
@@ -1176,8 +1183,11 @@ bool QPen::operator==( const QPen &p ) const
 
 /*!
   \class QBrush qbrush.h
+
   \brief The QBrush class defines the fill pattern of shapes drawn using the
   QPainter.
+
+  \ingroup drawing
 
   A brush has a style and a color.  One of the brush styles is a custom
   pattern, which is defined by a QPixmap.
