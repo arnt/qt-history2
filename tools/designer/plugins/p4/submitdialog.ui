@@ -11,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>473</width>
-            <height>246</height>
+            <width>881</width>
+            <height>348</height>
         </rect>
     </property>
     <property stdset="1">
@@ -51,14 +51,21 @@
                 <cstring>fileList</cstring>
             </property>
         </widget>
-        <widget row="5"  column="0"  rowspan="1"  colspan="2" >
+        <widget row="6"  column="0"  rowspan="1"  colspan="2" >
             <class>QMultiLineEdit</class>
             <property stdset="1">
                 <name>name</name>
                 <cstring>description</cstring>
             </property>
+            <property stdset="1">
+                <name>sizePolicy</name>
+                <sizepolicy>
+                    <hsizetype>7</hsizetype>
+                    <vsizetype>7</vsizetype>
+                </sizepolicy>
+            </property>
         </widget>
-        <widget row="4"  column="0"  rowspan="1"  colspan="2" >
+        <widget row="5"  column="0"  rowspan="1"  colspan="2" >
             <class>QLabel</class>
             <property stdset="1">
                 <name>name</name>
@@ -96,19 +103,60 @@
                 <bool>true</bool>
             </property>
         </widget>
-        <widget row="2"  column="1" >
-            <class>QPushButton</class>
+        <widget row="1"  column="0"  rowspan="4"  colspan="1" >
+            <class>QListView</class>
+            <column>
+                <property>
+                    <name>text</name>
+                    <string>Local file</string>
+                </property>
+                <property>
+                    <name>clickable</name>
+                    <bool>true</bool>
+                </property>
+                <property>
+                    <name>resizeable</name>
+                    <bool>true</bool>
+                </property>
+            </column>
+            <column>
+                <property>
+                    <name>text</name>
+                    <string>Depot file</string>
+                </property>
+                <property>
+                    <name>clickable</name>
+                    <bool>true</bool>
+                </property>
+                <property>
+                    <name>resizeable</name>
+                    <bool>true</bool>
+                </property>
+            </column>
+            <column>
+                <property>
+                    <name>text</name>
+                    <string>Action</string>
+                </property>
+                <property>
+                    <name>clickable</name>
+                    <bool>true</bool>
+                </property>
+                <property>
+                    <name>resizeable</name>
+                    <bool>true</bool>
+                </property>
+            </column>
             <property stdset="1">
                 <name>name</name>
-                <cstring>buttonCancel</cstring>
+                <cstring>fileList</cstring>
             </property>
             <property stdset="1">
-                <name>text</name>
-                <string>&amp;Cancel</string>
-            </property>
-            <property stdset="1">
-                <name>autoDefault</name>
-                <bool>true</bool>
+                <name>sizePolicy</name>
+                <sizepolicy>
+                    <hsizetype>7</hsizetype>
+                    <vsizetype>5</vsizetype>
+                </sizepolicy>
             </property>
         </widget>
         <widget row="3"  column="1" >
@@ -126,27 +174,49 @@
                 <bool>false</bool>
             </property>
         </widget>
-        <widget row="1"  column="0"  rowspan="3"  colspan="1" >
-            <class>QListView</class>
-            <column>
-                <property>
-                    <name>text</name>
-                    <string>Column 1</string>
-                </property>
-                <property>
-                    <name>clickable</name>
-                    <bool>true</bool>
-                </property>
-                <property>
-                    <name>resizeable</name>
-                    <bool>true</bool>
-                </property>
-            </column>
+        <widget row="2"  column="1" >
+            <class>QPushButton</class>
             <property stdset="1">
                 <name>name</name>
-                <cstring>fileList</cstring>
+                <cstring>buttonCancel</cstring>
+            </property>
+            <property stdset="1">
+                <name>text</name>
+                <string>&amp;Cancel</string>
+            </property>
+            <property stdset="1">
+                <name>autoDefault</name>
+                <bool>true</bool>
             </property>
         </widget>
+        <spacer row="4"  column="1" >
+            <property>
+                <name>name</name>
+                <cstring>Spacer1</cstring>
+            </property>
+            <property stdset="1">
+                <name>orientation</name>
+                <enum>Vertical</enum>
+            </property>
+            <property stdset="1">
+                <name>sizeType</name>
+                <enum>Expanding</enum>
+            </property>
+            <property>
+                <name>sizeHint</name>
+                <size>
+                    <width>20</width>
+                    <height>20</height>
+                </size>
+            </property>
+            <property>
+                <name>sizeHint</name>
+                <size>
+                    <width>20</width>
+                    <height>20</height>
+                </size>
+            </property>
+        </spacer>
     </grid>
 </widget>
 <images>
