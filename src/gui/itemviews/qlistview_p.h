@@ -331,9 +331,9 @@ public:
     QBinTree<QListViewItem> tree;
 
     // used when items are static
-    QVector<int> xposVector;
-    QVector<int> yposVector;
-    QVector<int> wrapVector;
+    QVector<int> flowPositions;
+    QVector<int> wrapPositions;
+    QVector<int> wrapStartRows;
     int layoutWraps;
 
     // timers
