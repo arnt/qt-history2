@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#33 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#34 $
 **
 ** Implementation of QBuffer class
 **
@@ -12,7 +12,7 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#34 $");
 
 
 /*!
@@ -121,7 +121,7 @@ bool QBuffer::setBuffer( QByteArray buf )
 }
 
 /*!
-  \fn QByteArray buffer() const
+  \fn QByteArray QBuffer::buffer() const
 
   Returns the buffer most recently set by setBuffer(), or at construction.
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#6 $
 **
 ** Implementation of movie classes
 **
@@ -257,7 +257,7 @@ void QImageDecoder::unregisterDecoderFactory(QImageFormatDecoderFactory* f)
 */
 
 /*!
-  \fn int decode(QImage& img, QImageConsumer* consumer,
+  \fn int QImageFormatDecoder::decode(QImage& img, QImageConsumer* consumer,
 	    const uchar* buffer, int length)
 
   Image decoders for specific image formats must override this method.

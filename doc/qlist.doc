@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.6 1997/06/28 18:54:17 warwick Exp $
+** $Id: qlist.doc,v 2.7 1997/06/30 13:43:32 warwick Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -837,7 +837,7 @@
 */
 
 /*!
-  \fn QListIterator<type> QListIterator::operator=( const QListIterator<type> &it )
+  \fn QListIterator<type>& QListIterator::operator=( const QListIterator<type> &it )
   Assignment.  Makes a copy of the iterator \a it and returns a reference
   to this iterator.
 */

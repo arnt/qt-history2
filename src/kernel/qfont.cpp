@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#71 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#70 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#71 $");
 
 
 /*!
@@ -177,7 +177,7 @@ QFont::QFont( const char *family, int pointSize, int weight, bool italic )
 */
 
 QFont::QFont( const char *family, int pointSize, int weight, bool italic,
-	      QFont::CharSet charSet)
+	      CharSet charSet)
 {
     init();
     d->req.family    = family;

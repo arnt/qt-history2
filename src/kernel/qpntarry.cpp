@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#43 $
 **
 ** Implementation of QPointArray class
 **
@@ -15,7 +15,45 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#42 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#43 $");
+
+/*!
+  \class QPointVal qpntarry.h
+  \brief The QPointVal class is an internal class, used with QPointArray.
+
+  The QPointVal is required by the indexing [] operator on point arrays.
+  It is probably a bad idea to use it in any other context.
+*/
+
+/*! \fn QPointVal::QPointVal (QPointData* ptr) 
+
+  Constructs a reference to an element in a QPointArray.  This is
+  what QPointArray::operator[] contructs its return value with.
+*/
+
+/*! \fn QPointVal& QPointVal::operator= (const QPoint& point) 
+  Assigns a given point to the value referenced by this QPointVal.
+*/
+
+/*! \fn QPointVal& QPointVal::operator+= (const QPoint& point) 
+  Vector-adds a given point to the value referenced by this QPointVal.
+*/
+
+/*! \fn QPointVal& QPointVal::operator-= (const QPoint& point) 
+  Vector-subtracts a given point to the value referenced by this QPointVal.
+*/
+
+/*! \fn QPointVal::operator QPoint() const
+  Returns the value of the point referenced by this QPointVal.
+*/
+
+/*! \fn int QPointVal::x () const 
+  Returns the X coordinate of the point referenced by this QPointVal.
+*/
+
+/*! \fn int QPointVal::y () const 
+  Returns the Y coordinate of the point referenced by this QPointVal.
+*/
 
 
 /*!
@@ -118,7 +156,7 @@ QPointArray::QPointArray( int nPoints, const QCOORD *points )
 */
 
 /*!
-  \fn QPointArray copy() const
+  \fn QPointArray QPointArray::copy() const
 
   Creates a deep copy of the array.
 */
@@ -359,13 +397,13 @@ QPoint QPointArray::at( uint index ) const
 }
 
 /*!
-  \fn QPointVal operator[]( int index )
+  \fn QPointVal QPointArray::operator[]( int index )
 
   Returns a reference to the point at position \e index in the array.
 */
 
 /*!
-  \fn QPointVal operator[]( uint index )
+  \fn QPointVal QPointArray::operator[]( uint index )
 
   Returns a reference to the point at position \e index in the array.
 */

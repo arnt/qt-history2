@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.cpp#36 $
+** $Id: //depot/qt/main/src/tools/qbitarray.cpp#37 $
 **
 ** Implementation of QBitArray class
 **
@@ -12,7 +12,7 @@
 #include "qbitarry.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbitarray.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qbitarray.cpp#37 $");
 
 
 #define SHBLOCK	 ((bitarr_data*)(sharedBlock()))
@@ -34,7 +34,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qbitarray.cpp#36 $");
 */
 
 /*!
-  \fn QBitVal::operator int () 
+  \fn QBitVal::operator int() 
 
   Returns the value referenced by the QBitVal.
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#13 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -236,7 +236,7 @@ void QSpinBox::setWrapping( bool w )
     enableButtons();
 }
 
-/*!  \fn bool wrapping() const
+/*!  \fn bool QSpinBox::wrapping() const
 
   Returns the most recent setWrapping() value.
 */
@@ -260,7 +260,7 @@ void QSpinBox::setCurrent( int i )
     }
 }
 
-/*!  \fn int current() const
+/*!  \fn int QSpinBox::current() const
 
   Returns the most recent setCurrent() value.
 */
@@ -301,7 +301,7 @@ void QSpinBox::prev()
 }
 
 
-/*! \fn void selected( const char * )
+/*! \fn void QSpinBox::selected( const char * )
 
   This signal is emitted every time the value of the spin box changes
   (by setCurrent(), by a keyboard accelerator, by mouse clicks, or by

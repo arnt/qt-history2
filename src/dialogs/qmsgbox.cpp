@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#29 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#30 $
 **
 ** Implementation of QMessageBox class
 **
@@ -14,7 +14,7 @@
 #include "qpushbt.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#30 $");
 
 
 /*!
@@ -359,7 +359,7 @@ QMessageBox::Icon QMessageBox::icon() const
   \sa icon()
 */
 
-void QMessageBox::setIcon( QMessageBox::Icon icon )
+void QMessageBox::setIcon( Icon icon )
 {
     mbd->icon = icon;
 }

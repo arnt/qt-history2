@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#17 $
 **
 ** Implementation of QTabBar class
 **
@@ -10,7 +10,7 @@
 #include "qtabbar.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#17 $");
 
 
 QTab::~QTab()
@@ -434,6 +434,11 @@ void QTabBar::setCurrentTab( QTab * tab )
     }
 }
 
+/*!
+  \fn void QTabBar::selected( int )
+
+  This signal is emitted when the current tab changes.
+*/
 
 /*!  If this tab control has keyboard focus, returns the ID of the
   tab Space will select.  Otherwise, returns -1.

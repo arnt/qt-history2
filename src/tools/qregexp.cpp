@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#38 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#39 $
 **
 ** Implementation of QRegExp class
 **
@@ -13,7 +13,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#38 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#39 $");
 
 
 /*!
@@ -177,6 +177,13 @@ bool QRegExp::operator==( const QRegExp &r ) const
     return rxstring == r.rxstring && cs == r.cs && wc == r.wc;
 }
 
+/*!
+  \fn bool QRegExp::operator!=( const QRegExp &r ) const
+
+  Returns TRUE if this regexp is \e not equal to \e r.
+
+  \sa operator==()
+*/
 
 /*!
   \fn bool QRegExp::isEmpty() const

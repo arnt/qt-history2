@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.h#25 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.h#26 $
 **
 ** Definition of QPointArray class
 **
@@ -53,7 +53,7 @@ public:
     QPointVal &operator=( const QPoint &point );
     QPointVal &operator+=( const QPoint &point );
     QPointVal &operator-=( const QPoint &point );
-	       operator QPoint()	{ return QPoint(p->x,p->y); }
+	       operator QPoint() const	{ return QPoint(p->x,p->y); }
     int	       x() const		{ return (int)p->x; }
     int	       y() const		{ return (int)p->y; }
 private:
