@@ -3,6 +3,7 @@
 
 #include <qtextstream.h>
 #include <qiodevice.h>
+#include <qmime.h>
 
 #include <string.h>
 #include <stdlib.h>
@@ -3069,6 +3070,8 @@ public:
   ~QDOM_DocumentPrivate();
 
   bool setContent( const QString& text );
+  QMimeSourceFactory* mimeSourceFactory();
+  void setMimeSourceFactory( QMimeSourceFactory* );
 
   // Attributes
   QDOM_DocumentTypePrivate* doctype() { return type; };
@@ -3095,6 +3098,7 @@ public:
   // Variables
   QDOM_ImplementationPrivate* impl;
   QDOM_DocumentTypePrivate* type;
+  QMimeSourceFactory* m_mimeSourceFactory;
 
   static QString* s_docName;
 };
@@ -3104,6 +3108,7 @@ QString* QDOM_DocumentPrivate::s_docName = 0;
 QDOM_DocumentPrivate::QDOM_DocumentPrivate()
   : QDOM_NodePrivate( 0 )
 {
+  m_mimeSourceFactory = 0;
   impl = new QDOM_ImplementationPrivate();
   type = new QDOM_DocumentTypePrivate( this, this );
 
@@ -3115,6 +3120,7 @@ QDOM_DocumentPrivate::QDOM_DocumentPrivate()
 QDOM_DocumentPrivate::QDOM_DocumentPrivate( const QString& name )
   : QDOM_NodePrivate( 0 )
 {
+  m_mimeSourceFactory = 0;
   impl = new QDOM_ImplementationPrivate();
   type = new QDOM_DocumentTypePrivate( this, this );
   type->m_name = name;
@@ -3127,6 +3133,7 @@ QDOM_DocumentPrivate::QDOM_DocumentPrivate( const QString& name )
 QDOM_DocumentPrivate::QDOM_DocumentPrivate( QDOM_DocumentPrivate* n, bool deep )
   : QDOM_NodePrivate::QDOM_NodePrivate( n, deep )
 {
+  m_mimeSourceFactory = n->m_mimeSourceFactory;
   impl = n->impl->clone();
   type = (QDOM_DocumentTypePrivate*)n->type->cloneNode();
 }
@@ -3144,6 +3151,19 @@ void QDOM_DocumentPrivate::clear()
   impl = 0;
   type = 0;
   QDOM_NodePrivate::clear();
+}
+
+QMimeSourceFactory* QDOM_DocumentPrivate::mimeSourceFactory()
+{
+  if ( m_mimeSourceFactory )
+    return m_mimeSourceFactory;
+
+  return QMimeSourceFactory::defaultFactory();
+}
+
+void QDOM_DocumentPrivate::setMimeSourceFactory( QMimeSourceFactory* f )
+{
+  m_mimeSourceFactory = f;
 }
 
 bool QDOM_DocumentPrivate::setContent( const QString& text )
@@ -3484,6 +3504,51 @@ QDomNode::NodeType QDomDocument::nodeType() const
 bool QDomDocument::isDocument() const
 {
   return TRUE;
+}
+
+/*!
+  Returns the factory attached to this document. If no
+  factory was attached until now to this document, then the default
+  factory as delivered by QMimeSourceFactory::defaultFactory is returned.
+
+  \sa setMimeSourceFactory()
+*/
+QMimeSourceFactory* QDomDocument::mimeSourceFactory()
+{
+  if ( !impl )
+    return 0;
+  return IMPL->mimeSourceFactory();
+}
+
+/*!
+  Returns the factory attached to this document. If no
+  factory was attached until now to this document, then the default
+  factory as delivered by QMimeSourceFactory::defaultFactory is returned.
+
+  \sa setMimeSourceFactory()
+*/
+const QMimeSourceFactory* QDomDocument::mimeSourceFactory() const
+{
+  if ( !impl )
+    return 0;
+  return IMPL->mimeSourceFactory();
+}
+
+/*!
+  Changes the factory for this document. If it is set to zero, then
+  the default factory as delivered by QMimeSourceFactory::defaultFactory is
+  used.
+
+  The factory is used to access external data such as pictures which reside
+  on some external storage but are referenced in the document.
+
+  \sa mimeSourceFactory()
+*/
+void QDomDocument::setMimeSourceFactory( QMimeSourceFactory* f )
+{
+  if ( !impl )
+    return;
+  IMPL->setMimeSourceFactory( f );
 }
 
 #undef IMPL

@@ -13,6 +13,7 @@
 class QWidget;
 class QLayout;
 class QIODevice;
+class QMimeSourceFactory;
 
 class QDOM_DocumentPrivate;
 class QDOM_DocumentTypePrivate;
@@ -228,6 +229,9 @@ class QDomCharacterData;
 
     // Qt extensions
     bool setContent( const QString& text );
+    QMimeSourceFactory* mimeSourceFactory();
+    const QMimeSourceFactory* mimeSourceFactory() const;
+    void setMimeSourceFactory( QMimeSourceFactory* );
 
     // QDomAttributes
     QDomDocumentType doctype() const;
@@ -253,7 +257,6 @@ class QDomCharacterData;
 
     // Overloaded from QDomNode
     virtual NodeType nodeType() const;
-    // virtual QDomNode cloneNode( bool deep) const;
     virtual bool isDocument() const;
 
   private:

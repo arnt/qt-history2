@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.h#7 $
+** $Id: //depot/qt/main/src/kernel/qmime.h#8 $
 **
 ** Definition of mime classes
 **
@@ -59,6 +59,8 @@ public:
     virtual void setPixmap( const QString& abs_name, const QPixmap& pm );
     virtual void setData( const QString& abs_name, QMimeSource* data );
     virtual void setFilePath( const QStringList& );
+    virtual QStringList filePath() const;
+    void addFilePath( const QString& );
     virtual void setExtensionType( const QString& ext, const char* mimetype );
 
 private:
