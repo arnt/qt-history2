@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#32 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#32 $";
 #endif
 
 
@@ -1773,15 +1773,20 @@ void QPainter::drawPixMap( int x, int y, const QPixMap &pixmap )
 }
 
 
-QString get_tbm_key(  const QWorldMatrix &m, const char *str, int len )
+//
+// Generate a key string for a transformed bitmap.  This string is used
+// as a key for searching the bitmap cache.
+//
+static QString gen_xbm_key(  const QWorldMatrix &m, const QFont &f,
+			     const char *str, int len )
 {
     QString s = str;
-    s.resize( len + 1 );    // eiriken FIXED  950202    s.resize( len );
+    s.resize( len + 1 );
     QString k;
     if ( len > 150 )
 	k.resize( len + 100 );
-    k.sprintf( "%s%g%g%g%g%g%g", (char *)s, m.m11(), m.m12(), m.m21(),m.m22(),
-	       m.dx(), m.dy() );
+    k.sprintf( "$%s,%x,%g,%g,%g,%g,%g,%g", (char *)s, f.handle(),
+	       m.m11(), m.m12(), m.m21(),m.m22(), m.dx(), m.dy() );
     return k;
 }
 
@@ -1791,22 +1796,24 @@ static QDictM(QBitMap) *bmDict = 0;
 
 static long bmSize = 0;
 
-QBitMap *get_text_bitmap( const QWorldMatrix &m, const char *str, int len )
+static QBitMap *get_text_bitmap( const QWorldMatrix &m, const QFont &f,
+				 const char *str, int len )
 {
-    QString k = get_tbm_key(m,str,len);
+    QString k = gen_xbm_key( m, f, str, len );
     if ( !bmDict )
 	bmDict = new QDictM(QBitMap);
     QBitMap *bm = bmDict->find( k );
     return bm;
 }
+
 // NOTE.... Husk aa legge inn kall fra global destrukt|r!!!
-void ins_text_bitmap( const QWorldMatrix &m, const char *str, int len,
-		      QBitMap *bm )
+static void ins_text_bitmap( const QWorldMatrix &m, const QFont &f,
+			     const char *str, int len, QBitMap *bm )
 {
     int sz = bm->size().width()*bm->size().height();
     if ( bmSize + sz < 240000*8 ) {
 	bmSize += sz;
-	QString k = get_tbm_key(m,str,len);
+	QString k = gen_xbm_key( m, f, str, len );
 	bmDict->insert(k,bm);
     }
     else {
@@ -1851,7 +1858,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    QWorldMatrix eff_mat( wm11/65536.0, wm12/65536.0,
 				  wm21/65536.0, wm22/65536.0,
 				  wdx/65536.0,  wdy/65536.0 );
-	    QBitMap *wx_bm = get_text_bitmap( eff_mat, str, len );
+	    QBitMap *wx_bm = get_text_bitmap( eff_mat, cfont, str, len );
 	    bool create_new_bm = wx_bm == 0;
 	    QWorldMatrix mat( 1, 0, 0, 1, -eff_mat.dx(), -eff_mat.dy() );
 	    mat = eff_mat * mat;
@@ -1932,7 +1939,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		XSetRegion( dpy, gc, crgn.handle() );
 	    }
 	    if ( create_new_bm )
-		ins_text_bitmap( eff_mat, str, len, wx_bm );
+		ins_text_bitmap( eff_mat, cfont, str, len, wx_bm );
 	    return;
 	}
 	if ( testf(VxF) )
