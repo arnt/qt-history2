@@ -250,13 +250,13 @@ QImage QPixmap::convertToImage() const
     }
 #endif
 
-    QImage * image=new QImage( w, h, d, ncols, QImage::BigEndian );
+    QImage image( w, h, d, ncols, QImage::BigEndian );
     //first we copy the clut
     //handle bitmap case, what about other indexed depths?
     if(d == 1) {
-	image->setNumColors( 2 );
-	image->setColor( 0, qRgba(255, 255, 255, 0) );
-	image->setColor( 1, qRgba(0, 0, 0, 0) );
+	image.setNumColors( 2 );
+	image.setColor( 0, qRgba(255, 255, 255, 0) );
+	image.setColor( 1, qRgba(0, 0, 0, 0) );
     } else if(d == 8) {
 	//figure out how to copy clut into image FIXME???
     }
@@ -280,12 +280,12 @@ QImage QPixmap::convertToImage() const
 	    r = *(srow + xx);
 	    q=qRgba((r >> 16) & 0xFF, (r >> 8) & 0xFF, r & 0xFF, /*(r >> 24) & 0xFF*/0 );
 	    if(d == 1) {
-		image->setPixel(xx, yy, q ? 0 : 1);
+		image.setPixel(xx, yy, q ? 0 : 1);
 	    } else {
 		if(ncols) {
-		    image->setPixel(xx, yy, get_index(image,q));
+		    image.setPixel(xx, yy, get_index(&image,q));
 		} else {
-		    image->setPixel(xx,yy,q);
+		    image.setPixel(xx,yy,q);
 		}
 	    }
 	}
@@ -304,13 +304,13 @@ QImage QPixmap::convertToImage() const
     const QBitmap* msk = data->mask;
     if (msk) {
 	QImage alpha = msk->convertToImage();
-	image->setAlphaBuffer( TRUE );
+	image.setAlphaBuffer( TRUE );
 	switch ( d ) {
 	case 8: {
 	    int used[256];
 	    memset( used, 0, sizeof(int)*256 );
-	    uchar* p = image->bits();
-	    int l = image->numBytes();
+	    uchar* p = image.bits();
+	    int l = image.numBytes();
 	    while (l--) {
 		used[*p++]++;
 	    }
@@ -324,12 +324,12 @@ QImage QPixmap::convertToImage() const
 			break;
 		}
 	    }
-	    image->setColor( trans, image->color(trans)&0x00ffffff );
-	    for ( int y=0; y<image->height(); y++ ) {
+	    image.setColor( trans, image.color(trans)&0x00ffffff );
+	    for ( int y=0; y<image.height(); y++ ) {
 		uchar* mb = alpha.scanLine(y);
-		uchar* ib = image->scanLine(y);
+		uchar* ib = image.scanLine(y);
 		uchar bit = 0x80;
-		int i=image->width();
+		int i=image.width();
 		while (i--) {
 		    if ( !(*mb & bit) )
 			*ib = trans;
@@ -339,11 +339,11 @@ QImage QPixmap::convertToImage() const
 	    }
 	} break;
 	case 32: {
-	    for ( int y=0; y<image->height(); y++ ) {
+	    for ( int y=0; y<image.height(); y++ ) {
 		uchar* mb = alpha.scanLine(y);
-		QRgb* ib = (QRgb*)image->scanLine(y);
+		QRgb* ib = (QRgb*)image.scanLine(y);
 		uchar bit = 0x80;
-		int i=image->width();
+		int i=image.width();
 		while (i--) {
 		    if ( *mb & bit )
 			*ib |= 0xff000000;
@@ -360,7 +360,7 @@ QImage QPixmap::convertToImage() const
 #ifndef QMAC_ONE_PIXEL_LOCK
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
 #endif
-    return *image;
+    return image;
 }
 
 void QPixmap::fill( const QColor &fillColor )

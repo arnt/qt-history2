@@ -1742,8 +1742,11 @@ void QWidget::setAcceptDrops( bool on )
 {
     if ( (on && macDropEnabled) || (!on && !macDropEnabled) )
 	return;
+    macDropEnabled = on;
+    if(!on && !topLevelWidget()->extraData()) //short circuit
+	return;
     topLevelWidget()->createExtra();
-    if ( (macDropEnabled = on) )
+    if ( on )
 	qt_macdnd_register( topLevelWidget(),  topLevelWidget()->extraData());
     else
 	qt_macdnd_unregister( topLevelWidget(), topLevelWidget()->extraData() );
@@ -1828,6 +1831,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 			w->extra->clip_dirty = TRUE;
 		}
 	    }
+	    delete chldn;
 	}
     }
 
