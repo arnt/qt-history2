@@ -53,7 +53,7 @@ class Q_EXPORT QDate
 public:
     QDate()  { jd=0; }				// set null date
     QDate( int y, int m, int d );		// set date
-    
+
     bool   isNull()	 const { return jd == 0; }
     bool   isValid()	 const;			// valid date
 
@@ -84,11 +84,10 @@ public:
 
     static QDate currentDate();
     static QDate fromString( const QString& s, Qt::DateFormat f = Qt::TextDate );
-    
+
     static bool	 isValid( int y, int m, int d );
     static bool	 leapYear( int year );
 
-protected:
     static uint	 greg2jul( int y, int m, int d );
     static void	 jul2greg( uint jd, int &y, int &m, int &d );
 private:
@@ -136,7 +135,7 @@ public:
     bool   operator>=( const QTime &d ) const { return ds >= d.ds; }
 
     static QTime currentTime();
-    static QTime fromString( const QString& s, Qt::DateFormat f = Qt::TextDate );    
+    static QTime fromString( const QString& s, Qt::DateFormat f = Qt::TextDate );
     static bool	 isValid( int h, int m, int s, int ms=0 );
 
     void   start();
@@ -190,7 +189,7 @@ public:
     bool   operator>=( const QDateTime &dt ) const;
 
     static QDateTime currentDateTime();
-    static QDateTime fromString( const QString& s, Qt::DateFormat f = Qt::TextDate );        
+    static QDateTime fromString( const QString& s, Qt::DateFormat f = Qt::TextDate );
 
 private:
     QDate  d;

@@ -7,6 +7,7 @@
 #include <libpq-fe.h>
 #include <catalog/pg_type.h>
 #include <utils/geo_decls.h>
+#include <utils/timestamp.h>
 
 class QPSQLPrivate
 {
@@ -199,10 +200,10 @@ QVariant QPSQLResult::data( int i )
 	    }
 	case QVariant::Date:
 	    {
-// 		uint dt = *((uint*)rawdata) + QDate::greg2jul(2000,1,1);  // ### these are protected QDate methods...?
-// 		int y,m,d;
-// 		QDate::jul2greg( dt, y, m, d );
-// 		return QVariant( QDate( y, m, d ) );
+		uint dt = *((uint*)rawdata) + QDate::greg2jul(2000,1,1); 
+ 		int y,m,d;
+ 		QDate::jul2greg( dt, y, m, d );
+ 		return QVariant( QDate( y, m, d ) );
 	    }
 	case QVariant::Time:
 	    {
@@ -213,7 +214,12 @@ QVariant QPSQLResult::data( int i )
 		return QVariant( QTime( hour, min, sec ) );
 	    }
 	case QVariant::DateTime:
-	    // ### same problem as QVariant::Date above
+	    {
+		Timestamp* ts = (Timestamp*)rawdata;
+		// ### need to decode this properly		return QVariant( QDateTime( QDate(y,m,d), QTime() ) );
+		return QVariant( QDateTime() );
+		
+	    }
 	case QVariant::Point:
 	    {
 		Point* p = (Point*) rawdata;
