@@ -56,6 +56,15 @@
 
 //#define QPROCESS_DEBUG
 
+#ifdef __MIPSEL__
+#ifndef SOCK_DGRAM
+#define SOCK_DGRAM 1
+#endif
+#ifndef SOCK_STREAM
+#define SOCK_STREAM 2
+#endif
+#endif
+
 #if defined(Q_C_CALLBACKS)
 extern "C" {
 #endif
