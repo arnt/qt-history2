@@ -156,7 +156,10 @@ void QStackedWidget::removeWidget(QWidget *w)
 
 void QStackedWidget::setCurrentIndex(int index)
 {
+    bool updatesEnabled = isUpdatesEnabled();
+    setUpdatesEnabled(false);
     d->layout->setCurrentIndex(index);
+    setUpdatesEnabled(updatesEnabled);
     emit currentChanged(index);
 }
 
