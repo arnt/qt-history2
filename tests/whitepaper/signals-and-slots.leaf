@@ -1,28 +1,28 @@
 \chapter Signals and Slots
 
-\index MFC
-\index Motif
-\index QObject
-\index callbacks
-\index communication
-\index message maps
-\index objects
-\index signals
-\index slots
+  \index MFC
+  \index Motif
+  \index QObject
+  \index callbacks
+  \index communication
+  \index message maps
+  \index objects
+  \index signals
+  \index slots
 
 Qt provides an easy-to-use and powerful communication mechanism
 between objects. We named this approach \e {signals and slots} and
 designed it to replace the crude callbacks and message maps used by
 older toolkits.
 
-\index events
-\index state of widgets
+  \index events
+  \index state of widgets
 
 Objects, typically widgets, emit \e signals to indicate state
 changes. Signals can be connected to member functions, \e slots, that
 implement the required behavior.
 
-\index connect()
+  \index connect()
 
 For example, if a \Button Quit button's \Func clicked() signal is
 connected to the application's \Func quit() slot, a user's click on
@@ -34,17 +34,17 @@ to
 Connections can be added or removed at any time during the execution
 of a Qt application.
 
-\index OOP
-\index object-oriented programming
-\index type safety
+  \index OOP
+  \index object-oriented programming
+  \index type safety
 
 The signals and slots implementation smoothly extends C++'s syntax
 and takes full advantage of C++'s object-orientated features. Signals
 and slots are type safe, can be overloaded or reimplemented and may
 appear in the public, protected or private sections of a class.
 
-\index components
-\index reusability
+  \index components
+  \index reusability
 
 Communication using old-fashioned callbacks or message maps binds
 classes together, making it difficult to develop classes
@@ -54,7 +54,7 @@ to develop highly reusable software components.
 
 \section1 An Example
 
-\index QObject
+  \index QObject
 
 To benefit from signals and slots, a class needs to inherit from
 \Class QObject or one of its subclasses and must include the \c
@@ -62,8 +62,8 @@ Q_OBJECT macro in the class's definition. Signals are declared in the
 \c signals section of the class, while slots are declared in the \c
 {public slots}, \c {protected slots} or \c {private slots} sections.
 
-\index inheriting in Qt
-\index subclassing in Qt
+  \index inheriting in Qt
+  \index subclassing in Qt
 
 Here's an example \Class QObject subclass:
 \code
@@ -98,8 +98,8 @@ is a slot. Slots are standard member functions with an implementation
 that can be called like any other function, and which can also be
 connected to signals.
 
-\index emitting a signal
-\index preprocessor!C++
+  \index emitting a signal
+  \index preprocessor!C++
 
 Here's the implementation of the slot \Func setBalance():
 \code
@@ -139,11 +139,11 @@ are compatible.
 
 \section1 Meta Object Compiler
 
-\index Meta Object Compiler
-\index compiler features
-\index header files
-\index moc
-\index qmake
+  \index Meta Object Compiler
+  \index compiler features
+  \index header files
+  \index moc
+  \index qmake
 
 The signals and slots mechanism is implemented in pure standard C++.
 The implementation uses the C++ preprocessor and the Meta Object
@@ -154,12 +154,12 @@ necessary code to support the signals and slots mechanism. Developers
 never have to edit or even look at the generated code, and \l qmake
 generates the correct makefiles for the target platform.
 
-\index introspection
-\index magic
-\index properties
-\index rtti
-\index run-time type information
-\index translations
+  \index introspection
+  \index magic
+  \index properties
+  \index rtti
+  \index run-time type information
+  \index translations
 
 In addition to handling signals and slots, \e moc supports Qt's \l
 {translation mechanism}, property system and extended run-time type
