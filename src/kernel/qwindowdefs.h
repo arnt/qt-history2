@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#67 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#68 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -59,6 +59,8 @@ class QTimer;
 #elif defined(_OS_MSDOS_)
 #define _WS_WIN16_
 #error "Qt requires Win32 and does not work with Windows 3.x"
+#elif defined(_OS_NTX11_)
+#define _WS_X11_
 #elif defined(_OS_WIN32_)
 #define _WS_WIN32_
 #elif defined(_OS_OS2_)
@@ -151,7 +153,7 @@ void  qAddPostRoutine( CleanUpFunction );
 
 
 void *qt_find_obj_child( QObject *, const char *, const char * );
-#define CHILD(parent,type,name)	\
+#define CHILD(parent,type,name) \
 	((type*)qt_find_obj_child(parent,#type,#name))
 
 
