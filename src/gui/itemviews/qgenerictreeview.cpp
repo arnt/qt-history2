@@ -212,10 +212,11 @@ void QGenericTreeView::drawContents(QPainter *painter, int cx, int cy, int cw, i
     int y = d->coordinate(view_index);
     while (y < bottom && model_index.isValid()) {
 	d->current = view_index;
-	// draw row
-	painter->translate(0, y);
+        // draw row
+	//painter->translate(0, y);
+	options.itemRect.moveTop(y);
 	drawRow(painter, &options, d->modelIndex(view_index));
-	painter->translate(0, -y);
+	//painter->translate(0, -y);
 	// next row
 	++view_index;
 	model_index = d->modelIndex(view_index);
@@ -235,6 +236,7 @@ void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const Q
     QColor base = options->palette.base();
 
     int x = d->indentation(d->current);
+    int y = options->itemRect.y();
     QModelIndex parent = model()->parent(index);
     QGenericHeader *header = d->header;
     
@@ -242,14 +244,12 @@ void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const Q
 	pos = header->sectionPosition(column);
 	width = header->sectionSize(column);
 	options->selected = selectionModel()->isSelected(index);
+	options->itemRect.moveLeft(x + pos);
 	options->itemRect.setWidth(width - x);
 	options->focus = (q->viewport()->hasFocus() && selectionModel()->currentItem() == index);
-	painter->translate(pos, 0);
-	painter->fillRect(0, 0, width - pos, height, base);
-	drawBranches(painter, options, index);
-	painter->translate(x, 0);
+	painter->fillRect(pos, y, width - pos, height, base);
+	drawBranches(painter, QRect(pos, y, d->indent, options->itemRect.height()), index);
 	itemDelegate()->paint(painter, *options, index);
-	painter->translate(-(pos + x), 0);
 	++column;
     }
     
@@ -261,26 +261,23 @@ void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const Q
 	pos = header->sectionPosition(column);
 	i = model()->index(i.row(), column, parent);
 	width = header->sectionSize(column);
-	options->itemRect.setRect(0, 0, width, height);
+	options->itemRect.setRect(pos, y, width, height);
 	options->selected = selectionModel()->isSelected(i);
-	painter->fillRect(pos, 0, width, height, base);
-	painter->translate(pos, 0);
+	painter->fillRect(pos, y, width, height, base);
 	itemDelegate()->paint(painter, *options, i);
-	painter->translate(-pos, 0);
     }
 }
 
-void QGenericTreeView::drawBranches(QPainter *painter, QItemOptions *options, const QModelIndex &index) const
+void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const
 {
     QModelIndex parent = model()->parent(index);
     QModelIndex current = parent;
     QModelIndex ancestor = model()->parent(current);
-    QRect rect(0, 0, d->indent, options->itemRect.height());
     int x = d->indentation(d->current);
     int indent = d->indent;
     painter->translate(x - indent * 2, 0);
     for (int level = d->items.at(d->current).level - 1; level >= 0; --level) {
-	style().drawPrimitive(QStyle::PE_TreeBranch, painter, rect, options->palette,
+	style().drawPrimitive(QStyle::PE_TreeBranch, painter, rect, palette(),
 			      model()->rowCount(ancestor) - 1 > current.row() ? QStyle::Style_Sibling : 0);
 	current = ancestor;
 	ancestor = model()->parent(current);
@@ -291,7 +288,7 @@ void QGenericTreeView::drawBranches(QPainter *painter, QItemOptions *options, co
 			   (model()->rowCount(parent) - 1 > index.row() ? QStyle::Style_Sibling : 0) |
 			   (model()->hasChildren(index) ? QStyle::Style_Children : 0) |
 			   (d->isOpen(d->current) ? QStyle::Style_Open : 0);
-    style().drawPrimitive(QStyle::PE_TreeBranch, painter, rect, options->palette, flags);
+    style().drawPrimitive(QStyle::PE_TreeBranch, painter, rect, palette(), flags);
     painter->translate(d->indent - x, 0);
 }
 
@@ -453,7 +450,7 @@ void QGenericTreeView::contentsInserted(const QModelIndex &topLeft, const QModel
 	resizeContents(contentsHeight() + d->itemHeight * count, contentsWidth());
 	updateContents();
 #else
-	resizeContents(0, contentsWidth());
+	resizeContents(contentsWidth(), 0);
 	d->items.resize(0);
 	d->layout_parent_index = -1;
 	d->layout_from_index = -1;

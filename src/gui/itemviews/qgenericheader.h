@@ -52,6 +52,7 @@ public:
     void setResizeMode(ResizeMode mode);
     void setResizeMode(ResizeMode mode, int section);
     ResizeMode resizeMode(int section) const;
+    int stretchSectionCount() const;
 
     void setSortIndicator(int section, SortOrder order);
     int sortIndicatorSection() const;

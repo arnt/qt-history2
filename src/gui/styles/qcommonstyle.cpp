@@ -598,8 +598,8 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	static QPixmap open(tree_branch_open_xpm);
 	static QPixmap closed(tree_branch_closed_xpm);
 	static const int decoration_size = 9;
-	int mid_h = r.width() / 2;
-	int mid_v = r.height() / 2;
+	int mid_h = r.x() + r.width() / 2;
+	int mid_v = r.y() + r.height() / 2;
   	int bef_h = mid_h;
   	int bef_v = mid_v;
  	int aft_h = mid_h;

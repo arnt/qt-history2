@@ -19,7 +19,7 @@ public:
 	  sortIndicatorSection(-1),
 	  movableSections(false),
 	  clickableSections(false),
-	  hasStretchSection(false),
+	  stretchSections(0),
  	  sectionIndicator(0) {}
 
     int sectionHandleAt(int pos);
@@ -49,12 +49,14 @@ public:
     int target;
     bool movableSections;
     bool clickableSections;
-    bool hasStretchSection;
+    int stretchSections;
     QWidget *sectionIndicator;//, *sectionIndicator2;
 };
 
 static const int border = 4;
 static const int minimum = 15;
+static const int default_width = 100;
+static const int default_height = 30;
 
 /*!
   \class QGenericHeader qgenericheader.h
@@ -181,32 +183,25 @@ void QGenericHeader::drawContents(QPainter *painter, int cx, int cy, int cw, int
 	return;
     QItemDelegate *delegate = itemDelegate();
     const QGenericHeaderPrivate::HeaderSection *sections = d->sections.constData();
-    int x, y;//, f = (d->state == QGenericHeaderPrivate::MoveSection ? index(d->section) : -1);
+//int  f = (d->state == QGenericHeaderPrivate::MoveSection ? index(d->section) : -1);
     for (int i = start; i <= end; ++i) {
 	if (sections[i].hidden)
 	    continue;
 	if (orientation() == Horizontal) {
 	    item = model()->index(0, sections[i].section, 0, QModelIndex::HorizontalHeader);
-	    options.itemRect.setRect(0, 0, sectionSize(sections[i].section), height());
-	    x = sections[i].position;
-	    y = 0;
+	    options.itemRect.setRect(sections[i].position, 0, sectionSize(sections[i].section), height());
 	} else {
 	    item = model()->index(sections[i].section, 0, 0, QModelIndex::VerticalHeader);
-	    options.itemRect.setRect(0, 0, width(), sectionSize(sections[i].section));
-	    x = 0;
-	    y = sections[i].position;
+	    options.itemRect.setRect(0, sections[i].position, width(), sectionSize(sections[i].section));
 	}
 //	options.focus = (i == f);
-	painter->translate(x, y);
 	paintSection(painter, delegate, &options, item);
-	painter->translate(-x, -y);
     }
 }
 
 void QGenericHeader::paintSection(QPainter *painter, QItemDelegate *delegate, QItemOptions *options,
 				  const QModelIndex &item)
 {
-    static QPoint pt(0, 0);
     QStyle::SFlags flags = QStyle::Style_Off | (orientation() == Horizontal ? QStyle::Style_Horizontal : 0);
     if (isEnabled())
 	flags |= QStyle::Style_Enabled;
@@ -218,19 +213,23 @@ void QGenericHeader::paintSection(QPainter *painter, QItemDelegate *delegate, QI
     else
 	flags |= QStyle::Style_Raised;
     style().drawPrimitive(QStyle::PE_HeaderSection, painter, options->itemRect, palette(), flags);
-    painter->translate(2, 0);
+
+//    painter->translate(2, 0);
     delegate->paint(painter, *options, item); // draw item
-    painter->translate(-2, 0);
+//    painter->translate(-2, 0);
+    
     int section = orientation() == Horizontal ? item.column() : item.row();
     if (sortIndicatorSection() == section) {
 	bool allignRight = style().styleHint(QStyle::SH_Header_ArrowAlignment, this) & AlignRight;
 	// FIXME: use allignRight and RTL
 	QRect arrowRect;
 	int height = options->itemRect.height();
+	int x = options->itemRect.x();
+	int y = options->itemRect.y();
 	if (orientation() == Qt::Horizontal)
-	    arrowRect.setRect(sectionSizeHint(section) - border, 5, height / 2, height - border);
+	    arrowRect.setRect(x + sectionSizeHint(section) - border, y + 5, height / 2, height - border);
 	else
-	    arrowRect.setRect(5, sectionSizeHint(section) - border, height / 2, height - border);
+	    arrowRect.setRect(x + 5, y + sectionSizeHint(section) - border, height / 2, height - border);
 	arrowFlags |= (sortIndicatorOrder() == Qt::Ascending ? QStyle::Style_Down : QStyle::Style_Up);
 	style().drawPrimitive(QStyle::PE_HeaderArrow, painter, arrowRect, palette(), arrowFlags);
     }
@@ -270,7 +269,7 @@ int QGenericHeader::sectionAt(int position) const
 
 int QGenericHeader::sectionSize(int section) const
 {
-    if (section < 0 || section >= d->sections.count())
+    if (section < 0 || section >= d->sections.count() || isSectionHidden(section))
  	return 0;
     int idx = index(section);
     return d->sections.at(idx + 1).position - d->sections.at(idx).position;
@@ -298,7 +297,7 @@ void QGenericHeader::initializeSections(int start, int end)
     QGenericHeaderPrivate::HeaderSection *sections = d->sections.data() + start;
     int s = start;
     int num = end - start + 1;
-    int size = (orientation() == Horizontal ? 100 : 30); // default size
+    int size = orientation() == Horizontal ? default_width : default_height;;
 
     // unroll loop - to initialize the arrays as fast as possible
     while (num >= 4) {
@@ -640,7 +639,8 @@ void QGenericHeader::hideSection(int section)
 void QGenericHeader::showSection(int section)
 {
     d->sections[index(section)].hidden = false;
-    resizeSection(section, 30); // FIXME: when you show a section, you should get the section size bach
+    resizeSection(section, orientation() == Horizontal ? default_width : default_height);
+    // FIXME: when you show a section, you should get the section size bach
 }
 
 bool QGenericHeader::isSectionHidden(int section) const
@@ -776,15 +776,17 @@ void QGenericHeader::setResizeMode(ResizeMode mode)
     QGenericHeaderPrivate::HeaderSection *sections = d->sections.data();
     for (int i = 0; i < d->sections.count(); ++i)
 	sections[i].mode = mode;
-    d->hasStretchSection = (mode == Stretch);
+    d->stretchSections = (mode == Stretch ? count() : 0);
 }
 
 void QGenericHeader::setResizeMode(ResizeMode mode, int section)
 {
     if (section >= d->sections.count())
 	return;
+    ResizeMode old = d->sections[index(section)].mode;
     d->sections[index(section)].mode = mode;
-    d->hasStretchSection |= (mode == Stretch);
+    if (mode == Stretch && old != Stretch)
+	d->stretchSections++;
     // FIXME: handle this
 }
 
@@ -793,6 +795,11 @@ QGenericHeader::ResizeMode QGenericHeader::resizeMode(int section) const
     if (section >= d->sections.count())
 	return Interactive;
     return d->sections.at(index(section)).mode;
+}
+
+int QGenericHeader::stretchSectionCount() const
+{
+    return d->stretchSections;
 }
 
 void QGenericHeader::setSortIndicator(int section, SortOrder order)

@@ -590,7 +590,6 @@ void QGenericListView::drawContents(QPainter *painter, int cx, int cy, int cw, i
     QItemOptions options;
     getViewOptions(&options);
 
-    int x, y;
     QModelIndex current = currentItem();
     QItemDelegate *delegate = itemDelegate();
     QItemSelectionModel *selections = selectionModel();
@@ -600,11 +599,7 @@ void QGenericListView::drawContents(QPainter *painter, int cx, int cy, int cw, i
  	options.itemRect = itemRect(*it);
  	options.selected = selections ? selections->isSelected(*it) : false;
  	options.focus = (focus && current == *it);
-	x = options.itemRect.x();
-	y = options.itemRect.y();
- 	painter->translate(x, y);
  	delegate->paint(painter, options, *it);
- 	painter->translate(-x, -y);
     }
 
     if (!d->draggedItems.isEmpty())

@@ -62,6 +62,11 @@ void QItemDelegate::paint(QPainter *painter, const QItemOptions &options, const 
     int textElement = model()->element(item, QVariant::String);
     int iconElement = model()->element(item, QVariant::IconSet);
 
+    // FIXME: change the rectangles
+    int x = options.itemRect.x();
+    int y = options.itemRect.y();
+    painter->translate(x, y);
+
     if (iconElement >= 0) {
  	QIconSet::Mode mode = options.disabled ? QIconSet::Disabled : QIconSet::Normal; // FIXME: open
  	QIconSet::Size size = options.smallItem ? QIconSet::Small : QIconSet::Large;
@@ -113,6 +118,8 @@ void QItemDelegate::paint(QPainter *painter, const QItemOptions &options, const 
 	    painter->drawRect(textRect);
 	else
 	    QApplication::style().drawPrimitive(QStyle::PE_FocusRect, painter, textRect, options.palette);
+    
+    painter->translate(-x, -y);
 }
 
 QSize QItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QItemOptions &options,

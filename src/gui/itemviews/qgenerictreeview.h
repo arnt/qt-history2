@@ -42,7 +42,7 @@ protected:
     
     void drawContents(QPainter *painter, int cx, int cy, int cw, int ch);    
     virtual void drawRow(QPainter *painter, QItemOptions *options, const QModelIndex &index) const;
-    virtual void drawBranches(QPainter *painter, QItemOptions *options, const QModelIndex &index) const;
+    virtual void drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const;
 
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
     QModelIndex itemAt(int x, int y) const;
@@ -52,7 +52,8 @@ protected:
     QItemSelectionModel::SelectionBehavior selectionBehavior() const;
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionUpdateMode mode);
     QRect selectionRect(const QItemSelection *selection) const;
-    
+
+//    void resizeEvent(QResizeEvent *e);
     void contentsMousePressEvent(QMouseEvent *e);
     void updateGeometries();
 };

@@ -104,7 +104,7 @@ void QGenericTableView::setLeftHeader(QGenericHeader *header)
 	disconnect(d->leftHeader, SIGNAL(sectionCountChanged(int, int)),
 		   this, SLOT(rowCountChanged(int, int)));
     }
-#include <qgenericitemmodel.h>
+
     d->leftHeader = header;
 
     connect(verticalScrollBar(), SIGNAL(valueChanged(int)),
@@ -127,8 +127,8 @@ void QGenericTableView::drawGrid(QPainter *p, int x, int y, int w, int h) const
 {
     QPen old = p->pen();
     p->setPen(lightGray);
-    p->drawLine(x, h, w, h);
-    p->drawLine(w, y, w, h);
+    p->drawLine(x, y + h, x + w, y + h);
+    p->drawLine(x + w, y, x + w, y + h);
     p->setPen(old);
 }
 
@@ -166,29 +166,22 @@ void QGenericTableView::drawContents(QPainter *p, int cx, int cy, int cw, int ch
 		continue;
 	    int colp = columnPosition(c);
 	    int colw = columnWidth(c);
-	    int oldrp = rowp;
-	    int oldrh = rowh;
-
-	    p->translate(colp, rowp);
-
+	    //p->translate(colp, rowp);
 	    QModelIndex item = model()->index(r, c, root());
 	    if (item.isValid()) {
 		options.itemRect = QRect(colp, rowp, colw, rowh);
 		options.selected = sels ? sels->isSelected(item) : 0;
 		options.focus = (viewport()->hasFocus() && item == cvi);
-		p->fillRect(0, 0, colw, rowh,
+		p->fillRect(colp, rowp, colw, rowh,
 			    (options.selected ?
 			     options.palette.highlight() :
 			     options.palette.base()));
 		itemDelegate()->paint(p, options, item);
 	    }
 	    if (showGrid) {
-		drawGrid(p, 0, 0, colw - 1, rowh - 1);
+		drawGrid(p, colp, rowp, colw - 1, rowh - 1);
 	    }
-	    p->translate(-colp, -rowp);
-
-	    rowp = oldrp;
-	    rowh = oldrh;
+	    //p->translate(-colp, -rowp);
 	}
     }
 }
