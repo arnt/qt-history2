@@ -60,6 +60,8 @@ UnixMakefileGenerator::init()
         project->variables()["QMAKE_INSTALL_DIR"].append("$(COPY_DIR)");
     if(project->isEmpty("QMAKE_LIBTOOL"))
         project->variables()["QMAKE_LIBTOOL"].append("libtool --silent");
+    if(project->isEmpty("QMAKE_SYMBOLIC_LINK"))
+        project->variables()["QMAKE_SYMBOLIC_LINK"].append("ln -sf");
 
     /* this should probably not be here, but I'm using it to wrap the .t files */
     if(project->first("TEMPLATE") == "app")

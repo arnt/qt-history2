@@ -1025,8 +1025,6 @@ void UnixMakefileGenerator::init2()
             project->variables()["QMAKE_LINK_SHLIB_CMD"].append(
                 "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS) $(OBJCOMP)");
     }
-    if(project->isEmpty("QMAKE_SYMBOLIC_LINK"))
-        project->variables()["QMAKE_SYMBOLIC_LINK"].append("ln -sf");
     if (!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
         project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_APP"];
         project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_APP"];
