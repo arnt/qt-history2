@@ -731,12 +731,12 @@ bool QUrlOperator::isDir( bool *ok )
 
 const QNetworkOperation *QUrlOperator::get( const QString &location )
 {
-    if ( !checkValid() )
-	return 0;
-
     QUrl u( *this );
     if ( !location.isEmpty() )
 	u = QUrl( *this, location );
+
+    if ( !u.isValid() )
+	return 0;
 
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpGet, u, QString::null, QString::null );
     return startOperation( res );
@@ -783,12 +783,12 @@ const QNetworkOperation *QUrlOperator::get( const QString &location )
 
 const QNetworkOperation *QUrlOperator::put( const QByteArray &data, const QString &location )
 {
-    if ( !checkValid() )
-	return 0;
-
     QUrl u( *this );
     if ( !location.isEmpty() )
 	u = QUrl( *this, location );
+
+    if ( !u.isValid() )
+	return 0;
 
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpPut, u, QString::null, QString::null );
     res->setRawArg( 1, data );
