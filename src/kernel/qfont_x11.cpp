@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#151 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#152 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -2015,17 +2015,12 @@ void QFontDatabasePrivate::addFamily( const QString &name, QFontFamily *family)
     familyNamesNeedSort = TRUE;
 }
 
-static QFontDatabasePrivate *db;
+static QFontDatabasePrivate *db=0;
 
 
 void QFontDatabasePrivate::createDatabase()
 {
-    static bool first = TRUE;
-
-    if ( !first )
-	return;
-
-    first = FALSE;
+    if ( db ) return;
 
     db = new QFontDatabasePrivate;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#97 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#98 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -22,6 +22,7 @@
 #include "qfontdata.h"
 #include "qfontmetrics.h"
 #include "qfontinfo.h"
+#include "qfontdatabase.h"
 #include "qwidget.h"
 #include "qpainter.h"
 #include "qcache.h"
@@ -834,3 +835,225 @@ void* QFontData::fontSet() const
 {
     return 0;
 }
+
+/*--------------------------------------------------------------------------
+  -------------------------- QFontDatabase ---------------------------------
+  --------------------------------------------------------------------------*/
+
+static QFontDatabasePrivate *db=0;
+
+class QFontDatabasePrivate {
+public:
+    QFontDatabasePrivate();
+    QStringList families;
+};
+
+static int CALLBACK
+storeFont( ENUMLOGFONTEX* f, TEXTMETRIC*, int type, LPARAM p )
+{
+    QFontDatabasePrivate* d = (QFontDatabasePrivate*)p;
+
+    TCHAR* tc = f->elfLogFont.lfFaceName;
+    QString name;
+    if ( qt_winver == Qt::WV_NT ) {
+	name = qt_winQString(tc);
+    } else {
+	name = QString((const char*)tc);
+    }
+    d->families.append(name);
+    return 1; // Keep enumerating.
+}
+
+QFontDatabasePrivate::QFontDatabasePrivate()
+{
+    QWidget dummy;
+    if ( qt_winver == Qt::WV_NT ) {
+	LOGFONT lf;
+	lf.lfCharSet = DEFAULT_CHARSET;
+	lf.lfFaceName[0] = 0;
+	lf.lfPitchAndFamily = 0;
+	EnumFontFamiliesEx( dummy.handle(), &lf,
+	    (FONTENUMPROC)storeFont, (LPARAM)this, 0 );
+    } else {
+	LOGFONTA lf;
+	lf.lfCharSet = DEFAULT_CHARSET;
+	lf.lfFaceName[0] = 0;
+	lf.lfPitchAndFamily = 0;
+	EnumFontFamiliesExA( dummy.handle(), &lf,
+	    (FONTENUMPROCA)storeFont, (LPARAM)this, 0 );
+    }
+}
+
+QFontDatabase::QFontDatabase()
+{
+    if ( !db ) db = new QFontDatabasePrivate;
+    d = db;
+}
+
+const QList<QFontFamily>& QFontDatabase::families() const
+{
+    // ##### Not implemented
+    static QList<QFontFamily> dummy;
+    return dummy;
+}
+
+const QStringList& QFontDatabase::familyNames() const
+{
+    return d->families;
+}
+
+const QFontFamily& QFontDatabase::family( const QString &familyName ) const
+{
+    // ##### Not implemented
+    static QFontFamily dummy;
+    return dummy;
+}
+
+QFontStyle::QFontStyle( const QFont &/*f*/ )
+{
+}
+
+bool QFontStyle::isNull() const
+{
+    return TRUE;
+}
+
+QString QFontStyle::name() const
+{
+    return "None";
+}
+
+
+bool QFontStyle::scalable() const
+{
+    return FALSE;
+}
+
+bool QFontStyle::smoothlyScalable() const
+{
+    return FALSE;
+}
+
+
+bool QFontStyle::italic() const
+{
+    return FALSE;
+}
+
+int  QFontStyle::weight() const
+{
+    return 100;
+}
+
+
+const QArray<int> &QFontStyle::pointSizes() const
+{
+    static QArray<int> dummy;
+    return dummy;
+}
+
+int QFontStyle::nSizes() const
+{
+    return 0;
+}
+
+QFont QFontStyle::font( int pointSize ) const
+{
+    return QFont("Arial", pointSize);
+}
+
+
+QFontStyle::QFontStyle( QFontStylePrivate *data )
+{
+}
+
+bool QFontCharSet::isNull() const
+{
+    return FALSE;
+}
+
+QString QFontCharSet::name() const
+{
+    return "No charset";
+}
+
+QFont::CharSet QFontCharSet::charSet() const
+{
+    return QFont::Latin1;
+}
+
+
+const QList<QFontStyle> &QFontCharSet::styles() const
+{
+    static QList<QFontStyle> dummy;
+    return dummy;
+}
+
+const QStringList &QFontCharSet::styleNames() const
+{
+    static QStringList dummy;
+    return dummy;
+}
+
+const QFontStyle &QFontCharSet::style( const QString &styleName ) const
+{
+    static QFontStyle dummy;
+    return dummy;
+}
+
+
+QFontCharSet::QFontCharSet( QFontCharSetPrivate *data )
+{
+}
+
+
+QFontFamily::QFontFamily( const QString &familyName )
+{
+}
+
+bool QFontFamily::isNull() const
+{
+    return FALSE;
+}
+
+QString QFontFamily::name() const
+{
+    return "No family";
+}
+
+const QList<QFontCharSet> &QFontFamily::charSets() const
+{
+    static QList<QFontCharSet> dummy;
+    return dummy;
+}
+
+const QStringList &QFontFamily::charSetNames() const
+{
+    static QStringList dummy;
+    return dummy;
+}
+
+const QFontCharSet &QFontFamily::charSet( const QString &charSetName ) const
+{
+    static QFontCharSet dummy;
+    return dummy;
+}
+
+const QFontCharSet &QFontFamily::charSet( QFont::CharSet ) const
+{
+    static QFontCharSet dummy;
+    return dummy;
+}
+
+
+bool QFontFamily::supportsCharSet( QFont::CharSet /*cs*/ ) const
+{
+    return TRUE;
+}
+
+
+QFontFamily::QFontFamily( QFontFamilyPrivate *data )
+{
+}
+
+

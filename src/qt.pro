@@ -12,6 +12,9 @@ unix:TMAKE_CXXFLAGS   += -DQT_FATAL_ASSERT
 
 win32:TMAKE_CFLAGS     += -DUNICODE
 win32:TMAKE_CXXFLAGS   += -DUNICODE
+win32:TMAKE_LIBS   += imm32.lib
+#win32:TMAKE_CFLAGS     += -MD
+#win32:TMAKE_CXXFLAGS   += -MD
 
 png:INCLUDEPATH	       += 3rdparty/libpng
 zlib:INCLUDEPATH       += 3rdparty/zlib
@@ -19,6 +22,7 @@ win32:INCLUDEPATH      += tmp
 win32-borland:INCLUDEPATH += kernel
 
 win32:MOC_DIR	= tmp
+win32:OBJECTS_DIR = $(TMP)
 
 win32:DIALOGS_H	= ../include
 win32:KERNEL_H	= ../include
@@ -36,6 +40,7 @@ unix:DEPENDPATH	= $$DIALOGS_H:$$KERNEL_H:$$TOOLS_H:$$WIDGETS_H
 HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$DIALOGS_H/qdeveloper.h \
 		  $$DIALOGS_H/qfiledialog.h \
+		  $$DIALOGS_H/qfontdialog.h \
 		  $$DIALOGS_H/qmessagebox.h \
 		  $$DIALOGS_H/qprogressdialog.h \
 		  $$DIALOGS_H/qtabdialog.h \
@@ -236,8 +241,7 @@ unix:SOURCES    = kernel/qapplication_x11.cpp \
 		  kernel/qpaintdevice_x11.cpp \
 		  kernel/qpainter_x11.cpp \
 		  kernel/qregion_x11.cpp \
-		  kernel/qwidget_x11.cpp \
-		  dialogs/qfontdialog.cpp
+		  kernel/qwidget_x11.cpp
 
 unix:SOURCES   += dialogs/qprintdialog.cpp \
 		  kernel/qpsprinter.cpp \
@@ -376,6 +380,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  dialogs/qcolordialog.cpp \
 		  dialogs/qdeveloper.cpp \
 		  dialogs/qfiledialog.cpp \
+		  dialogs/qfontdialog.cpp \
 		  dialogs/qmessagebox.cpp \
 		  dialogs/qprogressdialog.cpp \
 		  dialogs/qtabdialog.cpp \
@@ -383,7 +388,6 @@ SOURCES	       += tools/qbitarray.cpp \
 		  dialogs/qwizard.cpp
 
 unix:HEADERS   += $$DIALOGS_H/qprintdialog.h \
-		  $$DIALOGS_H/qfontdialog.h \
 		  $$KERNEL_H/qpsprinter.h \
 		  $$KERNEL_H/qfontdatabase.h
 
