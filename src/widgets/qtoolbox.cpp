@@ -269,7 +269,7 @@ void QToolBoxButton::drawButton( QPainter *p )
 
     The current page is returned by currentPage() and set with
     setCurrentPage(). If you prefer you can work in terms of indexes
-    using currentIndex(), setCurrentPage(), pageIndex() and page().
+    using currentIndex(), setCurrentIndex(), indexOf() and page().
 
     The currentChanged() signal is emitted when the current page
     is changed.
@@ -581,7 +581,7 @@ QWidget *QToolBox::currentPage() const
 }
 
 /*!
-    \property QToolBox::currentPage
+    \property QToolBox::currentIndex
     \brief the current page's index position
 */
 

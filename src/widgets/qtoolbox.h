@@ -51,7 +51,7 @@ class QWidgetList;
 class Q_EXPORT QToolBox : public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY( int currentPage READ currentIndex WRITE setCurrentIndex )
+    Q_PROPERTY( int currentIndex READ currentIndex WRITE setCurrentIndex )
     Q_PROPERTY( int count READ count )
     Q_PROPERTY( BackgroundMode pageBackgroundMode READ pageBackgroundMode WRITE setPageBackgroundMode )
 
