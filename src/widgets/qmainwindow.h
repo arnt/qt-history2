@@ -122,7 +122,7 @@ public:
     QPtrList<QToolBar> toolBars( Dock dock ) const;
     void lineUpToolBars( bool keepNewLines = FALSE );
 
-    QDockArea *dockingArea( const QPoint &p );
+    virtual QDockArea *dockingArea( const QPoint &p );
     QDockArea *leftDock() const;
     QDockArea *rightDock() const;
     QDockArea *topDock() const;
