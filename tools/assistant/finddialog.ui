@@ -1,7 +1,7 @@
 <!DOCTYPE UI><UI version="3.2" stdsetdef="1">
 <class>FindDialog</class>
 <comment>*********************************************************************
-** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Assistant.
 **
@@ -80,7 +80,7 @@
                                 <cstring>radioForward</cstring>
                             </property>
                             <property name="text">
-                                <string>Forwar&amp;d</string>
+                                <string>Fo&amp;rward</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -115,7 +115,7 @@
                                 <cstring>TextLabel1</cstring>
                             </property>
                             <property name="text">
-                                <string>&amp;Find:</string>
+                                <string>F&amp;ind:</string>
                             </property>
                             <property name="buddy" stdset="0">
                                 <cstring>comboFind</cstring>
