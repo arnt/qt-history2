@@ -145,11 +145,10 @@ public:
     void placeCursor(const QPoint &pos);
 
     void setCursorPosition(int pos, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
-    // ### translate?
-    inline void update(const QRect &r) { viewport->update(r); }
+    void update(const QRect &contentsRect);
 
     inline QPoint translateCoordinates(const QPoint &point)
-    { return QPoint(point.x() + d->hbar->value(), point.y() + d->vbar->value()); }
+    { return QPoint(point.x() + hbar->value(), point.y() + vbar->value()); }
 
     void selectionChanged();
 
@@ -369,6 +368,20 @@ void QTextEditPrivate::setCursorPosition(int pos, QTextCursor::MoveMode mode)
     q->ensureCursorVisible();
     updateCurrentCharFormat();
     selectionChanged();
+}
+
+void QTextEditPrivate::update(const QRect &contentsRect)
+{
+    const int xOffset = hbar->value();
+    const int yOffset = vbar->value();
+    const QRect visibleRect(xOffset, yOffset, viewport->width(), viewport->height());
+
+    QRect r = contentsRect.intersect(visibleRect);
+    if (!r.isValid())
+        return;
+
+    r.moveBy(-xOffset, -yOffset);
+    viewport->update(r);
 }
 
 void QTextEditPrivate::selectionChanged()
@@ -780,7 +793,6 @@ process:
 	d->updateCurrentCharFormat();
 
 //    qDebug("cursorPos at %d",  d->cursor.position() );
-    d->viewport->update();
 }
 
 void QTextEdit::resizeEvent(QResizeEvent *)
