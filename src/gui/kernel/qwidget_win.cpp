@@ -265,7 +265,11 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         if (!res)
             qSystemWarning("QWidget: Failed to set window style");
 #endif
-        res = SetWindowLongA(window, GWLP_WNDPROC, (LONG)QtWndProc);
+#ifdef GWLP_WNDPROC
+        res = SetWindowLongPtrA( window, GWLP_WNDPROC, (LONG_PTR)QtWndProc );
+#else
+        res = SetWindowLongA( window, GWL_WNDPROC, (LONG)QtWndProc );
+#endif
 #ifndef QT_NO_DEBUG
         if (!res)
             qSystemWarning("QWidget: Failed to set window procedure");
@@ -1512,7 +1516,8 @@ void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         }
     }
 
-    clearWState(WState_Maximized);
+    if (isResize)
+        clearWState(WState_Maximized);
     clearWState(WState_FullScreen);
     if (testWState(WState_ConfigPending)) {        // processing config event
         qWinRequestConfig(winId(), isMove ? 2 : 1, x, y, w, h);
