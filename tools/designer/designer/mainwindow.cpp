@@ -2217,13 +2217,8 @@ void MainWindow::readConfig()
 		break;
 	    }
 	}
-	if ( keybase == DesignerApplication::oldSettingsKey() ) {
-	    recentlyFiles = config.readListEntry( keybase + "RecentlyOpenedFiles", ',' );
-	    recentlyProjects = config.readListEntry( keybase + "RecentlyOpenedProjects", ',' );
-	} else {
-	    recentlyFiles = config.readListEntry( keybase + "RecentlyOpenedFiles" );
-	    recentlyProjects = config.readListEntry( keybase + "RecentlyOpenedProjects" );
-	}
+	recentlyFiles = config.readListEntry( keybase + "RecentlyOpenedFiles" );
+	recentlyProjects = config.readListEntry( keybase + "RecentlyOpenedProjects" );
 
 	backPix = config.readBoolEntry( keybase + "Background/UsePixmap", TRUE ) | readPreviousConfig;
 	if ( backPix ) {
