@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#161 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#162 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#161 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#162 $");
 
 
 /*!
@@ -1446,8 +1446,11 @@ void QWidget::clearFocus()
     }
 }
 
-/*!
-  \internal Gives the keyboard focus to the next or previous child.
+/*!  Finds a new widget to give the keyboard focus to, as appropriate
+  for Tab/Shift-Tab.
+
+  If \a next is true, this function searches \"forwards\", if \a next
+  is FALSE, \"backwards\".
 */
 
 bool QWidget::focusNextPrevChild( bool next )
@@ -1578,7 +1581,7 @@ void QWidget::setCRect( const QRect &r )
   <li> \c QWidget::ClickFocus, the widget accepts focus by clicking.
   <li> \c QWidget::StrongFocus, the widget accepts focus by both tabbing
   and clicking.
-  <li> \c QWidget::NoFocus, the widget should not accept focus.
+  <li> \c QWidget::NoFocus, the widget does not accept focus
   </ul>
 
   \sa isFocusEnabled(), focusInEvent(), focusOutEvent(), keyPressEvent(),
