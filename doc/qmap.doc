@@ -137,7 +137,6 @@
 
 	const QMap<QString,QString>& map2 = map;
 	str << map2["Weis"] << map2["Reggie"] << endl;
-
   \endcode
 
   The code fragment will print out "Torben", "", and the second part will
@@ -259,10 +258,13 @@
 */
 
 /*!
-  \fn Iterator QMap::insert( const Key& key, const T& value )
-  Inserts the \a value with key \a k.
+  \fn Iterator QMap::insert( const Key& key, const T& value, bool overwrite )
 
-  Returns an iterator pointing at the inserted value.
+  Inserts the \a value with \a key. If there is already a value
+  associated with \a key, it is replaced, unless \a overwrite is FALSE
+  (it is TRUE by default).
+
+  Returns an iterator pointing at the element associated with \a key.
 
   \sa QMapIterator
 */

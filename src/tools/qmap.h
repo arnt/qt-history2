@@ -424,6 +424,7 @@ public:
     }
 #endif
 
+#if 0
     Iterator insertMulti(const Key& v){
 	QMapNodeBase* y = header;
 	QMapNodeBase* x = header->parent;
@@ -433,6 +434,7 @@ public:
 	}
 	return insert(x, y, v);
     }
+#endif
 
     Iterator insertSingle( const Key& k ) {
 	// Search correct position in the tree
@@ -517,7 +519,7 @@ public:
     ~QMap() { if ( sh->deref() ) delete sh; }
 
     QMap<Key,T>& operator= ( const QMap<Key,T>& m )
-      { m.sh->ref(); if ( sh->deref() ) delete sh; sh = m.sh; return *this; }
+	{ m.sh->ref(); if ( sh->deref() ) delete sh; sh = m.sh; return *this; }
 
     Iterator begin() { detach(); return sh->begin(); }
     Iterator end() { detach(); return sh->end(); }
@@ -542,10 +544,12 @@ public:
 
     bool isEmpty() const { return sh->node_count == 0; }
 
-    Iterator insert( const Key& key, const T& value ) {
+    Iterator insert( const Key& key, const T& value, bool overwrite = TRUE ) {
         detach();
+	uint n = count();
         Iterator it = sh->insertSingle( key );
-        it.data() = value;
+	if ( overwrite || n < count() )
+	    it.data() = value;
         return it;
     }
 
