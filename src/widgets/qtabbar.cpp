@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#47 $
 **
 ** Implementation of QTabBar class
 **
@@ -153,14 +153,17 @@ int QTabBar::addTab( QTab * newTab )
     QFontMetrics fm = fontMetrics();
     QTab  *t = l->first();
     int lw = fm.width( newTab->label );
+    int h = fm.height();
+    if ( d->s == RoundedAbove || d->s == RoundedBelow )
+	h += 10;
     if ( t ) {
 	QRect r( t->r );
 	while ( (t = l->next()) != 0 )
 	    r = r.unite( t->r );
 	newTab->r.setRect( r.right()-3, 0, lw + 24,
-			   QMAX( r.height(), fm.height() + 10 ) );
+			   QMAX( r.height(), h ) );
     } else {
-	newTab->r.setRect( 0, 0, lw + 24, fm.height() + 10 );
+	newTab->r.setRect( 0, 0, lw + 24, h );
     }
 
     newTab->id = d->id++;
@@ -366,7 +369,10 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 
 	a.translate( t->r.left(), t->r.top() );
 
-	p->setBrush( colorGroup().background() );
+	if ( selected )
+	    p->setBrush( colorGroup().base() );
+	else
+	    p->setBrush( colorGroup().background() );
 	p->setPen( colorGroup().foreground() );
 	p->drawPolygon( a );
 	p->setBrush( NoBrush );
@@ -691,9 +697,9 @@ QTabBar::Shape QTabBar::shape() const
 
 void QTabBar::setShape( Shape s )
 {
-    if ( !d && d->s == s )
+    if ( !d || d->s == s )
 	return;
-
+    //######### must recalculate heights
     d->s = s;
     repaint();
 }
