@@ -1315,6 +1315,10 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     if ( d == 8 && !trucol ) {			// 8 bit pixmap
 	int  i, j;
 	int  pop[256];				// pixel popularity
+	
+	if ( image.numColors() == 0 )
+	    image.setNumColors( 1 );
+	
 	memset( pop, 0, sizeof(int)*256 );	// reset popularity array
 	for ( i=0; i<h; i++ ) {			// for each scanline...
 	    p = image.scanLine( i );
@@ -1374,7 +1378,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		j++;
 	    }
 	}
-	memcpy( &pixarr_sorted[0], &pixarr[maxpix], sizeof(PIX) );
+	pixarr_sorted[0] = pixarr[maxpix];
 	pixarr[maxpix].use = 0;
 
 	for ( i=1; i<ncols; i++ ) {		// sort pixels
@@ -1415,7 +1419,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		    }
 		}
 	    }
-	    memcpy( &pixarr_sorted[i], &pixarr[minpix], sizeof(PIX) );
+	    pixarr_sorted[i] = pixarr[minpix];
 	    pixarr[minpix].use = 0;
 	}
 
