@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#26 $
 **
 ** Implementation of QFileDialog class
 **
@@ -292,7 +292,6 @@ QUrl::QUrl()
 QUrl::QUrl( const QString& url )
 {
     d = new QUrlPrivate;
-    // Assume the default protocol
     d->protocol = "file";
     d->port = -1;
     d->nameFilter = "*";
@@ -317,11 +316,11 @@ QUrl::QUrl( const QUrl& url )
   #### todo
 */
 
-bool QUrl::isRelativeUrl( const QString &url ) 
+bool QUrl::isRelativeUrl( const QString &url )
 {
     int colon = url.find( ":" );
     int slash = url.find( "/" );
-    
+
     return ( colon == -1 || ( slash != -1 && colon > slash ) );
 }
 
@@ -854,11 +853,11 @@ bool QUrl::operator==( const QString& url ) const
 void QUrl::setFileName( const QString& name )
 {
     QString fn = name;
-    
-    while ( fn[ 0 ] == '/' ) 
+
+    while ( fn[ 0 ] == '/' )
 	fn.remove( 0, 1 );
 
-    QString p = d->path.isEmpty() ? 
+    QString p = d->path.isEmpty() ?
 		QString( "/" ) : d->path;
     if ( !d->path.isEmpty() ) {
 	int slash = p.findRev( QChar( '/' ) );
@@ -1306,16 +1305,16 @@ void QUrl::copy( const QStringList &files, const QString &dest, bool move )
 bool QUrl::isDir()
 {
     if ( isLocalFile() ) {
-	if ( QFileInfo( path() ).isDir() ) 
+	if ( QFileInfo( path() ).isDir() )
 	    return TRUE;
 	else
 	    return FALSE;
     }
-    
+
     if ( d->entryMap.contains( "." ) )
 	return d->entryMap[ "." ].isDir();
     else {
-	if ( d->networkProtocol && 
+	if ( d->networkProtocol &&
 	     ( d->networkProtocol->supportedOperations() & QNetworkProtocol::OpUrlIsDir ) )
 	    return d->networkProtocol->isUrlDir();
 	// if we are here, we really have a problem!!
@@ -1324,7 +1323,7 @@ bool QUrl::isDir()
 	if ( !d->path.isEmpty() )
 	    return d->path.right( 1 ) == "/";
     }
-    
+
     return FALSE;
 }
 
