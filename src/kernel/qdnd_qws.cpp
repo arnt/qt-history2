@@ -158,20 +158,12 @@ const char* QDropEvent::format( int n ) const
 void myOverrideCursor( QCursor cursor, bool replace ) {
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor( cursor, replace );
-    // ### Cludge to work around bug in Qt/Embedded where it doesn't update the cursor straight away
-    if ( replace )
-        QApplication::desktop()->releaseMouse();
-    QApplication::desktop()->grabMouse();
-    QApplication::desktop()->releaseMouse();
-    QApplication::desktop()->grabMouse();
 #endif
 }
 
 void myRestoreOverrideCursor() {
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
-    // ### Cludge to work around bug in Qt/Embedded where it doesn't update the cursor straight away
-    QApplication::desktop()->releaseMouse();
 #endif
 }
 
