@@ -43,7 +43,7 @@ public:
     QString defaultMakefile() const;
     virtual bool doDepends() const { return FALSE; } //never necesary
     QString realPrecompH( const QString &sourcePath );
-    QString precompcpp;
+    QString precompcpp, precomph;
     QString pch;
     bool usePCH;
     bool deletePCHcpp;

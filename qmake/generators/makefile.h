@@ -121,8 +121,6 @@ public:
     static MakefileGenerator *create(QMakeProject *);
     virtual bool write();
     virtual bool openOutput(QFile &) const;
-    // Used for adding PCH stages for NMake
-    QString precomph;
 };
 
 inline QString MakefileGenerator::findMocSource(const QString &moc_file) const
