@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "dialog.h"
 
 #include <Xm/MainW.h>
 #include <Xm/RowColumn.h>
@@ -12,8 +13,6 @@
 #include <Xm/LabelG.h>
 
 #include <qapplication.h>
-#include <qmessagebox.h>
-#include <qmotifdialog.h>
 
 
 static void dialogCallback( Widget, XtPointer client_data, XtPointer )
@@ -97,7 +96,7 @@ MainWindow::MainWindow()
     // pick a nice default size
     XtVaSetValues( motifWidget(),
  		   XmNwidth, 400,
- 		   XmNheight, 600,
+ 		   XmNheight, 300,
  		   NULL );
 
     setCaption( tr("QMotif Dialog Example") );
@@ -179,5 +178,7 @@ void MainWindow::showCustomDialog()
 
 void MainWindow::showQtDialog()
 {
-    QMessageBox::aboutQt( this, tr("QMotif Dialog Example") );
+    // custom Qt-based dialog using a Motif-based parent
+    CustomDialog customdialog( motifWidget(), "custom dialog", TRUE );
+    customdialog.exec();
 }
