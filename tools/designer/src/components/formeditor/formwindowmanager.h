@@ -66,9 +66,6 @@ public:
 
     void dragItems(const QList<AbstractDnDItem*> &item_list, AbstractFormWindow *source_form);
 
-signals:
-    void itemDragFinished();
-
 public slots:
     void addFormWindow(AbstractFormWindow *formWindow);
     void removeFormWindow(AbstractFormWindow *formWindow);

@@ -16,6 +16,7 @@
 #include "widgetdatabase.h"
 #include "iconloader.h"
 #include "widgetselection.h"
+#include "qdesigner_resource.h"
 #include "connectionedit.h"
 
 #include <abstractwidgetfactory.h>
@@ -787,19 +788,19 @@ void FormWindowManager::endDrag(const QPoint &pos)
             foreach (AbstractDnDItem *item, m_drag_item_list) {
                 DomUI *dom_ui = item->domUi();
                 Q_ASSERT(dom_ui != 0);
-//                dumpUI(dom_ui);
 
                 QRect geometry = item->decoration()->geometry();
                 QWidget *widget = form->createWidget(dom_ui, geometry, parent);
                 form->selectWidget(widget, true);
-                emit itemDragFinished();
             }
         } else if (qobject_cast<FormWindowDnDItem*>(m_drag_item_list.first()) != 0) {
             foreach (AbstractDnDItem *item, m_drag_item_list) {
                 FormWindowDnDItem *form_item = qobject_cast<FormWindowDnDItem*>(item);
                 Q_ASSERT(form_item != 0);
+
                 QWidget *widget = form_item->widget();
                 Q_ASSERT(widget != 0);
+
                 QRect geometry = item->decoration()->geometry();
 
                 if (parent == widget->parent()) {
@@ -808,10 +809,13 @@ void FormWindowManager::endDrag(const QPoint &pos)
                     form->selectWidget(widget, true);
                     widget->show();
                 } else {
-                    if (m_source_form != 0)
-                        m_source_form->deleteWidgets(QList<QWidget*>() << widget);
 
-                    form->insertWidget(widget, geometry, parent);
+                    QDesignerResource builder(m_source_form);
+                    DomUI *dom_ui = builder.copy(QList<QWidget*>() << widget);
+
+                    m_source_form->deleteWidgets(QList<QWidget*>() << widget);
+                    QWidget *widget = form->createWidget(dom_ui, geometry, parent);
+                    form->selectWidget(widget, true);
                 }
             }
 
