@@ -916,7 +916,7 @@ void QTextEngine::setFont(int from, int length, QFontPrivate *font)
 
 	if (si.fontEngine && si.fontEngine->deref())
 	    delete si.fontEngine;
-	si.fontEngine = fnt->engineForScript( script );
+	si.fontEngine = font->engineForScript( script );
 	si.fontEngine->ref();
 	++item;
     }
