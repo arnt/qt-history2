@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#33 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#34 $
 **
 ** Implementation of QSocket class.
 **
@@ -270,7 +270,7 @@ QSocket::State QSocket::state() const
   \a host may be an IP address in string form, or it may be a DNS
   name. QSocket will do a normal DNS lookup if required.  Note that \a
   port in native byte order, unlike some other libraries.
-  
+
   \sa state()
 */
 
@@ -521,7 +521,7 @@ bool QSocket::consumeReadBuf( Q_ULONG nbytes, char *sink )
     d->rsize -= nbytes;
     while ( TRUE ) {
 	QByteArray *a = d->rba.first();
-	if ( d->rindex + nbytes >= (int)a->size() ) {
+	if ( d->rindex + nbytes >= a->size() ) {
 	    // Here we skip the whole byte array and get the next later
 	    int len = a->size() - d->rindex;
 	    if ( sink ) {
@@ -562,7 +562,7 @@ bool QSocket::consumeWriteBuf( Q_ULONG nbytes )
     d->wsize -= nbytes;
     while ( TRUE ) {
 	QByteArray *a = d->wba.first();
-	if ( d->windex + nbytes >= (int)a->size() ) {
+	if ( d->windex + nbytes >= a->size() ) {
 	    nbytes -= a->size() - d->windex;
 	    d->wba.remove();
 	    d->windex = 0;
@@ -746,7 +746,7 @@ Q_ULONG QSocket::at() const
 
 bool QSocket::at( Q_ULONG index )
 {
-    if ( index < 0 || index > d->rsize )
+    if ( index > d->rsize )
 	return FALSE;
     consumeReadBuf( index, 0 );			// throw away data 0..index-1
     return TRUE;
@@ -841,7 +841,7 @@ Q_LONG QSocket::readBlock( char *data, Q_ULONG maxlen )
 #endif
 	return -1;
     }
-    if ( (int)maxlen >= d->rsize )
+    if ( maxlen >= d->rsize )
 	maxlen = d->rsize;
 #if defined(QSOCKET_DEBUG)
     qDebug( "QSocket (%s): readBlock %d bytes", name(), maxlen );
