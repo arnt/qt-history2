@@ -991,7 +991,6 @@ struct QMultiByteUnicodeTable {
     QMultiByteUnicodeTable* multibyte;
 };
 
-#ifndef QT_NO_CODECS
 static int getByte(char* &cursor)
 {
     int byte = 0;
@@ -1367,7 +1366,6 @@ QTextCodec* QTextCodec::loadCharmapFile(QString filename)
     }
     return 0;
 }
-#endif //QT_NO_CODECS
 
 
 /*!
@@ -1386,8 +1384,6 @@ const char* QTextCodec::locale()
 }
 
 
-
-#ifndef QT_NO_CODECS
 
 class QSimpleTextCodec: public QTextCodec
 {
@@ -2094,7 +2090,6 @@ int QSimpleTextCodec::heuristicContentMatch(const char* chars, int len) const
 }
 
 
-#endif // QT_NO_CODECS
 
 class QLatin1Codec: public QTextCodec
 {
@@ -2204,12 +2199,12 @@ static void setupBuiltinCodecs()
 {
     (void)new QLatin1Codec;
 
-#ifndef QT_NO_CODECS
     int i = 0;
     do {
         (void)new QSimpleTextCodec( i );
     } while( unicodevalues[i++].mib != LAST_MIB );
 
+#ifndef QT_NO_CODECS
     (void)new QUtf8Codec;
     (void)new QUtf16Codec;
     (void)new QHebrewCodec;

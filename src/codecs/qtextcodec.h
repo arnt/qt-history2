@@ -64,10 +64,8 @@ class Q_EXPORT QTextCodec {
 public:
     virtual ~QTextCodec();
 
-#ifndef QT_NO_CODECS
     static QTextCodec* loadCharmap(QIODevice*);
     static QTextCodec* loadCharmapFile(QString filename);
-#endif
     static QTextCodec* codecForMib(int mib);
     static QTextCodec* codecForName(const char* hint, int accuracy=0);
     static QTextCodec* codecForContent(const char* chars, int len);
