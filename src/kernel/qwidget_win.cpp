@@ -752,7 +752,8 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	if ( r.isEmpty() )
 	    return; // nothing to do
 	QRegion reg = r;
-	ValidateRgn( winId(), reg.handle() );
+	if ( reg.handle() )
+	    ValidateRgn( winId(), reg.handle() );
 	QPaintEvent e( r, erase );
 	if ( r != rect() )
 	    qt_set_paintevent_clipping( this, r );
