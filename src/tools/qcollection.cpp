@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qcollection.cpp#11 $
 **
 ** Implementation of base class for all collection classes
 **
@@ -12,7 +12,7 @@
 
 #include "qcollect.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#10 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#11 $")
 
 
 /*----------------------------------------------------------------------------
@@ -74,12 +74,12 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#10 $")
 
 
 /*----------------------------------------------------------------------------
-  \fn virtual uint QCollection::count() const = 0
+  \fn virtual uint QCollection::count() const
   Returns the number of objects in the collection.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn virtual void QCollection::clear() = 0
+  \fn virtual void QCollection::clear()
   Removes all objects from the collection.  The objects will be deleted
   if auto-delete has been enabled.
   \sa setAutoDelete()

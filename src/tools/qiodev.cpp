@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodev.cpp#18 $
+** $Id: //depot/qt/main/src/tools/qiodev.cpp#19 $
 **
 ** Implementation of QIODevice class
 **
@@ -12,7 +12,7 @@
 
 #include "qiodev.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qiodev.cpp#18 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qiodev.cpp#19 $")
 
 
 /*----------------------------------------------------------------------------
@@ -384,7 +384,7 @@ bool QIODevice::atEnd() const
 
 
 /*----------------------------------------------------------------------------
-  \fn int QIODev::readBlock( char *data, uint len ) = 0
+  \fn int QIODev::readBlock( char *data, uint len )
   Reads at most \e len bytes from the IO device into \e data and
   returns the number of bytes actually read.
 
@@ -394,7 +394,7 @@ bool QIODevice::atEnd() const
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn int QIODev::writeBlock( const char *data, uint len ) = 0
+  \fn int QIODev::writeBlock( const char *data, uint len )
   Writes \e len bytes from \e p to the IO device and returns the number of
   bytes actually written.
 
