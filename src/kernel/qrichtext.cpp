@@ -2176,22 +2176,43 @@ bool QTextDocument::inSelection( int selId, const QPoint &pos ) const
 	startParag = sel.endCursor.parag();
     }
 
-    QRect r = startParag->rect();
-    r = r.unite( endParag->rect() );
-
-    if ( r.contains( pos ) ) {
-	if ( startParag->rect().contains( pos ) && pos.x() < startParag->at( startParag->selectionStart( selId ) )->x )
-	    return FALSE;
-	if ( endParag->rect().contains( pos ) && pos.x() > endParag->at( endParag->selectionEnd( selId ) )->x )
-	    return FALSE;
-	return TRUE;
+    QTextParag *p = startParag;
+    while ( p ) {
+	if ( p->rect().contains( pos ) ) {
+	    bool inSel = FALSE;
+	    int selStart = p->selectionStart( selId );
+	    int selEnd = p->selectionEnd( selId );
+	    int y = 0;
+	    int h = 0;
+	    for ( int i = 0; i < p->length(); ++i ) {
+		if ( i == selStart )
+		    inSel = TRUE;
+		if ( i == selEnd )
+		    break;
+		if ( p->at( i )->lineStart ) {
+		    y = (*p->lineStarts.find( i ))->y;
+		    h = (*p->lineStarts.find( i ))->h;
+		}
+		if ( pos.y() - p->rect().y() >= y && pos.y() - p->rect().y() <= y + h ) {
+		    if ( inSel && pos.x() >= p->at( i )->x &&
+			 pos.x() <= p->at( i )->x + p->at( i )->format()->width( p->at( i )->c ) )
+			return TRUE;
+		}
+	    }
+	}
+	if ( pos.y() < p->rect().y() )
+	    break;
+	if ( p == endParag )
+	    break;
+	p = p->next();
     }
+
     return FALSE;
 }
 
 void QTextDocument::doLayout( QPainter *p, int w )
 {
-    withoutDoubleBuffer = (p != 0);
+    withoutDoubleBuffer = ( p != 0 );
     flow_->setWidth( w );
     cw = w;
     vw = w;
