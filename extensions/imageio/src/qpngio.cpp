@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/imageio/src/qpngio.cpp#2 $
+** $Id: //depot/qt/main/extensions/imageio/src/qpngio.cpp#3 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -212,7 +212,7 @@ void read_png_image(QImageIO* iio)
 
     png_read_image(png_ptr, row_pointers);
 
-#if 0 // LibPNG seems to be taking care of this.
+#if 0 // LibPNG takes care of this.
     if (image.depth()==32 && (info_ptr->valid & PNG_INFO_tRNS)) {
 	QRgb trans = 0xFF000000 | qRgb(
 	      (info_ptr->trans_values.red << 8 >> info_ptr->bit_depth)&0xff,
@@ -324,7 +324,9 @@ void write_png_image(QImageIO* iio)
 
     png_write_info(png_ptr, info_ptr);
 
-    png_set_packing(png_ptr);
+    if ( image.depth() != 1 )
+	png_set_packing(png_ptr);
+
     png_set_filler(png_ptr, 0,
 	QImage::systemByteOrder() == QImage::BigEndian ?
 	    PNG_FILLER_BEFORE : PNG_FILLER_AFTER);
