@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#101 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#102 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#101 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#102 $");
 
 
 /*!
@@ -1557,8 +1557,6 @@ void QComboBox::setEnabled( bool enable )
 void QComboBox::focusInEvent( QFocusEvent * )
 {
     if ( d && d->ed ) {
-	if ( style() == WindowsStyle )
-	    d->ed->selectAll();
 	d->ed->setFocus();
     } else {
 	repaint();

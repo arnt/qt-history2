@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#95 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#96 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#95 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#96 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -518,6 +518,8 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 
 void QLineEdit::focusInEvent( QFocusEvent * )
 {
+    if ( style() == WindowsStyle )
+	selectAll(); // calls repaint
     killTimers();
     startTimer( blinkTime );
     cursorOn = TRUE;
