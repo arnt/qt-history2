@@ -215,8 +215,10 @@ static QVariant::Type qDecodeDB2Type( SQLSMALLINT sqltype )
     case SQL_INTEGER:
     case SQL_BIT:
     case SQL_TINYINT:
-    case SQL_BIGINT:
 	type = QVariant::Int;
+	break;
+    case SQL_BIGINT:
+	type = QVariant::LongLong;
 	break;
     case SQL_BLOB:
     case SQL_BINARY:
@@ -327,6 +329,25 @@ static double qGetDoubleData( SQLHANDLE hStmt, int column, bool& isNull )
     }
 
     return (double) dblbuf;
+}
+
+static SQLBIGINT qGetBigIntData( SQLHANDLE hStmt, int column, bool& isNull )
+{
+    SQLBIGINT lngbuf;
+    isNull = FALSE;
+    SQLINTEGER lengthIndicator = 0;
+    SQLRETURN r = SQLGetData( hStmt,
+			      column+1,
+			      SQL_C_SBIGINT,
+			      (SQLPOINTER) &lngbuf,
+			      0,
+			      &lengthIndicator );
+    if ( ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) || lengthIndicator == SQL_NULL_DATA ) {
+	isNull = TRUE;
+	return 0;
+    }
+
+    return lngbuf;
 }
 
 static QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& isNull )
@@ -991,11 +1012,11 @@ QVariant QDB2Result::data( int field )
 
     QVariant* v = 0;
     switch ( info.type() ) {
+	case QVariant::LongLong:
+	    v = new QVariant( (Q_LLONG) qGetBigIntData( d->hStmt, field, isNull ) );
+	    break;
 	case QVariant::Int:
-	    if ( info.typeID() == SQL_BIGINT )
-		v = new QVariant( qGetStringData( d->hStmt, field, info.length(), isNull ) );
-	    else
-		v = new QVariant( qGetIntData( d->hStmt, field, isNull ) );
+	    v = new QVariant( qGetIntData( d->hStmt, field, isNull ) );
 	    break;
 	case QVariant::Date: {
 	    DATE_STRUCT dbuf;

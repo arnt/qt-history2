@@ -134,6 +134,8 @@ static QVariant::Type qDecodePSQLType( int t )
 	type = QVariant::Bool;
 	break;
     case INT8OID	:
+	type = QVariant::LongLong;
+	break;
     case INT2OID	:
 	//    case INT2VECTOROID  : // 7.x
     case INT4OID        :
@@ -312,10 +314,12 @@ QVariant QPSQLResult::data( int i )
 	} else {
 	    return QVariant( val );
 	}
+    case QVariant::LongLong:
+	if ( val[0] == '-' )
+	    return QVariant( val.toLongLong() );
+	else
+	    return QVariant( val.toULongLong() );
     case QVariant::Int:
-	if ( ptype == INT8OID )
-	    // keep these as strings so we don't lose precision
-	    return QVariant( val );
 	return QVariant( val.toInt() );
     case QVariant::Double:
 	if ( ptype == NUMERICOID )

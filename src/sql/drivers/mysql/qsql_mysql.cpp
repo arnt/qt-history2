@@ -105,9 +105,11 @@ QVariant::Type qDecodeMYSQLType( int mysqltype )
     case FIELD_TYPE_SHORT :
     case FIELD_TYPE_LONG :
     case FIELD_TYPE_INT24 :
-    case FIELD_TYPE_LONGLONG :
     case FIELD_TYPE_YEAR :
 	type = QVariant::Int;
+	break;
+    case FIELD_TYPE_LONGLONG :
+	type = QVariant::LongLong;
 	break;
     case FIELD_TYPE_DECIMAL :
     case FIELD_TYPE_FLOAT :
@@ -227,20 +229,21 @@ QVariant QMYSQLResult::data( int field )
 	return QVariant();
     }
     
-    QString val( ( d->row[field] ) );
+    QString val( d->row[field] );
     QVariant::Type type = qDecodeMYSQLType( d->fieldTypes[ field ] );
     switch ( type ) {
+    case QVariant::LongLong:
+	if ( val[0] == '-' ) // signed or unsigned?
+	    return QVariant( val.toLongLong() );
+	else
+	    return QVariant( val.toULongLong() );
     case QVariant::Int: 
-	if ( d->fieldTypes[ field ] == FIELD_TYPE_LONGLONG )
-	    // keep these as strings so that we don't loose precision
-	    return QVariant( val );
 	return QVariant( val.toInt() );
     case QVariant::Double:
 	if ( d->fieldTypes[ field ] == FIELD_TYPE_DECIMAL )
 	    // keep these as strings so that we don't loose precision
 	    return QVariant( val );
 	return QVariant( val.toDouble() );
-	return QVariant( val );
     case QVariant::Date:
 	if ( val.isEmpty() ) {
 	    return QVariant( QDate() );
