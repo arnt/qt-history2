@@ -87,6 +87,7 @@ bool StringListModel::insertRows(int position, const QModelIndex &/*index*/, int
         stringList.insert(position, "");
     }
 
+    emit rowsInserted(QModelIndex(), position, position+rows-1);
     return true;
 }
 
@@ -96,6 +97,8 @@ bool StringListModel::insertRows(int position, const QModelIndex &/*index*/, int
 
 bool StringListModel::removeRows(int position, const QModelIndex &/*index*/, int rows)
 {
+    emit rowsRemoved(QModelIndex(), position, position+rows-1);
+
     for (int row = 0; row < rows; ++row) {
         stringList.removeAt(position);
     }
