@@ -66,7 +66,7 @@ public:
     struct QMyField
     {
         QMyField()
-            : outField(0), nullIndicator(false), bufLength(0u),
+            : outField(0), nullIndicator(false), bufLength(0ul),
               myField(0), type(QVariant::Invalid)
         {}
         char *outField;
@@ -461,7 +461,7 @@ QVariant QMYSQLResult::data(int field)
     case QVariant::DateTime:
         if (val.isEmpty())
             return QVariant(QDateTime());
-        if (val.length() == 14u)
+        if (val.length() == 14)
             // TIMESTAMPS have the format yyyyMMddhhmmss
             val.insert(4, QLatin1Char('-')).insert(7, QLatin1Char('-')).insert(10,
                     QLatin1Char('T')).insert(13, QLatin1Char(':')).insert(16, QLatin1Char(':'));
