@@ -821,7 +821,8 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 #ifndef QT_NO_PALETTE
     pal = isTopLevel() ? QApplication::palette() : parentWidget()->palette();
 #endif
-    fnt = isTopLevel() ? QApplication::font() : parentWidget()->font();
+    if ( !isTopLevel() )
+	fnt = fnt.resolve( parentWidget()->font() );
 #if defined(Q_WS_X11)
     fnt.x11SetScreen( x11Screen() );
 #endif // Q_WS_X11
@@ -2714,9 +2715,9 @@ void QWidget::paletteChange( const QPalette & )
 */
 void QWidget::setFont( const QFont &font )
 {
-    own_font = TRUE;
     if ( fnt == font && fnt.d->request.mask == font.d->request.mask )
 	return;
+    own_font = font.d->request.mask != 0;
     QFont old = fnt;
     fnt = qt_resolveWidgetFont( this, font );
 #if defined(Q_WS_X11)
@@ -2743,8 +2744,7 @@ void QWidget::unsetFont()
     if ( ! own_font ) return;
 
     // reset the font
-    setFont( QFont() );
-    own_font = FALSE;
+    setFont( qt_resolveWidgetFont(this, QFont() ) );
 }
 
 /*!
@@ -3950,10 +3950,8 @@ void QWidget::polish()
     }
 #endif
     if ( !testWState(WState_Polished) ) {
-	if ( !own_font && !QApplication::font( this ).isCopyOf( QApplication::font() ) ) {
-	    setFont( QApplication::font( this ) );
-	    own_font = FALSE;
-	}
+	if ( !QApplication::font( this ).isCopyOf( QApplication::font() ) )
+	    setFont( qt_resolveWidgetFont(this, fnt ) );
 #ifndef QT_NO_PALETTE
 	if ( !own_palette && !QApplication::palette( this ).isCopyOf( QApplication::palette() ) ) {
 	    setPalette( QApplication::palette( this ) );
@@ -4547,10 +4545,7 @@ bool QWidget::event( QEvent *e )
 		break;
 	    // fall through
 	case QEvent::ApplicationFontChange:
-	    if ( !own_font ) {
-		own_font = TRUE;
-		unsetFont();
-	    }
+	    setFont( qt_resolveWidgetFont(this, fnt ) );
 	    break;
 
 #ifndef QT_NO_PALETTE
@@ -5637,10 +5632,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     reparentSys( parent, f, p, showIt );
     QEvent e( QEvent::Reparent );
     QApplication::sendEvent( this, &e );
-    if ( !own_font && !sameFont ) {
-	own_font = TRUE;
-	unsetFont();
-    }
+    setFont( qt_resolveWidgetFont(this, fnt ) );
 #ifndef QT_NO_PALETTE
     if ( !own_palette && !samePalette ) {
 	own_palette = TRUE;
