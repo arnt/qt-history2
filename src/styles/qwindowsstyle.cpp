@@ -1401,7 +1401,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 			dotlines[c++] = QPoint( bx, linebot );
 		    }
 		}
-		p->setPen( cg.dark() );
+		p->setPen( cg.text() );
 
 		static QBitmap *verticalLine = 0, *horizontalLine = 0;
 		static QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
