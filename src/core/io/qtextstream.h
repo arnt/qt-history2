@@ -18,7 +18,6 @@
 #include "qstring.h"
 #include "qchar.h"
 
-#include <unistd.h>
 #include <stdio.h>
 
 #ifndef QT_NO_TEXTSTREAM
