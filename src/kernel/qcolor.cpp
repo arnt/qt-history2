@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#33 $
 **
 ** Implementation of QColor class
 **
@@ -13,7 +13,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#32 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#33 $")
 
 
 /*----------------------------------------------------------------------------
@@ -446,7 +446,11 @@ QColor QColor::dark( int factor ) const		// get dark color
 /*----------------------------------------------------------------------------
   \fn ulong QColor::pixel() const
   Returns the pixel value.
+
+  This value is used by the underlying window system to refer to a color.
+  It can be thought of as an index into the display hardware's color table.
  ----------------------------------------------------------------------------*/
+
 
 /*----------------------------------------------------------------------------
   \fn bool QColor::operator==( const QColor &c ) const

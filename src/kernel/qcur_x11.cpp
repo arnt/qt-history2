@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#29 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 #include <X11/cursorfont.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#28 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#29 $")
 
 
 /*****************************************************************************
@@ -180,7 +180,8 @@ QCursor::QCursor( int shape )			// cursor with shape
   <ol>
   <li> M=1 and B=1 gives black.
   <li> M=1 and B=0 gives white.
-  <li> M=0 gives transparency.
+  <li> M=0 and B=0 gives transparency.
+  <li> M=0 and B=1 gives an undefined result.
   </ol>
 
   Hint: Use the global color \c color0 to draw 0-pixels and \c color1
