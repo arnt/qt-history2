@@ -3063,6 +3063,9 @@ void QApplication::sendPostedEvents()
 
   Note that events from the window system are \e not dispatched by this
   function, but by processEvents().
+
+  If \a receiver is null, the events of \a event_type are sent for all
+  objects. If \a event_type is 0, all the events are sent for \a receiver.
 */
 
 void QApplication::sendPostedEvents( QObject *receiver, int event_type )
