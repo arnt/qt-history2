@@ -6372,7 +6372,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	int y = 0;
 	if ( !parentControl )
 	    x += 3;
-	if ( align & AlignHCenter )
+	if ( align == AlignCenter )
 	    x = (width - boxsize - fm.width(text()))/2;
 	if ( align & AlignVCenter )
 	    y = ( ( height() - boxsize ) / 2 ) + marg;
