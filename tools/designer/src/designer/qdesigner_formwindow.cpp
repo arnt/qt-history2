@@ -86,7 +86,7 @@ void QDesignerFormWindow::changeEvent(QEvent *e)
 
 QRect QDesignerFormWindow::geometryHint() const
 {
-    return QRect();
+    return QRect(0, 0, 400, 300);
 }
 
 AbstractFormWindow *QDesignerFormWindow::editor() const
