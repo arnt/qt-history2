@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#76 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#77 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -729,29 +729,36 @@ QString QXmlAttributes::value( const QString& uri, const QString& localName ) co
 
 /*!
   \class QXmlInputSource qxml.h
-  \brief The QXmlInputSource class is the source where XML data is read from.
+  \brief The QXmlInputSource class provides the input data for the QXmlReader
+  subclasses.
 
   \module XML
 
   All subclasses of QXmlReader read the input XML document from this class.
-
-  On construction, this class reads all data that is available on the source.
-  The first call of data() returns this data. Any other calls of data() try
-  to read more data from the source and returns only the new data.
-
-  You can also add data with setData(). Then the next call of data() returns
-  this data. Any other calls try to read more data from the source. So
-  setData() has a higher priority than the polling behavior.
-
-  Usually you either construct a QXmlInputSource that works on a QIODevice* or
-  you construct an empty QXmlInputSource and set the data with setData(). There
-  are only rare occasions where you want to mix both methods.
 
   This class recognizes the encoding of the data: it tries to read the encoding
   declaration of the XML file and if it finds it, it reads the data in the
   corresponding encoding. If it does not find an encoding declaration, then it
   assumes that the data is either in UTF-8 or UTF-16, depending if it can find
   a byte-order mark.
+
+  There are two ways to populate the input source with data: you can construct
+  it with a QIODevice* and the input source reads the data from that device. Or
+  you can set the data explicitly with one of the setData() functions.
+
+  Usually you either construct a QXmlInputSource that works on a QIODevice* or
+  you construct an empty QXmlInputSource and set the data with setData(). There
+  are only rare occasions where you want to mix both methods.
+
+  The subclasses of QXmlReader use the next() function to read the input
+  character by character. So the input source behaves like a stream. If you
+  want to start from the beginning again, you have to call reset() to change
+  the position in the input source to the beginning.
+
+  The functions data() and fetchData() are useful if you want to do also
+  something else with data than parsing, e.g. displaying the raw XML file - the
+  advantage to do this job with the QXmlInputClass is, that it tries to
+  recognize the right encoding.
 
   \sa QXmlReader QXmlSimpleReader
 */
@@ -785,12 +792,13 @@ QXmlInputSource::QXmlInputSource()
     init();
 }
 
-/*!  Constructs an input source and gets the data from \a dev. If \a
+/*!
+  Constructs an input source and gets the data from \a dev. If \a
   dev is not open, it is opened in read-only mode. If \a dev is a null
   pointer or it is not possible to read from the device, the input
   source will contain no data.
 
-  \sa setData() QIODevice
+  \sa setData() fetchData() QIODevice
 */
 QXmlInputSource::QXmlInputSource( QIODevice *dev )
 {
@@ -835,14 +843,14 @@ QXmlInputSource::~QXmlInputSource()
   results in new data, this function returns the first character of that data;
   otherwise it returns QXmlInputSource::EndOfDocument.
 
-  This function can have the two special return values QXmlInputSource::EndOfData and
-  QXmlInputSource::EndOfDocument. This destinction is especially useful for incremental
-  parsing: QXmlInputSource::EndOfData means that the input source ran out of data,
-  but may be able to deliver more data at a later point. QXmlInputSource::EndOfDocument
-  on the other hand means, that the input source really run out of data and
-  can't provide more data at a later point. The non-incremental parsing mode
-  does not distinguish between the two values - they mean that the end of the
-  data was reached.
+  This function can have the two special return values
+  QXmlInputSource::EndOfData and QXmlInputSource::EndOfDocument. This
+  destinction is useful for incremental parsing: QXmlInputSource::EndOfData
+  means that the input source ran out of data, but may be able to deliver more
+  data at a later point. QXmlInputSource::EndOfDocument on the other hand
+  means, that the input source really ran out of data and can't provide more
+  data at a later point. The non-incremental parsing mode does not distinguish
+  between the two values - they mean that the end of the data was reached.
 
   \sa reset() fetchData() QXmlSimpleReader::prarse() QXmlSimpleReader::parseContinue()
 */
@@ -880,20 +888,7 @@ void QXmlInputSource::reset()
   Returns the data the input source contains or QString::null if the input
   source does not contain any data.
 
-  On construction, this class reads all data that is available on the source.
-  You can also set data with setData().
-
-  If the class was able to read data on construction, the first call of this
-  function returns it. Otherwise the first call of this function returns the
-  data that was set with setData() or QString::null, if no data is set.
-
-  Any other calls of data() return either the data that was set with setData()
-  or try to read more data from the source and return it. This function never
-  returns data that was returned by a previous call.
-
-  This class tries to find out the correct encoding for the raw data.
-
-  \sa setData() QXmlInputSource()
+  \sa setData() QXmlInputSource() fetchData()
 */
 QString QXmlInputSource::data()
 {
@@ -903,8 +898,8 @@ QString QXmlInputSource::data()
 /*!
   Sets the data of the input source to \a dat.
 
-  If the input source already contains data from a previous call of setData()
-  this function deletes that data first.
+  If the input source already contains data, this function deletes that data
+  first.
 
   \sa data()
 */
@@ -917,21 +912,29 @@ void QXmlInputSource::setData( const QString& dat )
 }
 
 /*! \overload
-  This function sets the raw data of the input source to \a dat. If you get the
-  data with data(), it is sent through the right text-codec.
+  The data \a dat is sent through the right text-codec first, before it is set.
 */
 void QXmlInputSource::setData( const QByteArray& dat )
 {
-    str = fromRawData( dat );
-    pos = 0;
-    length = str.length();
-    nextReturnedEndOfData = FALSE;
+    setData( fromRawData( dat ) );
 }
 
 /*!
-  This private function reads the data from inputDevice (if it is not 0) or
-  from inputStream (if it is not 0) and stores it in rawData. If rawData is 0,
-  it allocates a new QByteArray, otherwise it replaces the new data.
+  This function reads more data from the device that was given on construction.
+  If the input source already contained data, this function deletes that data
+  first.
+
+  This class contains no data after a call to this function, if either the
+  class was constructed without a device to read data from or if this function
+  was not able to get more data from the device.
+
+  Please note that there are two occasions where a fetch is done implicitly by
+  another function call: This class does a fetch itself on construction. So you
+  shouldn't call a fetchData() right afterwards since you loose all that data.
+  Furthermore, a call to next() can also implicitly call fetchData(). So this
+  function should be used with care.
+
+  \sa data() next() QXmlInputSource()
 */
 void QXmlInputSource::fetchData()
 {
