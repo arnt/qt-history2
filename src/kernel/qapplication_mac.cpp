@@ -631,8 +631,8 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 	    appNoGrab = !appNoGrab;
 	else
 #endif // QT_DEBUG
-	    if ( arg == "-inputstyle" ) {
-		if ( ++i < argc ) {
+	    if(arg == "-inputstyle") {
+		if(++i < argc) {
 		    QCString s = QCString(argv[i]).lower();
 		    if(s == "onthespot")
 			qt_mac_input_spot = QT_MAC_ONTHESPOT;
@@ -2001,7 +2001,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		       widget ? widget->className() : "none", widget ? widget->name() : "",
 		       key, modifiers);
 #endif
-		QKeyEvent ke(etype, key, 0, modifiers, "", FALSE );
+		QKeyEvent ke(etype, key, 0, modifiers, "", FALSE);
 		QApplication::sendSpontaneousEvent(widget,&ke);
 	    }
 	    break;
@@ -2048,14 +2048,14 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	}
 	/* I don't know why the str is only filled in in RawKeyDown - but it does seem to be on X11
 	   is this a bug on X11? --Sam ### */
-	if(chr && ekind == kEventRawKeyDown) {
+	if(ekind == kEventRawKeyDown) {
 	    UInt32 unilen;
 	    if(GetEventParameter(event, kEventParamKeyUnicodes, typeUnicodeText, NULL, 0, &unilen, NULL) == noErr) {
 		UniChar *unicode = (UniChar*)NewPtr(unilen);
 		GetEventParameter(event, kEventParamKeyUnicodes, typeUnicodeText, NULL, unilen, NULL, unicode);
 		mystr = QString((QChar*)unicode, unilen / sizeof(UniChar));
 		DisposePtr((char*)unicode);
-	    } else {
+	    } else if(chr) {
 		static QTextCodec *c = NULL;
 		if(!c)
 		    c = QTextCodec::codecForName("Apple Roman");
@@ -2074,10 +2074,21 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 
 	    bool key_event = TRUE;
 	    if(etype == QEvent::KeyPress && !mac_keyboard_grabber) {
-		QKeyEvent a(etype, mychar, chr, modifiers,
-			     mystr, ekind == kEventRawKeyRepeat,
-			    QMAX(1, mystr.length() ) );
-		if(qt_tryAccelEvent(widget, &a)) {
+		/* We offer the accelerator a text representation of chr, this is because the Mac
+		   actually flips the keyboard when things like alt are pressed, but that doesn't
+		   really mean that accelerators should be mapped to the new key (or things could get
+		   quite broken). */
+		QString accel_str;
+		if(chr) {
+		    static QTextCodec *c = NULL;
+		    if(!c)
+			c = QTextCodec::codecForName("Apple Roman");
+		    accel_str = c->toUnicode(&chr, 1);
+		}
+		QKeyEvent accel_ev(etype, mychar, chr, modifiers,
+				   accel_str, ekind == kEventRawKeyRepeat,
+				   QMAX(1, accel_str.length()));
+		if(qt_tryAccelEvent(widget, &accel_ev)) {
 #ifdef DEBUG_KEY_MAPS
 		    qDebug("KeyEvent: %s::%s consumed Accel: %04x %c %s %d",
 			   widget ? widget->className() : "none", widget ? widget->name() : "",
@@ -2129,17 +2140,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #endif
 		/* This is actually wrong - but unfortunatly it is the best that can be
 		   done for now because of the Control/Meta mapping problems */
-		if(modifiers & (Qt::ControlButton | Qt::AltButton | Qt::MetaButton)) {
-		    /* I do this so that widgets that override the accel event can
-		       use the lack of a ascii and/or the QString to detect if they
-		       should do other things with the event than just process it as
-		       a key entry (ie QLineEdit) --Sam */
+		if(modifiers & (Qt::ControlButton | Qt::MetaButton)) {
 		    chr = 0;
 		    mystr = "";
 		}
 		QKeyEvent ke(etype,mychar, chr, modifiers,
 			     mystr, ekind == kEventRawKeyRepeat,
-			     QMAX( 1, mystr.length()) );
+			     QMAX(1, mystr.length()));
 		QApplication::sendSpontaneousEvent(widget,&ke);
 	    }
 	} else if(etype == QEvent::KeyPress) {
