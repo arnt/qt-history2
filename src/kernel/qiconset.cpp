@@ -119,30 +119,41 @@ public:
     QIconSetIcon icons[NumSizes][NumModes][NumStates];
     QPixmap defaultPix;
     QIconFactory *factory;
+    bool deleteFactory;
 
-    QIconSetPrivate() : factory( 0 ) {}
-    ~QIconSetPrivate() {}
+    QIconSetPrivate() : factory( 0 ), deleteFactory( FALSE ) { }
+    QIconSetPrivate( const QIconSetPrivate& other ) : QShared() {
+	count = 1;
+	for ( int i = 0; i < NumSizes; i++ ) {
+	    for ( int j = 0; j < NumModes; j++ ) {
+		for ( int k = 0; k < NumStates; k++ ) {
+		    icons[i][j][k] = other.icons[i][j][k];
+		}
+	    }
+	}
+	defaultPix = other.defaultPix;
+	factory = other.factory;
+	if ( factory )
+	    factory->refCount++;
+	deleteFactory = other.deleteFactory;
+    }
+    ~QIconSetPrivate() {
+	setFactory( 0, FALSE );
+    }
 
     QIconSetIcon *icon( const QIconSet *iconSet, QIconSet::Size size,
 			QIconSet::Mode mode, QIconSet::State state );
+    void setFactory( QIconFactory *newFactory, bool newDeleteFactory ) {
+	if ( newFactory )
+	    newFactory->refCount++;
+	if ( factory && --factory->refCount == 0 && deleteFactory )
+	    delete factory;
+	factory = newFactory;
+	deleteFactory = newDeleteFactory;
+    }
+
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
     bool operator==( const QIconSetPrivate& ) const { return FALSE; }
-#endif
-#if defined(Q_CC_HPACC) || \
-    (defined(Q_CC_GNU) && __GNUC__ == 3 && __GNUC_MINOR__ <= 1)
-    // * workaround for "implicit copy ctor for multi dimension array"
-    //   bug (CR JAGad01979) in HP-UX aCC (up to A.03.30 at least)
-    // * workaround for "sorry, not implemented: cannot initialize
-    //   multi-dimensional array with initializer" in GCC 3.1
-    QIconSetPrivate( const QIconSetPrivate& other ) : QShared() {
-	count = other.count;
-	for ( int i = 0; i < NumSizes; i++ )
-	    for ( int j = 0; j < NumModes; j++ )
-		for ( int k = 0; k < NumStates; k++ )
-		    icons[i][j][k] = other.icons[i][j][k];
-	defaultPix = other.defaultPix;
-	factory = other.factory;
-    }
 #endif
 };
 
@@ -182,7 +193,7 @@ QIconSetIcon *QIconSetPrivate::icon( const QIconSet *iconSet,
     return ik;
 }
 
-/*! \class QIconSet qiconset.h
+/*! \class QIconSet
 
   \brief The QIconSet class provides a set of icons with different
   styles and sizes.
@@ -245,7 +256,7 @@ QIconSetIcon *QIconSetPrivate::icon( const QIconSet *iconSet,
   QIconSet or by a factory; clearGenerated() clears all cached
   pixmaps.
 
-  \section1 Making Classes that use QIconSet
+  \section1 Making Classes that Use QIconSet
 
   If you write your own widgets that have an option to set a small
   pixmap, consider allowing a QIconSet to be set for that pixmap.  The
@@ -282,7 +293,7 @@ QIconSetIcon *QIconSetPrivate::icon( const QIconSet *iconSet,
   The currently defined sizes are:
 
     \value Automatic  The size of the pixmap is determined from its
-		    pixel size. This is a useful default.
+		      pixel size. This is a useful default.
     \value Small  The pixmap is the smaller of two.
     \value Large  The pixmap is the larger of two.
 
@@ -405,7 +416,7 @@ void QIconSet::reset( const QPixmap& pixmap, Size size )
     normalize( size, pixmap.size() );
     setPixmap( pixmap, size, Normal );
     d->defaultPix = pixmap;
-    d->factory = 0;
+    d->setFactory( 0, FALSE );
 }
 
 /*!
@@ -588,7 +599,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 /*! \overload
     \obsolete
 
-    This is the same as pixmap(\a size, \a enabled, \a state).
+  This is the same as pixmap(\a size, \a enabled, \a state).
 */
 QPixmap QIconSet::pixmap( Size size, bool enabled, State state ) const
 {
@@ -625,7 +636,8 @@ bool QIconSet::isGenerated( Size size, Mode mode, State state ) const
 };
 
 /*!
-  Clears all cached pixmaps.
+    Clears all cached pixmaps, including those obtained from an
+    eventual QIconFactory.
 */
 void QIconSet::clearGenerated()
 {
@@ -642,16 +654,18 @@ void QIconSet::clearGenerated()
 }
 
 /*!
-  Installs \a factory as the icon factory for this iconset. The icon
-  factory is used to generates pixmaps not set by the user.
+    Installs \a factory as the icon factory for this iconset. The
+    icon factory is used to generates pixmaps not set by the user. If
+    \a autoDelete is TRUE (the default is FALSE), the QIconSet will
+    take ownership of the \a factory and delete it when appropriate.
 
-  If no icon factory is installed, QIconFactory::defaultFactory() is
-  used.
+    If no icon factory is installed, QIconFactory::defaultFactory()
+    is used.
 */
-void QIconSet::installIconFactory( QIconFactory *factory )
+void QIconSet::installIconFactory( QIconFactory *factory, bool autoDelete )
 {
     detach();
-    d->factory = factory;
+    d->setFactory( factory, autoDelete );
 }
 
 /*!
@@ -677,7 +691,6 @@ void QIconSet::detach()
     if ( d->count != 1 ) {
 	d->deref();
 	d = new QIconSetPrivate( *d );
-	d->count = 1;
     }
 }
 
@@ -810,10 +823,10 @@ QPixmap *QIconSet::createDisabled( Size size, State state ) const
 */
 
 /*!
-  Constructs an icon factory with parent \a parent and name \a name.
+  Constructs an icon factory.
 */
-QIconFactory::QIconFactory( QObject *parent, const char *name )
-    : QObject( parent, name )
+QIconFactory::QIconFactory()
+    : refCount( 0 )
 {
 }
 
@@ -829,7 +842,7 @@ QIconFactory::~QIconFactory()
   \a state. Returns 0 if the default QIconSet algorithm should be
   used to create a pixmap that wasn't supplied by the user.
 
-  It is the caller's responsability to delete the returned object.
+  It is the caller's responsability to delete the returned pixmap.
 
   The default implementation always returns 0.
 */
@@ -850,6 +863,7 @@ QIconFactory *QIconFactory::defaultFactory()
 {
     if ( !defaultFac ) {
 	defaultFac = new QIconFactory;
+	defaultFac->refCount = 1;
 	q_cleanup_icon_factory.set( &defaultFac );
     }
     return defaultFac;
@@ -866,7 +880,9 @@ void QIconFactory::installDefaultFactory( QIconFactory *factory )
     if ( !factory )
 	return;
 
-    delete defaultFac;
+    factory->refCount++;
+    if ( defaultFac && --defaultFac->refCount == 0 )
+	delete defaultFac;
     defaultFac = factory;
     q_cleanup_icon_factory.set( &defaultFac );
 }
