@@ -1415,7 +1415,6 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
     }
 
     if ( hasFocus() && !d->current ) {
-	d->head->s = TRUE;
 	d->current = d->head;
 	updateItem( d->current );
 	emit highlighted( d->current );
@@ -1473,7 +1472,6 @@ void QListBox::insertItem( const QListBoxItem *lbi, const QListBoxItem *after )
 	d->last = (QListBoxItem*) lbi;
 
     if ( hasFocus() && !d->current ) {
-	d->head->s = TRUE;
 	d->current = d->head;
 	updateItem( d->current );
 	emit highlighted( d->current );
@@ -2482,7 +2480,6 @@ void QListBox::focusInEvent( QFocusEvent *e )
     d->mousePressRow = -1;
     d->mousePressColumn = -1;
     if ( e->reason() != QFocusEvent::Mouse && !d->current && d->head ) {
-	d->head->s = TRUE;
 	d->current = d->head;
 	QListBoxItem *i = d->current;
 	QString tmp;
@@ -2767,6 +2764,9 @@ void QListBox::setSelected( QListBoxItem * item, bool select )
 
 bool QListBox::isSelected( int i ) const
 {
+    if ( selectionMode() == Single && i != currentItem() )
+	return FALSE;
+
     QListBoxItem * lbi = item( i );
     if ( !lbi )
 	return FALSE; // should not happen
