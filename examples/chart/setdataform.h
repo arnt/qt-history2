@@ -1,0 +1,47 @@
+#ifndef SETDATAFORM_H
+#define SETDATAFORM_H
+
+#include "globals.h"
+#include "element.h"
+
+#include <qdialog.h>
+
+class QHBoxLayout;
+class QPushButton;
+class QTable;
+class QVBoxLayout;
+
+
+class SetDataForm: public QDialog
+{
+    Q_OBJECT
+public:
+    SetDataForm( ElementVector *elements,
+		 QWidget *parent = 0, const char *name = "set data form",
+		 bool modal = TRUE, WFlags f = 0 );
+    ~SetDataForm() {}
+
+public slots:
+    void setColour();
+    void setColour( int row, int col );
+    void currentChanged( int row, int col );
+    void valueChanged( int row, int col );
+
+protected slots:
+    void accept();
+
+private:
+    QTable *table;
+    QPushButton* colourPushButton;
+    QPushButton* okPushButton;
+    QPushButton* cancelPushButton;
+
+protected:
+    QVBoxLayout *tableButtonBox;
+    QHBoxLayout *buttonBox;
+
+private:
+    ElementVector *pelements;
+};
+
+#endif
