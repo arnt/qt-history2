@@ -521,7 +521,7 @@ class QScreenRec {
 public:
 
     QScreenRec(QScreen * s,char * sl,QString f,bool b) { screen=s; xoffs=-1;
-                                       slot=strdup(sl); swcursor=b;
+                                       slot=qstrdup(sl); swcursor=b;
                                        fb=f; yoffs=0; }
 
     QScreen * screen;
