@@ -871,7 +871,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         else if(q->testAttribute(Qt::WA_ShowModal))
             wclass = kMovableModalWindowClass;
         else if(type == Qt::Overlay)
-            wclass = kHelpWindowClass;
+            wclass = kOverlayWindowClass;
         else if(tool
                 || (dialog && parentWidget && !parentWidget->window()->windowType() == Qt::Desktop))
             wclass = kFloatingWindowClass;
@@ -1700,20 +1700,20 @@ void QWidgetPrivate::stackUnder_sys(QWidget *w)
 
 /*
   Helper function for non-toplevel widgets. Helps to map Qt's 32bit
-  coordinate system to X11's 16bit coordinate system.
+  coordinate system to OS X's 16bit coordinate system.
 
   Sets the geometry of the widget to data.crect, but clipped to sizes
-  that X can handle. Unmaps widgets that are completely outside the
+  that OS X can handle. Unmaps widgets that are completely outside the
   valid range.
 
-  Maintains data.wrect, which is the geometry of the X widget,
+  Maintains data.wrect, which is the geometry of the OS X widget,
   measured in this widget's coordinate system.
 
   if the parent is not clipped, parentWRect is empty, otherwise
-  parentWRect is the geometry of the parent's X rect, measured in
+  parentWRect is the geometry of the parent's OS X rect, measured in
   parent's coord sys
 */
-void QWidgetPrivate::setWSGeometry()
+void QWidgetPrivate::setWSGeometry(bool dontShow)
 {
 
     /*
@@ -1818,7 +1818,7 @@ void QWidgetPrivate::setWSGeometry()
         updateSystemBackground();
         q->update();
     }
-    if (mapWindow) {
+    if (mapWindow && !dontShow) {
         q->setAttribute(Qt::WA_Mapped);
         HIViewSetVisible((HIViewRef)q->winId(), true);
     }
