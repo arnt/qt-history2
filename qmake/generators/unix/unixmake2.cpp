@@ -34,9 +34,10 @@ UnixMakefileGenerator::UnixMakefileGenerator(QMakeProject *p) : MakefileGenerato
 
 }
 
-bool
-UnixMakefileGenerator::writeMakefile(QTextStream &t)
+void
+UnixMakefileGenerator::writePrlFile(QTextStream &t)
 {
+    MakefileGenerator::writePrlFile(t);
     // libtool support
     if(project->isActiveConfig("create_libtool") && project->first("TEMPLATE") == "lib") { //write .la
 	if(project->isActiveConfig("compile_libtool"))
@@ -45,10 +46,14 @@ UnixMakefileGenerator::writeMakefile(QTextStream &t)
 	else
 	    writeLibtoolFile();
     }
-
     // pkg-config support
     if(project->isActiveConfig("create_pc") && project->first("TEMPLATE") == "lib")
 	writePkgConfigFile();
+}
+
+bool
+UnixMakefileGenerator::writeMakefile(QTextStream &t)
+{
 
     writeHeader(t);
     if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
@@ -643,6 +648,25 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
 
     writeMakeQmake(t);
+    if(project->isEmpty("QMAKE_FAILED_REQUIREMENTS") && !project->isActiveConfig("no_autoqmake")) {
+	QString meta_files;
+	if(project->isActiveConfig("create_libtool") && project->first("TEMPLATE") == "lib" &&
+	   !project->isActiveConfig("compile_libtool")) { //libtool
+	    if(!meta_files.isEmpty())
+		meta_files += " ";
+	    meta_files += libtoolFileName();
+	}
+	if(project->isActiveConfig("create_pc") && project->first("TEMPLATE") == "lib") { //pkg-config
+	    if(!meta_files.isEmpty())
+		meta_files += " ";
+	    meta_files += pkgConfigFileName();
+	}
+	if(!meta_files.isEmpty()) {
+	    QStringList files = fileFixify(Option::mkfile::project_files);
+	    t << meta_files << ": " << "\n\t"
+	      << "@$(QMAKE) -prl " << buildArgs() << " " << files.join(" ") << endl;
+	}
+    }
 
     if(!project->first("QMAKE_PKGINFO").isEmpty()) {
 	QString pkginfo = project->first("QMAKE_PKGINFO");
@@ -1259,23 +1283,33 @@ void UnixMakefileGenerator::init2()
     }
 }
 
+QString
+UnixMakefileGenerator::libtoolFileName()
+{
+    QString ret = var("TARGET");
+    int slsh = ret.findRev(Option::dir_sep);
+    if(slsh != -1)
+	ret = ret.right(ret.length() - slsh);
+    int dot = ret.find('.');
+    if(dot != -1)
+	ret = ret.left(dot);
+    ret += Option::libtool_ext;
+    if(!project->isEmpty("DESTDIR"))
+	ret.prepend(var("DESTDIR"));
+    return ret;
+}
+
 void
 UnixMakefileGenerator::writeLibtoolFile()
 {
-    QString lname = var("TARGET");
+    QString fname = pkgConfigFileName(), lname = fname;
     int slsh = lname.findRev(Option::dir_sep);
     if(slsh != -1)
 	lname = lname.right(lname.length() - slsh);
-    int dot = lname.find('.');
-    if(dot != -1)
-	lname = lname.left(dot);
-    QString fname = lname + Option::libtool_ext;
-    if(!project->isEmpty("DESTDIR"))
-	fname.prepend(var("DESTDIR"));
-    QString local_lt = Option::fixPathToLocalOS(fileFixify(fname, QDir::currentDirPath(), Option::output_dir));
     QFile ft(fname);
     if(!ft.open(IO_WriteOnly))
 	return;
+    project->variables()["ALL_DEPS"].append(fname);
 
     QTextStream t(&ft);
     t << "# " << lname << Option::libtool_ext << " - a libtool library file\n";
@@ -1334,29 +1368,37 @@ UnixMakefileGenerator::writeLibtoolFile()
 	"libdir='" << Option::fixPathToTargetOS(install_dir, FALSE) << "'\n";
 }
 
-void
-UnixMakefileGenerator::writePkgConfigFile()
+QString
+UnixMakefileGenerator::pkgConfigFileName()
 {
-    // ### does make sense only for libqt so far
-    QString lname = var("TARGET");
+    QString ret = var("TARGET");
+    int slsh = ret.findRev(Option::dir_sep);
+    if(slsh != -1)
+	ret = ret.right(ret.length() - slsh);
+    if(ret.startsWith("lib"))
+	ret = ret.mid(3);
+    int dot = ret.find('.');
+    if(dot != -1)
+	ret = ret.left(dot);
+    ret += Option::pkgcfg_ext;
+    if(!project->isEmpty("DESTDIR")) {
+	ret.prepend(var("DESTDIR"));
+	ret = Option::fixPathToLocalOS(fileFixify(ret,QDir::currentDirPath(), Option::output_dir));
+    }
+    return ret;
+}
+
+void
+UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for libqt so far
+{
+    QString fname = pkgConfigFileName(), lname = fname;
     int slsh = lname.findRev(Option::dir_sep);
     if(slsh != -1)
 	lname = lname.right(lname.length() - slsh);
-    if(lname.startsWith("lib"))
-	lname = lname.mid(3);
-    int dot = lname.find('.');
-    if(dot != -1)
-	lname = lname.left(dot);
-    QString fname = lname + Option::pkgcfg_ext;
-    if(!project->isEmpty("DESTDIR")) {
-	fname.prepend(var("DESTDIR"));
-	fname = Option::fixPathToLocalOS(fileFixify(fname,
-						    QDir::currentDirPath(),
-						    Option::output_dir));
-    }
     QFile ft(fname);
     if(!ft.open(IO_WriteOnly))
 	return;
+    project->variables()["ALL_DEPS"].append(fname);
     QTextStream t(&ft);
 
     QString prefix = qInstallPath();
@@ -1381,8 +1423,10 @@ UnixMakefileGenerator::writePkgConfigFile()
 	libs = project->variables()["QMAKE_INTERNAL_PRL_LIBS"];
     else
 	libs << "QMAKE_LIBS"; //obvious one
+    if(project->isActiveConfig("thread"))
+	libs << "QMAKE_LFLAGS_THREAD"; //not sure about this one, but what about things like -pthread?
     t << "Libs: -L" << libDir << " -l" << lname << " ";
-    for(QStringList::ConstIterator it = libs.begin(); it != libs.end(); ++it)
+    for(QStringList::ConstIterator it = libs.begin(); it != libs.end(); ++it) 
 	t << project->variables()[(*it)].join(" ") << " ";
     t << endl;
 

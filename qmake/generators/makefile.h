@@ -108,7 +108,7 @@ public:
     virtual ~MakefileGenerator();
 
     static MakefileGenerator *create(QMakeProject *);
-    bool write();
+    virtual bool write();
     virtual bool openOutput(QFile &) const;
 };
 
