@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#12 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#13 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -152,7 +152,6 @@ void QSocketDevice::init()
 }
 
 /*! 
-
   Creates a new socket identifier. Returns -1 if there is a failure to
   create the new identifier, error() explains why.
 
@@ -163,31 +162,31 @@ int QSocketDevice::createNewSocket ()
 {
     int s = ::socket( AF_INET, t==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
     if ( s < 0 ) {
-		switch( errno ) {
-		case EPROTONOSUPPORT:
-			e = Bug; // 0 is supposed to work for both types
-			break;
-		case ENFILE:
-			e = NoFiles; // special case for this
-			break;
-		case EACCES:
-			e = Inaccessible;
-			break;
-		case ENOBUFS:
-		case ENOMEM:
-			e = NoResources;
-			break;
-		case EINVAL:
-			e = Impossible;
-			break;
-		default:
-			e = UnknownError;
-			break;
-		}
+	switch( errno ) {
+	case EPROTONOSUPPORT:
+	    e = Bug; // 0 is supposed to work for both types
+	    break;
+	case ENFILE:
+	    e = NoFiles; // special case for this
+	    break;
+	case EACCES:
+	    e = Inaccessible;
+	    break;
+	case ENOBUFS:
+	case ENOMEM:
+	    e = NoResources;
+	    break;
+	case EINVAL:
+	    e = Impossible;
+	    break;
+	default:
+	    e = UnknownError;
+	    break;
+	}
     } else {
-		return s;
+	return s;
     }
-	return -1;
+    return -1;
 }
 
 /*! \reimp

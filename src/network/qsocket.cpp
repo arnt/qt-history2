@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#20 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#21 $
 **
 ** Implementation of QSocket class.
 **
@@ -278,7 +278,7 @@ void QSocket::connectToHost( const QString &host, Q_UINT16 port )
     qDebug( "QSocket (%s)::connectToHost: host %s, port %d",
 	    name(), host.ascii(), port );
 #endif
-    setSocket( d->socket->createNewSocket());
+    setSocket( d->socket->createNewSocket() );
 
     d->state = HostLookup;
     d->host = host;
@@ -1160,7 +1160,7 @@ void QSocket::setSocket( int socket )
 		close();
     d->state = Connected;
 
-	d->socket->setSocket(socket, QSocketDevice::Stream );
+    d->socket->setSocket(socket, QSocketDevice::Stream );
     d->rsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Read,
 				  this, "read" );
     d->wsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Write,
