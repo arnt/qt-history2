@@ -664,15 +664,15 @@ static const uchar arabic68PresentationB[] = {
 };
 
 static const uchar arabic68LamAlefMapping[8][2] = {
-    // lam has to come first. We are in visual order already
-    { 0xa5, 0xa2 },// fef5	lam-alef with madda above
-    { 0xa6, 0xa2 }, // fef6	
-    { 0xa5, 0xa3 }, // fef7	lam-alef with hamza above
-    { 0xa6, 0xa3 }, // fef8	
-    { 0xa5, 0xa4 }, // fef9	lam-alef with hamza below
-    { 0xa6, 0xa4 }, // fefa	
-    { 0xa5, 0xa1 }, // fefb	lam-alef
-    { 0xa6, 0xa1 } // fefc	
+    // alef has to come first. We are in visual order already
+    { 0xa2, 0xa5 },// fef5	lam-alef with madda above
+    { 0xa2, 0xa6 }, // fef6	
+    { 0xa3, 0xa5 }, // fef7	lam-alef with hamza above
+    { 0xa3, 0xa6 }, // fef8	
+    { 0xa4, 0xa5 }, // fef9	lam-alef with hamza below
+    { 0xa4, 0xa6 }, // fefa	
+    { 0xa1, 0xa5 }, // fefb	lam-alef
+    { 0xa1, 0xa6 } // fefc	
 };
 
 int QFontArabic68Codec::heuristicContentMatch(const char *, int) const
@@ -714,6 +714,7 @@ QByteArray QFontArabic68Codec::fromUnicode(const QString& uc, int from, int len 
     QByteArray result( len*2 ); // worst case
     uchar *data = (uchar *)result.data();
     const QChar *ch = uc.unicode() + from;
+    int lenOut = len;
     for ( int i = 0; i < len; i++ ) {
 	uchar r = ch->row();
 	uchar c = ch->cell();
@@ -727,6 +728,7 @@ QByteArray QFontArabic68Codec::fromUnicode(const QString& uc, int from, int len 
 		// lam alef ligature
 		*data = arabic68LamAlefMapping[c - 0xf5][0];
 		data++;
+		lenOut++;
 		*data = arabic68LamAlefMapping[c - 0xf5][1];
 	    } else
 		*data = arabic68PresentationB[c - 0x70];
@@ -748,7 +750,7 @@ QByteArray QFontArabic68Codec::fromUnicode(const QString& uc, int from, int len 
 	ch++;
 	data++;
     }
-    result.resize( data - (uchar *)result.data() + 1 );
+    result.resize( lenOut );
     return result;
 }
 

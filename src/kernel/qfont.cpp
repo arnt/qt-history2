@@ -1724,9 +1724,7 @@ QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
 */
 QRect QFontMetrics::boundingRect( QChar ch ) const
 {
-    QString str;
-    str += ch;
-    return boundingRect( str, 1 );
+    return d->boundingRect( ch );
 }
 
 

@@ -773,7 +773,7 @@ static inline void runExtents( QFontPrivate *d, QFontStruct *qfs, const QString 
 	XCharStruct *cs = &fs->min_bounds;
 	const QChar *c = str.unicode() + pos;
 	while ( len-- ) {
-	    if ( !c->isMark() ) {
+	    if ( c->combiningClass() == 0 ) {
 		overall->ascent = QMAX(overall->ascent, cs->ascent);
 		overall->descent = QMAX(overall->descent, cs->descent);
 		overall->lbearing = QMIN(overall->lbearing,
@@ -804,7 +804,7 @@ static inline void runExtents( QFontPrivate *d, QFontStruct *qfs, const QString 
 					    fs->default_char & 0xff );
 	int i = 0;
 	while ( i < len ) {
-	    if ( ch->isMark() && i != 0) {
+	    if ( ch->combiningClass() != 0 && i != 0) {
 		;
 	    } else {
 		XCharStruct *cs = getCharStruct2d( fs, def, chars->byte1, chars->byte2 );
@@ -825,7 +825,9 @@ static inline void runExtents( QFontPrivate *d, QFontStruct *qfs, const QString 
 	const unsigned char *chars = (unsigned char *)mapped.data();
 	int i = 0;
 	while ( i < len ) {
-	    if ( !ch->isMark() ) {
+	    if ( ch->combiningClass() != 0 && i != 0 ) {
+		;
+	    } else {
 		XCharStruct *cs;
 		if ( *chars >= fs->min_char_or_byte2 &&
 		     *chars <= fs->max_char_or_byte2 )
