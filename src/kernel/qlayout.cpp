@@ -788,9 +788,9 @@ QRect QGridLayoutData::cellGeometry( int row, int col ) const
 class QGridLayoutDataIterator : public QGLayoutIterator
 {
 public:
-    QGridLayoutDataIterator( QGridLayoutData *d );
-    uint count() const { return data->count(); }
-    QLayoutItem *current() {
+    inline QGridLayoutDataIterator( QGridLayoutData *d ) : data(d) { ref = 1; toFirst(); }
+    inline uint count() const { return data->count(); }
+    inline QLayoutItem *current() {
 	if ( multi ) {
 	    if ( !data->multi || idx >= (int)data->multi->count() )
 		return 0;
@@ -801,11 +801,11 @@ public:
 	    return data->things.at( idx )->item();
 	}
     }
-    void toFirst() {
+    inline void toFirst() {
 	multi = data->things.isEmpty();
 	idx = 0;
     }
-    QLayoutItem *next() {
+    inline QLayoutItem *next() {
 	idx++;
 	if ( !multi && idx >= (int)data->things.count() ) {
 	    multi = TRUE;
@@ -813,7 +813,7 @@ public:
 	}
 	return current();
     }
-    QLayoutItem *takeCurrent() {
+    inline QLayoutItem *takeCurrent() {
 	QLayoutItem *item = 0;
 	if ( multi ) {
 	    QGridMultiBox *b = data->multi->takeAt( idx );
@@ -836,12 +836,6 @@ private:
     bool multi;
     int idx;
 };
-
-inline QGridLayoutDataIterator::QGridLayoutDataIterator( QGridLayoutData *d )
-    : data( d )
-{
-    toFirst();
-}
 
 /*!
     \class QGridLayout
@@ -1469,17 +1463,17 @@ public:
 class QBoxLayoutIterator : public QGLayoutIterator
 {
 public:
-    QBoxLayoutIterator( QBoxLayoutData *d ) : data( d ), idx( 0 ) {}
-    QLayoutItem *current() {
+    inline QBoxLayoutIterator(QBoxLayoutData *d) : data(d), idx(0) { ref = 1; }
+    inline QLayoutItem *current() {
 	if ( idx >= int(data->list.count()) )
 	    return 0;
 	return data->list.at(idx)->item;
     }
-    QLayoutItem *next() {
+    inline QLayoutItem *next() {
 	idx++;
 	return current();
     }
-    QLayoutItem *takeCurrent() {
+    inline QLayoutItem *takeCurrent() {
 	QLayoutItem *item = 0;
 
 	QBoxLayoutItem *b = data->list.takeAt( idx );

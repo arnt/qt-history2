@@ -40,35 +40,37 @@ class QMenuBar;
 class QSpacerItem;
 class QWidget;
 
-class Q_EXPORT QGLayoutIterator : public QShared
+class Q_EXPORT QGLayoutIterator
 {
 public:
     virtual ~QGLayoutIterator();
     virtual QLayoutItem *next() = 0;
     virtual QLayoutItem *current() = 0;
     virtual QLayoutItem *takeCurrent() = 0;
+    QAtomic ref;
 };
 
 class Q_EXPORT QLayoutIterator
 {
 public:
-    QLayoutIterator( QGLayoutIterator *i ) : it( i ) { }
-    QLayoutIterator( const QLayoutIterator &i ) : it( i.it ) {
-	if ( it )
-	    it->ref();
+    inline QLayoutIterator( QGLayoutIterator *i ) : it(i) {}
+    inline QLayoutIterator(const QLayoutIterator &i) : it(i.it) {
+	if (it)
+	    ++it->ref;
     }
-    ~QLayoutIterator() { if ( it && it->deref() ) delete it; }
-    QLayoutIterator &operator=( const QLayoutIterator &i ) {
-	if ( i.it )
-	    i.it->ref();
-	if ( it && it->deref() )
+    inline ~QLayoutIterator() { if (it && !--it->ref) delete it; }
+    inline QLayoutIterator &operator=( const QLayoutIterator &i ) {
+	QGLayoutIterator *x = i.it;
+	if (x)
+	    ++x->ref;
+	x = qAtomicSetPtr(&it, x);
+	if (!--x->ref)
 	    delete it;
-	it = i.it;
 	return *this;
     }
-    QLayoutItem *operator++() { return it ? it->next() : 0; }
-    QLayoutItem *current() { return it ? it->current() : 0; }
-    QLayoutItem *takeCurrent() { return it ? it->takeCurrent() : 0; }
+    inline QLayoutItem *operator++() { return it ? it->next() : 0; }
+    inline QLayoutItem *current() { return it ? it->current() : 0; }
+    inline QLayoutItem *takeCurrent() { return it ? it->takeCurrent() : 0; }
     void deleteCurrent();
 
 private:
