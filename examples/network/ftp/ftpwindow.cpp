@@ -16,10 +16,10 @@ FtpWindow::FtpWindow(QWidget *parent)
     fileList = new QListWidget(this);
 
     connectButton = new QPushButton(tr("Connect"), this);
+    connectButton->setDefault(true);
 
     downloadButton = new QPushButton(tr("Download"), this);
     downloadButton->setEnabled(false);
-    downloadButton->setDefault(true);
 
     cdToParentButton = new QPushButton(this);
     cdToParentButton->setIcon(QPixmap(":/images/cdtoparent.png"));
@@ -38,7 +38,7 @@ FtpWindow::FtpWindow(QWidget *parent)
             this, SLOT(processItem(QListWidgetItem *)));
     connect(fileList, SIGNAL(returnPressed(QListWidgetItem *)),
             this, SLOT(processItem(QListWidgetItem *)));
-    connect(fileList, SIGNAL(selectionChanged()),
+    connect(fileList, SIGNAL(itemSelectionChanged()),
             this, SLOT(enableDownloadButton()));
     connect(ftp, SIGNAL(commandFinished(int, bool)),
             this, SLOT(ftpCommandFinished(int, bool)));
@@ -131,6 +131,7 @@ void FtpWindow::ftpCommandFinished(int /* commandId */, bool error)
                              .arg(ftpServerLineEdit->text()));
         fileList->setFocus();
         connectButton->setEnabled(false);
+        downloadButton->setDefault(true);
         return;
     }
 
