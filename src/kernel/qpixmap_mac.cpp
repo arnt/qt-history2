@@ -242,6 +242,11 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
     delete data->alphapm;
     data->alphapm = 0;
     if(img.hasAlphaBuffer()) {
+	{
+	    QBitmap m;
+	    m = img.createAlphaMask(conversion_flags);
+	    setMask(m);
+	}
 #ifdef QMAC_PIXMAP_ALPHA
 	if(img.depth() == 32) {
 	    data->alphapm = new QPixmap(w, h, 32);
@@ -266,13 +271,8 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 #ifndef QMAC_ONE_PIXEL_LOCK
 	    UnlockPixels(GetGWorldPixMap((GWorldPtr)data->alphapm->hd));
 #endif
-	} else
+	} 
 #endif //!QMAC_PIXMAP_ALPHA
-	{
-	    QBitmap m;
-	    m = img.createAlphaMask(conversion_flags);
-	    setMask(m);
-	}
     }
     return TRUE;
 }
@@ -580,14 +580,15 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
 	data->alphapm = 0;
 	QPixmap pm(w, h, depth(), NormalOptim);
 	scaledBitBlt(&pm, 0, 0, w, h, this, 0, 0, width(), height(), Qt::CopyROP, TRUE);
+	if(data->mask) {
+	    QBitmap bm = data->selfmask ? *((QBitmap*)(&pm)) : data->mask->xForm(matrix);
+	    pm.setMask(bm);
+	}
 	if(save_alpha) {
 	    data->alphapm = save_alpha;
 	    pm.data->alphapm = new QPixmap(w, h, save_alpha->depth(), NormalOptim);
 	    scaledBitBlt(pm.data->alphapm, 0, 0, w, h, save_alpha, 0, 0, width(), height(), 
 			 Qt::CopyROP, TRUE);
-	} else if(data->mask) {
-	    QBitmap bm = data->selfmask ? *((QBitmap*)(&pm)) : data->mask->xForm(matrix);
-	    pm.setMask(bm);
 	}
 	return pm;
     } else {					// rotation or shearing
@@ -653,9 +654,7 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
     UnlockPixels(GetGWorldPixMap((GWorldPtr)pm.handle()));
 #endif
 
-    if(data->alphapm) {
-	pm.data->alphapm = new QPixmap(data->alphapm->xForm(matrix));
-    } else if(depth() == 1) {
+    if(depth() == 1) {
 	if(data->mask) {
 	    if(data->selfmask)               // pixmap == mask
 		pm.setMask(*((QBitmap*)(&pm)));
@@ -665,6 +664,8 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
     } else if(data->mask) {
 	pm.setMask(data->mask->xForm(matrix));
     }
+    if(data->alphapm) 
+	pm.data->alphapm = new QPixmap(data->alphapm->xForm(matrix));
     return pm;
 }
 
