@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#13 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#14 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -16,7 +16,7 @@
 #include "qdatetm.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#14 $");
 
 
 // If the operation is expected to take this long (as predicted by
@@ -78,9 +78,9 @@ struct QProgressData
     QProgressDialog progress( "Copying files...", "Abort Copy", numFiles, this );
     for (int i=0; i<numFiles; i++) {
 	progress.setProgress( i );
-	... // copy one file
 	if ( progress.wasCancelled() )
 	    break;
+	... // copy one file
     }
     progress.setProgress( numFiles );
   \endcode
@@ -89,19 +89,19 @@ struct QProgressData
 */
 
 
-inline QLabel *QProgressDialog::label() const
+QLabel *QProgressDialog::label() const
 {
     QProgressDialog *that = (QProgressDialog *)this;
     return that->d->label;
 }
 
-inline QPushButton *QProgressDialog::cancel() const
+QPushButton *QProgressDialog::cancel() const
 {
     QProgressDialog *that = (QProgressDialog *)this;
     return that->d->cancel;
 }
 
-inline QProgressBar *QProgressDialog::bar() const
+QProgressBar *QProgressDialog::bar() const
 {
     QProgressDialog *that = (QProgressDialog *)this;
     return that->d->bar;
@@ -137,6 +137,7 @@ QProgressDialog::QProgressDialog( QWidget *creator, const char *name,
     connect( this, SIGNAL(cancelled()), this, SLOT(reset()) );
     QAccel *accel = new QAccel( this );
     accel->insertItem( Key_Escape, cancel(), SIGNAL(clicked()) );
+    layout();
 }
 
 
@@ -175,6 +176,7 @@ QProgressDialog::QProgressDialog( const char *labelText,
     connect( this, SIGNAL(cancelled()), this, SLOT(reset()) );
     QAccel *accel = new QAccel( this );
     accel->insertItem( Key_Escape, cancel(), SIGNAL(clicked()) );
+    layout();
 }
 
 
@@ -206,8 +208,7 @@ void QProgressDialog::setLabel( QLabel *label )
 {
     delete d->label;
     d->label = label;
-    if ( isVisible() )
-	resize(sizeHint());
+    resize(sizeHint());
 }
 
 
@@ -220,8 +221,7 @@ void QProgressDialog::setLabelText( const char *text )
 {
     if ( label() ) {
 	label()->setText( text );
-	if ( isVisible() )
-	    resize(sizeHint());
+	resize(sizeHint());
     }
 }
 
@@ -236,8 +236,7 @@ void QProgressDialog::setCancelButton( QPushButton *cancelButton )
     delete d->cancel;
     d->cancel = cancelButton;
     connect( d->cancel, SIGNAL(clicked()), this, SIGNAL(cancelled()) );
-    if ( isVisible() )
-	resize(sizeHint());
+    resize(sizeHint());
 }
 
 
@@ -254,8 +253,7 @@ void QProgressDialog::setCancelButtonText( const char *cancelButtonText )
 	    cancel()->hide();
 	else
 	    cancel()->show();
-	if ( isVisible() )
-	    resize(sizeHint());
+	resize(sizeHint());
     }
 }
 
@@ -405,7 +403,7 @@ QSize QProgressDialog::sizeHint() const
     QSize sh = label()->sizeHint();
     QSize bh = bar()->sizeHint();
     int h = margin_tb*2 + bh.height() + sh.height() + spacing;
-    if ( cancel()->isVisible() )
+    if ( strlen(cancel()->text()) != 0 )
 	h += cancel()->sizeHint().height() + spacing;
     return QSize( QMAX(200, sh.width()), h );
 }
@@ -424,8 +422,8 @@ void QProgressDialog::resizeEvent( QResizeEvent * )
 */
 void QProgressDialog::styleChange(GUIStyle s)
 {
-    layout();
     QSemiModal::styleChange(s);
+    layout();
 }
 
 void QProgressDialog::layout()
@@ -435,6 +433,7 @@ void QProgressDialog::layout()
     int mlr = QMIN(width()/10, margin_lr);
     const bool centered = (style() != WindowsStyle);
 
+    bool has_cancel = strlen(cancel()->text()) != 0;
     QSize cs = cancel()->sizeHint();
     QSize bh = bar()->sizeHint();
     int cspc;
@@ -443,14 +442,14 @@ void QProgressDialog::layout()
     // Find spacing and sizes that fit.  It is important that a progress
     // dialog can be made very small if the user demands it so.
     for (int attempt=5; attempt--; ) {
-	cspc = cancel()->isVisible() ? cs.height() + sp : 0;
+	cspc = has_cancel ? cs.height() + sp : 0;
 	lh = QMAX(0, height() - mtb - bh.height() - sp - cspc);
 
 	if ( lh < height()/4 ) {
 	    // Getting cramped
 	    sp /= 2;
 	    mtb /= 2;
-	    if (cancel()->isVisible()) {
+	    if ( has_cancel ) {
 		cs.setHeight(QMAX(4,cs.height()-sp-2));
 	    }
 	    bh.setHeight(QMAX(4,bh.height()-sp-1));
@@ -459,7 +458,7 @@ void QProgressDialog::layout()
 	}
     }
 
-    if ( cancel()->isVisible() ) {
+    if ( has_cancel ) {
 	cancel()->setGeometry(
 	    centered ? width()/2 - cs.width()/2 : width() - mlr - cs.width(),
 	    height() - mtb - cs.height() + sp,
