@@ -1201,12 +1201,12 @@ void QWidget::showMaximized()
 	if(isVisible()) {
 	    dirtyClippedRegion(TRUE);
 
-	    //issue a move
-	    QMoveEvent qme( pos(), orect.topLeft());
-	    QApplication::sendEvent( this, &qme );
 	    //issue a resize
 	    QResizeEvent qre( size(), orect.size());
 	    QApplication::sendEvent( this, &qre );
+	    //issue a move
+	    QMoveEvent qme( pos(), orect.topLeft());
+	    QApplication::sendEvent( this, &qme );
 	}
     }
     show();
@@ -1236,12 +1236,12 @@ void QWidget::showNormal()
 	    if(isVisible()) {
 		dirtyClippedRegion(TRUE);
 
-		//issue a move
-		QMoveEvent qme( pos(), orect.topLeft());
-		QApplication::sendEvent( this, &qme );
 		//issue a resize
 		QResizeEvent qre( size(), orect.size());
 		QApplication::sendEvent( this, &qre );
+		//issue a move
+		QMoveEvent qme( pos(), orect.topLeft());
+		QApplication::sendEvent( this, &qme );
 	    }
 	}
     }
@@ -1376,10 +1376,10 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
     if(isMove || isResize) {
 	if(!isVisible()) {
-	    if ( isMove )
-		QApplication::postEvent( this, new QMoveEvent( pos(), oldp ) );
 	    if ( isResize )
 		QApplication::postEvent( this, new QResizeEvent( size(), olds ) );
+	    if ( isMove )
+		QApplication::postEvent( this, new QMoveEvent( pos(), oldp ) );
 	} else {
 	    QRegion bltregion, clpreg = clippedRegion(FALSE);
 	    if( !oldregion.isNull() ) {
@@ -1447,12 +1447,12 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    }
 	    //Do these last, as they may cause an event which paints, and messes up
 	    //what we blt above
-	    if ( isMove ) { //send the move event..
-		QMoveEvent e( pos(), oldp );
-		QApplication::sendEvent( this, &e );
-	    }
 	    if ( isResize ) { //send the resize event..
 		QResizeEvent e( size(), olds );
+		QApplication::sendEvent( this, &e );
+	    }
+	    if ( isMove ) { //send the move event..
+		QMoveEvent e( pos(), oldp );
 		QApplication::sendEvent( this, &e );
 	    }
 	}
