@@ -663,6 +663,12 @@ void QTextView::doKeyboardAction( KeyboardActionPrivate action )
     ensureCursorVisible();
     drawCursor( TRUE );
 
+    if ( hasFocus() || viewport()->hasFocus() ) {
+	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
+	setMicroFocusHint( cursor->x() - contentsX(),
+			   cursor->y() + cursor->parag()->rect().y() - contentsY(), 0, h, TRUE );
+    }
+
     updateCurrentFormat();
     emit textChanged();
 }
@@ -766,6 +772,11 @@ void QTextView::removeSelectedText()
 #ifndef QT_NO_CURSOR
     viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
 #endif
+    if ( hasFocus() || viewport()->hasFocus() ) {
+	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
+	setMicroFocusHint( cursor->x() - contentsX(),
+			   cursor->y() + cursor->parag()->rect().y() - contentsY(), 0, h, TRUE );
+    }
 }
 
 void QTextView::moveCursor( MoveDirectionPrivate direction, bool shift, bool control )
@@ -807,6 +818,11 @@ void QTextView::moveCursor( MoveDirectionPrivate direction, bool shift, bool con
 
     drawCursor( TRUE );
     updateCurrentFormat();
+    if ( hasFocus() || viewport()->hasFocus() ) {
+	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
+	setMicroFocusHint( cursor->x() - contentsX(),
+			   cursor->y() + cursor->parag()->rect().y() - contentsY(), 0, h, TRUE );
+    }
 }
 
 void QTextView::moveCursor( MoveDirectionPrivate direction, bool control )
@@ -856,6 +872,11 @@ void QTextView::moveCursor( MoveDirectionPrivate direction, bool control )
 	break;
     }
 
+    if ( hasFocus() || viewport()->hasFocus() ) {
+	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
+	setMicroFocusHint( cursor->x() - contentsX(),
+			   cursor->y() + cursor->parag()->rect().y() - contentsY(), 0, h, TRUE );
+    }
     updateCurrentFormat();
 }
 
@@ -1282,6 +1303,11 @@ void QTextView::placeCursor( const QPoint &pos, QTextCursor *c )
     c->restoreState();
     QTextParag *s = doc->firstParag();
     c->place( pos,  s );
+    if ( hasFocus() || viewport()->hasFocus() ) {
+	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
+	setMicroFocusHint( cursor->x() - contentsX(),
+			   cursor->y() + cursor->parag()->rect().y() - contentsY(), 0, h, TRUE );
+    }
 }
 
 void QTextView::formatMore()
@@ -1420,6 +1446,11 @@ void QTextView::insert( const QString &text, bool indent, bool checkNewLine, boo
 	doc->setSelectionEnd( QTextDocument::Standard, cursor );
 	repaintChanged();
     }
+    if ( hasFocus() || viewport()->hasFocus() ) {
+	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
+	setMicroFocusHint( cursor->x() - contentsX(),
+			   cursor->y() + cursor->parag()->rect().y() - contentsY(), 0, h, TRUE );
+    }
 }
 
 void QTextView::undo()
@@ -1446,6 +1477,11 @@ void QTextView::undo()
     repaintChanged();
     drawCursor( TRUE );
     emit textChanged();
+    if ( hasFocus() || viewport()->hasFocus() ) {
+	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
+	setMicroFocusHint( cursor->x() - contentsX(),
+			   cursor->y() + cursor->parag()->rect().y() - contentsY(), 0, h, TRUE );
+    }
 }
 
 void QTextView::redo()
@@ -1473,6 +1509,11 @@ void QTextView::redo()
     ensureCursorVisible();
     drawCursor( TRUE );
     emit textChanged();
+    if ( hasFocus() || viewport()->hasFocus() ) {
+	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
+	setMicroFocusHint( cursor->x() - contentsX(),
+			   cursor->y() + cursor->parag()->rect().y() - contentsY(), 0, h, TRUE );
+    }
 }
 
 void QTextView::paste()
@@ -1481,6 +1522,11 @@ void QTextView::paste()
     if ( isReadOnly() )
 	return;
     pasteSubType( "plain" );
+    if ( hasFocus() || viewport()->hasFocus() ) {
+	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
+	setMicroFocusHint( cursor->x() - contentsX(),
+			   cursor->y() + cursor->parag()->rect().y() - contentsY(), 0, h, TRUE );
+    }
 #endif
 }
 
@@ -1511,6 +1557,11 @@ void QTextView::cut()
     if ( doc->hasSelection( QTextDocument::Standard ) ) {
 	doc->copySelectedText( QTextDocument::Standard );
 	removeSelectedText();
+    }
+    if ( hasFocus() || viewport()->hasFocus() ) {
+	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
+	setMicroFocusHint( cursor->x() - contentsX(),
+			   cursor->y() + cursor->parag()->rect().y() - contentsY(), 0, h, TRUE );
     }
 }
 
