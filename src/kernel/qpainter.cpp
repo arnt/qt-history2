@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#48 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#47 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#48 $";
 #endif
 
 
@@ -985,9 +985,10 @@ QDataStream &operator>>( QDataStream &s, QBrush &b )
   Setting the style to \c NoPen tells the painter to not draw lines or
   outlines.
 
-  The pen width defines the line width. The default line width is 0, which
-  draws a 1-pixel line very fast, but not so accurate.	Setting the line
-  width to 1 or more draws lines that are precise, but drawing is slower.
+  The pen width defines the line width. The default line width is 0,
+  which draws a 1-pixel line very fast, but with lower presicion than
+  with a line width of 1. Setting the line width to 1 or more draws
+  lines that are precise, but drawing is slower.
 
   The pen color defines the color of lines and text. The default line
   color is black.  The QColor documentation lists predefined colors.
@@ -1006,8 +1007,7 @@ QDataStream &operator>>( QDataStream &s, QBrush &b )
     painter.end();			// painting done
   \endcode
 
-  The setStyle() function lists the pen styles.
-*/
+  The setStyle() function lists the pen styles. */
 
 
 void QPen::init( const QColor &color, uint width, PenStyle style )
@@ -1040,6 +1040,8 @@ QPen::QPen( PenStyle style )
 
 /*!
   Constructs a pen with a specified color, width and style.
+
+  \sa setWidth() setStyle() setColor()
 */
 
 QPen::QPen( const QColor &color, uint width, PenStyle style )
@@ -1124,7 +1126,7 @@ QPen QPen::copy() const
   <dt> DashLine <dd> - - - (dashes) line.
   <dt> DotLine <dd> * * * (dots) line.
   <dt> DashDotLine <dd> - * - * line.
-  <dt> DashDotDotLine <dd> -- * -- * line.
+  <dt> DashDotDotLine <dd> - ** - ** line.
   </dl>
 
   \sa style()
@@ -1167,6 +1169,7 @@ void QPen::setWidth( uint w )			// set pen width
 
 /*!
   Sets the pen color to \e c.
+
   \sa color()
 */
 
