@@ -54,6 +54,14 @@ QSqlLineEdit::QSqlLineEdit( QWidget * parent, QSqlField& field, const char * nam
     ed = new QLineEdit( this, name );
 }
 
+/*! Destroys the object and frees any allocated resources.
+
+*/
+
+QSqlLineEdit::~QSqlLineEdit()
+{
+}
+
 /*!  Constructs a SQL line edit
 
 */
