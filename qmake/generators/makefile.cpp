@@ -903,6 +903,8 @@ MakefileGenerator::init()
 	    } else {
 		if(decl.isEmpty() && !project->isEmpty("UI_HEADERS_DIR")) {
 		    decl = project->first("UI_HEADERS_DIR");
+		}
+		if ( !decl.isEmpty() || (project->isEmpty("UI_HEADERS_DIR") && !project->isEmpty("UI_SOURCES_DIR")) ) {
 		    QString d = fi.dirPath();
 		    if( d == ".")
 			d = QDir::currentDirPath();
