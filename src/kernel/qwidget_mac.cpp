@@ -293,15 +293,15 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     WId old_winid = winid;
     if ( testWFlags(WType_Desktop) )
 	old_winid = 0;
-    setWinId( 0 );
-    reparentFocusWidgets( parent );		// fix focus chains
 
-//    setAllocatedRegionDirty(); // affects my siblings
+    reparentFocusWidgets( parent );		// fix focus chains
 
     if ( parentObj ) {				// remove from parent
 	parentObj->removeChild( this );
-	if ( old_winid && testWFlags(WType_TopLevel) ) 
+	if ( old_winid && testWFlags(WType_TopLevel) ) {
 	    DisposeWindow( (WindowPtr)old_winid );
+	    setWinId( 0 );
+	}
     }
     if ( parent ) {				// insert into new parent
 	parentObj = parent;			// avoid insertChild warning
