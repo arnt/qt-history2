@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#5 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#6 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -51,8 +51,6 @@ protected:
     void drawContents( QPainter * );
     void keyPressEvent( QKeyEvent * );
     void resizeEvent( QResizeEvent * );
-
-    void doResize( const QSize & );
 
     void enableButtons();
 

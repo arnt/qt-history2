@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#8 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -43,7 +43,6 @@ QSpinBox::QSpinBox( QWidget * parent , const char * name )
     down->setFocusPolicy( QWidget::NoFocus );
     up->setAutoRepeat( TRUE );
     down->setAutoRepeat( TRUE );
-    doResize( size() ); // ### work around kernel bug
     if ( style() == WindowsStyle )
 	setFrameStyle( WinPanel | Sunken );
     else
@@ -294,20 +293,11 @@ void QSpinBox::keyPressEvent( QKeyEvent * e )
 
 void QSpinBox::resizeEvent( QResizeEvent * e )
 {
-    doResize( e->size() );
-}
-
-
-/*!  Perform the guts of resize processing, mainly push button stuff.
-*/
-
-void QSpinBox::doResize( const QSize & s )
-{
     if ( !up || !down ) // happens if the application has a pointer error
 	return;
 
     QSize bs; // no, it's short for 'button size'
-    bs.setHeight( s.height()/2 - frameWidth() );
+    bs.setHeight( e->size().height()/2 - frameWidth() );
     if ( bs.height() < 9 )
 	bs.setHeight( 9 );
     bs.setWidth( bs.height() * 8 / 5 );
@@ -346,7 +336,7 @@ void QSpinBox::doResize( const QSize & s )
 	down->setPixmap( bm );
     }
 
-    int x = s.width() - frameWidth() - bs.width();
+    int x = e->size().width() - frameWidth() - bs.width();
 
     up->move( x, frameWidth() );
     down->move( x, height() - frameWidth() - up->height() );
