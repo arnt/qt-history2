@@ -300,8 +300,8 @@ void QMenuBar::menuContentsChanged()
     setupAccelerators();
 #endif
     badSize = TRUE;                             // might change the size
+    calculateRects();
     if ( isVisible() ) {
-        calculateRects();
         update();
 #ifndef QT_NO_MAINWINDOW
         if ( parent() && parent()->inherits( "QMainWindow" ) ) {
@@ -317,6 +317,19 @@ void QMenuBar::menuContentsChanged()
 #if defined( Q_WS_MAC ) && defined( QMAC_QMENUBAR_NATIVE )
     mac_dirty_menubar = 1;
 #endif
+
+    bool all_hidden = TRUE;
+    if(irects) {
+	for(int i = 0; all_hidden && i < (int)mitems->count(); i++) 
+	    all_hidden = irects[i].isEmpty();
+    }
+     if(all_hidden) {
+	if(isVisible())
+	    hide();
+    } else {
+	if(!isVisible())
+	    show();
+    }
 }
 
 /*!
@@ -615,12 +628,24 @@ void QMenuBar::show()
     setupAccelerators();
 #endif
     if ( parentWidget() )
-                resize( parentWidget()->width(), height() );
+	resize( parentWidget()->width(), height() );
     calculateRects();
-    QWidget::show();
+
+    //If all elements are invisible no reason for me to be visible either
+    bool all_hidden = TRUE;
+    if(irects) {
+	for(int i = 0; all_hidden && i < (int)mitems->count(); i++) 
+	    all_hidden = irects[i].isEmpty();
+    }
+    if(all_hidden) {
+	QWidget::hide();
+    } else {
+	QWidget::show();
+    }
+
 #ifndef QT_NO_MAINWINDOW
     if ( parent() && parent()->inherits( "QMainWindow" ) ) //### ugly workaround
-                ( (QMainWindow*)parent() )->triggerLayout();
+	( (QMainWindow*)parent() )->triggerLayout();
 #endif
     raise();
 }
