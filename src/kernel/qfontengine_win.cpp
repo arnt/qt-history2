@@ -4,6 +4,7 @@
 #include "qapplication_p.h"
 
 #include <qpaintdevice.h>
+#include <limits.h>
 
 // defined in qtextengine_win.cpp
 typedef void *SCRIPT_CACHE;
@@ -114,6 +115,9 @@ QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool 
 
     hfont = _hfont;
     stockFont = stockFont;
+
+    lbearing = SHRT_MIN;
+    rbearing = SHRT_MIN;
 
     HGDIOBJ obj = SelectObject( dc(), hfont );
 #ifndef QT_NO_DEBUG
@@ -286,6 +290,121 @@ int QFontEngineWin::maxCharWidth() const
     return tm.w.tmMaxCharWidth;
 }
 
+enum { max_font_count = 256 };
+static const ushort char_table[] = {
+	40,
+	67,
+	70,
+	75,
+	86,
+	88,
+	89,
+	91,
+	102,
+	114,
+	124,
+	127,
+	205,
+	645,
+	884,
+	922,
+	1070,
+	3636,
+	3660,
+	12386,
+	0
+};
+
+static const int char_table_entries = sizeof(char_table)/sizeof(ushort);
+
+
+int QFontEngineWin::minLeftBearing() const
+{
+    if ( lbearing == SHRT_MIN )
+	minRightBearing(); // calculates both
+
+    return lbearing;
+}
+
+int QFontEngineWin::minRightBearing() const
+{
+#ifdef Q_OS_TEMP
+	return 0;
+#else
+    if ( rbearing == SHRT_MIN ) {
+	int ml = 0;
+	int mr = 0;
+	if ( ttf ) {
+	    HDC hdc = dc();
+	    HGDIOBJ oldobj = SelectObject( hdc, hfont );
+	    ABC *abc = 0;
+	    int n = QT_WA_INLINE( tm.w.tmLastChar - tm.w.tmFirstChar, tm.a.tmLastChar - tm.a.tmFirstChar );
+	    if ( n <= max_font_count ) {
+		abc = new ABC[n];
+		QT_WA( {
+		    GetCharABCWidths(hdc, tm.w.tmFirstChar, tm.w.tmLastChar, abc);
+		}, {
+		    GetCharABCWidthsA(hdc,tm.a.tmFirstChar,tm.a.tmLastChar,abc);
+		} );
+	    } else {
+		abc = new ABC[char_table_entries];
+		QT_WA( {
+		    for( int i = 0; i < char_table_entries; i++ )
+			GetCharABCWidths(hdc, char_table[i], char_table[i], abc+i);
+		}, {
+		    for( int i = 0; i < char_table_entries; i++ ) {
+			QCString w = QString(QChar(char_table[i])).local8Bit();
+			if ( w.length() == 1 ) {
+			    uint ch8 = w[0];
+			    GetCharABCWidthsA(hdc, ch8, ch8, abc+i );
+			}
+		    }
+		} );
+		n = char_table_entries;
+	    }    
+	    ml = abc[0].abcA;
+	    mr = abc[0].abcC;
+    	    for ( int i = 1; i < n; i++ ) {
+		ml = QMIN(ml,abc[i].abcA);
+		mr = QMIN(mr,abc[i].abcC);
+	    }
+	    delete [] abc;
+	} else {
+	    QT_WA( {
+		ABCFLOAT *abc = 0;
+		int n = tm.w.tmLastChar - tm.w.tmFirstChar+1;
+		if ( n <= max_font_count ) {
+		    abc = new ABCFLOAT[n];
+		    GetCharABCWidthsFloat(hdc, tm.w.tmFirstChar, tm.w.tmLastChar, abc);
+		} else {
+		    abc = new ABCFLOAT[char_table_entries];
+		    for( int i = 0; i < char_table_entries; i++ )
+			GetCharABCWidthsFloat(hdc, char_table[i], char_table[i], abc+i);
+		    n = char_table_entries;
+		}    
+		float fml = abc[0].abcfA;
+		float fmr = abc[0].abcfC;
+		for (int i=1; i<n; i++) {
+		    fml = QMIN(fml,abc[i].abcfA);
+		    fmr = QMIN(fmr,abc[i].abcfC);
+		}
+		ml = int(fml-0.9999);
+		mr = int(fmr-0.9999);
+		delete [] abc;
+	    } , {
+		ml = 0;
+		mr = -tm.a.tmOverhang;
+	    } );
+	}
+	((QFontEngine *)this)->lbearing = ml;
+	((QFontEngine *)this)->rbearing = mr;
+    }
+
+    return rbearing;
+#endif
+}
+
+
 const char *QFontEngineWin::name() const
 {
     return 0;
@@ -333,6 +452,121 @@ QFontEngine::Type QFontEngineUniscribe::type() const
 }
 
 #endif
+
+
+
+// box font engine
+
+
+
+QFontEngineBox::QFontEngineBox( int size )
+    : _size( size )
+{
+    cache_cost = 1;
+    hdc = (qt_winver & Qt::WV_NT_based) ? GetDC( 0 ) : shared_dc;
+    hfont = (HFONT)GetStockObject( ANSI_VAR_FONT );
+    stockFont = TRUE;
+    paintDevice = FALSE;
+    ttf = FALSE;
+
+    cmap = 0;
+    script_cache = 0;
+}
+
+QFontEngineBox::~QFontEngineBox()
+{
+}
+
+QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const
+{
+    if ( *nglyphs < len ) {
+	*nglyphs = len;
+	return OutOfMemory;
+    }
+
+    for ( int i = 0; i < len; i++ )
+	*(glyphs++) = 0;
+    *nglyphs = len;
+
+    if ( advances ) {
+	for ( int i = 0; i < len; i++ )
+	    *(advances++) = _size;
+    }
+    return NoError;
+}
+
+void QFontEngineBox::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
+			  const advance_t *advances, const offset_t *offsets, int numGlyphs, bool )
+{
+    Q_UNUSED( p );
+    Q_UNUSED( x );
+    Q_UNUSED( y );
+    Q_UNUSED( glyphs );
+    Q_UNUSED( advances );
+    Q_UNUSED( offsets );
+    Q_UNUSED( numGlyphs );
+//     qDebug("QFontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, numGlyphs );
+
+    // ########
+}
+
+glyph_metrics_t QFontEngineBox::boundingBox( const glyph_t *, const advance_t *, const offset_t *, int numGlyphs )
+{
+    glyph_metrics_t overall;
+    overall.x = overall.y = 0;
+    overall.width = _size*numGlyphs;
+    overall.height = _size;
+    overall.xoff = overall.width;
+    overall.yoff = 0;
+    return overall;
+}
+
+glyph_metrics_t QFontEngineBox::boundingBox( glyph_t )
+{
+    return glyph_metrics_t( 0, _size, _size, _size, _size, 0 );
+}
+
+
+
+int QFontEngineBox::ascent() const
+{
+    return _size;
+}
+
+int QFontEngineBox::descent() const
+{
+    return 0;
+}
+
+int QFontEngineBox::leading() const
+{
+    int l = qRound( _size * 0.15 );
+    return (l > 0) ? l : 1;
+}
+
+int QFontEngineBox::maxCharWidth() const
+{
+    return _size;
+}
+
+const char *QFontEngineBox::name() const
+{
+    return "null";
+}
+
+bool QFontEngineBox::canRender( const QChar *,  int )
+{
+    return TRUE;
+}
+
+QFontEngine::Type QFontEngineBox::type() const
+{
+    return Box;
+}
+
+
+
+
 
 // ----------------------------------------------------------------------------
 // True type support methods
@@ -475,114 +709,6 @@ static unsigned char *getCMap( HDC hdc )
 	return 0;
     }
     return unicode_data;
-}
-
-
-
-
-
-
-
-QFontEngineBox::QFontEngineBox( int size )
-    : _size( size )
-{
-    cache_cost = 1;
-}
-
-QFontEngineBox::~QFontEngineBox()
-{
-}
-
-QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const
-{
-    if ( *nglyphs < len ) {
-	*nglyphs = len;
-	return OutOfMemory;
-    }
-
-    for ( int i = 0; i < len; i++ )
-	*(glyphs++) = 0;
-    *nglyphs = len;
-
-    if ( advances ) {
-	for ( int i = 0; i < len; i++ )
-	    *(advances++) = _size;
-    }
-    return NoError;
-}
-
-void QFontEngineBox::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-			  const advance_t *advances, const offset_t *offsets, int numGlyphs, bool )
-{
-    Q_UNUSED( p );
-    Q_UNUSED( x );
-    Q_UNUSED( y );
-    Q_UNUSED( glyphs );
-    Q_UNUSED( advances );
-    Q_UNUSED( offsets );
-    Q_UNUSED( numGlyphs );
-//     qDebug("QFontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, numGlyphs );
-
-    // ########
-}
-
-glyph_metrics_t QFontEngineBox::boundingBox( const glyph_t *, const advance_t *, const offset_t *, int numGlyphs )
-{
-    glyph_metrics_t overall;
-    overall.x = overall.y = 0;
-    overall.width = _size*numGlyphs;
-    overall.height = _size;
-    overall.xoff = overall.width;
-    overall.yoff = 0;
-    return overall;
-}
-
-glyph_metrics_t QFontEngineBox::boundingBox( glyph_t )
-{
-    return glyph_metrics_t( 0, _size, _size, _size, _size, 0 );
-}
-
-
-
-int QFontEngineBox::ascent() const
-{
-    return _size;
-}
-
-int QFontEngineBox::descent() const
-{
-    return 0;
-}
-
-int QFontEngineBox::leading() const
-{
-    int l = qRound( _size * 0.15 );
-    return (l > 0) ? l : 1;
-}
-
-int QFontEngineBox::maxCharWidth() const
-{
-    return _size;
-}
-
-int QFontEngineBox::cmap() const
-{
-    return -1;
-}
-
-const char *QFontEngineBox::name() const
-{
-    return "null";
-}
-
-bool QFontEngineBox::canRender( const QChar *,  int )
-{
-    return TRUE;
-}
-
-QFontEngine::Type QFontEngineBox::type() const
-{
-    return Box;
 }
 
 

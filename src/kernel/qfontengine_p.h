@@ -68,6 +68,8 @@ public:
     virtual int descent() const = 0;
     virtual int leading() const = 0;
     virtual int maxCharWidth() const = 0;
+    virtual int minLeftBearing() const { return 0; }
+    virtual int minRightBearing() const { return 0; }
 
     virtual const char *name() const = 0;
 
@@ -101,6 +103,8 @@ public:
     int		lw;
     unsigned char *cmap;
     void *script_cache;
+    short lbearing;
+    short rbearing;
 #endif // Q_WS_WIN
 
 };
@@ -182,8 +186,12 @@ public:
     int descent() const;
     int leading() const;
     int maxCharWidth() const;
+    int minLeftBearing() const { return 0; }
+    int minRightBearing() const { return 0; }
 
+#ifdef Q_WS_X11
     int cmap() const;
+#endif
     const char *name() const;
 
     bool canRender( const QChar *string,  int len );
@@ -388,6 +396,8 @@ public:
     int descent() const;
     int leading() const;
     int maxCharWidth() const;
+    int minLeftBearing() const;
+    int minRightBearing() const;
 
     const char *name() const;
 

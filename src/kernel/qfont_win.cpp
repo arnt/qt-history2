@@ -420,149 +420,25 @@ int QFontMetrics::rightBearing(QChar ch) const
 #endif
 }
 
-static ushort char_table[] = {
-	40,
-	67,
-	70,
-	75,
-	86,
-	88,
-	89,
-	91,
-	102,
-	114,
-	124,
-	127,
-	205,
-	645,
-	884,
-	922,
-	1070,
-	3636,
-	3660,
-	12386,
-	0
-};
-
-
-static int get_min_left_bearing( const QFontMetrics *f )
-{
-    int i = 0;
-    int b = 0;
-    while ( char_table[ i ] != 0 ) {
-	b = QMIN( b, f->leftBearing( QChar( char_table[ i ] ) ) );
-	++i;
-    }
-    return b - 1;
-}
-
-static int get_min_right_bearing( const QFontMetrics *f )
-{
-    int i = 0;
-    int b = 0;
-    while ( char_table[ i ] != 0 ) {
-	b = QMIN( b, f->rightBearing( QChar( char_table[ i ] ) ) );
-	++i;
-    }
-    return b - 1;
-}
 
 int QFontMetrics::minLeftBearing() const
 {
-    // ### Lars will fix this
-//     (void) d->engineForScript( (QFont::Script) fscript );
-
-//     if ( d->engineData->lbearing == SHRT_MIN )
-// 	minRightBearing(); // calculates both
-
-//     return d->engineData->lbearing;
-    return 0;
-}
-
-int QFontMetrics::minRightBearing() const
-{
-    // ###########
-    return 0;
-#if 0
-#ifdef Q_OS_TEMP
-	return 0;
-#else
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
 #ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
 #endif // QT_CHECK_STATE
 
-    // Safely cast away const, as we cache bearings there.
-    QFontDef* def = &engine->fontDef;
+    return engine->minLeftBearing();
+}
 
-    if ( def->rbearing == SHRT_MIN ) {
-	int ml = 0;
-	int mr = 0;
-	if ( IS_TRUETYPE ) {
-	    ABC *abc = 0;
-	    int n;
-	    QT_WA( {
-		const TEXTMETRIC &tm = TMW;
-		n = tm.tmLastChar - tm.tmFirstChar+1;
-		if ( n <= max_font_count ) {
-		    abc = new ABC[n];
-		    GetCharABCWidths(engine->dc(), tm.tmFirstChar, tm.tmLastChar, abc);
-		} else {
-		    ml = get_min_left_bearing( this );
-		    mr = get_min_right_bearing( this );
-		}
-	    } , {
-		const TEXTMETRICA &tm = TMA;
-		n = tm.tmLastChar - tm.tmFirstChar+1;
-		if ( n <= max_font_count ) {
-		    abc = new ABC[n];
-		    GetCharABCWidthsA(engine->dc(),tm.tmFirstChar,tm.tmLastChar,abc);
-		} else {
-		    ml = get_min_left_bearing( this );
-		    mr = get_min_right_bearing( this );
-		}
-	    } );
-	    if ( n <= max_font_count ) {
-		ml = abc[0].abcA;
-		mr = abc[0].abcC;
-    		for (int i=1; i<n; i++) {
-		    ml = QMIN(ml,abc[i].abcA);
-		    mr = QMIN(mr,abc[i].abcC);
-		}
-		delete [] abc;
-	    }
-	} else {
-	    QT_WA( {
-		const TEXTMETRIC &tm = TMW;
-		int n = tm.tmLastChar - tm.tmFirstChar+1;
-		if ( n <= max_font_count ) {
-		    ABCFLOAT *abc = new ABCFLOAT[n];
-		    GetCharABCWidthsFloat(engine->dc(),tm.tmFirstChar,tm.tmLastChar,abc);
-		    float fml = abc[0].abcfA;
-		    float fmr = abc[0].abcfC;
-		    for (int i=1; i<n; i++) {
-			fml = QMIN(fml,abc[i].abcfA);
-			fmr = QMIN(fmr,abc[i].abcfC);
-		    }
-		    ml = int(fml-0.9999);
-		    mr = int(fmr-0.9999);
-		    delete [] abc;
-		} else {
-		    ml = get_min_left_bearing( this );
-		    mr = get_min_right_bearing( this );
-		}
-	    } , {
-		ml = 0;
-		mr = -TMX.tmOverhang;
-	    } );
-	}
-	def->lbearing = ml;
-	def->rbearing = mr;
-    }
+int QFontMetrics::minRightBearing() const
+{
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
 
-    return def->rbearing;
-#endif
-#endif
+    return engine->minRightBearing();
 }
 
 

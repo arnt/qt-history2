@@ -155,8 +155,6 @@ public:
     QFontEngineData();
     ~QFontEngineData();
 
-    short lbearing;
-    short rbearing;
     uint lineWidth;
 
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)

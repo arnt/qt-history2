@@ -84,7 +84,7 @@ QFontPrivate::~QFontPrivate()
 
 
 QFontEngineData::QFontEngineData()
-    : lbearing( SHRT_MIN ), rbearing( SHRT_MIN ), lineWidth( 1 )
+    : lineWidth( 1 )
 {
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
     memset( engines, 0, QFont::LastPrivateScript * sizeof( QFontEngine * ) );
