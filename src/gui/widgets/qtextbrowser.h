@@ -20,7 +20,7 @@
 
 class QTextBrowserPrivate;
 
-class QTextBrowser : public QTextEdit
+class Q_GUI_EXPORT QTextBrowser : public QTextEdit
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextBrowser)
