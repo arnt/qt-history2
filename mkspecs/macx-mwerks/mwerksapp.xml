@@ -74,6 +74,11 @@
                         <SETTING><NAME>Recursive</NAME><VALUE>true</VALUE></SETTING>
                         <SETTING><NAME>HostFlags</NAME><VALUE>All</VALUE></SETTING>
                     </SETTING>
+                    <SETTING><NAME>SearchPath</NAME>
+                      <SETTING><NAME>Path</NAME><VALUE>:MacOS X Support:Libraries:MW_Runtime:Libs:</VALUE></SETTING>
+                      <SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>
+                      <SETTING><NAME>PathRoot</NAME><VALUE>CodeWarrior</VALUE></SETTING>
+                    </SETTING>
                 </SETTING>
                 <SETTING><NAME>SystemSearchPaths</NAME>
                     $$CODEWARRIOR_INCLUDEPATH
@@ -706,6 +711,13 @@
                 $$CODEWARRIOR_LIBRARIES
                 $$CODEWARRIOR_SOURCES
                 $$CODEWARRIOR_HEADERS
+                <FILE>
+                    <PATHTYPE>Name</PATHTYPE>
+                    <PATH>MW_Runtime.a</PATH>
+                    <PATHFORMAT>MacOS</PATHFORMAT>
+                    <FILEKIND>Library</FILEKIND>
+                    <FILEFLAGS>Debug</FILEFLAGS>
+                </FILE>
             </FILELIST>
             <LINKORDER>
                 $$CODEWARRIOR_MOCS_LINKORDER
