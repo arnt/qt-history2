@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#59 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#58 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#59 $")
 
 
 /*----------------------------------------------------------------------------
@@ -135,7 +135,7 @@ void QPushButton::setToggleButton( bool enable )
 
 void QPushButton::setOn( bool enable )
 {
-    if ( !toggleButton() )
+    if ( !isToggleButton() )
 	return;
     QButton::setOn( enable );
 }
@@ -148,7 +148,7 @@ void QPushButton::setOn( bool enable )
 
 void QPushButton::toggle()
 {
-    if ( !toggleButton() )
+    if ( !isToggleButton() )
 	return;
     QButton::setOn( isOn() );
 }
@@ -189,7 +189,7 @@ void QPushButton::setAutoDefault( bool enable )
   to be a normal button if \e enable is FALSE.
 
   A default push button in a \link QDialog dialog\endlink emits the
-  QButton::clicked() signal if the user presses the Enter key.  Only
+  QButton::clicked() signal if the user presses the Enter key.	Only
   one push button in the dialog can be default.
 
   Default push buttons are only allowed in dialogs.
@@ -233,7 +233,7 @@ void QPushButton::adjustSize()
     int w, h;
     if ( pixmap() ) {
 	QPixmap *pm = (QPixmap *)pixmap();
-	w = pm->width()  + 6;
+	w = pm->width()	 + 6;
 	h = pm->height() + 6;
     }
     else {
@@ -334,9 +334,9 @@ void QPushButton::drawButton( QPainter *paint )
     int w, h;
     w = x2 + 1;
     h = y2 + 1;
-    pmkey.sprintf( "$qt_push_%d_%d_%d_%d_%d_%d_%d", gs, 
+    pmkey.sprintf( "$qt_push_%d_%d_%d_%d_%d_%d_%d", gs,
 		   palette().serialNumber(), isDown(), defButton, w, h,
-		   toggleButton() && isOn() );
+		   isToggleButton() && isOn() );
     QPixmap *pm = QPixmapCache::find( pmkey );
     QPainter pmpaint;
     if ( pm ) {					// pixmap exists
@@ -468,7 +468,7 @@ void QPushButton::drawButton( QPainter *paint )
 	if ( isDown() ) {
 	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, 2,
 			     updated ? &fill : 0 );
-	} else if ( toggleButton() && isOn() ) { // ### how should it look?
+	} else if ( isToggleButton() && isOn() ) {
 	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, 2, 0 );
 	    if ( updated ) {
 		p->setPen( NoPen );
