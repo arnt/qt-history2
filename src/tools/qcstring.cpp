@@ -1963,31 +1963,31 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 */
 
 /*!
-  \fn QCString operator+( const QCString &s1, const QCString &s2 )
+  \fn const QCString operator+( const QCString &s1, const QCString &s2 )
   \relates QCString
   Returns a string which consists of the concatenation of s1 and s2.
 */
 
 /*!
-  \fn QCString operator+( const QCString &s1, const char *s2 )
+  \fn const QCString operator+( const QCString &s1, const char *s2 )
   \relates QCString
   Returns a string which consists of the concatenation of s1 and s2.
 */
 
 /*!
-  \fn QCString operator+( const char *s1, const QCString &s2 )
+  \fn const QCString operator+( const char *s1, const QCString &s2 )
   \relates QCString
   Returns a string which consists of the concatenation of s1 and s2.
 */
 
 /*!
-  \fn QCString operator+( const QCString &s, char c )
+  \fn const QCString operator+( const QCString &s, char c )
   \relates QCString
   Returns a string which consists of the concatenation of s and c.
 */
 
 /*!
-  \fn QCString operator+( char c, const QCString &s )
+  \fn const QCString operator+( char c, const QCString &s )
   \relates QCString
   Returns a string which consists of the concatenation of c and s.
 */

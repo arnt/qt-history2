@@ -327,35 +327,35 @@ Q_EXPORT inline bool operator>=( const QCString &s1, const char *s2 )
 Q_EXPORT inline bool operator>=( const char *s1, const QCString &s2 )
 { return qstrcmp(s1,s2.data()) >= 0; }
 
-Q_EXPORT inline QCString operator+( const QCString &s1, const QCString &s2 )
+Q_EXPORT inline const QCString operator+( const QCString &s1, const QCString &s2 )
 {
     QCString tmp( s1.data() );
     tmp += s2;
     return tmp;
 }
 
-Q_EXPORT inline QCString operator+( const QCString &s1, const char *s2 )
+Q_EXPORT inline const QCString operator+( const QCString &s1, const char *s2 )
 {
     QCString tmp( s1.data() );
     tmp += s2;
     return tmp;
 }
 
-Q_EXPORT inline QCString operator+( const char *s1, const QCString &s2 )
+Q_EXPORT inline const QCString operator+( const char *s1, const QCString &s2 )
 {
     QCString tmp( s1 );
     tmp += s2;
     return tmp;
 }
 
-Q_EXPORT inline QCString operator+( const QCString &s1, char c2 )
+Q_EXPORT inline const QCString operator+( const QCString &s1, char c2 )
 {
     QCString tmp( s1.data() );
     tmp += c2;
     return tmp;
 }
 
-Q_EXPORT inline QCString operator+( char c1, const QCString &s2 )
+Q_EXPORT inline const QCString operator+( char c1, const QCString &s2 )
 {
     QCString tmp;
     tmp += c1;

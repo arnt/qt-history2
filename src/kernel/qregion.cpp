@@ -273,31 +273,31 @@ QDataStream &operator>>( QDataStream &s, QRegion &r )
 /*! \c r1|r2 is equivalent to \c r1.unite(r2)
  \sa unite(), operator+()
  */
-QRegion QRegion::operator|( const QRegion &r ) const
+const QRegion QRegion::operator|( const QRegion &r ) const
     { return unite(r); }
 
 /*! \c r1+r2 is equivalent to \c r1.unite(r2)
  \sa unite(), operator|()
  */
-QRegion QRegion::operator+( const QRegion &r ) const
+const QRegion QRegion::operator+( const QRegion &r ) const
     { return unite(r); }
 
 /*! \c r1&r2 is equivalent to \c r1.intersect(r2)
  \sa intersect()
 */
-QRegion QRegion::operator&( const QRegion &r ) const
+const QRegion QRegion::operator&( const QRegion &r ) const
     { return intersect(r); }
 
 /*! \c r1-r2 is equivalent to \c r1.subtract(r2)
  \sa subtract()
 */
-QRegion QRegion::operator-( const QRegion &r ) const
+const QRegion QRegion::operator-( const QRegion &r ) const
     { return subtract(r); }
 
 /*! \c r1^r2 is equivalent to \c r1.eor(r2)
  \sa eor()
 */
-QRegion QRegion::operator^( const QRegion &r ) const
+const QRegion QRegion::operator^( const QRegion &r ) const
     { return eor(r); }
 
 /*! \c r1|=r2 is equivalent to \c r1=r1.unite(r2)

@@ -224,43 +224,34 @@
 */
 
 /*!
-  \fn QPoint operator+( const QPoint &p1, const QPoint &p2 )
+  \fn const QPoint operator+( const QPoint &p1, const QPoint &p2 )
   \relates QPoint
   Returns the sum of \a p1 and \a p2; each component is added separately.
 */
 
 /*!
-  \fn QPoint operator-( const QPoint &p1, const QPoint &p2 )
+  \fn const QPoint operator-( const QPoint &p1, const QPoint &p2 )
   \relates QPoint
   Returns \a p2 subtracted from \a p1; each component is
   subtracted separately.
 */
 
 /*!
-  \fn QPoint operator*( const QPoint &p, int c )
+  \fn const QPoint operator*( const QPoint &p, int c )
   \relates QPoint
   Returns the QPoint formed by multiplying both components of \a p
   by \a c.
 */
 
 /*!
-  \fn QPoint operator*( int c, const QPoint &p )
+  \fn const QPoint operator*( int c, const QPoint &p )
   \relates QPoint
   Returns the QPoint formed by multiplying both components of \a p
   by \a c.
 */
 
 /*!
-  \fn QPoint operator*( const QPoint &p, double c )
-  \relates QPoint
-  Returns the QPoint formed by multiplying both components of \a p
-  by \a c.
-
-  Note that the result is truncated.
-*/
-
-/*!
-  \fn QPoint operator*( double c, const QPoint &p )
+  \fn const QPoint operator*( const QPoint &p, double c )
   \relates QPoint
   Returns the QPoint formed by multiplying both components of \a p
   by \a c.
@@ -269,7 +260,16 @@
 */
 
 /*!
-  \fn QPoint operator-( const QPoint &p ) 
+  \fn const QPoint operator*( double c, const QPoint &p )
+  \relates QPoint
+  Returns the QPoint formed by multiplying both components of \a p
+  by \a c.
+
+  Note that the result is truncated.
+*/
+
+/*!
+  \fn const QPoint operator-( const QPoint &p ) 
   \relates QPoint 
   
   Returns the QPoint formed by changing the sign of both components of
@@ -303,14 +303,14 @@
 */
 
 /*!
-  \fn QPoint operator/( const QPoint &p, int c )
+  \fn const QPoint operator/( const QPoint &p, int c )
   \relates QPoint
   Returns the QPoint formed by dividing both components of \a p
   by \a c.
 */
 
 /*!
-  \fn QPoint operator/( const QPoint &p, double c )
+  \fn const QPoint operator/( const QPoint &p, double c )
   \relates QPoint
 
   Returns the QPoint formed by dividing both components of \a p

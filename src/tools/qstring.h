@@ -812,7 +812,7 @@ Q_EXPORT bool operator==( const char *s1, const QString &s2 );
 Q_EXPORT bool operator>=( const char *s1, const QString &s2 );
 #endif
 
-Q_EXPORT inline QString operator+( const QString &s1, const QString &s2 )
+Q_EXPORT inline const QString operator+( const QString &s1, const QString &s2 )
 {
     QString tmp( s1 );
     tmp += s2;
@@ -820,14 +820,14 @@ Q_EXPORT inline QString operator+( const QString &s1, const QString &s2 )
 }
 
 #ifndef QT_NO_CAST_ASCII
-Q_EXPORT inline QString operator+( const QString &s1, const char *s2 )
+Q_EXPORT inline const QString operator+( const QString &s1, const char *s2 )
 {
     QString tmp( s1 );
     tmp += QString::fromLatin1(s2);
     return tmp;
 }
 
-Q_EXPORT inline QString operator+( const char *s1, const QString &s2 )
+Q_EXPORT inline const QString operator+( const char *s1, const QString &s2 )
 {
     QString tmp = QString::fromLatin1( s1 );
     tmp += s2;
@@ -835,21 +835,21 @@ Q_EXPORT inline QString operator+( const char *s1, const QString &s2 )
 }
 #endif
 
-Q_EXPORT inline QString operator+( const QString &s1, QChar c2 )
+Q_EXPORT inline const QString operator+( const QString &s1, QChar c2 )
 {
     QString tmp( s1 );
     tmp += c2;
     return tmp;
 }
 
-Q_EXPORT inline QString operator+( const QString &s1, char c2 )
+Q_EXPORT inline const QString operator+( const QString &s1, char c2 )
 {
     QString tmp( s1 );
     tmp += c2;
     return tmp;
 }
 
-Q_EXPORT inline QString operator+( QChar c1, const QString &s2 )
+Q_EXPORT inline const QString operator+( QChar c1, const QString &s2 )
 {
     QString tmp;
     tmp += c1;
@@ -857,7 +857,7 @@ Q_EXPORT inline QString operator+( QChar c1, const QString &s2 )
     return tmp;
 }
 
-Q_EXPORT inline QString operator+( char c1, const QString &s2 )
+Q_EXPORT inline const QString operator+( char c1, const QString &s2 )
 {
     QString tmp;
     tmp += c1;

@@ -74,14 +74,14 @@ public:
 
     friend inline bool	operator==( const QSize &, const QSize & );
     friend inline bool	operator!=( const QSize &, const QSize & );
-    friend inline QSize operator+( const QSize &, const QSize & );
-    friend inline QSize operator-( const QSize &, const QSize & );
-    friend inline QSize operator*( const QSize &, int );
-    friend inline QSize operator*( int, const QSize & );
-    friend inline QSize operator*( const QSize &, double );
-    friend inline QSize operator*( double, const QSize & );
-    friend inline QSize operator/( const QSize &, int );
-    friend inline QSize operator/( const QSize &, double );
+    friend inline const QSize operator+( const QSize &, const QSize & );
+    friend inline const QSize operator-( const QSize &, const QSize & );
+    friend inline const QSize operator*( const QSize &, int );
+    friend inline const QSize operator*( int, const QSize & );
+    friend inline const QSize operator*( const QSize &, double );
+    friend inline const QSize operator*( double, const QSize & );
+    friend inline const QSize operator/( const QSize &, int );
+    friend inline const QSize operator/( const QSize &, double );
 
 private:
     static void warningDivByZero();
@@ -154,22 +154,22 @@ inline bool operator==( const QSize &s1, const QSize &s2 )
 inline bool operator!=( const QSize &s1, const QSize &s2 )
 { return s1.wd != s2.wd || s1.ht != s2.ht; }
 
-inline QSize operator+( const QSize & s1, const QSize & s2 )
+inline const QSize operator+( const QSize & s1, const QSize & s2 )
 { return QSize(s1.wd+s2.wd, s1.ht+s2.ht); }
 
-inline QSize operator-( const QSize &s1, const QSize &s2 )
+inline const QSize operator-( const QSize &s1, const QSize &s2 )
 { return QSize(s1.wd-s2.wd, s1.ht-s2.ht); }
 
-inline QSize operator*( const QSize &s, int c )
+inline const QSize operator*( const QSize &s, int c )
 { return QSize(s.wd*c, s.ht*c); }
 
-inline QSize operator*( int c, const QSize &s )
+inline const QSize operator*( int c, const QSize &s )
 {  return QSize(s.wd*c, s.ht*c); }
 
-inline QSize operator*( const QSize &s, double c )
+inline const QSize operator*( const QSize &s, double c )
 { return QSize((QCOORD)(s.wd*c), (QCOORD)(s.ht*c)); }
 
-inline QSize operator*( double c, const QSize &s )
+inline const QSize operator*( double c, const QSize &s )
 { return QSize((QCOORD)(s.wd*c), (QCOORD)(s.ht*c)); }
 
 inline QSize &QSize::operator/=( int c )
@@ -192,7 +192,7 @@ inline QSize &QSize::operator/=( double c )
     return *this;
 }
 
-inline QSize operator/( const QSize &s, int c )
+inline const QSize operator/( const QSize &s, int c )
 {
 #if defined(QT_CHECK_MATH)
     if ( c == 0 )
@@ -201,7 +201,7 @@ inline QSize operator/( const QSize &s, int c )
     return QSize(s.wd/c, s.ht/c);
 }
 
-inline QSize operator/( const QSize &s, double c )
+inline const QSize operator/( const QSize &s, double c )
 {
 #if defined(QT_CHECK_MATH)
     if ( c == 0.0 )

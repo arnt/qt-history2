@@ -15590,7 +15590,7 @@ bool operator>=( const char *s1, const QString &s2 )
 */
 
 /*!
-  \fn QString operator+( const QString &s1, const QString &s2 )
+  \fn const QString operator+( const QString &s1, const QString &s2 )
   \relates QString
   Returns a string which is the result of concatenating the string \a s1
   and the string \a s2.
@@ -15598,7 +15598,7 @@ bool operator>=( const char *s1, const QString &s2 )
   Equivalent to s1.append( s2 ).
 */
 
-/*! \fn QString operator+( const QString &s1, const char *s2 )
+/*! \fn const QString operator+( const QString &s1, const char *s2 )
   \overload
 
   \relates QString
@@ -15608,7 +15608,7 @@ bool operator>=( const char *s1, const QString &s2 )
   Equivalent to s1.append( s2 ).
 */
 
-/*! \fn QString operator+( const char *s1, const QString &s2 )
+/*! \fn const QString operator+( const char *s1, const QString &s2 )
   \overload
 
   \relates QString
@@ -15617,7 +15617,7 @@ bool operator>=( const char *s1, const QString &s2 )
 
 */
 
-/*! \fn QString operator+( const QString &s, char c )
+/*! \fn const QString operator+( const QString &s, char c )
   \overload
 
   \relates QString
@@ -15627,7 +15627,7 @@ bool operator>=( const char *s1, const QString &s2 )
   Equivalent to s.append( c ).
 */
 
-/*! \fn QString operator+( char c, const QString &s )
+/*! \fn const QString operator+( char c, const QString &s )
   \overload
 
   \relates QString

@@ -75,11 +75,11 @@ public:
     QMemArray<QRect> rects() const;
     void setRects( const QRect *, int );
 
-    QRegion operator|( const QRegion & ) const;
-    QRegion operator+( const QRegion & ) const;
-    QRegion operator&( const QRegion & ) const;
-    QRegion operator-( const QRegion & ) const;
-    QRegion operator^( const QRegion & ) const;
+    const QRegion operator|( const QRegion & ) const;
+    const QRegion operator+( const QRegion & ) const;
+    const QRegion operator&( const QRegion & ) const;
+    const QRegion operator-( const QRegion & ) const;
+    const QRegion operator^( const QRegion & ) const;
     QRegion& operator|=( const QRegion & );
     QRegion& operator+=( const QRegion & );
     QRegion& operator&=( const QRegion & );

@@ -206,38 +206,38 @@ void QSize::transpose()
 */
 
 /*!
-  \fn QSize operator+( const QSize &s1, const QSize &s2 )
+  \fn const QSize operator+( const QSize &s1, const QSize &s2 )
   \relates QSize
   Returns the sum of \e s1 and \e s2; each component is added separately.
 */
 
 /*!
-  \fn QSize operator-( const QSize &s1, const QSize &s2 )
+  \fn const QSize operator-( const QSize &s1, const QSize &s2 )
   \relates QSize
   Returns \e s2 subtracted from \e s1; each component is
   subtracted separately.
 */
 
 /*!
-  \fn QSize operator*( const QSize &s, int c )
+  \fn const QSize operator*( const QSize &s, int c )
   \relates QSize
   Multiplies \e s by \e c and returns the result.
 */
 
 /*!
-  \fn QSize operator*( int c, const QSize &s )
+  \fn const QSize operator*( int c, const QSize &s )
   \relates QSize
   Multiplies \e s by \e c and returns the result.
 */
 
 /*!
-  \fn QSize operator*( const QSize &s, double c )
+  \fn const QSize operator*( const QSize &s, double c )
   \relates QSize
   Multiplies \e s by \e c and returns the result.
 */
 
 /*!
-  \fn QSize operator*( double c, const QSize &s )
+  \fn const QSize operator*( double c, const QSize &s )
   \relates QSize
   Multiplies \e s by \e c and returns the result.
 */
@@ -258,13 +258,13 @@ void QSize::transpose()
 */
 
 /*!
-  \fn QSize operator/( const QSize &s, int c )
+  \fn const QSize operator/( const QSize &s, int c )
   \relates QSize
   Divides \e s by \e c and returns the result.
 */
 
 /*!
-  \fn QSize operator/( const QSize &s, double c )
+  \fn const QSize operator/( const QSize &s, double c )
   \relates QSize
   Divides \e s by \e c and returns the result.
 
