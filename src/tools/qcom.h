@@ -179,45 +179,16 @@ struct Q_EXPORT QFeatureListInterface : public QUnknownInterface
 };
 
 // {B5FEB5DE-E0CD-4E37-B0EB-8A812499A0C1}
-#ifndef IID_QComponentServer
-#define IID_QComponentServer QUuid( 0xb5feb5de, 0xe0cd, 0x4e37, 0xb0, 0xeb, 0x8a, 0x81, 0x24, 0x99, 0xa0, 0xc1)
+#ifndef IID_QComponentRegistration
+#define IID_QComponentRegistration QUuid( 0xb5feb5de, 0xe0cd, 0x4e37, 0xb0, 0xeb, 0x8a, 0x81, 0x24, 0x99, 0xa0, 0xc1)
 #endif
 
-struct Q_EXPORT QComponentServerInterface : public QUnknownInterface
+struct Q_EXPORT QComponentRegistrationInterface : public QUnknownInterface
 {
     virtual bool    registerComponents( const QString &filepath ) const = 0;
     virtual bool    unregisterComponents() const = 0;
 };
 
-// {621F033C-D7D0-4462-BD67-1E8C8FA1C741}
-#ifndef IID_QInterfaceList
-#define IID_QInterfaceList QUuid( 0x621f033c, 0xd7d0, 0x4462, 0xbd, 0x67, 0x1e, 0x8c, 0x8f, 0xa1, 0xc7, 0x41)
-#endif
-
-struct Q_EXPORT QInterfaceListInterface
-{
-    virtual QUuid   interfaceId( int index ) = 0;
-};
-
-class Q_EXPORT QComponentRegistration
-{
-public:
-    static bool registerComponent( const QUuid &cid, const QString &name );
-    static bool registerPropertyType( const QUuid &pid, const QString &name );
-    static bool registerProperty( const QUuid &cid, const QUuid &pid, const QString &value );
-
-    static bool unregisterComponent( const QUuid &cid );
-    static bool unregisterPropertytype( const QUuid &pid );
-    static bool unregisterProperty( const QUuid &cid, const QUuid &pid );
-};
-
-#ifndef Q_CREATE_INSTANCE
-#    define Q_CREATE_INSTANCE( IMPLEMENTATION )		\
-	IMPLEMENTATION *i = new IMPLEMENTATION;		\
-	QUnknownInterface* iface = 0; 			\
-	i->queryInterface( IID_QUnknown, &iface );	\
-	return iface;
-#endif
 
 #ifndef Q_EXTERN_C
 #ifdef __cplusplus
@@ -227,6 +198,16 @@ public:
 #endif
 #endif
 
+// This macro expands to the default implementation of ucm_instantiate.
+#ifndef Q_CREATE_INSTANCE
+#    define Q_CREATE_INSTANCE( IMPLEMENTATION )		\
+	IMPLEMENTATION *i = new IMPLEMENTATION;		\
+	QUnknownInterface* iface = 0; 			\
+	i->queryInterface( IID_QUnknown, &iface );	\
+	return iface;
+#endif
+
+// default implementation of ref counting. A variable "ulong ref" has to be a member
 #if defined(QT_DEBUG)
 #define Q_REFCOUNT  ulong addRef() {static bool first=TRUE;if(first){first = FALSE;if (ref) qWarning("RefCounter not initialized: %s", __FILE__);}return ref++;} \
 		    ulong release() {if(!--ref){delete this;return 0;}return ref;}
@@ -247,10 +228,10 @@ public:
 #define QT_DEBUG_BUILD 0
 #endif
 
-#ifndef Q_EXPORT_INTERFACE
+#ifndef Q_EXPORT_COMPONENT
 #    ifdef Q_WS_WIN
 #	ifdef Q_CC_BOR
-#	    define Q_EXPORT_INTERFACE() \
+#	    define Q_EXPORT_COMPONENT() \
 		extern Q_EXPORT QApplication *qApp; \
 		extern Q_EXPORT void qt_ucm_initialize( QApplication *theApp ); \
 		Q_EXTERN_C __declspec(dllexport) int __stdcall ucm_initialize( QApplication *theApp, bool *mt, bool *debug ) \
@@ -265,7 +246,7 @@ public:
 		} \
 		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* __stdcall ucm_instantiate()
 #	else
-#	    define Q_EXPORT_INTERFACE() \
+#	    define Q_EXPORT_COMPONENT() \
 		extern Q_EXPORT QApplication *qApp; \
 		extern Q_EXPORT void qt_ucm_initialize( QApplication *theApp ); \
 		Q_EXTERN_C __declspec(dllexport) int ucm_initialize( QApplication *theApp, bool *mt, bool *debug ) \
@@ -281,7 +262,7 @@ public:
 		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* ucm_instantiate()
 #	endif
 #    else
-#	define Q_EXPORT_INTERFACE() \
+#	define Q_EXPORT_COMPONENT() \
 	    extern Q_EXPORT QApplication *qApp; \
 	    extern Q_EXPORT void qt_ucm_initialize( QApplication *theApp ); \
 	    Q_EXTERN_C int ucm_initialize( QApplication *theApp, bool *mt, bool *debug ) \
@@ -296,7 +277,7 @@ public:
 	    } \
 	    Q_EXTERN_C QUnknownInterface* ucm_instantiate()
 #    endif
-#    define Q_EXPORT_COMPONENT() Q_EXPORT_INTERFACE()
+#    define Q_EXPORT_INTERFACE() Q_EXPORT_COMPONENT()
 #endif
 
 #endif //QT_NO_COMPONENT

@@ -56,11 +56,11 @@
 
   Use registerServer() to load a component server and register its components, and unregisterServer()
   to unregsiter the components. The component exported by the component server has to implement the
-  QComponentServerInterface. registerComponent() and unregisterComponent() register and unregister
+  QComponentRegistrationInterface. registerComponent() and unregisterComponent() register and unregister
   single components from the system component registry, and should be used by implementations of the 
   QComponentServerInterface.
 
-  \sa QComponentServerInterface QComponentFactoryInterface
+  \sa QComponentRegistrationInterface QComponentFactoryInterface
 */
 
 /*!
@@ -112,8 +112,8 @@ QRESULT QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, Q
 
 /*!
   Loads the shared library \a filename and queries for a
-  QComponentServerInterface. If the library implements this interface,
-  the \link QComponentServerInterface::registerComponents()
+  QComponentRegistrationInterface. If the library implements this interface,
+  the \link QComponentRegistrationInterface::registerComponents()
   registerComponents \endlink function is called.
 
   Returns TRUE if the interface is found and successfully registered,
@@ -122,8 +122,8 @@ QRESULT QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, Q
 QRESULT QComponentFactory::registerServer( const QString &filename )
 {
     QLibrary lib( filename, QLibrary::Immediately );
-    QComponentServerInterface *iface = 0;
-    QRESULT res = lib.queryInterface( IID_QComponentServer, (QUnknownInterface**)&iface );
+    QComponentRegistrationInterface *iface = 0;
+    QRESULT res = lib.queryInterface( IID_QComponentRegistration, (QUnknownInterface**)&iface );
     if ( res != QS_OK )
 	return res;
     bool ok = iface->registerComponents( filename );
@@ -133,8 +133,8 @@ QRESULT QComponentFactory::registerServer( const QString &filename )
 
 /*!
   Loads the shared library \a filename and queries for a
-  QComponentServerInterface. If the library implements this interface,
-  the \link QComponentServerInterface::unregisterComponents()
+  QComponentRegistrationInterface. If the library implements this interface,
+  the \link QComponentRegistrationInterface::unregisterComponents()
   unregisterComponents \endlink function is called.
 
   Returns TRUE if the interface is found and successfully unregistered,
@@ -143,8 +143,8 @@ QRESULT QComponentFactory::registerServer( const QString &filename )
 QRESULT QComponentFactory::unregisterServer( const QString &filename )
 {
     QLibrary lib( filename, QLibrary::Immediately );
-    QComponentServerInterface *iface = 0;
-    QRESULT res = lib.queryInterface( IID_QComponentServer, (QUnknownInterface**)&iface );
+    QComponentRegistrationInterface *iface = 0;
+    QRESULT res = lib.queryInterface( IID_QComponentRegistration, (QUnknownInterface**)&iface );
     if ( res != QS_OK )
 	return res;
     bool ok = iface->unregisterComponents();
@@ -160,7 +160,7 @@ QRESULT QComponentFactory::unregisterServer( const QString &filename )
   an identical \a cid is already registered on the system.
 
   Call this function for each component in an implementation of
-  \link QComponentServerInterface::registerComponents() registerComponents \endlink.
+  \link QComponentRegistrationInterface::registerComponents() registerComponents \endlink.
 
   \sa unregisterComponent(), registerServer()
 */
@@ -184,7 +184,7 @@ bool QComponentFactory::registerComponent( const QUuid &cid, const QString &file
   TRUE if the component was unregistered successfully, otherwise returns FALSE.
 
   Call this function for each component in an implementation of
-  \link QComponentServerInterface::unregisterComponents() unregisterComponents \endlink.
+  \link QComponentRegistrationInterface::unregisterComponents() unregisterComponents \endlink.
 
   \sa registerComponent(), unregisterServer()
 */
