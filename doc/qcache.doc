@@ -23,7 +23,7 @@
 	Employee *employee = new Employee;
         employee->setId(37);
         employee->setName("Richard Schmit");
-
+        ...
 	cache.insert(employee->id(), employee);
     \endcode
 
@@ -59,7 +59,7 @@
     remove an item from the cache without the QCache deleting it, use
     take().
 
-    \sa QHash, QMap
+    \sa QPixmapCache, QHash, QMap
 */
 
 /*! \fn QCache::QCache(int maxCost = 100)
@@ -136,7 +136,9 @@
     the cache will be removed.
 
     After this call, the object pointed to by \a data is owned by the
-    QCache and may be deleted at any time.
+    QCache and may be deleted at any time. In particular, if \a cost
+    is greater than maxCost(), the object will be deleted
+    immediately.
 
     \sa take(), remove()
 */
