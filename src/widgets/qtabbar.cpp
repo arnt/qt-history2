@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#6 $
 **
 ** Implementation of QTabBar class
 **
@@ -9,7 +9,7 @@
 
 #include "qtabbar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#5 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#6 $");
 
 
 QTab::~QTab()
@@ -24,7 +24,8 @@ struct QTabPrivate {
 };
 
 
-/*! \class QTabBar qtabbar.h
+/*!
+  \class QTabBar qtabbar.h
 
   \brief The QTabBar class provides a tab bar, for use in e.g. tabbed
   dialogs.
@@ -75,17 +76,18 @@ QTabBar::~QTabBar()
 
 int QTabBar::addTab( QTab * newTab )
 {
-    QTab * t = l->first();
-    QRect br( fontMetrics().boundingRect( newTab->label ) );
-    int fmh = fontMetrics().height() + 10; // h-pux brokenness
+    QFontMetrics fm = fontMetrics();
+    QTab  *t = l->first();
+    QRect br( fm.boundingRect( newTab->label ) );
     if ( t ) {
 	QRect r( t->r );
 	while ( (t = l->next()) != 0 )
 	    r = r.unite( t->r );
 	newTab->r.setRect( r.right(), 0, br.width() + 14,
-			   QMAX( r.height(), fmh ) );
+			   QMAX( r.height(), fm.height() + 10 ) );
     } else {
-	newTab->r.setRect( 0, 0, br.width() + 14, fmh );
+	newTab->r.setRect( 0, 0,
+			   br.width() + 14, fm.height() + 10 );
     }
 
     newTab->id = d->id++;
