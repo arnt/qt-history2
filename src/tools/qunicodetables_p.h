@@ -59,10 +59,18 @@ public:
     static const Q_UINT16 symmetricPairs[];
     static const int symmetricPairsSize;
 #endif
+    static const Q_UINT8 line_break_info[];
     static const unsigned char otherScripts[];
     static const unsigned char indicScripts[];
     static const unsigned char scriptTable[];
     enum { SCRIPTS_INDIC = 0x7e };
+
+    enum LineBreakClass {
+         BK, CR, LF, CM, SG, GL, CB, SP, ZW,
+         XX, OP, CL, QU, NS, EX, SY,
+         IS, PR, PO, NU, AL, ID, IN, HY,
+         BB, BA, SA, AI, B2
+    };
 };
 
 
@@ -188,6 +196,12 @@ inline bool isSpace( const QChar &ch )
     if( ch.unicode() >= 9 && ch.unicode() <=13 ) return TRUE;
     QChar::Category c = ::category( ch );
     return c >= QChar::Separator_Space && c <= QChar::Separator_Paragraph;
+}
+
+inline int lineBreakClass( const QChar &ch )
+{
+    register int pos = (int)QUnicodeTables::line_break_info[ch.row()] << 8 + ch.cell();
+    return QUnicodeTables::line_break_info[pos];
 }
 
 inline int scriptForChar( ushort uc )
