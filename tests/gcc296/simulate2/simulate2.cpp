@@ -6,25 +6,42 @@ typedef unsigned int uint;
 // -------------------------
 
 class Q {
+public:
+    virtual ~Q();
 };
 
 typedef void (Q::*QMember)();
+
+Q::~Q()
+{
+}
 
 
 // -------------------------
 
 class V {
+public:
+    virtual ~V();
 };
+
+V::~V()
+{
+}
 
 
 // -------------------------
 
 class X : public Q, virtual public V {
 public:
+    virtual ~X();
     void foo();
 };
 
 typedef void (X::*XMember)();
+
+X::~X()
+{
+}
 
 void X::foo()
 {
