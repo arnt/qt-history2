@@ -64,7 +64,7 @@ void MessageEditor::visualizeBackTabs(const QString &text, QTextEdit *te)
     te->clear();
     QTextCursor tc(te->textCursor());
     QTextCharFormat blueFormat = defFormat;
-    blueFormat.setTextColor(Qt::blue);
+    blueFormat.setForeground(QBrush(Qt::blue));
     blueFormat.setFontItalic(true);
     blueFormat.setProperty(QTextFormat::UserProperty, -1);
 
@@ -168,7 +168,7 @@ void SourceTextEdit::contextMenuEvent(QContextMenuEvent *e)
 
     actCopy->setEnabled(textCursor().hasSelection());
     actSelect->setEnabled(!document()->isEmpty());
-    
+
     srcmenu->popup(e->globalPos());
 }
 
@@ -415,7 +415,7 @@ void EditorPage::handleCommentChanges()
 */
 void EditorPage::calculateFieldHeight(QTextEdit *field)
 {
-    int contentsHeight = field->document()->documentLayout()->documentSize().height();
+    int contentsHeight = qRound(field->document()->documentLayout()->documentSize().height());
 
     if (contentsHeight != field->height()) {
         int oldHeight = field->height();
@@ -546,7 +546,7 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
         this, SLOT(updateCanPaste()));
     connect(phraseTv, SIGNAL(doubleClicked(const QModelIndex &)),
         this, SLOT(insertPhraseInTranslation(const QModelIndex &)));
-    
+
     phraseTv->installEventFilter(this);
 
     connect(srcTextView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
@@ -574,7 +574,7 @@ bool MessageEditor::eventFilter(QObject *o, QEvent *e)
         QKeyEvent *ke = static_cast<QKeyEvent *>(e);
 
         // handle return key in phrase list
-        if (o == phraseTv 
+        if (o == phraseTv
             && e->type() == QEvent::KeyPress
             && ke->modifiers() == Qt::NoModifier
             && ke->key() == Qt::Key_Return
