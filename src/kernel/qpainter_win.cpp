@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#108 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#109 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -1164,6 +1164,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
     Polyline( hdc, pts, 2 );
     if ( plot_pixel )
 	SetPixelV( hdc, x2, y2, COLOR_VALUE(cpen.data->color) );
+    MoveToEx( hdc, x2, y2, 0 );
 }
 
 
