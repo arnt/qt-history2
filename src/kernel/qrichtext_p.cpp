@@ -344,32 +344,44 @@ int QTextFormat::leading() const
 
 void QTextFormat::generateKey()
 {
-    k = QString::null;
-    QTextOStream ts( &k );
-    ts << fn.pointSize() << "/"
-       << fn.weight() << "/"
-       << (int)fn.underline() << "/"
-       << (int)fn.strikeOut() << "/"
-       << (int)fn.italic() << "/"
-       << (uint)col.rgb() << "/"
-       << fn.family() << "/"
-       << (int)isMisspelled() << "/"
-       << (int)vAlign();
+    k = QString::number( fn.pointSize() );
+    k += '/';
+    k += QString::number( fn.weight() );
+    k += '/';
+    k += QString::number( (int)fn.underline() );
+    k += '/';
+    k += QString::number( (int)fn.strikeOut() );
+    k += '/';
+    k += QString::number( (int)fn.italic() );
+    k += '/';
+    k += QString::number( (uint)col.rgb() );
+    k += '/';
+    k += fn.family();
+    k += '/';
+    k += QString::number( (int)isMisspelled() );
+    k += '/';
+    k += QString::number( (int)vAlign() );
 }
 
 QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool misspelled, VerticalAlignment a )
 {
-    QString k;
-    QTextOStream ts( &k );
-    ts << fn.pointSize() << "/"
-       << fn.weight() << "/"
-       << (int)fn.underline() << "/"
-       << (int)fn.strikeOut() << "/"
-       << (int)fn.italic() << "/"
-       << (uint)col.rgb() << "/"
-       << fn.family() << "/"
-       << (int)misspelled << "/"
-       << (int)a;
+    QString k = QString::number( fn.pointSize() );
+    k += '/';
+    k += QString::number( fn.weight() );
+    k += '/';
+    k += QString::number( (int)fn.underline() );
+    k += '/';
+    k += QString::number( (int)fn.strikeOut() );
+    k += '/';
+    k += QString::number( (int)fn.italic() );
+    k += '/';
+    k += QString::number( (uint)col.rgb() );
+    k += '/';
+    k += fn.family();
+    k += '/';
+    k += QString::number( (int)misspelled );
+    k += '/';
+    k += QString::number( (int)a );
     return k;
 }
 
