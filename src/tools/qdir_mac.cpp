@@ -99,22 +99,24 @@ bool QDir::rename(const QString& name,const QString& newName,
 
 bool QDir::setCurrent(const QString& path)
 {
-    return true;
+    cwd=path;
 }
 
 QString QDir::currentDirPath()
 {
-    return QString();
+    return cwd;
 }
 
 QString QDir::rootDirPath()
 {
-    return QString();
+    return QString("");
 }
 
 bool QDir::isRelativePath(const QString& path)
 {
-    return true;
+    if(path[0]==':')
+	return true;
+    return false;
 }
 
 bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
