@@ -1456,6 +1456,92 @@ QFont QTextCharFormat::font() const
 
 
 /*!
+    \class QTextFrameFormat
+    \brief The QTextFrameFormat class provides formatting information for
+    frames in a QTextDocument.
+
+    \ingroup text
+
+    A frame comprises one or more blocks.
+
+    A QTextFrameFormat specifies the characteristics of a frame.
+*/
+
+/*!
+    \enum QTextFrameFormat::Position
+
+    \value InFlow
+    \value FloatLeft
+    \value FloatRight
+
+*/
+
+/*!
+    \fn QTextFrameFormat::QTextFrameFormat()
+
+    Constructs a text frame format object with the default properties.
+*/
+
+/*!
+    \fn QTextFrameFormat::isValid()
+
+    Returns true if the format description is valid; otherwise returns false.
+*/
+
+/*!
+    \fn QTextFrameFormat::setPosition(QTextFrameFormat::Position)
+
+    Sets the policy for positioning frames with this frame format.
+
+*/
+
+/*!
+    \fn QTextFrameFormat::Position QTextFrameFormat::position() const
+
+    Returns the positioning policy for frames with this frame format.
+*/
+
+/*!
+    \fn QTextFrameFormat::setBorder(int border)
+*/
+
+/*!
+    \fn int QTextFrameFormat::border()
+*/
+
+/*!
+    \fn QTextFrameFormat::setMargin(int margin)
+*/
+
+/*!
+    \fn int QTextFrameFormat::margin()
+*/
+
+/*!
+    \fn QTextFrameFormat::setPadding(int padding)
+*/
+
+/*!
+    \fn int QTextFrameFormat::padding()
+*/
+
+/*!
+    \fn QTextFrameFormat::setWidth(int border)
+*/
+
+/*!
+    \fn int QTextFrameFormat::width()
+*/
+
+/*!
+    \fn QTextFrameFormat::setHeight(int border)
+*/
+
+/*!
+    \fn int QTextFrameFormat::height()
+*/
+
+/*!
     \class QTextTableFormat qtextformat.h
     \brief The QTextTableFormat class provides formatting information for
     tables in a QTextDocument.

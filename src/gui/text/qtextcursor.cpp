@@ -1314,11 +1314,11 @@ QTextTable *QTextCursor::currentTable() const
 }
 
 /*!
-    Inserts the frame, \a format, at the current cursor position() and
-    moves the cursor position() inside the frame.
+    Inserts a frame with the given \a format, at the current cursor position(),
+    and moves the cursor position() inside the frame.
 
-    If the cursor holds a selection the whole selection is moved
-    inside the frame.
+    If the cursor holds a selection the whole selection is moved inside the
+    frame.
 
     \sa hasSelection()
 */
