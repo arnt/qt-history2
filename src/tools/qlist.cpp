@@ -28,7 +28,7 @@ int QListData::grow (int size)
 QListData::Data *QListData::detach()
 {
     Q_ASSERT( d->ref != 1 );
-    Data *x = (Data*)qMalloc(sizeof(DataHeader)+d->alloc*sizeof(void*));
+    Data *x = static_cast<Data*>(qMalloc(sizeof(DataHeader)+d->alloc*sizeof(void*)));
     ::memcpy(x, d, sizeof(DataHeader) + d->alloc*sizeof(void*));
     x->alloc = d->alloc;
     if (x->autoDelete != this)
@@ -46,7 +46,7 @@ QListData::Data *QListData::detach()
 void QListData::realloc(int alloc)
 {
     Q_ASSERT( d->ref == 1 );
-    d = (Data*)qRealloc(d, sizeof(DataHeader)+alloc*sizeof(void*));
+    d = static_cast<Data*>(qRealloc(d, sizeof(DataHeader)+alloc*sizeof(void*)));
     d->alloc = alloc;
     if (!alloc)
 	d->begin = d->end = 0;
