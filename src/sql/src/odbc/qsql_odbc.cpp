@@ -190,7 +190,7 @@ QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator
     qColName = qstrdup( (const char*)colName );
 #ifdef QT_CHECK_RANGE
     if ( r != SQL_SUCCESS )
-		qWarning( QString("qGetStringData: Unable to describe column %1").arg(column) );
+	qWarning( QString("qGetStringData: Unable to describe column %1").arg(column) );
 #endif
     // SQLDescribeCol may return 0 if size cannot be determined
     if (!colSize) {
@@ -198,34 +198,34 @@ QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator
     }
     SQLCHAR* buf = new SQLTCHAR[ colSize + 1 ];
     while ( TRUE ) {
-		r = SQLGetData( hStmt,
-				column+1,
-				SQL_C_CHAR,
-				(SQLPOINTER)buf,
-				colSize + 1,
-				&lengthIndicator );
-		if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
-			if ( lengthIndicator == SQL_NO_TOTAL ){
-				fieldVal += QString( (char*)buf );  // keep going
-			}
-			else if ( lengthIndicator == SQL_NULL_DATA ) {
-				fieldVal = QString::null;
-				isNull = TRUE;
-				break;
-			} else {
-				if ( r == SQL_SUCCESS ) {
-					fieldVal += QString( (char*)buf );
-					break;
-				} else {
-					if( fieldVal.length() >= lengthIndicator ) // ### HACK - remove asap
-						break;
-					fieldVal += QString( (char*)buf );
-				}
-			}
-		} else {
-			fieldVal += QString::null;
+	r = SQLGetData( hStmt,
+			column+1,
+			SQL_C_CHAR,
+			(SQLPOINTER)buf,
+			colSize + 1,
+			&lengthIndicator );
+	if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
+	    if ( lengthIndicator == SQL_NO_TOTAL ){
+		fieldVal += QString( (char*)buf );  // keep going
+	    }
+	    else if ( lengthIndicator == SQL_NULL_DATA ) {
+			fieldVal = QString::null;
+			isNull = TRUE;
 			break;
+	    } else {
+		if ( r == SQL_SUCCESS ) {
+		    fieldVal += QString( (char*)buf );
+		    break;
+		} else {
+		    if( fieldVal.length() >= lengthIndicator ) // ### HACK - remove asap
+			break;
+		    fieldVal += QString( (char*)buf );
 		}
+	    }
+	} else {
+	    fieldVal += QString::null;
+	    break;
+	}
     }
     delete buf;
     return fieldVal;
@@ -917,7 +917,6 @@ QSqlRecord QODBCDriver::record( const QString& tablename ) const
     r = SQLFetchScroll( hStmt,
 			SQL_FETCH_NEXT,
 			0);
-    int count = 0;
     while ( r == SQL_SUCCESS ) {
 	bool isNull;
 	SQLINTEGER lengthIndicator(0);
@@ -927,12 +926,11 @@ QSqlRecord QODBCDriver::record( const QString& tablename ) const
 	r = SQLFetchScroll( hStmt,
 			    SQL_FETCH_NEXT,
 			    0);
-	count++;
     }
 
-	r = SQLFreeHandle( SQL_HANDLE_STMT, hStmt );
-	if ( r!= SQL_SUCCESS )
-		qSqlWarning( "QODBCDriver: Unable to free statement handle" + QString::number(r), d );
+    r = SQLFreeHandle( SQL_HANDLE_STMT, hStmt );
+    if ( r!= SQL_SUCCESS )
+	qSqlWarning( "QODBCDriver: Unable to free statement handle" + QString::number(r), d );
 
 //     QSqlIndex priIdx = primaryIndex( tablename );
 //     for ( uint i = 0; i < priIdx.count(); ++i )
