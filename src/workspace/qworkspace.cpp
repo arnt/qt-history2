@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/workspace/qworkspace.cpp#87 $
+** $Id: //depot/qt/main/src/workspace/qworkspace.cpp#88 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -595,15 +595,8 @@ void QWorkspace::removeIcon( QWidget* w)
 void QWorkspace::resizeEvent( QResizeEvent * )
 {
 
-    if ( scrollBarsEnabled() ) {
-	int hsbExt = d->hbar->sizeHint().height();
-	int vsbExt = d->vbar->sizeHint().width();
-	d->hbar->setGeometry( 0, height() - hsbExt, width() - vsbExt, hsbExt );
-	d->vbar->setGeometry( width() - vsbExt, 0, vsbExt, height() - hsbExt );
-	d->corner->setGeometry( width() - vsbExt, height() - hsbExt, vsbExt, hsbExt );
-    }
-
-
+    QRect cr = updateScrollbars();
+    
     if ( d->maxWindow )
 	d->maxWindow->adjustToFullscreen();
 
@@ -614,12 +607,12 @@ void QWorkspace::resizeEvent( QResizeEvent * )
 	int x = w->x();
 	int y = w->y();
 	bool m = FALSE;
-	if ( x+w->width() > width() ) {
+	if ( x+w->width() > cr.width() ) {
 	    m = TRUE;
-	    x = width() - w->width();
+	    x =  cr.width() - w->width();
 	}
-	if ( y+w->height() > height() ) {
-	    y = height() - w->height();
+	if ( y+w->height() >  cr.height() ) {
+	    y =  cr.height() - w->height();
 	    m = TRUE;
 	}
 	if ( m )
@@ -633,15 +626,14 @@ void QWorkspace::resizeEvent( QResizeEvent * )
 	int x = c->x();
 	int y = c->y();
 	if ( c->snappedDown )
-	    y = height() - c->height();
+	    y =  cr.height() - c->height();
 	if ( c->snappedRight )
-	    x = width() - c->width();
+	    x =  cr.width() - c->width();
 
 	if ( x != c->x() || y != c->y() )
 	    c->move( x, y );
     }
 
-    updateScrollbars();
 }
 
 /*! \reimp */
@@ -1374,7 +1366,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 		 this, SIGNAL( showOperationMenu() ) );
 	connect( titlebar, SIGNAL( doShade() ),
 		 this, SLOT( showShaded() ) );
-	connect( titlebar, SIGNAL( doubleClicked() ), 
+	connect( titlebar, SIGNAL( doubleClicked() ),
 		 this, SLOT( titleBarDoubleClicked() ) );
     }
 
@@ -1798,7 +1790,7 @@ void QWorkspaceChild::showNormal()
 
 void QWorkspaceChild::showShaded()
 {
-    if ( !titlebar )
+    if ( !titlebar)
 	return;
     ((QWorkspace*)parentWidget())->activateWindow( windowWidget() );
     if ( shademode ) {
@@ -1817,10 +1809,9 @@ void QWorkspaceChild::showShaded()
 
 void QWorkspaceChild::titleBarDoubleClicked()
 {
-    QWidget *widget = windowWidget();
-    if ( !widget )
+    if ( !windowWidget() )
 	return;
-    if ( widget->testWFlags( WStyle_MinMax ) ) {
+    if ( windowWidget()->testWFlags( WStyle_MinMax ) ) {
 	if ( iconw )
 	    showNormal();
 	else
@@ -1828,6 +1819,7 @@ void QWorkspaceChild::titleBarDoubleClicked()
     } else {
 	showShaded();
     }
+
 }
 
 void QWorkspaceChild::adjustToFullscreen()
@@ -1932,11 +1924,6 @@ void QWorkspace::setScrollBarsEnabled( bool enable )
 	d->hbar = new QScrollBar( Horizontal, this );
 	connect( d->hbar, SIGNAL( valueChanged(int) ), this, SLOT( scrollBarChanged() ) );
 	d->corner = new QWidget( this );
-	int hsbExt = d->hbar->sizeHint().height();
-	int vsbExt = d->vbar->sizeHint().width();
-	d->hbar->setGeometry( 0, height() - hsbExt, width() - vsbExt, hsbExt );
-	d->vbar->setGeometry( width() - vsbExt, 0, vsbExt, height() - hsbExt );
-	d->corner->setGeometry( width() - vsbExt, height() - hsbExt, vsbExt, hsbExt );
 	updateScrollbars();
     } else {
 	delete d->vbar;
@@ -1954,14 +1941,16 @@ void QWorkspace::setScrollBarsEnabled( bool enable )
     }
 }
 
-void QWorkspace::updateScrollbars()
+QRect QWorkspace::updateScrollbars()
 {
     if ( !scrollBarsEnabled() )
-	return;
+	return rect();
 
     d->corner->raise();
     d->vbar->raise();
     d->hbar->raise();
+    if ( d->maxWindow )
+	d->maxWindow->raise();
 
     QRect r( 0, 0, 0, 0 );
     QPtrListIterator<QWorkspaceChild> it( d->windows );
@@ -1973,27 +1962,55 @@ void QWorkspace::updateScrollbars()
     }
     d->vbar->blockSignals( TRUE );
     d->hbar->blockSignals( TRUE );
-    d->vbar->setSteps( QMAX( height() / 12, 30 ), height()  - d->hbar->height() );
-    d->hbar->setSteps( QMAX( width() / 12, 30 ), width() - d->vbar->width()  );
+    
+    int hsbExt = d->hbar->sizeHint().height();
+    int vsbExt = d->vbar->sizeHint().width();
+    
+    
+    bool showv = d->yoffset || d->yoffset + r.bottom() - height() + 1 > 0;
+    bool showh = d->xoffset || d->xoffset + r.right() - width() + 1 > 0;
+    
+    if ( showh && !showv)
+	showv = d->yoffset + r.bottom() - height() + hsbExt + 1 > 0;
+    if ( showv && !showh )
+	showh = d->xoffset + r.right() - width() + vsbExt  + 1 > 0;
+    
+    if ( !showh )
+	hsbExt = 0;
+    if ( !showv )
+	vsbExt = 0;
 
-    d->vbar->setRange( 0, QMAX( 0, d->yoffset + r.bottom() - height() + d->hbar->height() + 1) );
-    d->hbar->setRange( 0, QMAX( 0, d->xoffset + r.right() - width() + d->vbar->width()  + 1) );
-
-    d->vbar->setValue( d->yoffset );
-    d->hbar->setValue( d->xoffset );
-
-    if ( d->vbar->maxValue() == d->vbar->minValue() &&
-	 d->hbar->maxValue() == d->hbar->minValue() ) {
-	d->vbar->hide();
-	d->hbar->hide();
-	d->corner->hide();
-    } else {
+    if ( showv ) {
+	d->vbar->setSteps( QMAX( height() / 12, 30 ), height()  - hsbExt );
+	d->vbar->setRange( 0, d->yoffset + QMAX( 0, r.bottom() - height() + hsbExt + 1) );
+	d->vbar->setGeometry( width() - vsbExt, 0, vsbExt, height() - hsbExt );
+	d->vbar->setValue( d->yoffset );
 	d->vbar->show();
-	d->hbar->show();
-	d->corner->show();
+    } else {
+	d->vbar->hide();
     }
+    
+    if ( showh ) {
+	d->hbar->setSteps( QMAX( width() / 12, 30 ), width() - vsbExt );
+	d->hbar->setRange( 0, d->xoffset + QMAX( 0, r.right() - width() + vsbExt  + 1) );
+	d->hbar->setGeometry( 0, height() - hsbExt, width() - vsbExt, hsbExt );
+	d->hbar->setValue( d->xoffset );
+	d->hbar->show();
+    } else {
+	d->hbar->hide();
+    }
+    
+    if ( showh && showv ) {
+	d->corner->setGeometry( width() - vsbExt, height() - hsbExt, vsbExt, hsbExt );
+	d->corner->show();
+    } else {
+	d->corner->hide();
+    }
+    
     d->vbar->blockSignals( FALSE );
     d->hbar->blockSignals( FALSE );
+    
+    return QRect( 0, 0, width() - vsbExt, height() - hsbExt );
 }
 
 void QWorkspace::scrollBarChanged()
