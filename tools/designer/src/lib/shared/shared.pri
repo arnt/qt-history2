@@ -4,7 +4,8 @@ INCLUDEPATH += $$PWD
 # Input
 FORMS += \
     $$PWD/promotetocustomwidgetdialog.ui \
-    $$PWD/resourceeditor.ui
+    $$PWD/resourceeditor.ui \
+    $$PWD/findicondialog.ui
 
 HEADERS += \
     $$PWD/shared_global.h \
@@ -36,7 +37,8 @@ HEADERS += \
     $$PWD/promotetocustomwidgetdialog.h \
     $$PWD/resourcefile.h \
     $$PWD/iconloader.h \
-    $$PWD/resourceeditor.h
+    $$PWD/resourceeditor.h \
+    $$PWD/findicondialog.h
 
 SOURCES += \
     $$PWD/spacer_widget.cpp \
@@ -66,5 +68,6 @@ SOURCES += \
     $$PWD/widgetdatabase.cpp \
     $$PWD/promotetocustomwidgetdialog.cpp \
     $$PWD/resourcefile.cpp \
-    $$PWD/resourceeditor.cpp
+    $$PWD/resourceeditor.cpp \
+    $$PWD/findicondialog.cpp
 

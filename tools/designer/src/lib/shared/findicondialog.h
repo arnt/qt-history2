@@ -1,12 +1,12 @@
 #ifndef FINDICONDIALOG_H
 #define FINDICONDIALOG_H
 
-#include "propertyeditor_global.h"
+#include "shared_global.h"
 #include "ui_findicondialog.h"
 
 class AbstractFormWindow;
 
-class QT_PROPERTYEDITOR_EXPORT FindIconDialog : public QDialog,
+class QT_SHARED_EXPORT FindIconDialog : public QDialog,
                                                 public Ui::FindIconDialog
 {
     Q_OBJECT

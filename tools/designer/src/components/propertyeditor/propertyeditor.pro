@@ -9,9 +9,8 @@ DESTDIR = ../../../lib
 
 include(propertyeditor.pri)
 
-HEADERS += propertyeditor.h findicondialog.h
-SOURCES += propertyeditor.cpp findicondialog.cpp
-FORMS += findicondialog.ui
+HEADERS += propertyeditor.h
+SOURCES += propertyeditor.cpp 
 #PRECOMPILED_HEADER=propertyeditor_pch.h
 
 INCLUDEPATH += \
