@@ -23,6 +23,7 @@ class QColorDialogPrivate;
 class Q_GUI_EXPORT QColorDialog : public QDialog
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QColorDialog)
 
 public:
     static QColor getColor(const QColor& init = Qt::white, QWidget* parent=0);
@@ -57,9 +58,13 @@ private:
 private:
     Q_DISABLE_COPY(QColorDialog)
 
-    QColorDialogPrivate *d;
+    Q_PRIVATE_SLOT(d, void addCustom())
 
-    friend class QColorDialogPrivate;
+    Q_PRIVATE_SLOT(d, void newHsv(int h, int s, int v))
+    Q_PRIVATE_SLOT(d, void newColorTypedIn(QRgb rgb))
+    Q_PRIVATE_SLOT(d, void newCustom(int, int))
+    Q_PRIVATE_SLOT(d, void newStandard(int, int))
+
     friend class QColorShower;
 };
 

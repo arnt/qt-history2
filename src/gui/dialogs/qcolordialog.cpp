@@ -15,6 +15,7 @@
 
 #ifndef QT_NO_COLORDIALOG
 
+#include "qdialog_p.h"
 #include "qapplication.h"
 #include "qdesktopwidget.h"
 #include "qdrawutil.h"
@@ -1170,11 +1171,11 @@ void QColorShower::setHsv(int h, int s, int v)
     showCurrentColor();
 }
 
-class QColorDialogPrivate : public QObject
+class QColorDialogPrivate : public QDialogPrivate
 {
-Q_OBJECT
+    Q_DECLARE_PUBLIC(QColorDialog)
 public:
-    QColorDialogPrivate(QColorDialog *p);
+    void init();
     QRgb currentColor() const { return cs->currentColor(); }
     void setCurrentColor(QRgb rgb);
 
@@ -1182,14 +1183,13 @@ public:
     void setCurrentAlpha(int a) { cs->setCurrentAlpha(a); }
     void showAlpha(bool b) { cs->showAlpha(b); }
 
-public slots:
     void addCustom();
 
     void newHsv(int h, int s, int v);
     void newColorTypedIn(QRgb rgb);
     void newCustom(int, int);
     void newStandard(int, int);
-public:
+
     QWellArray *custom;
     QWellArray *standard;
 
@@ -1240,9 +1240,9 @@ void QColorDialogPrivate::newStandard(int r, int c)
         custom->setSelected(-1,-1);
 }
 
-QColorDialogPrivate::QColorDialogPrivate(QColorDialog *dialog) :
-    QObject(dialog)
+void QColorDialogPrivate::init()
 {
+    Q_Q(QColorDialog);
     compact = false;
     // small displays (e.g. PDAs cannot fit the full color dialog,
     // so just use the color picker.
@@ -1254,7 +1254,7 @@ QColorDialogPrivate::QColorDialogPrivate(QColorDialog *dialog) :
     int border = 12;
     if (compact)
         border = 6;
-    QHBoxLayout *topLay = new QHBoxLayout(dialog);
+    QHBoxLayout *topLay = new QHBoxLayout(q);
     topLay->setMargin(border);
     topLay->setSpacing(6);
     QVBoxLayout *leftLay = 0;
@@ -1265,26 +1265,26 @@ QColorDialogPrivate::QColorDialogPrivate(QColorDialog *dialog) :
     initRGB();
 
     if (!compact) {
-        standard = new QColorWell(dialog, 6, 8, stdrgb);
-        QLabel *lab = new QLabel(QColorDialog::tr("&Basic colors"), dialog);
+        standard = new QColorWell(q, 6, 8, stdrgb);
+        QLabel *lab = new QLabel(QColorDialog::tr("&Basic colors"), q);
         lab->setBuddy(standard);
-        connect(standard, SIGNAL(selected(int,int)), SLOT(newStandard(int,int)));
+        q->connect(standard, SIGNAL(selected(int,int)), SLOT(newStandard(int,int)));
         leftLay->addWidget(lab);
         leftLay->addWidget(standard);
 
 
         leftLay->addStretch();
 
-        custom = new QColorWell(dialog, 2, 8, cusrgb);
+        custom = new QColorWell(q, 2, 8, cusrgb);
         custom->setAcceptDrops(true);
 
-        connect(custom, SIGNAL(selected(int,int)), SLOT(newCustom(int,int)));
-        lab = new QLabel(QColorDialog::tr("&Custom colors") , dialog);
+        q->connect(custom, SIGNAL(selected(int,int)), SLOT(newCustom(int,int)));
+        lab = new QLabel(QColorDialog::tr("&Custom colors") , q);
         lab->setBuddy(custom);
         leftLay->addWidget(lab);
         leftLay->addWidget(custom);
 
-        QPushButton *custbut = new QPushButton(QColorDialog::tr("&Define Custom Colors >>"), dialog);
+        QPushButton *custbut = new QPushButton(QColorDialog::tr("&Define Custom Colors >>"), q);
         custbut->setEnabled(false);
         leftLay->addWidget(custbut);
     } else {
@@ -1301,23 +1301,23 @@ QColorDialogPrivate::QColorDialogPrivate(QColorDialog *dialog) :
 
 
     QVBoxLayout *cLay = new QVBoxLayout(pickLay);
-    cp = new QColorPicker(dialog);
+    cp = new QColorPicker(q);
     cp->setFrameStyle(QFrame::Panel + QFrame::Sunken);
     cLay->addSpacing(lumSpace);
     cLay->addWidget(cp);
     cLay->addSpacing(lumSpace);
 
-    lp = new QColorLuminancePicker(dialog);
+    lp = new QColorLuminancePicker(q);
     lp->setFixedWidth(20);
     pickLay->addWidget(lp);
 
-    connect(cp, SIGNAL(newCol(int,int)), lp, SLOT(setCol(int,int)));
-    connect(lp, SIGNAL(newHsv(int,int,int)), this, SLOT(newHsv(int,int,int)));
+    QObject::connect(cp, SIGNAL(newCol(int,int)), lp, SLOT(setCol(int,int)));
+    QObject::connect(lp, SIGNAL(newHsv(int,int,int)), q, SLOT(newHsv(int,int,int)));
 
     rightLay->addStretch();
 
-    cs = new QColorShower(dialog);
-    connect(cs, SIGNAL(newCol(QRgb)), this, SLOT(newColorTypedIn(QRgb)));
+    cs = new QColorShower(q);
+    QObject::connect(cs, SIGNAL(newCol(QRgb)), q, SLOT(newColorTypedIn(QRgb)));
     rightLay->addWidget(cs);
 
     QHBoxLayout *buttons;
@@ -1327,19 +1327,19 @@ QColorDialogPrivate::QColorDialogPrivate(QColorDialog *dialog) :
         buttons = new QHBoxLayout(leftLay);
 
     QPushButton *ok, *cancel;
-    ok = new QPushButton(QColorDialog::tr("OK"), dialog);
-    connect(ok, SIGNAL(clicked()), dialog, SLOT(accept()));
+    ok = new QPushButton(QColorDialog::tr("OK"), q);
+    QObject::connect(ok, SIGNAL(clicked()), q, SLOT(accept()));
     ok->setDefault(true);
-    cancel = new QPushButton(QColorDialog::tr("Cancel"), dialog);
-    connect(cancel, SIGNAL(clicked()), dialog, SLOT(reject()));
+    cancel = new QPushButton(QColorDialog::tr("Cancel"), q);
+    QObject::connect(cancel, SIGNAL(clicked()), q, SLOT(reject()));
     buttons->addWidget(ok);
     buttons->addWidget(cancel);
     buttons->addStretch();
 
     if (!compact) {
-        QPushButton *addCusBt = new QPushButton(QColorDialog::tr("&Add to Custom Colors"), dialog);
+        QPushButton *addCusBt = new QPushButton(QColorDialog::tr("&Add to Custom Colors"), q);
         rightLay->addWidget(addCusBt);
-        connect(addCusBt, SIGNAL(clicked()), this, SLOT(addCustom()));
+        QObject::connect(addCusBt, SIGNAL(clicked()), q, SLOT(addCustom()));
     }
 }
 
@@ -1396,12 +1396,13 @@ void QColorDialogPrivate::addCustom()
 */
 
 QColorDialog::QColorDialog(QWidget* parent, bool modal) :
-    QDialog(parent, (Qt::WType_Dialog | Qt::WStyle_Customize | Qt::WStyle_Title |
+    QDialog(*new QColorDialogPrivate, parent, (Qt::WType_Dialog | Qt::WStyle_Customize | Qt::WStyle_Title |
                      Qt::WStyle_DialogBorder | Qt::WStyle_SysMenu))
 {
+    Q_D(QColorDialog);
     setModal(modal);
     setSizeGripEnabled(false);
-    d = new QColorDialogPrivate(this);
+    d->init();
 
 #ifndef QT_NO_SETTINGS
     if (!customSet) {
@@ -1496,6 +1497,7 @@ QRgb QColorDialog::getRgba(QRgb initial, bool *ok, QWidget *parent)
 
 QColor QColorDialog::color() const
 {
+    Q_D(const QColorDialog);
     return QColor(d->currentColor());
 }
 
@@ -1528,6 +1530,7 @@ QColorDialog::~QColorDialog()
 
 void QColorDialog::setColor(const QColor& c)
 {
+    Q_D(QColorDialog);
     d->setCurrentColor(c.rgb());
 }
 
@@ -1543,6 +1546,7 @@ void QColorDialog::setColor(const QColor& c)
 
 void QColorDialog::setSelectedAlpha(int a)
 {
+    Q_D(QColorDialog);
     d->showAlpha(true);
     d->setCurrentAlpha(a);
 }
@@ -1554,6 +1558,7 @@ void QColorDialog::setSelectedAlpha(int a)
 
 int QColorDialog::selectedAlpha() const
 {
+    Q_D(const QColorDialog);
     return d->currentAlpha();
 }
 
@@ -1562,6 +1567,7 @@ int QColorDialog::selectedAlpha() const
 */
 bool QColorDialog::selectColor(const QColor& col)
 {
+    Q_D(QColorDialog);
     QRgb color = col.rgb();
     int i = 0, j = 0;
     // Check standard colors
@@ -1596,5 +1602,7 @@ bool QColorDialog::selectColor(const QColor& col)
 }
 
 #include "qcolordialog.moc"
+#define d d_func()
+#include "moc_qcolordialog.cpp"
 
 #endif
