@@ -598,6 +598,11 @@ QApplication::QApplication( Display* dpy )
     init_precmdline();
     // ... no command line.
     qt_init( dpy );
+
+#if defined(QT_THREAD_SUPPORT)
+    qt_mutex = new QMutex(TRUE);
+#endif
+
     initialize( 0, 0 );
 }
 
@@ -606,6 +611,11 @@ QApplication::QApplication(Display *dpy, int argc, char **argv)
     qt_is_gui_used = TRUE;
     init_precmdline();
     qt_init(dpy);
+
+#if defined(QT_THREAD_SUPPORT)
+    qt_mutex = new QMutex(TRUE);
+#endif
+
     initialize(argc, argv);
 }
 
@@ -1669,7 +1679,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		if ( t != mouse )
 		    delete t;
 		w = w->parentWidget();
-		
+
 		if ( w && w->testWFlags( WNoMousePropagation ) ) {
 		    mouse->accept();
 		    break;
@@ -2498,7 +2508,7 @@ Q_EXPORT void qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
     int w=d->width();			// returns screen width
     int h=d->height();			// returns screen height
   \endcode
-  
+
   On multi-head X11 systems, the desktop widget depends on the \a
   screen number. When passing invalid screen numbers, the
   application's main desktop is returned.
