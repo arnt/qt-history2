@@ -2012,7 +2012,8 @@ void FormWindow::breakLayout( QWidget *w )
     for (;;) {
 	if ( !w || w == this )
 	    break;
-	if ( WidgetFactory::layoutType( w ) != WidgetFactory::NoLayout ) {
+	if ( WidgetFactory::layoutType( w ) != WidgetFactory::NoLayout &&
+	     WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) ) ) {
 	    Command *cmd = breakLayoutCommand( w );
 	    if ( cmd )
 		commands.insert( 0, cmd );
