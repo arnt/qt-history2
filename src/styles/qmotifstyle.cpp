@@ -231,7 +231,7 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 	    if ( item->isEnabled() )
 		p->setPen( QPen( cg.text()) );
 	    else
-		p->setPen( QPen( item->listView()->palette().color( QPalette::Disabled, 
+		p->setPen( QPen( item->listView()->palette().color( QPalette::Disabled,
 								    QColorGroup::Text ) ) );
 	    QBrush saveBrush = p->brush();
 	    p->setBrush( cg.text() );
@@ -1568,7 +1568,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	    return QRect(x, y, bs.width(), widget->height() - 2*fw);
 	case SC_SpinWidgetEditField:
 	    return QRect(lx, fw, rx, widget->height() - 2*fw);
-	case SC_SpinWidgetFrame: 
+	case SC_SpinWidgetFrame:
 	    return QRect( 0, 0,
 			  widget->width() - bs.width(), widget->height() );
 	default:
@@ -2281,6 +2281,8 @@ QPixmap QMotifStyle::stylePixmap(StylePixmap sp,
 		    image.setColor( 1, 0xff000000 | g.dark().rgb() );
 		    image.setColor( 2, 0xff000000 | g.text().rgb() );
 		    image.setColor( 3, 0xff000000 | g.base().rgb() );
+		    break;
+		default:
 		    break;
 		}
 		pm.convertFromImage(image);
