@@ -54,7 +54,6 @@ class QPopupMenu;
 class HierarchyView;
 class QCloseEvent;
 class FormList;
-class Help;
 class ActionEditor;
 class Project;
 class OutputWindow;
@@ -306,7 +305,6 @@ private:
     PropertyEditor *propertyEditor;
     HierarchyView *hierarchyView;
     FormList *formList;
-    QGuardedPtr<Help> help;
     QWidget *lastPressWidget;
     QWorkspace *workspace;
 #if defined(HAVE_KDE)

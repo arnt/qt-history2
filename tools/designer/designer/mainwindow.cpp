@@ -37,7 +37,6 @@
 #include "editslotsimpl.h"
 #include "newformimpl.h"
 #include "formlist.h"
-#include "help.h"
 #include "connectionviewerimpl.h"
 #include "customwidgeteditorimpl.h"
 #include "preferences.h"
@@ -105,6 +104,7 @@
 #include "finddialog.h"
 #include "replacedialog.h"
 #include "gotolinedialog.h"
+#include <qprocess.h>
 
 static int forms = 0;
 static bool mblockNewForms = FALSE;
@@ -2067,10 +2067,6 @@ void MainWindow::editPreferences()
 	restoreConfig = dia->checkBoxWorkspace->isChecked();
 	setUsesBigPixmaps( FALSE /*dia->checkBoxBigIcons->isChecked()*/ ); // ### disable for now
 	setUsesTextLabel( dia->checkBoxTextLabels->isChecked() );
-	if ( help ) {
-	    help->setUsesBigPixmaps( FALSE /*dia->checkBoxBigIcons->isChecked()*/ ); // ### same here
-	    help->setUsesTextLabel( dia->checkBoxTextLabels->isChecked() );
-	}
 	if ( dia->radioPixmap->isChecked() && dia->buttonPixmap->pixmap() ) {
 	    workspace->setBackgroundPixmap( *dia->buttonPixmap->pixmap() );
 	    backPix = TRUE;
@@ -2540,14 +2536,7 @@ void MainWindow::toolsCustomWidget()
 
 void MainWindow::helpContents()
 {
-    if ( !help ) {
-	help = new Help( documentationPath(), this, "help" );
-	help->setSource( "book1.html" );
-	help->setUsesBigPixmaps( FALSE /*usesBigPixmaps()*/ ); // ## disabled for now
-	help->setUsesTextLabel( usesTextLabel() );
-    }
-
-
+    QString source = "book1.html";
     if ( propertyDocumentation.isEmpty() ) {
 	QString indexFile = documentationPath() + "/propertyindex";
 	QFile f( indexFile );
@@ -2569,11 +2558,8 @@ void MainWindow::helpContents()
 					    "Define the correct documentation path in the preferences dialog." ) );
 	}
     }
-    help->show();
-    help->raise();
 
     if ( propertyEditor->widget() ) {
-	QString source;
 	if ( workspace->activeWindow() == propertyEditor && !propertyEditor->currentProperty().isEmpty() ) {
 	    QMetaObject* mo = propertyEditor->metaObjectOfCurrentProperty();
 	    QString s;
@@ -2598,7 +2584,7 @@ void MainWindow::helpContents()
 	}
 
 	QString classname =  WidgetFactory::classNameOf( propertyEditor->widget() );
-	if ( source.isEmpty() ) {
+	if ( source.isEmpty() || source == "book1.html" ) {
 	    if ( classname.lower() == "spacer" )
 		source = "qspaceritem.html#details";
 	    else if ( classname == "QLayoutWidget" )
@@ -2606,24 +2592,23 @@ void MainWindow::helpContents()
 	    else
 		source = QString( WidgetFactory::classNameOf( propertyEditor->widget() ) ).lower() + ".html#details";
 	}
+    }
 
-	if ( !source.isEmpty() )
-	    help->setSource( source );
+    if ( !source.isEmpty() ) {
+	QStringList lst;
+	lst << "assistant" << source;
+	QProcess *proc = new QProcess( lst, this );
+	proc->start();
     }
 
 }
 
 void MainWindow::helpManual()
 {
-    if ( !help ) {
-	help = new Help( documentationPath(), this, "help" );
-	help->setSource( "book1.html" );
-	help->setUsesBigPixmaps( FALSE /*usesBigPixmaps()*/ ); // ### disbaled for now
-	help->setUsesTextLabel( usesTextLabel() );
-    }
-    help->setSource( "book1.html" );
-    help->show();
-    help->raise();
+    QStringList lst;
+    lst << "assistant" << "book1.html";
+    QProcess *proc = new QProcess( lst, this );
+    proc->start();
 }
 
 void MainWindow::helpAbout()
@@ -3815,8 +3800,6 @@ void MainWindow::closeEvent( QCloseEvent *e )
 	}
     }
     hide();
-    if ( help )
-	help->close();
     writeConfig();
     e->accept();
 
@@ -4152,15 +4135,12 @@ void MainWindow::openHelpForDialog( const QString &dia )
     i += QString( "href=\"" ).length();
     QString page = text.mid( i, end - i );
 
-    if ( !help ) {
-	help = new Help( documentationPath(), this, "help" );
-	help->setSource( page );
-	help->setUsesBigPixmaps( FALSE /*usesBigPixmaps()*/ ); // ### disbaled for now
-	help->setUsesTextLabel( usesTextLabel() );
+    if ( !page.isEmpty() ) {
+	QStringList lst;
+	lst << "assistant" << page;
+	QProcess *proc = new QProcess( lst, this );
+	proc->start();
     }
-    help->setSource( page );
-    help->show();
-    help->raise();
 }
 
 void MainWindow::showDialogHelp()
