@@ -47,8 +47,8 @@ public:
     ~QWaitConditionPrivate();
 
     int wait( unsigned long time = ULONG_MAX , bool countWaiter = TRUE);
-    Qt::HANDLE handle;
-    Qt::HANDLE single;
+    Qt::HANDLE manual;
+    Qt::HANDLE autoreset;
     QCriticalSection s;
     int waitersCount;
 };
@@ -57,22 +57,22 @@ QWaitConditionPrivate::QWaitConditionPrivate()
 : waitersCount(0)
 {
     QT_WA( {
-	handle = CreateEvent( NULL, TRUE, FALSE, NULL );
-	single = CreateEvent( NULL, FALSE, FALSE, NULL );
+	manual = CreateEvent( NULL, TRUE, FALSE, NULL );
+	autoreset = CreateEvent( NULL, FALSE, FALSE, NULL );
     } , {
-	handle = CreateEventA( NULL, TRUE, FALSE, NULL );
-	single = CreateEventA( NULL, FALSE, FALSE, NULL );
+	manual = CreateEventA( NULL, TRUE, FALSE, NULL );
+	autoreset = CreateEventA( NULL, FALSE, FALSE, NULL );
     } );
 
 #ifdef QT_CHECK_RANGE
-    if ( !handle || !single )
+    if ( !manual || !autoreset )
     qSystemWarning( "Condition init failure" );
 #endif
 }
 
 QWaitConditionPrivate::~QWaitConditionPrivate()
 {
-    if ( !CloseHandle( handle ) || !CloseHandle( single ) ) {
+    if ( !CloseHandle( manual ) || !CloseHandle( autoreset ) ) {
 #ifdef QT_CHECK_RANGE
 	qSystemWarning( "Condition destroy failure" );
 #endif
@@ -84,7 +84,7 @@ int QWaitConditionPrivate::wait( unsigned long time , bool countWaiter )
     s.enter();
     if ( countWaiter )
 	waitersCount++;
-    Qt::HANDLE hnds[2] = { handle, single };
+    Qt::HANDLE hnds[2] = { manual, autoreset };
     s.leave();
     int ret = WaitForMultipleObjects( 2, hnds, FALSE, time );
     s.enter();
@@ -119,6 +119,16 @@ bool QWaitCondition::wait( unsigned long time )
     qSystemWarning( "Condition wait failure" );
 #endif
 	break;
+    case WAIT_OBJECT_0:
+	d->s.enter();
+	if ( !d->waitersCount ) {
+	    if ( !ResetEvent ( d->manual ) ) {
+#ifdef QT_CHECK_RANGE
+		qSystemWarning( "Condition could not be reset" );
+#endif
+	    }
+	}
+	d->s.leave();
     default:
 	break;
     }
@@ -147,7 +157,7 @@ bool QWaitCondition::wait( QMutex *mutex, unsigned long time)
     bool lastWaiter = ( (result == WAIT_OBJECT_0 )  && d->waitersCount == 0 ); // last waiter on waitAll?
     d->s.leave();
     if ( lastWaiter ) {
-	if ( !ResetEvent ( d->handle ) ) {
+	if ( !ResetEvent ( d->manual ) ) {
 #ifdef QT_CHECK_RANGE
 	qSystemWarning( "Condition could not be reset" );
 #endif
@@ -174,7 +184,7 @@ void QWaitCondition::wakeOne()
     d->s.enter();
     bool haveWaiters = (d->waitersCount > 0);
     if ( haveWaiters ) {
-	if ( !SetEvent( d->single ) ) {
+	if ( !SetEvent( d->autoreset ) ) {
 #ifdef QT_CHECK_RANGE
 	    qSystemWarning( "Condition could not be set" );
 #endif
@@ -188,9 +198,9 @@ void QWaitCondition::wakeAll()
     d->s.enter();
     bool haveWaiters = (d->waitersCount > 0);
     if ( haveWaiters ) {
-	if ( !PulseEvent( d->handle ) ) {
+	if ( !SetEvent( d->manual ) ) {
 #ifdef QT_CHECK_RANGE
-	qSystemWarning( "Condition could not be set" );
+	    qSystemWarning( "Condition could not be set" );
 #endif
 	}
     }
