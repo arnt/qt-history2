@@ -1,3 +1,5 @@
+# Project ID used by some IDEs
+GUID 	 = {887a0765-173d-41e9-931c-a82463ee3c8e}
 TEMPLATE	= lib
 CONFIG		+= qt plugin
 HEADERS		= ../../../../src/sql/drivers/sqlite/qsql_sqlite.h 
