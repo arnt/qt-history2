@@ -33,6 +33,8 @@ void MyOrientation::resizeEvent( QResizeEvent *e )
 
 void MyOrientation::newOrient( int tiltX, int tiltY )
 {
+    
+    /*
     const MY_Z = 50;	// a faux Z setting, to mess with calculations
     double PI = 3.14159265359;
     QPainter p(this);
@@ -42,10 +44,9 @@ void MyOrientation::newOrient( int tiltX, int tiltY )
     p.setBrush( red );
     int tmpX = MY_Z * tan( tiltX * (PI / 180 ) );
     int tmpY = MY_Z * tan( tiltY * (PI / 180 ) );
-    p.drawLine( width() / 2, height() / 2, tmpX, tmpY );
-    
-    
+    p.drawLine( width() / 2, height() / 2, tmpX, tmpY );  
     p.end();
+    */
 }
 
 
@@ -61,7 +62,8 @@ void StatsCanvas::tabletEvent( QTabletEvent *e )
     
     if ( !oldR.isNull() ) {
 	p.fillRect( oldR, colorGroup().base() );
-	p.flush();
+	bitBlt( this, oldR.x(), oldR.y(), &buffer, oldR.x(), oldR.y(),
+	    oldR.width(), oldR.height() );
     }
     p.setBrush( black );
     p.drawEllipse( r );
