@@ -602,13 +602,7 @@ Q_LLONG QSocketLayer::sendDatagram(const char *data, Q_LLONG length,
                                     const QHostAddress &host, Q_UINT16 port)
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::sendDatagram(), -1);
-    Q_CHECK_TYPE(QSocketLayer::sendDatagram(), Qt::UdpSocket, false);
-
-    if (d->socketType != Qt::UdpSocket) {
-        qWarning("QSocketLayer::sendDatagram() can only be "
-                 "called on a UdpSocket socket device");
-        return -1;
-    }
+    Q_CHECK_TYPE(QSocketLayer::sendDatagram(), Qt::UdpSocket, -1);
     return d->nativeSendDatagram(data, length, host, port);
 }
 
