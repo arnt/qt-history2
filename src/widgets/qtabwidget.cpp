@@ -209,7 +209,7 @@ QTabWidget::QTabWidget( QWidget *parent, const char *name, WFlags f )
     d->tabBase->resize( 1, 1 );
     setTabBar( new QTabBar( this, "tab control" ) );
 
-    d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
+    d->stack->setFrameStyle( QFrame::TabWidgetPanel | QFrame::Raised );
     d->stack->setLineWidth( style().pixelMetric(QStyle::PM_DefaultFrameWidth, this) );
 
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
@@ -283,8 +283,8 @@ void QTabWidget::addTab( QWidget *child, QTab* tab )
     tab->enabled = TRUE;
     int id = d->tabs->addTab( tab );
     d->stack->addWidget( child, id );
-    if ( d->stack->frameStyle() != ( QFrame::StyledPanel | QFrame::Raised ) )
-        d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
+    if ( d->stack->frameStyle() != ( QFrame::TabWidgetPanel | QFrame::Raised ) )
+        d->stack->setFrameStyle( QFrame::TabWidgetPanel | QFrame::Raised );
     setUpLayout();
 }
 
@@ -353,8 +353,8 @@ void QTabWidget::insertTab( QWidget *child, QTab* tab, int index)
     tab->enabled = TRUE;
     int id = d->tabs->insertTab( tab, index );
     d->stack->addWidget( child, id );
-    if ( d->stack->frameStyle() != ( QFrame::StyledPanel | QFrame::Raised ) )
-        d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
+    if ( d->stack->frameStyle() != ( QFrame::TabWidgetPanel | QFrame::Raised ) )
+        d->stack->setFrameStyle( QFrame::TabWidgetPanel | QFrame::Raised );
     setUpLayout();
 }
 
@@ -471,8 +471,8 @@ void QTabWidget::showPage( QWidget * w)
         d->stack->raiseWidget( w );
         d->tabs->setCurrentTab( id );
         // ### why overwrite the frame style?
-        if ( d->stack->frameStyle() != ( QFrame::StyledPanel|QFrame::Raised ) )
-            d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
+        if ( d->stack->frameStyle() != ( QFrame::TabWidgetPanel |QFrame::Raised ) )
+            d->stack->setFrameStyle( QFrame::TabWidgetPanel | QFrame::Raised );
     }
 }
 

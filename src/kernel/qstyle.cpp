@@ -615,6 +615,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   QPopupMenu.
   \value PE_PanelMenuBar  panel frame for menu bars.
   \value PE_PanelDockWindow  panel frame for dock windows and toolbars.
+  \value PE_PanelTabWidget  panel frame for tab widgets.
+  \value PE_PanelLineEdit  panel frame for line edits.
 
   \value PE_TabBarBase  area below tabs in a tab widget, for example,
   QTab.
@@ -630,6 +632,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
   \value PE_GroupBoxFrame  frame around a group box; see also
   QGroupBox.
+  \value PE_WindowFrame  frame around a MDI or docking window
 
 
   \value PE_Separator  generic separator.
@@ -1559,6 +1562,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value SH_Workspace_FillSpaceOnMaximize the workspace should
     maximize the client area.
+
+    \value SH_TitleBar_NoBorder the titlebar has no border
 
 
     \value SH_CustomBase  base value for custom ControlElements.  All values above

@@ -65,6 +65,12 @@ public:
 				  SubControl sc,
 				  const QStyleOption& = QStyleOption::Default ) const;
 
+    int styleHint( StyleHint stylehint,
+			   const QWidget *widget = 0,
+			   const QStyleOption& = QStyleOption::Default,
+			   QStyleHintReturn* returnData = 0
+			   ) const;
+
 protected:
     bool eventFilter( QObject *o, QEvent *e );
 

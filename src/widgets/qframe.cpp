@@ -215,6 +215,10 @@ static const int wpwidth = 2; // WinPanel lwidth
   look depends upon the current GUI style.
   \i MenuBarPanel is used to draw a frame suitable for menu bars. The
   look depends upon the current GUI style.
+  \i LineEditPanel is used to draw a frame suitable for line edits. The
+  look depends upon the current GUI style.
+  \i TabWidgetPanel is used to draw a frame suitable for tab widgets. The
+  look depends upon the current GUI style.
   \i WinPanel draws a rectangular panel that can be raised or
   sunken like those in Windows 95.  Specifying this shape sets
   the line width to 2 pixels.  WinPanel is provided for compatibility.
@@ -349,6 +353,8 @@ void QFrame::updateFrameWidth()
     case Panel:
     case StyledPanel:
     case PopupPanel:
+    case LineEditPanel:
+    case TabWidgetPanel:
         switch ( frameStyle ) {
         case Plain:
         case Raised:
@@ -564,6 +570,14 @@ void QFrame::drawFrame( QPainter *p )
             qDrawShadeRect( p, r, g, cstyle == Sunken, lwidth,
                             midLineWidth() );
         break;
+
+    case LineEditPanel:
+	style().drawPrimitive( QStyle::PE_PanelLineEdit, p, r, g, flags, opt );
+	break;
+
+    case TabWidgetPanel:
+	style().drawPrimitive( QStyle::PE_PanelTabWidget, p, r, g, flags, opt );
+	break;
 
     case MenuBarPanel:
 #ifndef QT_NO_STYLE

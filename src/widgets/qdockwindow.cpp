@@ -1265,6 +1265,25 @@ void QDockWindow::endRectDraw( bool drawRect )
     unclippedPainter = 0;
 }
 
+/*!
+  \reimp
+*/
+void QDockWindow::drawFrame( QPainter *p )
+{
+    if ( place() == InDock ) {
+	QFrame::drawFrame( p );
+	return;
+    }
+
+    QStyle::SFlags flags = QStyle::Style_Default;
+    QStyleOption opt(lineWidth(),midLineWidth());
+
+    if ( titleBar->isActive() )
+	flags |= QStyle::Style_Active;
+
+    style().drawPrimitive( QStyle::PE_WindowFrame, p, rect(), colorGroup(), flags, opt );
+}
+
 /*! \property QDockWindow::resizeEnabled
   \brief whether the dock window is resizeable
 
@@ -1731,8 +1750,10 @@ bool QDockWindow::event( QEvent *e )
 {
     if ( e->type() == QEvent::WindowDeactivate ) {
 	titleBar->setActive( FALSE );
+	update();
     } else if ( e->type() == QEvent::WindowActivate ) {
 	titleBar->setActive( TRUE );
+	update();
     }
     return QFrame::event( e );
 }

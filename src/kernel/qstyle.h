@@ -195,6 +195,11 @@ public:
 
 	PE_ProgressBarChunk,
 
+	PE_PanelLineEdit,
+	PE_PanelTabWidget,
+
+	PE_WindowFrame,
+
 	// do not add any values below/greater this
 	PE_CustomBase =			0xf000000
     };
@@ -544,6 +549,9 @@ public:
 
 	// bool - supports popup menu comboboxes
 	SH_ComboBox_Popup, 
+
+	// bool - titlebar has no border
+	SH_TitleBar_NoBorder,
 
 	// do not add any values below/greater than this
 	SH_CustomBase =		0xf0000000

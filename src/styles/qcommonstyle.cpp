@@ -485,6 +485,12 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	    cg.brush(QColorGroup::Highlight));
 	break;
 
+    case PE_PanelLineEdit:
+    case PE_PanelTabWidget:
+    case PE_WindowFrame:
+	drawPrimitive( PE_Panel, p, r, cg, flags, opt );
+	break;
+
     default:
 	break;
     }

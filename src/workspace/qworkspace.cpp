@@ -187,6 +187,8 @@ protected:
 
     bool focusNextPrevChild( bool );
 
+    void drawFrame( QPainter * );
+
 private:
     QWidget* childWidget;
     QWidget* lastfocusw;
@@ -2006,7 +2008,10 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 
     if ( titlebar ) {
 	int th = titlebar->sizeHint().height();
-	titlebar->setGeometry( r.x() , r.y(), r.width(), th ); // ### need another style hint: TitleBarHasFrame for XP
+	QRect tbrect( 0, 0, width(), th );
+	if ( !style().styleHint( QStyle::SH_TitleBar_NoBorder ) )
+	    tbrect = QRect( r.x(), r.y(), r.width(), th );
+	titlebar->setGeometry( tbrect );
 	cr = QRect( r.x(), r.y() + titlebar->height() + (shademode ? 5 : 1),
 	    r.width(), r.height() - titlebar->height() - 2 );
     } else {
@@ -2270,6 +2275,17 @@ void QWorkspaceChild::leaveEvent( QEvent * )
 #endif
 }
 
+void QWorkspaceChild::drawFrame( QPainter *p )
+{
+    QStyle::SFlags flags = QStyle::Style_Default;
+    QStyleOption opt(lineWidth(),midLineWidth());
+
+    if ( act )
+	flags |= QStyle::Style_Active;
+
+    style().drawPrimitive( QStyle::PE_WindowFrame, p, rect(), colorGroup(), flags, opt );
+}
+
 static bool isChildOf( QWidget * child, QWidget * parent )
 {
     if ( !parent || !child )
@@ -2287,6 +2303,7 @@ void QWorkspaceChild::setActive( bool b )
 	return;
 
     act = b;
+    update();
 
     if ( titlebar )
 	titlebar->setActive( act );
@@ -2347,9 +2364,15 @@ QWidget* QWorkspaceChild::iconWidget() const
     if ( !iconw ) {
 	QWorkspaceChild* that = (QWorkspaceChild*) this;
 	QVBox* vbox = new QVBox(0, "qt_vbox" );
-	vbox->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
-	vbox->resize( 196+2*vbox->frameWidth(), 20 + 2*vbox->frameWidth() );
-	that->iconw = new QTitleBar( windowWidget(), vbox, "_workspacechild_icon_");
+	if ( !style().styleHint( QStyle::SH_TitleBar_NoBorder ) ) {
+	    vbox->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
+	    vbox->resize( 196+2*vbox->frameWidth(), 20 + 2*vbox->frameWidth() );
+	} else {
+	    vbox->resize( 196, 20 );
+	}
+	QTitleBar *tb = new QTitleBar( windowWidget(), vbox, "_workspacechild_icon_");
+	((QWorkspaceChild*)tb)->setWState( WState_Minimized );
+	that->iconw = tb;
 	iconw->setActive( isActive() );
 	connect( iconw, SIGNAL( doActivate() ),
 		 this, SLOT( activate() ) );

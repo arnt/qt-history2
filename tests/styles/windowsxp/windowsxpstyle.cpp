@@ -223,6 +223,8 @@ void QWindowsXPStyle::polish( QWidget *widget )
     } else if ( widget->inherits( "QTitleBar" ) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
+    } else if ( widget->inherits( "QWorkspaceChild" ) ) {
+	widget->installEventFilter( this );
     } else if ( widget->inherits( "QSlider" ) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
@@ -240,10 +242,23 @@ void QWindowsXPStyle::unPolish( QWidget *widget )
 
 void QWindowsXPStyle::updateRegion( QWidget *widget )
 {
-/*    if ( widget->inherits( "QTitleBar" ) ) {
+    if ( widget->inherits( "QTitleBar" ) && !widget->inherits( "QDockWindowTitleBar" ) ) {
+	if ( widget->isMinimized() ) {
+	    XPThemeData theme( widget, 0, L"WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect() );
+	    theme.setTransparency();
+	    XPThemeData theme2( widget->parentWidget(), 0, L"WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect() );
+	    theme2.setTransparency();
+	} else {
+	    XPThemeData theme( widget, 0, L"WINDOW", WP_CAPTION, CS_ACTIVE, widget->rect() );
+	    theme.setTransparency();
+	}
+    } else if ( widget->inherits( "QWorkspaceChild" ) ) {
 	XPThemeData theme( widget, 0, L"WINDOW", WP_CAPTION, CS_ACTIVE, widget->rect() );
 	theme.setTransparency();
-    }*/
+	theme.rec = widget->parentWidget()->rect();
+	RECT r = theme.rect();
+	InvalidateRect( widget->parentWidget()->winId(), &r, TRUE );
+    }
 }
 
 void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
@@ -354,6 +369,20 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
     case PE_Panel:
 	break;
 
+    case PE_PanelLineEdit:
+	name = L"EDIT";
+	partId = EP_EDITTEXT;
+	if ( !(flags & Style_Enabled) )
+	    stateId = ETS_DISABLED;
+	else
+	    stateId = ETS_NORMAL;
+	break;
+
+    case PE_PanelTabWidget:
+	name = L"TAB";
+	partId = TABP_PANE;
+	break;
+
     case PE_PanelPopup:
 	p->save();
 	p->setPen( cg.dark() );
@@ -451,6 +480,38 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	else
 	    partId = TP_SEPARATORVERT;
 	break;
+
+    case PE_WindowFrame:
+	{
+	    name = L"WINDOW";
+	    if ( flags & Style_Active )
+		stateId = FS_ACTIVE;
+	    else
+		stateId = FS_INACTIVE;
+
+	    int fwidth = 2;
+	    if ( !opt.isDefault() )
+		fwidth = opt.lineWidth() + opt.midLineWidth();
+
+	    XPThemeData theme( 0, p, name, 0, stateId );
+	    if ( !theme.isValid() )
+		break;
+
+	    theme.rec = QRect( r.x(), r.y()+fwidth, r.x()+fwidth, r.height()-fwidth );
+	    theme.partId = WP_FRAMELEFT;
+	    theme.drawBackground();
+	    theme.rec = QRect( r.x(), r.height()-fwidth, r.width(), r.height() );
+	    theme.partId = WP_FRAMEBOTTOM;
+	    theme.drawBackground();
+	    theme.rec = QRect( r.width()-fwidth, r.y()+fwidth, r.width(), r.height()-fwidth );
+	    theme.partId = WP_FRAMERIGHT;
+	    theme.drawBackground();
+	    theme.rec = QRect( r.x()-5, r.y()-5, r.width()+10, r.y()+fwidth+5 );
+	    theme.partId = WP_CAPTION;
+	    theme.drawBackground();
+    
+	    return;
+	}
 
     default:
 	break;
@@ -1094,7 +1155,8 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    XPThemeData theme( w, p, L"WINDOW" );
 	    if ( sub & SC_TitleBarLabel ) {
 		theme.rec = titlebar->rect();
-		theme.rec.addCoords( -10, -10, 10, 0 );
+		if ( titlebar->inherits( "QDockWindowTitleBar" ) )
+		    theme.rec.addCoords( -10, -10, 10, 0 );
 		partId = titlebar->testWFlags( WStyle_Tool ) ? WP_SMALLCAPTION : 
 			( titlebar->window() && titlebar->window()->isMinimized() ? WP_MINCAPTION : WP_CAPTION );
 		if ( !titlebar->isEnabled() )
@@ -1359,6 +1421,19 @@ QRect QWindowsXPStyle::querySubControlMetrics( ComplexControl control,
     return QWindowsStyle::querySubControlMetrics( control, widget, sc, option );
 }
 
+int QWindowsXPStyle::styleHint( StyleHint stylehint,
+			   const QWidget *widget,
+			   const QStyleOption& opt,
+			   QStyleHintReturn* returnData ) const
+{
+    switch ( stylehint ) {
+    case SH_TitleBar_NoBorder:
+	return 1;
+
+    default:
+	return QWindowsStyle::styleHint( stylehint, widget, opt, returnData );
+    }
+}
 
 // HotSpot magic
 /*! \reimp */

@@ -156,6 +156,8 @@ protected:
     void hideEvent( QHideEvent *e );
     void contextMenuEvent( QContextMenuEvent *e );
 
+    void drawFrame( QPainter * );
+
     bool event( QEvent *e );
 
 private slots:
