@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#45 $
 **
 ** Implementation of QStatusBar class
 **
@@ -45,8 +45,7 @@
   Each status message falls into one of three classes: <ul>
 
   <li> \c Temporary - occupies most of the status bar briefly.  Used
-  e.g. for explaining \link QToolTip tool tip \endlink texts or menu
-  entries)
+  e.g. for explaining tool tip texts or menu entries.
 
   <li> \c Normal - occupies part of the status bar and may be hidden
   by temporary messages.  Used e.g. for displaying the page and line
@@ -71,9 +70,9 @@
   status bar.
 
   Finally, in Windows style QStatusBar also provides a Windows
-  standard resize handle.  In the X11 version Qt 1.40 this resize
-  handle generally works differently than the one provided by the
-  system; we hope to reduce this difference in the future.
+  standard resize handle.  In the X11 version of Qt this resize handle
+  generally works differently than the one provided by the system; we
+  are working to reduce this difference.
 
   <img src=qstatusbar-m.png> <img src=qstatusbar-w.png>
 
