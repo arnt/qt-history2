@@ -208,7 +208,7 @@ void QRadioButton::updateMask()
                                   this);
     QBitmap bm(width(), height());
     bm.fill(color0);
-    QPainter p(&bm, this);
+    QPainter p(&bm);
     style().drawControlMask(QStyle::CE_RadioButton, &opt, &p, this);
     if (!text().isEmpty() || !icon().isNull()) {
         QRect crect = QStyle::visualRect(style().subRect(QStyle::SR_RadioButtonContents, &opt,

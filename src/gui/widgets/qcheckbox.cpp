@@ -262,7 +262,7 @@ void QCheckBox::updateMask()
     QBitmap bm(width(), height());
     bm.fill(color0);
 
-    QPainter p(&bm, this);
+    QPainter p(&bm);
     style().drawControlMask(QStyle::CE_CheckBox, &p, this, irect);
     if (!text().isNull() || !icon().isNull()) {
         Q4StyleOptionButton opt = d->getStyleOption();

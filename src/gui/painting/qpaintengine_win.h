@@ -32,7 +32,7 @@ public:
     QWin32PaintEngine(QPaintDevice *target);
     ~QWin32PaintEngine();
 
-    bool begin(QPaintDevice *pdev, bool unclipped=false);
+    bool begin(QPaintDevice *pdev);
     bool end();
 
     void updatePen(const QPen &pen);

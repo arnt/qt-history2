@@ -177,8 +177,8 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
     QItemOptions options;
     getViewOptions(&options);
     d->backBuffer.fill(options.palette.base());
-    
-    QPainter painter(&d->backBuffer, d->viewport);
+
+    QPainter painter(&d->backBuffer);
     QRect area = e->rect();
 
     int colfirst = columnAt(area.left());
@@ -206,8 +206,8 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
         rowfirst = rowlast;
         rowlast = tmp;
     }
-    
-    bool showGrid = d->showGrid;    
+
+    bool showGrid = d->showGrid;
     QItemSelectionModel *sels = selectionModel();
     QGenericHeader *leftHeader = d->leftHeader;
     QGenericHeader *topHeader = d->topHeader;
@@ -238,7 +238,7 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
                 drawGrid(&painter, colp, rowp, colw - 1, rowh - 1);
         }
     }
-    
+
     painter.end();
     painter.begin(d->viewport);
     painter.drawPixmap(area.topLeft(), d->backBuffer, area);
@@ -530,12 +530,12 @@ void QGenericTableView::ensureItemVisible(const QModelIndex &item)
 
     if (model()->parent(item) != root())
         return;
-    
+
     if (area.contains(rect)) {
         d->viewport->repaint(rect);
         return;
     }
-                                 
+
 
     // vertical
     if (rect.top() < area.top()) { // above

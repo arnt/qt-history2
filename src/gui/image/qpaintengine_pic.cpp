@@ -51,7 +51,7 @@ QPicturePaintEngine::~QPicturePaintEngine()
 }
 
 // ### serialize unclipped?
-bool QPicturePaintEngine::begin(QPaintDevice *pd, bool /* unclipped */)
+bool QPicturePaintEngine::begin(QPaintDevice *pd)
 {
     Q_ASSERT(pd);
     QPicture *pic = static_cast<QPicture *>(pd);

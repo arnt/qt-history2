@@ -394,7 +394,7 @@ void QPushButton::updateMask()
     QBitmap bm(size());
     bm.fill(color0);
 
-    QPainter p(&bm, this);
+    QPainter p(&bm);
     Q4StyleOptionButton opt = d->getStyleOption();
     style().drawControlMask(QStyle::CE_PushButton, &opt, &p, this);
     p.end();

@@ -1516,7 +1516,7 @@ void QComboBox::updateMask()
     bm.fill(color0);
 
     {
-        QPainter p(&bm, this);
+        QPainter p(&bm);
         style().drawComplexControlMask(QStyle::CC_ComboBox, &p, this, rect());
     }
 

@@ -174,7 +174,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
     getViewOptions(&options);
     //d->backBuffer.fill(options.palette.base());
 
-    QPainter painter(&d->backBuffer, d->viewport);
+    QPainter painter(&d->backBuffer);
     QRect area = e->rect();
 
     int offset = this->offset();

@@ -566,7 +566,7 @@ void QGenericListView::paintEvent(QPaintEvent *e)
     getViewOptions(&options);
     d->backBuffer.fill(options.palette.base());
 
-    QPainter painter(&d->backBuffer, d->viewport);
+    QPainter painter(&d->backBuffer);
     QRect area = e->rect();
     area.moveBy(horizontalScrollBar()->value(), verticalScrollBar()->value());
 
@@ -593,7 +593,7 @@ void QGenericListView::paintEvent(QPaintEvent *e)
     area = e->rect();
     painter.begin(d->viewport);
     painter.drawPixmap(area.topLeft(), d->backBuffer, area);
-    
+
     if (!d->draggedItems.isEmpty() && d->viewport->rect().contains(d->draggedItemsPos)) {
         QPoint delta = (d->movement == Snap
                         ? d->snapToGrid(d->draggedItemsPos) - d->snapToGrid(d->pressedPosition)

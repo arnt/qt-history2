@@ -27,7 +27,7 @@ public:
     QX11PaintEngine(QPaintDevice *);
     ~QX11PaintEngine();
 
-    bool begin(QPaintDevice *pdev, bool begin = false);
+    bool begin(QPaintDevice *pdev);
     bool end();
 
     void updatePen(const QPen &pen);

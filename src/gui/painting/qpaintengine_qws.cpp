@@ -127,7 +127,7 @@ QGfx *QWSPaintEngine::gfx()
 }
 
 
-bool QWSPaintEngine::begin(QPaintDevice *pdev, bool unclipped)
+bool QWSPaintEngine::begin(QPaintDevice *pdev)
 {
     if (isActive()) {                         // already active painting
         qWarning("QWSC::begin: Painter is already active."
@@ -153,7 +153,7 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev, bool unclipped)
         if (w->isVisible() && w->topLevelWidget()->isVisible()) {
             int rgnIdx = w->topLevelWidget()->data->alloc_region_index;
             if (rgnIdx >= 0) {
-                r = (unclipped || w->testAttribute(WA_PaintUnclipped)) ? w->allocatedRegion() : w->paintableRegion();
+                r = w->testAttribute(WA_PaintUnclipped) ? w->allocatedRegion() : w->paintableRegion();
                 QRegion req;
                 bool changed = false;
                 QWSDisplay::grab();

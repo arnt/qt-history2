@@ -53,12 +53,12 @@ public:
     Q_DECLARE_FLAGS(RenderHints, RenderHint);
 
     QPainter();
-    QPainter(QPaintDevice *, bool unclipped = false);
+    QPainter(QPaintDevice *);
     ~QPainter();
 
     QPaintDevice *device() const;
 
-    bool begin(QPaintDevice *, bool unclipped = false);
+    bool begin(QPaintDevice *);
     bool end();
     bool isActive() const;
 

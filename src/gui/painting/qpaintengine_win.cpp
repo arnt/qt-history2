@@ -318,7 +318,7 @@ QWin32PaintEngine::~QWin32PaintEngine()
 }
 
 
-bool QWin32PaintEngine::begin(QPaintDevice *pdev, bool unclipped)
+bool QWin32PaintEngine::begin(QPaintDevice *pdev)
 {
     if (isActive()) {                                // already active painting
         qWarning("QWin32PaintEngine::begin: Painter is already active."
@@ -339,7 +339,7 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev, bool unclipped)
         if (d->usesWidgetDC) {
             d->hdc = w->hdc;                        // during paint event
         } else {
-            if (unclipped || w->testAttribute(WA_PaintUnclipped)) {
+            if (w->testAttribute(WA_PaintUnclipped)) {
                 d->hdc = GetWindowDC(w->winId());
                 if (w->isTopLevel()) {
                     int dx = w->geometry().x() - w->frameGeometry().x();

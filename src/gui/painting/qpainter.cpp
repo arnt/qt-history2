@@ -271,9 +271,7 @@ QPainter::QPainter()
 
 /*!
     Constructs a painter that begins painting the paint device \a pd
-    immediately. Depending on the underlying graphic system the
-    painter will paint over children of the paintdevice if \a
-    unclipped is true.
+    immediately.
 
     This constructor is convenient for short-lived painters, e.g. in a
     \link QWidget::paintEvent() paint event\endlink and should be used
@@ -307,12 +305,12 @@ QPainter::QPainter()
     \sa begin(), end()
 */
 
-QPainter::QPainter(QPaintDevice *pd, bool unclipped)
+QPainter::QPainter(QPaintDevice *pd)
 {
     d = new QPainterPrivate;
     init();
     Q_ASSERT(pd != 0);
-    begin(pd, unclipped);
+    begin(pd);
 }
 
 /*!
@@ -420,9 +418,7 @@ void QPainter::restore()
 
 /*!
     Begins painting the paint device \a pd and returns true if
-    successful; otherwise returns false. If \a unclipped is true, the
-    painting will not be clipped at the paint device's boundaries,
-    (although this is not supported by all platforms).
+    successful; otherwise returns false.
 
     The errors that can occur are serious problems, such as these:
 
@@ -446,7 +442,7 @@ void QPainter::restore()
     \sa end()
 */
 
-bool QPainter::begin(QPaintDevice *pd, bool unclipped)
+bool QPainter::begin(QPaintDevice *pd)
 {
     Q_ASSERT(pd);
 
@@ -506,7 +502,7 @@ bool QPainter::begin(QPaintDevice *pd, bool unclipped)
         return true;
     }
 
-    if (!d->engine->begin(pd, unclipped)) {
+    if (!d->engine->begin(pd)) {
         qWarning("QPainter::begin(), QPaintEngine::begin() returned false\n");
         return false;
     }

@@ -5599,7 +5599,7 @@ static void ignoreSigPipe(bool b)
     }
 }
 
-bool QPSPrinter::begin(QPaintDevice *pdev, bool unclipped)
+bool QPSPrinter::begin(QPaintDevice *pdev)
 {
     d->pagesInBuffer = 0;
     d->buffer = new QBuffer();

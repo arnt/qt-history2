@@ -225,7 +225,7 @@ QPixmap* QSplashScreen::pixmap() const
 void QSplashScreen::drawContents()
 {
     QPixmap textPix = d->pixmap;
-    QPainter painter(&textPix, this);
+    QPainter painter(&textPix);
     drawContents(&painter);
     QPalette p = palette();
     p.setBrush(backgroundRole(), QBrush(textPix));

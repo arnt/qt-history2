@@ -80,7 +80,7 @@ public:
     bool isActive() const { return active; }
     void setActive(bool state) { active = state; }
 
-    virtual bool begin(QPaintDevice *pdev, bool unclipped = false) = 0;
+    virtual bool begin(QPaintDevice *pdev) = 0;
     virtual bool end() = 0;
 
     virtual void updatePen(const QPen &pen) = 0;
@@ -217,7 +217,7 @@ class QWrapperPaintEngine : public QPaintEngine
 public:
     QWrapperPaintEngine(QPaintEngine *w) : QPaintEngine(w->gccaps), wrap(w) { }
 
-    virtual bool begin(QPaintDevice *pdev, bool unclipped) { return wrap->begin(pdev, unclipped); }
+    virtual bool begin(QPaintDevice *pdev) { return wrap->begin(pdev); }
     virtual bool end() { return wrap->end(); }
 
     void updatePen(const QPen &pen);

@@ -233,7 +233,7 @@ void QDockWindowResizeHandle::startLineDraw()
     int scr = QApplication::desktop()->screenNumber(this);
     QWidget *paint_on = QApplication::desktop()->screen(scr);
 #endif
-    unclippedPainter = new QPainter(paint_on, true);
+    unclippedPainter = new QPainter(paint_on); // ### use setAttribute(WA_PaintUnclipped) instead
     unclippedPainter->setPen(QPen(gray, orientation() == Horizontal ? height() : width()));
 }
 
@@ -1447,7 +1447,7 @@ void QDockWindow::startRectDraw(const QPoint &so, bool drawRect)
     int scr = QApplication::desktop()->screenNumber(this);
     QWidget *paint_on = QApplication::desktop()->screen(scr);
 #endif
-    unclippedPainter = new QPainter(paint_on, true);
+    unclippedPainter = new QPainter(paint_on); // ### use setAttribute()
     unclippedPainter->setPen(QPen(gray, curPlace == OutsideDock ? 3 : 1));
     currRect = QRect(realWidgetPos(this), size());
     if (drawRect) {

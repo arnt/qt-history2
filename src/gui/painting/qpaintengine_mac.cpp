@@ -113,7 +113,7 @@ QQuickDrawPaintEngine::~QQuickDrawPaintEngine()
 }
 
 bool
-QQuickDrawPaintEngine::begin(QPaintDevice *pdev, bool unclipped)
+QQuickDrawPaintEngine::begin(QPaintDevice *pdev)
 {
     if(isActive()) {                         // already active painting
         qWarning("QQuickDrawPaintEngine::begin: Painter is already active."
@@ -143,8 +143,7 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev, bool unclipped)
             d->offx = wp.x();
             d->offy = wp.y();
         }
-        if(!unclipped)
-            unclipped = (bool)w->testAttribute(WA_PaintUnclipped);
+        bool unclipped = w->testAttribute(WA_PaintUnclipped);
 
         if(!d->locked) {
             LockPortBits(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())));
@@ -990,7 +989,7 @@ QCoreGraphicsPaintEngine::~QCoreGraphicsPaintEngine()
 }
 
 bool
-QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, bool unclipped)
+QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
 {
     if(isActive()) {                         // already active painting
         qWarning("QCoreGraphicsPaintEngine::begin: Painter is already active."
@@ -1022,8 +1021,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, bool unclipped)
             d->offx = wp.x();
             d->offy = wp.y();
         }
-        if(!unclipped)
-            unclipped = (bool)w->testAttribute(WA_PaintUnclipped);
+	bool unclipped = w->testAttribute(WA_PaintUnclipped);
 
         if(w->isDesktop()) {
             if(!unclipped)

@@ -524,7 +524,7 @@ void QX11PaintEngine::cleanup()
     QPointArray::cleanBuffers();
 }
 
-bool QX11PaintEngine::begin(QPaintDevice *pdev, bool unclipped)
+bool QX11PaintEngine::begin(QPaintDevice *pdev)
 {
     d->pdev = pdev;
     if (d->pdev->devType() == QInternal::Widget)
@@ -570,7 +570,7 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev, bool unclipped)
 //         QBrush defaultBrush;
 //         ps->brush = defaultBrush;
 //     }
-    if (w && (unclipped || w->testAttribute(WA_PaintUnclipped))) {  // paint direct on device
+    if (w && w->testAttribute(WA_PaintUnclipped)) {  // paint direct on device
         setf(NoCache);
         setf(UsePrivateCx);
  	updatePen(QPen(black));
