@@ -131,7 +131,7 @@ private:
 #ifdef Q_WS_WIN
 
     friend void newWinFont( void * p );
-    friend void add_style( QtFontFamily *family, const QString& styleName,
+    friend void add_style( QtFontFamily *family,
 			   bool italic, bool lesserItalic, int weight );
 
 #endif // Q_WS_WIN
@@ -201,7 +201,7 @@ private:
 
 #ifdef Q_WS_WIN
     friend void newWinFont( void * p );
-    friend void add_style( QtFontFamily *family, const QString& styleName,
+    friend void add_style( QtFontFamily *family,
 			   bool italic, bool lesserItalic, int weight );
 #endif
 #if defined( Q_WS_MAC )

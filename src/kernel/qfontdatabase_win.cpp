@@ -41,7 +41,7 @@ storeFont( ENUMLOGFONTEX* f, TEXTMETRIC*, int /*type*/, LPARAM /*p*/ )
 }
 
 static
-void add_style( QtFontFamily *family, const QString& styleName,
+void add_style( QtFontFamily *family,
                 bool italic, bool lesserItalic, int weight )
 {
     QString weightString;
@@ -62,24 +62,22 @@ void add_style( QtFontFamily *family, const QString& styleName,
         weightString = "Black";
     }
 
-    QString sn = styleName;
-    if ( sn.lower() == "regular" )
-	sn = "Normal";
-    if ( sn.isEmpty() ) {
-        // Not TTF, we make the name
-        if ( weight != QFont::Normal || !italic && !lesserItalic ) {
-            sn += weightString;
-            sn += " ";
-        }
-        if ( italic )
-            sn += "Italic ";
-        if ( lesserItalic ) {
-            // Windows doesn't tell the user, so we don't either
-            //  sn += "Oblique ";
-            sn += "Italic ";
-        }
-        sn = sn.left(sn.length()-1); // chomp " "
+    QString sn;
+    
+    if ( weight != QFont::Normal || (!italic && !lesserItalic) ) {
+	sn = weightString;
+	sn += " ";
     }
+    if ( italic || lesserItalic ) {
+        sn += "Italic";
+    }
+#if 0
+    if ( lesserItalic ) {
+        // Windows doesn't tell the user, so we don't either
+        //  sn += "Oblique ";
+        sn += "Italic";
+    }
+#endif
     QtFontStyle *style = family->styleDict.find( sn );
     if ( !style ) {
         // qWarning( "New style[%s] for [%s][%s][%s]",
@@ -158,28 +156,28 @@ void newWinFont( void * p )
 qDebug("%s with quality %x",familyName.latin1(),f->elfLogFont.lfQuality);
 #endif
 
-        add_style( family, styleName, FALSE, FALSE, weight );
-        add_style( family, styleName, FALSE, TRUE, weight );
+        add_style( family, FALSE, FALSE, weight );
+        add_style( family, FALSE, TRUE, weight );
 
         if ( weight < QFont::DemiBold ) {
             // Can make bolder
-            add_style( family, styleName, FALSE, FALSE, QFont::Bold );
-            add_style( family, styleName, FALSE, TRUE, QFont::Bold );
+            add_style( family, FALSE, FALSE, QFont::Bold );
+            add_style( family, FALSE, TRUE, QFont::Bold );
         }
     } else {
         if ( italic ) {
-            add_style( family, styleName, italic, FALSE, weight );
+            add_style( family, italic, FALSE, weight );
         } else {
-            add_style( family, styleName, italic, FALSE, weight );
-            add_style( family, QString::null, italic, TRUE, weight );
+            add_style( family, italic, FALSE, weight );
+            add_style( family, italic, TRUE, weight );
         }
         if ( weight < QFont::DemiBold ) {
             // Can make bolder
             if ( italic )
-                add_style( family, QString::null, italic, FALSE, QFont::Bold );
+                add_style( family, italic, FALSE, QFont::Bold );
             else {
-                add_style( family, QString::null, FALSE, FALSE, QFont::Bold );
-                add_style( family, QString::null, FALSE, TRUE, QFont::Bold );
+                add_style( family, FALSE, FALSE, QFont::Bold );
+                add_style( family, FALSE, TRUE, QFont::Bold );
             }
         }
     }
