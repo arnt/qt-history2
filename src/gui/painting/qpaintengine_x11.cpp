@@ -489,10 +489,15 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
 
 QX11PaintEngine::QX11PaintEngine()
     : QPaintEngine(*(new QX11PaintEnginePrivate), UsesFontEngine
+                   | CoordTransform
+                   | PainterPaths
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+                   | AlphaStroke
                    | AlphaFillPolygon
+                   | AlphaFill
                    | AlphaPixmap
                    | FillAntialiasing
+                   | LineAntialiasing
 #endif
         )
 {
@@ -502,18 +507,26 @@ QX11PaintEngine::QX11PaintEngine()
     d->xft_hd = 0;
     d->xinfo = 0;
     if (!X11->use_xrender) {
+        gccaps &= ~AlphaStroke;
         gccaps &= ~AlphaFillPolygon;
+        gccaps &= ~AlphaFill;
         gccaps &= ~AlphaPixmap;
         gccaps &= ~FillAntialiasing;
+        gccaps &= ~LineAntialiasing;
     }
 }
 
 QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr)
     : QPaintEngine(dptr, UsesFontEngine
+                   | CoordTransform
+                   | PainterPaths
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+                   | AlphaStroke
                    | AlphaFillPolygon
+                   | AlphaFill
                    | AlphaPixmap
                    | FillAntialiasing
+                   | LineAntialiasing
 #endif
         )
 {
@@ -523,9 +536,12 @@ QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr)
     d->xft_hd = 0;
     d->xinfo = 0;
     if (!X11->use_xrender) {
+        gccaps &= ~AlphaStroke;
         gccaps &= ~AlphaFillPolygon;
+        gccaps &= ~AlphaFill;
         gccaps &= ~AlphaPixmap;
         gccaps &= ~FillAntialiasing;
+        gccaps &= ~LineAntialiasing;
     }
 }
 
@@ -566,6 +582,7 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
 
     d->gc = XCreateGC(d->dpy, d->hd, 0, 0);
     d->gc_brush = XCreateGC(d->dpy, d->hd, 0, 0);
+    d->use_path_fallback = false;
 
     // Set up the polygon clipper. Note: This will only work in
     // polyline mode as long as we have a buffer zone, since a
@@ -651,16 +668,31 @@ void QX11PaintEngine::drawLine(const QLineF &line)
 {
     if (!isActive())
         return;
-    if (d->cpen.style() != Qt::NoPen)
+
+    if (d->use_path_fallback) {
+        QPainterPath path(line.p1());
+        path.lineTo(line.p2());
+        drawPath(path);
+        return;
+    }
+    if (d->cpen.style() != Qt::NoPen) {
         XDrawLine(d->dpy, d->hd, d->gc,
                   qRound(line.x1()), qRound(line.y1()),
                   qRound(line.x2()), qRound(line.y2()));
+    }
 }
 
 void QX11PaintEngine::drawRect(const QRectF &rect)
 {
     if (!isActive())
         return;
+
+    if (d->use_path_fallback) {
+        QPainterPath path;
+        path.addRect(rect);
+        drawPath(path);
+        return;
+    }
 
     QRect r = rect.toRect().intersect(d->polygonClipper.boundingRect()).normalize();
 
@@ -681,32 +713,31 @@ void QX11PaintEngine::drawRect(const QRectF &rect)
 	xc.red   = (R | R << 8) * xc.alpha / 0x10000;
 	xc.green = (B | G << 8) * xc.alpha / 0x10000;
 	xc.blue  = (B | B << 8) * xc.alpha / 0x10000;
-	if (d->cpen.style() == Qt::NoPen) {
-	    XRenderFillRectangle(d->dpy, PictOpOver, pict, &xc, r.x(), r.y(), r.width(), r.height());
-	    return;
-	}
         XRenderFillRectangle(d->dpy, PictOpOver, pict, &xc, r.x(), r.y(), r.width(), r.height());
 	if (d->cpen.style() != Qt::NoPen)
 	    XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width(), r.height());
-	return;
-    }
+    } else
 #endif // !QT_NO_XFT && !QT_NO_XRENDER
-
-    if (d->cbrush.style() != Qt::NoBrush) {
-        if (d->cpen.style() == Qt::NoPen) {
+    {
+        if (d->cbrush.style() != Qt::NoBrush)
             XFillRectangle(d->dpy, d->hd, d->gc_brush, r.x(), r.y(), r.width(), r.height());
-            return;
-        }
-        XFillRectangle(d->dpy, d->hd, d->gc_brush, r.x(), r.y(), r.width(), r.height());
+        if (d->cpen.style() != Qt::NoPen)
+            XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width(), r.height());
     }
-    if (d->cpen.style() != Qt::NoPen)
-        XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width(), r.height());
 }
 
 void QX11PaintEngine::drawRects(const QRectF *rects, int rectCount)
 {
     if (!isActive())
         return;
+
+    if (d->use_path_fallback) {
+        QPainterPath path;
+        for (int i = 0; i < rectCount; ++i)
+            path.addRect(rects[i]);
+        drawPath(path);
+        return;
+    }
 
     if (d->cbrush.style() != Qt::NoBrush && d->cpen.style() != Qt::NoPen) {
 	for (int i = 0; i < rectCount; ++i)
@@ -733,8 +764,9 @@ void QX11PaintEngine::drawPoint(const QPointF &p)
 {
     if (!isActive())
         return;
+    QPointF xformed = d->matrix.map(p);
     if (d->cpen.style() != Qt::NoPen)
-        XDrawPoint(d->dpy, d->hd, d->gc, qRound(p.x()), qRound(p.y()));
+        XDrawPoint(d->dpy, d->hd, d->gc, qRound(xformed.x()), qRound(xformed.y()));
 }
 
 QPainter::RenderHints QX11PaintEngine::supportedRenderHints() const
@@ -748,6 +780,12 @@ QPainter::RenderHints QX11PaintEngine::supportedRenderHints() const
 
 void QX11PaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
+    if ((d->txop > QPainterPrivate::TxNone)
+        || (renderHints() & QPainter::Antialiasing))
+        d->use_path_fallback = true;
+    else
+        d->use_path_fallback = false;
+
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
     if (X11->use_xrender) {
         XRenderPictureAttributes attrs;
@@ -880,15 +918,12 @@ void QX11PaintEngine::updatePen(const QPen &pen)
     }
 }
 
-QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
-
 void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 {
     d->cbrush = brush;
     d->bg_origin = origin;
 
     int s  = FillSolid;
-    int  bs = d->cbrush.style();
     ulong mask = GCForeground | GCBackground | GCGraphicsExposures
                  | GCLineStyle | GCCapStyle | GCJoinStyle | GCFillStyle;
     XGCValues vals;
@@ -906,29 +941,6 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
     vals.join_style = JoinMiter;
     vals.line_style = LineSolid;
 
-    if (bs == Qt::TexturePattern || bs >= Qt::Dense1Pattern && bs <= Qt::DiagCrossPattern) {
-        QPixmap pm;
-        if (bs == Qt::TexturePattern)
-            pm = d->cbrush.texture();
-        else
-            pm = qt_pixmapForBrush(bs, true);
-        pm.x11SetScreen(d->scrn);
-        if (pm.depth() == 1) {
-            mask |= GCStipple;
-            vals.stipple = pm.handle();
-            s = d->bg_mode == Qt::TransparentMode ? FillStippled : FillOpaqueStippled;
-        } else {
-            mask |= GCTile;
-            vals.tile = (pm.depth() == d->pdev->depth()
-                         ? pm.handle()
-                         : pm.data->x11ConvertToDefaultDepth());
-            s = FillTiled;
-        }
-
-        mask |= GCTileStipXOrigin | GCTileStipYOrigin;
-        vals.ts_x_origin = qRound(origin.x());
-        vals.ts_y_origin = qRound(origin.y());
-    }
     vals.fill_style = s;
     XChangeGC(d->dpy, d->gc_brush, mask, &vals);
     if (!hasClipping()) {
@@ -942,13 +954,13 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 
 void QX11PaintEngine::drawEllipse(const QRectF &rect)
 {
-    if (renderHints() & QPainter::Antialiasing) {
+    if (d->use_path_fallback) {
         QPainterPath path;
         path.addEllipse(rect);
-        QPolygonF poly = path.toFillPolygon();
-        drawPolygon(poly.constData(), poly.size(), QPaintEngine::OddEvenMode);
+        drawPath(path);
         return;
     }
+
     QRect r = rect.toRect();
     int x = r.x();
     int y = r.y();
@@ -973,78 +985,163 @@ void QX11PaintEngine::drawEllipse(const QRectF &rect)
         XDrawArc(d->dpy, d->hd, d->gc, x, y, w, h, 0, 360*64);
 }
 
-void QX11PaintEngine::drawPolygon(const QPointF *polygonPoints, int pointCount, PolygonDrawMode mode)
+void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int pointCount,
+                                         QX11PaintEnginePrivate::GCMode gcMode,
+                                         QPaintEngine::PolygonDrawMode mode)
 {
     int clippedCount = 0;
     qt_XPoint *clippedPoints = 0;
 
-    if (mode != PolylineMode) {
-
-#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
-        bool smooth_edges = renderHints() & QPainter::Antialiasing;
-        if (X11->use_xrender && d->cbrush.style() != Qt::NoBrush &&
-            (smooth_edges || d->cbrush.color().alpha() != 255))
-        {
-            QPixmap gpix;
-            ::Picture src = 0;
-            ::Picture dst = d->xft_hd ? XftDrawPicture(d->xft_hd) : 0;
-            int x_offset = 0;
-            XftColor xfc;
-            QColor qc = d->cbrush.color();
-
-            const uint A = qc.alpha(),
-                       R = qc.red(),
-                       G = qc.green(),
-                       B = qc.blue();
-
-            // ###
-            xfc.pixel = QColormap::instance(d->scrn).pixel(qc);
-            xfc.color.alpha = (A | A << 8);
-            xfc.color.red   = (R | R << 8) * xfc.color.alpha / 0x10000;
-            xfc.color.green = (B | G << 8) * xfc.color.alpha / 0x10000;
-            xfc.color.blue  = (B | B << 8) * xfc.color.alpha / 0x10000;
-            src = d->xft_hd ? XftDrawSrcPicture(d->xft_hd, &xfc) : 0;
-
-            if (src && dst) {
-                int cCount;
-                qt_float_point *cPoints;
-                d->floatClipper.clipPolygon((qt_float_point *)polygonPoints, pointCount, &cPoints, &cCount);
-                if (cCount > 0) {
-                    QVector<XTrapezoid> traps;
-                    traps.reserve(128);
-                    qt_tesselate_polygon(&traps, (QPointF *)cPoints, cCount, mode == WindingMode);
-
-                    XRenderPictureAttributes attrs;
-                    attrs.poly_edge = smooth_edges ? PolyEdgeSmooth : PolyEdgeSharp;
-                    XRenderChangePicture(d->dpy, dst, CPPolyEdge, &attrs);
-                    XRenderCompositeTrapezoids(d->dpy, PictOpOver, src, dst,
-                                               XRenderFindStandardFormat(d->dpy, PictStandardA8),
-                                               x_offset, 0, traps.constData(), traps.size());
-                }
-            }
-        } else
-#endif
-            if (d->cbrush.style() != Qt::NoBrush) {
-                if (mode == WindingMode)
-                    XSetFillRule(d->dpy, d->gc_brush, WindingRule);
-                d->polygonClipper.clipPolygon((qt_float_point *) polygonPoints, pointCount,
-                                              &clippedPoints, &clippedCount);
-                if (clippedCount > 0)
-                    XFillPolygon(d->dpy, d->hd, d->gc_brush,
-                                 (XPoint *) clippedPoints, clippedCount,
-                                 mode == ConvexMode ? Convex : Complex, CoordModeOrigin);
-
-                if (mode == WindingMode)
-                    XSetFillRule(d->dpy, d->gc_brush, EvenOddRule);
-            }
+    QBrush fill;
+    GC fill_gc;
+    if (gcMode == QX11PaintEnginePrivate::BrushGC) {
+        fill = cbrush;
+        fill_gc = gc_brush;
+    } else {
+        fill = QBrush(cpen.brush());
+        fill_gc = gc;
     }
 
-    if (d->cpen.style() != Qt::NoPen) {
-        if (!clippedPoints) // already clipped?
-            d->polygonClipper.clipPolygon((qt_float_point *) polygonPoints, pointCount,
-                                          &clippedPoints, &clippedCount, mode != PolylineMode);
-        if (clippedCount > 0)
-            XDrawLines(d->dpy, d->hd, d->gc, (XPoint *) clippedPoints, clippedCount, CoordModeOrigin);
+#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+    bool antialias = q->renderHints() & QPainter::Antialiasing;
+    if (X11->use_xrender && fill.style() != Qt::NoBrush &&
+        (antialias || fill.color().alpha() != 255))
+    {
+        QPixmap gpix;
+        ::Picture src = 0;
+        ::Picture dst = xft_hd ? XftDrawPicture(xft_hd) : 0;
+        int x_offset = 0;
+        XftColor xfc;
+        QColor qc = fill.color();
+
+        const uint A = qc.alpha(),
+                   R = qc.red(),
+                   G = qc.green(),
+                   B = qc.blue();
+
+        // ###
+        xfc.pixel = QColormap::instance(scrn).pixel(qc);
+        xfc.color.alpha = (A | A << 8);
+        xfc.color.red   = (R | R << 8) * xfc.color.alpha / 0x10000;
+        xfc.color.green = (B | G << 8) * xfc.color.alpha / 0x10000;
+        xfc.color.blue  = (B | B << 8) * xfc.color.alpha / 0x10000;
+        src = xft_hd ? XftDrawSrcPicture(xft_hd, &xfc) : 0;
+        src = d->xft_hd ? XftDrawSrcPicture(d->xft_hd, &xfc) : 0;
+
+        if (src && dst) {
+            int cCount;
+            qt_float_point *cPoints;
+            floatClipper.clipPolygon((qt_float_point *)polygonPoints, pointCount, &cPoints, &cCount);
+            if (cCount > 0) {
+                QVector<XTrapezoid> traps;
+                traps.reserve(128);
+                qt_tesselate_polygon(&traps, (QPointF *)cPoints, cCount,
+                                     mode == QPaintEngine::WindingMode);
+
+                XRenderPictureAttributes attrs;
+                attrs.poly_edge = antialias ? PolyEdgeSmooth : PolyEdgeSharp;
+                XRenderChangePicture(dpy, dst, CPPolyEdge, &attrs);
+                XRenderCompositeTrapezoids(dpy, PictOpOver, src, dst,
+                                           antialias ? XRenderFindStandardFormat(dpy, PictStandardA8) : 0,
+                                           x_offset, 0, traps.constData(), traps.size());
+            }
+        }
+    } else
+#endif
+        if (fill.style() != Qt::NoBrush) {
+            if (mode == QPaintEngine::WindingMode)
+                XSetFillRule(dpy, fill_gc, WindingRule);
+            polygonClipper.clipPolygon((qt_float_point *) polygonPoints, pointCount,
+                                       &clippedPoints, &clippedCount);
+            if (clippedCount > 0)
+                XFillPolygon(dpy, d->hd, fill_gc,
+                             (XPoint *) clippedPoints, clippedCount,
+                             mode == QPaintEngine::ConvexMode ? Convex : Complex, CoordModeOrigin);
+
+            if (mode == QPaintEngine::WindingMode)
+                XSetFillRule(dpy, fill_gc, EvenOddRule);
+        }
+}
+
+void QX11PaintEnginePrivate::strokePolygon(const QPointF *polygonPoints, int pointCount)
+{
+   if (cpen.style() != Qt::NoPen) {
+       int clippedCount = 0;
+       qt_XPoint *clippedPoints = 0;
+       d->polygonClipper.clipPolygon((qt_float_point *) polygonPoints, pointCount,
+                                     &clippedPoints, &clippedCount, false);
+       if (clippedCount > 0)
+           XDrawLines(dpy, hd, gc, (XPoint *) clippedPoints, clippedCount, CoordModeOrigin);
+    }
+}
+
+void QX11PaintEngine::drawPolygon(const QPointF *polygonPoints, int pointCount, PolygonDrawMode mode)
+{
+    if (d->use_path_fallback) {
+        QPainterPath path(polygonPoints[0]);
+        for (int i = 1; i < pointCount; ++i)
+            path.lineTo(polygonPoints[i]);
+        if (mode == PolylineMode) {
+            QBrush oldBrush = d->cbrush;
+            d->cbrush = QBrush(Qt::NoBrush);
+            path.setFillRule(Qt::WindingFill);
+            drawPath(path);
+            d->cbrush = oldBrush;
+        } else {
+            path.setFillRule(mode == OddEvenMode ? Qt::OddEvenFill : Qt::WindingFill);
+            path.closeSubpath();
+            drawPath(path);
+        }
+        return;
+    }
+    if (mode != PolylineMode && d->cbrush.style() != Qt::NoBrush)
+        d->fillPolygon(polygonPoints, pointCount, QX11PaintEnginePrivate::BrushGC, mode);
+
+    if (d->cpen.style() != Qt::NoPen)
+        d->strokePolygon(polygonPoints, pointCount);
+}
+
+void QX11PaintEngine::drawPath(const QPainterPath &path)
+{
+    if (path.isEmpty())
+        return;
+    if (d->cbrush.style() != Qt::NoBrush) {
+        QPolygonF poly = path.toFillPolygon(state->matrix);
+        d->fillPolygon(poly.data(), poly.size(), QX11PaintEnginePrivate::BrushGC,
+                       path.fillRule() == Qt::OddEvenFill ? OddEvenMode : WindingMode);
+    }
+
+    if (d->cpen.style() != Qt::NoPen
+        && (d->cpen.color().alpha() != 255
+            || (d->cpen.widthF() > 0)
+            || (renderHints() & QPainter::Antialiasing))) {
+        QPainterPathStroker stroker;
+        stroker.setDashPattern(d->cpen.style());
+        stroker.setCapStyle(d->cpen.capStyle());
+        stroker.setJoinStyle(d->cpen.joinStyle());
+        QPainterPath stroke;
+        qreal width = d->cpen.widthF();
+        QPolygonF poly;
+        if (width == 0) {
+            stroker.setWidth(1);
+            stroke = stroker.createStroke(path * state->matrix);
+            if (stroke.isEmpty())
+                return;
+            poly = stroke.toFillPolygon();
+        } else {
+            stroker.setWidth(width);
+            stroker.setCurveThreshold(width / (2 * 10 * d->matrix.m11() * d->matrix.m22()));
+            stroke = stroker.createStroke(path);
+            if (stroke.isEmpty())
+                return;
+            poly = stroke.toFillPolygon(state->matrix);
+        }
+        d->fillPolygon(poly.data(), poly.size(), QX11PaintEnginePrivate::PenGC, WindingMode);
+    } else if (d->cpen.style() != Qt::NoPen) {
+        // if we have a pen width of 0 - use XDrawLine() for speed
+        QList<QPolygonF> polys = path.toSubpathPolygons(state->matrix);
+        for (int i = 0; i < polys.size(); ++i)
+            d->strokePolygon(polys.at(i).data(), polys.at(i).size());
     }
 }
 
@@ -1488,7 +1585,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
                                    && !pixmap.data->alpha
                                    && pixmap.data->mask)
                                   ? pixmap.data->mask->xftPictureHandle()
-                                  : XNone);
+                                  : 0);
             XRenderComposite(d->dpy, mode == Qt::ComposePixmap ? PictOpOver : PictOpSrc,
                              src_pict, msk_pict, dst_pict, sx, sy, sx, sy, x, y, sw, sh);
             if (mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap) {
@@ -1526,6 +1623,7 @@ void QX11PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 
 void QX11PaintEngine::updateMatrix(const QMatrix &mtx)
 {
+    d->matrix = mtx;
     if (mtx.m12() != 0 || mtx.m21() != 0)
         d->txop = QPainterPrivate::TxRotShear;
     else if (mtx.m11() != 1 || mtx.m22() != 1)
@@ -1534,6 +1632,12 @@ void QX11PaintEngine::updateMatrix(const QMatrix &mtx)
         d->txop = QPainterPrivate::TxTranslate;
     else
         d->txop = QPainterPrivate::TxNone;
+
+    if ((d->txop > QPainterPrivate::TxNone)
+        || (renderHints() & QPainter::Antialiasing))
+        d->use_path_fallback = true;
+    else
+        d->use_path_fallback = false;
 }
 
 void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation op)

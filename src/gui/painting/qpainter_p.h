@@ -135,7 +135,6 @@ public:
                          StrokeAndFillDraw = 0x3
     };
 
-    void draw_helper(const QPainterPath &path, DrawOperation operation, uint emulationSpecifier);
     void draw_helper(const QPainterPath &path, DrawOperation operation = StrokeAndFillDraw);
 
     void updateMatrix();

@@ -744,14 +744,15 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
         else
             emulationSpecifier &= ~AlphaFill;
 
-        if ((s->brush.style() > Qt::SolidPattern && s->brush.style() < Qt::LinearGradientPattern
+        if (((s->brush.style() > Qt::SolidPattern && s->brush.style() < Qt::LinearGradientPattern)
              || s->brush.style() == Qt::TexturePattern)
             && s->txop > QPainterPrivate::TxTranslate && !hasFeature(PatternTransform))
             emulationSpecifier |= PatternTransform;
         else
             emulationSpecifier &= ~PatternTransform;
 
-        if ((s->brush.style() > Qt::SolidPattern && s->brush.style() < Qt::LinearGradientPattern)
+        if (((s->brush.style() > Qt::SolidPattern && s->brush.style() < Qt::LinearGradientPattern)
+             || s->brush.style() == Qt::TexturePattern)
             && !hasFeature(PatternBrush))
             emulationSpecifier |= PatternBrush;
         else

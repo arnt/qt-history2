@@ -99,14 +99,7 @@ QString qt_generate_brush_key(const QRectF &bounds, const QBrush &brush)
     return key;
 }
 
-// ### make this inline when the X11 define has been removed
-void QPainterPrivate::draw_helper(const QPainterPath &path, DrawOperation operation)
-{
-    draw_helper(path, operation, engine->emulationSpecifier);
-}
-
-void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperation op,
-                                  uint emulationSpecifier)
+void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperation op)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output) {
@@ -147,7 +140,8 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
 
     QPainterPath path = originalPath * state->matrix;
     QRectF pathBounds = path.boundingRect();
-    if (state->pen.style() != Qt::NoPen) {
+    bool doStroke = (op & StrokeDraw) && (state->pen.style() != Qt::NoPen);
+    if (doStroke) {
         qreal penWidth = state->pen.widthF();
         if (penWidth == 0) {
             strokeOffsetX = 1;
@@ -193,8 +187,11 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
 
     p.translate(-devMinX, -devMinY);
     p.setMatrix(state->matrix, true);
-    p.setPen(state->pen);
-    p.setBrush(state->brush);
+    p.setPen(doStroke ? state->pen : QPen(Qt::NoPen));
+    p.setBrush((op & FillDraw) ? state->brush : QBrush(Qt::NoBrush));
+    p.setBackground(state->bgBrush);
+    p.setBackgroundMode(state->bgMode);
+    p.setBrushOrigin(state->bgOrigin);
 
     p.setRenderHint(QPainter::Antialiasing,
                     engine->d_func()->renderhints & QPainter::Antialiasing);
@@ -204,8 +201,6 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
     p.drawPath(originalPath);
 
     p.end();
-
-    Q_Q(QPainter);
     engine->drawPixmap(QRectF(devMinX, devMinY, devWidth, devHeight),
                        image,
                        QRectF(0, 0, devWidth, devHeight),
@@ -1724,7 +1719,7 @@ void QPainter::drawRect(const QRectF &r)
         } else {
             QPainterPath rectPath;
             rectPath.addRect(rect);
-            d->draw_helper(rectPath, QPainterPrivate::StrokeAndFillDraw, emulationSpecifier);
+            d->draw_helper(rectPath, QPainterPrivate::StrokeAndFillDraw);
             return;
         }
     }
@@ -2723,14 +2718,11 @@ void QPainter::drawPolygon(const QPointF *points, int pointCount, Qt::FillRule f
         emulationSpecifier &= ~QPaintEngine::AlphaFill;
 
     if (emulationSpecifier) {
-        // ###
-//         if (emulationSpecifier == QPaintEngine::CoordTransform
-//             && d->state->txop == QPainterPrivate::TxTranslate) {
-//         } else {
         QPainterPath polygonPath(points[0]);
         for (int i=1; i<pointCount; ++i)
             polygonPath.lineTo(points[i]);
         polygonPath.closeSubpath();
+        polygonPath.setFillRule(fillRule);
         d->draw_helper(polygonPath);
         return;
     }

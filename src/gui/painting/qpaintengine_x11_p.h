@@ -52,61 +52,9 @@ struct qt_float_point
     }
 };
 
-class QX11PaintEnginePrivate : public QPaintEnginePrivate {
-
-public:
-    QX11PaintEnginePrivate()
-    {
-        dpy = 0;
-        scrn = -1;
-        hd = 0;
-        xft_hd = 0;
-        bg_col = Qt::white;                             // default background color
-        bg_mode = Qt::TransparentMode;                  // default background mode
-        tabstops = 0;                               // default tabbing
-        tabarray = 0;
-        tabarraylen = 0;
-        ps_stack = 0;
-        wm_stack = 0;
-        gc = gc_brush = 0;
-        dpy  = 0;
-        xinfo = 0;
-        txop = QPainterPrivate::TxNone;
-    }
-    Display *dpy;
-    int scrn;
-    Qt::HANDLE hd;
-#if !defined (QT_NO_XFT)
-    XftDraw *xft_hd;
-#else
-    Qt::HANDLE xft_hd;
-#endif
-    GC gc;
-    GC gc_brush;
-
-    QColor bg_col;
-    uchar bg_mode;
-    QPen cpen;
-    QBrush cbrush;
-    QBrush bg_brush;
-    QRegion crgn;
-    int tabstops;
-    int *tabarray;
-    int tabarraylen;
-
-    void *ps_stack;
-    void *wm_stack;
-    const QX11Info *xinfo;
-    QPointF bg_origin;
-    QPainterPrivate::TransformationCodes txop;
-    QPolygonClipper<qt_float_point, qt_XPoint, short> polygonClipper;
-    QPolygonClipper<qt_float_point, qt_float_point, float> floatClipper;
-};
-
 class QX11PaintEngine : public QPaintEngine
 {
     Q_DECLARE_PRIVATE(QX11PaintEngine)
-
 public:
     QX11PaintEngine();
     ~QX11PaintEngine();
@@ -122,19 +70,20 @@ public:
     void updateMatrix(const QMatrix &matrix);
     void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
 
-    virtual void drawLine(const QLineF &line);
-    virtual void drawRect(const QRectF &r);
-    virtual void drawRects(const QRectF *lines, int lineCount);
-    virtual void drawPoint(const QPointF &p);
-    virtual void drawEllipse(const QRectF &r);
+    void drawLine(const QLineF &line);
+    void drawRect(const QRectF &r);
+    void drawRects(const QRectF *lines, int lineCount);
+    void drawPoint(const QPointF &p);
+    void drawEllipse(const QRectF &r);
     virtual void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
     inline void drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode)
         { QPaintEngine::drawPolygon(points, pointCount, mode); }
 
-    virtual void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
-                            Qt::PixmapDrawingMode mode);
-    virtual void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
-				 Qt::PixmapDrawingMode mode);
+    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
+                    Qt::PixmapDrawingMode mode);
+    void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
+                         Qt::PixmapDrawingMode mode);
+    void drawPath(const QPainterPath &path);
     void drawTextItem(const QPointF &p, const QTextItem &textItem);
 
     virtual Qt::HANDLE handle() const;
@@ -167,4 +116,55 @@ private:
     Q_DISABLE_COPY(QX11PaintEngine)
 };
 
+class QX11PaintEnginePrivate : public QPaintEnginePrivate
+{
+    Q_DECLARE_PUBLIC(QX11PaintEngine)
+public:
+    QX11PaintEnginePrivate()
+    {
+        dpy = 0;
+        scrn = -1;
+        hd = 0;
+        xft_hd = 0;
+        bg_col = Qt::white;                             // default background color
+        bg_mode = Qt::TransparentMode;                  // default background mode
+        gc = gc_brush = 0;
+        dpy  = 0;
+        xinfo = 0;
+        txop = QPainterPrivate::TxNone;
+    }
+    enum GCMode {
+        PenGC,
+        BrushGC
+    };
+    void fillPolygon(const QPointF *points, int pointCount, GCMode gcMode,
+                     QPaintEngine::PolygonDrawMode mode);
+    void strokePolygon(const QPointF *points, int pointCount);
+
+    Display *dpy;
+    int scrn;
+    Qt::HANDLE hd;
+#if !defined (QT_NO_XFT)
+    XftDraw *xft_hd;
+#else
+    Qt::HANDLE xft_hd;
+#endif
+    GC gc;
+    GC gc_brush;
+
+    QColor bg_col;
+    uchar bg_mode;
+    QPen cpen;
+    QBrush cbrush;
+    QBrush bg_brush;
+    QRegion crgn;
+    QMatrix matrix;
+    bool use_path_fallback;
+
+    const QX11Info *xinfo;
+    QPointF bg_origin;
+    QPainterPrivate::TransformationCodes txop;
+    QPolygonClipper<qt_float_point, qt_XPoint, short> polygonClipper;
+    QPolygonClipper<qt_float_point, qt_float_point, float> floatClipper;
+};
 #endif // QPAINTENGINE_X11_P_H

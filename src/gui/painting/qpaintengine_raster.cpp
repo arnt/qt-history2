@@ -1397,13 +1397,8 @@ QImage *QRasterPaintEnginePrivate::colorizeBitmap(const QImage *image, const QCo
 {
     tempImage = QImage(image->size(), 32);
     Q_ASSERT(image->depth() == 32);
-#ifdef Q_WS_WIN
 //     QRgb color0 = 0xffffffff;
     QRgb color1 = 0xff000000;
-#else
-//     QRgb color0 = 0xffffffff;
-    QRgb color1 = 0xffffffff;
-#endif
     QRgb fg = color.rgba();
     QRgb bg = opaqueBackground ? bgBrush.color().rgba() : 0;
     for (int y=0; y<image->height(); ++y) {
