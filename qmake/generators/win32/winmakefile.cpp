@@ -345,7 +345,7 @@ void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
                 files += file;
             }
             if(!files.isEmpty())
-                t << del_statement << files;
+                t << "\n\t" << del_statement << files;
         }
     }
     t << endl << endl;
