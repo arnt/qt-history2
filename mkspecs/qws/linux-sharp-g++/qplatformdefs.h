@@ -50,6 +50,7 @@
 #define QT_STAT_LNK		S_IFLNK
 #define QT_FILENO		fileno
 #define QT_OPEN			::open
+#define QT_TRUNCATE             ::truncate
 #define QT_CLOSE		::close
 #define QT_LSEEK		::lseek
 #define QT_READ			::read
