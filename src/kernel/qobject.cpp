@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#13 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#13 $";
 #endif
 
 
@@ -182,8 +182,14 @@ void QObject::insertChild( QObject *obj )	// add object object
 
 void QObject::removeChild( QObject *obj )	// remove child object
 {
-    if ( childObjects && childObjects->findRef(obj) >= 0 )
-	childObjects->remove();			// does not delete object
+    if ( childObjects ) {
+	if ( childObjects->findRef(obj) >= 0 )
+	    childObjects->remove();		// does not delete object
+	if ( childObjects->isEmpty() ) {	// list becomes empty
+	    delete childObjects;
+	    childObjects = 0;			// reset children list
+	}
+    }
 }
 
 
