@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#17 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#18 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -44,6 +44,7 @@
 #include "qfile.h"
 #include "qmap.h"
 #include "qregexp.h"
+#include "qvaluelist.h"
 
 #include <math.h>
 
@@ -548,8 +549,8 @@ void QSVGDevice::drawPath( const QString &data )
     int x0 = 0, y0 = 0;			// starting point
     int x = 0, y = 0;			// current point
     int controlX, controlY;		// last control point for curves
-    bool closePath = FALSE;		// closed via Z ?
     QPointArray path( 500 );		// resulting path
+    QValueList<int> subIndex;		// start indices for subpaths
     QPointArray quad( 4 ), bezier;	// for curve calculations
     int pcount = 0;			// current point array index
     uint idx = 0;			// current data position
@@ -558,6 +559,7 @@ void QSVGDevice::drawPath( const QString &data )
     int cmdArgs[] = { 2, 0, 2, 1, 1, 6, 4, 4, 2, 7 };	// no of arguments
     QRegExp reg( "\\s*([+-]?\\d*\\.?\\d*)" );		// floating point
 
+    subIndex.append( 0 );
     // detect next command
     while ( idx < data.length() ) {
 	QChar ch = data[ idx++ ];
@@ -592,24 +594,18 @@ void QSVGDevice::drawPath( const QString &data )
 	int offsetY = relative ? y : 0;		// for relative commands
 	switch ( mode ) {
 	case 'M':				// move to
-	    if ( pcount )
-		if ( pt->brush().style() == Qt::SolidPattern && !closePath)
-		    pt->drawPolygon( path, 0, FALSE, pcount );
-		else
-		    pt->drawPolyline( path, 0, pcount );
-	    closePath = FALSE;
+	    if ( x != x0 || y != y0 )
+		path.setPoint( pcount++, x0, y0 );
 	    x = x0 = int(arg[ 0 ]) + offsetX;
 	    y = y0 = int(arg[ 1 ]) + offsetY;
-	    path.setPoint( 0, x0, y0 );
-	    pcount = 1;
+	    subIndex.append( pcount );
+	    path.setPoint( pcount++, x0, y0 );
 	    mode = 'L';
 	    break;
 	case 'Z':				// close path
 	    path.setPoint( pcount++, x0, y0 );
-	    pt->drawPolygon( path, 0, FALSE, pcount );
 	    x = x0;
 	    y = y0;
-	    closePath = TRUE;
 	    mode = 0;
 	    break;
 	case 'L':				// line to
@@ -672,12 +668,26 @@ void QSVGDevice::drawPath( const QString &data )
 	lastMode = mode;
     }
 
-    // undrawn path left ?
-    if ( pt->brush().style() == Qt::SolidPattern && !closePath)
-	pt->drawPolygon( path, 0, FALSE, pcount );
-    else
-	pt->drawPolyline( path, 0, pcount );
-
+    subIndex.append( pcount );			// dummy marking the end
+    if ( pt->brush().style() != Qt::NoBrush ) {
+	// fill the area without stroke first
+	if ( x != x0 || y != y0 )
+	    path.setPoint( pcount++, x0, y0 );
+	QPen pen = pt->pen();
+	pt->setPen( Qt::NoPen );
+	pt->drawPolygon( path, FALSE, 0, pcount );
+	pt->setPen( pen );
+    }
+    // draw each subpath stroke seperately
+    QValueListConstIterator<int> it = subIndex.begin();
+    int start = 0;
+    while ( it != subIndex.fromLast() ) {
+	int next = *++it;
+	// ### always joins ends if first and last point coincide.
+	// ### 'Z' can't have the desired effect
+	pt->drawPolyline( path, start, next-start );
+	start = next;
+    }
 }
 
 #endif // QT_NO_SVG
