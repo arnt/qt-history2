@@ -72,7 +72,7 @@ Themes::Themes( QWidget *parent, const char *name, WFlags f )
 	QString styleStr = *it;
 	QString styleAccel = styleStr;
 	if ( stylesDict[styleAccel.left(1)] ) {
-	    for ( uint i = 0; i < styleAccel.length(); i++ ) {
+	    for ( int i = 0; i < styleAccel.length(); i++ ) {
 		if ( !stylesDict[styleAccel.mid( i, 1 )] ) {
 		    stylesDict.insert(styleAccel.mid( i, 1 ), (const int *)1);
 		    styleAccel = styleAccel.insert( i, '&' );
