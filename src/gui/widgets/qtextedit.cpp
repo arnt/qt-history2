@@ -671,6 +671,19 @@ void QTextEditPrivate::doWindowsShiftClickSelection(int suggestedNewPosition)
     }
 }
 
+void QTextEditPrivate::doWindowsCtrlClickSelection(int suggestedNewPosition)
+{
+    Q_Q(QTextEdit);
+
+    if (cursor.hasSelection()) {
+        setCursorPosition(suggestedNewPosition);
+    } else {
+        cursor.movePosition(QTextCursor::StartOfBlock);
+        cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        q->ensureCursorVisible();
+    }
+}
+
 /*!
     \class QTextEdit
     \brief The QTextEdit class provides a widget that is used to edit and display
@@ -1723,6 +1736,8 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
                     d->extendWordwiseSelection(cursorPos, pos.x());
                 else
                     d->doWindowsShiftClickSelection(cursorPos);
+            } else if (e->modifiers() & Qt::ControlModifier) {
+                d->doWindowsCtrlClickSelection(cursorPos);
             } else {
 
                 if (d->cursor.hasSelection()
