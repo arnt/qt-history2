@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#92 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#91 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#92 $");
 
 
 /*****************************************************************************
@@ -292,8 +292,8 @@ QPixmap::QPixmap( const QPixmap &pixmap )
 QPixmap::QPixmap( const char *fileName, const char *format, ColorMode mode )
     : QPaintDevice( PDT_PIXMAP )
 {
-    if ( !load( fileName, format, mode ) )
-	init( 0, 0, 0 );
+    init( 0, 0, 0 );
+    load( fileName, format, mode );
 }
 
 /*!
