@@ -932,7 +932,7 @@ bool QFtpPI::processReply()
             // reply codes not starting with 1 or 2 are not handled.
             return true;
         case Waiting:
-            if (replyCode[0]<0 || replyCode[0]>5)
+            if (static_cast<signed char>(replyCode[0]) < 0 || replyCode[0] > 5)
                 state = Failure;
             else
                 state = table[replyCode[0] - 1];
