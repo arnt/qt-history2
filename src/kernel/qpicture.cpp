@@ -808,6 +808,7 @@ QDataStream &operator<<( QDataStream &s, const QPicture &r )
 {
     // just write the whole buffer to the stream
     return s.writeRawBytes ( r.pictb.buffer().data(), r.pictb.buffer().size() );
+    s << (Q_UINT32)r.pictb.buffer().size();
 }
 
 /*!
@@ -818,25 +819,18 @@ QDataStream &operator<<( QDataStream &s, const QPicture &r )
 
 QDataStream &operator>>( QDataStream &s, QPicture &r )
 {
-    Q_INT8 c;
     QDataStream sr;
 
     // "init"; this code is similar to the beginning of QPicture::cmd()
     sr.setDevice( &r.pictb );
     sr.setVersion( r.formatMajor );
     QByteArray empty( 0 );
-    r.pictb.setBuffer( empty );
-    r.pictb.open( IO_WriteOnly );
+    Q_UINT32 len;
+    s >> len;
+    QByteArray data( len );
+    s.readRawBytes( data.data(), len );
 
-    // read all input and put it in the buffer (since it is a stream, I
-    // don't know the size; so I have to loop until the end)
-    while ( !s.atEnd() ) {
-	s >> c;
-	sr << c;
-    }
-
-    // "cleanup"
-    r.pictb.close();
+    r.pictb.setBuffer( data );
     r.resetFormat();
 
     return s;
