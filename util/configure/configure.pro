@@ -21,7 +21,7 @@ SOURCES	 = main.cpp configureapp.cpp \
 	   $$QT_SOURCE_TREE/src/core/tools/qlocale.cpp \
 	   $$QT_SOURCE_TREE/src/compat/tools/qgvector.cpp \
 	   $$QT_SOURCE_TREE/src/core/tools/qvector.cpp \
-           $$QT_SOURCE_TREE/src/core/base/qglobal.cpp \
+           $$QT_SOURCE_TREE/src/core/global/qglobal.cpp \
 	   $$QT_SOURCE_TREE/src/core/tools/qhash.cpp \
            $$QT_SOURCE_TREE/src/compat/tools/qptrcollection.cpp \
            $$QT_SOURCE_TREE/src/core/io/qbuffer.cpp \

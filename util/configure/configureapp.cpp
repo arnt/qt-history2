@@ -1031,7 +1031,7 @@ void Configure::generateConfigfiles()
     QString outDir( dictionary[ "QT_INSTALL_HEADERS" ] );
 
     if( dictionary[ "QMAKE_INTERNAL" ] == "yes" )
-	outDir = dictionary[ "QT_SOURCE_TREE" ] + "/src/core/base";
+	outDir = dictionary[ "QT_SOURCE_TREE" ] + "/src/core/global";
 
     QString outName( outDir + "/qconfig.h" );
 
@@ -1155,7 +1155,7 @@ void Configure::generateConfigfiles()
     }
 
     outDir = dictionary[ "QT_SOURCE_TREE" ];
-    outName = outDir + "/src/core/base/qconfig.cpp";
+    outName = outDir + "/src/core/global/qconfig.cpp";
     ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
     QFile::remove( outName );
     outFile.setName( outName );
