@@ -127,6 +127,14 @@ void InnerNode::setOverload( const FunctionNode *func, bool overlode )
     }
 }
 
+void InnerNode::makeUndocumentedChildrenInternal()
+{
+    foreach (Node *child, childNodes()) {
+	if (child->doc().isEmpty())
+	    child->setAccess(Node::Private);
+    }
+}
+
 void InnerNode::normalizeOverloads()
 {
     QMap<QString, Node *>::ConstIterator p = primaryFunctionMap.begin();

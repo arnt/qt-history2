@@ -1,9 +1,14 @@
 MISC:
+  * avoid "Undocumented parameter" warning for overloads (e.g. qvarlengtharray.doc:187)
+  * support <qglobal.h>'s typedefs with \typedef
+  * make \macro work
+  * remove warning for undocumented enum item like QLocale::LastLanguage
+
   * remove getter/setter functions from list for properties
   * get rid of spurious 'global' functions
   * make \enum work also for typedefs (?)
 
-  * implement \table
+
   * implement \sidebar
 
   * implement \ingroup

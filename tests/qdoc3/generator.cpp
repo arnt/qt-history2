@@ -244,9 +244,10 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 
 	    Set<QString> definedParams;
 	    QList<Parameter>::ConstIterator p = func->parameters().begin();
-	    while ( p != func->parameters().end() ) {
-	        if ( (*p).name().isEmpty() ) {
-		    node->location().warning( tr("Missing parameter name") );
+	    while (p != func->parameters().end()) {
+	        if ((*p).name().isEmpty() && func->name() != QLatin1String("operator++")
+			&& func->name() != QLatin1String("operator--")) {
+		    node->doc().location().warning(tr("Missing parameter name"));
 	        } else {
 		    definedParams.insert( (*p).name() );
 	        }
@@ -267,8 +268,23 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 
 		        node->doc().location().warning(tr("No such parameter '%1'").arg(*a),
 						       details);
-		    } else if ( !documentedParams.contains(*a) ) {
-		        node->doc().location().warning(tr("Undocumented parameter '%1'").arg(*a));
+		    } else if ( !(*a).isEmpty() && !documentedParams.contains(*a) ) {
+			bool needWarning = true;
+			if (func->overloadNumber() > 1) {
+			    FunctionNode *primaryFunc =
+				    func->parent()->findFunctionNode(func->name());
+			    if (primaryFunc) {
+				foreach (Parameter param, primaryFunc->parameters()) {
+				    if (param.name() == *a) {
+                                        needWarning = false;
+					break;
+				    }
+				}
+			    }
+                        }
+                        if (needWarning)
+			    node->doc().location().warning(tr("Undocumented parameter '%1'")
+							   .arg(*a));
 		    }
 		    ++a;
 	        }

@@ -169,6 +169,8 @@ QString CodeMarker::sortName( const Node *node )
 	    else
 		sortNo = "E";
 	}
+        if (func->status() == Node::Obsolete || func->status() == Node::Deprecated)
+	    sortNo = sortNo.toLower();
 	return sortNo + nodeName + " " + QString::number(func->overloadNumber(), 36);
     } else if (node->type() == Node::Class) {
 	return "A" + nodeName;
@@ -183,7 +185,7 @@ void CodeMarker::insert(FastSection &fastSection, Node *node, SynopsisStyle styl
 			    (node->parent() != (const InnerNode *)fastSection.innerNode));
     bool irrelevant = FALSE;
 
-    if ( node->access() == Node::Private) {
+    if (node->access() == Node::Private) {
 	irrelevant = true;
     } else if ( node->type() == Node::Function ) {
 	FunctionNode *func = (FunctionNode *) node;

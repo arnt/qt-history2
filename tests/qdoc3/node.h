@@ -76,6 +76,7 @@ public:
     void addInclude(const QString &include);
     void setOverload( const FunctionNode *func, bool overlode );
     void normalizeOverloads();
+    void makeUndocumentedChildrenInternal();
     void deleteChildren();
 
     virtual bool isInnerNode() const;

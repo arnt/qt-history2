@@ -8,13 +8,11 @@
 #define COMMAND_DEPRECATED              Doc::alias("deprecated")
 #define COMMAND_INGROUP                 Doc::alias("ingroup")
 #define COMMAND_INMODULE                Doc::alias("inmodule")
+#define COMMAND_INTERNAL                Doc::alias("internal")
 #define COMMAND_MAINCLASS		Doc::alias("mainclass")
 #define COMMAND_NONREENTRANT            Doc::alias("nonreentrant")
 #define COMMAND_OBSOLETE                Doc::alias("obsolete")
 #define COMMAND_PRELIMINARY             Doc::alias("preliminary")
-#define COMMAND_PRIVATE                 Doc::alias("private")
-#define COMMAND_PROTECTED               Doc::alias("protected")
-#define COMMAND_PUBLIC                  Doc::alias("public")
 #define COMMAND_REENTRANT               Doc::alias("reentrant")
 #define COMMAND_THREADSAFE              Doc::alias("threadsafe")
 #define COMMAND_TITLE			Doc::alias("title")
@@ -87,10 +85,9 @@ CodeParser *CodeParser::parserForLanguage( const QString& language )
 Set<QString> CodeParser::commonMetaCommands()
 {
     return Set<QString>() << COMMAND_DEPRECATED << COMMAND_INGROUP << COMMAND_INMODULE
-			  << COMMAND_MAINCLASS << COMMAND_NONREENTRANT << COMMAND_OBSOLETE
-                          << COMMAND_PRELIMINARY << COMMAND_PRIVATE << COMMAND_PROTECTED
-                          << COMMAND_PUBLIC << COMMAND_REENTRANT << COMMAND_THREADSAFE
-                          << COMMAND_TITLE;
+			  << COMMAND_INTERNAL << COMMAND_MAINCLASS << COMMAND_NONREENTRANT
+                          << COMMAND_OBSOLETE << COMMAND_PRELIMINARY << COMMAND_REENTRANT
+                          << COMMAND_THREADSAFE << COMMAND_TITLE;
 }
 
 void CodeParser::processCommonMetaCommand(const Location &location, const QString &command,
@@ -110,12 +107,8 @@ void CodeParser::processCommonMetaCommand(const Location &location, const QStrin
 	node->setThreadSafeness(Node::NonReentrant);
     } else if ( command == COMMAND_PRELIMINARY ) {
 	node->setStatus( Node::Preliminary );
-    } else if ( command == COMMAND_PRIVATE ) {
+    } else if (command == COMMAND_INTERNAL) {
 	node->setAccess( Node::Private );
-    } else if ( command == COMMAND_PROTECTED ) {
-	node->setAccess( Node::Protected );
-    } else if ( command == COMMAND_PUBLIC ) {
-	node->setAccess( Node::Public );
     } else if (command == COMMAND_REENTRANT) {
 	node->setThreadSafeness(Node::Reentrant);
     } else if (command == COMMAND_THREADSAFE) {

@@ -1402,7 +1402,7 @@ void DocParser::expandMacro( const QString& name, const QString& def,
 
 Doc::SectioningUnit DocParser::getSectioningUnit()
 {
-    QString name = getArgument();
+    QString name = getOptionalArgument();
 
     if ( name == "part" ) {
 	return Doc::Part;

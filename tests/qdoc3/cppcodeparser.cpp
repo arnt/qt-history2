@@ -136,6 +136,7 @@ void CppCodeParser::doneParsingHeaderFiles( Tree *tree )
 
 void CppCodeParser::doneParsingSourceFiles( Tree *tree )
 {
+    tree->root()->makeUndocumentedChildrenInternal();
     tree->root()->normalizeOverloads();
 }
 
@@ -540,10 +541,9 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
 
     if (tok == Tok_operator &&
 	 (returnType.toString().isEmpty() || returnType.toString().endsWith("::"))) {
-	// ### Doesn't even work
-
 	// 'QString::operator const char *()'
 	parentPath = returnType.toString().split(sep);
+        parentPath.remove(QString());
 	returnType = CodeChunk();
 	readToken();
 

@@ -7,7 +7,6 @@ alias.inheaderfile		= headerfile
 alias.o				= i
 alias.quotefile			= include
 alias.quotefromfile		= quotefile
-alias.private			= internal
 alias.related			= relates
 
 macro.annotatedclasslist	= "\\generatelist annotatedclasses"
