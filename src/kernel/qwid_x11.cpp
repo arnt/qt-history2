@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#70 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#69 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#70 $";
 #endif
 
 
@@ -448,12 +448,11 @@ void QWidget::grabMouse()
     }
 }
 
-/*!
-Grabs the mouse intput and change the cursor shape.
+/*! Grabs the mouse intput and change the cursor shape.
 
-The cursor will assume shape \e cursor (for as long as the mouse focus is
-grabbed) and the widget will continue getting mouse events until
-releaseMouse() is called().
+  The cursor will assume shape \e cursor (for as long as the mouse focus is
+  grabbed) and the widget will continue getting mouse events until
+  releaseMouse() is called().
 
 \sa releaseMouse(), setCursor(). */
 
@@ -469,17 +468,21 @@ void QWidget::grabMouse( const QCursor &cursor )
     }
 }
 
-/*!
-Releases the mouse from a grab.
+/*! Releases the mouse from a grab.
 
-\sa grabMouse().
-*/
+  \internal
+
+  Debugging is a little easier if releaseMouse() calls syncX() - it's
+  possible to set breakpoints immediately after the releaseMouse().
+
+  \sa grabMouse(). */
 
 void QWidget::releaseMouse()
 {
     if ( testFlag(WState_MGrab) ) {
 	clearFlag( WState_MGrab );
 	XUngrabPointer( dpy, CurrentTime );
+	QApplication::syncX();
     }
 }
 
