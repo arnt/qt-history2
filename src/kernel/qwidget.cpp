@@ -3809,7 +3809,6 @@ bool QWidget::close( bool alsoDelete )
   The QApplication::lastWindowClosed() signal is emitted when the last
   visible top level widget is closed.
 
-  \sa close()
 */
 
 /*! \property QWidget::visible
