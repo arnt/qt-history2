@@ -1166,6 +1166,8 @@ void QStyleSheet::init()
 
      style = new QStyleSheetItem( this, QString::fromLatin1("head") );
      style->setDisplayMode(QStyleSheetItem::DisplayNone);
+     style = new QStyleSheetItem( this, QString::fromLatin1("body") );
+     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
      style = new QStyleSheetItem( this, QString::fromLatin1("div") );
      style->setDisplayMode(QStyleSheetItem::DisplayBlock) ;
      style = new QStyleSheetItem( this, QString::fromLatin1("span") );

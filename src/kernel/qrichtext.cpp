@@ -1749,21 +1749,25 @@ void QTextDocument::setRichTextInternal( const QString &text )
 				curtag.format.setColor( c );
 			    }
 			}
-			if ( attr.contains("style" ) ) {
-			    QString a = attr["style"];
-			    for ( int s = 0; s < a.contains(';')+1; s++ ) {
-				QString style = a.section( ';', s, s );
-				if ( style.startsWith("font-size:" ) && style.endsWith("pt") ) {	
-				    scaleFontsFactor = double( formatCollection()->defaultFormat()->fn.pointSize() ) /
-						       style.mid( 10, style.length() - 12 ).toInt();
-				}
-			    }
-			}
 			if ( attr.contains( "link" ) )
 			    linkColor = QColor( attr["link"] );
 			if ( attr.contains( "title" ) )
 			    attribs.replace( "title", attr["title"] );
-			// end qt-tag handling
+			
+			if ( textEditMode ) {
+			    if ( attr.contains("style" ) ) {
+				QString a = attr["style"];
+				for ( int s = 0; s < a.contains(';')+1; s++ ) {
+				    QString style = a.section( ';', s, s );
+				    if ( style.startsWith("font-size:" ) && style.endsWith("pt") ) {	
+					scaleFontsFactor = double( formatCollection()->defaultFormat()->fn.pointSize() ) /
+							   style.mid( 10, style.length() - 12 ).toInt();
+				    }
+				}
+			    }
+			    nstyle = 0; // ignore body in textEditMode
+			}
+			// end qt- and body-tag handling
 		    } else if ( tagname == "meta" ) {
 			if ( attr["name"] == "qtextedit" && attr["content"] == "3.0.5" )
 			    textEditMode = TRUE;
@@ -1825,7 +1829,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			 && ( space || nstyle->displayMode() != QStyleSheetItem::DisplayInline ) )
 			eatSpace( doc, length, pos );
 
-		
 		    curtag.format = curtag.format.makeTextFormat( nstyle, attr, scaleFontsFactor );
 		    if ( nstyle->isAnchor() ) {
 			if ( !anchorName.isEmpty() )
