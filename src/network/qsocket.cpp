@@ -105,7 +105,7 @@ public:
     Q_ULONG		readBufferSize;		// limit for the read buffer size
     QList<QByteArray *> wba;			// list of write bufs
     QHostAddress	addr;			// connection address
-    QValueList<QHostAddress> addresses;		// alternatives looked up
+    QList<QHostAddress> addresses;		// alternatives looked up
     QIODevice::Offset	wsize;			// write total buf size
     QIODevice::Offset	windex;			// write index
 #ifndef QT_NO_DNS

@@ -2433,12 +2433,12 @@ void QDns::doResInit()
 
     // the code above adds "0.0.0.0" as a name server at the slightest
     // hint of trouble. so remove those again.
-    ns->first();
-    while( ns->current() ) {
-	if ( ns->current()->isNull() )
-	    delete ns->take();
+    i=0;
+    while (i<ns->size()) {
+	if ( ns->at(i)->isNull() )
+	    delete ns->takeAt(i);
 	else
-	    ns->next();
+	    ++i;
     }
 
     QFile hosts( QString::fromLatin1( "/etc/hosts" ) );
