@@ -43,19 +43,26 @@ public:
 };
 QCString p2qstring(const unsigned char *); //qglobal.cpp
 
+const OSType kCtrlParamQMacControl = 'qmct';
 struct QMacControlPrivate
 {
     QMacControlPrivate();
     ~QMacControlPrivate();
     ControlRef ctrl;
     EventHandlerRef ctrlHandler;
+    ControlActionUPP oldCtrlActionUPP;
 
     static EventHandlerUPP ctrlHandlerUPP;
+    static ControlActionUPP ctrlActionUPP;
 };
 EventHandlerUPP QMacControlPrivate::ctrlHandlerUPP = NULL;
-QMacControlPrivate::QMacControlPrivate() : ctrl(NULL), ctrlHandler(NULL) { }
+ControlActionUPP QMacControlPrivate::ctrlActionUPP = NULL;
+QMacControlPrivate::QMacControlPrivate() : ctrl(NULL), ctrlHandler(NULL), oldCtrlActionUPP(NULL) { }
 QMacControlPrivate::~QMacControlPrivate() 
 {
+    if(oldCtrlActionUPP)
+	DisposeControlActionUPP(oldCtrlActionUPP);
+    oldCtrlActionUPP = NULL;
     if(ctrlHandler)
 	RemoveEventHandler(ctrlHandler);
     ctrlHandler = NULL;
@@ -63,11 +70,14 @@ QMacControlPrivate::~QMacControlPrivate()
 	DisposeControl(ctrl);
     ctrl = NULL;
 }
-static void cleanup_ctrlHandlerUPP()
+static void cleanup_qmaccontrol()
 {
     if(QMacControlPrivate::ctrlHandlerUPP)
 	DisposeEventHandlerUPP(QMacControlPrivate::ctrlHandlerUPP);	
     QMacControlPrivate::ctrlHandlerUPP = NULL;
+    if(QMacControlPrivate::ctrlActionUPP)
+	DisposeControlActionUPP(QMacControlPrivate::ctrlActionUPP);
+    QMacControlPrivate::ctrlActionUPP = NULL;
 }
 
 /*!
@@ -102,6 +112,19 @@ QMacControl::QMacControl(QWidget *parent, ControlRef ctrl, const char *name, WFl
 
 
 /*!
+  Contructs a QMacControl binding. \e parent must be none NULL, and f must
+  not contain WType_TopLevel.
+
+  \sa QWidget::QWidget()
+*/
+QMacControl::QMacControl(QWidget *parent, const char *name, WFlags f) : QWidget(parent, name, f)
+{
+    if(!parent || f & WType_TopLevel) 
+	qFatal("QMacControl must not be toplevel!!!");
+    d = new QMacControlPrivate;
+}
+
+/*!
   Destructs the QMacControl, this will also destroy control() if it is non-NULL.
 
   \sa setControl()
@@ -122,7 +145,13 @@ QMacControl::setControl(ControlRef ctrl)
     if(d->ctrl == ctrl)
 	return;
 
+    if(d->ctrl) 
+	SetControlAction(d->ctrl, d->oldCtrlActionUPP);
+    d->oldCtrlActionUPP = NULL;
     d->ctrl = NULL;
+    if(d->ctrlHandler)
+	RemoveEventHandler(d->ctrlHandler);
+    d->ctrlHandler = NULL;
     if(ctrl) {
 	//parent the control
 	ControlRef root;
@@ -154,29 +183,32 @@ QMacControl::setControl(ControlRef ctrl)
 	else
 	    hide();
 	//enabled state
-	if(IsControlEnabled(ctrl))
-	    setEnabled(TRUE);
-	else
-	    setEnabled(FALSE);
+	setEnabled(IsControlEnabled(ctrl));
 
-	//setup a callback
+	//setup event callback
 	if(!QMacControlPrivate::ctrlHandlerUPP) {
 	    QMacControlPrivate::ctrlHandlerUPP = NewEventHandlerUPP(QMacControl::ctrlEventProcessor);
-	    qAddPostRoutine( cleanup_ctrlHandlerUPP );
+	    qAddPostRoutine( cleanup_qmaccontrol );
 	}
 	static EventTypeSpec events[] = {
-	    { kEventClassMouse, kEventMouseDown },
-	    { kEventClassControl, kEventControlDraw }
+	    { kEventClassControl, kEventControlDraw },
+	    { kEventClassMouse, kEventMouseDown }
 	};
 	InstallEventHandler( GetControlEventTarget(ctrl), QMacControlPrivate::ctrlHandlerUPP,
 			     GetEventTypeCount(events), events, (void *)this, &d->ctrlHandler);
+	//action callback
+	if(!GetControlAction(ctrl)) 
+	    d->oldCtrlActionUPP = GetControlAction(ctrl);
+	SetControlProperty(ctrl, 'CUTE', kCtrlParamQMacControl, sizeof(this), this);
+	if(!QMacControlPrivate::ctrlActionUPP)
+	    QMacControlPrivate::ctrlActionUPP = NewControlActionUPP(QMacControl::ctrlAction);
+	SetControlAction(ctrl, QMacControlPrivate::ctrlActionUPP);
 	//now set it and repaint
 	d->ctrl = ctrl;
 	update();
     } else {
 	setMask(QRegion());
     }
-
 }
 
 /*!
@@ -209,8 +241,9 @@ QMacControl::event(QEvent *e)
 	break;
     case QEvent::CaptionChange: {
 	QString c = caption();
-	SetControlTitleWithCFString(d->ctrl, 
-				    CFStringCreateWithCharacters(NULL, (UniChar *)c.unicode(), c.length()));
+	CFStringRef s = CFStringCreateWithCharacters(NULL, (UniChar *)c.unicode(), 
+						     c.length());
+	SetControlTitleWithCFString(d->ctrl, s);
 	break; }
     case QEvent::Paint: {
 	QMacPainter p(this);
@@ -230,6 +263,13 @@ QMacControl::event(QEvent *e)
 	    CreateRootControl((WindowPtr)handle(), &root);
 	EmbedControl(d->ctrl, root);
 	break; }
+#if 1
+    case QEvent::MouseButtonPress: {
+	QPoint qp = mapTo(topLevelWidget(), ((QMouseEvent*)e)->pos());
+	Point p = { qp.y(), qp.x() };
+	TrackControl(d->ctrl, p, GetControlAction(d->ctrl));
+	break; } 
+#endif
     default:
 	break;
     }
@@ -246,6 +286,22 @@ QMacControl::enabledChange(bool b)
 	EnableControl(d->ctrl);
     else
 	DisableControl(d->ctrl);
+}
+
+/* \internal */
+QMAC_PASCAL void
+QMacControl::ctrlAction(ControlRef ctrl, ControlPartCode cpc)
+{
+    qDebug("boink..");
+    UInt32 len;
+    QMacControl *qmc;
+    GetControlProperty(ctrl, 'CUTE', kCtrlParamQMacControl, sizeof(qmc), &len, &qmc);
+    if(!qmc)
+	return;
+    if(qmc->d->oldCtrlActionUPP)
+	InvokeControlActionUPP(ctrl, cpc, qmc->d->oldCtrlActionUPP);
+    qDebug("emitting an action..");
+    emit qmc->action();
 }
 
 /* \internal */
@@ -271,6 +327,7 @@ QMacControl::ctrlEventProcessor(EventHandlerCallRef er, EventRef event, void *da
 		once = FALSE;
 	    }
 	}
+	break;
     case kEventClassMouse:
 	if(ekind == kEventMouseDown) {
 	    call_back = FALSE;
@@ -282,6 +339,9 @@ QMacControl::ctrlEventProcessor(EventHandlerCallRef er, EventRef event, void *da
 	    TrackControl(ctrl->d->ctrl, where, NULL);
 	    ctrl->repaint();
 	}
+	break;
+    default:
+	break;
     }
     if(call_back)
 	return CallNextEventHandler(er, event);
@@ -289,3 +349,5 @@ QMacControl::ctrlEventProcessor(EventHandlerCallRef er, EventRef event, void *da
 }
 
 #endif
+
+

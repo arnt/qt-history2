@@ -36,12 +36,14 @@
 #ifdef Q_WS_MAC
 
 class QMacControlPrivate;
+typedef short ControlPartCode;
 
 class Q_EXPORT QMacControl : public QWidget
 {
     Q_OBJECT
 public:
     QMacControl(QWidget *parent, ControlRef ctrl, const char *name=0, WFlags f=0 );
+    QMacControl(QWidget *parent, const char *name=0, WFlags f=0 );
     ~QMacControl();
 
     void setControl(ControlRef ctrl);
@@ -53,7 +55,11 @@ protected:
 
 private:
     static QMAC_PASCAL OSStatus ctrlEventProcessor(EventHandlerCallRef,  EventRef, void *);
+    static QMAC_PASCAL void ctrlAction(ControlRef, ControlPartCode);
     QMacControlPrivate *d;
+
+signals:
+    void action();
 };
 
 #endif //Q_WS_MAC

@@ -3,6 +3,11 @@
 #include "qmaccontrol_mac.h"
 #include <qpushbutton.h>
 
+void pb_action(ControlRef, ControlPartCode)
+{
+    qDebug("my own action callback");
+}
+
 int
 main(int argc, char **argv)
 {
@@ -17,6 +22,7 @@ main(int argc, char **argv)
     SetRect(&r, 0, 0, 50, 35);
     ControlRef button;
     CreatePushButtonControl((WindowPtr)window->handle(),  &r, 0, &button);
+    SetControlAction(button, NewControlActionUPP(pb_action));
 #if 0
     Boolean t = true;
     SetControlData(button, 0, kControlPushButtonDefaultTag, sizeof(t), &t);
