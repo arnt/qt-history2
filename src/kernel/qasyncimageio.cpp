@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#7 $
 **
 ** Implementation of movie classes
 **
@@ -312,16 +312,16 @@ QImageFormatDecoderFactory::~QImageFormatDecoderFactory()
 }
 
 /*!
-  \class QImageFormatDecoderGIF qasyncimageio.h
+  \class QGIFDecoder qasyncimageio.h
   \brief Incremental image decoder for GIF image format.
 
   \internal
 */
 
 /*!
-  Constructs a QImageFormatDecoderGIF.
+  Constructs a QGIFDecoder.
 */
-QImageFormatDecoderGIF::QImageFormatDecoderGIF()
+QGIFDecoder::QGIFDecoder()
 {
     globalcmap_hold = 0;
     frame = -1;
@@ -331,15 +331,15 @@ QImageFormatDecoderGIF::QImageFormatDecoderGIF()
 }
 
 /*!
-  Destructs a QImageFormatDecoderGIF.
+  Destructs a QGIFDecoder.
 */
-QImageFormatDecoderGIF::~QImageFormatDecoderGIF()
+QGIFDecoder::~QGIFDecoder()
 {
     delete globalcmap_hold;
 }
 
 
-QImageFormatDecoder* QImageFormatDecoderGIF::Factory::decoderFor(
+QImageFormatDecoder* QGIFDecoder::Factory::decoderFor(
     const uchar* buffer, int length)
 {
     if (length < 6) return 0;
@@ -349,23 +349,23 @@ QImageFormatDecoder* QImageFormatDecoderGIF::Factory::decoderFor(
      && buffer[3]=='8'
      && (buffer[4]=='9' || buffer[4]=='7')
      && buffer[5]=='a')
-        return new QImageFormatDecoderGIF;
+        return new QGIFDecoder;
     return 0;
 }
 
-const char* QImageFormatDecoderGIF::Factory::formatName() const
+const char* QGIFDecoder::Factory::formatName() const
 {
     return "GIF";
 }
 
-QImageFormatDecoderGIF::Factory QImageFormatDecoderGIF::factory;
+QGIFDecoder::Factory QGIFDecoder::factory;
 
 /*!
   This function decodes some data into image changes.
 
   Returns the number of bytes consumed.
 */
-int QImageFormatDecoderGIF::decode(QImage& img, QImageConsumer* consumer,
+int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 	const uchar* buffer, int length)
 {
     // We are required to state that
@@ -797,7 +797,7 @@ int QImageFormatDecoderGIF::decode(QImage& img, QImageConsumer* consumer,
     return initial-length;
 }
 
-void QImageFormatDecoderGIF::fillRect(QImage& img, int x, int y, int w, int h, uchar col)
+void QGIFDecoder::fillRect(QImage& img, int x, int y, int w, int h, uchar col)
 {
     if (w>0) {
 	uchar** line = img.jumpTable() + y;
@@ -807,7 +807,7 @@ void QImageFormatDecoderGIF::fillRect(QImage& img, int x, int y, int w, int h, u
     }
 }
 
-void QImageFormatDecoderGIF::nextY(QImage& img, QImageConsumer* consumer)
+void QGIFDecoder::nextY(QImage& img, QImageConsumer* consumer)
 {
     int my;
     switch (interlace) {
