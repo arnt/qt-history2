@@ -372,6 +372,14 @@ void Generator::generateCode()
     generateMetacall();
 
 //
+// Generate protectors for qt_cast
+//
+    fprintf(out, "\nQ_DECL_EXPORT void qt_cast_to_class_without_Q_OBJECT(const %s*) {}\n",
+            cdef->qualified.constData());
+    fprintf(out, "\nQ_DECL_EXPORT void qt_cast_to_class_without_Q_OBJECT(%s*) {}\n",
+            cdef->qualified.constData());
+
+//
 // Generate internal signal functions
 //
     for (int signalindex = 0; signalindex < cdef->signalList.size(); ++signalindex)

@@ -49,6 +49,8 @@ private:
 
 class QT_SIGNALSLOTEDITOR_EXPORT SignalSlotEditor : public ConnectionEdit
 {
+    Q_OBJECT
+
 public:
     SignalSlotEditor(AbstractFormWindow *form_window, QWidget *parent);
     static void registerExtensions(AbstractFormEditor *core);

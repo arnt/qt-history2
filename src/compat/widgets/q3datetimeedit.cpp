@@ -388,6 +388,7 @@ private:
 
 class QDateTimeSpinWidget : public Q3SpinWidget
 {
+    Q_OBJECT
 public:
     QDateTimeSpinWidget(QWidget *parent, const char *name)
         : Q3SpinWidget(parent, name)

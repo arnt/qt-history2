@@ -284,11 +284,19 @@ template <class T> inline T qt_cast_helper(const QObject *object, T)
 
 template <class T>
 inline T qt_cast(QObject *object)
-{ return qt_cast_helper<T>(object, T(0)); }
+{
+    extern Q_DECL_IMPORT void qt_cast_to_class_without_Q_OBJECT(T);
+    qt_cast_to_class_without_Q_OBJECT(static_cast<T>(0));
+    return qt_cast_helper<T>(object, T(0));
+}
 
 template <class T>
 inline T qt_cast(const QObject *object)
-{ return qt_cast_helper<T>(object, T(0)); }
+{
+    extern Q_DECL_IMPORT void qt_cast_to_class_without_Q_OBJECT(const T);
+    qt_cast_to_class_without_Q_OBJECT(const_cast<const T>(static_cast<T>(0)));
+    return qt_cast_helper<T>(object, T(0));
+}
 
 #define Q_DECLARE_INTERFACE(IFace, IId) \
 const char * const IFace##_iid = IId; \
@@ -325,11 +333,19 @@ inline QList<T> qFindChildren(const QObject *o, const QRegExp &re)
 
 template <class T>
 inline T qt_cast(QObject *object)
-{ return static_cast<T>(reinterpret_cast<T>(0)->staticMetaObject.cast(object)); }
+{
+    extern Q_DECL_IMPORT void qt_cast_to_class_without_Q_OBJECT(T);
+    qt_cast_to_class_without_Q_OBJECT(static_cast<T>(0));
+    return static_cast<T>(reinterpret_cast<T>(0)->staticMetaObject.cast(object));
+}
 
 template <class T>
 inline T qt_cast(const QObject *object)
-{ return static_cast<T>(const_cast<const QObject *>(reinterpret_cast<T>(0)->staticMetaObject.cast(const_cast<QObject *>(object)))); }
+{
+    extern Q_DECL_IMPORT void qt_cast_to_class_without_Q_OBJECT(T);
+    qt_cast_to_class_without_Q_OBJECT(static_cast<T>(0));
+    return static_cast<T>(const_cast<const QObject *>(reinterpret_cast<T>(0)->staticMetaObject.cast(const_cast<QObject *>(object))));
+}
 
 
 #define Q_DECLARE_INTERFACE(IFace, IId) \

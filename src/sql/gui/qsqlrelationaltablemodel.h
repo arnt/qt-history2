@@ -39,7 +39,7 @@ class QSqlRelationalTableModelPrivate;
 
 class Q_SQL_EXPORT QSqlRelationalTableModel: public QSqlTableModel
 {
-    Q_DECLARE_PRIVATE(QSqlRelationalTableModel)
+    Q_OBJECT
 
 public:
     QSqlRelationalTableModel(QObject *parent = 0, QSqlDatabase db = QSqlDatabase());
@@ -60,6 +60,9 @@ public slots:
 
 protected:
     QString selectStatement() const;
+
+private:
+    Q_DECLARE_PRIVATE(QSqlRelationalTableModel)
 };
 
 #endif
