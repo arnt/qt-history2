@@ -14,7 +14,8 @@
 #include "qtextengine_p.h"
 
 void QTextEngine::shapeText(int item) const
-{    assert(item < items.size());
+{    
+    assert(item < items.size());
     QScriptItem &si = items[item];
 
     if (si.num_glyphs)
@@ -36,8 +37,9 @@ void QTextEngine::shapeText(int item) const
     shaper_item.length = length(item);
     shaper_item.font = font;
     shaper_item.num_glyphs = qMax(num_glyphs - used, shaper_item.length);
-    // ### DesignMetrics
     shaper_item.flags = si.analysis.bidiLevel % 2 ? RightToLeft : 0;
+    if (designMetrics)
+        shaper_item.flags |= DesignMetrics;
 
     //     qDebug("shaping");
     while (1) {
