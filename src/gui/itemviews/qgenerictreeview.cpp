@@ -60,6 +60,7 @@ QGenericTreeView::QGenericTreeView(QAbstractItemModel *model, QWidget *parent)
     d->layout_parent_index = -1;
     d->layout_from_index = -1;
     d->layout_count = model->rowCount(root());
+    d->rootDecoration = false;
 }
 
 QGenericTreeView::~QGenericTreeView()
@@ -114,6 +115,17 @@ int QGenericTreeView::editColumn() const
 void QGenericTreeView::setEditColumn(int column)
 {
     d->editColumn = column;
+}
+
+bool QGenericTreeView::showRootDecoration() const
+{
+    return d->rootDecoration;
+}
+
+void QGenericTreeView::setShowRootDecoration(bool show)
+{
+    d->rootDecoration = show;
+    d->viewport->update();
 }
 
 int QGenericTreeView::columnViewportPosition(int column) const
@@ -212,7 +224,6 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
 
 void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const QModelIndex &index) const
 {
-    // FIXME: clean this up!
     int pos;
     int column = d->left;
     int width, height = options->itemRect.height();
@@ -226,6 +237,7 @@ void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const Q
     QModelIndex current = selectionModel()->currentItem();
     bool focus = hasFocus() && current.isValid();
 
+    // FIXME: should we follow header index ?
     if (column == 0 && !header->isSectionHidden(column)) {
 	pos = header->sectionPosition(column);
 	width = header->sectionSize(column);
@@ -234,7 +246,7 @@ void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const Q
 	options->itemRect.setWidth(width - x);
 	options->focus = (focus && current == index);
 	painter->fillRect(pos, y, width - pos, height, base);
-	drawBranches(painter, QRect(pos, y, d->indent, options->itemRect.height()), index);
+	drawBranches(painter, QRect(pos, y, x, options->itemRect.height()), index);
 	itemDelegate()->paint(painter, *options, index);
 	++column;
     }
@@ -259,23 +271,28 @@ void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect, const 
     QModelIndex parent = model()->parent(index);
     QModelIndex current = parent;
     QModelIndex ancestor = model()->parent(current);
-    int x = d->indentation(d->current);
     int indent = d->indent;
-    painter->translate(x - indent * 2, 0);
-    for (int level = d->items.at(d->current).level - 1; level >= 0; --level) {
-	style().drawPrimitive(QStyle::PE_TreeBranch, painter, rect, palette(),
+    int level = d->items.at(d->current).level;
+    int outer = d->rootDecoration ? 0 : 1;
+    QRect primitive(rect.right(), rect.top(), indent, rect.height());
+    
+    if (level >= outer) {
+	// start with the innermost branch
+	primitive.moveLeft(primitive.left() - indent);
+	QStyle::SFlags flags = QStyle::Style_Item
+			       | (model()->rowCount(parent) - 1 > index.row() ? QStyle::Style_Sibling : 0)
+			       | (model()->hasChildren(index) ? QStyle::Style_Children : 0)
+			       | (d->isOpen(d->current) ? QStyle::Style_Open : 0);
+	style().drawPrimitive(QStyle::PE_TreeBranch, painter, primitive, palette(), flags);
+    }
+    // then go out level by level
+    for (--level; level >= outer; --level) { // we have already drawn the innermost branch
+	primitive.moveLeft(primitive.left() - indent);
+	style().drawPrimitive(QStyle::PE_TreeBranch, painter, primitive, palette(),
 			      model()->rowCount(ancestor) - 1 > current.row() ? QStyle::Style_Sibling : 0);
 	current = ancestor;
 	ancestor = model()->parent(current);
-	painter->translate(-indent, 0);
     }
-    painter->translate(x, 0);
-    QStyle::SFlags flags = QStyle::Style_Item |
-			   (model()->rowCount(parent) - 1 > index.row() ? QStyle::Style_Sibling : 0) |
-			   (model()->hasChildren(index) ? QStyle::Style_Children : 0) |
-			   (d->isOpen(d->current) ? QStyle::Style_Open : 0);
-    style().drawPrimitive(QStyle::PE_TreeBranch, painter, rect, palette(), flags);
-    painter->translate(d->indent - x, 0);
 }
 
 void QGenericTreeView::mousePressEvent(QMouseEvent *e)
@@ -463,7 +480,6 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
 	int offset = (left / d->horizontalFactor) + d->header->sectionPosition(column);
 	hscroll = d->header->offset() - offset;
 	d->header->setOffset(offset);
-	return;
     }
     if (dy) {
 	/*
@@ -485,9 +501,9 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
 	vscroll -= (da / factor);
 	*/
 	d->viewport->update();
-	return;
+    } else {
+	d->viewport->scroll(hscroll, vscroll);
     }
-    d->viewport->scroll(hscroll, vscroll);
 }
 
 void QGenericTreeView::contentsChanged()
@@ -803,7 +819,8 @@ int QGenericTreeViewPrivate::indentation(int i) const
 {
     if (i < 0 || i >= items.count())
 	return 0;
-    return (items.at(i).level + 1) * indent;// - header->offset();
+    int level = items.at(i).level + (rootDecoration ? 1 : 0);
+    return level * indent;
 }
 
 int QGenericTreeViewPrivate::coordinate(int item, int value) const

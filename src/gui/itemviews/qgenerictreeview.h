@@ -25,7 +25,9 @@ public:
 
     int editColumn() const;
     void setEditColumn(int column);
-    
+
+    bool showRootDecoration() const;
+    void setShowRootDecoration(bool show);
 
     int columnViewportPosition(int column) const;
     int columnWidth(int column) const;

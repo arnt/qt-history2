@@ -60,6 +60,8 @@ public:
     int left;
     int right;
     int current;
+
+    bool rootDecoration;
 };
 
 #endif
