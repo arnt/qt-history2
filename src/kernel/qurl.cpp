@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#63 $
 **
 ** Implementation of QUrl class
 **
@@ -143,7 +143,7 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
     d = new QUrlPrivate;
     QString relUrl = relUrl_.stripWhiteSpace();
     slashify( relUrl );
-    
+
     if ( !isRelativeUrl( relUrl ) ) {
 	if ( relUrl[ 0 ] == QChar( '/' ) ) {
 	    *this = url;
@@ -406,7 +406,7 @@ bool QUrl::parse( const QString& url )
 {
     QString url_( url );
     slashify( url_ );
-    
+
     if ( url_.isEmpty() ) {
 	d->isValid = FALSE;
 	return FALSE;
@@ -590,7 +590,7 @@ bool QUrl::parse( const QString& url )
 
     if ( d->path.isEmpty() )
 	d->path = "/";
-    
+
     // hack for windows
     if ( d->path.length() == 2 && d->path[ 1 ] == ':' )
 	d->path += "/";
@@ -701,7 +701,7 @@ void QUrl::setFileName( const QString& name )
 {
     QString fn( name );
     slashify( fn );
-    
+
     while ( fn[ 0 ] == '/' )
 	fn.remove( 0, 1 );
 
@@ -772,6 +772,8 @@ QString QUrl::path( bool correct ) const
 	return d->path;
 
     if ( d->cleanPathDirty ) {
+	if ( d->path.find( "//" ) != -1 )
+	    d->path.replace( QRegExp( "//" ), "/" );
 	if ( isLocalFile() ) {
 	    QFileInfo fi( d->path );
 	    if ( !fi.exists() )
@@ -836,7 +838,7 @@ void QUrl::addPath( const QString& pa )
 
     QString p( pa );
     slashify( p );
-    
+
     d->cleanPathDirty = TRUE;
     if ( d->path.isEmpty() ) {
 	if ( p[ 0 ] != QChar( '/' ) )

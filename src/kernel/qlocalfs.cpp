@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#14 $
 **
 ** Implementation of QLocalFs class
 **
@@ -63,11 +63,11 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 {
     op->setState( StInProgress );
 	
-    dir = QDir( url()->path( FALSE ) );
+    dir = QDir( url()->path() );
     dir.setNameFilter( url()->nameFilter() );
     dir.setMatchAllDirs( TRUE );
     if ( !dir.isReadable() ) {
-	QString msg = tr( "Could not read directory\n" + url()->path( FALSE ) );
+	QString msg = tr( "Could not read directory\n" + url()->path() );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
 	op->setErrorCode( ErrListChlidren );
@@ -77,7 +77,7 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 	
     const QFileInfoList *filist = dir.entryInfoList( QDir::All | QDir::Hidden );
     if ( !filist ) {
-	QString msg = tr( "Could not read directory\n" + url()->path( FALSE ) );
+	QString msg = tr( "Could not read directory\n" + url()->path() );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
 	op->setErrorCode( ErrListChlidren );
@@ -108,7 +108,7 @@ void QLocalFs::operationMkDir( QNetworkOperation *op )
     op->setState( StInProgress );
     QString dirname = op->arg1();
 
-    dir = QDir( url()->path( FALSE ) );
+    dir = QDir( url()->path() );
     if ( dir.mkdir( dirname ) ) {
 	QFileInfo fi( dir, dirname );
 	QUrlInfo inf( fi.fileName(), 0/*permissions*/, fi.owner(), fi.group(),
@@ -136,7 +136,7 @@ void QLocalFs::operationRemove( QNetworkOperation *op )
     op->setState( StInProgress );
     QString name = QUrl( op->arg1() ).path();
 
-    dir = QDir( url()->path( FALSE ) );
+    dir = QDir( url()->path() );
     if ( dir.remove( name ) ) {
 	op->setState( StDone );
 	emit removed( op );
@@ -160,7 +160,7 @@ void QLocalFs::operationRename( QNetworkOperation *op )
     QString oldname = op->arg1();
     QString newname = op->arg2();
 
-    dir = QDir( url()->path( FALSE ) );
+    dir = QDir( url()->path() );
     if ( dir.rename( oldname, newname ) ) {
 	op->setState( StDone );
 	emit itemChanged( op );

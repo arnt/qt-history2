@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#362 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#363 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1411,7 +1411,7 @@ QString QFileDialogPrivate::File::text( int column ) const
 	time_t t1 = epoch.secsTo( info.lastModified() );
 	struct tm * t2 = ::localtime( &t1 );
 #if !defined(_WS_WIN_)
-	if ( t2->tm_hour != info.lastModified().time().hour() )
+	if ( t2 && t2->tm_hour != info.lastModified().time().hour() )
 	    t2->tm_hour = info.lastModified().time().hour();
 #endif
 	// use a static const char here, so that egcs will not see
@@ -2085,9 +2085,9 @@ void QFileDialog::setSelection( const QString & filename )
 	emit dirEntered( d->url.dirPath() );
 	nameEdit->setText( u.fileName() );
     } else {
-	if ( !d->url.path( FALSE ).isEmpty() &&
-	     d->url.path( FALSE ).right( 1 ) != "/" ) {
-	    QString p = d->url.path( FALSE );
+	if ( !d->url.path().isEmpty() &&
+	     d->url.path().right( 1 ) != "/" ) {
+	    QString p = d->url.path();
 	    p += "/";
 	    d->url.setPath( p );
 	}
