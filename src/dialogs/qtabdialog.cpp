@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#66 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#67 $
 **
 ** Implementation of QTabDialog class
 **
@@ -179,8 +179,6 @@ struct QTabPrivate
 
     QTabBar * tabs;
     QWidgetStack * stack;
-
-    QArray<QWidget *> children;
 
     QPushButton * ok;
     QPushButton * cb;
@@ -462,7 +460,11 @@ QTabBar* QTabDialog::tabBar() const
 
 void QTabDialog::showPage( QWidget * w )
 {
-    d->stack->raiseWidget( w );
+    int i = d->stack->id( w );
+    if ( i >= 0 ) {
+	d->stack->raiseWidget( w );
+	d->tabs->setCurrentTab( i );
+    }
 }
 
 
@@ -482,13 +484,20 @@ bool QTabDialog::isTabEnabled( const QString &name ) const
 	return FALSE;
 
     QObjectList * l
-	= ((QTabDialog *)this)->queryList( "QWidget", name, FALSE, FALSE );
+	= ((QTabDialog *)this)->queryList( "QWidget", name, FALSE, TRUE );
     bool r = FALSE;
     if ( l && l->first() ) {
-	while( l->current() && !l->current()->isWidgetType() )
-	    l->next();
-	if ( l->current() )
-	    r = ((QWidget *)l->current())->isEnabled();
+	QWidget * w;
+	while( l->current() ) {
+	    while( l->current() && !l->current()->isWidgetType() )
+		l->next();
+	    w = (QWidget *)(l->current());
+	    if ( l->current() && d->stack->id( w ) ) {
+		r = w->isEnabled();
+		delete l;
+		return r;
+	    }
+	}
     }
     delete l;
     return r;
@@ -516,14 +525,21 @@ void QTabDialog::setTabEnabled( const QString &name, bool enable )
 {
     if ( name.isEmpty() )
 	return;
-    QObjectList * l = queryList( "QWidget", name, FALSE, FALSE );
+    QObjectList * l
+	= ((QTabDialog *)this)->queryList( "QWidget", name, FALSE, TRUE );
     if ( l && l->first() ) {
-	while( l->current() && !l->current()->isWidgetType() )
-	    l->next();
-	if ( l->current() ) {
-	    int id = d->stack->id( (QWidget *)l->current() );
-	    ((QWidget *)l->current())->setEnabled( enable );
-	    d->tabs->setTabEnabled( id, enable );
+	QWidget * w;
+	while( l->current() ) {
+	    while( l->current() && !l->current()->isWidgetType() )
+		l->next();
+	    w = (QWidget *)(l->current());
+	    if ( l->current() && d->stack->id( w ) ) {
+		int id = d->stack->id( (QWidget *)l->current() );
+		((QWidget *)l->current())->setEnabled( enable );
+		d->tabs->setTabEnabled( id, enable );
+		delete l;
+		return;
+	    }
 	}
     }
     delete l;
