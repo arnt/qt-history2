@@ -17,15 +17,15 @@
 #include "previewwidget.h"
 
 #include <qvbox.h>
-#include <qworkspace.h>
+#include <q3workspace.h>
 
-class Workspace : public QWorkspace
+class Workspace : public Q3Workspace
 {
     Q_OBJECT
 
 public:
     Workspace( QWidget* parent = 0, const char* name = 0 )
-        : QWorkspace( parent, name ) {}
+        : Q3Workspace( parent, name ) {}
     ~Workspace() {}
 
 protected:
