@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#1 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#2 $
 **
 ** Definition of QButton class
 **
@@ -28,6 +28,9 @@ class QButton : public QWidget			// button class
     Q_OBJECT
 public:
     QButton( QView *parent=0 );
+
+    char    *text()		const;		// button text
+    void     setText( const char * );
 
 signals:
     void    pressed();
@@ -61,6 +64,7 @@ private:
     static void	    delPixmaps();
     static QPixMapDict *pmdict;
     static long	    pmsize;
+    QString btext;
     int	    onOffButton : 1;
     int	    buttonDown : 1;
     int	    buttonOn : 1;

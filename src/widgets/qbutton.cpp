@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#3 $
 **
 ** Implementation of QButton class
 **
@@ -18,7 +18,7 @@ declare(QDictM,QPixMap);			// internal pixmap dict
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#3 $";
 #endif
 
 
@@ -67,6 +67,18 @@ void QButton::delPixmaps()			// delete all pixmaps
     pmdict->clear();
     delete pmdict;
 }
+
+
+char *QButton::text() const			// get button text
+{
+    return btext;
+}
+
+void QButton::setText( const char *s )		// set button text
+{
+    btext = s;
+}
+
 
 void QButton::switchOn()			// switch button on
 {
