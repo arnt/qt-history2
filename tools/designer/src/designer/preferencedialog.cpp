@@ -72,12 +72,12 @@ PreferenceDialog::PreferenceDialog(QWidget *parent)
     QBoxLayout *layout = new QHBoxLayout();
     mainLayout->addLayout(layout);
     layout->addStretch();
-    QPushButton *btn = new QPushButton(tr("OK"), this);
+    QPushButton *btn = new QPushButton(tr("Cancel"), this);
+    connect(btn, SIGNAL(clicked()), this, SLOT(reject()));
+    layout->addWidget(btn);
+    btn = new QPushButton(tr("OK"), this);
     btn->setDefault(true);
     connect(btn, SIGNAL(clicked()), this, SLOT(accept()));
-    layout->addWidget(btn);
-    btn = new QPushButton(tr("Cancel"), this);
-    connect(btn, SIGNAL(clicked()), this, SLOT(reject()));
     layout->addWidget(btn);
 }
 

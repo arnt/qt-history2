@@ -60,8 +60,8 @@ QWidget *QDesignerSpecialEditor::createEditor(QWidget * /*parent*/)
         connect(cmdCancel, SIGNAL(clicked()), mDialog, SLOT(reject()));
         connect(cmdCancel, SIGNAL(clicked()), this, SLOT(revertChanges()));
 
-        hLayout->addWidget(cmdOK);
         hLayout->addWidget(cmdCancel);
+        hLayout->addWidget(cmdOK);
         layout->addLayout(hLayout);
     }
     mLe->setText(mProperties->property(mProperties->indexOf("text")).toString());
