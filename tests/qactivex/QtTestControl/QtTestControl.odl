@@ -1,0 +1,97 @@
+// QtTestControl.odl : type library source for ActiveX Control project.
+
+// This file will be processed by the Make Type Library (mktyplib) tool to
+// produce the type library (QtTestControl.tlb) that will become a resource in
+// QtTestControl.ocx.
+
+#include <olectl.h>
+#include <idispids.h>
+
+[ uuid(EC372DB1-9989-43ED-82F5-5C27EF79E1FD), version(1.0),
+  helpfile("QtTestControl.hlp"),
+  helpstring("QtTestControl ActiveX Control module"),
+  control ]
+library QTTESTCONTROLLib
+{
+	importlib(STDOLE_TLB);
+	importlib(STDTYPE_TLB);
+
+	//  Primary dispatch interface for CQtTestControlCtrl
+
+	[ uuid(B26EA295-44AF-4057-9EB7-C6B17AFB130F),
+	  helpstring("Dispatch interface for QtTestControl Control"), hidden ]
+	dispinterface _DQtTestControl
+	{
+		properties:
+			// NOTE - ClassWizard will maintain property information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_PROP(CQtTestControlCtrl)
+			[id(1)] double Double;
+			[id(8)] long Int;
+			[id(2)] BSTR String;
+			[id(3)] DATE Date;
+			[id(9)] short Short;
+			[id(10)] float Float;
+			[id(11)] CURRENCY Currency;
+			[id(12)] boolean Bool;
+			[id(13)] VARIANT Variant;
+			[id(4)] SCODE ErrorCode;
+			[id(14)] IDispatch* Dispinterface;
+			[id(15)] IUnknown* UnknownInterface;
+			[id(5)] OLE_COLOR Color;
+			[id(16)] OLE_XPOS_PIXELS xpos;
+			[id(17)] OLE_YPOS_PIXELS ypos;
+			[id(6)] OLE_XSIZE_PIXELS Width;
+			[id(7)] OLE_YSIZE_PIXELS Height;
+			[id(18)] OLE_HANDLE Handle;
+			[id(19)] OLE_TRISTATE Tristate;
+			[id(20)] OLE_OPTEXCLUSIVE Exclusive;
+			[id(DISPID_FONT), bindable] IFontDisp* Font;
+			//}}AFX_ODL_PROP
+
+		methods:
+			// NOTE - ClassWizard will maintain method information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_METHOD(CQtTestControlCtrl)
+			[id(21)] void SetString(BSTR string);
+			[id(22)] long Add(long x, long y);
+			[id(23)] void Sub(long x, long y, long* res);
+			//}}AFX_ODL_METHOD
+
+			[id(DISPID_ABOUTBOX)] void AboutBox();
+	};
+
+	//  Event dispatch interface for CQtTestControlCtrl
+
+	[ uuid(C5D7EC42-F0A3-4949-8EC6-2B7F201EEA13),
+	  helpstring("Event interface for QtTestControl Control") ]
+	dispinterface _DQtTestControlEvents
+	{
+		properties:
+			//  Event interface has no properties
+
+		methods:
+			// NOTE - ClassWizard will maintain event information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_EVENT(CQtTestControlCtrl)
+			[id(DISPID_CLICK)] void Click();
+			[id(1)] void Foo();
+			[id(2)] void StringChanged(BSTR string);
+			[id(3)] void GetInt(long* i);
+			//}}AFX_ODL_EVENT
+	};
+
+	//  Class information for CQtTestControlCtrl
+
+	[ uuid(F063A297-BE8A-434D-A304-8C3308E7B289),
+	  helpstring("QtTestControl Control"), control ]
+	coclass QtTestControl
+	{
+		[default] dispinterface _DQtTestControl;
+		[default, source] dispinterface _DQtTestControlEvents;
+	};
+
+
+	//{{AFX_APPEND_ODL}}
+	//}}AFX_APPEND_ODL}}
+};

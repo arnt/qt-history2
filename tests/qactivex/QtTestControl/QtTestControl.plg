@@ -1,0 +1,78 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: QtTestControl - Win32 Unicode Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating command line "midl.exe /nologo /D "NDEBUG" /tlb "ReleaseU/QtTestControl.tlb" /mktyplib203 /win32 "E:\depot\qt\3.0\tests\qactivex\QtTestControl\QtTestControl.odl""
+Creating command line "rc.exe /l 0x407 /fo"ReleaseU/QtTestControl.res" /i "ReleaseU" /d "NDEBUG" /d "_AFXDLL" "E:\depot\qt\3.0\tests\qactivex\QtTestControl\QtTestControl.rc"" 
+Creating temporary file "C:\DOCUME~1\vohi\LOCALS~1\Temp\RSP2737.tmp" with contents
+[
+/nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_WINDLL" /D "_AFXDLL" /D "_USRDLL" /D "_UNICODE" /Fp"ReleaseU/QtTestControl.pch" /Yu"stdafx.h" /Fo"ReleaseU/" /Fd"ReleaseU/" /FD /c 
+"E:\depot\qt\3.0\tests\qactivex\QtTestControl\QtTestControl.cpp"
+"E:\depot\qt\3.0\tests\qactivex\QtTestControl\QtTestControlCtl.cpp"
+"E:\depot\qt\3.0\tests\qactivex\QtTestControl\QtTestControlPpg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\vohi\LOCALS~1\Temp\RSP2737.tmp" 
+Creating temporary file "C:\DOCUME~1\vohi\LOCALS~1\Temp\RSP2738.tmp" with contents
+[
+/nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_WINDLL" /D "_AFXDLL" /D "_USRDLL" /D "_UNICODE" /Fp"ReleaseU/QtTestControl.pch" /Yc"stdafx.h" /Fo"ReleaseU/" /Fd"ReleaseU/" /FD /c 
+"E:\depot\qt\3.0\tests\qactivex\QtTestControl\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\vohi\LOCALS~1\Temp\RSP2738.tmp" 
+Creating temporary file "C:\DOCUME~1\vohi\LOCALS~1\Temp\RSP2739.tmp" with contents
+[
+/nologo /subsystem:windows /dll /incremental:no /pdb:"ReleaseU/QtTestControl.pdb" /machine:I386 /def:".\QtTestControl.def" /out:"ReleaseU/QtTestControl.ocx" /implib:"ReleaseU/QtTestControl.lib" 
+.\ReleaseU\QtTestControl.obj
+.\ReleaseU\QtTestControlCtl.obj
+.\ReleaseU\QtTestControlPpg.obj
+.\ReleaseU\StdAfx.obj
+.\ReleaseU\QtTestControl.res
+]
+Creating command line "link.exe @C:\DOCUME~1\vohi\LOCALS~1\Temp\RSP2739.tmp"
+Creating temporary file "C:\DOCUME~1\vohi\LOCALS~1\Temp\RSP273A.bat" with contents
+[
+@echo off
+regsvr32 /s /c ".\ReleaseU\QtTestControl.ocx"
+echo regsvr32 exec. time > ".\ReleaseU\regsvr32.trg"
+]
+Creating command line "C:\DOCUME~1\vohi\LOCALS~1\Temp\RSP273A.bat"
+Creating Type Library...
+Processing E:\depot\qt\3.0\tests\qactivex\QtTestControl\QtTestControl.odl
+QtTestControl.odl
+Processing E:\MICROSOFT SDK\INCLUDE\oaidl.idl
+oaidl.idl
+Processing E:\MICROSOFT SDK\INCLUDE\objidl.idl
+objidl.idl
+Processing E:\MICROSOFT SDK\INCLUDE\unknwn.idl
+unknwn.idl
+Processing E:\MICROSOFT SDK\INCLUDE\wtypes.idl
+wtypes.idl
+Processing E:\MICROSOFT SDK\INCLUDE\basetsd.h
+basetsd.h
+Processing E:\MICROSOFT SDK\INCLUDE\guiddef.h
+guiddef.h
+Processing E:\MICROSOFT SDK\INCLUDE\oaidl.acf
+oaidl.acf
+Compiling resources...
+Compiling...
+StdAfx.cpp
+Compiling...
+QtTestControl.cpp
+QtTestControlCtl.cpp
+QtTestControlPpg.cpp
+Generating Code...
+Linking...
+   Creating library ReleaseU/QtTestControl.lib and object ReleaseU/QtTestControl.exp
+<h3>Output Window</h3>
+Registering ActiveX Control...
+
+
+
+<h3>Results</h3>
+QtTestControl.ocx - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>
