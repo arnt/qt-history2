@@ -17196,40 +17196,14 @@ bool QString::endsWith( const QString& s ) const
   The lifetime of the return value is until the next call to this function,
   or until the last copy of str is deleted, whatever comes first.
 */
-const void* qt_winTchar(const QString& str, bool addnul)
+const void* qt_winTchar(const QString& str, bool)
 {
-#ifdef UNICODE
-    static uint buflen = 256;
-    static TCHAR *buf = new TCHAR[buflen];
-
-    const QChar* uc = str.unicode();
-
-#  define EXTEND if (str.length() >= buflen) { delete buf; buf = new TCHAR[buflen=str.length()+1]; }
-
-#  if defined(QT_WIN32BYTESWAP)
-    EXTEND
-    for ( int i=str.length(); i--; )
-	buf[i] = uc[i].row() << 8 | uc[i].cell();
-    if ( addnul )
-	buf[str.length()] = 0;
-#  else
-    // Same endianness of TCHAR
-    if ( addnul ) {
-	EXTEND
-	memcpy(buf,uc,sizeof(TCHAR)*str.length());
-	buf[str.length()] = 0;
-    } else {
-	return uc;
-    }
-#  endif
-    return buf;
-#  undef EXTEND
-
-#else
-    Q_UNUSED(addnul)
     // So that the return value lives long enough.
     static QString str_cache;
     str_cache = str;
+#ifdef UNICODE
+    return str_cache.ucs2();
+#else
     return str_cache.latin1();
 #endif
 }
@@ -17239,10 +17213,16 @@ const void* qt_winTchar(const QString& str, bool addnul)
 */
 void* qt_winTchar_new(const QString& str)
 {
-    TCHAR* result = new TCHAR[str.length()+1];
-    memcpy(result, qt_winTchar(str,FALSE), sizeof(TCHAR)*str.length());
-    result[str.length()] = 0;
-    return result;
+    if ( str.isNull() )
+	return 0;
+    int l = str.length()+1;
+    TCHAR *tc = new TCHAR[ l ];
+#ifdef UNICODE
+    memcpy( tc, str.ucs2(), sizeof(TCHAR)*l );
+#else
+    memcpy( tc, str.latin1(), sizeof(TCHAR)*l );
+#endif
+    return tc;
 }
 
 /*!
@@ -17250,26 +17230,7 @@ void* qt_winTchar_new(const QString& str)
 */
 QString qt_winQString(void* tc)
 {
-#ifdef UNICODE
-
-    if ( !tc )
-	return QString::null;
-
-    int len=0;
-    while ( ((TCHAR*)tc)[len] )
-	len++;
-#  if defined(QT_WIN32BYTESWAP)
-    QString r;
-    for ( int i=0; i<len; i++ )
-	r += QChar(((TCHAR*)tc)[i]&0xff,((TCHAR*)tc)[i]>>8);
-    return r;
-#  else
-    // Same endianness of TCHAR
-    return QString((QChar*)tc,len);
-#  endif
-#else
-    return (TCHAR*)tc;
-#endif
+    return (TCHAR *)tc;
 }
 
 QCString qt_winQString2MB( const QString& s, int uclen )

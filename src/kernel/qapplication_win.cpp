@@ -2789,13 +2789,11 @@ QChar wmchar_to_unicode(DWORD c)
 {
     // qt_winMB2QString is the generalization of this function.
 #ifdef Q_OS_TEMP
-	ushort uc = (ushort)c;
-	return QChar(uc&0xff,(uc>>8)&0xff);
+	return QChar( (ushort)c );
 #else
 #if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based ) {
-	ushort uc = (ushort)c;
-	return QChar(uc&0xff,(uc>>8)&0xff);
+	return QChar( (ushort)c );
     } else
 #endif
     {
@@ -2814,13 +2812,11 @@ QChar imechar_to_unicode(DWORD c)
 {
     // qt_winMB2QString is the generalization of this function.
 #ifdef Q_OS_TEMP
-	ushort uc = (ushort)c;
-	return QChar(uc&0xff,(uc>>8)&0xff);
+	return QChar( (ushort)c );
 #else
 #if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based ) {
-	ushort uc = (ushort)c;
-	return QChar(uc&0xff,(uc>>8)&0xff);
+	return QChar( (ushort)c );
     } else
 #endif
     {

@@ -662,9 +662,9 @@ static void setDefaultPrinter(const QString &printerName, HANDLE *hmode, HANDLE 
 	// Clean up
 	GlobalUnlock(hdevnames);
 	GlobalFree(pinf2);
-    }
+    } else
 #endif
-    else {
+    {
 	QCString pName = printerName.local8Bit();
 	if ( !OpenPrinterA( pName.data(), &hPrinter,NULL ) ) {
 	    qDebug( "OpenPrinterA(%s) failed, error %d", pName.data(), GetLastError() );

@@ -199,6 +199,7 @@ static void cleanUpOFNA( OPENFILENAMEA** ofn )
 
 static QString tFilter, tTitle, tInitDir;
 
+#ifdef UNICODE
 // If you change this, then make sure you change makeOFNA (above) too
 static
 OPENFILENAME* makeOFN( QWidget* parent,
@@ -261,6 +262,8 @@ static void cleanUpOFN( OPENFILENAME** ofn )
     delete *ofn;
     *ofn = 0;
 }
+
+#endif // UNICODE
 
 extern void qt_enter_modal( QWidget* );
 extern void qt_leave_modal( QWidget* );
