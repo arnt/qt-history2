@@ -1587,7 +1587,7 @@ bool QAbstractItemView::isDragEnabled(const QModelIndex &) const
 */
 QStyleOptionViewItem QAbstractItemView::viewOptions() const
 {
-    QStyleOptionViewItem option(0);
+    QStyleOptionViewItem option;
     option.palette = palette();
     option.font = font();
     option.state = (isEnabled() ? QStyle::Style_Enabled : QStyle::Style_Default);

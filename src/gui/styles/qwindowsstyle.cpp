@@ -1793,7 +1793,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 bool tickBelow = slider->tickmarks == QSlider::TickMarksBelow;
 
                 if (slider->state & Style_HasFocus) {
-                    QStyleOptionFocusRect fropt(0);
+                    QStyleOptionFocusRect fropt;
                     fropt.rect = subRect(SR_SliderFocusRect, slider, p->fontMetrics(), widget);
                     fropt.palette = slider->palette;
                     fropt.state = Style_Default;
@@ -1943,7 +1943,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 int c;
                 int dotoffset = 0;
                 QPointArray dotlines;
-                if (lv->activeSubControls == SC_All && lv->subControls == SC_ListViewExpand) {
+                if ((lv->activeSubControls & SC_All) && (lv->subControls & SC_ListViewExpand)) {
                     c = 2;
                     dotlines.resize(2);
                     dotlines[0] = QPoint(lv->rect.right(), lv->rect.top());
@@ -2137,7 +2137,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 }
 
                 if (cmb->state & Style_HasFocus && !cmb->editable) {
-                    QStyleOptionFocusRect focus(0);
+                    QStyleOptionFocusRect focus;
                     focus.rect = QStyle::visualRect(subRect(SR_ComboBoxFocusRect, cmb,
                                                             p->fontMetrics(), widget),
                                                     widget);

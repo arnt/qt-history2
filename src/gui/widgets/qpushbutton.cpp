@@ -267,7 +267,7 @@ void QPushButtonPrivate::init()
 
 QStyleOptionButton QPushButtonPrivate::getStyleOption() const
 {
-    QStyleOptionButton opt(0);
+    QStyleOptionButton opt;
     opt.init(q);
     opt.features = QStyleOptionButton::None;
     if (flat)

@@ -45,7 +45,7 @@ QToolBarButtonPrivate::QToolBarButtonPrivate()
 
 QStyleOptionButton QToolBarButtonPrivate::getStyleOption() const
 {
-    QStyleOptionButton opt(0);
+    QStyleOptionButton opt;
     opt.init(q);
     if (usesTextLabel)
         opt.text = text;

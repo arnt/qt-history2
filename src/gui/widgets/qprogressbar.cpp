@@ -262,7 +262,7 @@ void QProgressBar::setProgress(int progress, int totalSteps)
 
 static QStyleOptionProgressBar getStyleOption(const QProgressBar *pb)
 {
-    QStyleOptionProgressBar opt(0);
+    QStyleOptionProgressBar opt;
     opt.init(pb);
     opt.totalSteps = pb->totalSteps();
     opt.progress = pb->progress();

@@ -868,7 +868,7 @@ void QTabWidget::tabRemoved(int index)
 void QTabWidget::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    QStyleOptionFrame opt(0);
+    QStyleOptionFrame opt;
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::Style_Default;

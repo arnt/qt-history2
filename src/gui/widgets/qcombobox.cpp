@@ -44,7 +44,7 @@ ListViewContainer::ListViewContainer(QListView *listView, QWidget *parent)
     list->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     list->viewport()->installEventFilter(this);
     setFocusProxy(list);
-    QStyleOptionComboBox opt(0);
+    QStyleOptionComboBox opt;
     opt.init(parent);
     if (QComboBox *cmb = qt_cast<QComboBox *>(parent))
         opt.editable = cmb->isEditable();
@@ -216,7 +216,7 @@ void ListViewContainer::mousePressEvent(QMouseEvent *e)
     if (comboBox) {
         QRect ignoreRect = comboBox->rect();
         if (comboBox->isEditable()) {
-            QStyleOptionComboBox opt(0);
+            QStyleOptionComboBox opt;
             opt.init(comboBox);
             opt.subControls = QStyle::SC_All;
             opt.activeSubControls = QStyle::SC_ComboBoxArrow;
@@ -482,7 +482,7 @@ void QComboBoxPrivate::resetButton()
 
 QStyleOptionComboBox QComboBoxPrivate::getStyleOption() const
 {
-    QStyleOptionComboBox opt(0);
+    QStyleOptionComboBox opt;
     opt.init(q);
     opt.subControls = QStyle::SC_All;
     if (arrowDown)

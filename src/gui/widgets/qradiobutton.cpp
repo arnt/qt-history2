@@ -115,7 +115,7 @@ QRadioButton::QRadioButton(const QString &text, QWidget *parent)
 
 static QStyleOptionButton getStyleOption(const QRadioButton *btn)
 {
-    QStyleOptionButton opt(0);
+    QStyleOptionButton opt;
     opt.init(btn);
     opt.text = btn->text();
     opt.icon = btn->icon();

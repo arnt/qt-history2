@@ -559,7 +559,7 @@ void QMenuPrivate::actionHovered()
 
 QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
 {
-    QStyleOptionMenuItem opt(0);
+    QStyleOptionMenuItem opt;
     opt.palette = q->palette();
     opt.state = QStyle::Style_Default;
 
@@ -1341,7 +1341,7 @@ void QMenu::paintEvent(QPaintEvent *e)
         style().drawControl(QStyle::CE_MenuItem, &opt, &p, this);
     }
 
-    QStyleOptionMenuItem menuOpt(0);
+    QStyleOptionMenuItem menuOpt;
     menuOpt.palette = palette();
     menuOpt.state = QStyle::Style_Default;
     menuOpt.checkState = QStyleOptionMenuItem::NotCheckable;
@@ -1390,7 +1390,7 @@ void QMenu::paintEvent(QPaintEvent *e)
         borderReg += QRect(0, height()-fw, width(), fw); //bottom
         p.setClipRegion(borderReg);
         emptyArea -= borderReg;
-        QStyleOptionFrame frame(0);
+        QStyleOptionFrame frame;
         frame.rect = rect();
         frame.palette = palette();
         frame.state = QStyle::Style_Default;

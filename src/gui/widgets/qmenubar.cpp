@@ -286,7 +286,7 @@ void QMenuBarPrivate::actionHovered()
 
 QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) const
 {
-    QStyleOptionMenuItem opt(0);
+    QStyleOptionMenuItem opt;
     opt.palette = q->palette();
     opt.state = QStyle::Style_Default;
     if (q->isEnabled() && action->isEnabled())
@@ -621,7 +621,7 @@ void QMenuBar::paintEvent(QPaintEvent *e)
         borderReg += QRect(0, height()-fw, width(), fw); //bottom
         p.setClipRegion(borderReg);
         emptyArea -= borderReg;
-        QStyleOptionFrame frame(0);
+        QStyleOptionFrame frame;
         frame.rect = rect();
         frame.palette = palette();
         frame.state = QStyle::Style_Default;
@@ -630,7 +630,7 @@ void QMenuBar::paintEvent(QPaintEvent *e)
         style().drawPrimitive(QStyle::PE_MenuBarFrame, &frame, &p, this);
     }
     p.setClipRegion(emptyArea);
-    QStyleOptionMenuItem menuOpt(0);
+    QStyleOptionMenuItem menuOpt;
     menuOpt.palette = palette();
     menuOpt.state = QStyle::Style_Default;
     menuOpt.menuItemType = QStyleOptionMenuItem::EmptyArea;
@@ -1076,7 +1076,7 @@ QSize QMenuBar::sizeHint() const
             ret.setHeight(sz.height());
     }
     if(as_gui_menubar) {
-        QStyleOptionMenuItem opt(0);
+        QStyleOptionMenuItem opt;
         opt.rect = rect();
         opt.menuRect = rect();
         opt.state = QStyle::Style_Default;
@@ -1117,7 +1117,7 @@ int QMenuBar::heightForWidth(int max_width) const
     if(d->rightWidget)
         height = qMax(d->rightWidget->sizeHint().height(), height);
     if(as_gui_menubar) {
-        QStyleOptionMenuItem opt(0);
+        QStyleOptionMenuItem opt;
         opt.rect = rect();
         opt.menuRect = rect();
         opt.state = QStyle::Style_Default;

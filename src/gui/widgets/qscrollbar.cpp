@@ -165,7 +165,7 @@ void QScrollBarPrivate::activateControl(uint control)
 
 QStyleOptionSlider QScrollBarPrivate::getStyleOption() const
 {
-    QStyleOptionSlider opt(0);
+    QStyleOptionSlider opt;
     opt.init(q);
     opt.subControls = QStyle::SC_None;
     opt.activeSubControls = QStyle::SC_None;

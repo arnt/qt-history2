@@ -83,7 +83,7 @@ public:
 #define q q_func()
 QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
 {
-    QStyleOptionTab opt(0);
+    QStyleOptionTab opt;
     const QTabBarPrivate::Tab *ptab = &tabList.at(tab);
     opt.rect = q->tabRect(tab);
     opt.palette = q->palette();

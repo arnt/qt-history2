@@ -219,7 +219,7 @@ void QGroupBox::paintEvent(QPaintEvent *event)
 
     QRect frameRect = rect();
     frameRect.setTop(d->topMargin);
-    QStyleOptionFrame opt(0);
+    QStyleOptionFrame opt;
     opt.rect = frameRect;
     opt.palette = palette();
 

@@ -141,7 +141,7 @@ inline int QTitleBarPrivate::titleBarState() const
 
 QStyleOptionTitleBar QTitleBarPrivate::getStyleOption() const
 {
-    QStyleOptionTitleBar opt(0);
+    QStyleOptionTitleBar opt;
     opt.init(q);
     opt.text = q->windowTitle();
     opt.icon = q->windowIcon();

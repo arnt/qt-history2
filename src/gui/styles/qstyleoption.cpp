@@ -164,8 +164,13 @@ void QStyleOption::init(const QWidget *w)
 */
 
 /*!
-  Constructs a QStyleOptionFocusRect with version number \a version
+  Constructs a QStyleOptionFocusRect.
 */
+
+QStyleOptionFocusRect::QStyleOptionFocusRect()
+    : QStyleOption(Version, SO_FocusRect)
+{
+}
 
 QStyleOptionFocusRect::QStyleOptionFocusRect(int version)
     : QStyleOption(version, SO_FocusRect)
@@ -188,9 +193,14 @@ QStyleOptionFocusRect::QStyleOptionFocusRect(int version)
 */
 
 /*!
-    Constructs a QStyleOptionFrame with version number \a version. The other
+    Constructs a QStyleOptionFrame. The other
     members of the struct are set to zero.
 */
+
+QStyleOptionFrame::QStyleOptionFrame()
+    : QStyleOption(Version, SO_Frame), lineWidth(0), midLineWidth(0)
+{
+}
 
 QStyleOptionFrame::QStyleOptionFrame(int version)
     : QStyleOption(version, SO_Frame), lineWidth(0), midLineWidth(0)
@@ -220,10 +230,15 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
 */
 
 /*!
-    Constructs a QStyleOptionHeader struct with version number \a version. The
+    Constructs a QStyleOptionHeader. The
     members are either null, empty, or zero. It is your responsibilty to set
     the correct values yourself.
 */
+
+QStyleOptionHeader::QStyleOptionHeader()
+    : QStyleOption(QStyleOptionHeader::Version, SO_Header), section(0)
+{
+}
 
 QStyleOptionHeader::QStyleOptionHeader(int version)
     : QStyleOption(version, SO_Header), section(0)
@@ -272,10 +287,15 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
 */
 
 /*!
-    Constructs a QStyleOptionButton with version \a version. The rest of the
+    Constructs a QStyleOptionButton. The rest of the
     parameters are either zero, null, or empty. It is the developer's
     responsibilty to populate the structure with the proper parameters.
 */
+
+QStyleOptionButton::QStyleOptionButton()
+    : QStyleOption(QStyleOptionButton::Version, SO_Button), features(None)
+{
+}
 
 QStyleOptionButton::QStyleOptionButton(int version)
     : QStyleOption(version, SO_Button), features(None)
@@ -310,14 +330,21 @@ QStyleOptionButton::QStyleOptionButton(int version)
 */
 
 /*!
-    Constructs a QStyleOptionTab structure with version \a version. The
+    Constructs a QStyleOptionTab structure. The
     parameters are either 0, empty or null. It is the developer's
     responsibility to populate the structure with proper values.
 */
+
+QStyleOptionTab::QStyleOptionTab()
+    : QStyleOption(QStyleOptionTab::Version, SO_Tab), row(0)
+{
+}
+
 QStyleOptionTab::QStyleOptionTab(int version)
     : QStyleOption(version, SO_Tab), row(0)
 {
 }
+
 
 /*!
     \property QStyleOptionTab::shape
@@ -366,15 +393,22 @@ QStyleOptionTab::QStyleOptionTab(int version)
 */
 
 /*!
-    Constructs a QStyleOptionProgressBar with version \a version. The values are
+    Constructs a QStyleOptionProgressBar. The values are
     either 0 or empty. It is the responsibilty of the developer to populate the
     structure with the proper values.
 */
+
+QStyleOptionProgressBar::QStyleOptionProgressBar()
+    : QStyleOption(QStyleOptionProgressBar::Version, SO_ProgressBar), features(None),
+      totalSteps(0), progress(0)
+{
+}
 
 QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
     : QStyleOption(version, SO_ProgressBar), features(None), totalSteps(0), progress(0)
 {
 }
+
 
 /*!
     \property QStyleOptionProgressBar::features
@@ -423,16 +457,23 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
 */
 
 /*!
-    Constructs a QStyleOptionMenuItem with version \a version. The values of
+    Constructs a QStyleOptionMenuItem. The values of
     the structure are either zero, null, or empty. It is the responsibilty of
     the developer to make sure these have proper values.
 */
+
+QStyleOptionMenuItem::QStyleOptionMenuItem()
+    : QStyleOption(QStyleOptionMenuItem::Version, SO_MenuItem), menuItemType(Normal),
+      checkState(NotCheckable), maxIconWidth(0), tabWidth(0)
+{
+}
 
 QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
     : QStyleOption(version, SO_MenuItem), menuItemType(Normal),
       checkState(NotCheckable), maxIconWidth(0), tabWidth(0)
 {
 }
+
 
 /*!
     \enum QStyleOptionMenuItem::MenuItemType
@@ -566,11 +607,18 @@ QStyleOptionComplex::QStyleOptionComplex(int version, int type)
 */
 
 /*!
-    Constructs a QStyleOptionSlider with version \a version.
+    Constructs a QStyleOptionSlider.
 
     All the values in the structure are initialized to zero. It is the
     responsibility of the developer to set them to the proper value.
 */
+
+QStyleOptionSlider::QStyleOptionSlider()
+    : QStyleOptionComplex(Version, SO_Slider), minimum(0), maximum(0),
+      tickmarks(QSlider::NoTickMarks), tickInterval(0), useRightToLeft(false),
+      sliderPosition(0), sliderValue(0), singleStep(0), pageStep(0)
+{
+}
 
 QStyleOptionSlider::QStyleOptionSlider(int version)
     : QStyleOptionComplex(version, SO_Slider), minimum(0), maximum(0),
@@ -660,11 +708,17 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
 */
 
 /*!
-    Constructs a QStyleOptionSpinBox with version \a version.
+    Constructs a QStyleOptionSpinBox.
 
     The values of the structure are set to zero. It is the Developer's
     responsiblity to set them to proper values.
 */
+
+QStyleOptionSpinBox::QStyleOptionSpinBox()
+    : QStyleOptionComplex(Version, SO_SpinBox), buttonSymbols(QAbstractSpinBox::UpDownArrows),
+      stepEnabled(QAbstractSpinBox::StepNone), percentage(0.0), slider(false), frame(true)
+{
+}
 
 QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
     : QStyleOptionComplex(version, SO_SpinBox), buttonSymbols(QAbstractSpinBox::UpDownArrows),
@@ -726,17 +780,24 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
 */
 
 /*!
-    Constructs a QStyleOptionListViewItem with version \a version.
+    Constructs a QStyleOptionListViewItem.
 
     All values in the structure are set to zero. It is the responsibility of
     the developer to set all appropriate values.
 */
+
+QStyleOptionListViewItem::QStyleOptionListViewItem()
+    : QStyleOption(Version, SO_ListViewItem), features(None), height(0), totalHeight(0),
+      itemY(0), childCount(0)
+{
+}
 
 QStyleOptionListViewItem::QStyleOptionListViewItem(int version)
     : QStyleOption(version, SO_ListViewItem), features(None), height(0), totalHeight(0),
       itemY(0), childCount(0)
 {
 }
+
 
 /*!
     \property QStyleOptionListViewItem::features
@@ -783,17 +844,24 @@ QStyleOptionListViewItem::QStyleOptionListViewItem(int version)
 */
 
 /*!
-    Creates a QStyleOptionListView structure with version \a version
+    Creates a QStyleOptionListView.
 
     The values in the structure are either zero, null, or empty. It is the
     developer's responsibility to set them to correct values.
 */
+
+QStyleOptionListView::QStyleOptionListView()
+    : QStyleOptionComplex(Version, SO_ListView), sortColumn(0), itemMargin(0), treeStepSize(0),
+      rootIsDecorated(false)
+{
+}
 
 QStyleOptionListView::QStyleOptionListView(int version)
     : QStyleOptionComplex(version, SO_ListView), sortColumn(0), itemMargin(0), treeStepSize(0),
       rootIsDecorated(false)
 {
 }
+
 
 /*!
     \property QStyleOptionListView::items
@@ -857,14 +925,19 @@ QStyleOptionListView::QStyleOptionListView(int version)
 */
 
 /*!
-    Constructs a QStyleOptionDockWindow with version \a version.
+    Constructs a QStyleOptionDockWindow.
 
     The values in the structure will be set to false. It is the responsibility
     of the developer to set them correctly.
 */
 
+QStyleOptionDockWindow::QStyleOptionDockWindow()
+    : QStyleOption(Version, SO_DockWindow), docked(false), isCloseEnabled(false)
+{
+}
+
 QStyleOptionDockWindow::QStyleOptionDockWindow(int version)
-    : QStyleOption(version , SO_DockWindow), docked(false), isCloseEnabled(false)
+    : QStyleOption(version, SO_DockWindow), docked(false), isCloseEnabled(false)
 {
 }
 
@@ -901,17 +974,24 @@ QStyleOptionDockWindow::QStyleOptionDockWindow(int version)
 */
 
 /*!
-    Constructs a QStyleOptionToolButton with version \a version.
+    Constructs a QStyleOptionToolButton.
 
     The values of the structure are either zero, empty, or null. It is the
     responsibility of the developer to set them correctly.
 */
+
+QStyleOptionToolButton::QStyleOptionToolButton()
+    : QStyleOptionComplex(Version, SO_ToolButton), features(None), arrowType(Qt::DownArrow),
+      textPosition(QToolButton::BesideIcon)
+{
+}
 
 QStyleOptionToolButton::QStyleOptionToolButton(int version)
     : QStyleOptionComplex(version, SO_ToolButton), features(None), arrowType(Qt::DownArrow),
       textPosition(QToolButton::BesideIcon)
 {
 }
+
 
 /*!
     \property QStyleOptionToolButton::features
@@ -978,11 +1058,16 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
 */
 
 /*!
-    Create a QStyleOptionComboBox structure with version \a version
+    Create a QStyleOptionComboBox.
 
     The values of the structure are set to zero or null. It is the developer's
     responsibility to set them correctly.
 */
+
+QStyleOptionComboBox::QStyleOptionComboBox()
+    : QStyleOptionComplex(Version, SO_ComboBox), editable(false)
+{
+}
 
 QStyleOptionComboBox::QStyleOptionComboBox(int version)
     : QStyleOptionComplex(version, SO_ComboBox), editable(false)
@@ -1009,11 +1094,16 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
 */
 
 /*!
-    Create a QStyleOptionToolBox structure with version \a version
+    Create a QStyleOptionToolBox.
 
     The values of the structure are set to zero, null, or empty. It is the
     developers responsibility to set them correctly.
 */
+
+QStyleOptionToolBox::QStyleOptionToolBox()
+    : QStyleOption(Version, SO_ToolBox), bgRole(QPalette::Foreground)
+{
+}
 
 QStyleOptionToolBox::QStyleOptionToolBox(int version)
     : QStyleOption(version, SO_ToolBox), bgRole(QPalette::Foreground)
@@ -1059,11 +1149,16 @@ QStyleOptionToolBox::QStyleOptionToolBox(int version)
 */
 
 /*!
-    Constructs a QStyleOptionTitleBar with version \a version.
+    Constructs a QStyleOptionTitleBar.
 
     The values of the structure will be zero, null, or empty. It is the
     responsibility of the developer to set them correctly.
 */
+
+QStyleOptionTitleBar::QStyleOptionTitleBar()
+    : QStyleOptionComplex(Version, SO_TitleBar), titleBarState(0), titleBarFlags(0)
+{
+}
 
 QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
     : QStyleOptionComplex(version, SO_TitleBar), titleBarState(0), titleBarFlags(0)
@@ -1126,18 +1221,23 @@ QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
 */
 
 /*!
-    Constructs a QStyleOptionViewItem with version \a version.
+    Constructs a QStyleOptionViewItem.
 
     The values of the structure are set to zero. It is the responsibility of
     the developer to set them to the correct values.
 */
+
+QStyleOptionViewItem::QStyleOptionViewItem()
+    : QStyleOption(Version, SO_ViewItem), displayAlignment(0), decorationAlignment(0),
+      decorationPosition(Left), decorationSize(Small)
+{
+}
 
 QStyleOptionViewItem::QStyleOptionViewItem(int version)
     : QStyleOption(version, SO_ViewItem), displayAlignment(0), decorationAlignment(0),
       decorationPosition(Left), decorationSize(Small)
 {
 }
-
 
 /*!
     \property QStyleOptionViewItem::displayAlignment

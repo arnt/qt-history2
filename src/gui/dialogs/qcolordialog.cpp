@@ -209,7 +209,7 @@ void QWellArray::paintCell(QPainter* p, int row, int col)
         int n = 2;
         p->drawRect(n, n, w-2*n, h-2*n);
     }
-    QStyleOptionFrame opt(0);
+    QStyleOptionFrame opt;
     opt.lineWidth = 2;
     opt.midLineWidth = 1;
     opt.rect.setRect(b, b, w - 2 * b, h - 2 * b);
@@ -224,7 +224,7 @@ void QWellArray::paintCell(QPainter* p, int row, int col)
 
     if ((row == curRow) && (col == curCol)) {
         if (hasFocus()) {
-            QStyleOptionFocusRect opt(0);
+            QStyleOptionFocusRect opt;
             opt.palette = g;
             opt.rect.setRect(0, 0, w, h);
             opt.state = QStyle::Style_Default;

@@ -499,7 +499,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         p->setPen(oldPen);
         break; }
     case PE_PanelTabWidget: {
-        QStyleOptionFrame frOpt(0);
+        QStyleOptionFrame frOpt;
         frOpt.rect = opt->rect;
         frOpt.state = opt->state;
         frOpt.palette = opt->palette;
@@ -695,7 +695,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 drawPrimitive(PE_ArrowDown, &newBtn, p, widget);
             }
             if (btn->state & Style_HasFocus) {
-                QStyleOptionFocusRect fropt(0);
+                QStyleOptionFocusRect fropt;
                 fropt.state = btn->state;
                 fropt.palette = btn->palette;
                 fropt.rect = visualRect(subRect(SR_PushButtonFocusRect, btn, p->fontMetrics(),
@@ -754,7 +754,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             drawItem(p, btn->rect, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, btn->palette,
                      btn->state & Style_Enabled, pix, btn->text);
             if (btn->state & Style_HasFocus) {
-                QStyleOptionFocusRect fropt(0);
+                QStyleOptionFocusRect fropt;
                 fropt.state = btn->state;
                 fropt.palette = btn->palette;
                 fropt.rect = visualRect(subRect(isRadio ? SR_RadioButtonFocusRect
@@ -1087,7 +1087,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             drawItem(p, tr, alignment, tab->palette, tab->state & Style_Enabled, tab->text);
 
             if (tab->state & Style_HasFocus && !tab->text.isEmpty()) {
-                QStyleOptionFocusRect fropt(0);
+                QStyleOptionFocusRect fropt;
                 fropt.rect = tab->rect;
                 fropt.palette = tab->palette;
                 fropt.state = Style_Default;
@@ -1517,7 +1517,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                     drawPrimitive(PE_ScrollBarSlider, &newScrollbar, p, widget);
 
                     if (scrollbar->state & Style_HasFocus) {
-                        QStyleOptionFocusRect fropt(0);
+                        QStyleOptionFocusRect fropt;
                         fropt.rect.setRect(newScrollbar.rect.x() + 2, newScrollbar.rect.y() + 2,
                                            newScrollbar.rect.width() - 5, newScrollbar.rect.height() - 5);
                         fropt.palette = newScrollbar.palette;
@@ -1634,7 +1634,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             }
 
             if (toolbutton->state & Style_HasFocus) {
-                QStyleOptionFocusRect fr(0);
+                QStyleOptionFocusRect fr;
                 fr.rect = toolbutton->rect;
                 fr.rect.addCoords(3, 3, -3, -3);
                 fr.palette = toolbutton->palette;

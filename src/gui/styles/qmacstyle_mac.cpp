@@ -2246,7 +2246,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
         if (const QStyleOptionSpinBox *sb = qt_cast<const QStyleOptionSpinBox *>(opt)) {
             QStyleOptionSpinBox newSB = *sb;
             if (sb->subControls & QStyle::SC_SpinBoxFrame) {
-                QStyleOptionFrame lineedit(0);
+                QStyleOptionFrame lineedit;
                 lineedit.rect = QStyle::visualRect(q->querySubControlMetrics(QStyle::CC_SpinBox,
                                                                          sb,
                                                                          QStyle::SC_SpinBoxFrame,
@@ -2348,7 +2348,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                 }
                 QRect lineeditRect(cmb->rect);
                 lineeditRect.setWidth(cmb->rect.width() - comborect.width());
-                QStyleOptionFrame lineedit(0);
+                QStyleOptionFrame lineedit;
                 lineedit.rect = lineeditRect;
                 lineedit.palette = cmb->palette;
                 lineedit.state = cmb->state;
@@ -3783,7 +3783,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
         if (const QStyleOptionSpinBox *sb = qt_cast<const QStyleOptionSpinBox *>(opt)) {
             QStyleOptionSpinBox newSB = *sb;
             if (sb->subControls & QStyle::SC_SpinBoxFrame) {
-                QStyleOptionFrame lineedit(0);
+                QStyleOptionFrame lineedit;
                 lineedit.rect = q->querySubControlMetrics(QStyle::CC_SpinBox, sb, QStyle::SC_SpinBoxFrame, widget),
                 lineedit.palette = sb->palette;
                 lineedit.state = QStyle::Style_Sunken;
@@ -5059,7 +5059,7 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, cons
             w += 20;
             if (widget && qt_cast<QComboBox*>(widget->parentWidget())
                     && widget->parentWidget()->isVisible()) {
-                QStyleOptionComboBox cmb(0);
+                QStyleOptionComboBox cmb;
                 cmb.init(widget->parentWidget());
                 cmb.editable = false;
                 cmb.subControls = QStyle::SC_ComboBoxEditField;

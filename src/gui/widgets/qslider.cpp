@@ -88,7 +88,7 @@ inline int QSliderPrivate::pick(const QPoint &pt) const
 
 QStyleOptionSlider QSliderPrivate::getStyleOption() const
 {
-    QStyleOptionSlider opt(0);
+    QStyleOptionSlider opt;
     opt.init(q);
     opt.subControls = QStyle::SC_None;
     opt.activeSubControls = QStyle::SC_None;

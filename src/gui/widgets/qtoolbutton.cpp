@@ -239,7 +239,7 @@ void QToolButtonPrivate::init()
 
 QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
 {
-    QStyleOptionToolButton opt(0);
+    QStyleOptionToolButton opt;
     opt.init(q);
     bool down = q->isDown();
     bool checked = q->isChecked();

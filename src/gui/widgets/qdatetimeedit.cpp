@@ -1485,7 +1485,7 @@ QDateTimeEditPrivate::SectionNode QDateTimeEditPrivate::nextPrevSection(Section 
 
 QStyleOptionSpinBox QDateTimeEditPrivate::styleOption() const
 {
-    QStyleOptionSpinBox opt(0);
+    QStyleOptionSpinBox opt;
     opt.init(q);
     opt.stepEnabled = q->stepEnabled();
     opt.activeSubControls = 0;

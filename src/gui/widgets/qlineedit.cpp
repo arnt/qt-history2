@@ -58,7 +58,7 @@ extern void qt_mac_secure_keyboard(bool); //qapplication_mac.cpp
 
 QStyleOptionFrame QLineEditPrivate::getStyleOption() const
 {
-    QStyleOptionFrame opt(0);
+    QStyleOptionFrame opt;
     opt.rect = q->rect();
     opt.palette = q->palette();
     opt.lineWidth = q->style().pixelMetric(QStyle::PM_DefaultFrameWidth);
@@ -490,7 +490,7 @@ QSize QLineEdit::sizeHint() const
     int h = qMax(fm.lineSpacing(), 14) + 2*innerMargin;
     int w = fm.width('x') * 17; // "some"
     int m = d->frame ? style().pixelMetric(QStyle::PM_DefaultFrameWidth) : 0;
-    QStyleOptionFrame opt(0);
+    QStyleOptionFrame opt;
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::Style_Default;
@@ -1692,7 +1692,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
 
     if (d->frame) {
         int frameWidth = style().pixelMetric(QStyle::PM_DefaultFrameWidth);
-        QStyleOptionFrame opt(0);
+        QStyleOptionFrame opt;
         opt.rect = r;
         opt.palette = pal;
         opt.lineWidth = frameWidth;

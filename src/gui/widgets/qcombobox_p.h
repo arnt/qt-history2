@@ -56,7 +56,7 @@ protected:
     }
     void paintEvent(QPaintEvent *) {
         QPainter p(this);
-        QStyleOptionMenuItem menuOpt(0);
+        QStyleOptionMenuItem menuOpt;
         menuOpt.palette = palette();
         menuOpt.state = QStyle::Style_Default;
         menuOpt.checkState = QStyleOptionMenuItem::NotCheckable;
@@ -133,7 +133,7 @@ private:
     QStyleOptionMenuItem getStyleOption(const QStyleOptionViewItem &option,
                                         const QAbstractItemModel *model,
                                         const QModelIndex &index) const {
-        QStyleOptionMenuItem menuOption(0);
+        QStyleOptionMenuItem menuOption;
         menuOption.palette = option.palette;
         menuOption.state = QStyle::Style_Default;
         menuOption.state |= QStyle::Style_ButtonDefault;

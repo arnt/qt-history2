@@ -1023,7 +1023,7 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
 
 QStyleOptionSpinBox QAbstractSpinBoxPrivate::styleOption() const
 {
-    QStyleOptionSpinBox opt(0);
+    QStyleOptionSpinBox opt;
     opt.init(q);
     opt.stepEnabled = q->stepEnabled();
     opt.activeSubControls = 0;

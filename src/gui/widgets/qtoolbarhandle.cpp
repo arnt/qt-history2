@@ -46,7 +46,7 @@ QSize QToolBarHandle::sizeHint() const
 void QToolBarHandle::paintEvent(QPaintEvent *e)
 {
     QPainter p(this);
-    QStyleOptionDockWindow opt(0);
+    QStyleOptionDockWindow opt;
     opt.state = QStyle::Style_Default;
     if (isEnabled())
 	opt.state |= QStyle::Style_Enabled;

@@ -1401,7 +1401,7 @@ QRect QHeaderViewPrivate::sectionHandleRect(int section)
 
 QStyleOptionHeader QHeaderViewPrivate::getStyleOption() const
 {
-    QStyleOptionHeader opt(0);
+    QStyleOptionHeader opt;
     opt.rect = q->rect();
     opt.palette = q->palette();
     opt.state = QStyle::Style_Default|QStyle::Style_Raised;

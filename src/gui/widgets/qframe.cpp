@@ -467,7 +467,7 @@ void QFrame::paintEvent(QPaintEvent *)
 void QFrame::drawFrame(QPainter *p)
 {
     QPoint      p1, p2;
-    QStyleOptionFrame opt(0);
+    QStyleOptionFrame opt;
     int frameShape  = d->frameStyle & QFrame::MShape;
     int frameShadow = d->frameStyle & QFrame::MShadow;
 
@@ -543,7 +543,7 @@ void QFrame::drawFrame(QPainter *p)
         int vmargin = style().pixelMetric(QStyle::PM_MenuVMargin, &opt, this),
             hmargin = style().pixelMetric(QStyle::PM_MenuHMargin, &opt, this);
         if (vmargin > 0 || hmargin > 0) {
-            QStyleOptionMenuItem menuOpt(0);
+            QStyleOptionMenuItem menuOpt;
             menuOpt.palette = opt.palette;
             menuOpt.state = opt.state;
             menuOpt.menuItemType = QStyleOptionMenuItem::Margin;
