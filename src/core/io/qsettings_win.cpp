@@ -523,8 +523,8 @@ bool QSettingsPrivate::sysWriteEntry(const QString &key, const QString &value)
         array[(2*i)] = 0;
         array[(2*i)+1] = 0;
     } , {
-        array.resize(value.length());
         array = value.local8Bit();
+        array.resize(array.length() + 1);
     });
 
     return sysd->writeKey(key, array, REG_SZ);
