@@ -367,8 +367,7 @@ static QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& i
 			SQL_C_CHAR,
 #endif
 			(SQLPOINTER)buf,
-			// do not include the 0 termination character in the buffer-size
-			colSize * sizeof( SQLTCHAR ) - sizeof( SQLTCHAR ),
+			colSize * sizeof( SQLTCHAR ),
 			&lengthIndicator );
 	if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
 	    if ( lengthIndicator == SQL_NULL_DATA || lengthIndicator == SQL_NO_TOTAL ) {
