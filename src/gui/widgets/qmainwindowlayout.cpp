@@ -111,6 +111,8 @@ public:
     { rect = r; }
     inline QRect geometry() const
     { return rect; }
+    inline bool isEmpty() const
+    { return false; }
 
     QWidget *widget;
     QRect rect;
