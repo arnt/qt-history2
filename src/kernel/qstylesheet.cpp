@@ -964,7 +964,7 @@ int QStyleSheetItem::lineSpacing() const
 	 \i A smaller font size.
     \row \i \c{<code>...</code>}
 	 \i Indicates code. By default this is the same as
-	    \c{<tt>...</tt>} (typewriter). For larger junks of code
+	    \c{<tt>...</tt>} (typewriter). For larger chunks of code
 	    use the block-tag \c{<}\c{pre>}.
     \row \i \c{<tt>...</tt>}
 	 \i Typewriter font style.
