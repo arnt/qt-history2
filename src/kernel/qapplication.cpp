@@ -615,7 +615,8 @@ void QApplication::construct( int &argc, char **argv, Type type )
     qt_mutex = new QMutex(TRUE);
 #endif
     initialize( argc, argv );
-    qt_maxWindowRect = desktop()->rect();
+    if ( qt_is_gui_used )
+	qt_maxWindowRect = desktop()->rect();
 }
 
 
@@ -3143,7 +3144,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
 
 #ifndef QT_NO_PLUGIN
 /*!
-  Returns the application interface, or null if this application doesn't provide 
+  Returns the application interface, or null if this application doesn't provide
   an interface. There can only be one interface, and it will be deleted when
   the application object is destroyed.
 
