@@ -117,10 +117,10 @@ static inline double nan()
 
 // Sizes as defined by the ISO C99 standard - fallback
 #ifndef LLONG_MAX
-#   define LLONG_MAX Q_INT64_C(9223372036854775807)
+#   define LLONG_MAX Q_INT64_C(0x7fffffffffffffff)
 #endif
 #ifndef LLONG_MIN
-#   define LLONG_MIN (-LLONG_MAX - Q_INT64_C(1))
+#   define LLONG_MIN Q_INT64_C(0x8000000000000000)
 #endif
 #ifndef ULLONG_MAX
 #   define ULLONG_MAX Q_UINT64_C(0xffffffffffffffff)
@@ -3532,7 +3532,7 @@ static Q_LLONG qstrtoll(const char *nptr, const char **endptr, register int base
      * overflow.
      */
     qbase = (unsigned)base;
-    cutoff = neg ? (Q_ULLONG)-(LLONG_MIN + LLONG_MAX) + LLONG_MAX
+    cutoff = neg ? (Q_ULLONG)0-(LLONG_MIN + LLONG_MAX) + LLONG_MAX
 	: LLONG_MAX;
     cutlim = cutoff % qbase;
     cutoff /= qbase;
