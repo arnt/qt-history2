@@ -442,6 +442,8 @@ void QTextLine::layout(int width)
 {
     QScriptLine &line = eng->lines[i];
     line.width = width;
+    line.length = 0;
+    line.textWidth = 0;
 
     if (!eng->items.size()) {
         // ##### use block font
