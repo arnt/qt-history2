@@ -2978,6 +2978,10 @@ void EventList::setup()
 		HierarchyItem *item = new HierarchyItem( eventItem, *fit, QString::null, QString::null );
 		item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
 	    }
+#if 0 // ### for conversation from old to new
+	    if ( !funcs.isEmpty() )
+		save( eventItem );
+#endif
 	}
     } else {
 	QPtrStrList sigs = editor->widget()->metaObject()->signalNames( TRUE );

@@ -1131,9 +1131,7 @@ bool MetaDataBase::setEventFunctions( QObject *o, QObject *form, const QString &
     }
 
     QString event = e;
-    int i = event.find( "(" );
-    if ( i != -1 )
-	event = event.left( i );
+    event = event.simplifyWhiteSpace();
 
     r->eventFunctions.remove( event );
     EventDescription ed;
@@ -1197,10 +1195,17 @@ QStringList MetaDataBase::eventFunctions( QObject *o, const QString &e )
     }
 
     QString event = e;
-    int i = event.find( "(" );
-    if ( i != -1 )
-	event = event.left( i );
-    return *r->eventFunctions.find( event );
+    event = event.simplifyWhiteSpace();
+    QStringList l = *r->eventFunctions.find( event );
+#if 0 // ### for conversation from old to new
+    if ( l.isEmpty() ) {
+	int i = event.find( "(" );
+	if ( i != -1 )
+	    event = event.left( i );
+	l = *r->eventFunctions.find( event );
+    }
+#endif	
+    return l;
 }
 
 QMap<QString, QStringList> MetaDataBase::eventFunctions( QObject *o )
