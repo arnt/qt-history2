@@ -8,7 +8,9 @@ SOURCES		= main.cpp \
 
 unix {
 	OBJECTS_DIR	= .obj
-	LIBS 	*= -lodbc
+	!contains( LIBS, .*odbc.* ) {
+	    LIBS 	*= -lodbc
+	}
 }
 
 win32 {

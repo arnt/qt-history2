@@ -10,8 +10,11 @@ SOURCES		= main.cpp \
 
 unix {
 	OBJECTS_DIR	= .obj
-	LIBS 	*= -lsybdb
+	!contains( LIBS, .*sybdb.* ) {
+	    LIBS 	*= -lsybdb
+	}
 }
+
 win32 {
 	OBJECTS_DIR		= obj
 	!win32-borland:LIBS 	*= NTWDBLIB.LIB

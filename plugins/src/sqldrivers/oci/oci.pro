@@ -17,8 +17,13 @@ win32 {
 }
 unix {
 	OBJECTS_DIR	= .obj
-	LIBS		*= -lclntsh
-	LIBS            *= -lwtc8
+
+	!contains( LIBS, .*clntsh.* ) {
+	    LIBS	*= -lclntsh
+	}
+	!contains( LIBS, .*wtc.* ) {
+	    LIBS	*= -lwtc8
+	}
 }
 
 REQUIRES	= sql

@@ -5,7 +5,9 @@ SOURCES		= main.cpp \
 		  ../../../../src/sql/drivers/psql/qsql_psql.cpp 
 unix {
 	OBJECTS_DIR	= .obj
-	LIBS   	*= -lpq
+	!contains( LIBS, .*pq.* ) {
+	    LIBS	*= -lpq
+	}
 }
 
 win32 {

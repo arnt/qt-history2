@@ -6,8 +6,10 @@ SOURCES		= main.cpp \
 
 unix {
 	OBJECTS_DIR = .obj
-	LIBS	*= -lmysqlclient
-
+	
+	!contains( LIBS, .*mysql.* ) {
+	    LIBS    *= -lmysqlclient
+	}
 }
 win32 {
 	OBJECTS_DIR = obj
