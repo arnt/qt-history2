@@ -571,16 +571,7 @@ void QListViewItem::insertItem( QListViewItem * newChild )
 
 /*!\obsolete
 
-  Removes \a tbg from this object's list of children and causes an
-  update of the screen display.  You should normally not need to call
-  this function, as QListViewItem::~QListViewItem() calls it. The normal way
-  to delete an item is \c delete.
-
-  \warning This function leaves \a tbg and its children in a state
-  where most member functions are unsafe.  Only the few functions that
-  are explicitly documented to work in this state may be used then.
-
-  \sa QListViewItem::insertItem()
+  This function has been renamed takeItem().
 */
 void QListViewItem::removeItem( QListViewItem * item )
 {
@@ -3694,7 +3685,7 @@ void QListView::clearSelection()
 /*!
   If \a select is TRUE, all items get selected, else all get unselected.
   This works only in the selection modes Multi and Extended. In
-  Single and NoSelection mode the selection of the current item is 
+  Single and NoSelection mode the selection of the current item is
   just set to \a select.
 */
 
@@ -4847,11 +4838,7 @@ int QListViewItem::itemPos() const
 
 /*!\obsolete
 
-  Removes \a i from the list view; \a i must be a top-level item.
-  The warnings regarding QListViewItem::takeItem( i ) apply to this
-  function too.
-
-  \sa QListViewItem::takeItem() (important) insertItem()
+  This function has been renamed takeItem().
 */
 
 void QListView::removeItem( QListViewItem * i )
