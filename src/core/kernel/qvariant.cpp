@@ -1029,7 +1029,7 @@ void streamDebug(QDebug dbg, const QVariant &v)
         break;
 #ifndef QT_NO_TEMPLATE_VARIANT
     case QVariant::Map:
-//         dbg.nospace() << v.toMap();
+        dbg.nospace() << v.toMap();
         break;
     case QVariant::List:
         dbg.nospace() << v.toList();
