@@ -339,7 +339,7 @@ inline bool QCoreVariant::isDetached() const
 { return d->ref == 1; }
 
 #if defined Q_CC_MSVC && _MSC_VER < 1300
-template <class T> inline T qt_cast_helper(const QCoreVariant &v, T *);
+template <class T> inline T qt_cast_helper(const QCoreVariant &v, const T *);
 
 template <class T>
 inline T qt_cast(const QCoreVariant &v)
