@@ -30,4 +30,6 @@ contains(QT_CONFIG, opengl) {
 	SOURCES += glpainter.cpp
 }
 
+QT += opengl
+
 TARGET = arthur
