@@ -20,7 +20,7 @@
 #define _WINSCARD_H_
 #endif
 
-#ifdef QT_SQL_POSTGRES
+#ifdef QT_SQL_PSQL
 #include "../drivers/psql/qsql_psql.h"
 #endif
 #ifdef QT_SQL_MYSQL
@@ -403,7 +403,7 @@ QStringList QSqlDatabase::drivers()
             l << itd.key();
     }
 
-#ifdef QT_SQL_POSTGRES
+#ifdef QT_SQL_PSQL
     if (!l.contains(QLatin1String("QPSQL7")))
         l << QLatin1String("QPSQL7");
 #endif
@@ -565,7 +565,7 @@ void QSqlDatabasePrivate::init(const QString &type)
 
     if (!driver) {
 
-#ifdef QT_SQL_POSTGRES
+#ifdef QT_SQL_PSQL
         if (type == QLatin1String("QPSQL7"))
             driver = new QPSQLDriver();
 #endif
