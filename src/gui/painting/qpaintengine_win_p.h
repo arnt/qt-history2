@@ -43,9 +43,9 @@ static const short rasterOpCodes[] = {
 
 class QWin32PaintEnginePrivate : public QPaintEnginePrivate
 {
-public:
     Q_DECL_PUBLIC(QWin32PaintEngine);
-
+    
+public:
     QWin32PaintEnginePrivate() :
 	hwnd(0),
 	hdc(0),
