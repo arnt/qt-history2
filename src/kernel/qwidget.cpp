@@ -1145,7 +1145,9 @@ void QWidget::setStyle( QStyle *style )
 }
 
 /*!
-  ###
+  \overload
+
+  Sets the widget's GUI style to \a style using the QStyleFactory.
 */
 QStyle* QWidget::setStyle( const QString &style )
 {
@@ -1155,8 +1157,6 @@ QStyle* QWidget::setStyle( const QString &style )
 }
 
 /*!
-  \fn void QWidget::styleChange( QStyle& oldStyle )
-
   This virtual function is called when the style of the widgets.
   changes.\a oldStyle is the
   previous GUI style; you can get the new style from style().
@@ -1366,14 +1366,17 @@ void QWidget::setDisabled( bool disable )
 void QWidget::enabledChange( bool )
 {
     update();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    emit accessibilityChanged( QAccessible::StateChanged );
+#endif
 }
 
 /*!
   \fn void QWidget::windowActivationChange( bool oldActive )
 
-  This virtual function is called when its window is activated or deactivated
-  by the windows system. \a oldActive is the previous state; you can get the
-  new setting from isActiveWindow().
+  This virtual function is called for a widget when its window is activated or 
+  deactivated by the windows system. \a oldActive is the previous state; you can 
+  get the new setting from isActiveWindow().
 
   Reimplement this function if your widget needs to know when its window becomes
   activated or deactivated.
@@ -2218,8 +2221,10 @@ void QWidget::setBackgroundMode( BackgroundMode m )
     if ( m == NoBackground ) {
 	setBackgroundEmpty();
     } else if ( m == FixedColor || m == FixedPixmap ) {
+#if defined(QT_DEBUG)
 	qWarning( "QWidget::setBackgroundMode: FixedColor or FixedPixmap makes"
 		  " no sense" );
+#endif
 	return;
     }
     setBackgroundModeDirect(m);
@@ -2822,6 +2827,17 @@ void QWidget::clearFocus()
 	qApp->focus_widget = 0;
 	QFocusEvent out( QEvent::FocusOut );
 	QApplication::sendEvent( w, &out );
+#if defined(Q_WS_WIN)
+	if ( !isPopup() )
+	    SetFocus( 0 );
+	else {
+#endif
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	    emit accessibilityChanged( QAccessible::Focus );
+#endif
+#if defined(Q_WS_WIN)
+	}
+#endif
     }
 }
 

@@ -49,7 +49,7 @@
 #include "qapplication.h"
 #include "qtoolbar.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
+#include "qaccessible.h"
 #endif
 
 // NOT REVISED
@@ -328,6 +328,10 @@ void QPushButton::setDefault( bool enable )
  	((QDialog*)topLevelWidget())->setDefault( this );
 #endif
     update();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    emit accessibilityChanged( QAccessible::StateChanged );
+#endif
+
 }
 
 
@@ -657,13 +661,5 @@ bool QPushButton::isFlat() const
 {
     return flt;
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*! \reimp */
-QAccessibleInterface *QPushButton::accessibleInterface()
-{
-    return new QAccessibleButton( this, QAccessible::PushButton );
-}
-#endif
 
 #endif

@@ -133,6 +133,9 @@ protected:
     void	focusOutEvent( QFocusEvent * );
 
     void	enabledChange( bool );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
 
 private slots:
     void	animateTimeout();

@@ -111,10 +111,6 @@ protected:
     void	resizeEvent( QResizeEvent * );
     void	updateMask();
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
-
 private slots:
     void popupPressed();
 

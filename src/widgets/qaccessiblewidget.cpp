@@ -4,7 +4,7 @@
 
 #include "qapplication.h"
 #include "qobjectlist.h"
-#include "qbutton.h"
+#include "qpushbutton.h"
 #include "qslider.h"
 #include "qdial.h"
 #include "qspinbox.h"
@@ -473,15 +473,17 @@ QAccessible::State QAccessibleButton::state( int who ) const
     int state = QAccessibleWidget::state( who );
 
     QButton *b = (QButton*)object();
-    if ( b->inherits( "QCheckBox" ) ) {
-	if ( b->isOn() )
-	    state |= Checked;
-    } else if ( b->inherits( "QRadioButton" ) ) {
-	if ( b->isOn() )
-	    state |= Checked;
-    } else if ( b->isToggleButton() && b->isOn() ) {
+    if ( b->state() == QButton::On )
+	state |= Checked;
+    else  if ( b->state() == QButton::NoChange )
+	    state |= Mixed;
+    if ( b->isDown() )
 	state |= Pressed;
-    }
+    if ( b->inherits( "QPushButton" ) ) {
+	QPushButton *pb = (QPushButton*)b;
+	if ( pb->isDefault() )
+	    state |= Default;
+    } 
     
     return (State)state;
 }
