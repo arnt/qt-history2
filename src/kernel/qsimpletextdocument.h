@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimpletextdocument.h#2 $
+** $Id: //depot/qt/main/src/kernel/qsimpletextdocument.h#3 $
 **
 ** Definition of the QSimpleTextDocument class
 **
@@ -52,6 +52,8 @@ public:
 
     void draw( QPainter*,  int x, int y, const QRegion& clipRegion,
 	       const QColorGroup& cg, const QBrush* paper = 0) const;
+
+    QString anchor( QPainter* p, const QPoint& pos );
 
 private:
     QSimpleTextDocumentData* d;

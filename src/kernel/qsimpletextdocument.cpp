@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimpletextdocument.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qsimpletextdocument.cpp#4 $
 **
 ** Implementation of the QSimpleTextDocument class
 **
@@ -136,4 +136,22 @@ void QSimpleTextDocument::draw( QPainter* p,  int x, int y, const QRegion& clipR
 	    p->fillRect(r, *paper);
 	p->setClipping( FALSE );
     }
+}
+
+/*!
+  Returns the anchor at the requested position. The QPainter is needed for font size
+  calculations. An empty string is returned if no anchor is specified for this certain
+  position.
+*/
+QString QSimpleTextDocument::anchor( QPainter* p, const QPoint& pos )
+{
+    QTextNode* n = d->doc->hitTest( p, 0, 0, pos.x(), pos.y() );
+    if ( !n )
+      return QString();
+
+    const QTextContainer* act = n->parent()->anchor();
+    if (act && act->attributes() && act->attributes()->find("href") )
+      return ( *act->attributes()->find("href") ); 
+
+    return QString();
 }
