@@ -1019,8 +1019,6 @@ static int bm_find(const QChar *uc, uint l, int index, const QChar *puc, uint pl
 int QString::indexOf(const QString& s, int from, QString::CaseSensitivity cs) const
 {
     const uint l = d->size;
-    if (!l)
-	return -1;
     const uint sl = s.d->size;
     if (from < 0)
 	from += l;
@@ -1028,6 +1026,8 @@ int QString::indexOf(const QString& s, int from, QString::CaseSensitivity cs) co
 	return -1;
     if (!sl)
 	return from;
+    if (!l)
+	return -1;
 
     if (sl == 1)
 	return indexOf(*(const QChar*) s.d->data, from, cs);
