@@ -790,7 +790,6 @@ void PopupMenuEditor::mouseMoveEvent( QMouseEvent * e )
 	    itemList.find( draggedItem );
 	    QLNode * node = itemList.currentNode();
 
-	    qDebug( "dragCopy" );
 	    d->dragCopy(); // dragevents and stuff happens
 
 	    if ( draggedItem ) { // item was not dropped
@@ -811,7 +810,6 @@ void PopupMenuEditor::mouseMoveEvent( QMouseEvent * e )
 
 void PopupMenuEditor::dragEnterEvent( QDragEnterEvent * e )
 {
-    qDebug( "dragEnterEvent" );
     if ( e->provides( "qt/popupmenueditoritemptr" ) ||
 	 e->provides( "application/x-designer-actions" ) ||
 	 e->provides( "application/x-designer-actiongroup" ) ) {
@@ -839,7 +837,6 @@ void PopupMenuEditor::dragMoveEvent( QDragMoveEvent * e )
 
 void PopupMenuEditor::dropEvent( QDropEvent * e )
 {
-    qDebug( "dropEvent" );
     if ( !( e->provides( "qt/popupmenueditoritemptr" ) ||
 	    e->provides( "application/x-designer-actions" ) ||
 	    e->provides( "application/x-designer-actiongroup" ) ) )
@@ -1010,8 +1007,9 @@ void PopupMenuEditor::drawItem( QPainter * p, PopupMenuEditorItem * i,
     int y = r.y();
     int h = r.height();
 
-    p->eraseRect( r ); // FIXME: may cause trouble on the Mac
+    p->fillRect( r, colorGroup().brush( QColorGroup::Background ) );
     i->setDirty( FALSE );
+    
     if ( i->isSeparator() ) {
 	style().drawPrimitive( QStyle::PE_Separator, p,
 			       QRect( r.x(), r.y() + 2, r.width(), 1 ),
