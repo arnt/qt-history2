@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#90 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#91 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#90 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#91 $");
 
 
 /*!
@@ -239,6 +239,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
     if ( style() != WindowsStyle || 
 	 !object->isWidgetType() ||
 	 !( event->type() == Event_Accel || 
+	    event->type() == Event_KeyPress ||
 	    event->type() == Event_KeyRelease ) )
 	return FALSE;
 
@@ -263,7 +264,8 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
     }
 
     // look for Alt release
-    if ( ((QWidget*)object)->focusWidget() == object ) {
+    if ( ((QWidget*)object)->focusWidget() == object ||
+	 (object->parent() == 0 && ((QWidget*)object)->focusWidget() == 0) ) {
 	if ( windowsaltactive &&
 	     event->type() == Event_KeyRelease &&
 	     (((QKeyEvent *)event)->key() == Key_Alt ||
@@ -276,12 +278,17 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	    if ( tlw ) {
 		// ### !
 		// make sure to be the first event filter, so we can kill
-		// accelerator events before the acceleators get to them.
+		// accelerator events before the accelerators get to them.
 		tlw->removeEventFilter( this );
 		tlw->installEventFilter( this );
 	    }
-	} else if ( event->type() == Event_KeyPress && object->parent() ) {
-	    object->removeEventFilter( this );	    
+	} else if ( (event->type() == Event_KeyPress ||
+		     event->type() == Event_KeyRelease) &&
+		    !(((QKeyEvent *)event)->key() == Key_Alt ||
+		      ((QKeyEvent *)event)->key() == Key_Meta) ) {
+	    if ( object->parent() )
+		object->removeEventFilter( this );
+	    setWindowsAltMode( FALSE, -1 );
 	}
     }
 
