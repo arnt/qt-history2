@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#163 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#164 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -917,7 +917,6 @@ void QComboBox::setFont( const QFont &font )
 
 void QComboBox::resizeEvent( QResizeEvent *e )
 {
-    int xw = QMAX(0,width()-e->oldSize().width());
     if ( d->ed ) {
 	d->ed->setGeometry(style().comboButtonRect( 0, 0, width(), height() ));
     }
