@@ -133,7 +133,7 @@ public:
 
     void 	setEditWidget( QWidget * widget );
     QWidget * 	editWidget();
-    
+
     QRect upRect() const;
     QRect downRect() const;
 
@@ -156,7 +156,7 @@ signals:
 public slots:
     void stepUp();
     void stepDown();
-
+    
 protected:
     void mousePressEvent( QMouseEvent *e );
     void resizeEvent( QResizeEvent* ev );
@@ -168,6 +168,10 @@ protected:
     void styleChange( QStyle& );
     void paintEvent( QPaintEvent * );
     void enableChanged( bool old );
+
+private slots:
+    void timerDone();
+    void timerDoneEx();
 
 private:
     QSpinWidgetPrivate * d;

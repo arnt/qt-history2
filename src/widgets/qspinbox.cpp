@@ -47,7 +47,6 @@
 #include "qvalidator.h"
 #include "qpixmapcache.h"
 #include "qapplication.h"
-#include "qtimer.h"
 #include "qstyle.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"

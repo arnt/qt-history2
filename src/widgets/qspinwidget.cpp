@@ -45,25 +45,26 @@ class QSpinWidgetPrivate
 {
 public:
     QSpinWidgetPrivate()
-    {
-	upEnabled = TRUE;
-	downEnabled = TRUE;
-	buttonDown = 0;
-	theButton = 0;
-	up = QRect();
-	down = QRect();
-	auRepTimer = 0;
-	bsyms = QSpinWidget::UpDownArrows;
-    }
+	: upEnabled( TRUE ),
+	  downEnabled( TRUE ),
+	  theButton( 0 ),
+	  buttonDown( 0 ),
+	  timerUp( 0 ),
+	  bsyms( QSpinWidget::UpDownArrows ),
+	  ed ( 0 ) {}
     uint upEnabled :1;
     uint downEnabled :1;
     uint theButton :2;
     uint buttonDown :2;
+    uint timerUp : 1;
     QRect up;
     QRect down;
-    QTimer *auRepTimer;
+    QTimer auRepTimer;
     QSpinWidget::ButtonSymbols bsyms;
     QWidget *ed;
+    void startTimer( int msec ) { auRepTimer.start( msec, TRUE ); }
+    void startTimer( bool up, int msec ) { timerUp = up; startTimer( msec ); }
+    void stopTimer() { auRepTimer.stop(); }
 };
 
 /*!
@@ -82,7 +83,7 @@ QSpinWidget::QSpinWidget( QWidget* parent, const char* name )
     : QWidget( parent, name )
 {
     d = new QSpinWidgetPrivate();
-    d->ed = 0;
+    connect( &d->auRepTimer, SIGNAL( timeout() ), this, SLOT( timerDone() ) );
     setFocusPolicy( StrongFocus );
 
     arrange();
@@ -143,20 +144,13 @@ void QSpinWidget::mousePressEvent( QMouseEvent *e )
 	    repaint( d->down.unite( d->up ), FALSE );
 	} else if ( d->buttonDown & 1 ) {
 	    repaint( d->down, FALSE );
-	    if ( !d->auRepTimer ) {
-		d->auRepTimer = new QTimer( this );
-		connect( d->auRepTimer, SIGNAL( timeout() ), this, SLOT( stepDown() ) );
-		d->auRepTimer->start( 300 );
-	    }
 	    stepDown();
+	    d->startTimer( FALSE, 300 );
 	} else if ( d->buttonDown & 2 ) {
 	    repaint( d->up, FALSE );
-	    if ( !d->auRepTimer ) {
-		d->auRepTimer = new QTimer( this );
-		connect( d->auRepTimer, SIGNAL( timeout() ), this, SLOT( stepUp() ) );
-		d->auRepTimer->start( 300 );
-	    }
 	    stepUp();
+	    qDebug("start timer 300 button press");
+	    d->startTimer( TRUE, 300 );
 	}
     }
 }
@@ -178,12 +172,12 @@ void QSpinWidget::arrange()
     }
 }
 
+/*!
+
+*/
+
 void QSpinWidget::stepUp()
 {
-    if ( d->auRepTimer && sender() == d->auRepTimer ) {
-	d->auRepTimer->stop();
-	d->auRepTimer->start( 100 );
-    }
     emit stepUpPressed();
 }
 
@@ -198,11 +192,26 @@ void QSpinWidget::resizeEvent( QResizeEvent* )
 
 void QSpinWidget::stepDown()
 {
-    if ( d->auRepTimer && sender() == d->auRepTimer ) {
-	d->auRepTimer->stop();
-	d->auRepTimer->start( 100 );
-    }
     emit stepDownPressed();
+}
+
+
+void QSpinWidget::timerDone()
+{
+    // we use a double timer to make it possible for users to do
+    // something with 0-timer on valueChanged.
+    QTimer::singleShot( 1, this, SLOT( timerDoneEx() ) );
+}
+
+void QSpinWidget::timerDoneEx()
+{
+    if ( !d->buttonDown )
+	return;
+    if ( d->timerUp )
+	stepUp();
+    else
+	stepDown();
+    d->startTimer( 100 );
 }
 
 
@@ -223,9 +232,7 @@ void QSpinWidget::mouseReleaseEvent( QMouseEvent *e )
 	else if ( oldButtonDown & 2 )
 	    repaint( d->up, FALSE );
     }
-    delete d->auRepTimer;
-    d->auRepTimer = 0;
-
+    d->stopTimer();
     d->buttonDown = 0;
 }
 
@@ -241,23 +248,19 @@ void QSpinWidget::mouseMoveEvent( QMouseEvent *e )
 
     uint oldButtonDown = d->theButton;
     if ( oldButtonDown & 1 && !d->down.contains( e->pos() ) ) {
-	if ( d->auRepTimer )
-	    d->auRepTimer->stop();
+	d->stopTimer();
 	d->theButton = 0;
 	repaint( d->down, FALSE );
     } else if ( oldButtonDown & 2 && !d->up.contains( e->pos() ) ) {
-	if ( d->auRepTimer )
-	    d->auRepTimer->stop();
+	d->stopTimer();
 	d->theButton = 0;
 	repaint( d->up, FALSE );
     } else if ( !oldButtonDown && d->up.contains( e->pos() ) && d->buttonDown & 2 ) {
-	if ( d->auRepTimer )
-	    d->auRepTimer->start( 500 );
+	d->startTimer( 500 );
 	d->theButton = 2;
 	repaint( d->up, FALSE );
     } else if ( !oldButtonDown && d->down.contains( e->pos() ) && d->buttonDown & 1 ) {
-	if ( d->auRepTimer )
-	    d->auRepTimer->start( 500 );
+	d->startTimer( 500 );
 	d->theButton = 1;
 	repaint( d->down, FALSE );
     }
@@ -330,9 +333,7 @@ void QSpinWidget::styleChange( QStyle& old )
     QWidget::styleChange( old );
 }
 
-
 /*!
-
 */
 
 QRect QSpinWidget::upRect() const
@@ -340,9 +341,7 @@ QRect QSpinWidget::upRect() const
     return d->up;
 }
 
-
 /*!
-
 */
 
 QRect QSpinWidget::downRect() const
@@ -350,9 +349,7 @@ QRect QSpinWidget::downRect() const
     return d->down;
 }
 
-
 /*!
-
 */
 
 void QSpinWidget::updateDisplay()
@@ -399,7 +396,6 @@ void QSpinWidget::setUpEnabled( bool on )
 }
 
 /*!
-
 */
 
 bool QSpinWidget::isUpEnabled() const
@@ -420,7 +416,6 @@ void QSpinWidget::setDownEnabled( bool on )
 }
 
 /*!
-
 */
 
 bool QSpinWidget::isDownEnabled() const
@@ -437,9 +432,7 @@ void QSpinWidget::setButtonSymbols( ButtonSymbols bs )
     d->bsyms = bs;
 }
 
-
 /*!
-
 */
 
 QSpinWidget::ButtonSymbols QSpinWidget::buttonSymbols() const
