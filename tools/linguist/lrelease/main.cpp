@@ -18,6 +18,9 @@
 **
 **********************************************************************/
 
+#include <metatranslator.h>
+#include <proparser.h>
+
 #include <qfile.h>
 #include <qregexp.h>
 #include <qstring.h>
@@ -25,8 +28,6 @@
 #include <qtextstream.h>
 
 #include <errno.h>
-#include <metatranslator.h>
-#include <proparser.h>
 
 typedef QValueList<MetaTranslatorMessage> TML;
 

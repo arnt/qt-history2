@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Linguist.
 **
@@ -18,10 +18,10 @@
 **
 **********************************************************************/
 
+#include <metatranslator.h>
+
 #include <qcstring.h>
 #include <qmap.h>
-
-#include <metatranslator.h>
 
 typedef QMap<QCString, MetaTranslatorMessage> TMM;
 typedef QValueList<MetaTranslatorMessage> TML;

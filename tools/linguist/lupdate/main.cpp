@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Linguist.
 **
@@ -18,6 +18,9 @@
 **
 **********************************************************************/
 
+#include <metatranslator.h>
+#include <proparser.h>
+
 #include <qfile.h>
 #include <qfileinfo.h>
 #include <qstring.h>
@@ -25,8 +28,6 @@
 #include <qtextstream.h>
 
 #include <errno.h>
-#include <metatranslator.h>
-#include <proparser.h>
 #include <string.h>
 
 // defined in fetchtr.cpp

@@ -18,18 +18,19 @@
 **
 **********************************************************************/
 
+#include <metatranslator.h>
+
 #include <qfile.h>
 #include <qregexp.h>
 #include <qstring.h>
 #include <qtextstream.h>
 #include <qvaluestack.h>
+#include <qxml.h>
 
 #include <ctype.h>
 #include <errno.h>
-#include <metatranslator.h>
 #include <stdio.h>
 #include <string.h>
-#include <qxml.h>
 
 /* qmake ignore Q_OBJECT */
 
