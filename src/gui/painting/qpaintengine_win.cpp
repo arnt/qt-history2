@@ -1537,34 +1537,38 @@ void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPathPrivate *pd, Com
         const QPainterSubpath &sub = pd->subpaths.at(i);
         if (sub.elements.isEmpty() || (!direct && !sub.isClosed()))
             continue;
-        QPoint firstPoint = sub.firstPoint().toPoint();
-        MoveToEx(hdc, firstPoint.x(), firstPoint.y(), 0);
+        MoveToEx(hdc, sub.startPoint.x(), sub.startPoint.y(), 0);
         for (int j=0; j<sub.elements.size(); ++j) {
             const QPainterPathElement &elm = sub.elements.at(j);
             switch (elm.type) {
             case QPainterPathElement::Line: {
-                LineTo(hdc, elm.lineData.x2, elm.lineData.y2);
+                LineTo(hdc, elm.lineData.x, elm.lineData.y);
                 break;
             }
-            case QPainterPathElement::Bezier: {
+            case QPainterPathElement::Curve: {
                 POINT pts[3] = {
-                    { elm.bezierData.x2, elm.bezierData.y2 },
-                    { elm.bezierData.x3, elm.bezierData.y3 },
-                    { elm.bezierData.x4, elm.bezierData.y4 }
+                    { elm.curveData.c1x, elm.curveData.c1y },
+                    { elm.curveData.c2x, elm.curveData.c2y },
+                    { elm.curveData.ex, elm.curveData.ey }
                 };
                 PolyBezierTo(hdc, pts, 3);
                 break;
             }
             case QPainterPathElement::Arc: {
-                // Not supported on Win9x
-                QT_WA( {
+                QPointFloat start, end;
+                QT_WA({
+                    qt_find_ellipse_coords(QRectFloat(elm.arcData.x, elm.arcData.y,
+                                                      elm.arcData.w, elm.arcData.h),
+                                           elm.arcData.start, elm.arcData.length,
+                                           &start, &end);
                     ArcTo(hdc,
                           qRound(elm.arcData.x), qRound(elm.arcData.y),
                           qRound(elm.arcData.x + elm.arcData.w),
                           qRound(elm.arcData.y + elm.arcData.h),
-                          qRound(elm.arcData.fpx), qRound(elm.arcData.fpy),
-                          qRound(elm.arcData.lpx), qRound(elm.arcData.lpy));
-                }, {
+                          qRound(start.x()), qRound(start.y()),
+                          qRound(end.x()), qRound(end.y()));
+
+                } , {
                     QPointArray array;
                     array.makeArc(elm.arcData.x, elm.arcData.y,
                                   elm.arcData.w, elm.arcData.h,
@@ -1577,7 +1581,7 @@ void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPathPrivate *pd, Com
                         pts[pt-1].y = array.at(pt).y();
                     }
                     PolylineTo(hdc, pts, array.size()-1);
-                } );
+                });
                 break;
             }
             default:
@@ -2222,21 +2226,24 @@ void QGdiplusPaintEngine::drawPath(const QPainterPath &p)
         const QPainterSubpath &sub = pd->subpaths.at(i);
         if (sub.elements.isEmpty())
             continue;
+        QPointFloat current = sub.startPoint;
         for (int j=0; j<sub.elements.size(); ++j) {
             const QPainterPathElement &elm = sub.elements.at(j);
             switch (elm.type) {
             case QPainterPathElement::Line: {
                 GdipAddPathLine(path,
-                                elm.lineData.x1, elm.lineData.y1,
-                                elm.lineData.x2, elm.lineData.y2);
+                                current.x(), current.y(),
+                                elm.lineData.x, elm.lineData.y);
+                current = QPointFloat(elm.lineData.x, elm.lineData.y);
                 break;
             }
-            case QPainterPathElement::Bezier: {
+            case QPainterPathElement::Curve: {
                 GdipAddPathBezier(path,
-                                   elm.bezierData.x1, elm.bezierData.y1,
-                                   elm.bezierData.x2, elm.bezierData.y2,
-                                   elm.bezierData.x3, elm.bezierData.y3,
-                                   elm.bezierData.x4, elm.bezierData.y4);
+                                  current.x(), current.y(),
+                                  elm.curveData.c1x, elm.curveData.c1y,
+                                  elm.curveData.c2x, elm.curveData.c2y,
+                                  elm.curveData.ex, elm.curveData.ey);
+                current = QPointFloat(elm.curveData.ex, elm.curveData.ey);
                 break;
             }
             case QPainterPathElement::Arc: {
@@ -2244,6 +2251,10 @@ void QGdiplusPaintEngine::drawPath(const QPainterPath &p)
                                elm.arcData.x, elm.arcData.y,
                                elm.arcData.w, elm.arcData.h,
                                -elm.arcData.start, -elm.arcData.length);
+                qt_find_ellipse_coords(QRectFloat(elm.arcData.x, elm.arcData.y,
+                                                  elm.arcData.w, elm.arcData.h),
+                                       elm.arcData.start, elm.arcData.length,
+                                       0, &current);
                 break;
             }
             default:

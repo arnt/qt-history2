@@ -22,16 +22,14 @@
  */
 struct QPainterPathElement
 {
-    enum ElementType { Line, Bezier, Arc };
-
-    QPointFloat firstPoint() const;
+    enum ElementType { Line, Curve, Arc };
 
     ElementType type;
 
     union {
-	struct { float x1, y1, x2, y2; } lineData;
-        struct { float x1, y1, x2, y2, x3, y3, x4, y4; } bezierData;
-        struct { float x, y, w, h, start, length, fpx, fpy, lpx, lpy; } arcData;
+	struct { float x, y; } lineData;
+        struct { float c1x, c1y, c2x, c2y, ex, ey; } curveData;
+        struct { float x, y, w, h, start, length; } arcData;
     };
 };
 
@@ -40,7 +38,10 @@ struct QPainterPathElement
  */
 struct QPainterSubpath
 {
-    QPainterSubpath() { };
+    QPainterSubpath(const QPointFloat &p)
+    {
+        startPoint = p;
+    };
 
     /*! Makes a straight line connection to the last point if \a p differs from
      * lastPoint. The addLine recursion is safe since we connect to lastPoint
@@ -57,20 +58,19 @@ struct QPainterSubpath
      * same
      */
     bool isClosed() const {
-	return elements.size() > 0 && elements.at(0).firstPoint() == lastPoint;
+	return elements.size() > 0 && currentPoint == startPoint;
     }
-
-    QPointFloat firstPoint() const { return elements.at(0).firstPoint(); }
 
     /*! Converts the path to a polygon */
     QPointArray toPolygon(const QMatrix &matrix) const;
 
-    void addLine(const QLineFloat &l);
-    void addBezier(const QPointFloat &p1, const QPointFloat &p2, const QPointFloat &p3, const QPointFloat &p4);
-    void addArc(const QRectFloat &rect, float startAngle, float arcLength);
+    void lineTo(const QPointFloat &p);
+    void curveTo(const QPointFloat &p2, const QPointFloat &p3, const QPointFloat &p4);
+    void arcTo(const QRectFloat &rect, float startAngle, float arcLength);
 
     QList<QPainterPathElement> elements;
-    QPointFloat lastPoint;
+    QPointFloat currentPoint;
+    QPointFloat startPoint;
 };
 
 class QPainterPathPrivate
@@ -98,6 +98,9 @@ public:
     QList<QPainterSubpath> subpaths;
     QPainterPath::FillMode fillMode;
 };
+
+void qt_find_ellipse_coords(const QRectFloat &r, float angle, float length,
+                            QPointFloat* startPoint, QPointFloat *endPoint);
 
 
 #endif //QPAINTERPATH_P_H

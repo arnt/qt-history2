@@ -5817,13 +5817,13 @@ void QPSPrintEngine::drawPath(const QPainterPath &p)
             const QPainterPathElement &elm = sub.elements.at(j);
             switch (elm.type) {
             case QPainterPathElement::Line: {
-                d->pageStream << elm.lineData.x2 << ' ' << elm.lineData.y2 << " LT\n";
+                d->pageStream << elm.lineData.x << ' ' << elm.lineData.y << " LT\n";
                 break;
             }
-            case QPainterPathElement::Bezier: {
-                d->pageStream << elm.bezierData.x2 << ' ' << elm.bezierData.y2 << ' '
-                              << elm.bezierData.x3 << ' ' << elm.bezierData.y3 << ' '
-                              << elm.bezierData.x4 << ' ' << elm.bezierData.y4
+            case QPainterPathElement::Curve: {
+                d->pageStream << elm.curveData.c1x << ' ' << elm.curveData.c1y << ' '
+                              << elm.curveData.c2x << ' ' << elm.curveData.c2y << ' '
+                              << elm.curveData.ex << ' ' << elm.curveData.ey
                               << " curveto\n";
                 break;
             }

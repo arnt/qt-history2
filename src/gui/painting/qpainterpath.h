@@ -30,25 +30,23 @@ public:
     QPainterPath &operator=(const QPainterPath &other);
     ~QPainterPath();
 
-    void beginSubpath();
     void closeSubpath();
 
-    void addLine(const QLineFloat &l);
-    void addLine(const QPointFloat &p);
-    inline void addLine(const QPointFloat &p1, const QPointFloat &p2);
-    inline void addLine(float x1, float y1, float x2, float y2);
-    inline void addLine(float x, float y);
+    void moveTo(const QPointFloat &p);
+    inline void moveTo(float x, float y);
+
+    void lineTo(const QPointFloat &p);
+    inline void lineTo(float x, float y);
+
+    void arcTo(const QRectFloat &rect, float startAngle, float arcLength);
+    inline void arcTo(float x, float y, float w, float h, float startAngle, float arcLength);
+
+    void curveTo(const QPointFloat &ctrlPt1, const QPointFloat &ctrlPt2, const QPointFloat &endPt);
+    inline void curveTo(float ctrlPt1x, float ctrlPt1y, float ctrlPt2x, float ctrlPt2y,
+                        float endPtx, float endPty);
 
     void addRect(const QRectFloat &rect);
     inline void addRect(float x, float y, float w, float h);
-    inline void addRect(const QPointFloat &topLeft, const QPointFloat &bottomRight);
-    inline void addRect(const QPointFloat &topLeft, const QSizeFloat &dimension);
-
-    void addBezier(const QPointFloat &p1, const QPointFloat &p2,
-                   const QPointFloat &p3, const QPointFloat &p4);
-    inline void addBezier(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4);
-    void addArc(const QRectFloat &rect, float startAngle, float arcLength);
-    inline void addArc(float x, float y, float w, float h, float startAngle, float arcLength);
 
     QPainterPath createPathOutline(int width);
 
@@ -58,6 +56,7 @@ public:
     void setFillMode(FillMode fillMode);
 
     bool isEmpty() const;
+
 private:
     QPainterPathPrivate *d_ptr;
 
@@ -68,45 +67,31 @@ private:
     friend class QPSPrintEngine;
 };
 
-inline void QPainterPath::addLine(float x1, float y1, float x2, float y2)
+inline void QPainterPath::moveTo(float x, float y)
 {
-    addLine(QLineFloat(x1, y1, x2, y2));
+    moveTo(QPointFloat(x, y));
 }
 
-inline void QPainterPath::addLine(float x, float y)
+inline void QPainterPath::lineTo(float x, float y)
 {
-    addLine(QPointFloat(x, y));
+    lineTo(QPointFloat(x, y));
 }
 
-inline void QPainterPath::addLine(const QPointFloat &p1, const QPointFloat &p2)
+inline void QPainterPath::arcTo(float x, float y, float w, float h, float startAngle, float arcLenght)
 {
-    addLine(QLineFloat(p1, p2));
+    arcTo(QRectFloat(x, y, w, h), startAngle, arcLenght);
+}
+
+inline void QPainterPath::curveTo(float ctrlPt1x, float ctrlPt1y, float ctrlPt2x, float ctrlPt2y,
+                                   float endPtx, float endPty)
+{
+    curveTo(QPointFloat(ctrlPt1x, ctrlPt1y), QPointFloat(ctrlPt2x, ctrlPt2y),
+            QPointFloat(endPtx, endPty));
 }
 
 inline void QPainterPath::addRect(float x, float y, float w, float h)
 {
     addRect(QRectFloat(x, y, w, h));
-}
-
-inline void QPainterPath::addRect(const QPointFloat &topLeft, const QPointFloat &bottomRight)
-{
-    addRect(QRectFloat(topLeft.toPoint(), bottomRight.toPoint()));
-}
-
-inline void QPainterPath::addRect(const QPointFloat &topLeft, const QSizeFloat &dim)
-{
-    addRect(QRectFloat(topLeft.toPoint(), dim.toSize()));
-}
-
-inline void QPainterPath::addBezier(float x1, float y1, float x2, float y2,
-                                    float x3, float y3, float x4, float y4)
-{
-    addBezier(QPointFloat(x1, y1), QPointFloat(x2, y2), QPointFloat(x3, y3), QPointFloat(x4, y4));
-}
-
-inline void QPainterPath::addArc(float x, float y, float w, float h, float startAngle, float arcLength)
-{
-    addArc(QRectFloat(x, y, w, h), startAngle, arcLength);
 }
 
 #endif // QPAINTERPATH_H

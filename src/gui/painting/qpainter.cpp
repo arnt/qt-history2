@@ -1869,10 +1869,13 @@ void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
     int rxx2 = 2*rxx;
     int ryy2 = 2*ryy;
 
-    path.addArc(x, y, rxx2, ryy2, 90, 90);
-    path.addArc(x, y+h-ryy2, rxx2, ryy2, 2*90, 90);
-    path.addArc(x+w-rxx2, y+h-ryy2, rxx2, ryy2, 3*90, 90);
-    path.addArc(x+w-rxx2, y, rxx2, ryy2, 0, 90);
+    QPointFloat startPoint;
+    qt_find_ellipse_coords(QRectFloat(x, y, rxx2, ryy2), 90, 90, &startPoint, 0);
+    path.moveTo(startPoint);
+    path.arcTo(x, y, rxx2, ryy2, 90, 90);
+    path.arcTo(x, y+h-ryy2, rxx2, ryy2, 2*90, 90);
+    path.arcTo(x+w-rxx2, y+h-ryy2, rxx2, ryy2, 3*90, 90);
+    path.arcTo(x+w-rxx2, y, rxx2, ryy2, 0, 90);
     path.closeSubpath();
 
     drawPath(path);
@@ -1900,7 +1903,8 @@ void QPainter::drawEllipse(const QRect &r)
 
     if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         QPainterPath path;
-        path.addArc(rect, 0, 360);
+        path.moveTo(rect.x() + rect.width(), rect.y() + rect.height() / 2.0);
+        path.arcTo(rect, 0, 360);
         drawPath(path);
         return;
     }
@@ -1962,8 +1966,12 @@ void QPainter::drawArc(const QRect &r, int a, int alen)
 
     QRect rect = r.normalize();
 
+    QPointFloat startPoint;
+    qt_find_ellipse_coords(r, a, alen, &startPoint, 0);
+
     QPainterPath path;
-    path.addArc(rect, a/16.0, alen/16.0);
+    path.moveTo(startPoint);
+    path.arcTo(rect, a/16.0, alen/16.0);
     drawPath(path);
 }
 
@@ -2005,10 +2013,13 @@ void QPainter::drawPie(const QRect &r, int a, int alen)
     }
 
     QRect rect = r.normalize();
+    QPointFloat startPoint;
+    qt_find_ellipse_coords(r, a, alen, &startPoint, 0);
 
     QPainterPath path;
-    path.addArc(rect.x(), rect.y(), rect.width(), rect.height(), a/16.0, alen/16.0);
-    path.addLine(rect.center());
+    path.moveTo(startPoint);
+    path.arcTo(rect.x(), rect.y(), rect.width(), rect.height(), a/16.0, alen/16.0);
+    path.lineTo(rect.center());
     path.closeSubpath();
     drawPath(path);
 
@@ -2047,8 +2058,12 @@ void QPainter::drawChord(const QRect &r, int a, int alen)
 
     QRect rect = r.normalize();
 
+    QPointFloat startPoint;
+    qt_find_ellipse_coords(r, a, alen, &startPoint, 0);
+
     QPainterPath path;
-    path.addArc(rect.x(), rect.y(), rect.width(), rect.height(), a/16.0, alen/16.0);
+    path.moveTo(startPoint);
+    path.arcTo(rect.x(), rect.y(), rect.width(), rect.height(), a/16.0, alen/16.0);
     path.closeSubpath();
     drawPath(path);
 }
@@ -2166,8 +2181,10 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
             && !d->engine->hasFeature(QPaintEngine::LinearGradients))) {
         QPainterPath path;
         path.setFillMode(winding ? QPainterPath::Winding : QPainterPath::OddEven);
+        if (!a.isEmpty())
+            path.moveTo(a.at(0));
         for (int i=1; i<a.size(); ++i)
-            path.addLine(a.at(i-1), a.at(i));
+            path.lineTo(a.at(i));
         path.closeSubpath();
         drawPath(path);
         return;
@@ -2213,7 +2230,8 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
     }
 
     QPainterPath path;
-    path.addBezier(a.at(index), a.at(index+1), a.at(index+2), a.at(index+3));
+    path.moveTo(a.at(index));
+    path.curveTo(a.at(index+1), a.at(index+2), a.at(index+3));
     drawPath(path);
 }
 
