@@ -26,6 +26,7 @@
 #include "qwmatrix.h"
 #include "qapplication.h"
 #include "qpainter.h"
+#include "qwsdisplay_qws.h"
 #include "qgfx_qws.h"
 #include <stdlib.h>
 

@@ -36,12 +36,11 @@ const int SourcePixmap=1;
 
 extern bool qt_sw_cursor;
 
+class QGfxRasterBase;
 
 #define SW_CURSOR_DATA_SIZE	4096  // 64x64 8-bit cursor
 
 class SWCursorData;
-
-class QGfxRasterBase;
 
 class QScreenCursor
 {
@@ -65,7 +64,6 @@ public:
     static bool enabled() { return qt_sw_cursor; }
 
 protected:
-
     QImage cursor;
     int hotx;
     int hoty;
@@ -82,7 +80,7 @@ protected:
 
 extern QScreenCursor * qt_screencursor;
 
-#endif //QT_NO_QWS_CURSOR
+#endif // QT_NO_QWS_CURSOR
 
 struct fb_cmap;
 

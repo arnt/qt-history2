@@ -23,6 +23,7 @@
 #include "qwscommand_qws.h"
 #include "qwsutils_qws.h"
 #include "qwscursor_qws.h"
+#include "qwsdisplay_qws.h"
 
 #include <qapplication.h>
 #include <qpointarray.h> //cursor test code

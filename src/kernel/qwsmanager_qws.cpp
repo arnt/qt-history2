@@ -9,6 +9,7 @@
 #include "qevent.h"
 #include "qtimer.h"
 #include "qgfx_qws.h"
+#include "qwsdisplay_qws.h"
 #include "qwsmanager_qws.h"
 
 #define CORNER_GRAB	16
@@ -1024,7 +1025,7 @@ void QWSDefaultDecorator::paint(QPainter *painter, const QWidget *widget)
     style.drawPanel(painter, r.x(), r.y(), r.width(),
 		    r.height(), cg, FALSE, 2,
 		    &cg.brush(QColorGroup::Background));
-#elsif !defined(QT_NO_DRAWUTIL)
+#elif !defined(QT_NO_DRAWUTIL)
     qDrawWinPanel(painter, r.x(), r.y(), r.width(),
 		  r.height(), cg, FALSE,
 		  &cg.brush(QColorGroup::Background));
@@ -1047,7 +1048,7 @@ void QWSDefaultDecorator::paint(QPainter *painter, const QWidget *widget)
 	style.drawPanel(painter, TITLE_HEIGHT, -TITLE_HEIGHT,
 			titleWidth, TITLE_HEIGHT - 1,
 			cg, TRUE, 1, &titleBrush);
-#elsif !defined(QT_NO_DRAWUTIL)
+#elif !defined(QT_NO_DRAWUTIL)
 	qDrawWinPanel(painter, TITLE_HEIGHT, -TITLE_HEIGHT,
 			titleWidth, TITLE_HEIGHT - 1,
 			cg, TRUE, &titleBrush);
@@ -1092,7 +1093,7 @@ void QWSDefaultDecorator::paintButton(QPainter *painter, const QWidget *w,
 	style.drawToolButton(painter, brect.x(), brect.y(), brect.width()-1,
 		    brect.height()-1, cg, TRUE,
 		    &cg.brush(QColorGroup::Background));
-#elsif !defined(QT_NO_DRAWUTIL)
+#elif !defined(QT_NO_DRAWUTIL)
 	qDrawWinPanel(painter, brect.x(), brect.y(), brect.width()-1,
 		    brect.height()-1, cg, TRUE,
 		    &cg.brush(QColorGroup::Background));

@@ -25,6 +25,7 @@
 #include "qimage.h"
 #include "qapplication.h"
 #include "qdatastream.h"
+#include "qwsdisplay_qws.h"
 
 static int nextCursorId = BitmapCursor + 1;
 

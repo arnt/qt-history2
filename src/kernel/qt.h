@@ -237,6 +237,7 @@
 #include <qfontfactoryttf_qws.h>
 #include <qlock_qws.h>
 #include "qmemorymanager_qws.h"
+#include "qwsdisplay_qws.h"
 #include "qgfx_qws.h"
 #include <qgfxraster_qws.h>
 #include "qwsutils_qws.h"

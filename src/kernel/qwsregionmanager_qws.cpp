@@ -2,7 +2,7 @@
 #include <sys/ipc.h>
 #include <sys/types.h>
 #include <sys/shm.h>
-#include "qwindowdefs.h"
+#include "qwsdisplay_qws.h"
 #include "qwsregionmanager_qws.h"
 
 #define QT_MAX_REGIONS      400

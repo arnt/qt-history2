@@ -23,6 +23,7 @@
 #include "qpaintdevice.h"
 #include "qapplication.h"
 #include "qgfx_qws.h"
+#include "qwsdisplay_qws.h"
 
 /*****************************************************************************
   QColor static member functions

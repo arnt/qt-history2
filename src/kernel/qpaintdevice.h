@@ -32,6 +32,7 @@
 #endif // QT_H
 
 #if defined(_WS_QWS_)
+class QWSDisplay;
 class QGfx;
 #endif
 

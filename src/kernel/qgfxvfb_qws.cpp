@@ -58,6 +58,7 @@ public:
 
 static QVFbScreen *qvfb_screen = 0;
 
+#ifndef QT_NO_QWS_CURSOR
 class QVFbScreenCursor : public QScreenCursor
 {
 public:
@@ -92,6 +93,7 @@ void QVFbScreenCursor::move( int x, int y )
     QScreenCursor::move( x, y );
     QWSDisplay::ungrab();
 }
+#endif
 
 
 template <const int depth, const int type>
@@ -301,12 +303,15 @@ bool QVFbScreen::initCard()
 void QVFbScreen::shutdownCard()
 {
     // Set back the original mode
+#ifndef QT_NO_QWS_CURSOR
     if ( qt_sw_cursor )
 	qt_screencursor->hide();
+#endif
 }
 
 int QVFbScreen::initCursor(void* e, bool init)
 {
+#ifndef QT_NO_QWS_CURSOR
     qt_sw_cursor=true;
     // ### until QLumpManager works Ok with multiple connected clients,
     // we steal a chunk of shared memory
@@ -314,6 +319,9 @@ int QVFbScreen::initCursor(void* e, bool init)
     qt_screencursor=new QVFbScreenCursor();
     qt_screencursor->init( data, init );
     return sizeof(SWCursorData);
+#else
+    return 0;
+#endif
 }
 
 void QVFbScreen::setMode(int ,int ,int)

@@ -28,6 +28,7 @@
 #include "qimage.h"
 #include "qfontmanager_qws.h"
 #include "qmemorymanager_qws.h"
+#include "qwsdisplay_qws.h"
 #include "qpointarray.h"
 #include "qpolygonscanner.h"
 #include "qapplication.h"
@@ -49,6 +50,7 @@ public:
     virtual void setPen( const QPen & );
     virtual void setFont( const QFont & );
     virtual void setBrushPixmap( const QPixmap * p ) { cbrushpixmap=p; }
+    virtual void setBrush( const QBrush & );
 
     virtual void setClipRect( int,int,int,int );
     virtual void setClipRegion( const QRegion & );
@@ -94,10 +96,6 @@ public:
 
     void setClut(QRgb * cols,int numcols) { clut=cols; clutcols=numcols;  }
 
-    SourceType srctype;
-    unsigned char * srcbits;
-    unsigned char * const buffer;
-
 protected:
 
     void beginDraw()
@@ -117,11 +115,34 @@ protected:
 
     bool inClip(int x, int y, QRect* cr=0, bool know_to_be_outside=FALSE);
 
+    void useBrush();
+    void usePen();
+    virtual void setSourcePen();
+    unsigned char *scanLine(int i) { return buffer+(i*lstep); }
+    unsigned char *srcScanLine(int i) { return srcbits + (i*srclinestep); }
+
+    // Convert to/from different bit depths
+    unsigned int get_value_32(int sdepth,unsigned char **srcdata,
+			   bool reverse=FALSE);
+    unsigned int get_value_16(int sdepth,unsigned char **srcdata,
+			   bool reverse=FALSE);
+    unsigned int get_value_15(int sdepth,unsigned char **srcdata,
+			   bool reverse=FALSE);
+    unsigned int get_value_8(int sdepth,unsigned char **srcdata,
+			   bool reverse=FALSE);
+    unsigned int get_value_1(int sdepth,unsigned char **srcdata,
+			   bool reverse=FALSE);
+
+protected:
+    SourceType srctype;
+    unsigned char * srcbits;
+    unsigned char * const buffer;
+
     int width;
     int height;
     int xoffs;
     int yoffs;
-    int alpha;
+    unsigned int lstep;
 
     bool opaque;
     QColor backcolor;
@@ -143,34 +164,28 @@ protected:
     QRegion cliprgn;
     QRect clipbounds;
 
-    int alphapitch;
-
     int penx;
     int peny;
-
-    bool noborder; // True if pen is NoPen, or it's SolidPen and colour
-                   // matches brush
 
     int srcwidth;
     int srcheight;
     int srcdepth;
     int srclinestep;
-
-    QRgb * clut;      		     // Destination colour table -
-                                     // r,g,b values
-    unsigned int srcclut[256];       // Source colour lookup table -
-                                     // r,g,b values
-    unsigned int transclut[256];     // Source clut transformed to destination
-                                     // values - speed optimisation
-    int clutcols;      // Colours in clut
-
     int srccol;
     QPoint srcoffs;
-    int srcwidgetx;      // Needed when source is widget
+    int srcwidgetx;		    // Needed when source is widget
     int srcwidgety;
+    bool src_little_endian;
+    bool src_normal_palette;
+    unsigned int srcclut[256];	    // Source colour table - r,g,b values
+    unsigned int transclut[256];    // Source clut transformed to destination
+                                    // values - speed optimisation
+
+    QRgb * clut;      		    // Destination colour table - r,g,b values
+    int clutcols;		    // Colours in clut
+
     int monobitcount;
     unsigned char monobitval;
-    bool src_little_endian;
 
     AlphaType alphatype;
     unsigned char * alphabits;
@@ -185,8 +200,6 @@ protected:
     unsigned char * maskp;
     QMemoryManager::FontID myfont;
 
-    unsigned int lstep;
-
     int clipcursor;
     QRect* cliprect;
     int ncliprect;
@@ -195,9 +208,9 @@ protected:
     int *globalRegionRevision;
     int currentRegionRevision;
 
-    bool src_normal_palette;
+    unsigned long int pixel; // == cpen.pixel() or cbrush.pixel()
 
-    friend class QSWCursor;
+    friend class QScreenCursor;
 };
 
 template <const int depth, const int type>
@@ -227,24 +240,13 @@ public:
     virtual void setSource(const QImage *);
     virtual void setSource(const QPaintDevice *);
     virtual void setSource(unsigned char *,int,int);
-    virtual void setSourcePen();
-
-    virtual void setBrush( const QBrush & );
-
-    void buildSourceClut(QRgb *,int);
 
 protected:
 
     virtual void drawThickLine( int,int,int,int );
+
+    void buildSourceClut(QRgb *,int);
     void processSpans( int n, QPoint* point, int* width );
-
-    unsigned int imagehold;
-    int imagepos;
-    bool little_endian;
-
-    // Convert to/from different truecolour bit depths
-    unsigned int get_value(int destdepth,int sdepth,unsigned char ** srcdata,
-			   bool reverse=FALSE);
 
     // Optimised horizontal line drawing
     void hline(int,int,int );
@@ -253,13 +255,6 @@ protected:
     void hAlphaLineUnclipped(int,int,unsigned char *,unsigned char *,
 			     unsigned char *);
     void drawPointUnclipped( int, unsigned char* );
-
-    unsigned char * scanLine(int);
-    unsigned char * srcScanLine(int);
-
-    unsigned long int pixel; // == cpen.pixel() or cbrush.pixel()
-    void useBrush();
-    void usePen();
 
     void calcPacking(void *,int,int,int&,int&,int&);
 };

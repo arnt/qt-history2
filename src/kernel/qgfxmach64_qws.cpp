@@ -263,11 +263,6 @@ inline bool QGfxMach64<depth,type>::checkSourceDest()
     ulong src_buffer_offset;
     if (srctype == SourcePen) {
 	src_buffer_offset = -1;
-	if(alphapitch==0) {
-	    //qDebug("No alphapitch");
-	    return FALSE;
-	}
-	//sourcepixelpitch=alphapitch; // needed?
     } else {
 	if (!qt_screen->onCard(srcbits,src_buffer_offset))
 	    return FALSE;
@@ -1446,6 +1441,7 @@ public:
     virtual QGfx * createGfx(unsigned char *,int,int,int,int);
 };
 
+#ifndef QT_NO_QWS_CURSOR
 class QMachCursor : public QScreenCursor
 {
 public:
@@ -1471,6 +1467,7 @@ public:
 private:
 
 };
+#endif // QT_NO_QWS_CURSOR
 
 QMachScreen::QMachScreen(char * graphics_card_slot,unsigned char * config)
     : QScreen()
@@ -1627,16 +1624,18 @@ bool QMachScreen::initCard()
     return true;
 }
 
-extern bool qws_sw_cursor;
-
 int QMachScreen::initCursor(void* e, bool init)
 {
+#ifndef QT_NO_QWS_CURSOR
+    extern bool qws_sw_cursor;
+
     if(qws_sw_cursor==true) {
 	return QScreen::initCursor(e,init);
     }
     qt_screencursor=new QMachCursor();
     SWCursorData *data = (SWCursorData *)e - 1;
     qt_screencursor->init(data,init);
+#endif
     return 0;
 }
 
@@ -1689,6 +1688,8 @@ extern "C" QScreen * qt_get_screen(char * slot,unsigned char * config)
     }
     return qt_screen;
 }
+
+#ifndef QT_NO_QWS_CURSOR
 
 QMachCursor::QMachCursor()
 {
@@ -1771,4 +1772,6 @@ void QMachCursor::move(int x,int y)
     unsigned int hold=x | (y << 16);
     regw(CUR_HORZ_VERT_POSN,hold);
 }
+
+#endif // QT_NO_QWS_CURSOR
 

@@ -56,6 +56,7 @@
 #include "qwsmanager_qws.h"
 #include "qwsregionmanager_qws.h"
 #include "qwindowsystem_qws.h"
+#include "qwsdisplay_qws.h"
 
 #include <stdio.h>
 #include <limits.h>

@@ -32,6 +32,7 @@
 #include "qabstractlayout.h"
 #include "qtextcodec.h"
 //#include "qimagepaintdevice.h"
+#include "qwsdisplay_qws.h"
 #include "qgfx_qws.h"
 #include "qwsmanager_qws.h"
 #include "qwsregionmanager_qws.h"
