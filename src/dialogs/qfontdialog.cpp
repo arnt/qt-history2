@@ -86,7 +86,7 @@
 
   \sa QFont QFontInfo QFontMetrics
 
-  <img src=qfontdlg-m.png> <img src=qfontdlg-w.png>
+  <img src=qfontdlg-w.png>
 */
 
 class QFontDialogPrivate
