@@ -15,8 +15,7 @@
 #include "qt_mac.h"
 #include "qcoreapplication.h"
 
-static QRegionPrivate qrp; //### make it work now without checking for null pointers all the time
-QRegion::QRegionData QRegion::shared_empty = { Q_ATOMIC_INIT(1), 0, &qrp };
+QRegion::QRegionData QRegion::shared_empty = { Q_ATOMIC_INIT(1), 0, 0 };
 
 #define RGN_CACHE_SIZE 200
 static bool rgncache_init = false;
