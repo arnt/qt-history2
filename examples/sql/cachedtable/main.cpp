@@ -11,5 +11,5 @@ int main(int argc, char *argv[])
 
     TableEditor editor("person");
     editor.show();
-    return app.exec();
+    return editor.exec();
 }

@@ -11,5 +11,5 @@ int main(int argc, char *argv[])
     Dialog dialog;
     dialog.show();
     srand(time(0));
-    return app.exec();
+    return dialog.exec();
 }
