@@ -706,8 +706,12 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     QString destdir = project->first("DESTDIR");
     if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
 	destdir += Option::dir_sep;
-    t << "distclean: " << "clean\n\t"
-      << "-$(DEL_FILE) " << destdir << "$(TARGET)" << " " << "$(TARGET)" << "\n";
+    t << "distclean: " << "clean\n";
+    if(project->first("TEMPLATE") == "app" &&
+       project->isActiveConfig("resource_fork") && !project->isActiveConfig("console"))
+	t << "\t-$(DEL_FILE) -r " << destdir.section(Option::dir_sep, 0, -4) << "\n";
+    else
+	t << "\t-$(DEL_FILE) " << destdir << "$(TARGET)" << " " << "$(TARGET)" << "\n";
     if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty() &&
        !project->isActiveConfig("plugin"))
 	t << "\t-$(DEL_FILE) " << destdir << "$(TARGET0) " << destdir << "$(TARGET1) "
