@@ -86,12 +86,12 @@ void MainWindow::findStyles()
         styleCombo->setCurrentItem(0);
 }
 
-void MainWindow::updateClipboard()
-{
-    clipboard->setText(lineEdit->text());
-}
-
 void MainWindow::insertCharacter(const QString &character)
 {
     lineEdit->insert(character);
+}
+
+void MainWindow::updateClipboard()
+{
+    clipboard->setText(lineEdit->text());
 }
