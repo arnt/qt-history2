@@ -65,20 +65,9 @@ sources.
 A keyboard driver reads data from a device and gives key events to the
 server.
 
-Keyboard drivers are currently compiled into the library.
-They are defined in the file \c src/kernel/qkeyboard_qws.cpp.
-At the time of writing, the following drivers are defined:
-\table
-\row
-\i \c{QWSTtyKeyboardHandler}
-\i Input from the system console (tty)
-\row
-\i \c{QWSVr41xxButtonsHandler}
-\i Input handler for the buttons on Cassiopeia-style PDAs
-\row
-\i \c{QWSVFbKeyboardHandler}
-\i Virtual framebuffer key input
-\endtable
+Keyboard drivers can be compiled into the library or loaded as
+plugins.  Running ./configure -help lists the available keyboard drivers.
+The "tty" driver is enabled in the default configuration.
 
 The keyboard drivers all follow the same pattern. They read keyboard
 data from a device, find out which keys were pressed, and then call
@@ -88,9 +77,9 @@ At present, the console keyboard driver also handles console switching
 (<b>Ctrl+Alt-F1</b>...<b>Ctrl+Alt+F10</b>) and termination
 (<b>Ctrl+Alt+Backspace</b>).
 
-To add a keyboard driver for a new device, subclass
-\c{QWSKeyboardHandler} and instantiate it in
-\c{QWSServer::newKeyboardHandler()} (in qkeyboard_qws.cpp).
+To add a keyboard driver for a new device, subclasses of
+\c{QWSKeyboardHandler} and \c{QKbdDriverPlugin} can be
+written and installed as plugins.
 
 \section1 Key event filters (input methods)
 
@@ -131,7 +120,7 @@ One way to make sure that the input widget never takes focus is to set
 the \c{WStyle_Customize} and \c{WStyle_Tool} widget flags in
 the QWidget constructor.
 
-The \link http://www.trolltech.com/products/palmtop/ Qt Palmtop\endlink
+The \link http://www.trolltech.com/products/qtopia/ Qtopia\endlink
 environment contains various input widgets such as
 Handwriting Recognition and Virtual Keyboard.
 

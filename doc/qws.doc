@@ -44,17 +44,17 @@ to be modified for other platforms.
 
 \code
     cd <anywhere>
-    gunzip qt-embedded-VERSION-commercial.tar.gz    # uncompress the archive
-    tar xf qt-embedded-VERSION-commercial.tar       # unpack it
+    gunzip qt-embedded-commercial-VERSION.tar.gz    # uncompress the archive
+    tar xf qt-embedded-commercial-VERSION.tar       # unpack it
 \endcode
 Replace \c VERSION with the Qt/Embedded version number throughout.
 
-This document assumes that the archive is installed as \c{~/qt-VERSION}. 
+This document assumes that the archive is installed as \c{~/qt-embedded-commercial-VERSION}. 
 \i Compile the Qt/Embedded library and examples.
 
 \code
-    cd ~/qt-VERSION
-    export QTDIR=~/qt-VERSION
+    cd ~/qt-embedded-commercial-VERSION
+    export QTDIR=~/qt-embedded-commercial-VERSION
     ./configure
     make
 \endcode
@@ -113,7 +113,7 @@ Configurations files are found in \c configs/.
    Log into a virtual console and do this:
 
 \code
-    cd ~/qt-VERSION/
+    cd ~/qt-embedded-commercial-VERSION/examples/launcher
     ./start-demo
 \endcode
   
@@ -306,7 +306,7 @@ See QMemoryManager::savePrerenderedFont() for this functionality.
 \section1 Notes
 
 The font definition file, naming conventions for font files, and the format
-of QPF files may change in versions of Qt/Embedded after 2.2.1.
+of QPF files may change in versions of Qt/Embedded after 3.
 
 When enabled, Qt/Embedded uses the powerful FreeType2 library to implement
 TrueType and Type1 support.
@@ -410,13 +410,19 @@ display n.
 
 \section1 Mouse Input
 
-Qt/Embedded supports MouseMan (default), Microsoft, IntelliMouse and
+Qt/Embedded attempts to autodetect a mouse by default.  The supported
+protocols are MouseMan, Microsoft, IntelliMouse and
 some other devices specific to certain hardware (e.g. Vr touch panel).
 To specify the mouse to use set the \c $QWS_MOUSE_PROTO environment
 variable, e.g.:
 \code
 export QWS_MOUSE_PROTO=IntelliMouse
 \endcode
+
+The mouse autodetection opens the serial devices and psaux which
+may cause conflicts with other programs using those devices.  If
+this is the case then specify the mouse driver protocol and device
+explicitly.
 
 \sa \link emb-pointer.html Qt/Embedded Pointer Handling \endlink
 
