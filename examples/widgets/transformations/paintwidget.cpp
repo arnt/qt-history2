@@ -15,8 +15,7 @@ void PaintWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     painter.setBrush(Qt::white);
-    painter.setPen(Qt::NoPen);
-    painter.drawRect(event->rect());
+    painter.drawRect(rect().adjusted(0,0,-1,-1));
 
     painter.translate(66, 66);
 
