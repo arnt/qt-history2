@@ -90,14 +90,13 @@ void StatsCanvas::tabletEvent( QTabletEvent *e )
     e->accept();
     switch( e->type() ) {
     case QEvent::TabletPress:
-	qDebug( "tablet press" );
+	qDebug( "Tablet Press" );
 	mousePressed = TRUE;
 	break;
     case QEvent::TabletRelease:
-	qDebug( "tablet release" );
+	qDebug( "Tablet Release" );
 	mousePressed = FALSE;
 	clearScreen();
-	emit signalNewTilt( 0, 0 );
 	break;
     default:
 	break;
@@ -117,7 +116,7 @@ void StatsCanvas::tabletEvent( QTabletEvent *e )
 
 void StatsCanvas::mouseMoveEvent( QMouseEvent *e )
 {
-	qDebug( "mouse move" );
+    qDebug( "Mouse Move" );
     // do nothing
     QWidget::mouseMoveEvent( e );
 }
@@ -125,20 +124,14 @@ void StatsCanvas::mouseMoveEvent( QMouseEvent *e )
 
 void StatsCanvas::mousePressEvent( QMouseEvent *e )
 {
-	qDebug( "Press" );
-	QWidget::mousePressEvent( e );
+    qDebug( "Mouse Press" );
+    QWidget::mousePressEvent( e );
 }
 
 void StatsCanvas::mouseReleaseEvent( QMouseEvent *e )
 {
-/*
-    Canvas::mouseReleaseEvent( e );
-    clearScreen();
-    // a bad cheat to get rid of the old data...
-    emit signalNewTilt( 0, 0 );
-*/
-	qDebug( "release" );
-	QWidget::mouseReleaseEvent( e );
+    qDebug( "Mouse Release" );
+    QWidget::mouseReleaseEvent( e );
 }
 
 void StatsCanvas::paintEvent( QPaintEvent *e )
