@@ -2785,7 +2785,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, co
 
     // each signal in form prototype\0parameters\0type\0tag\0
     for (QMap<QByteArray, Method>::ConstIterator it = signal_list.begin(); it != signal_list.end(); ++it) {
-        QByteArray prototype(it.key());
+        QByteArray prototype(QMetaObject::normalizedSignature(it.key()));
         QByteArray type(it.value().type);
         QByteArray parameters(it.value().parameters);
         if (!it.value().realPrototype.isEmpty())
@@ -2810,7 +2810,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, co
 
     // each slot in form prototype\0parameters\0type\0tag\0
     for (QMap<QByteArray, Method>::ConstIterator it = slot_list.begin(); it != slot_list.end(); ++it) {
-        QByteArray prototype(it.key());
+        QByteArray prototype(QMetaObject::normalizedSignature(it.key()));
         QByteArray type(it.value().type);
         QByteArray parameters(it.value().parameters);
         if (!it.value().realPrototype.isEmpty())
