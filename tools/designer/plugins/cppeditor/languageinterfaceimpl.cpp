@@ -123,17 +123,18 @@ void LanguageInterfaceImpl::functions( const QString &code, QValueList<Function>
 	    if ( !open )
 		break;
 	}
-	l = text.find( "::", i );
-	if ( l < j && l > colon ) {
-	    i = l - 1;
-	    continue;
-	}
+// 	l = text.find( "::", i );
+// 	if ( l < j && l > colon ) {
+// 	    i = l - 1;
+// 	    continue;
+// 	}
 	body = text.mid( i, j - i + 1 );
 
 	Function f;
 	f.name = func;
 	f.body = body;
 	functionMap->append( f );
+    }
 }
 
 QString LanguageInterfaceImpl::createFunctionStart( const QString &className, const QString &func )
