@@ -517,13 +517,15 @@ void Project::connectTables( QObject *toplevel, const QMap<QString, QStringList>
 	if ( !conn )
 	    continue;
 	conn->connect( TRUE );
-	
+
 	QSqlCursor* c = 0;
 	if ( connection.isEmpty() || connection == "(default)" )
 	    c = new QSqlCursor( (*it)[ 1 ] );
 	else
 	    c = new QSqlCursor( (*it)[ 1 ], connection );
 	table->setCursor( c );
-	table->setAutoDelete( TRUE );                                   	
+	table->setSorting( TRUE );  // show off features
+	table->setReadOnly( TRUE ); // ### behave nicely?
+	table->setAutoDelete( TRUE );
     }
 }
