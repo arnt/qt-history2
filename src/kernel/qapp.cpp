@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#132 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#133 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#132 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#133 $");
 
 
 /*!
@@ -392,7 +392,7 @@ int QApplication::colorSpec()
 	    The color cube is the 6x6x6 (216 color) "Web palette", but the
 	    number of colors can be changed by the \e -ncols option.
 	    The user can force the application to use the true color visual by
-	    the \link QApplication::QApplication() <em>-visual</em> \endlink
+	    the \link QApplication::QApplication() -visual \endlink
 	    option.
       <li> For 256-color displays which have a true color visual with more
 	    than 256 colors, use that visual.  Silicon Graphics X servers
