@@ -261,6 +261,7 @@ void QThread::cleanup()
     // cleanup the QThreadInstance for the main() thread
     QThreadInstance::finish( main_instance );
     main_instance = 0;
+    pthread_setspecific( storage_key, 0 );
 }
 
 /*!

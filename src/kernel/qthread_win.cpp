@@ -213,6 +213,7 @@ void QThread::cleanup()
 
     QThreadInstance::finish( main_instance );
     main_instance = 0;
+    TlsSetValue( qt_tls_index, 0 );
 }
 
 void QThread::postEvent( QObject *o,QEvent *e )
