@@ -474,9 +474,9 @@ Q_EXPORT void qRemovePostRoutine( QtCleanUpFunction p )
 QAsciiDict<QPalette> *QApplication::app_palettes = 0;
 QAsciiDict<QFont>    *QApplication::app_fonts = 0;
 
-
+#ifndef QT_NO_SESSIONMANAGER
 QString *QApplication::session_key = 0;		// ## session key. Should be a member in 4.0
-
+#endif
 QWidgetList *QApplication::popupWidgets = 0;	// has keyboard input focus
 
 QDesktopWidget *qt_desktopWidget = 0;		// root window widgets
@@ -1018,11 +1018,12 @@ QApplication::~QApplication()
     if ( widgetCount ) {
 	qDebug( "Widgets left: %i    Max widgets: %i \n", QWidget::instanceCounter, QWidget::maxInstances );
     }
+#ifndef QT_NO_SESSIONMANAGER
     delete session_manager;
     session_manager = 0;
     delete session_key;
     session_key = 0;
-
+#endif //QT_NO_SESSIONMANAGER
 // Cannot delete codecs until after QDict destructors
     // QTextCodec::deleteAllCodecs()
 }
@@ -2052,6 +2053,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
     if ( !receiver->isWidgetType() )
 	res = internalNotify( receiver, e );
     else switch ( e->type() ) {
+#ifndef QT_NO_ACCEL
     case QEvent::Accel:
 	{
 	    QKeyEvent* key = (QKeyEvent*) e;
@@ -2062,6 +2064,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		res = internalNotify( ((QWidget*)receiver)->topLevelWidget(), e );
 	}
     break;
+#endif //QT_NO_ACCEL
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
     case QEvent::AccelOverride:
