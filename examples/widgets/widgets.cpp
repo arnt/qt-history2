@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/widgets/widgets.cpp#6 $
+** $Id: //depot/qt/main/examples/widgets/widgets.cpp#7 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -459,7 +459,6 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     split->setOpaqueResize( TRUE );
     topLayout->addWidget( split, 1 );
     QListView *lv = new QListView( split );
-    lv->setFrameStyle( QFrame::Panel|QFrame::Sunken);
     lv->addColumn( "One" );
     lv->addColumn( "Two" );
     lv->setAllColumnsShowFocus( TRUE );
@@ -474,7 +473,6 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     lvi=  new QListViewItem( lvi, "SubSubText", "Complimentary Text" );
 
     lv = new QListView( split );
-    lv->setFrameStyle( QFrame::Panel|QFrame::Sunken);
     lv->addColumn( "Choices" );
     (void) new QCheckListItem( lv, "Onion", QCheckListItem::CheckBox );
     (void) new QCheckListItem( lv, "Artichoke", QCheckListItem::CheckBox );
@@ -498,8 +496,6 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
  				  "<em>emphasized</em> and <b>bold</b> text.<p>"
  				  "Style sheets are supported.",
  				  "", split );
-    qmlv->setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
-
 
     // Create an label and a message in the status bar
     // The message is updated when buttons are clicked etc.
