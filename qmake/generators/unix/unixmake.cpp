@@ -274,9 +274,9 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
     writeMakeQmake(t);
 
     t << "qmake_all:" << "\n\t"
-      << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; "
-      << "[ ! -f $(MAKEFILE) ] && $(QMAKE) $$i.pro -o $(MAKEFILE); "
-      << "grep \"^qmake_all:$$\" $$i.pro 2>/dev/null >/dev/null && "
+      << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; pro=$$i.pro ; "
+      << "[ ! -f $(MAKEFILE) ] && $(QMAKE) $$pro -o $(MAKEFILE); "
+      << "grep \"^qmake_all:$$\" $$pro 2>/dev/null >/dev/null && "
       << "$(MAKE) -f $(MAKEFILE) qmake_all || true; fi; ) ; done" << endl << endl;
 
     t <<"clean release debug:" << "\n\t"
