@@ -54,7 +54,9 @@
 #include "qstyle.h"
 #include "qstylefactory.h"
 #include "qfile.h"
+#ifdef Q_WS_WIN
 #include "qinputcontext_p.h"
+#endif
 
 #if defined(QT_THREAD_SUPPORT)
 #  include "qmutex.h"
