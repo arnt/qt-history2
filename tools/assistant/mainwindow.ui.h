@@ -1,3 +1,5 @@
+#include <qtabwidget.h>
+
 void MainWindow::init()
 {
     setWFlags( WDestructiveClose );
@@ -30,8 +32,6 @@ void MainWindow::init()
     connect( helpDock, SIGNAL( showLink( const QString&, const QString & ) ),
 	     this, SLOT( showLink( const QString&, const QString & ) ) );
 
-    goHome();
-
     connect( bookmarkMenu, SIGNAL( activated( int ) ),
 	     this, SLOT( showBookmark( int ) ) );
 
@@ -39,29 +39,6 @@ void MainWindow::init()
     connect( browser, SIGNAL( highlighted( const QString & ) ), statusBar(), SLOT( message( const QString & ) ) );
     connect( actionZoomIn, SIGNAL( activated() ), browser, SLOT( zoomIn() ) );
     connect( actionZoomOut, SIGNAL( activated() ), browser, SLOT( zoomOut() ) );
-
-    QString keybase("/Qt Assistant/3.0/");
-    QSettings config;
-    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
-
-    QFont fnt( browser->QWidget::font() );
-    fnt.setFamily( config.readEntry( keybase + "Family", fnt.family() ) );
-    fnt.setPointSize( config.readNumEntry( keybase + "Size", fnt.pointSize() ) );
-    browser->setFont( fnt );
-    browser->setLinkUnderline( config.readBoolEntry( keybase + "LinkUnderline", TRUE ) );
-
-    QPalette pal = browser->palette();
-    pal.setColor( QPalette::Active, QColorGroup::Link,
-		  config.readEntry( keybase + "LinkColor", pal.color( QPalette::Active, QColorGroup::Link ).name() ) );
-    browser->setPalette( pal );
-
-    QString family = config.readEntry( keybase + "FixedFamily", browser->styleSheet()->item( "pre" )->fontFamily() );
-
-    QStyleSheet *sh = browser->styleSheet();
-    sh->item( "pre" )->setFontFamily( family );
-    sh->item( "code" )->setFontFamily( family );
-    sh->item( "tt" )->setFontFamily( family );
-    browser->setStyleSheet( sh );
 
     PopupMenu->insertItem( tr( "Vie&ws" ), createDockWindowMenu() );
 
@@ -73,6 +50,42 @@ void MainWindow::init()
     a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+T") ) ), helpDock, SLOT( toggleContents() ) );
     a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+I") ) ), helpDock, SLOT( toggleIndex() ) );
     a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+B") ) ), helpDock, SLOT( toggleBookmarks() ) );
+
+    // read configuration
+    QString keybase("/Qt Assistant/3.0/");
+    QSettings config;
+    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
+
+    QFont fnt( browser->QWidget::font() );
+    fnt.setFamily( config.readEntry( keybase + "Family", fnt.family() ) );
+    fnt.setPointSize( config.readNumEntry( keybase + "Size", fnt.pointSize() ) );
+    browser->setFont( fnt );
+    browser->setLinkUnderline( config.readBoolEntry( keybase + "LinkUnderline", TRUE ) );
+
+    QPalette pal = palette();
+    pal.setColor( QPalette::Active, QColorGroup::Link,
+		  config.readEntry( keybase + "LinkColor", pal.color( QPalette::Active, QColorGroup::Link ).name() ) );
+    setPalette( pal );
+
+    QString family = config.readEntry( keybase + "FixedFamily", browser->styleSheet()->item( "pre" )->fontFamily() );
+
+    QStyleSheet *sh = browser->styleSheet();
+    sh->item( "pre" )->setFontFamily( family );
+    sh->item( "code" )->setFontFamily( family );
+    sh->item( "tt" )->setFontFamily( family );
+    browser->setStyleSheet( sh );
+
+    if ( !config.readBoolEntry( keybase + "ShowSideBar", TRUE ) )
+	//helpDock->parentWidget()->hide();
+
+    helpDock->tabWidget->setCurrentPage( config.readNumEntry( keybase + "SideBarPage", 0 ) );
+
+    QString source = config.readEntry( keybase + "Source", QString::null );
+    QString title = config.readEntry( keybase + "Title", source );
+    if ( !source.isEmpty() )
+	showLink( source, title );
+    else
+	goHome();
 }
 
 void MainWindow::destroy()
@@ -85,6 +98,10 @@ void MainWindow::destroy()
     config.writeEntry( keybase + "FixedFamily", browser->styleSheet()->item( "pre" )->fontFamily() );
     config.writeEntry( keybase + "LinkUnderline", browser->linkUnderline() );
     config.writeEntry( keybase + "LinkColor", browser->palette().color( QPalette::Active, QColorGroup::Link ).name() );
+    config.writeEntry( keybase + "Source", browser->source() );
+    config.writeEntry( keybase + "Title", browser->caption() );
+    config.writeEntry( keybase + "ShowSideBar", helpDock->parentWidget()->isVisible() );
+    config.writeEntry( keybase + "SideBarPage", helpDock->tabWidget->currentPageIndex() );
 }
 
 void MainWindow::about()
@@ -249,9 +266,9 @@ void MainWindow::showSettingsDialog()
     browser->setFont( fnt );
     browser->setLinkUnderline( settings->linkUnderlineCB->isChecked() );
 
-    QPalette pal = browser->palette();
+    QPalette pal = palette();
     pal.setColor( QPalette::Active, QColorGroup::Link, settings->colorButton->paletteBackgroundColor() );
-    browser->setPalette( pal );
+    setPalette( pal );
 
     QString family = settings->fixedfontCombo->currentText();
 

@@ -64,6 +64,7 @@ class HelpDialog : public HelpDialogBase
 
 public:
     HelpDialog( QWidget *parent, MainWindow *h, QTextBrowser *v );
+
     QString titleOfLink( const QString &link );
     bool eventFilter( QObject *, QEvent * );
 
