@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#198 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#199 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -392,9 +392,6 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    if ( v->validate( tbuf, cursorPos ) == QValidator::Acceptable )
 		emit returnPressed();
 	}
-#if defined(_CC_GNU_)
-#warning "QDialog still spews Enter/Escape requirements over all other widgets.  How do we fix it?"
-#endif
 	e->ignore();
 	return;
     }
