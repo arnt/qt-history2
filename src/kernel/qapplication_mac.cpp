@@ -735,6 +735,14 @@ static int get_key(int modif, int key, int scan)
     qDebug("**Mapping key: %d (0x%04x) - %d (0x%04x)", key, key, scan, scan);
 #endif
 
+    //special case for clear key
+    if(key == kClearCharCode && scan == 0x47) {
+#ifdef DEBUG_KEY_MAPS
+	qDebug("%d: got key: Qt::Key_Clear", __LINE__);
+#endif
+	return Qt::Key_Clear;
+    }
+
     //general cases..
     if(key >= '0' && key <= '9') {
 #ifdef DEBUG_KEY_MAPS
@@ -1561,7 +1569,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	char chr = KeyTranslate((void *)GetScriptVariable(smCurrentScript, smKCHRCache),
 		   (modif & (rightOptionKeyBit|kEventKeyModifierNumLockBit|
 			     optionKey|shiftKey|rightShiftKey|alphaLock)) | keyc, &state);
-	if(!chr || (chr == kClearCharCode && keyc == 0x47)) 
+	if(!chr) 
 	    break;
 
 	//map it into qt keys
