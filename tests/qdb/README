@@ -23,9 +23,9 @@
 LocalSQL
 --------
 
-LocalSQL provides a library and command line tool for manipulating
-local databases with SQL commands.  A subset of SQL92 is implemented,
-notably:
+LocalSQL provides a library and command line tool for direct
+invokation and processing of SQL statements on local databases.  A
+subset of SQL92 is implemented, notably:
 
 INSERT
 UPDATE
@@ -33,9 +33,9 @@ DELETE
 SELECT
 CREATE TABLE
 CREATE INDEX
+DROP TABLE
 
-Sub-selects, GROUP BY clauses, and HAVING clauses are not currently
-supported.
+Sub-selects, are not currently supported.
 
 LocalSQL requires Qt 3.0-snapshot or higher:
 
@@ -76,8 +76,15 @@ LocalSQL also has a command line tool for manipulating data called
 
 	lsql --help
 
+
 Comments and suggestions welcome.
 
 db
+
+
+
+
+
+
 
 
