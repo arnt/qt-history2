@@ -13,6 +13,7 @@
 #include <qitemdelegate.h>
 #include <qapplication.h>
 #include <private/qwidget_p.h>
+#include <limits.h>
 #endif // QT_H
 
 class Scroller : public QWidget
