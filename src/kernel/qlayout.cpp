@@ -151,7 +151,7 @@ public:
     { return things.count() + ( multi ? multi->count() : 0 ); }
     QRect cellGeometry( int row, int col ) const;
 
-//private:
+private:
     void setNextPosAfter( int r, int c );
     void recalcHFW( int w, int s );
     void addHfwData ( QGridBox *box, int width );
