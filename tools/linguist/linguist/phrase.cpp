@@ -122,8 +122,7 @@ bool PhraseBook::load(const QString &filename)
     if (!f.open(QIODevice::ReadOnly))
         return false;
 
-    QTextStream t(&f);
-    QXmlInputSource in(t);
+    QXmlInputSource in(&f);
     QXmlSimpleReader reader;
     // don't click on these!
     reader.setFeature("http://xml.org/sax/features/namespaces", false);

@@ -340,8 +340,7 @@ bool MetaTranslator::load( const QString& filename )
     if ( !f.open(QIODevice::ReadOnly) )
         return false;
 
-    QTextStream t( &f );
-    QXmlInputSource in( t );
+    QXmlInputSource in( &f );
     QXmlSimpleReader reader;
     reader.setFeature( "http://xml.org/sax/features/namespaces", false );
     reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", true );
