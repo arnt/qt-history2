@@ -1241,3 +1241,8 @@ QString MetaDataBase::normalizeSlot( const QString &s )
 
     return QString::fromLatin1( NormalizeObject::normalizeSignalSlot( res.latin1() ) );
 }
+
+LanguageInterface *MetaDataBase::languageInterface( const QString &lang )
+{
+    return (LanguageInterface*)languageInterfaceManager->queryInterface( lang );
+}

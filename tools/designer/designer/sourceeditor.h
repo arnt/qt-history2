@@ -26,20 +26,21 @@
 
 class FormWindow;
 class QCloseEvent;
+class LanguageInterface;
 
 class SourceEditor : public QVBox
 {
     Q_OBJECT
 
 public:
-    SourceEditor( QWidget *parent, EditorInterface *iface );
+    SourceEditor( QWidget *parent, EditorInterface *iface, LanguageInterface *liface );
     ~SourceEditor();
 
     void setForm( FormWindow *fw );
     void setFunction( const QString &func );
     void save();
 
-    static QString sourceOfForm( FormWindow *fw, const QString &lang, EditorInterface *iface );
+    static QString sourceOfForm( FormWindow *fw, const QString &lang, EditorInterface *iface, LanguageInterface *lIface );
 
     QString language() const;
     void setLanguage( const QString &l );
@@ -52,6 +53,7 @@ signals:
 
 private:
     EditorInterface *iFace;
+    LanguageInterface *lIface;
     FormWindow *formWindow;
     QString lang;
 

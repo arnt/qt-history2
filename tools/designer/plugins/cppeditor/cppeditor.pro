@@ -4,13 +4,16 @@ HEADERS		= cppeditor.h  \
 		  syntaxhighliter_cpp.h \
 		  indent_cpp.h \
 		  cppcompletion.h \
-		  editorinterfaceimpl.h
+		  editorinterfaceimpl.h \
+		  languageinterfaceimpl.h
 
 SOURCES		= cppeditor.cpp \
 		  syntaxhighliter_cpp.cpp \
 		  indent_cpp.cpp \
 		  cppcompletion.cpp \
-		  editorinterfaceimpl.cpp
+		  editorinterfaceimpl.cpp \
+		  languageinterfaceimpl.cpp \
+		  common.cpp
 		
 TARGET		= cppeditor
 DESTDIR		= $(QTDIR)/plugins

@@ -31,8 +31,6 @@ public:
     void scrollTo( const QString &txt );
     void splitView();
     void setContext( QObjectList *toplevels, QObject *this_ );
-    void functions( QMap<QString, QString>* ) const;
-    QString createFunctionStart( const QString &className, const QString &func );
 
     void setError( int line );
 

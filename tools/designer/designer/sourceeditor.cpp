@@ -23,9 +23,10 @@
 #include "formwindow.h"
 #include "metadatabase.h"
 #include "project.h"
+#include "../interfaces/languageinterface.h"
 
-SourceEditor::SourceEditor( QWidget *parent, EditorInterface *iface )
-    : QVBox( parent ), iFace( iface ), formWindow( 0 )
+SourceEditor::SourceEditor( QWidget *parent, EditorInterface *iface, LanguageInterface *liface )
+    : QVBox( parent ), iFace( iface ), lIface( liface ), formWindow( 0 )
 {
     iFace->editor( this );
     resize( 600, 400 );
@@ -41,12 +42,12 @@ void SourceEditor::setForm( FormWindow *fw )
     save();
     formWindow = fw;
     setCaption( tr( "Edit %1" ).arg( formWindow->name() ) );
-    iFace->setText( sourceOfForm( formWindow, lang, iFace ) );
+    iFace->setText( sourceOfForm( formWindow, lang, iFace, lIface ) );
     if ( fw->project() )
 	iFace->setContext( fw->project()->formList(), fw );
 }
 
-QString SourceEditor::sourceOfForm( FormWindow *fw, const QString &lang, EditorInterface *iface )
+QString SourceEditor::sourceOfForm( FormWindow *fw, const QString &lang, EditorInterface *, LanguageInterface *lIface )
 {
     QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( fw );
     QMap<QString, QString> bodies = MetaDataBase::functionBodies( fw );
@@ -55,7 +56,7 @@ QString SourceEditor::sourceOfForm( FormWindow *fw, const QString &lang, EditorI
 	if ( (*it).language != lang )
 	    continue;
 	QString sl( (*it).slot );
-	txt += iface->createFunctionStart( fw->name(), sl );
+	txt += lIface->createFunctionStart( fw->name(), sl );
 	QMap<QString, QString>::Iterator bit = bodies.find( MetaDataBase::normalizeSlot( (*it).slot ) );
 	if ( bit != bodies.end() )
 	    txt += "\n" + *bit + "\n\n";
@@ -79,7 +80,7 @@ void SourceEditor::closeEvent( QCloseEvent *e )
 void SourceEditor::save()
 {
     QMap<QString, QString> functions;
-    iFace->functions( &functions );
+    lIface->functions( iFace->text(), &functions );
     MetaDataBase::setFunctionBodies( formWindow, functions, lang );
 }
 

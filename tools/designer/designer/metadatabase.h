@@ -36,6 +36,7 @@
 #include <widgetdatabase.h>
 
 class QObject;
+class LanguageInterface;
 
 class MetaDataBase
 {
@@ -203,6 +204,8 @@ public:
 
     static void setupInterfaceManagers();
     static QStringList languages();
+
+    static LanguageInterface *languageInterface( const QString &lang );
 
     static QString normalizeSlot( const QString &slot );
 

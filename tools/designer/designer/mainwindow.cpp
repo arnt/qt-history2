@@ -1790,7 +1790,10 @@ void MainWindow::editSource()
 	EditorInterface *eIface = (EditorInterface*)editorPluginManager->queryInterface( lang );
 	if ( !eIface )
 	    return;
-	editor = new SourceEditor( workSpace(), eIface );
+	LanguageInterface *lIface = MetaDataBase::languageInterface( lang );
+	if ( !lIface )
+	    return;
+	editor = new SourceEditor( workSpace(), eIface, lIface );
 	editor->setLanguage( lang );
 	sourceEditors.append( editor );
     }
@@ -1912,9 +1915,10 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 	if ( piface ) {
 	    QStringList error;
 	    QValueList<int> line;
-	    if ( editorPluginManager ) {
+	    LanguageInterface *lIface = MetaDataBase::languageInterface( lang );
+	    if ( editorPluginManager && lIface ) {
 		EditorInterface *eiface = (EditorInterface*)editorPluginManager->queryInterface( lang );
-		if ( !piface->check( SourceEditor::sourceOfForm( fw, lang, eiface ), error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
+		if ( !piface->check( SourceEditor::sourceOfForm( fw, lang, eiface, lIface ), error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
 		    oWindow->setErrorMessages( error, line );
 		    eiface->setError( line[ 0 ] );
 		    QApplication::restoreOverrideCursor();
@@ -3825,7 +3829,10 @@ void MainWindow::editFunction( const QString &func )
 	EditorInterface *eIface = (EditorInterface*)editorPluginManager->queryInterface( lang );
 	if ( !eIface )
 	    return;
-	editor = new SourceEditor( workSpace(), eIface );
+	LanguageInterface *lIface = MetaDataBase::languageInterface( lang );
+	if ( !lIface )
+	    return;
+	editor = new SourceEditor( workSpace(), eIface, lIface );
 	editor->setLanguage( lang );
 	sourceEditors.append( editor );
     }
