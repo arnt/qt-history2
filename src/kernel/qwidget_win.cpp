@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#53 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#53 $");
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
@@ -491,6 +491,16 @@ void QWidget::show()
 {
     if ( testWFlags(WState_Visible) )
 	return;
+    if ( extra ) {
+	int w = crect.width();
+	int h = crect.height();
+	if ( w < extra->minw || h < extra->minh ||
+	     w > extra->maxw || h > extra->maxh ) {
+	    w = QMAX( extra->minw, QMIN( w, extra->maxw ));
+	    h = QMAX( extra->minh, QMIN( h, extra->maxh ));
+	    resize( w, h );
+	}
+    }
     if ( children() ) {
 	QObjectListIt it(*children());
 	register QObject *object;
@@ -633,7 +643,7 @@ void QWidget::setMinimumSize( int w, int h )
     extra->minh = h;
     int minw = QMIN(w,crect.width());
     int minh = QMIN(h,crect.height());
-    if ( minw < w || minh < h )
+    if ( isVisible() && (minw < w || minh < h) )
 	resize( minw, minh );
 }
 
@@ -649,7 +659,7 @@ void QWidget::setMaximumSize( int w, int h )
     extra->maxh = h;
     int maxw = QMAX(w,crect.width());
     int maxh = QMAX(h,crect.height());
-    if ( maxw > w || maxh > h )
+    if ( isVisible() && (maxw > w || maxh > h) )
 	resize( maxw, maxh );
 }
 
