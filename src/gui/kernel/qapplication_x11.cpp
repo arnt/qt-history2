@@ -234,7 +234,7 @@ static const char * x11_atomnames = {
 
 Q_GUI_EXPORT QX11Data *qt_x11Data = 0;
 
-
+QInputContext *QApplicationPrivate::inputContext;
 
 /*****************************************************************************
   Internal variables and functions
