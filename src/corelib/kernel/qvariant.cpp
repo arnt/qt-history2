@@ -2587,8 +2587,8 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
 
     Returns the stored value converted to the template type \c{T}.
     Call canConvert() to find out whether a type can be converted.
-    If the value cannot be converted, a default constructed value will
-    be returned.
+    If the value cannot be converted, \l{default-constructed value}
+    will be returned.
 
     If the type \c{T} is supported by QVariant, this function behaves
     exactly as toString(), toInt() etc.
@@ -2605,12 +2605,13 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     v = 7;
     int i = v.value<int>(); // same as v.toInt()
     QString s = v.value<QString>(); // same as v.toString(), s is now "7"
+    MyCustomStruct c2 = v.value<MyCustomStruct>(); // conversion failed, c2 is empty
     \endcode
 
     \sa setValue(), fromValue(), canConvert()
 */
 
-/* \fn bool QVariant::canConvert() const
+/*! \fn bool QVariant::canConvert() const
 
     Returns true if the variant can be converted to the template type \c{T},
     otherwise false.
@@ -2632,7 +2633,7 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     \sa convert()
 */
 
-/* \fn static QVariant fromValue(const T &value)
+/*! \fn static QVariant fromValue(const T &value)
 
     Returns a QVariant containing a copy of \a value. Behaves
     exactly like setValue() otherwise.
@@ -2644,6 +2645,46 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     \endcode
 
     \sa setValue(), value()
+*/
+
+/*! \fn QVariant qVariantFromValue(const T &)
+
+    \relates QVariant
+
+    Replacement function for QVariant::fromValue() for compilers
+    that do not support template member methods.
+
+    \sa QVariant::fromValue()
+*/
+
+/*! \fn void qVariantSetValue(QVariant &, const T &)
+
+    \relates QVariant
+
+    Replacement function for QVariant::setValue() for compilers
+    that do not support template member methods.
+
+    \sa QVariant::setValue()
+*/
+
+/*! \fn T qVariantValue(const QVariant &)
+
+    \relates QVariant
+
+    Replacement function for QVariant::value() for compilers
+    that do not support template member methods.
+
+    \sa QVariant::value()
+*/
+
+/*! \fn bool qVariantCanConvert(const QVariant &)
+
+    \relates QVariant
+
+    Replacement function for QVariant::canConvert() for compilers
+    that do not support template member methods.
+
+    \sa QVariant::canConvert()
 */
 
 #endif //QT_NO_VARIANT
