@@ -1667,11 +1667,16 @@ static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow::ToolBarD
 	    w = 150; // #### should be calced somehow
 	if ( t && t->t )
 	    h = t->t->height();
+	else if ( o != tb->orientation() )
+	    h = QMIN( h, 30 );
     } else {
 	if ( t && t->t && h > t->t->height() && ipos != QMainWindowPrivate::TotalAfter )
 	    h = 150; // #### should be calced somehow
 	if ( t && t->t )
 	    w = t->t->width();
+	else if ( o != tb->orientation() )
+	    w = QMIN( w, 30 );
+	    
     }
 
     // if a relative toolbar for the moving one was found
