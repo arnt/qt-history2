@@ -169,8 +169,7 @@ static bool block_set_alignment = FALSE;
     The current format's attributes are set with setItalic(),
     setBold(), setUnderline(), setFamily() (font family),
     setPointSize(), setColor() and setCurrentFont().  The current
-    paragraph's style is set with setParagType() and its alignment is
-    set with setAlignment().
+    paragraph's alignment is set with setAlignment().
 
     Use setSelection() to select text. The setSelectionAttributes()
     function is used to indicate how selected text should be
@@ -1048,30 +1047,53 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 			break;
 		    }
 		}
+			    
 		if ( textFormat() == Qt::RichText && ( !cursor->parag()->style() ||
-		     cursor->parag()->style()->displayMode() == QStyleSheetItem::DisplayBlock ) &&
-		     cursor->index() == 0 && ( e->text()[0] == '-' || e->text()[0] == '*' ) ) {
-		    setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListDisc );
-		    cursor->parag()->incDepth();
-		    drawCursor( FALSE );
-		    repaintChanged();
-		    drawCursor( TRUE );
-		} else {
-		    if ( overWrite && !cursor->atParagEnd() )
-			cursor->remove();
-		    QString t = e->text();
-		    QTextParag *p = cursor->parag();
-		    if ( p && p->string() && p->string()->isRightToLeft() ) {
-			QChar *c = (QChar *)t.unicode();
-			int l = t.length();
-			while( l-- ) {
-			    if ( c->mirrored() )
-				*c = c->mirroredChar();
-			    c++;
+			       cursor->parag()->style()->displayMode() != QStyleSheetItem::DisplayListItem ) ) {
+		    if ( cursor->index() == 0 && ( e->text()[0] == '-' || e->text()[0] == '*' ) ) {
+			setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListSquare );
+			cursor->parag()->incDepth();
+			drawCursor( FALSE );
+			repaintChanged();
+			drawCursor( TRUE );
+			break;
+		    } 
+#if 0			
+		    else if ( e->text()[0] == '.' && cursor->index() == 1 ) {
+			QChar c = cursor->parag()->at(0)->c;
+			QStyleSheetItem::ListStyle ls = QStyleSheetItem::ListDisc;
+			if ( c == '1' )
+			    ls = QStyleSheetItem::ListDecimal;
+			else if ( c == 'a' )
+			    ls = QStyleSheetItem::ListLowerAlpha;
+			else if ( c == 'A' )
+			    ls = QStyleSheetItem::ListUpperAlpha;
+			if ( ls != QStyleSheetItem::ListDisc ) {
+			    setParagType( QStyleSheetItem::DisplayListItem, ls );
+ 			    cursor->parag()->incDepth();
+ 			    cursor->parag()->setListValue( -1 );
+			    drawCursor( FALSE );
+			    repaintChanged();
+			    drawCursor( TRUE );
+			    break;
 			}
 		    }
-		    insert( t, TRUE, FALSE );
+#endif		    
 		}
+		if ( overWrite && !cursor->atParagEnd() )
+		    cursor->remove();
+		QString t = e->text();
+		QTextParag *p = cursor->parag();
+		if ( p && p->string() && p->string()->isRightToLeft() ) {
+		    QChar *c = (QChar *)t.unicode();
+		    int l = t.length();
+		    while( l-- ) {
+			if ( c->mirrored() )
+			    *c = c->mirroredChar();
+			c++;
+		    }
+		}
+		insert( t, TRUE, FALSE );
 		break;
 	    } else if ( e->state() & ControlButton ) {
 		switch ( e->key() ) {
@@ -2829,7 +2851,10 @@ void QTextEdit::setPalette( const QPalette &p )
     }
 }
 
-/*!
+/*! \internal
+  
+  Do not use this function, it will go away.
+  
   Sets the paragraph style of the current paragraph
   to \a dm. If \a dm is QStyleSheetItem::DisplayListItem, the
   type of the list item is set to \a listStyle.
@@ -3835,10 +3860,7 @@ QBrush QTextEdit::paper() const
 
 void QTextEdit::setLinkUnderline( bool b )
 {
-    if ( b == doc->underlineLinks() )
-	return;
     doc->setUnderlineLinks( b );
-    updateStyles();
 }
 
 bool QTextEdit::linkUnderline() const
@@ -4154,15 +4176,13 @@ void QTextEdit::documentWidthChanged( int w )
     resizeContents( QMAX( visibleWidth(), w), contentsHeight() );
 }
 
-/*!
-    Updates all the rendering styles used to display the text. You will
-    probably want to call this function after calling setStyleSheet().
+/*! \internal
+  
+  This function does nothing
 */
 
 void QTextEdit::updateStyles()
 {
-    doc->updateStyles();
-    updateContents();
 }
 
 void QTextEdit::setDocument( QTextDocument *dc )
@@ -4548,7 +4568,11 @@ void QTextEdit::clearUndoRedo()
     emit redoAvailable( doc->commands()->isRedoAvailable() );
 }
 
-/*!  This function gets the format of the character at position \a
+/*!  \internal
+
+  Do not use this function, it will go away.
+  
+  This function gets the format of the character at position \a
   index in paragraph \a para. Sets \a font to the character's font, \a
   color to the character's color and \a verticalAlignment to the
   character's vertical alignment.
@@ -4572,7 +4596,11 @@ bool QTextEdit::getFormat( int para, int index, QFont *font, QColor *color, Vert
     return TRUE;
 }
 
-/*!  This function gets the format of the paragraph \a para. Sets \a
+/*!  \internal
+  
+  Do not use this function, it will go away.
+  
+  This function gets the format of the paragraph \a para. Sets \a
   font to the paragraphs's font, \a color to the paragraph's color, \a
   verticalAlignment to the paragraph's vertical alignment, \a
   alignment to the paragraph's alignment, \a displayMode to the
@@ -4690,19 +4718,7 @@ void QTextEdit::setFont( const QFont &f )
     QFont old( QScrollView::font() );
     QScrollView::setFont( f );
     doc->setMinimumWidth( -1 );
-
-    // ### that is a bit hacky
-    static short diff = 1;
-    diff *= -1;
-    doc->setWidth( visibleWidth() + diff );
-
-    int s = f.pointSize();
-    bool usePixels = FALSE;
-    if ( s == -1 ) {
-	s = f.pixelSize();
-	usePixels = TRUE;
-    }
-    doc->updateFontSizes( s, usePixels );
+    doc->setDefaultFont( f ); // sets the default font size in the collection
     doc->updateFontAttributes( f, old );
     lastFormatted = doc->firstParag();
     formatMore();

@@ -819,7 +819,6 @@ public:
     QString context() const { return contxt; }
 
     void setStyleSheet( QStyleSheet *s );
-    void updateStyles();
     void updateFontSizes( int base, bool usePixels );
     void updateFontAttributes( const QFont &f, const QFont &old );
 #ifndef QT_NO_MIME
@@ -827,7 +826,7 @@ public:
 #endif
     void setContext( const QString &c ) { if ( !c.isEmpty() ) contxt = c; }
 
-    void setUnderlineLinks( bool b ) { underlLinks = b; }
+    void setUnderlineLinks( bool b );
     bool underlineLinks() const { return underlLinks; }
 
     void setPaper( QBrush *brush ) { if ( backBrush ) delete backBrush; backBrush = brush; }
@@ -1183,9 +1182,9 @@ public:
     void setListStyle( QStyleSheetItem::ListStyle ls );
     QStyleSheetItem::ListStyle listStyle() const;
     void setListValue( int v ) { list_val = v; }
-    int listValue() const { return list_val; }
+    int listValue() const { return list_val > 0 ? list_val : -1; }
 
-    void setList( bool b, int listStyle );
+    void setList( bool b, QStyleSheetItem::ListStyle listStyle = QStyleSheetItem::ListDisc);
     void incDepth();
     void decDepth();
     int listDepth() const;
@@ -1270,11 +1269,11 @@ public:
     virtual int topMargin() const;
     virtual int bottomMargin() const;
     virtual int leftMargin() const;
+    int leftMarginExtra() const; // space for labels in lists
     virtual int firstLineMargin() const;
     virtual int rightMargin() const;
     virtual int lineSpacing() const;
 
-    int numberOfSubParagraph() const;
 #ifndef QT_NO_TEXTCUSTOMITEM
     void registerFloatingItem( QTextCustomItem *i );
     void unregisterFloatingItem( QTextCustomItem *i );
@@ -1321,8 +1320,6 @@ public:
     QColor *backgroundColor() const { return bgcol; }
     void clearBackgroundColor();
 
-    bool isLineBreak() const { return isBr; }
-
     void setMovedDown( bool b ) { movedDown = b; }
     bool wasMovedDown() const { return movedDown; }
 
@@ -1341,6 +1338,7 @@ private:
     QMap<int, QTextParagSelection> &selections() const;
     QPtrVector<QStyleSheetItem> &styleSheetItemsVec() const;
     QPtrList<QTextCustomItem> &floatingItems() const;
+    void invalidateStyleCache();
 
     QMap<int, QTextParagLineStart*> lineStarts;
     int invalid;
@@ -1356,7 +1354,6 @@ private:
     uint lastInFrame : 1;
     uint visible : 1;
     uint breakable : 1;
-    uint isBr : 1;
     uint movedDown : 1;
     uint mightHaveCustomItems : 1;
     uint hasdoc : 1;
@@ -1367,7 +1364,6 @@ private:
     QPtrVector<QStyleSheetItem> *mStyleSheetItemsVec;
     QPtrList<QTextCustomItem> *mFloatingItems;
     QStyleSheetItem::ListStyle listS;
-    int numSubParag;
     int tm, bm, lm, rm, flm;
     QTextFormat *defFormat;
     int *tArray;
@@ -1547,12 +1543,7 @@ public:
 
     static void setPainter( QPainter *p );
     static QPainter* painter();
-    void updateStyle();
-    void updateStyleFlags();
-    void setStyle( const QString &s );
-    QString styleName() const { return style; }
 
-    int changed() const { return different; }
     bool fontSizesInPixels() { return usePixelSizes; }
 
 protected:
@@ -1578,8 +1569,6 @@ private:
     int logicalFontSize;
     int stdSize;
     static QPainter *pntr;
-    QString style;
-    int different;
 
 };
 
@@ -1610,10 +1599,7 @@ public:
     virtual QTextFormat *createFormat( const QFont &f, const QColor &c ) { return new QTextFormat( f, c, this ); }
     void debug();
 
-    QStyleSheet *styleSheet() const { return sheet; }
-    void setStyleSheet( QStyleSheet *s ) { sheet = s; }
-    void updateStyles();
-    void updateFontSizes( int base, bool usePixels );
+    void updateFontSizes( QStyleSheet* sheet, int base, bool usePixels );
     void updateFontAttributes( const QFont &f, const QFont &old );
     QDict<QTextFormat> dict() const { return cKey; }
 
@@ -1631,6 +1617,7 @@ private:
     QColor ccol;
     QString kof, knf;
     int cflags;
+
     QStyleSheet *sheet;
     QPaintDevice *paintdevice;
 };
@@ -1945,11 +1932,6 @@ inline bool QTextFormat::useLinkColor() const
     return linkColor;
 }
 
-inline void QTextFormat::setStyle( const QString &s )
-{
-    style = s;
-    updateStyleFlags();
-}
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

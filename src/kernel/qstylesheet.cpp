@@ -1046,7 +1046,6 @@ void QStyleSheet::init()
 
     style = new QStyleSheetItem( this, QString::fromLatin1("qt") );
     style->setDisplayMode( QStyleSheetItem::DisplayBlock );
-    //style->setMargin( QStyleSheetItem::MarginAll, 4 );
 
     style = new QStyleSheetItem( this, QString::fromLatin1("a") );
     style->setAnchor( TRUE );
@@ -1125,18 +1124,17 @@ void QStyleSheet::init()
 
     style = new QStyleSheetItem( this, QString::fromLatin1("ul") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
-    style-> setMargin(QStyleSheetItem::MarginVertical, 4);
+    style-> setMargin(QStyleSheetItem::MarginVertical, 8);
 
     style = new QStyleSheetItem( this, QString::fromLatin1("ol") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style->setListStyle( QStyleSheetItem::ListDecimal );
-    style-> setMargin(QStyleSheetItem::MarginVertical, 4);
+    style-> setMargin(QStyleSheetItem::MarginVertical, 8);
 
     style = new QStyleSheetItem( this, QString::fromLatin1("li") );
     style->setDisplayMode(QStyleSheetItem::DisplayListItem);
     style->setSelfNesting( FALSE );
     style->setContexts(QString::fromLatin1("ol ul"));
-    style-> setMargin(QStyleSheetItem::MarginVertical, 4);
 
     style = new QStyleSheetItem( this, QString::fromLatin1("code") );
     style->setFontFamily( QString::fromLatin1("courier") );
@@ -1145,8 +1143,8 @@ void QStyleSheet::init()
     style->setFontFamily( QString::fromLatin1("courier") );
 
     new QStyleSheetItem(this, QString::fromLatin1("img"));
-    new QStyleSheetItem(this, QString::fromLatin1("br"));
     new QStyleSheetItem(this, QString::fromLatin1("hr"));
+ 
     style = new QStyleSheetItem(this, QString::fromLatin1("sub"));
     style->setVerticalAlignment( QStyleSheetItem::VAlignSub );
     style = new QStyleSheetItem(this, QString::fromLatin1("sup"));
@@ -1178,8 +1176,6 @@ void QStyleSheet::init()
      style->setFontUnderline( TRUE);
      style = new QStyleSheetItem( this, QString::fromLatin1("nobr") );
      style->setWhiteSpaceMode( QStyleSheetItem::WhiteSpaceNoWrap );
-     style = new QStyleSheetItem( this, QString::fromLatin1("wsp") ); // qt extension for QTextEdit
-     style->setWhiteSpaceMode( (QStyleSheetItem::WhiteSpaceMode) 3 ); // WhiteSpaceModeNoCompression
 
      // tables
      style = new QStyleSheetItem( this, QString::fromLatin1("table") );
@@ -1317,7 +1313,7 @@ QTextCustomItem* QStyleSheet::tag(  const QString& name,
 
 /*!  Auxiliary function. Converts the plain text string \a plain to a
     rich text formatted paragraph while preserving most of its look.
-    
+
     \a mode defines the whitespace mode. Possible values are \c
     QStyleSheetItem::WhiteSpacePre (no wrapping, all whitespaces
     preserved) and \c QStyleSheetItem::WhiteSpaceNormal (wrapping,

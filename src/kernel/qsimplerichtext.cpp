@@ -413,9 +413,14 @@ bool QSimpleRichText::inText( const QPoint& pos ) const
 
 void QSimpleRichText::setDefaultFont( const QFont &f )
 {
+    if ( d->font == f )
+	return;
     d->font = f;
-    d->doc->setDefaultFont( f );
+    d->cachedWidth = -1;
+    d->cachedWidthWithPainter = FALSE;
+    d->doc->setDefaultFont( f ); // sets only the size...
     d->doc->formatCollection()->defaultFormat()->setFont( f );
+    d->doc->setText( d->doc->originalText(), d->doc->context() );
 }
 
 #endif //QT_NO_RICHTEXT

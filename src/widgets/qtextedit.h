@@ -267,12 +267,17 @@ public:
     QFont font() const;
     int alignment() const;
     int undoDepth() const;
+    
+    // do not use, will go away
     virtual bool getFormat( int para, int index, QFont *font, QColor *color, VerticalAlignment *verticalAlignment );
+    // do not use, will go away
     virtual bool getParagraphFormat( int para, QFont *font, QColor *color,
 				     VerticalAlignment *verticalAlignment, int *alignment,
 				     QStyleSheetItem::DisplayMode *displayMode,
 				     QStyleSheetItem::ListStyle *listStyle,
 				     int *listDepth );
+    
+    
     bool isOverwriteMode() const { return overWrite; }
     QColor paragraphBackgroundColor( int para ) const;
 
@@ -331,7 +336,10 @@ public slots:
     virtual void setFont( const QFont &f );
     virtual void setVerticalAlignment( VerticalAlignment a );
     virtual void setAlignment( int a );
+
+    // do not use, will go away
     virtual void setParagType( QStyleSheetItem::DisplayMode dm, QStyleSheetItem::ListStyle listStyle );
+    
     virtual void setCursorPosition( int parag, int index );
     virtual void setSelection( int parag_from, int index_from, int parag_to, int index_to, int selNum = 0 );
     virtual void setSelectionAttributes( int selNum, const QColor &back, bool invertText );

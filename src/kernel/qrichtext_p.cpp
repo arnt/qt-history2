@@ -161,8 +161,7 @@ QTextFormat::~QTextFormat()
 }
 
 QTextFormat::QTextFormat()
-    : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdSize( qApp->font().pointSize() ),
-      different( NoFlags )
+    : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdSize( qApp->font().pointSize() )
 {
     ref = 0;
 
@@ -171,15 +170,14 @@ QTextFormat::QTextFormat()
 	stdSize = qApp->font().pixelSize();
 	usePixelSizes = TRUE;
     }
-    
+
     missp = FALSE;
     ha = AlignNormal;
     collection = 0;
 }
 
 QTextFormat::QTextFormat( const QStyleSheetItem *style )
-    : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdSize( qApp->font().pointSize() ),
-      different( NoFlags )
+    : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdSize( qApp->font().pointSize() )
 {
     ref = 0;
 
@@ -189,7 +187,6 @@ QTextFormat::QTextFormat( const QStyleSheetItem *style )
 	usePixelSizes = TRUE;
     }
 
-    this->style = style->name();
     missp = FALSE;
     ha = AlignNormal;
     collection = 0;
@@ -210,12 +207,11 @@ QTextFormat::QTextFormat( const QStyleSheetItem *style )
     memset( widths, 0, 256 );
     generateKey();
     addRef();
-    updateStyleFlags();
 }
 
 QTextFormat::QTextFormat( const QFont &f, const QColor &c, QTextFormatCollection *parent )
     : fn( f ), col( c ), fm( QFontMetrics( f ) ), linkColor( TRUE ),
-      logicalFontSize( 3 ), stdSize( f.pointSize() ), different( NoFlags )
+      logicalFontSize( 3 ), stdSize( f.pointSize() )
 {
     ref = 0;
     usePixelSizes = FALSE;
@@ -234,7 +230,6 @@ QTextFormat::QTextFormat( const QFont &f, const QColor &c, QTextFormatCollection
     memset( widths, 0, 256 );
     generateKey();
     addRef();
-    updateStyleFlags();
 }
 
 QTextFormat::QTextFormat( const QTextFormat &f )
@@ -257,8 +252,6 @@ QTextFormat::QTextFormat( const QTextFormat &f )
     ha = f.ha;
     k = f.k;
     linkColor = f.linkColor;
-    style = f.style;
-    different = f.different;
     addRef();
 }
 
@@ -282,8 +275,6 @@ QTextFormat& QTextFormat::operator=( const QTextFormat &f )
     ha = f.ha;
     k = f.k;
     linkColor = f.linkColor;
-    style = f.style;
-    different = f.different;
     addRef();
     return *this;
 }
@@ -298,7 +289,6 @@ void QTextFormat::update()
     dsc = fm.descent();
     memset( widths, 0, 256 );
     generateKey();
-    updateStyleFlags();
 }
 
 
@@ -378,52 +368,6 @@ QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool misspelled
     k += '/';
     k += QString::number( (int)a );
     return k;
-}
-
-void QTextFormat::updateStyle()
-{
-    if ( !collection || !collection->styleSheet() )
-	return;
-    QStyleSheetItem *item = collection->styleSheet()->item( style );
-    if ( !item )
-	return;
-    if ( !( different & Color ) && item->color().isValid() )
-	col = item->color();
-    if ( !( different & Size ) && item->fontSize() != -1 )
-	fn.setPointSize( item->fontSize() );
-    if ( !( different & Family ) && !item->fontFamily().isEmpty() )
-	fn.setFamily( item->fontFamily() );
-    if ( !( different & Bold ) && item->fontWeight() != -1 )
-	fn.setWeight( item->fontWeight() );
-    if ( !( different & Italic ) && item->definesFontItalic() )
-	fn.setItalic( item->fontItalic() );
-    if ( !( different & Underline ) && item->definesFontUnderline() )
-	fn.setUnderline( item->fontUnderline() );
-    generateKey();
-    update();
-
-}
-
-void QTextFormat::updateStyleFlags()
-{
-    different = NoFlags;
-    if ( !collection || !collection->styleSheet() )
-	return;
-    QStyleSheetItem *item = collection->styleSheet()->item( style );
-    if ( !item )
-	return;
-    if ( item->color() != col )
-	different |= Color;
-    if ( item->fontSize() != fn.pointSize() )
-	different |= Size;
-    if ( item->fontFamily() != fn.family() )
-	different |= Family;
-    if ( item->fontItalic() != fn.italic() )
-	different |= Italic;
-    if ( item->fontUnderline() != fn.underline() )
-	different |= Underline;
-    if ( item->fontWeight() != fn.weight() )
-	different |= Bold;
 }
 
 QString QTextString::toString( const QMemArray<QTextStringChar> &data )
@@ -620,30 +564,6 @@ QStyleSheetItem *QTextParag::style() const
     return (*mStyleSheetItemsVec)[ mStyleSheetItemsVec->size() - 1 ];
 }
 
-int QTextParag::numberOfSubParagraph() const
-{
-    if ( list_val != -1 )
-	return list_val;
-    if ( numSubParag != -1 )
- 	return numSubParag;
-    int n = 0;
-    QTextParag *p = (QTextParag*)this;
-    while ( p && ( styleSheetItemsVec().size() >= p->styleSheetItemsVec().size() &&
-	    styleSheetItemsVec()[ (int)p->styleSheetItemsVec().size() - 1 ] == p->style() ||
-		   p->styleSheetItemsVec().size() >= styleSheetItemsVec().size() &&
-		   p->styleSheetItemsVec()[ (int)styleSheetItemsVec().size() - 1 ] == style() ) ) {
-	if ( p->style() == style() && listStyle() != p->listStyle()
-	     && p->styleSheetItemsVec().size() == styleSheetItemsVec().size() )
-	    break;
-	if ( p->style()->displayMode() == QStyleSheetItem::DisplayListItem
-	     && p->style() != style() || styleSheetItemsVec().size() == p->styleSheetItemsVec().size() )
-	    ++n;
-	p = p->prev();
-    }
-    ( (QTextParag*)this )->numSubParag = n;
-    return n;
-}
-
 void QTextParag::setFormat( QTextFormat *fm )
 {
     bool doUpdate = FALSE;
@@ -652,10 +572,6 @@ void QTextParag::setFormat( QTextFormat *fm )
     defFormat = formatCollection()->format( fm );
     if ( !doUpdate )
 	return;
-    for ( int i = 0; i < length(); ++i ) {
-	if ( at( i )->format()->styleName() == defFormat->styleName() )
-	    at( i )->format()->updateStyle();
-    }
 }
 
 QTextFormatter *QTextParag::formatter() const

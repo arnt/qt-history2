@@ -434,7 +434,7 @@ QTextCursor *QTextParagTypeCommand::execute( QTextCursor *c )
     if ( !p )
 	return c;
     while ( p ) {
-	p->setList( list, (int)listStyle );
+	p->setList( list, listStyle );
 	if ( p->paragId() == lastParag )
 	    break;
 	p = p->next();
@@ -1364,9 +1364,6 @@ QTextDocument::QTextDocument( QTextDocument *p, QTextFormatCollection *f )
 
 void QTextDocument::init()
 {
-#if defined(PARSER_DEBUG)
-    qDebug( debug_indent + "new QTextDocument (%p)", this );
-#endif
     oTextValid = TRUE;
     mightHaveCustomItems = FALSE;
     if ( par )
@@ -1392,7 +1389,6 @@ void QTextDocument::init()
     factory_ = QMimeSourceFactory::defaultFactory();
 #endif
     contxt = QString::null;
-    fCollection->setStyleSheet( sheet_ );
 
     underlLinks = par ? par->underlLinks : TRUE;
     backBrush = 0;
@@ -1416,7 +1412,7 @@ void QTextDocument::init()
     flow_ = new QTextFlow;
     flow_->setWidth( cw );
 
-    leftmargin = rightmargin = 4;
+    leftmargin = rightmargin = 8;
 
     selectionColors[ Standard ] = QApplication::palette().color( QPalette::Active, QColorGroup::Highlight );
     selectionText[ Standard ] = TRUE;
@@ -1585,8 +1581,10 @@ struct Q_EXPORT QTextDocumentTag {
 #endif
 };
 
-#define NEWPAR       do{ if ( !hasNewPar ) curpar = createParag( this, curpar ); \
-		    if ( curpar->isBr ) curpar->isBr = FALSE; \
+#define NEWPAR       do{ if ( !hasNewPar) { \
+		    if ( curpar->tm == 0 && curpar->prev() ) curpar->prev()->bm = 0; \
+		    curpar = createParag( this, curpar ); } \
+		    curpar->tm = -1; \
 		    hasNewPar = TRUE; \
 		    curpar->setAlignment( curtag.alignment ); \
 		    curpar->setDirection( (QChar::Direction)curtag.direction ); \
@@ -1606,6 +1604,8 @@ void QTextDocument::setRichText( const QString &text, const QString &context )
 	setContext( context );
     clear();
     fParag = lParag = createParag( this );
+    oTextValid = TRUE;
+    oText = text;
     setRichTextInternal( text );
 }
 
@@ -1613,24 +1613,24 @@ static QStyleSheetItem::ListStyle chooseListStyle( const QStyleSheetItem *nstyle
 						   const QMap<QString, QString> &attr,
 						   QStyleSheetItem::ListStyle curListStyle )
 {
-    if ( nstyle->name() == "ol" || nstyle->name() == "ul" ) {
-	curListStyle = nstyle->listStyle();
-	QMap<QString, QString>::ConstIterator it = attr.find( "type" );
-	if ( it != attr.end() ) {
-	    QString sl = *it;
-	    if ( sl == "1" ) {
+    if ( nstyle->name() == "ol" || nstyle->name() == "ul" || nstyle->name() == "li") {
+	if ( !nstyle->listStyle() == QStyleSheetItem::Undefined )
+	    curListStyle = nstyle->listStyle();
+	QString type = attr["type"];
+	if ( !type.isEmpty() ) {
+	    if ( type == "1" ) {
 		curListStyle = QStyleSheetItem::ListDecimal;
-	    } else if ( sl == "a" ) {
+	    } else if ( type == "a" ) {
 		curListStyle =  QStyleSheetItem::ListLowerAlpha;
-	    } else if ( sl == "A" ) {
+	    } else if ( type == "A" ) {
 		curListStyle = QStyleSheetItem::ListUpperAlpha;
 	    } else {
-		sl = sl.lower();
-		if ( sl == "square" )
+		type = type.lower();
+		if ( type == "square" )
 		    curListStyle = QStyleSheetItem::ListSquare;
-		else if ( sl == "disc" )
+		else if ( type == "disc" )
 		    curListStyle = QStyleSheetItem::ListDisc;
-		else if ( sl == "circle" )
+		else if ( type == "circle" )
 		    curListStyle = QStyleSheetItem::ListCircle;
 	    }
 	}
@@ -1640,8 +1640,6 @@ static QStyleSheetItem::ListStyle chooseListStyle( const QStyleSheetItem *nstyle
 
 void QTextDocument::setRichTextInternal( const QString &text )
 {
-    oTextValid = TRUE;
-    oText = text;
     QTextParag* curpar = lParag;
     int pos = 0;
     QValueStack<QTextDocumentTag> tags;
@@ -1649,11 +1647,17 @@ void QTextDocument::setRichTextInternal( const QString &text )
     QTextDocumentTag curtag = initag;
     bool space = TRUE;
 
+    bool preserveWhitespace = FALSE;
+    bool preserveEmptyParagraphs = FALSE;
+
     const QChar* doc = text.unicode();
     int length = text.length();
     bool hasNewPar = curpar->length() <= 1;
     QString lastClose;
     QString anchorName;
+
+    QString wellKnownTags = "br hr wsp table qt meta title";
+
     while ( pos < length ) {
 	if ( hasPrefix(doc, length, pos, '<' ) ){
 	    if ( !hasPrefix( doc, length, pos+1, QChar('/') ) ) {
@@ -1664,32 +1668,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		if ( tagname.isEmpty() )
 		    continue; // nothing we could do with this, probably parse error
 
-		if ( tagname == "title" ) {
-		    QString title;
-		    while ( pos < length ) {
-			if ( hasPrefix( doc, length, pos, QChar('<') ) && hasPrefix( doc, length, pos+1, QChar('/') ) &&
-			     parseCloseTag( doc, length, pos ) == "title" )
-			    break;
-			title += doc[ pos ];
-			++pos;
-		    }
-		    attribs.replace( "title", title );
-		}
-
 		const QStyleSheetItem* nstyle = sheet_->item(tagname);
-
-		if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
-// 		    if ( tagname == "br" ) {
-// 			// our standard br emty-tag handling breaks
-// 			// inside list items, we would get another
-// 			// list item in this case. As workaround, fake
-// 			// a new paragraph instead
-// 			tagname = "p";
-// 			nstyle = sheet_->item( tagname );
-// 		    }
-		    if ( nstyle )
-			hasNewPar = FALSE; // we want empty paragraphs in this case
-		}
 
 		if ( nstyle ) {
 		    // we might have to close some 'forgotten' tags
@@ -1702,58 +1681,97 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			    break;
 			curtag = tags.pop();
 		    }
-
-		    // special handling for p. We do not want to nest there for HTML compatibility
+		
+		    /* special handling for p and li for HTML
+		    compatibility. We do not want to embed blocks p,
+		    and we do not want new blocks inside non-empty
+		    lis. Plus we want to merge empty lis sometimes. */
 		    if ( nstyle->displayMode() == QStyleSheetItem::DisplayBlock ) {
+			
 			while ( curtag.style->name() == "p" ) {
 			    if ( tags.isEmpty() )
 				break;
 			    curtag = tags.pop();
 			}
+			
+	   		if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
+			    // we are in a li and a new block comes along
+			    if ( nstyle->name() == "ul" || nstyle->name() == "ol" )
+				hasNewPar = FALSE; // we want an empty li (like most browsers)
+			    if ( !hasNewPar ) {
+				/* do not add new blocks inside
+				   non-empty lis */
+				while ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
+				    if ( tags.isEmpty() )
+					break;
+				    curtag = tags.pop();
+				}
+			    } else {
+				/* we have an empty li and a block
+				   comes along, merge them */
+				nstyle = curtag.style;
+			    }
+			}
 		    }
-
 		}
-
-#ifndef QT_NO_TEXTCUSTOMITEM
+		
 		QTextCustomItem* custom =  0;
-#endif
-		// some well-known tags
-		if ( tagname == "br" ) {
-		    emptyTag = TRUE;
-		    hasNewPar = FALSE;
-		    if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
-			// when linebreaking a list item, we do not
-			// actually want a new list item but just a
-			// new line. Fake this by pushing a paragraph
-			// onto the stack
-			tags.push( curtag );
- 			curtag.name = tagname;
- 			curtag.style = nstyle;
-		    }
-		    NEWPAR;
-		    curpar->isBr = TRUE;
-		    curpar->setAlignment( curtag.alignment );
-		} else if ( tagname == "qt" ) {
-		    for ( QMap<QString, QString>::Iterator it = attr.begin(); it != attr.end(); ++it ) {
-			if ( it.key() == "bgcolor" ) {
-			    QBrush *b = new QBrush( QColor( *it ) );
+
+		// some well-known tags, some have a nstyle, some not
+		if ( wellKnownTags.find( tagname ) != -1 ) {
+		    if ( tagname == "br" ) {
+			emptyTag = TRUE;
+			hasNewPar = FALSE;
+			if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
+			    /* when linebreaking a list item, we do not
+			       actually want a new list item but just a new
+			       line. Fake this by pushing a paragraph onto
+			       the stack */
+			    tags.push( curtag );
+			    curtag.name = tagname;
+			    curtag.style = nstyle;
+			}
+			NEWPAR;
+			curpar->tm = 0;
+			curpar->setAlignment( curtag.alignment );
+		    }  else if ( tagname == "hr" ) {
+			emptyTag = TRUE;
+			custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag, this );
+			NEWPAR;
+		    } else if ( !nstyle && tagname == "wsp" ) {
+			// compatibily with some minor 3.0.x Qt versions that had an undocumented <wsp> tag
+			preserveWhitespace =TRUE;
+			if ( curtag.wsm == QStyleSheetItem::WhiteSpaceNormal )
+			    curtag.wsm = (QStyleSheetItem::WhiteSpaceMode) QStyleSheetItem_WhiteSpaceNoCompression;
+		    } else if ( tagname == "table" ) {
+			QTextFormat format = curtag.format.makeTextFormat(  nstyle, attr );
+			curpar->setAlignment( curtag.alignment );
+			custom = parseTable( attr, format, doc, length, pos, curpar );
+			(void)eatSpace( doc, length, pos );
+			emptyTag = TRUE;
+		    } else if ( tagname == "qt" ) {
+			if ( attr.contains( "bgcolor" ) ) {
+			    QBrush *b = new QBrush( QColor( attr["bgcolor"] ) );
 			    setPaper( b );
-			} else if ( it.key() == "background" ) {
+			}
+			if ( attr.contains( "background" ) ) {
 			    QImage img;
-			    const QMimeSource* m = factory_->data( *it, contxt );
+			    QString bg = attr["background"];
+			    const QMimeSource* m = factory_->data( bg, contxt );
 			    if ( !m ) {
-				qWarning("QRichText: no mimesource for %s", (*it).latin1() );
+				qWarning("QRichText: no mimesource for %s", bg.latin1() );
 			    } else {
 				if ( !QImageDrag::decode( m, img ) ) {
-				    qWarning("QTextImage: cannot decode %s", (*it).latin1() );
+				    qWarning("QTextImage: cannot decode %s", bg.latin1() );
 				}
 			    }
 			    if ( !img.isNull() ) {
 				QBrush *b = new QBrush( QColor(), QPixmap( img ) );
 				setPaper( b );
 			    }
-			} else if ( it.key() == "text" ) {
-			    QColor c( *it );
+			}
+			if ( attr.contains( "text" ) ) {
+			    QColor c( attr["text"] );
 			    if ( formatCollection()->defaultFormat()->color() != c ) {
 				QDict<QTextFormat> formats = formatCollection()->dict();
 				QDictIterator<QTextFormat> it( formats );
@@ -1768,36 +1786,34 @@ void QTextDocument::setRichTextInternal( const QString &text )
 				formatCollection()->defaultFormat()->setColor( c );
 				curtag.format.setColor( c );
 			    }
-			} else if ( it.key() == "link" ) {
-			    linkColor = QColor( *it );
-			} else if ( it.key() == "title" ) {
-			    attribs.replace( it.key(), *it );
 			}
+			if ( attr.contains( "link" ) )
+			    linkColor = QColor( attr["link"] );
+			if ( attr.contains( "title" ) )
+			    attribs.replace( "title", attr["title"] );
+			// end qt-tag handling
+		    } else if ( tagname == "meta" ) {
+			if ( attr["name"] == "qtextedit" && attr["content"] == "3.0.5" )
+			    preserveWhitespace = preserveEmptyParagraphs = TRUE;
+		    } else if ( tagname == "title" ) {
+			QString title;
+			while ( pos < length ) {
+			    if ( hasPrefix( doc, length, pos, QChar('<') ) && hasPrefix( doc, length, pos+1, QChar('/') ) &&
+				 parseCloseTag( doc, length, pos ) == "title" )
+				break;
+			    title += doc[ pos ];
+			    ++pos;
+			}
+			attribs.replace( "title", title );
 		    }
-#ifndef QT_NO_TEXTCUSTOMITEM
-		}  else if ( tagname == "hr" ) {
-		    emptyTag = TRUE;
+		} // end of well-known tag handling
+		
+		if ( !custom ) // try generic custom item
 		    custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag, this );
-		    NEWPAR;
-		} else if ( tagname == "table" ) {
-		    QTextFormat format = curtag.format.makeTextFormat(  nstyle, attr );
-		    curpar->setAlignment( curtag.alignment );
-		    custom = parseTable( attr, format, doc, length, pos, curpar );
-		    (void)eatSpace( doc, length, pos );
-		    emptyTag = TRUE;
-		} else {
-		    custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag, this );
-#endif
-		}
 
-#ifndef QT_NO_TEXTCUSTOMITEM
 		if ( !nstyle && !custom ) // we have no clue what this tag could be, ignore it
-#else
-		if( !nstyle ) // we have no clue what this tag could be, ignore it
-#endif
 		    continue;
 
-#ifndef QT_NO_TEXTCUSTOMITEM
 		if ( custom ) {
 		    int index = curpar->length() - 1;
 		    if ( index < 0 )
@@ -1814,17 +1830,16 @@ void QTextDocument::setRichTextInternal( const QString &text )
  		    }
 		    registerCustomItem( custom, curpar );
 		    hasNewPar = FALSE;
-		} else
-#endif
-		  if ( !emptyTag ) {
-		    // ignore whitespace for inline elements if there was already one
-		    if ( nstyle->whiteSpaceMode() == QStyleSheetItem::WhiteSpaceNormal
+		} else if ( !emptyTag ) {
+		    /* ignore whitespace for inline elements if there
+		       was already one*/
+		    if ( !preserveWhitespace && nstyle->whiteSpaceMode() == QStyleSheetItem::WhiteSpaceNormal
 			 && ( space || nstyle->displayMode() != QStyleSheetItem::DisplayInline ) )
 			eatSpace( doc, length, pos );
 
-		    // if we do nesting, push curtag on the stack,
-		    // otherwise reinint curag.
- 		    if ( nstyle != curtag.style || nstyle->selfNesting() ) {
+		    /* if we do nesting, push curtag on the stack,
+		       otherwise reinint curag. */
+ 		    if ( curtag.style->name() != tagname || nstyle->selfNesting() ) {
 			tags.push( curtag );
 		    } else {
 			if ( !tags.isEmpty() )
@@ -1833,14 +1848,16 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			    curtag = initag;
 		    }
 
-		    const QStyleSheetItem* ostyle = curtag.style;
-
 		    curtag.name = tagname;
 		    curtag.style = nstyle;
 		    curtag.name = tagname;
 		    curtag.style = nstyle;
 		    if ( nstyle->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal )
 			curtag.wsm = nstyle->whiteSpaceMode();
+		
+		    if ( preserveWhitespace && curtag.wsm == QStyleSheetItem::WhiteSpaceNormal && curtag.name != "qt" )
+			curtag.wsm = (QStyleSheetItem::WhiteSpaceMode) QStyleSheetItem_WhiteSpaceNoCompression;
+		
 		    curtag.liststyle = chooseListStyle( nstyle, attr, curtag.liststyle );
 		    curtag.format = curtag.format.makeTextFormat( nstyle, attr );
 		    if ( nstyle->isAnchor() ) {
@@ -1854,50 +1871,56 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    if ( nstyle->alignment() != QStyleSheetItem::Undefined )
 			curtag.alignment = nstyle->alignment();
 
-		    if ( ostyle->displayMode() == QStyleSheetItem::DisplayListItem &&
-			 curpar->length() <= 1
-			 && nstyle->displayMode() == QStyleSheetItem::DisplayBlock  ) {
-			// do not do anything, we reuse the paragraph we have
-		    } else if ( nstyle->displayMode() != QStyleSheetItem::DisplayInline && nstyle->displayMode() != QStyleSheetItem::DisplayNone ) {
+		    if ( nstyle->displayMode() != QStyleSheetItem::DisplayInline && nstyle->displayMode() != QStyleSheetItem::DisplayNone ) {
 			NEWPAR;
-		    }
+			
+			if ( attr.contains( "align" ) ) {
+			    QString align = attr["align"];
+			    if ( align == "center" )
+				curtag.alignment = Qt::AlignCenter;
+			    else if ( align == "right" )
+				curtag.alignment = Qt::AlignRight;
+			    else if ( align == "justify" )
+				curtag.alignment = Qt::AlignJustify;
+			}
+			if ( attr.contains( "dir" ) ) {
+			    QString dir = attr["dir"];
+			    if ( dir == "rtl" )
+				curtag.direction = QChar::DirR;
+			    else if ( dir == "ltr" )
+				curtag.direction = QChar::DirL;
+			}
+			if ( nstyle->displayMode() != QStyleSheetItem::DisplayInline ) {
+			    curpar->setAlignment( curtag.alignment );
+			    curpar->setDirection( (QChar::Direction)curtag.direction );
+			}
+			
+			if ( nstyle->displayMode() != QStyleSheetItem::DisplayInline )
+			    curpar->setFormat( &curtag.format );
 
-		    if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
-			curpar->setListStyle( curtag.liststyle );
-			if ( attr.find( "value" ) != attr.end() )
-			    curpar->setListValue( (*attr.find( "value" )).toInt() );
-		    }
-
-		    if ( nstyle->displayMode() != QStyleSheetItem::DisplayInline )
-			curpar->setFormat( &curtag.format );
-
-		    if ( attr.contains( "align" ) &&
-			 ( curtag.name == "p" ||
-			   curtag.name == "div" ||
-			   curtag.name == "li" ||
-			   curtag.name[ 0 ] == 'h' ) ) {
-			QString align = attr["align"];
-			if ( align == "center" )
-			    curtag.alignment = Qt::AlignCenter;
-			else if ( align == "right" )
-			    curtag.alignment = Qt::AlignRight;
-			else if ( align == "justify" )
-			    curtag.alignment = Qt::AlignJustify;
-		    }
-		    if ( attr.contains( "dir" ) &&
-			 ( curtag.name == "p" ||
-			   curtag.name == "div" ||
-			   curtag.name == "li" ||
-			   curtag.name[ 0 ] == 'h' ) ) {
-			QString dir = attr["dir"];
-			if ( dir == "rtl" )
-			    curtag.direction = QChar::DirR;
-			else if ( dir == "ltr" )
-			    curtag.direction = QChar::DirL;
-		    }
-		    if ( nstyle->displayMode() != QStyleSheetItem::DisplayInline ) {
-			curpar->setAlignment( curtag.alignment );
-			curpar->setDirection( (QChar::Direction)curtag.direction );
+			if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
+			    curpar->setListStyle( curtag.liststyle );
+			    if ( attr.contains( "value " ) )
+				curpar->setListValue( attr["value"].toInt() );
+			}
+			
+			if ( attr.contains( "style" ) ) {
+			    QString a = attr["style"];
+			    bool ok = TRUE;
+			    for ( int s = 0; ok && s < a.contains(';')+1; s++ ) {
+				QString style = a.section( ';', s, s );
+				if ( style.startsWith("margin-top:" ) && style.endsWith("px") )
+				    curpar->tm = style.mid(11, style.length() - 13).toInt(&ok);
+				else if ( style.startsWith("margin-bottom:" ) && style.endsWith("px") )
+				    curpar->bm = style.mid(14, style.length() - 16).toInt(&ok);
+				else if ( style.startsWith("margin-left:" ) && style.endsWith("px") )
+				    curpar->rm = style.mid(12, style.length() - 14).toInt(&ok);
+				else if ( style.startsWith("margin-right:" ) && style.endsWith("px") )
+				    curpar->lm = style.mid(13, style.length() - 15).toInt(&ok);
+			    }
+			    if ( !ok ) // be pressmistic
+				curpar->tm = curpar->bm = curpar->rm = curpar->lm = -1;
+			}
 		    }
 		}
 	    } else {
@@ -1908,14 +1931,10 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		if ( !sheet_->item( tagname ) ) // ignore unknown tags
 		    continue;
 
-
 		// we close a block item. Since the text may continue, we need to have a new paragraph
-		bool needNewPar = curtag.style->displayMode() == QStyleSheetItem::DisplayBlock;
+		bool needNewPar = curtag.style->displayMode() == QStyleSheetItem::DisplayBlock
+				 || curtag.style->displayMode() == QStyleSheetItem::DisplayListItem;
 
-		if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
- 		    needNewPar = TRUE;
-		    hasNewPar = FALSE; // we want empty paragraphs in this case
-		}
 
 		// html slopiness: handle unbalanched tag closing
 		while ( curtag.name != tagname ) {
@@ -1936,11 +1955,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    curtag = initag;
 
  		if ( needNewPar ) {
-		    if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
-			tags.push( curtag );
-			curtag.name = "p";
-			curtag.style = sheet_->item( curtag.name ); // a list item continues, use p for that
-		    }
+		    if ( preserveEmptyParagraphs && tagname == "p" ) // really preserve them
+			hasNewPar = FALSE;
 		    NEWPAR;
 		}
 	    }
@@ -1950,13 +1966,17 @@ void QTextDocument::setRichTextInternal( const QString &text )
 	    QChar c;
 	    while ( pos < length && !hasPrefix(doc, length, pos, QChar('<') ) ){
 		QStyleSheetItem::WhiteSpaceMode wsm = curtag.wsm;
-		if ( s.length() > 4096 )
+		if ( wsm == QStyleSheetItem::WhiteSpaceNormal && s.length() > 4096 )
 		    wsm =  (QStyleSheetItem::WhiteSpaceMode)QStyleSheetItem_WhiteSpaceNormalWithNewlines;
 
 		c = parseChar( doc, length, pos, wsm );
 
-		if ( c == '\n' ) // happens only in whitespacepre-mode or with WhiteSpaceNormalWithNewlines.
- 		    break;  // we want a new line in this case
+		if ( c == '\n' ) {
+		    if ( wsm == QStyleSheetItem_WhiteSpaceNoCompression )
+			continue;
+		    else  // happens only in whitespacepre-mode or with WhiteSpaceNormalWithNewlines.
+			break;  // we want a new line in this case
+		}
 
 		bool c_isSpace = c.isSpace() && c.unicode() != 0x00a0U &&
 		   curtag.wsm != QStyleSheetItem_WhiteSpaceNoCompression;
@@ -1987,7 +2007,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    anchorName = QString::null;
 		}
 	    }
-	    if ( c == '\n' ) { // happens in WhiteSpacePre mode
+	    if (  curtag.wsm == QStyleSheetItem::WhiteSpacePre && c == '\n' ) {
 		hasNewPar = FALSE;
 		tags.push( curtag );
 		NEWPAR;
@@ -2056,94 +2076,156 @@ QString QTextDocument::plainText( QTextParag *p ) const
     }
 }
 
-static QString align_to_string( const QString &tag, int a )
+static QString align_to_string( int a )
 {
-    if ( tag == "p" || tag == "li" || ( tag[0] == 'h' && tag[1].isDigit() ) ) {
-	if ( a & Qt::AlignRight )
-	    return " align=\"right\"";
-	if ( a & Qt::AlignCenter )
-	    return " align=\"center\"";
-	if ( a & Qt::AlignJustify )
-	    return " align=\"justify\"";
-    }
-    return "";
+    if ( a & Qt::AlignRight )
+	return " align=right";
+    if ( a & Qt::AlignHCenter )
+	return " align=center";
+    if ( a & Qt::AlignJustify )
+	return " align=justify";
+    return QString::null;
 }
 
-static QString direction_to_string( const QString &tag, int d )
+static QString direction_to_string( int d )
 {
-    if ( d != QChar::DirON &&
-	 ( tag == "p" || tag == "div" || tag == "li" || ( tag[0] == 'h' && tag[1].isDigit() ) ) )
-	return ( d == QChar::DirL? " dir=\"ltr\"" : " dir=\"rtl\"" );
-    return "";
+    if ( d != QChar::DirON )
+	return ( d == QChar::DirL? " dir=ltr" : " dir=rtl" );
+    return QString::null;
+}
+
+static QString list_value_to_string( int v )
+{
+    if ( v != -1 )
+	return " listvalue=" + QString::number( v ) + "";
+    return QString::null;
+}
+
+static QString list_style_to_string( int v )
+{
+    switch( v ) {
+    case QStyleSheetItem::ListDecimal: return "1";
+    case QStyleSheetItem::ListLowerAlpha: return "a";
+    case QStyleSheetItem::ListUpperAlpha: return "A";
+    case QStyleSheetItem::ListDisc: return "disc";
+    case QStyleSheetItem::ListSquare: return "square";
+    case QStyleSheetItem::ListCircle: return "circle";
+    default:
+	return QString::null;
+    }
+}
+
+static inline bool list_is_ordered( int v ) {
+    return v == QStyleSheetItem::ListDecimal ||
+	   v == QStyleSheetItem::ListLowerAlpha ||
+	   v == QStyleSheetItem::ListUpperAlpha;
+}
+
+static inline bool margin_compare( const QStyleSheetItem* style, const QStyleSheetItem* list, int listFactor,
+				   const QStyleSheetItem::Margin m, const  int i ) {
+    int sm = style->margin(m);
+    int lm = list ? list->margin( m )*listFactor : 0;
+    return i != ((sm<0)?0:sm) + ((lm<0)?0:lm);
+}
+
+/* ### This function should go away. The engine should handle margins
+  smarter, so we know at this point in time whether a margin is
+  calculate or set by the user
+ */
+static QString margin_to_string( QStyleSheetItem* style, QStyleSheetItem* list, QTextParag* p,
+				 int pastListDepth, int listDepth, int futureListDepth )
+{
+    if ( !style )
+	return QString::null;
+    QString s;
+    if ( margin_compare(style, list, listDepth, QStyleSheetItem::MarginLeft, p->leftMargin() ) )
+	s += QString(!!s?";":"") + "margin-left:" + QString::number( p->leftMargin() ) + "px";
+    if ( margin_compare(style, list, listDepth, QStyleSheetItem::MarginRight, p->rightMargin() ) )
+	s += QString(!!s?";":"") + "margin-right:" + QString::number( p->rightMargin() ) + "px";
+    if ( margin_compare(style, (listDepth==1&&listDepth>pastListDepth)?list:0, 1, QStyleSheetItem::MarginTop, p->topMargin() ) )
+	s += QString(!!s?";":"") + "margin-top:" + QString::number( p->topMargin() ) + "px";
+    if ( margin_compare(style, (listDepth==1&&listDepth>futureListDepth)?list:0, 1, QStyleSheetItem::MarginBottom, p->bottomMargin() ) )
+	s += QString(!!s?";":"") + "margin-bottom:" + QString::number( p->bottomMargin() ) + "px";
+    if ( !!s )
+	return " style=" + s + "";
+    return QString::null;
 }
 
 QString QTextDocument::richText( QTextParag *p ) const
 {
-    QString s,n;
-    if ( !p ) {
-	p = fParag;
-	QPtrVector<QStyleSheetItem> lastItems, items;
-	while ( p ) {
-	    items = p->styleSheetItems();
-	    if ( items.size() ) {
-		QStyleSheetItem *item = items[ items.size() - 1 ];
-		items.resize( items.size() - 1 );
-		if ( items.size() > lastItems.size() ) {
-		    for ( int i = lastItems.size(); i < (int)items.size(); ++i ) {
-			n = items[i]->name();
-			if ( n.isEmpty() || n == "li" )
-			    continue;
-			s += "<" + n + align_to_string( n, p->alignment() ) + ">";
-		    }
-		} else {
-		    QString end;
-		    for ( int i = items.size(); i < (int)lastItems.size(); ++i ) {
-			n = lastItems[i]->name();
-			if ( n.isEmpty() || n == "li" || n == "br" )
-			    continue;
-			end.prepend( "</" + lastItems[ i ]->name() + ">" );
-		    }
-		    s += end;
-		}
-		lastItems = items;
-		n = item->name();
-		if ( n == "li" && p->listValue() != -1 ) {
-		    s += "<li value=\"" + QString::number( p->listValue() ) + "\">";
-		} else {
-		    QString ps = p->richText();
-		    if ( ps.isEmpty() )
-			s += "<br>"; // empty paragraph
-		    else if ( !n.isEmpty() ) {
-			s += "<" + n + align_to_string( n, p->alignment() )
-			     + direction_to_string( n, p->direction() )  + ">" + ps;
-			if ( n != "li" && n != "br")
-			    s += "</" + n + ">";
-		    } else
-			s += ps;
-		}
-	    } else {
-		QString end;
-		for ( int i = 0; i < (int)lastItems.size(); ++i ) {
-		    QString n = lastItems[i]->name();
-		    if ( n.isEmpty() || n == "li" || n == "br" )
-			continue;
-		    end.prepend( "</" + n + ">" );
-		}
-		s += end;
-		QString ps = p->richText();
-		if ( ps.isEmpty() )
-		    s += "<br>"; // empty paragraph
-		else
-		    s += "<p" + align_to_string( "p", p->alignment() ) + direction_to_string( "p", p->direction() )
-			 + ">" + ps + "</p>";
-		lastItems = items;
-	    }
-	    if ( ( p = p->next() ) )
-		  s += '\n';
-	}
-    } else {
-	s = p->richText();
+    if ( p )
+	return p->richText();
+    QString s = par ? "" : "<html><head><meta name=qtextedit content=3.0.5></head><body>\n";
+    p = fParag;
+
+    QStyleSheetItem* item_p = styleSheet()->item("p");
+    QStyleSheetItem* item_ul = styleSheet()->item("ul");
+    QStyleSheetItem* item_li = styleSheet()->item("li");
+    if ( !item_p || !item_ul || !item_li ) {
+	qWarning( "QTextEdit: cannot export HTML due to insufficient stylesheet (lack of p, ul or li)" );
+	return QString::null;
     }
+    int pastListDepth = 0;
+    int listDepth = 0;
+    int futureListDepth = 0;
+    QMemArray<int> listStyles(10);
+
+    while ( p ) {
+	listDepth = p->listDepth();
+	if ( listDepth > pastListDepth ) {
+	    listStyles.resize( QMAX( (int)listStyles.size(), listDepth+1 ) );
+	    QString list_type;
+	    listStyles[listDepth] = p->listStyle();
+	    if ( item_ul->listStyle() != p->listStyle() )
+		list_type = " type=\"" + list_style_to_string( p->listStyle() ) + "\"";
+	    for ( int i = pastListDepth; i < listDepth; i++ ) {
+		s += list_is_ordered( p->listStyle() ) ? "<ol" : "<ul" ;
+		s += list_type + ">";
+	    }
+	} else {
+	    for ( int i = listDepth; i < pastListDepth; i++ )
+		s += list_is_ordered( listStyles[i] ) ? "</ol>" : "</ul>";
+	}
+	QString ps = p->richText();
+	
+	
+	  // for the bottom margin we need to know whether we are at the end of a list
+	futureListDepth = 0;
+	if ( listDepth > 0 && p->next() )
+	    futureListDepth = p->next()->listDepth();
+	
+	if ( p->style() && p->style()->displayMode() == QStyleSheetItem::DisplayListItem ) {//## this should be the question: listitem or not
+	    // list item
+	    s += "<li";
+	    if ( p->listStyle() != listStyles[listDepth] )
+		s += " type=\"" + list_style_to_string( p->listStyle() ) + "\"";
+	    s +=align_to_string( p->alignment() );
+	    s += margin_to_string( item_li, item_ul, p, pastListDepth, listDepth, futureListDepth );
+	    s +=  list_value_to_string( p->listValue() );
+	    s += direction_to_string( p->direction() );
+	    s +=">";
+	    s += ps;
+	    s += "\n";
+	} else {
+	    // normal paragraph item
+	    s += "<p";
+	    s += align_to_string( p->alignment() );
+	    s +=margin_to_string( item_p, item_ul, p, pastListDepth, listDepth, futureListDepth  );
+	    s +=direction_to_string( p->direction() );
+	    s += ">";
+	    s += ps;
+	    s += "</p>\n";
+	}
+	pastListDepth = listDepth;
+	p = p->next();
+    }
+    while ( listDepth > 0 ) {
+	s += list_is_ordered( listStyles[listDepth] ) ? "</ol>" : "</ul>";
+	listDepth--;
+    }
+	
+    if ( !par )
+	s += "</body></html>\n";
 
     return s;
 }
@@ -2827,6 +2909,8 @@ bool QTextDocument::find( const QString &expr, bool cs, bool wo, bool forward,
 void QTextDocument::setTextFormat( Qt::TextFormat f )
 {
     txtFormat = f;
+
+    //###
     if ( txtFormat == Qt::RichText && fParag && fParag == lParag && fParag->length() <= 1 ) {
 	QPtrVector<QStyleSheetItem> v = fParag->styleSheetItems();
 	v.resize( v.size() + 1 );
@@ -3142,6 +3226,9 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
     return lastFormatted;
 }
 
+/*
+  #### this function only sets the default font size in the format collection
+ */
 void QTextDocument::setDefaultFont( const QFont &f )
 {
     int s = f.pointSize();
@@ -3627,18 +3714,12 @@ void QTextDocument::setStyleSheet( QStyleSheet *s )
     if ( !s )
 	return;
     sheet_ = s;
-    fCollection->setStyleSheet( s );
-    updateStyles();
 }
 
-void QTextDocument::updateStyles()
-{
-    invalidate();
-    if ( par )
-	underlLinks = par->underlLinks;
-    fCollection->updateStyles();
+void QTextDocument::setUnderlineLinks( bool b ) {
+    underlLinks = b;
     for ( QTextDocument *d = childList.first(); d; d = childList.next() )
-	d->updateStyles();
+	d->setUnderlineLinks( b );
 }
 
 void QTextDocument::updateFontSizes( int base, bool usePixels )
@@ -3646,7 +3727,17 @@ void QTextDocument::updateFontSizes( int base, bool usePixels )
     for ( QTextDocument *d = childList.first(); d; d = childList.next() )
 	d->updateFontSizes( base, usePixels );
     invalidate();
-    fCollection->updateFontSizes( base, usePixels );
+    fCollection->updateFontSizes( styleSheet(), base, usePixels );
+
+
+    // invalidate custom items
+    QTextParag *p = fParag;
+    while ( p ) {
+	for ( int i = 0; i < p->length() - 1; ++i )
+	    if ( p->at( i )->isCustom() )
+		p->at( i )->customItem()->invalidate();
+	p = p->next();
+    }
 }
 
 void QTextDocument::updateFontAttributes( const QFont &f, const QFont &old )
@@ -3808,12 +3899,8 @@ QTextStringChar *QTextStringChar::clone() const
 
 QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool updateIds )
     : invalid( 0 ), p( pr ), n( nx ), docOrPseudo( d ),  align( 0 ),mSelections( 0 ),
-      mStyleSheetItemsVec( 0 ),
-#ifndef QT_NO_TEXTCUSTOMITEM
-      mFloatingItems( 0 ),
-#endif
-      listS( QStyleSheetItem::ListDisc ),
-      numSubParag( -1 ), tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), flm( -1 ),
+      mStyleSheetItemsVec( 0 ), mFloatingItems( 0 ), listS( QStyleSheetItem::ListDisc ),
+      tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), flm( -1 ),
       tArray(0), tabStopWidth(0), eData( 0 )
 {
     listS = QStyleSheetItem::ListDisc;
@@ -3821,7 +3908,6 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
 	docOrPseudo = new QTextParagPseudoDocument;
     bgcol = 0;
     breakable = TRUE;
-    isBr = FALSE;
     movedDown = FALSE;
     mightHaveCustomItems = FALSE;
     visible = TRUE;
@@ -3834,9 +3920,6 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
 	tabStopWidth = defFormat->width( 'x' ) * 8;
 	pseudoDocument()->commandHistory = new QTextCommandHistory( 100 );
     }
-#if defined(PARSER_DEBUG)
-    qDebug( debug_indent + "new QTextParag" );
-#endif
     fullWidth = TRUE;
 
     if ( p )
@@ -3862,8 +3945,7 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
 	QTextParag *s = n;
 	while ( s ) {
 	    s->id = s->p->id + 1;
-	    s->numSubParag = -1;
-	    s->lm = s->rm = s->tm = s->bm = -1, s->flm = -1;
+	    s->invalidateStyleCache();
 	    s = s->n;
 	}
     }
@@ -3925,14 +4007,30 @@ void QTextParag::invalidate( int chr )
 	invalid = chr;
     else
 	invalid = QMIN( invalid, chr );
-#ifndef QT_NO_TEXTCUSTOMITEM
     if ( mFloatingItems ) {
 	for ( QTextCustomItem *i = mFloatingItems->first(); i; i = mFloatingItems->next() )
 	    i->ypos = -1;
     }
-#endif
-    lm = rm = bm = tm = flm = -1;
+    invalidateStyleCache();
 }
+
+void QTextParag::invalidateStyleCache()
+{
+    if ( tm < 0 )
+	tm = -1;
+    if ( bm < 0 )
+	bm = -1;
+    if ( lm < 0 )
+	lm = -1;
+    if ( rm < 0 )
+	rm = -1;
+    if ( flm < 0 )
+	flm = -1;
+
+    if ( list_val < 0 )
+	list_val = -1;
+}
+
 
 void QTextParag::insert( int index, const QString &s )
 {
@@ -4754,7 +4852,23 @@ void QTextParag::drawLabel( QPainter* p, int x, int y, int w, int h, int base, c
     case QStyleSheetItem::ListLowerAlpha:
     case QStyleSheetItem::ListUpperAlpha:
 	{
-	    int n = numberOfSubParagraph();
+	    if ( list_val == -1 ) { // uninitialised list value, calcluate the right one
+		int depth = listDepth();
+		list_val--;
+		// ### evil, square and expensive. This needs to be done when formatting, not when painting
+		QTextParag* s = prev();
+		int depth_s;
+		while ( s && (depth_s = s->listDepth()) >= depth ) {
+		    if ( depth_s == depth &&
+			 s->style() && s->style()->displayMode() == QStyleSheetItem::DisplayListItem )
+			list_val--;
+		    s = s->prev();
+		}
+	    }
+
+	    int n = list_val;
+	    if ( n < -1 )
+		n = -n - 1;
 	    QString l;
 	    switch ( s ) {
 	    case QStyleSheetItem::ListLowerAlpha:
@@ -4806,61 +4920,86 @@ void QTextParag::setStyleSheetItems( const QPtrVector<QStyleSheetItem> &vec )
 {
     styleSheetItemsVec() = vec;
     invalidate( 0 );
-    lm = rm = tm = bm = flm = -1;
-    numSubParag = -1;
+    if ( list_val < 0 )
+	list_val = -1;
 }
 
-void QTextParag::setList( bool b, int listStyle )
+void QTextParag::setList( bool b, QStyleSheetItem::ListStyle listStyle )
 {
     if ( !hasdoc )
 	return;
 
     if ( !style() ) {
-	styleSheetItemsVec().resize( 2 );
-	mStyleSheetItemsVec->insert( 0, document()->styleSheet()->item( "html" ) );
-	mStyleSheetItemsVec->insert( 1, document()->styleSheet()->item( "p" ) );
+	// some safety correction, code below assumes that there is a
+	// style
+	styleSheetItemsVec().resize( 1 );
+	mStyleSheetItemsVec->insert( 0, document()->styleSheet()->item( "p" ) );
+    }
+
+    int numLists = 0;
+    int lastList =-1;
+    int lastLi = -1;
+    int i;
+    for ( i = 0; i < (int)mStyleSheetItemsVec->size(); ++i ) {
+	QStyleSheetItem *item = (*mStyleSheetItemsVec)[ i ];
+	if ( item->name() == "ol" || item->name() == "ul" ) {
+	    lastList  = i;
+	    numLists++;
+	} else if ( item->name() == "li" )
+	    lastLi = i;
     }
 
     if ( b ) {
-	if ( style()->displayMode() != QStyleSheetItem::DisplayListItem || this->listStyle() != listStyle ) {
-	    styleSheetItemsVec().remove( styleSheetItemsVec().size() - 1 );
-	    QStyleSheetItem *item = (*mStyleSheetItemsVec)[ mStyleSheetItemsVec->size() - 1 ];
-	    if ( item )
-		mStyleSheetItemsVec->remove( mStyleSheetItemsVec->size() - 1 );
-	    mStyleSheetItemsVec->insert( mStyleSheetItemsVec->size() - 1,
-				       listStyle == QStyleSheetItem::ListDisc || listStyle == QStyleSheetItem::ListCircle
-				       || listStyle == QStyleSheetItem::ListSquare ?
-				       document()->styleSheet()->item( "ul" ) : document()->styleSheet()->item( "ol" ) );
-	    mStyleSheetItemsVec->insert( mStyleSheetItemsVec->size() - 1, document()->styleSheet()->item( "li" ) );
-	    setListStyle( (QStyleSheetItem::ListStyle)listStyle );
+	if ( lastList < 0 ) {
+	    // We are not in a list, so put us into one
+	    int l = mStyleSheetItemsVec->size();
+	    if ( mStyleSheetItemsVec->at( l-1 )->name() != "p" )
+		l++; // p we replace, others we keep
+	    mStyleSheetItemsVec->resize( l+1 );
+	    mStyleSheetItemsVec->insert( l - 1 , document()->styleSheet()->item("ul") );
+	    mStyleSheetItemsVec->insert( l , document()->styleSheet()->item("li") );
+	    setListStyle( listStyle );
 	} else {
-	    return;
+	    /* we are already in a list, ajust the style of the entire
+	    list, not just the one paragraph
+	    */
+	    setListStyle( listStyle );
+	
+#if 0
+	    /* unfortunatly we cannot do that without adjust the
+               undo/redo behaviour of QTextEdit */
+	    QTextParag* s = prev();
+	    while ( s && s->listDepth() >= numLists ) {
+		if ( s->listDepth() == numLists )
+		    s->setListStyle( listStyle );
+		s = s->prev();
+	    }
+	    s = next();
+	    while ( s && s->listDepth() >= numLists ) {
+		if ( s->listDepth() == numLists )
+		    s->setListStyle( listStyle );
+		s = s->next();
+	    }
+#endif	
 	}
     } else {
-	if ( style()->displayMode() != QStyleSheetItem::DisplayBlock ) {
-	    styleSheetItemsVec().remove( styleSheetItemsVec().size() - 1 );
-	    if ( mStyleSheetItemsVec->size() >= 2 ) {
-		mStyleSheetItemsVec->remove( mStyleSheetItemsVec->size() - 2 );
-		mStyleSheetItemsVec->resize( mStyleSheetItemsVec->size() - 2 );
-	    } else {
-		mStyleSheetItemsVec->resize( mStyleSheetItemsVec->size() - 1 );
-	    }
-	} else {
+	if ( lastList < 0 ) {
+	    // there is no spoon
 	    return;
+	} else {
+	    if ( numLists == 1 )
+		mStyleSheetItemsVec->insert( lastList, document()->styleSheet()->item("p") );
+	    // take the paragraph out of the list
+	    for ( int i = lastList; i < (int)mStyleSheetItemsVec->size()-2; ++i )
+		mStyleSheetItemsVec->insert( i, mStyleSheetItemsVec->at( i+1 ) );
+	    mStyleSheetItemsVec->resize( mStyleSheetItemsVec->size() - 1 );
 	}
     }
-    invalidate( 0 );
-    lm = rm = tm = bm = flm = -1;
-    numSubParag = -1;
-    if ( next() ) {
-	QTextParag *s = next();
-	while ( s ) {
-	    s->numSubParag = -1;
-	    s->lm = s->rm = s->tm = s->bm = flm = -1;
-	    s->numSubParag = -1;
-	    s->invalidate( 0 );
-	    s = s->next();
-	}
+
+    QTextParag* s = prev() ? prev() : this;
+    while ( s ) {
+	s->invalidate( 0 );
+	s = s->next();
     }
 }
 
@@ -4872,13 +5011,13 @@ void QTextParag::incDepth()
 	return;
     styleSheetItemsVec().resize( styleSheetItemsVec().size() + 1 );
     mStyleSheetItemsVec->insert( mStyleSheetItemsVec->size() - 1, (*mStyleSheetItemsVec)[ mStyleSheetItemsVec->size() - 2 ] );
-    mStyleSheetItemsVec->insert( mStyleSheetItemsVec->size() - 2,
-			       listStyle() == QStyleSheetItem::ListDisc || listStyle() == QStyleSheetItem::ListCircle ||
-			       listStyle() == QStyleSheetItem::ListSquare ?
-			       document()->styleSheet()->item( "ul" ) : document()->styleSheet()->item( "ol" ) );
-    invalidate( 0 );
-    lm = -1;
-    flm = -1;
+    mStyleSheetItemsVec->insert( mStyleSheetItemsVec->size() - 2, document()->styleSheet()->item( "ul" ) );
+
+    QTextParag* s = prev() ? prev() : this;
+    while ( s ) {
+	s->invalidate( 0 );
+	s = s->next();
+    }
 }
 
 void QTextParag::decDepth()
@@ -4888,45 +5027,47 @@ void QTextParag::decDepth()
     if ( style()->displayMode() != QStyleSheetItem::DisplayListItem )
 	return;
     int numLists = 0;
-    QStyleSheetItem *lastList = 0;
-    int lastIndex = 0;
+    int lastList =-1;
     int i;
     if ( mStyleSheetItemsVec ) {
 	for ( i = 0; i < (int)mStyleSheetItemsVec->size(); ++i ) {
 	    QStyleSheetItem *item = (*mStyleSheetItemsVec)[ i ];
 	    if ( item->name() == "ol" || item->name() == "ul" ) {
-		lastList = item;
-		lastIndex = i;
+		lastList  = i;
 		numLists++;
 	    }
 	}
     }
 
-    if ( !lastList )
+    if ( !numLists )
 	return;
-    styleSheetItemsVec().remove( lastIndex );
-    for ( i = lastIndex; i < (int)mStyleSheetItemsVec->size() - 1; ++i )
+    if ( numLists == 1 )
+	return setList( FALSE);
+
+    styleSheetItemsVec().remove( lastList );
+    for ( i = lastList; i < (int)mStyleSheetItemsVec->size() - 1; ++i )
 	mStyleSheetItemsVec->insert( i, (*mStyleSheetItemsVec)[ i + 1 ] );
     mStyleSheetItemsVec->resize( mStyleSheetItemsVec->size() - 1 );
-    if ( numLists == 1 )
-	setList( FALSE, -1 );
-    invalidate( 0 );
-    lm = -1;
-    flm = -1;
+
+    QTextParag* s = prev() ? prev() : this;
+    while ( s ) {
+	s->invalidate( 0 );
+	s = s->next();
+    }
 }
 
 int QTextParag::listDepth() const
 {
+    //### this functions needs caching, called indirectly in format and paint
+    if ( !mStyleSheetItemsVec )
+	return 0;
     int numLists = 0;
-    int i;
-    if ( mStyleSheetItemsVec ) {
-	for ( i = 0; i < (int)mStyleSheetItemsVec->size(); ++i ) {
-	    QStyleSheetItem *item = (*mStyleSheetItemsVec)[ i ];
-	    if ( item->name() == "ol" || item->name() == "ul" )
-		numLists++;
-	}
+    for ( int i = 0; i < (int)mStyleSheetItemsVec->size(); ++i ) {
+	QStyleSheetItem *item = (*mStyleSheetItemsVec)[ i ];
+	if ( item->name() == "ol" || item->name() == "ul" )
+	    numLists++;
     }
-    return numLists - 1;
+    return numLists;
 }
 
 int *QTextParag::tabArray() const
@@ -4994,7 +5135,6 @@ QString QTextParag::richText() const
     QString s;
     QTextStringChar *formatChar = 0;
     QString spaces;
-    bool lastCharWasSpace = FALSE;
     int firstcol = 0;
     for ( int i = 0; i < length()-1; ++i ) {
 	QTextStringChar *c = &str->at( i );
@@ -5012,58 +5152,22 @@ QString QTextParag::richText() const
 	    formatChar = c;
 	} else if ( ( formatChar->format()->key() != c->format()->key() ) ||
 		  (c->anchorHref() != formatChar->anchorHref() ) )  {
-
-	    if ( !spaces.isEmpty() ) {
-		if (  spaces[0] == '\t' || lastCharWasSpace  )
-		    s += "<wsp>" + spaces + "</wsp>";
-		else if ( spaces.length() > 1 )
-		    s += "<wsp>" + spaces.mid(1) + "</wsp> ";
-		else
-		    s += spaces;
-		lastCharWasSpace = TRUE;
-		spaces = QString::null;
-	    }
 	    s += c->format()->makeFormatChangeTags( formatChar->format() , formatChar->anchorHref(), c->anchorHref() );
 	    formatChar = c;
 	}
-
-	if ( c->c == ' ' || c->c == '\t' ) {
-	    spaces += c->c;
-	    continue;
-	} else if ( !spaces.isEmpty() ) {
-	    if (  spaces[0] == '\t' || lastCharWasSpace  )
-		s += "<wsp>" + spaces + "</wsp>";
-	    else if ( spaces.length() > 1 )
-		s += "<wsp>" + spaces.mid(1) + "</wsp> ";
-	    else
-		s += spaces;
-	    spaces = QString::null;
-	    if ( s.length() - firstcol > 60 ) {
-		s += '\n';
-		firstcol = s.length();
-	    }
-	}
-
-	lastCharWasSpace = FALSE;
 	if ( c->c == '<' ) {
 	    s += "&lt;";
 	} else if ( c->c == '>' ) {
 	    s += "&gt;";
-#ifndef QT_NO_TEXTCUSTOMITEM
 	} else if ( c->isCustom() ) {
 	    s += c->customItem()->richText();
-#endif
-	} else {
+	} else if ( c->c == ' ' && s.length() - firstcol > 60 && i < length() - 5 ) {
+	    s += '\n';
 	    s += c->c;
-	}
+	    firstcol = s.length();
+	} else
+	    s += c->c;
     }
-    if ( !spaces.isEmpty() ) {
-	if ( spaces.length() > 1 || spaces[0] == '\t' || lastCharWasSpace )
-		s += "<wsp>" + spaces + "</wsp>";
-	else
-	    s += spaces;
-    }
-
     if ( formatChar )
 	s += formatChar->format()->makeFormatEndTags( formatChar->anchorHref() );
     return s;
@@ -5093,13 +5197,13 @@ QTextCursor *QTextParag::redo( QTextCursor *c )
 
 int QTextParag::topMargin() const
 {
-    if ( !p && ( !hasdoc || !document()->addMargins() ) )
-	return 0;
-    if ( tm != -1 )
+    if ( tm >= 0 )
 	return tm;
+    if ( tm < -1 )
+	return scale( -tm-2, QTextFormat::painter() );
     QStyleSheetItem *item = style();
     if ( !item ) {
-	( (QTextParag*)this )->tm = 0;
+	( (QTextParag*)this )->tm = -2;
 	return 0;
     }
 
@@ -5108,30 +5212,31 @@ int QTextParag::topMargin() const
 	m = item->margin( QStyleSheetItem::MarginTop );
     if ( mStyleSheetItemsVec ) {
 	QStyleSheetItem *it = 0;
-	QStyleSheetItem *p = prev() ? prev()->style() : 0;
+	QPtrVector<QStyleSheetItem> * p = prev() ? prev()->mStyleSheetItemsVec : 0;
 	for ( int i = (int)mStyleSheetItemsVec->size() - 2 ; i >= 0; --i ) {
 	    it = (*mStyleSheetItemsVec)[ i ];
-	    if ( it != p )
+   	    if ( p && i < (int) p->size() &&
+		 ( (*p)[ i ] == it || (*p)[ i ]->displayMode() == QStyleSheetItem::DisplayListItem ) )
 		break;
 	    int mar = it->margin( QStyleSheetItem::MarginTop );
-	    m += (mar != QStyleSheetItem::Undefined) ? mar : 0;
-	    if ( it->displayMode() != QStyleSheetItem::DisplayInline )
-		break;
+	    mar = QMAX( mar, 0 );
+	    m = QMAX( m, mar );
 	}
     }
-    m = scale( m, QTextFormat::painter() );
 
-    ( (QTextParag*)this )->tm = m;
-    return tm;
+    ( (QTextParag*)this )->tm = -m-2;
+    return m;
 }
 
 int QTextParag::bottomMargin() const
 {
-    if ( bm != -1 )
+    if (bm >= 0 )
 	return bm;
+    if ( bm < -1 )
+	return scale( -bm-2, QTextFormat::painter() );
     QStyleSheetItem *item = style();
-    if ( !item || !next() ) {
-	( (QTextParag*)this )->bm = 0;
+    if ( !item ) {
+	( (QTextParag*)this )->bm = -2;
 	return 0;
     }
 
@@ -5140,30 +5245,31 @@ int QTextParag::bottomMargin() const
 	m = item->margin( QStyleSheetItem::MarginBottom );
     if ( mStyleSheetItemsVec ) {
 	QStyleSheetItem *it = 0;
-	QStyleSheetItem *n = next() ? next()->style() : 0;
-	for ( int i =(int)mStyleSheetItemsVec->size() - 2 ; i >= 0; --i ) {
+	QPtrVector<QStyleSheetItem> * n = next() ? next()->mStyleSheetItemsVec : 0;
+	for ( int i = (int)mStyleSheetItemsVec->size() - 2 ; i >= 0; --i ) {
 	    it = (*mStyleSheetItemsVec)[ i ];
-	    if ( it != n )
-		break;
+   	    if ( n && i < (int) n->size() &&
+		 ( (*n)[ i ] == it || (*n)[ i ]->displayMode() == QStyleSheetItem::DisplayListItem ) )
+ 		break;
 	    int mar = it->margin( QStyleSheetItem::MarginBottom );
-	    m += mar != QStyleSheetItem::Undefined ? mar : 0;
-	    if ( it->displayMode() != QStyleSheetItem::DisplayInline )
-		break;
+	    mar = QMAX( mar, 0 );
+	    m = QMAX( m, mar );
 	}
     }
-    m = scale ( m, QTextFormat::painter() );
 
-    ( (QTextParag*)this )->bm = m;
-    return bm;
+    ( (QTextParag*)this )->bm = -m-2;
+    return m;
 }
 
 int QTextParag::leftMargin() const
 {
-    if ( lm != -1 )
+    if (lm >= 0 )
 	return lm;
+    if ( lm < -1 )
+	return scale( -lm-2, QTextFormat::painter() );
     QStyleSheetItem *item = style();
     if ( !item ) {
-	( (QTextParag*)this )->lm = 0;
+	( (QTextParag*)this )->lm = -2;
 	return 0;
     }
     int m = 0;
@@ -5172,31 +5278,29 @@ int QTextParag::leftMargin() const
 	    item = (*mStyleSheetItemsVec)[ i ];
 	    int mar = item->margin( QStyleSheetItem::MarginLeft );
 	    m += mar != QStyleSheetItem::Undefined ? mar : 0;
-	    if ( item->name() == "ol" || item->name() == "ul" ) {
-		QPainter* oldPainter = QTextFormat::painter();
-		QTextFormat::setPainter( 0 );
-		m += defFormat->width( '1' ) +
-		     defFormat->width( '2' ) +
-		     defFormat->width( '3' ) +
-		     defFormat->width( '.' );
-		QTextFormat::setPainter( oldPainter );
-	    }
 	}
     }
 
-    m = scale ( m, QTextFormat::painter() );
+    ( (QTextParag*)this )->lm = -m-2;
+    return m;
+}
 
-    ( (QTextParag*)this )->lm = m;
-    return lm;
+int QTextParag::leftMarginExtra() const
+{
+    if ( int depth = listDepth() )
+	return depth * defFormat->width( '2' ) * 4;
+    return 0;	
 }
 
 int QTextParag::firstLineMargin() const
 {
-    if ( flm != -1 )
-	return lm;
+    if (flm >= 0 )
+	return flm;
+    if ( flm < -1 )
+	return scale( -flm-2, QTextFormat::painter() );
     QStyleSheetItem *item = style();
     if ( !item ) {
-	( (QTextParag*)this )->flm = 0;
+	( (QTextParag*)this )->flm = -2;
 	return 0;
     }
     int m = 0;
@@ -5208,19 +5312,19 @@ int QTextParag::firstLineMargin() const
 	}
     }
 
-    m = scale( m, QTextFormat::painter() );
-
-    ( (QTextParag*)this )->flm = m;
-    return flm;
+    ( (QTextParag*)this )->flm = -m-2;
+    return m;
 }
 
 int QTextParag::rightMargin() const
 {
-    if ( rm != -1 )
+    if ( rm >= 0 )
 	return rm;
+    if ( rm < -1 )
+	return scale( -rm-2, QTextFormat::painter() );
     QStyleSheetItem *item = style();
     if ( !item ) {
-	( (QTextParag*)this )->rm = 0;
+	( (QTextParag*)this )->rm = -2;
 	return 0;
     }
     int m = 0;
@@ -5231,10 +5335,8 @@ int QTextParag::rightMargin() const
 	    m += mar != QStyleSheetItem::Undefined ? mar : 0;
 	}
     }
-    m = scale( m, QTextFormat::painter() );
-
-    ( (QTextParag*)this )->rm = m;
-    return rm;
+    ( (QTextParag*)this )->rm = -m-2;
+    return m;
 }
 
 int QTextParag::lineSpacing() const
@@ -5368,7 +5470,6 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag * /*parag*/, QT
 {
     int start = (startChar - &text->at(0));
     int last = (lastChar - &text->at(0) );
-    //qDebug("doing BiDi reordering from %d to %d!", start, last);
 
     QBidiControl *control = new QBidiControl( line->context(), line->status );
     QString str;
@@ -5464,7 +5565,6 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag * /*parag*/, QT
 		} else {
 		    ww = c->format()->width( ' ' );
 		}
-		//qDebug("setting char %d at pos %d", pos, x);
 		if ( xmax < x + toAdd + ww ) xmax = x + toAdd + ww;
 		x += ww;
 		pos++;
@@ -5558,7 +5658,7 @@ int QTextFormatter::formatVertically( QTextDocument* doc, QTextParag* parag )
     int oldHeight = parag->rect().height();
     QMap<int, QTextParagLineStart*>& lineStarts = parag->lineStartList();
     QMap<int, QTextParagLineStart*>::Iterator it = lineStarts.begin();
-    int h = doc->addMargins() ? parag->topMargin() : 0;
+    int h = parag->prev() ? parag->topMargin() : 0;
     for ( ; it != lineStarts.end() ; ++it  ) {
 	QTextParagLineStart * ls = it.data();
 	ls->y = h;
@@ -5583,9 +5683,7 @@ int QTextFormatter::formatVertically( QTextDocument* doc, QTextParag* parag )
 	h = ls->y + ls->h;
     }
     int m = parag->bottomMargin();
-    if ( parag->next() && doc && !doc->addMargins() )
-	m = QMAX( m, parag->next()->topMargin() );
-    if ( parag->next() && parag->next()->isLineBreak() )
+    if ( !parag->next() )
 	m = 0;
     h += m;
     parag->setHeight( h );
@@ -5603,10 +5701,10 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 {
     QTextStringChar *c = 0;
     QTextStringChar *firstChar = 0;
-    int left = doc ? parag->leftMargin() + doc->leftMargin() : 4;
+    int left = doc ? parag->leftMargin() + parag->leftMarginExtra() + doc->leftMargin() : 0;
     int x = left + ( doc ? parag->firstLineMargin() : 0 );
     int dw = parag->documentVisibleWidth() - ( doc ? doc->rightMargin() : 0 );
-    int y = doc && doc->addMargins() ? parag->topMargin() : 0;
+    int y = parag->prev() ? parag->topMargin() : 0;
     int h = y;
     int len = parag->length();
     if ( doc )
@@ -5704,12 +5802,12 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
     }
 
     int m = parag->bottomMargin();
-    if ( parag->next() && doc && !doc->addMargins() )
-	m = QMAX( m, parag->next()->topMargin() );
-    parag->setFullWidth( fullWidth );
-    if ( parag->next() && parag->next()->isLineBreak() )
+    if ( !parag->next() )
 	m = 0;
+    parag->setFullWidth( fullWidth );
     y += h + m;
+    if ( doc )
+	minw += doc->rightMargin();
     if ( !wrapEnabled )
 	minw = QMAX(minw, wused);
 
@@ -5737,9 +5835,9 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     QTextStringChar *c = 0;
     QTextStringChar *firstChar = 0;
     QTextString *string = parag->string();
-    int left = doc ? parag->leftMargin() + doc->leftMargin() : 0;
+    int left = doc ? parag->leftMargin() + + parag->leftMarginExtra() +doc->leftMargin() : 0;
     int x = left + ( doc ? parag->firstLineMargin() : 0 );
-    int y = doc && doc->addMargins() ? parag->topMargin() : 0;
+    int y = parag->prev() ? parag->topMargin() : 0;
     int h = y;
     int len = parag->length();
     if ( doc )
@@ -5850,7 +5948,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    x = 0xffffff;
 	    minw = QMAX( minw, tminw );
 
-	    int tw = ci->minimumWidth();
+	    int tw = ci->minimumWidth() + ( doc ? doc->leftMargin() : 0 );
 	    if ( tw < QWIDGETSIZE_MAX )
 		tminw = tw;
 	    else
@@ -5976,13 +6074,16 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     }
 
     minw = QMAX( minw, tminw );
+    if ( doc )
+	minw += doc->rightMargin();
 
     int m = parag->bottomMargin();
-    if ( parag->next() && doc && !doc->addMargins() )
-	m = QMAX( m, parag->next()->topMargin() );
-    parag->setFullWidth( fullWidth );
-    if ( parag->next() && parag->next()->isLineBreak() )
+    if ( !parag->next() )
 	m = 0;
+    else
+	m = QMAX( m, parag->next()->topMargin() );
+	
+    parag->setFullWidth( fullWidth );
     y += h + m;
 
     wused += rm;
@@ -6194,18 +6295,7 @@ void QTextFormatCollection::debug()
 #endif
 }
 
-void QTextFormatCollection::updateStyles()
-{
-    QDictIterator<QTextFormat> it( cKey );
-    QTextFormat *f;
-    while ( ( f = it.current() ) ) {
-	++it;
-	f->updateStyle();
-    }
-    updateKeys();
-}
-
-void QTextFormatCollection::updateFontSizes( int base, bool usePixels )
+void QTextFormatCollection::updateFontSizes( QStyleSheet* sheet, int base, bool usePixels )
 {
     QDictIterator<QTextFormat> it( cKey );
     QTextFormat *f;
@@ -6217,7 +6307,7 @@ void QTextFormatCollection::updateFontSizes( int base, bool usePixels )
 	    f->fn.setPixelSize( f->stdSize );
 	else
 	    f->fn.setPointSize( f->stdSize );
-	styleSheet()->scaleFont( f->fn, f->logicalFontSize );
+	sheet->scaleFont( f->fn, f->logicalFontSize );
 	f->update();
     }
     f = defFormat;
@@ -6227,7 +6317,7 @@ void QTextFormatCollection::updateFontSizes( int base, bool usePixels )
 	f->fn.setPixelSize( f->stdSize );
     else
 	f->fn.setPointSize( f->stdSize );
-    styleSheet()->scaleFont( f->fn, f->logicalFontSize );
+    sheet->scaleFont( f->fn, f->logicalFontSize );
     f->update();
     updateKeys();
 }
@@ -6421,11 +6511,11 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat *f, const QString& oldAnc
 	if ( font().family() != defaultFormat->font().family() )
 	    f +=" face=\"" + fn.family() + "\"";
 	if ( font().pointSize() != defaultFormat->font().pointSize() ) {
-	    f +=" size=\"" + QString::number( makeLogicFontSize( fn.pointSize() ) ) + "\"";
-	    f +=" style=\"font-size:" + QString::number( fn.pointSize() ) + "pt\"";
+	    f +=" size=" + QString::number( makeLogicFontSize( fn.pointSize() ) );
+	    f +=" style=font-size:" + QString::number( fn.pointSize() ) + "pt";
 	}
 	if ( color().rgb() != defaultFormat->color().rgb() )
-	    f +=" color=\"" + col.name() + "\"";
+	    f +=" color=" + col.name() ;
 	if ( !f.isEmpty() )
 	    tag += "<font" + f + ">";
     }
@@ -6461,7 +6551,6 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 {
     QTextFormat format(*this);
     if ( style ) {
-	format.style = style->name();
 	if ( style->name() == "font") {
 	    if ( attr.contains("color") ) {
 		QString s = attr["color"];
@@ -6484,21 +6573,19 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 	    }
 	    if ( attr.contains("style" ) ) {
 		QString a = attr["style"];
-		if ( a.startsWith( "font-size:" ) ) {
-		    QString s = a.mid( a.find( ':' ) + 1 );
-		    int n = s.left( s.length() - 2 ).toInt();
-		    format.logicalFontSize = 0;
-		    if ( format.usePixelSizes )
-			format.fn.setPixelSize( n );
-		    else
-			format.fn.setPointSize( n );
+		for ( int s = 0; s < a.contains(';')+1; s++ ) {
+		    QString style = a.section( ';', s, s );
+		    if ( style.startsWith("font-size:" ) && style.endsWith("pt") ) {	
+			format.logicalFontSize = 0;
+			format.setPointSize( style.mid( 10, style.length() - 12 ).toInt() );
+		    }
 		}
 	    }
 	    if ( attr.contains("face") ) {
 		QString a = attr["face"];
-		if ( a.contains(',') )
-		    a = a.left( a.find(',') );
-		format.fn.setFamily( a );
+		QString family = a.section( ',', 0, 0 );
+		if ( !!family )
+		    format.fn.setFamily( family );
 	    }
 	} else {
 	    if ( !style->isAnchor() && style->color().isValid() ) {
@@ -6553,7 +6640,6 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
     return format;
 }
 
-#ifndef QT_NO_TEXTCUSTOMITEM
 struct QPixmapInt
 {
     QPixmapInt() : ref( 0 ) {}
@@ -6567,10 +6653,6 @@ QTextImage::QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, co
 			QMimeSourceFactory &factory )
     : QTextCustomItem( p )
 {
-#if defined(PARSER_DEBUG)
-    qDebug( debug_indent + "new QTextImage (pappi: %p)", p );
-#endif
-
     width = height = 0;
     if ( attr.contains("width") )
 	width = attr["width"].toInt();
@@ -6582,10 +6664,6 @@ QTextImage::QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, co
 
     if (!imageName)
 	imageName = attr["source"];
-
-#if defined(PARSER_DEBUG)
-    qDebug( debug_indent + "    .." + imageName );
-#endif
 
     if ( !imageName.isEmpty() ) {
 	imgId = QString( "%1,%2,%3,%4" ).arg( imageName ).arg( width ).arg( height ).arg( (ulong)&factory );
@@ -7558,11 +7636,6 @@ QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
     : QTextCustomItem( p )
 {
     cells.setAutoDelete( FALSE );
-#if defined(PARSER_DEBUG)
-    debug_indent += "\t";
-    qDebug( debug_indent + "new QTextTable (%p)", this );
-    debug_indent += "\t";
-#endif
     cellspacing = 2;
     if ( attr.contains("cellspacing") )
 	cellspacing = attr["cellspacing"].toInt();
@@ -7643,10 +7716,10 @@ QString QTextTable::richText() const
 	    lastRow = cell->row();
 	    needEnd = TRUE;
 	}
-	s += "<td ";
+	s += "<td";
 	it = cell->attributes.begin();
 	for ( ; it != cell->attributes.end(); ++it )
-	    s += it.key() + "=" + *it + " ";
+	    s += " " + it.key() + "=" + *it;
 	s += ">";
 	s += cell->richText()->richText();
 	s += "</td>";
@@ -8046,10 +8119,6 @@ QTextTableCell::QTextTableCell( QTextTable* table,
 				QMimeSourceFactory &factory, QStyleSheet *sheet,
 				const QString& doc)
 {
-#if defined(PARSER_DEBUG)
-    qDebug( debug_indent + "new QTextTableCell1 (pappi: %p)", table );
-    qDebug( debug_indent + doc );
-#endif
     cached_width = -1;
     cached_sizehint = -1;
 
@@ -8124,9 +8193,6 @@ QTextTableCell::QTextTableCell( QTextTable* table,
 
 QTextTableCell::QTextTableCell( QTextTable* table, int row, int column )
 {
-#if defined(PARSER_DEBUG)
-    qDebug( debug_indent + "new QTextTableCell2( pappi: %p", table );
-#endif
     maxw = QWIDGETSIZE_MAX;
     minw = 0;
     cached_width = -1;
@@ -8281,6 +8347,5 @@ void QTextTableCell::draw( QPainter* p, int x, int y, int cx, int cy, int cw, in
 
     p->restore();
 }
-#endif // QT_NO_TEXTCUSTOMITEM
 
 #endif //QT_NO_RICHTEXT
