@@ -14,7 +14,8 @@
 
 #include "qapplication.h"
 #ifndef QT_NO_EFFECTS
-#include "qwidget.h"
+#include "qdesktopwidget.h"
+#include "qevent.h"
 #include "qeffects_p.h"
 #include "qpixmap.h"
 #include "qimage.h"

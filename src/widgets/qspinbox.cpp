@@ -15,6 +15,7 @@
 #include "qspinbox.h"
 #ifndef QT_NO_SPINBOX
 
+#include "qevent.h"
 #include "qcursor.h"
 #include "qpushbutton.h"
 #include "qpainter.h"

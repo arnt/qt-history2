@@ -23,6 +23,7 @@
 #include "qpopupmenu.h"
 #include "qguardedptr.h"
 #include "qapplication.h"
+#include "qdesktopwidget.h"
 #include "qtoolbar.h"
 #include "qstyle.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)

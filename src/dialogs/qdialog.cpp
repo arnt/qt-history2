@@ -16,6 +16,8 @@
 
 #ifndef QT_NO_DIALOG
 
+#include "qevent.h"
+#include "qdesktopwidget.h"
 #include "qpushbutton.h"
 #include "qfocusdata.h"
 #include "qapplication.h"

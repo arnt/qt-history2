@@ -16,6 +16,7 @@
 #ifndef QT_NO_SCROLLBAR
 #include "qpainter.h"
 #include "qbitmap.h"
+#include "qevent.h"
 #include "qapplication.h"
 #include "qtimer.h"
 #include "qstyle.h"

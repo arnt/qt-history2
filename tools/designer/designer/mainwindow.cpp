@@ -71,6 +71,7 @@
 #include <qaccel.h>
 #include <qtooltip.h>
 #include <qassistantclient.h>
+#include <qdesktopwidget.h>
 #include <stdlib.h>
 
 static bool mblockNewForms = FALSE;

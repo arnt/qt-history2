@@ -14,7 +14,8 @@
 
 
 #include "qwidget.h"
-#include "qwidget_p.h"
+#include "qdesktopwidget.h"
+#include "qevent.h"
 #include "qhash.h"
 #include "qptrdict.h"
 #include "qfocusdata.h"
@@ -41,6 +42,16 @@
 #endif
 #include "qfontdata_p.h"
 #include "qpainter.h"
+
+#include "qwidget_p.h"
+
+
+QWidgetPrivate::~QWidgetPrivate()
+{
+    if ( extra )
+	deleteExtra();
+}
+
 
 /*!
     \class QWidget qwidget.h
@@ -733,7 +744,6 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 #ifndef QT_NO_LAYOUT
     lay_out = 0;
 #endif
-    extra = 0;					// no extra widget info
 #ifndef QT_NO_PALETTE
     bg_col = pal.active().background();		// default background color
 #endif
@@ -774,8 +784,8 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 /*! \internal
   ######## remove code duplication
 */
-QWidget::QWidget( QWidgetPrivate *d, QWidget* parent, const char* name, WFlags f)
-    : QObject( d, parent, name ), QPaintDevice( QInternal::Widget )
+QWidget::QWidget( QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags f)
+    : QObject( dd, parent, name ), QPaintDevice( QInternal::Widget )
 {
 #if defined(QT_CHECK_STATE) && !defined(Q_WS_WIN)
     if ( qApp->type() == QApplication::Tty ) {
@@ -801,7 +811,6 @@ QWidget::QWidget( QWidgetPrivate *d, QWidget* parent, const char* name, WFlags f
 #ifndef QT_NO_LAYOUT
     lay_out = 0;
 #endif
-    extra = 0;					// no extra widget info
 #ifndef QT_NO_PALETTE
     bg_col = pal.active().background();		// default background color
 #endif
@@ -887,47 +896,12 @@ QWidget::~QWidget()
     d->children.clear();
 
     QApplication::removePostedEvents( this );
-    if ( extra )
-	deleteExtra();
 
     destroy();					// platform-dependent cleanup
 }
 
 int QWidget::instanceCounter = 0;  // Current number of widget instances
 int QWidget::maxInstances = 0;     // Maximum number of widget instances
-
-/*!
-  \internal
-  Creates the global widget mapper.
-  The widget mapper converts window handles to widget pointers.
-  \sa destroyMapper()
-*/
-
-void QWidget::createMapper()
-{
-    mapper = new QWidgetMapper;
-}
-
-/*!
-  \internal
-  Destroys the global widget mapper.
-  \sa createMapper()
-*/
-
-void QWidget::destroyMapper()
-{
-    if ( !mapper )				// already gone
-	return;
-    QWidgetMapper * myMapper = mapper;
-    mapper = 0;
-    for (QWidgetMapper::Iterator it = myMapper->begin(); it != myMapper->end(); ++it) {
-	register QWidget *w = *it;
-	if ( !w->parentObj )			// widget is a parent
-	    w->destroy( TRUE, TRUE );
-    }
-    delete myMapper;
-}
-
 
 
 void QWidget::setWinId( WId id )		// set widget identifier
@@ -951,7 +925,7 @@ void QWidget::setWinId( WId id )		// set widget identifier
   Returns a pointer to the block of extra widget data.
 */
 
-QWExtra *QWidget::extraData()
+QWExtra *QWidgetPrivate::extraData()
 {
     return extra;
 }
@@ -964,14 +938,14 @@ QWExtra *QWidget::extraData()
   This data is guaranteed to exist for top level widgets.
 */
 
-QTLWExtra *QWidget::topData()
+QTLWExtra *QWidgetPrivate::topData()
 {
     createTLExtra();
     return extra->topextra;
 }
 
 
-void QWidget::createTLExtra()
+void QWidgetPrivate::createTLExtra()
 {
     if ( !extra )
 	createExtra();
@@ -1010,7 +984,7 @@ void QWidget::createTLExtra()
   Creates the widget extra data.
 */
 
-void QWidget::createExtra()
+void QWidgetPrivate::createExtra()
 {
     if ( !extra ) {				// if not exists
 	extra = new QWExtra;
@@ -1023,9 +997,9 @@ void QWidget::createExtra()
 	extra->curs = 0;
 #endif
 	extra->topextra = 0;
-	extra->bg_mode = PaletteBackground;
-	extra->bg_mode_visual = PaletteBackground;
-	extra->bg_origin = WidgetOrigin;
+	extra->bg_mode = Qt::PaletteBackground;
+	extra->bg_mode_visual = Qt::PaletteBackground;
+	extra->bg_origin = QWidget::WidgetOrigin;
 #ifndef QT_NO_STYLE
 	extra->style = 0;
 #endif
@@ -1041,7 +1015,7 @@ void QWidget::createExtra()
   Deletes the widget extra data.
 */
 
-void QWidget::deleteExtra()
+void QWidgetPrivate::deleteExtra()
 {
     if ( extra ) {				// if exists
 	delete extra->bg_pix;
@@ -1166,8 +1140,8 @@ QWidget *QWidget::find( WId id )
 
 QStyle& QWidget::style() const
 {
-    if ( extra && extra->style )
-	return *extra->style;
+    if ( d->extra && d->extra->style )
+	return *d->extra->style;
     QStyle &ret = qApp->style();
     return ret;
 }
@@ -1193,8 +1167,8 @@ QStyle& QWidget::style() const
 void QWidget::setStyle( QStyle *style )
 {
     QStyle& old  = QWidget::style();
-    createExtra();
-    extra->style = style;
+    d->createExtra();
+    d->extra->style = style;
     if ( !testWFlags(WType_Desktop) // (except desktop)
 	 && testWState(WState_Polished)) { // (and have been polished)
 	old.unPolish( this );
@@ -1558,7 +1532,7 @@ QRect QWidget::frameGeometry() const
 	if (fstrut_dirty)
 	    updateFrameStrut();
 	QWidget *that = (QWidget *) this;
-	QTLWExtra *top = that->topData();
+	QTLWExtra *top = that->d->topData();
 	return QRect(crect.x() - top->fleft,
 		     crect.y() - top->ftop,
 		     crect.width() + top->fleft + top->fright,
@@ -1582,7 +1556,7 @@ int QWidget::x() const
 	if (fstrut_dirty)
 	    updateFrameStrut();
 	QWidget *that = (QWidget *) this;
-	return crect.x() - that->topData()->fleft;
+	return crect.x() - that->d->topData()->fleft;
     }
     return crect.x();
 }
@@ -1603,7 +1577,7 @@ int QWidget::y() const
 	if (fstrut_dirty)
 	    updateFrameStrut();
 	QWidget *that = (QWidget *) this;
-	return crect.y() - that->topData()->ftop;
+	return crect.y() - that->d->topData()->ftop;
     }
     return crect.y();
 }
@@ -1637,7 +1611,7 @@ QPoint QWidget::pos() const
 	if (fstrut_dirty)
 	    updateFrameStrut();
 	QWidget *that = (QWidget *) this;
-	QTLWExtra *top = that->topData();
+	QTLWExtra *top = that->d->topData();
 	return QPoint(crect.x() - top->fleft, crect.y() - top->ftop);
     }
     return crect.topLeft();
@@ -1786,7 +1760,7 @@ QRegion QWidget::childrenRegion() const
 
 QSize QWidget::minimumSize() const
 {
-    return extra ? QSize( extra->minw, extra->minh ) : QSize( 0, 0 );
+    return d->extra ? QSize( d->extra->minw, d->extra->minh ) : QSize( 0, 0 );
 }
 
 /*!
@@ -1802,7 +1776,7 @@ QSize QWidget::minimumSize() const
 
 QSize QWidget::maximumSize() const
 {
-    return extra ? QSize( extra->maxw, extra->maxh )
+    return d->extra ? QSize( d->extra->maxw, d->extra->maxh )
 		 : QSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
 }
 
@@ -1867,8 +1841,8 @@ QSize QWidget::maximumSize() const
 */
 QSize QWidget::sizeIncrement() const
 {
-    return ( extra && extra->topextra )
-	? QSize( extra->topextra->incw, extra->topextra->inch )
+    return ( d->extra && d->extra->topextra )
+	? QSize( d->extra->topextra->incw, d->extra->topextra->inch )
 	: QSize( 0, 0 );
 }
 
@@ -1884,8 +1858,8 @@ QSize QWidget::sizeIncrement() const
 
 QSize QWidget::baseSize() const
 {
-    return ( extra != 0 && extra->topextra != 0 )
-	? QSize( extra->topextra->basew, extra->topextra->baseh )
+    return ( d->extra != 0 && d->extra->topextra != 0 )
+	? QSize( d->extra->topextra->basew, d->extra->topextra->baseh )
 	: QSize( 0, 0 );
 }
 
@@ -2081,7 +2055,7 @@ QWidget *QWidget::topLevelWidget() const
 const QColor &QWidget::paletteForegroundColor() const
 {
 #ifndef QT_NO_PALETTE
-    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
+    BackgroundMode mode = d->extra ? (BackgroundMode) d->extra->bg_mode_visual : PaletteBackground;
     return colorGroup().color( QPalette::foregroundRoleFromMode(mode) );
 #else
     return Qt::black;
@@ -2091,7 +2065,7 @@ const QColor &QWidget::paletteForegroundColor() const
 void QWidget::setPaletteForegroundColor( const QColor & color )
 {
 #ifndef QT_NO_PALETTE
-    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
+    BackgroundMode mode = d->extra ? (BackgroundMode) d->extra->bg_mode_visual : PaletteBackground;
     QPalette pal = palette();
     QColorGroup::ColorRole role = QPalette::foregroundRoleFromMode( mode );
     pal.setColor( QPalette::Active, role, color );
@@ -2142,7 +2116,7 @@ void QWidget::setEraseColor( const QColor & color )
 */
 const QPixmap *QWidget::erasePixmap() const
 {
-    return ( extra && extra->bg_pix ) ? extra->bg_pix : 0;
+    return ( d->extra && d->extra->bg_pix ) ? d->extra->bg_pix : 0;
 }
 
 /*!
@@ -2163,8 +2137,8 @@ void QWidget::setBackgroundFromMode()
 {
 #ifndef QT_NO_PALETTE
     QColorGroup::ColorRole r = QColorGroup::Background;
-    if ( extra ) {
-	int i = (BackgroundMode)extra->bg_mode;
+    if ( d->extra ) {
+	int i = (BackgroundMode)d->extra->bg_mode;
 	if ( i == FixedColor || i == FixedPixmap || i == NoBackground ) {
 	    // Mode is for fixed color, not one based on palette,
 	    // so nothing to do.
@@ -2311,7 +2285,7 @@ void QWidget::setBackgroundFromMode()
 */
 Qt::BackgroundMode QWidget::backgroundMode() const
 {
-    return extra ? (BackgroundMode) extra->bg_mode : PaletteBackground;
+    return d->extra ? (BackgroundMode) d->extra->bg_mode : PaletteBackground;
 }
 
 void QWidget::setBackgroundMode( BackgroundMode m )
@@ -2350,10 +2324,10 @@ void QWidget::setBackgroundMode( BackgroundMode m, BackgroundMode visual )
 	return;
     }
     setBackgroundModeDirect(m);
-    if ( m != visual && !extra )
-	createExtra();
-    if ( extra )
-	extra->bg_mode_visual = visual;
+    if ( m != visual && !d->extra )
+	d->createExtra();
+    if ( d->extra )
+	d->extra->bg_mode_visual = visual;
 }
 
 
@@ -2362,13 +2336,13 @@ void QWidget::setBackgroundMode( BackgroundMode m, BackgroundMode visual )
 */
 void QWidget::setBackgroundModeDirect( BackgroundMode m )
 {
-    if ( m == PaletteBackground && !extra )
+    if ( m == PaletteBackground && !d->extra )
 	return;
 
-    createExtra();
-    if ( (BackgroundMode)extra->bg_mode != m ) {
-	extra->bg_mode = m;
-	extra->bg_mode_visual = m;
+    d->createExtra();
+    if ( (BackgroundMode)d->extra->bg_mode != m ) {
+	d->extra->bg_mode = m;
+	d->extra->bg_mode_visual = m;
 	setBackgroundFromMode();
     }
 }
@@ -2395,7 +2369,7 @@ void QWidget::setBackgroundModeDirect( BackgroundMode m )
 const QColor & QWidget::paletteBackgroundColor() const
 {
 #ifndef QT_NO_PALETTE
-    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
+    BackgroundMode mode = d->extra ? (BackgroundMode) d->extra->bg_mode_visual : PaletteBackground;
     switch( mode ) {
     case FixedColor:
     case FixedPixmap :
@@ -2414,7 +2388,7 @@ const QColor & QWidget::paletteBackgroundColor() const
 void QWidget::setPaletteBackgroundColor( const QColor &color )
 {
 #ifndef QT_NO_PALETTE
-    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
+    BackgroundMode mode = d->extra ? (BackgroundMode) d->extra->bg_mode_visual : PaletteBackground;
     switch( mode ) {
     case FixedColor:
     case FixedPixmap :
@@ -2458,7 +2432,7 @@ void QWidget::setPaletteBackgroundColor( const QColor &color )
 const QPixmap *QWidget::paletteBackgroundPixmap() const
 {
 #ifndef QT_NO_PALETTE
-    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
+    BackgroundMode mode = d->extra ? (BackgroundMode) d->extra->bg_mode_visual : PaletteBackground;
     switch( mode ) {
     case FixedColor:
     case FixedPixmap :
@@ -2477,7 +2451,7 @@ const QPixmap *QWidget::paletteBackgroundPixmap() const
 void QWidget::setPaletteBackgroundPixmap( const QPixmap &pixmap )
 {
 #ifndef QT_NO_PALETTE
-    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
+    BackgroundMode mode = d->extra ? (BackgroundMode) d->extra->bg_mode_visual : PaletteBackground;
     switch( mode ) {
     case FixedColor:
     case FixedPixmap :
@@ -2514,7 +2488,7 @@ const QBrush& QWidget::backgroundBrush() const
 {
     static QBrush noBrush;
 #ifndef QT_NO_PALETTE
-    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
+    BackgroundMode mode = d->extra ? (BackgroundMode) d->extra->bg_mode_visual : PaletteBackground;
     switch( mode ) {
     case FixedColor:
     case FixedPixmap :
@@ -2755,8 +2729,8 @@ void QWidget::fontChange( const QFont & )
 const QCursor &QWidget::cursor() const
 {
     if ( testWState(WState_OwnCursor) )
-	return (extra && extra->curs)
-	    ? *extra->curs
+	return (d->extra && d->extra->curs)
+	    ? *d->extra->curs
 	    : arrowCursor;
     else
 	return (isTopLevel() || !parentWidget()) ? arrowCursor : parentWidget()->cursor();
@@ -2774,8 +2748,8 @@ const QCursor &QWidget::cursor() const
 */
 QString QWidget::caption() const
 {
-    return extra && extra->topextra
-	? extra->topextra->caption
+    return d->extra && d->extra->topextra
+	? d->extra->topextra->caption
 	: QString::null;
 }
 
@@ -2791,7 +2765,7 @@ QString QWidget::caption() const
 */
 const QPixmap *QWidget::icon() const
 {
-    return ( extra && extra->topextra ) ? extra->topextra->icon : 0;
+    return ( d->extra && d->extra->topextra ) ? d->extra->topextra->icon : 0;
 }
 
 /*!
@@ -2806,7 +2780,7 @@ const QPixmap *QWidget::icon() const
 
 QString QWidget::iconText() const
 {
-    return ( extra && extra->topextra ) ? extra->topextra->iconText
+    return ( d->extra && d->extra->topextra ) ? d->extra->topextra->iconText
 	: QString::null;
 }
 #endif //QT_NO_WIDGET_TOPEXTRA
@@ -2844,7 +2818,7 @@ QString QWidget::iconText() const
 
 void QWidget::setFocusProxy( QWidget * w )
 {
-    if ( !w && !extra )
+    if ( !w && !d->extra )
 	return;
 
     for ( QWidget* fp  = w; fp; fp = fp->focusProxy() ) {
@@ -2856,12 +2830,12 @@ void QWidget::setFocusProxy( QWidget * w )
 	}
     }
 
-    createExtra();
+    d->createExtra();
 
-    if ( extra->focus_proxy ) {
-	disconnect( extra->focus_proxy, SIGNAL(destroyed()),
+    if ( d->extra->focus_proxy ) {
+	disconnect( d->extra->focus_proxy, SIGNAL(destroyed()),
 		    this, SLOT(focusProxyDestroyed()) );
-	extra->focus_proxy = 0;
+	d->extra->focus_proxy = 0;
     }
 
     if ( w ) {
@@ -2869,7 +2843,7 @@ void QWidget::setFocusProxy( QWidget * w )
 	connect( w, SIGNAL(destroyed()),
 		 this, SLOT(focusProxyDestroyed()) );
     }
-    extra->focus_proxy = w;
+    d->extra->focus_proxy = w;
 }
 
 
@@ -2881,7 +2855,7 @@ void QWidget::setFocusProxy( QWidget * w )
 
 QWidget * QWidget::focusProxy() const
 {
-    return extra ? extra->focus_proxy : 0;
+    return d->extra ? d->extra->focus_proxy : 0;
 }
 
 
@@ -2895,8 +2869,8 @@ QWidget * QWidget::focusProxy() const
 
 void QWidget::focusProxyDestroyed()
 {
-    if ( extra )
-	extra->focus_proxy = 0;
+    if ( d->extra )
+	d->extra->focus_proxy = 0;
     setFocusPolicy( NoFocus );
 }
 
@@ -3144,12 +3118,12 @@ QFocusData * QWidget::focusData()
 QFocusData * QWidget::focusData( bool create )
 {
     QWidget * tlw = topLevelWidget();
-    QWExtra * ed = tlw->extraData();
+    QWExtra * ed = tlw->d->extraData();
     if ( !ed || !ed->topextra ) {
 	if ( !create )
 	    return 0;
-	tlw->createTLExtra();
-	ed = tlw->extraData();
+	tlw->d->createTLExtra();
+	ed = tlw->d->extraData();
     }
     if ( create && !ed->topextra->focusData )
 	ed->topextra->focusData = new QFocusData;
@@ -3338,7 +3312,7 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
     if ( oldtlw == topLevelWidget() )
 	return; // nothing to do
 
-    QFocusData * from = oldtlw ? oldtlw->topData()->focusData : 0;
+    QFocusData * from = oldtlw ? oldtlw->d->topData()->focusData : 0;
     QFocusData * to;
     to = focusData();
 
@@ -3365,11 +3339,11 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
     if ( to->focusWidgets.findRef(this) < 0 )
 	to->focusWidgets.append( this );
 
-    if ( !isTopLevel() && extra && extra->topextra && extra->topextra->focusData ) {
+    if ( !isTopLevel() && d->extra && d->extra->topextra && d->extra->topextra->focusData ) {
 	// this widget is no longer a top-level widget, so get rid
 	// of old focus data
-	delete extra->topextra->focusData;
-	extra->topextra->focusData = 0;
+	delete d->extra->topextra->focusData;
+	d->extra->topextra->focusData = 0;
     }
 }
 
@@ -3392,7 +3366,7 @@ QSize QWidget::frameSize() const
 	if ( fstrut_dirty )
 	    updateFrameStrut();
 	QWidget *that = (QWidget *) this;
-	QTLWExtra *top = that->topData();
+	QTLWExtra *top = that->d->topData();
 	return QSize( crect.width() + top->fleft + top->fright,
 		      crect.height() + top->ftop + top->fbottom );
     }
@@ -4796,10 +4770,10 @@ void QWidget::focusOutEvent( QFocusEvent * )
 */
 QRect QWidget::microFocusHint() const
 {
-    if ( !extra || extra->micro_focus_hint.isEmpty() )
+    if ( !d->extra || d->extra->micro_focus_hint.isEmpty() )
 	return QRect(width()/2, 0, 1, height() );
     else
-	return extra->micro_focus_hint;
+	return d->extra->micro_focus_hint;
 }
 
 /*!
@@ -5271,15 +5245,15 @@ void QWidget::setAutoMask( bool enable )
 */
 QWidget::BackgroundOrigin QWidget::backgroundOrigin() const
 {
-    return extra ? (BackgroundOrigin)extra->bg_origin : WidgetOrigin;
+    return d->extra ? (BackgroundOrigin)d->extra->bg_origin : WidgetOrigin;
 }
 
 void QWidget::setBackgroundOrigin( BackgroundOrigin origin )
 {
     if ( origin == backgroundOrigin() )
 	return;
-    createExtra();
-    extra->bg_origin = origin;
+    d->createExtra();
+    d->extra->bg_origin = origin;
     update();
 }
 
@@ -5397,7 +5371,7 @@ void QWidget::setLayout( QLayout *l )
 */
 QSizePolicy QWidget::sizePolicy() const
 {
-    return extra ? extra->size_policy
+    return d->extra ? d->extra->size_policy
 	: QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
 }
 
@@ -5406,8 +5380,8 @@ void QWidget::setSizePolicy( QSizePolicy policy )
     setWState( WState_OwnSizePolicy );
     if ( policy == sizePolicy() )
 	return;
-    createExtra();
-    extra->size_policy = policy;
+    d->createExtra();
+    d->extra->size_policy = policy;
     updateGeometry();
 }
 
@@ -5613,19 +5587,19 @@ void QWidget::showFullScreen()
 {
     if ( !isTopLevel() )
 	return;
-    if ( topData()->fullscreen ) {
+    if ( d->topData()->fullscreen ) {
 	show();
 	raise();
 	return;
     }
-    if ( topData()->normalGeometry.width() < 0 )
-	topData()->normalGeometry = QRect( pos(), size() );
-    topData()->savedFlags = getWFlags();
+    if ( d->topData()->normalGeometry.width() < 0 )
+	d->topData()->normalGeometry = QRect( pos(), size() );
+    d->topData()->savedFlags = getWFlags();
     reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
 	      // preserve some widget flags
 	      (getWFlags() & 0xffff0000),
 	      mapToGlobal( QPoint( 0, 0) ));
-    topData()->fullscreen = 1;
+    d->topData()->fullscreen = 1;
     const QRect screen = qApp->desktop()->screenGeometry( qApp->desktop()->screenNumber( this ) );
     move( screen.topLeft() );
     resize( screen.size() );
@@ -5650,7 +5624,7 @@ void QWidget::showFullScreen()
 bool QWidget::isFullScreen() const
 {
     QWidget* that = (QWidget*)this;
-    return isTopLevel() && that->topData()->fullscreen;
+    return isTopLevel() && that->d->topData()->fullscreen;
 }
 
 /*!

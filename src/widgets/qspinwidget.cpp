@@ -20,6 +20,7 @@
 #include "qtimer.h"
 #include "qstyle.h"
 #include "qpainter.h"
+#include "qevent.h"
 
 class QSpinWidgetPrivate
 {

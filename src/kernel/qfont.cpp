@@ -15,6 +15,7 @@
 #define QT_FATAL_ASSERT
 
 #include "qfont.h"
+#include "qpaintdevice.h"
 #include "qfontdatabase.h"
 #include "qfontmetrics.h"
 #include "qfontinfo.h"

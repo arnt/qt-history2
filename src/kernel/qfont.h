@@ -312,6 +312,8 @@ private:
 #endif
 
     QFontPrivate *d;
+    inline QFontPrivate *d_func() { return d; }
+    inline const QFontPrivate *d_func() const { return d; }
 };
 
 

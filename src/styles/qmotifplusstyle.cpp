@@ -16,6 +16,7 @@
 
 #if !defined(QT_NO_STYLE_MOTIFPLUS) || defined(QT_PLUGIN)
 
+#include "qevent.h"
 #include "qmenubar.h"
 #include "qapplication.h"
 #include "qpainter.h"

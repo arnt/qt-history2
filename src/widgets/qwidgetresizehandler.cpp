@@ -17,8 +17,10 @@
 #ifndef QT_NO_RESIZEHANDLER
 #include "qframe.h"
 #include "qapplication.h"
+#include "qdesktopwidget.h"
 #include "qcursor.h"
 #include "qsizegrip.h"
+#include "qevent.h"
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
 #endif

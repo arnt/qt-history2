@@ -16,6 +16,7 @@
 #include <qpainter.h>
 #include <qdragobject.h>
 #include <qvaluelist.h>
+#include <qevent.h>
 
 // The Dragobject Declaration ---------------------------------------
 class ListViewItemDrag : public QStoredDrag
@@ -40,13 +41,13 @@ void ListViewDnd::confirmDrop( QListViewItem * )
 bool ListViewDnd::dropEvent( QDropEvent * event )
 {
     if ( dragInside ) {
-    
+
 	if ( dMode & NullDrop ) { // combined with Move, a NullDrop will delete an item
 	    event->accept();
 	    emit dropped( 0 ); // a NullDrop
 	    return TRUE;
 	}
-	
+
 	QPoint pos = event->pos();
 
 	ListViewItemDrag::DropRelation dr = ListViewItemDrag::Sibling;
@@ -100,11 +101,11 @@ bool ListViewDnd::mouseMoveEvent( QMouseEvent * event )
 		// Did the target accept the drop?
 		if ( dropConfirmed ) {
 		    // Shouldn't autoDelete handle this?
-		    for( list.first(); list.current(); list.next() ) 
+		    for( list.first(); list.current(); list.next() )
 			delete list.current();
 		    dropConfirmed = FALSE;
 		} else {
-		    // Reenable disabled items since 
+		    // Reenable disabled items since
 		    // drag'n'drop was aborted
 		    setVisibleItems( TRUE );
 		}
@@ -162,9 +163,9 @@ int ListViewDnd::buildTreeList( ListViewItemList & list )
 
 void ListViewDnd::setVisibleItems( bool b )
 {
-    if ( disabledItems.isEmpty() ) 
+    if ( disabledItems.isEmpty() )
 	return;
-    
+
     disabledItems.first();
     do {
         disabledItems.current()->setVisible( b );
@@ -176,8 +177,8 @@ void ListViewDnd::updateLine( const QPoint & dragPos )
     QListViewItem * item = itemAt(dragPos);
     QListView * src = (QListView *) this->src;
 
-    int ypos = item ? 
-	( src->itemRect( item ).bottom() - ( line->height() / 2 ) ) : 
+    int ypos = item ?
+	( src->itemRect( item ).bottom() - ( line->height() / 2 ) ) :
 	( src->itemRect( src->firstChild() ).top() );
 
     int xpos = dropDepth( item, dragPos ) * src->treeStepSize();
@@ -305,7 +306,7 @@ QDataStream & operator<< ( QDataStream & stream, const QListViewItem & item )
 {
     int columns = item.listView()->columns();
     stream << columns;
- 
+
     Q_UINT8 b = 0;
 
     int i;
@@ -316,7 +317,7 @@ QDataStream & operator<< ( QDataStream & stream, const QListViewItem & item )
 	    stream << item.text( i );
 	}
     }
-    
+
     for ( i = 0; i < columns; i++ ) {
 	b = (Q_UINT8) ( !!item.pixmap( i ) ); // does column i have a pixmap ?
 	stream << b;
@@ -349,7 +350,7 @@ QDataStream & operator<< ( QDataStream & stream, const QListViewItem & item )
 
     return stream;
 }
-    
+
 QDataStream & operator>> ( QDataStream & stream, QListViewItem & item )
 {
     Q_INT32 columns;

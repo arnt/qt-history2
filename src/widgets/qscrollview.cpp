@@ -16,6 +16,7 @@
 #ifndef QT_NO_SCROLLVIEW
 #include "qscrollbar.h"
 #include "qpainter.h"
+#include "qevent.h"
 #include "qpixmap.h"
 #include "qcursor.h"
 #include "qfocusdata.h"

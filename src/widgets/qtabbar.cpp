@@ -14,6 +14,7 @@
 
 #include "qtabbar.h"
 #ifndef QT_NO_TABBAR
+#include "qevent.h"
 #include "qaccel.h"
 #include "qbitmap.h"
 #include "qtoolbutton.h"

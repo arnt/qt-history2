@@ -24,6 +24,7 @@
 #include <private/qinternal_p.h>
 #include "qmime.h"
 #include "qdragobject.h"
+#include "qevent.h"
 #include "qfile.h"
 
 /*!

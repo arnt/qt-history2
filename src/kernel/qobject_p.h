@@ -33,8 +33,24 @@
 #include "qlist.h"
 #include "qobject.h"
 
+
+#define Q_DECL_PUBLIC( Class ) \
+private: \
+    inline Class##Private* d_func() { return this; } \
+    inline const Class##Private* d_func() const { return this; } \
+    inline Class* q_func() { return static_cast<Class *>(q_ptr); } \
+    inline const Class* q_func() const { return static_cast<const Class *>(q_ptr); } \
+    friend class Class
+
+
 struct QObjectPrivate
 {
+    Q_DECL_PUBLIC( QObject );
+protected:
+    QObject *q_ptr;
+
+public:
+
     QObjectPrivate()
 	:connections(0),
 	 senders(0)
@@ -43,9 +59,7 @@ struct QObjectPrivate
 	    userData.setAutoDelete(true);
 #endif
 	}
-#ifndef QT_NO_USERDATA
-    QList<QObjectUserData *> userData;
-#endif
+    virtual ~QObjectPrivate() {}
 
     // signal connections
     struct Connections {
@@ -61,7 +75,7 @@ struct QObjectPrivate
     };
     Connections *connections;
     void addConnection(int signal, QObject *receiver, int member);
-    Connections::Connection *findConnection(int signal, int &i);
+    Connections::Connection *findConnection(int signal, int &i) const;
     void removeReceiver(QObject *receiver);
 
     // slot connections
@@ -89,6 +103,13 @@ struct QObjectPrivate
 
     QObjectList children;
     QList<QObjectPointer> eventFilters;
+
+#ifndef QT_NO_USERDATA
+    QList<QObjectUserData *> userData;
+#endif
 };
+
+#define d d_func()
+#define q q_func()
 
 #endif

@@ -13,6 +13,8 @@
 #include "qtooltip.h"
 #ifndef QT_NO_TOOLTIP
 #include "qlabel.h"
+#include "qdesktopwidget.h"
+#include "qevent.h"
 #include "qptrdict.h"
 #include "qapplication.h"
 #include "qguardedptr.h"

@@ -37,7 +37,6 @@
 #include "private/qapplication_p.h"
 #include "private/qinternal_p.h"
 #include "private/qinputcontext_p.h"
-#include "private/qwidget_p.h"
 
 #include <windowsx.h>
 #include <limits.h>
@@ -192,6 +191,8 @@ typedef struct tagTRACKMOUSEEVENT {
 #ifndef WM_MOUSELEAVE
 #define WM_MOUSELEAVE                   0x02A3
 #endif
+
+#include "private/qwidget_p.h"
 
 extern void qt_dispatchEnterLeave( QWidget*, QWidget* ); // qapplication.cpp
 static int translateButtonState( int s, int type, int button );

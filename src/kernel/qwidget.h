@@ -18,24 +18,41 @@
 #ifndef QT_H
 #include "qwindowdefs.h"
 #include "qobject.h"
-#include "qevent.h"
 #include "qpaintdevice.h"
 #include "qpalette.h"
 #include "qfont.h"
 #include "qfontmetrics.h"
 #include "qfontinfo.h"
 #include "qsizepolicy.h"
+#include "qregion.h"
 #endif // QT_H
 
 class QLayout;
-struct QWExtra;
-struct QTLWExtra;
 class QFocusData;
 class QCursor;
 class QWSRegionManager;
 class QStyle;
-struct QWidgetPrivate;
 
+class QMouseEvent;
+class QWheelEvent;
+class QKeyEvent;
+class QFocusEvent;
+class QPaintEvent;
+class QMoveEvent;
+class QResizeEvent;
+class QCloseEvent;
+class QContextMenuEvent;
+class QIMEvent;
+class QTabletEvent;
+class QDragEnterEvent;
+class QDragMoveEvent;
+class QDragLeaveEvent;
+class QDropEvent;
+class QShowEvent;
+class QHideEvent;
+
+
+struct QWidgetPrivate;
 
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
 {
@@ -267,7 +284,7 @@ public slots:
     // Keyboard input focus functions
 
     void setFocus();
-    void		clearFocus();
+    void clearFocus();
 
 public:
     enum FocusPolicy {
@@ -522,8 +539,6 @@ protected:
 
     virtual bool focusNextPrevChild( bool next );
 
-    QWExtra	*extraData();
-    QTLWExtra	*topData();
     QFocusData	*focusData();
 
     void setKeyCompression(bool);
@@ -534,6 +549,14 @@ protected:
     bool isClippedRegionDirty();
     virtual void setRegionDirty(bool);
     virtual void macWidgetChangedWindow();
+#endif
+
+#ifndef QT_NO_COMPAT
+public:
+    inline void setFont( const QFont &f, bool ) { setFont( f ); }
+#ifndef QT_NO_PALETTE
+    inline void setPalette( const QPalette &p, bool ) { setPalette( p ); }
+#endif
 #endif
 
 private slots:
@@ -576,13 +599,6 @@ private:
     void	 showChildren( bool spontaneous );
     void	 hideChildren( bool spontaneous );
     void	 reparentSys( QWidget *parent, WFlags, const QPoint &,  bool showIt);
-    void	 createTLExtra();
-    void	 createExtra();
-    void	 deleteExtra();
-    void	 createSysExtra();
-    void	 deleteSysExtra();
-    void	 createTLSysExtra();
-    void	 deleteTLSysExtra();
     void	 deactivateWidgetCleanup();
     void	 internalSetGeometry( int, int, int, int, bool );
     void	 internalShow(bool informParent);
@@ -623,7 +639,6 @@ private:
 #ifndef QT_NO_LAYOUT
     QLayout 	*lay_out;
 #endif
-    QWExtra	*extra;
 #if defined(Q_WS_QWS)
     QRegion	 req_region;			// Requested region
     mutable QRegion	 paintable_region;	// Paintable region
@@ -660,9 +675,8 @@ private:
     static int instanceCounter;  // Current number of widget instances
     static int maxInstances;     // Maximum number of widget instances
 
-    static void	 createMapper();
-    static void	 destroyMapper();
     static QWidgetMapper *mapper;
+
     friend class QApplication;
     friend class QBaseApplication;
     friend class QPainter;
@@ -677,11 +691,7 @@ private:	// Disabled copy constructor and operator=
     QWidget &operator=( const QWidget & );
 #endif
 
-public: // obsolete functions to dissappear or to become inline in 3.0
-#ifndef QT_NO_PALETTE
-    inline void setPalette( const QPalette &p, bool ) { setPalette( p ); }
-#endif
-    inline void setFont( const QFont &f, bool ) { setFont( f ); }
+    Q_DECL_PRIVATE( QWidget );
 };
 
 

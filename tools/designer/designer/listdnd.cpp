@@ -13,6 +13,7 @@
 #include "listdnd.h"
 #include <qwidget.h>
 #include <qpainter.h>
+#include <qevent.h>
 
 ListDnd::ListDnd( QScrollView * eventSource, const char * name )
     : QObject( eventSource, name ),

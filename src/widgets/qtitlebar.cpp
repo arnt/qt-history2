@@ -20,6 +20,7 @@
 
 #include <qcursor.h>
 #include "qapplication.h"
+#include "qevent.h"
 #include "qstyle.h"
 #include "qdatetime.h"
 #include "private/qapplication_p.h"

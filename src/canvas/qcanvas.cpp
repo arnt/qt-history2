@@ -15,6 +15,7 @@
 #include "qcanvas.h"
 #ifndef QT_NO_CANVAS
 #include "qapplication.h"
+#include "qdesktopwidget.h"
 #include "qbitmap.h"
 #include "qimage.h"
 #include "qptrdict.h"

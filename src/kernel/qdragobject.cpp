@@ -22,6 +22,7 @@
 #ifndef QT_NO_MIME
 
 #include "qdragobject.h"
+#include "qevent.h"
 #include "qtextcodec.h"
 #include "qapplication.h"
 #include "qpoint.h"

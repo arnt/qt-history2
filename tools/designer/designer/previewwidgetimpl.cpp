@@ -11,6 +11,7 @@
 ****************************************************************************/
 
 #include "previewwidgetimpl.h"
+#include <qevent.h>
 
 PreviewWidget::PreviewWidget( QWidget *parent, const char *name )
     : PreviewWidgetBase( parent, name )

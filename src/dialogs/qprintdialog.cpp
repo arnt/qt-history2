@@ -17,6 +17,7 @@
 #ifndef QT_NO_PRINTDIALOG
 
 #include "qfiledialog.h"
+#include "qdesktopwidget.h"
 #include "qfile.h"
 #include "qtextstream.h"
 #include "qcombobox.h"

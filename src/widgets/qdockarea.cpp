@@ -16,6 +16,7 @@
 
 #ifndef QT_NO_MAINWINDOW
 #include "qsplitter.h"
+#include "qevent.h"
 #include "qlayout.h"
 #include "qptrvector.h"
 #include "qapplication.h"

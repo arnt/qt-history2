@@ -14,6 +14,14 @@
 
 #include "qlistview.h"
 #ifndef QT_NO_LISTVIEW
+#include "qevent.h"
+#include "qtimer.h"
+#include "qheader.h"
+#include "qpainter.h"
+#include "qcursor.h"
+#include "qptrstack.h"
+#include "qptrlist.h"
+#include "qstrlist.h"
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qcleanuphandler.h"

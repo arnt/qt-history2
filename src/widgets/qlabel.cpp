@@ -15,6 +15,7 @@
 #include "qlabel.h"
 #ifndef QT_NO_LABEL
 #include "qpainter.h"
+#include "qevent.h"
 #include "qdrawutil.h"
 #include "qaccel.h"
 #include "qmovie.h"
@@ -757,7 +758,7 @@ void QLabel::drawContents( QPainter *p )
 	    cg.setColor( QColorGroup::Text, cg.light() );
 	    doc->draw(p, cr.x()+1, cr.y()+yo+1, cr, cg, 0);
 	}
-	
+
 	// QSimpleRichText always draws with QColorGroup::Text as with
 	// background mode PaletteBase. QLabel typically has
 	// background mode PaletteBackground, so we create a temporary

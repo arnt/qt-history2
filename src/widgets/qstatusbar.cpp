@@ -16,6 +16,7 @@
 #ifndef QT_NO_STATUSBAR
 
 #include "qptrlist.h"
+#include "qevent.h"
 #include "qlayout.h"
 #include "qpainter.h"
 #include "qtimer.h"

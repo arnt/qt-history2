@@ -12,9 +12,9 @@
 **
 ****************************************************************************/
 
-#include "qobject_p.h"
 #include "qvariant.h"
 #include "qapplication.h"
+#include "qevent.h"
 #include "qregexp.h"
 #include "qmetaobject.h"
 
@@ -26,6 +26,11 @@
 #include <ctype.h>
 #include <limits.h>
 
+#if defined(QT_DEBUG)
+#include "qwidget.h"
+#endif
+
+#include "qobject_p.h"
 
 #define GUARDED_SIGNAL INT_MIN
 
@@ -245,7 +250,7 @@ QObject::QObject( QObject *parent, const char *name )
     hasPostedEvents( FALSE ),
     objname( name ? qstrdup(name) : 0 ),        // set object name
     parentObj( 0 ),				// no parent yet. It is set by insertChild()
-    d( new QObjectPrivate )
+    d_ptr( new QObjectPrivate )
 {
     if ( parent )				// add object to parent
 	parent->insertChild( this );
@@ -255,7 +260,7 @@ QObject::QObject( QObject *parent, const char *name )
 
 
 
-QObject::QObject(QObjectPrivate *d, QObject *parent, const char *name)
+QObject::QObject(QObjectPrivate *dd, QObject *parent, const char *name)
     :
     isSignal( FALSE ),				// assume not a signal object
     isWidget( FALSE ), 				// assume not a widget object
@@ -265,7 +270,7 @@ QObject::QObject(QObjectPrivate *d, QObject *parent, const char *name)
     hasPostedEvents( FALSE ),
     objname( name ? qstrdup(name) : 0 ),        // set object name
     parentObj( 0 ),				// no parent yet. It is set by insertChild()
-    d(d)
+    d_ptr(dd)
 {
     if ( parent )				// add object to parent
 	parent->insertChild( this );
@@ -1395,7 +1400,7 @@ void QObjectPrivate::addConnection(int signal, QObject *receiver, int member)
     c.member = member;
 }
 
-QObjectPrivate::Connections::Connection *QObjectPrivate::findConnection(int signal, int &i)
+QObjectPrivate::Connections::Connection *QObjectPrivate::findConnection(int signal, int &i) const
 {
     if (connections) {
 	while (i < connections->count) {

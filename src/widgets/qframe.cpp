@@ -19,6 +19,7 @@
 #include "qframe.h"
 #include "qbitmap.h"
 #include "qstyle.h"
+#include "qevent.h"
 
 /*!
     \class QFrame

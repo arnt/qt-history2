@@ -15,6 +15,7 @@
 #include "qeventloop_p.h" // includes qplatformdefs.h
 #include "qeventloop.h"
 #include "qapplication.h"
+#include "qpaintdevice.h"
 #include "qbitarray.h"
 #include "qcolor_p.h"
 #include "qt_x11_p.h"

@@ -17,119 +17,13 @@
 
 #ifndef QT_H
 #include "qwindowdefs.h"
+#include "qobject.h"
 #include "qregion.h"
 #include "qnamespace.h"
 #include "qmime.h"
 #include "qpair.h"
 #include "qstring.h"
 #endif // QT_H
-
-class Q_EXPORT QEvent: public Qt		// event base class
-{
-public:
-    enum Type {
-
-	/*
-	  If you get a strange compiler error on the line with None,
-	  it's probably because you're also including X11 headers,
-	  which #define the symbol None. Put the X11 includes after
-	  the Qt includes to solve this problem.
-	*/
-
-	None = 0,				// invalid event
-
-
-	Timer = 1,				// timer event
-	MouseButtonPress = 2,			// mouse button pressed
-	MouseButtonRelease = 3,			// mouse button released
-	MouseButtonDblClick = 4,		// mouse button double click
-	MouseMove = 5,				// mouse move
-	KeyPress = 6,				// key pressed
-	KeyRelease = 7,				// key released
-	FocusIn = 8,				// keyboard focus received
-	FocusOut = 9,				// keyboard focus lost
-	Enter = 10,				// mouse enters widget
-	Leave = 11,				// mouse leaves widget
-	Paint = 12,				// paint widget
-	Move = 13,				// move widget
-	Resize = 14,				// resize widget
-	Create = 15,				// after object creation
-	Destroy = 16,				// during object destruction
-	Show = 17,				// widget is shown
-	Hide = 18,				// widget is hidden
-	Close = 19,				// request to close widget
-	Quit = 20,				// request to quit application
-	Reparent = 21,				// widget has been reparented
-	ShowMinimized = 22,		       	// widget is shown minimized
-	ShowNormal = 23,	       		// widget is shown normal
-	WindowActivate = 24,	       		// window was activated
-	WindowDeactivate = 25,	       		// window was deactivated
-	ShowToParent = 26,	       		// widget is shown to parent
-	HideToParent = 27,	       		// widget is hidden to parent
-	ShowMaximized = 28,		       	// widget is shown maximized
-	ShowFullScreen = 29,			// widget is shown full-screen
-	Accel = 30,				// accelerator event
-	Wheel = 31,				// wheel event
-	AccelAvailable = 32,			// accelerator available event
-	CaptionChange = 33,			// caption changed
-	IconChange = 34,			// icon changed
-	ParentFontChange = 35,			// parent font changed
-	ApplicationFontChange = 36,		// application font changed
-	ParentPaletteChange = 37,		// parent palette changed
-	ApplicationPaletteChange = 38,		// application palette changed
-	PaletteChange = 39,			// widget palette changed
-	Clipboard = 40,				// internal clipboard event
-	Speech = 42,				// reserved for speech input
-	SockAct = 50,				// socket activation
-	AccelOverride = 51,			// accelerator override event
-	DeferredDelete = 52,			// deferred delete event
-	DragEnter = 60,				// drag moves into widget
-	DragMove = 61,				// drag moves in widget
-	DragLeave = 62,				// drag leaves or is cancelled
-	Drop = 63,				// actual drop
-	DragResponse = 64,			// drag accepted/rejected
-	ChildInserted = 70,			// new child widget
-	ChildRemoved = 71,			// deleted child widget
-	LayoutHint = 72,			// child min/max size changed
-	ShowWindowRequest = 73,			// widget's window should be mapped
-	ActivateControl = 80,			// ActiveX activation
-	DeactivateControl = 81,			// ActiveX deactivation
-	ContextMenu = 82,			// context popup menu
-	IMStart = 83,				// input method composition start
-	IMCompose = 84,				// input method composition
-	IMEnd = 85,				// input method composition end
-	Accessibility = 86,			// accessibility information is requested
-	TabletMove = 87,			// Wacom tablet event
-	LocaleChange = 88,			// the system locale changed
-	LanguageChange = 89,			// the application language changed
-	LayoutDirectionChange = 90,		// the layout direction changed
-	Style = 91,				// internal style event
-	TabletPress = 92,			// tablet press
-	TabletRelease = 93,			// tablet release
-	OkRequest = 94,				// CE (Ok) button pressed
-	HelpRequest = 95,			// CE (?)  button pressed
-	User = 1000,				// first user event id
-	MaxUser = 65535				// last user event id
-    };
-
-
-    QEvent( Type type ) : t(type), posted(FALSE), spont(FALSE) {}
-    virtual ~QEvent();
-    Type  type() const	{ return t; }
-    bool spontaneous() const 	{ return spont; }
-protected:
-    Type  t;
-private:
-    uint posted : 1;
-    uint spont : 1;
-
-
-    friend class QApplication;
-    friend class QAccelManager;
-    friend class QBaseApplication;
-    friend class QETWidget;
-};
-
 
 class Q_EXPORT QTimerEvent : public QEvent
 {

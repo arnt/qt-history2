@@ -14,6 +14,7 @@
 
 #include "qtabwidget.h"
 #ifndef QT_NO_TABWIDGET
+#include "qevent.h"
 #include "qtabbar.h"
 #include "qapplication.h"
 #include "qwidgetstack.h"

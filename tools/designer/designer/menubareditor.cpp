@@ -18,6 +18,8 @@
 #include <qmainwindow.h>
 #include <qpainter.h>
 #include <qstyle.h>
+#include <qevent.h>
+
 #include "command.h"
 #include "formwindow.h"
 #include "menubareditor.h"

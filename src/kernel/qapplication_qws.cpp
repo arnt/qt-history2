@@ -22,7 +22,6 @@
 #include "qapplication.h"
 #include "private/qapplication_p.h"
 #include "qwidget.h"
-#include "private/qwidget_p.h"
 #include "qwidgetlist.h"
 #include "qbitarray.h"
 #include "qpainter.h"
@@ -92,6 +91,8 @@
 #if defined(Q_OS_QNX)
 #include <sys/select.h>
 #endif
+
+#include "private/qwidget_p.h"
 
 const int qwsSharedRamSize = 100 * 1024;
                           //Small amount to fit on small devices.

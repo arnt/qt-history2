@@ -16,6 +16,7 @@
 #ifndef QT_NO_STYLE
 #include "qapplication.h"
 #include "qpainter.h"
+#include "qwidget.h"
 #include "qbitmap.h"
 #include "qpixmapcache.h"
 

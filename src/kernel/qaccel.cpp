@@ -19,6 +19,7 @@
 #include "qsignal.h"
 #include "qapplication.h"
 #include "qwidget.h"
+#include "qevent.h"
 #include "qlist.h"
 #include "qwhatsthis.h"
 #include "qstatusbar.h"

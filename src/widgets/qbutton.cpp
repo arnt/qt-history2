@@ -26,6 +26,7 @@
 #include "qradiobutton.h"
 #include "qguardedptr.h"
 #include "../kernel/qinternal_p.h"
+#include "qevent.h"
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"

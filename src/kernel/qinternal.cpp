@@ -17,6 +17,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 #include "qcleanuphandler.h"
+#include "qevent.h"
 
 static QPixmap* qdb_shared_pixmap = 0;
 static QPixmap *qdb_force_pixmap = 0;

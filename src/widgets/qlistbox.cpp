@@ -20,6 +20,7 @@
 
 #include "qlistbox.h"
 #ifndef QT_NO_LISTBOX
+#include "qevent.h"
 #include "qmemarray.h"
 #include "qfontmetrics.h"
 #include "qpainter.h"

@@ -22,6 +22,7 @@
 #include "qfocusdata.h"
 #include "qdrawutil.h"
 #include "qapplication.h"
+#include "qevent.h"
 #include "qstyle.h"
 #include "qcheckbox.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)

@@ -13,11 +13,11 @@
 ****************************************************************************/
 
 #include "qapplication.h"
-#include "qobject_p.h"
+#include "qdesktopwidget.h"
 #include "qeventloop.h"
 #include "qeventloop_p.h"
 #include "qwidget.h"
-#include "qobject_p.h"
+#include "qevent.h"
 #include "qptrdict.h"
 #include "qcleanuphandler.h"
 
@@ -44,6 +44,8 @@
 #endif // QT_THREAD_SUPPORT
 
 #include <stdlib.h>
+
+#include "qobject_p.h"
 
 /*!
   \class QApplication qapplication.h
@@ -563,7 +565,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	} else if ( qstrcmp(arg, "-reverse") == 0 ) {
 	    setReverseLayout( TRUE );
 	} else if ( qstrcmp(arg, "-widgetcount") == 0 ) {
-	    widgetCount = TRUE;;
+	    widgetCount = TRUE;
 	} else {
 	    argv[j++] = argv[i];
 	}
@@ -875,7 +877,7 @@ void QApplication::initialize( int argc, char **argv )
     app_argv = argv;
     quit_now = FALSE;
     quit_code = 0;
-    QWidget::createMapper(); // create widget mapper
+    QWidget::mapper = new QWidgetMapper;
 #ifndef QT_NO_PALETTE
     (void) palette();  // trigger creation of application palette
 #endif
@@ -975,7 +977,19 @@ QApplication::~QApplication()
     delete qt_clipboard;
     qt_clipboard = 0;
 #endif
-    QWidget::destroyMapper();
+
+    // delete widget mapper
+    if ( !QWidget::mapper )				// already gone
+	return;
+    QWidgetMapper * myMapper = QWidget::mapper;
+    QWidget::mapper = 0;
+    for (QWidgetMapper::Iterator it = myMapper->begin(); it != myMapper->end(); ++it) {
+	register QWidget *w = *it;
+	if ( !w->parentObj )			// widget is a parent
+	    w->destroy( TRUE, TRUE );
+    }
+    delete myMapper;
+
 #ifndef QT_NO_PALETTE
     delete qt_std_pal;
     qt_std_pal = 0;
@@ -4256,7 +4270,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
 #ifndef QT_NO_SESSIONMANAGER
 #if defined( QT_NO_SM_SUPPORT ) || defined( Q_WS_WIN ) || defined( Q_WS_MAC ) || defined( Q_WS_QWS )
 
-class QSessionManagerData
+class QSessionManagerPrivate : public QObjectPrivate
 {
 public:
     QStringList restartCommand;
@@ -4268,10 +4282,9 @@ public:
 
 QSessionManager* qt_session_manager_self = 0;
 QSessionManager::QSessionManager( QApplication * app, QString &id, QString &key )
-    : QObject( app, "qt_sessionmanager" )
+    : QObject( new QSessionManagerPrivate, app, "qt_sessionmanager" )
 {
     qt_session_manager_self = this;
-    d = new QSessionManagerData;
 #if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
     wchar_t guidstr[40];
     GUID guid;
@@ -4289,7 +4302,6 @@ QSessionManager::QSessionManager( QApplication * app, QString &id, QString &key 
 
 QSessionManager::~QSessionManager()
 {
-    delete d;
     qt_session_manager_self = 0;
 }
 

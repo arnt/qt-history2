@@ -16,6 +16,8 @@
 
 #ifndef QT_NO_MAINWINDOW
 #include "qdockarea.h"
+#include "qevent.h"
+#include "qdesktopwidget.h"
 #include "qwidgetresizehandler_p.h"
 #include "qtitlebar_p.h"
 #include "qpainter.h"

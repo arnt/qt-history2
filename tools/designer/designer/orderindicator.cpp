@@ -18,6 +18,7 @@
 #include <qpainter.h>
 #include <qbitmap.h>
 #include <qapplication.h>
+#include <qevent.h>
 
 OrderIndicator::OrderIndicator( int i, QWidget* w, FormWindow *fw )
     : QWidget( fw, "order_indicator", WMouseNoMask ), formWindow( fw )

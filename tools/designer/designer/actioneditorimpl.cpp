@@ -27,6 +27,7 @@
 #include <qcheckbox.h>
 #include <qpushbutton.h>
 #include <qpopupmenu.h>
+#include <qevent.h>
 
 ActionEditor::ActionEditor( QWidget* parent,  const char* name, WFlags fl )
     : ActionEditorBase( parent, name, fl ), currentAction( 0 ), formWindow( 0 )

@@ -16,6 +16,7 @@
 
 #ifndef QT_NO_SQL_VIEW_WIDGETS
 
+#include "qevent.h"
 #include "qsqldriver.h"
 #include "qsqleditorfactory.h"
 #include "qsqlpropertymap.h"

@@ -16,6 +16,7 @@
 
 #include "qapplication.h"
 #include "qwidget.h"
+#include "qevent.h"
 #include "qinputcontext_p.h"
 
 #include <stdlib.h>

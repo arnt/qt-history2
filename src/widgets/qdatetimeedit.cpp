@@ -18,6 +18,7 @@
 
 #include "../kernel/qinternal_p.h"
 #include "../kernel/qrichtext_p.h"
+#include "qevent.h"
 #include "qrangecontrol.h"
 #include "qapplication.h"
 #include "qpixmap.h"

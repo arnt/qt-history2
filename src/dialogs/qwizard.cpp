@@ -16,6 +16,7 @@
 
 #ifndef QT_NO_WIZARD
 
+#include "qevent.h"
 #include "qlayout.h"
 #include "qpushbutton.h"
 #include "qcursor.h"

@@ -39,6 +39,7 @@
 #ifndef QT_NO_CLIPBOARD
 
 #include "qapplication.h"
+#include "qdesktopwidget.h"
 #include "qeventloop.h"
 #include "qbitmap.h"
 #include "qdatetime.h"
@@ -49,6 +50,7 @@
 #include "qmap.h"
 #include "qt_x11_p.h"
 #include "qapplication_p.h"
+#include "qevent.h"
 
 
 // REVISED: arnt

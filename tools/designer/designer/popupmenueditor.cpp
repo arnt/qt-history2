@@ -20,6 +20,7 @@
 #include <qrect.h>
 #include <qsize.h>
 #include <qstyle.h>
+#include <qevent.h>
 #include "actiondnd.h"
 #include "actioneditorimpl.h"
 #include "command.h"
@@ -797,7 +798,7 @@ void PopupMenuEditor::mouseDoubleClickEvent( QMouseEvent * e )
 	i->setSeparator( TRUE );
 	return;
     }
-    
+
     if ( currentField == 0 ) {
 	choosePixmap();
 	resizeToContents();
@@ -1442,7 +1443,7 @@ void PopupMenuEditor::leaveEditMode( QKeyEvent * e )
  	update();
 	return;
     }
-	
+
     if ( currentIndex >= (int)itemList.count() ) {
 	QAction * a = formWnd->mainWindow()->actioneditor()->newActionEx();
 	i = createItem( a );

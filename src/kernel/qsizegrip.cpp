@@ -18,6 +18,7 @@
 
 #include "qpainter.h"
 #include "qapplication.h"
+#include "qevent.h"
 #include "qstyle.h"
 
 #if defined(Q_WS_X11)
@@ -238,7 +239,7 @@ bool QSizeGrip::eventFilter( QObject *o, QEvent *e )
 	case QEvent::Show:
 	    if(!QApplication::closingDown() && parentWidget() && !qt_sizegrip_workspace(this)) {
 		if(QWidget *w = qt_sizegrip_topLevelWidget(this)) {
-		    if(w->isTopLevel()) 
+		    if(w->isTopLevel())
 			qt_mac_update_sizer(w, e->type() == QEvent::Hide ? -1 : 1);
 		}
 	    }
@@ -246,7 +247,7 @@ bool QSizeGrip::eventFilter( QObject *o, QEvent *e )
 	default:
 	    break;
 	}
- #endif	    
+ #endif
     }
     return FALSE;
 }

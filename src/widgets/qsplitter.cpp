@@ -15,6 +15,7 @@
 #include "qsplitter.h"
 #ifndef QT_NO_SPLITTER
 
+#include "qevent.h"
 #include "qlayout.h"
 #include "../kernel/qlayoutengine_p.h"
 #include "qapplication.h"

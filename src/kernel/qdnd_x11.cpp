@@ -17,15 +17,18 @@
 #ifndef QT_NO_DRAGANDDROP
 
 #include "qwidget.h"
+#include "qdesktopwidget.h"
+#include "qevent.h"
 #include "qintdict.h"
 #include "qdatetime.h"
 #include "qdict.h"
 #include "qguardedptr.h"
 #include "qdragobject.h"
 #include "qcursor.h"
-#include "qwidget_p.h"
 
 #include "qt_x11_p.h"
+
+#include "qwidget_p.h"
 
 // conflict resolution
 
@@ -249,10 +252,12 @@ static QWidget* desktop_proxy = 0;
 class QExtraWidget : public QWidget
 {
 public:
-    QWExtra* extraData() { return QWidget::extraData(); }
-    QTLWExtra* topData() { return QWidget::topData(); }
+    inline QWExtra* extraData();
+    inline QTLWExtra* topData();
 };
 
+inline QWExtra* QExtraWidget::extraData() { return d->extraData(); }
+inline QTLWExtra* QExtraWidget::topData() { return d->topData(); }
 
 static bool qt_xdnd_enable( QWidget* w, bool on )
 {

@@ -15,6 +15,7 @@
 #include <qplatformdefs.h>
 
 #include <qdatetime.h>
+#include <qpaintdevice.h>
 
 #include "qt_x11_p.h"
 

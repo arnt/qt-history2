@@ -16,6 +16,8 @@
 #ifndef QT_NO_WORKSPACE
 #include "qapplication.h"
 #include "../widgets/qtitlebar_p.h"
+#include "qevent.h"
+#include "qdesktopwidget.h"
 #include "qlayout.h"
 #include "qtoolbutton.h"
 #include "qlabel.h"
@@ -539,7 +541,7 @@ void QWorkspace::place( QWidget* w)
 	    while ( it.current () ) {
 		l = it.current();
 		++it;
-		
+
 		if ( d->maxWindow == l )
 		    r2 = d->maxRestore;
 		else
@@ -1035,7 +1037,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 	inCaptionChange = TRUE;
 	if ( o == topLevelWidget() ) {
 	    QWidget *tlw = (QWidget*)o;
-	    if ( !d->maxWindow 
+	    if ( !d->maxWindow
 		|| tlw->caption() != tr("%1 - [%2]").arg(d->topCaption).arg(d->maxWindow->caption()) )
 		d->topCaption = tlw->caption();
 	}

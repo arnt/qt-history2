@@ -14,6 +14,7 @@
 
 #include "qlineedit.h"
 #ifndef QT_NO_LINEEDIT
+#include "qevent.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qfontmetrics.h"

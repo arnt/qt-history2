@@ -16,6 +16,8 @@
 #ifndef QT_NO_TOOLBAR
 
 #include "qapplication.h"
+#include "qdesktopwidget.h"
+#include "qevent.h"
 #include "qmainwindow.h"
 #include "qpushbutton.h"
 #include "qtooltip.h"

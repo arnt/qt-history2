@@ -17,6 +17,7 @@
 #ifndef QT_NO_DIAL
 
 #include "qpainter.h"
+#include "qevent.h"
 #include "qpointarray.h"
 #include "qcolor.h"
 #include "qapplication.h"

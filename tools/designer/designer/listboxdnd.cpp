@@ -16,6 +16,7 @@
 #include <qpainter.h>
 #include <qdragobject.h>
 #include <qvaluelist.h>
+#include <qevent.h>
 
 // The Dragobject Declaration ---------------------------------------
 class ListBoxItemDrag : public QStoredDrag
@@ -40,13 +41,13 @@ void ListBoxDnd::confirmDrop( QListBoxItem * )
 bool ListBoxDnd::dropEvent( QDropEvent * event )
 {
     if ( dragInside ) {
-    
+
 	if ( dMode & NullDrop ) { // combined with Move, a NullDrop will delete an item
 	    event->accept();
 	    emit dropped( 0 ); // a NullDrop
 	    return TRUE;
 	}
-	
+
 	QPoint pos = event->pos();
 	QListBoxItem * after = itemAt( pos );
 
@@ -137,8 +138,8 @@ void ListBoxDnd::updateLine( const QPoint & dragPos )
     QListBox * src = (QListBox *) this->src;
     QListBoxItem *item = itemAt( dragPos );
 
-    int ypos = item ? 
-	( src->itemRect( item ).bottom() - ( line->height() / 2 ) ) : 
+    int ypos = item ?
+	( src->itemRect( item ).bottom() - ( line->height() / 2 ) ) :
 	( src->itemRect( ((QListBox *)src)->firstItem() ).top() );
 
     line->resize( src->viewport()->width(), line->height() );
@@ -183,18 +184,18 @@ ListBoxItemDrag::ListBoxItemDrag( ListBoxItemList & items, bool sendPtr, QListBo
     QListBoxItem * i = items.first();
 
     if ( sendPtr ) {
-	
+
 	while ( i ) {
-	    
+
 	    stream << (unsigned long) i; //###FIX: demands sizeof(ulong) >= sizeof(void*)
 	    i = items.next();
-	    
+
 	}
-	
+
     } else {
-  
+
 	while ( i ) {
-	
+
 	    Q_UINT8 b = 0;
 
 	    b = (Q_UINT8) ( i->text() != QString::null ); // does item have text ?
@@ -202,7 +203,7 @@ ListBoxItemDrag::ListBoxItemDrag( ListBoxItemList & items, bool sendPtr, QListBo
 	    if ( b ) {
 		stream << i->text();
 	    }
-    
+
 	    b = (Q_UINT8) ( !!i->pixmap() ); // does item have a pixmap ?
 	    stream << b;
 	    if ( b ) {
@@ -210,10 +211,10 @@ ListBoxItemDrag::ListBoxItemDrag( ListBoxItemList & items, bool sendPtr, QListBo
 	    }
 
 	    stream << (Q_UINT8) i->isSelectable();
-	    
+
 	    i = items.next();
 	}
-    
+
     }
 
     setEncodedData( data );
@@ -241,18 +242,18 @@ bool ListBoxItemDrag::decode( QDropEvent * event, QListBox * parent, QListBoxIte
 	QListBoxItem * item = 0;
 
 	if ( recievePtr ) {
-	    
+
 	    for( int i = 0; i < count; i++ ) {
 
 		unsigned long p = 0; //###FIX: demands sizeof(ulong) >= sizeof(void*)
 		stream >> p;
 		item = (QListBoxItem *) p;
-		
+
 		parent->insertItem( item, after );
-		
+
 	    }
-	    
-	} else {		
+
+	} else {
 
 	    for ( int i = 0; i < count; i++ ) {
 
@@ -262,14 +263,14 @@ bool ListBoxItemDrag::decode( QDropEvent * event, QListBox * parent, QListBoxIte
 		if ( hasText ) {
 		    stream >> text;
 		}
-	    
+
 		Q_UINT8 hasPixmap = 0;
 		QPixmap pixmap;
 		stream >> hasPixmap;
 		if ( hasPixmap ) {
 		    stream >> pixmap;
 		}
-	    
+
 		Q_UINT8 isSelectable = 0;
 		stream >> isSelectable;
 
@@ -280,11 +281,11 @@ bool ListBoxItemDrag::decode( QDropEvent * event, QListBox * parent, QListBoxIte
 		}
 
 		item->setSelectable( isSelectable );
-	    
+
 	    }
-	
+
 	}
-	
+
 	return TRUE;
     }
     return FALSE;

@@ -16,17 +16,21 @@
 #define QAPPLICATION_H
 
 #ifndef QT_H
-#include "qdesktopwidget.h"
 #include "qasciidict.h"
 #include "qpalette.h"
 #include "qstrlist.h"
 #include "qstringlist.h"
+#include "qobject.h"
+#include "qpoint.h"
+#include "qsize.h"
 #endif // QT_H
 
 class QSessionManager;
+class QDesktopWidget;
 class QStyle;
 class QTranslator;
 class QEventLoop;
+class QTextCodec;
 template <typename T> class QList;
 #if defined(Q_WS_QWS)
 class QWSDecoration;

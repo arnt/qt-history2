@@ -13,6 +13,7 @@
 #include <qheader.h>
 #include <qlineedit.h>
 #include <qtimer.h>
+#include <qevent.h>
 #include "listboxrename.h"
 
 class EditableListBoxItem : public QListBoxItem
@@ -41,11 +42,11 @@ ListBoxRename::ListBoxRename( QListBox * eventSource, const char * name )
 bool ListBoxRename::eventFilter( QObject *, QEvent * event )
 {
     switch ( event->type() ) {
-	
+
     case QEvent::MouseButtonPress:
         {
 	    QPoint pos = ((QMouseEvent *) event)->pos();
-	    
+
 	    if ( clickedItem &&
 		 clickedItem->isSelected() &&
 		 (clickedItem == src->itemAt( pos )) ) {
@@ -58,20 +59,20 @@ bool ListBoxRename::eventFilter( QObject *, QEvent * event )
 	    }
 	}
         break;
-	
+
     case QEvent::MouseMove:
 
 	if ( ((QMouseEvent *) event)->state() & Qt::LeftButton ) {
 	    activity = TRUE;  // drag
 	}
 	break;
-	
+
     case QEvent::KeyPress:
-	
+
 	switch ( ((QKeyEvent *) event)->key() ) {
 
 	case Qt::Key_F2:
-	    
+
 	    activity = FALSE;
 	    clickedItem = src->item( src->currentItem() );
 	    showLineEdit();
@@ -88,7 +89,7 @@ bool ListBoxRename::eventFilter( QObject *, QEvent * event )
 	case Qt::Key_Down:
 	case Qt::Key_PageUp:
 	case Qt::Key_PageDown:
-	    
+
 	    if ( !ed->isHidden() )
 		return TRUE; // Filter out the keystrokes
 	    break;
@@ -108,7 +109,7 @@ bool ListBoxRename::eventFilter( QObject *, QEvent * event )
     default:
 	break;
     }
-    
+
     return FALSE;
 }
 

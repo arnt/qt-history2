@@ -17,6 +17,7 @@
 #ifndef QT_NO_SPLASHSCREEN
 
 #include "qapplication.h"
+#include "qdesktopwidget.h"
 #include "qpainter.h"
 #include "qpixmap.h"
 

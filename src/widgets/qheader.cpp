@@ -12,6 +12,7 @@
 **
 ****************************************************************************/
 
+#include "qevent.h"
 #include "qheader.h"
 #ifndef QT_NO_HEADER
 #include "qapplication.h"

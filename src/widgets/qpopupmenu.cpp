@@ -15,6 +15,8 @@
 #include "qpopupmenu.h"
 #ifndef QT_NO_POPUPMENU
 #include "qmenubar.h"
+#include "qevent.h"
+#include "qdesktopwidget.h"
 #include "qaccel.h"
 #include "qpainter.h"
 #include "qdrawutil.h"

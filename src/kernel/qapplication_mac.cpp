@@ -20,7 +20,6 @@
 #include "private/qapplication_p.h"
 #include "private/qcolor_p.h"
 #include "qwidget.h"
-#include "private/qwidget_p.h"
 #include "qbitarray.h"
 #include "qpainter.h"
 #include "qpixmapcache.h"
@@ -68,6 +67,7 @@ typedef int timeval;
 #endif
 
 #include <string.h>
+#include "private/qwidget_p.h"
 
 
 /*****************************************************************************
@@ -2644,7 +2644,7 @@ void QApplication::flush()
 			r &= cr;
 			if(!r.isEmpty())
 			    widget->repaint(r, !widget->testWFlags(WRepaintNoErase));
-			
+
 			it = request_updates_pending_list.remove(it);
 			if(it == request_updates_pending_list.end())
 			    break;

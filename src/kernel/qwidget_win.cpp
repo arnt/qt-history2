@@ -16,7 +16,6 @@
 #include "qapplication_p.h"
 #include "qpainter.h"
 #include "qbitmap.h"
-#include "qwidget_p.h"
 #include "qaccel.h"
 #include "qimage.h"
 #include "qfocusdata.h"
@@ -66,6 +65,8 @@ static QWidget *qt_tablet_widget = 0;
 #if defined(QT_NON_COMMERCIAL)
 #include "qnc_win.h"
 #endif
+
+#include "qwidget_p.h"
 
 #if !defined(WS_EX_TOOLWINDOW)
 #define WS_EX_TOOLWINDOW 0x00000080

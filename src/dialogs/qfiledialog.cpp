@@ -28,6 +28,8 @@
 
 #ifndef QT_NO_FILEDIALOG
 
+#include "qevent.h"
+#include "qdesktopwidget.h"
 #include "qlineedit.h"
 #include "qcombobox.h"
 #include "qlistview.h"

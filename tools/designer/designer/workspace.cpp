@@ -32,6 +32,7 @@
 #include <qpopupmenu.h>
 #include <qtextstream.h>
 #include "qcompletionedit.h"
+#include <qevent.h>
 
 WorkspaceItem::WorkspaceItem( QListView *parent, Project* p )
     : QListViewItem( parent )

@@ -18,6 +18,8 @@
 #include "qmainwindow.h"
 #ifndef QT_NO_MENUBAR
 #include "qmenubar.h"
+#include "qdesktopwidget.h"
+#include "qevent.h"
 #include "qpopupmenu.h"
 #include "qaccel.h"
 #include "qpainter.h"

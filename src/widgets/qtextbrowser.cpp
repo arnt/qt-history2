@@ -16,6 +16,8 @@
 #ifndef QT_NO_TEXTBROWSER
 #include "../kernel/qrichtext_p.h"
 
+#include "qevent.h"
+#include "qdesktopwidget.h"
 #include "qapplication.h"
 #include "qlayout.h"
 #include "qpainter.h"
@@ -97,7 +99,7 @@ public:
     QString home;
     QString curmain;
     QString curmark;
-    
+
     /*flag necessary to give the linkClicked() signal some meaningful
       semantics when somebody connected to it calls setText() or
       setSource() */
@@ -280,7 +282,7 @@ void QTextBrowser::setSource(const QString& name)
     if ( isVisible() )
 	qApp->restoreOverrideCursor();
 #endif
-    
+
     emit sourceChanged( url );
 }
 
@@ -305,7 +307,7 @@ void QTextBrowser::setSource(const QString& name)
 
     This signal is emitted when the mime source has changed, \a src
     being the new source.
-    
+
     Source changes happen both programmatically when calling
     setSource(), forward(), backword() or home() or when the user
     clicks on links or presses the equivalent key sequences.
@@ -513,13 +515,13 @@ void QTextBrowser::setText( const QString &txt, const QString &context )
     QTextEdit::setText( txt, context );
 }
 
-void QTextBrowser::emitHighlighted( const QString &s ) 
-{ 
-    emit highlighted( s ); 
+void QTextBrowser::emitHighlighted( const QString &s )
+{
+    emit highlighted( s );
 }
 
-void QTextBrowser::emitLinkClicked( const QString &s ) 
-{ 
+void QTextBrowser::emitLinkClicked( const QString &s )
+{
     d->textOrSourceChanged = FALSE;
     emit linkClicked( s );
     if ( !d->textOrSourceChanged )

@@ -16,6 +16,7 @@
 #include "qeventloop.h"
 #include "qapplication.h"
 #include "qbitarray.h"
+#include "qevent.h"
 #include <stdlib.h>
 
 

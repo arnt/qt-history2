@@ -15,7 +15,6 @@
 #include "qt_mac.h"
 
 #include "qimage.h"
-#include "qobject_p.h"
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include "qpaintdevicemetrics.h"
@@ -33,6 +32,8 @@
 # include <ApplicationServices/ApplicationServices.h>
 #endif
 #include <limits.h>
+
+#include "qobject_p.h"
 
 /*****************************************************************************
   QWidget debug facilities

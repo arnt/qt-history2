@@ -15,6 +15,8 @@
 #include "qcombobox.h"
 #ifndef QT_NO_COMBOBOX
 #include "qpopupmenu.h"
+#include "qdesktopwidget.h"
+#include "qevent.h"
 #include "qlistbox.h"
 #include "qpainter.h"
 #include "qdrawutil.h"

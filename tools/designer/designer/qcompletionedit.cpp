@@ -15,6 +15,8 @@
 #include <qsizegrip.h>
 #include <qapplication.h>
 #include <qvbox.h>
+#include <qdesktopwidget.h>
+#include <qevent.h>
 
 QCompletionEdit::QCompletionEdit( QWidget *parent, const char *name )
     : QLineEdit( parent, name ), aAdd( FALSE ), caseSensitive( FALSE )

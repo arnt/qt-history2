@@ -30,15 +30,6 @@
 #include "qobject_p.h"
 #endif // QT_H
 
-struct QWidgetPrivate : public QObjectPrivate
-{
-};
-
-#if defined (Q_WS_X11) || defined (Q_WS_QWS)
-extern int qt_widget_tlw_gravity;
-#endif
-
-
 
 // Extra QWidget data
 //  - to minimize memory usage for members that are seldom used.
@@ -138,6 +129,38 @@ struct Q_EXPORT QWExtra {
     QRect micro_focus_hint;			// micro focus hint
     QSizePolicy size_policy;
 };
+
+
+
+
+struct QWidgetPrivate : public QObjectPrivate
+{
+    Q_DECL_PUBLIC( QWidget );
+
+public:
+    QWidgetPrivate() : QObjectPrivate(), extra(0) {}
+    ~QWidgetPrivate();
+
+    QWExtra	*extraData();
+    QTLWExtra	*topData();
+
+    void createTLExtra();
+    void createExtra();
+    void deleteExtra();
+    void createSysExtra();
+    void deleteSysExtra();
+    void createTLSysExtra();
+    void deleteTLSysExtra();
+
+    QWExtra *extra;
+};
+
+#if defined (Q_WS_X11) || defined (Q_WS_QWS)
+extern int qt_widget_tlw_gravity;
+#endif
+
+
+
 
 
 #endif

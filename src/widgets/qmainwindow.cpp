@@ -16,6 +16,7 @@
 #ifndef QT_NO_MAINWINDOW
 
 #include "qtimer.h"
+#include "qevent.h"
 #include "qlayout.h"
 #include "qintdict.h"
 #include "qapplication.h"

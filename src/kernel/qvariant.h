@@ -16,7 +16,7 @@
 #define QVARIANT_H
 
 #ifndef QT_H
-#include "qstring.h"
+#include "qbytearray.h"
 #include "qshared.h"
 #endif // QT_H
 

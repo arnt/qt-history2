@@ -16,6 +16,7 @@
 
 #ifndef QT_NO_ACTION
 
+#include "qevent.h"
 #include "qtoolbar.h"
 #include "qptrlist.h"
 #include "qpopupmenu.h"

@@ -16,6 +16,8 @@
 #include "qtoolbutton.h"
 #ifndef QT_NO_TOOLBUTTON
 
+#include "qevent.h"
+#include "qdesktopwidget.h"
 #include "qdrawutil.h"
 #include "qpainter.h"
 #include "qpixmap.h"

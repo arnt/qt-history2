@@ -18,6 +18,7 @@
 #include "qapplication.h"
 #include "qlayoutengine_p.h"
 #include "qmenubar.h"
+#include "qevent.h"
 #include "qtoolbar.h"
 
 static int menuBarHeightForWidth( QMenuBar *menubar, int w )

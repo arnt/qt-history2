@@ -18,6 +18,7 @@
 
 #include "qfontdialog.h"
 
+#include "qevent.h"
 #include "qlineedit.h"
 #include "qlistbox.h"
 #include "qpushbutton.h"

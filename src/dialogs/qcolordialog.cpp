@@ -18,6 +18,8 @@
 
 #include "qpainter.h"
 #include "qlayout.h"
+#include "qevent.h"
+#include "qdesktopwidget.h"
 #include "qlabel.h"
 #include "qpushbutton.h"
 #include "qlineedit.h"

@@ -23,6 +23,7 @@
 #include "hierarchyview.h"
 #include <qmessagebox.h>
 #include <qtextstream.h>
+#include <qevent.h>
 
 SourceEditor::SourceEditor( QWidget *parent, EditorInterface *iface, LanguageInterface *liface )
     : QVBox( parent, 0, WDestructiveClose ), iFace( iface ), lIface( liface ), obj( 0 ), pro( 0 )

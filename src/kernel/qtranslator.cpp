@@ -29,6 +29,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #ifndef QT_NO_TRANSLATION
 
 #include "qfileinfo.h"
+#include "qwidget.h"
 #include "qintdict.h"
 #include "qstring.h"
 #include "qapplication.h"

@@ -15,6 +15,8 @@
 #include "qwhatsthis.h"
 #ifndef QT_NO_WHATSTHIS
 #include "qapplication.h"
+#include "qdesktopwidget.h"
+#include "qevent.h"
 #include "qpaintdevicemetrics.h"
 #include "qpixmap.h"
 #include "qpainter.h"

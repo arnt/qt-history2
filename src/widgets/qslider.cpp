@@ -15,6 +15,7 @@
 #include "qslider.h"
 #ifndef QT_NO_SLIDER
 #include "qpainter.h"
+#include "qevent.h"
 #include "qdrawutil.h"
 #include "qtimer.h"
 #include "qbitmap.h"

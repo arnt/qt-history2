@@ -38,12 +38,12 @@
 # undef truncate
 #endif
 
+#include "qdesktopwidget.h"
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include "qcolor_p.h"
 #include "qcursor.h"
 #include "qwidget.h"
-#include "qwidget_p.h"
 #include "qbitarray.h"
 #include "qpainter.h"
 #include "qpixmapcache.h"
@@ -62,6 +62,7 @@
 #include "qstylefactory.h"
 #include "qfileinfo.h"
 #include "qhash.h"
+#include "qevent.h"
 #include <private/qunicodetables_p.h>
 
 // Input method stuff - UNFINISHED
@@ -91,6 +92,8 @@ extern "C" Bool XftInitFtLibrary(void);
 #include <string.h>
 #include <ctype.h>
 #include <locale.h>
+
+#include "qwidget_p.h"
 
 //#define X_NOT_BROKEN
 #ifdef X_NOT_BROKEN
@@ -588,7 +591,7 @@ void QApplication::create_xim()
 	    QWidgetList list = qApp->topLevelWidgets();
 	    for (int i = 0; i < list.size(); ++i) {
 		QWidget *w = list.at(i);
-		w->createTLSysExtra();
+		w->d->createTLSysExtra();
 	    }
 	} else {
 	    // Give up
@@ -811,8 +814,8 @@ bool QApplication::x11_apply_settings()
 	    XFree(data);
 	}
 
-	QDataStream d(ts.buffer(), IO_ReadOnly);
-	d >> timestamp;
+	QDataStream ds(ts.buffer(), IO_ReadOnly);
+	ds >> timestamp;
     }
 
     QSettings settings;
@@ -1704,9 +1707,9 @@ void qt_init_internal( int *argcptr, char **argv,
 		     QApplication::colorSpec() == QApplication::ManyColor ) {
 		    // find custom visual
 
-		    int d, c;
-		    vis = find_truecolor_visual( appDpy, screen, &d, &c );
-		    QPaintDevice::x_appdepth_arr[ screen ] = d;
+		    int dpth, c;
+		    vis = find_truecolor_visual( appDpy, screen, &dpth, &c );
+		    QPaintDevice::x_appdepth_arr[ screen ] = dpth;
 		    QPaintDevice::x_appcells_arr[ screen ] = c;
 
 		    QPaintDevice::x_appvisual_arr[ screen ] = vis;
@@ -3198,7 +3201,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	  input).
 	*/
 	QInputContext *qic =
-	    (QInputContext *) keywidget->topLevelWidget()->topData()->xic;
+	    (QInputContext *) keywidget->topLevelWidget()->d->topData()->xic;
 	extern bool qt_compose_emptied; // qinputcontext_x11.cpp
 	if ( qic && qic->composing && qic->focusWidget && qt_compose_emptied ) {
 	    XEvent event2;
@@ -3280,15 +3283,15 @@ int QApplication::x11ProcessEvent( XEvent* event )
 			if (e == Success && ret == XA_CARDINAL &&
 			    format == 32 && nitems == 4) {
 			    long *strut = (long *) data;
-			    widget->topData()->fleft   = strut[0];
-			    widget->topData()->fright  = strut[1];
-			    widget->topData()->ftop    = strut[2];
-			    widget->topData()->fbottom = strut[3];
+			    widget->d->topData()->fleft   = strut[0];
+			    widget->d->topData()->fright  = strut[1];
+			    widget->d->topData()->ftop    = strut[2];
+			    widget->d->topData()->fbottom = strut[3];
 			    widget->fstrut_dirty = 0;
 			} else {
 			    // if failed, zero the strut and mark it dirty
-			    widget->topData()->fleft = widget->topData()->fright =
-			     widget->topData()->ftop = widget->topData()->fbottom = 0;
+			    widget->d->topData()->fleft = widget->d->topData()->fright =
+			     widget->d->topData()->ftop = widget->d->topData()->fbottom = 0;
 			    widget->fstrut_dirty = 1;
 			}
 
@@ -3326,22 +3329,22 @@ int QApplication::x11ProcessEvent( XEvent* event )
 			    XFree(data);
 		    } else if (event->xproperty.atom == qt_wm_state) {
 			// the widget frame strut should also be invalidated
-			widget->topData()->fleft = widget->topData()->fright =
-			 widget->topData()->ftop = widget->topData()->fbottom = 0;
+			widget->d->topData()->fleft = widget->d->topData()->fright =
+			 widget->d->topData()->ftop = widget->d->topData()->fbottom = 0;
 			widget->fstrut_dirty = 1;
 
 			if (event->xproperty.state == PropertyDelete) {
 			    // the window manager has removed the WM State property,
 			    // so it is now in the withdrawn state (ICCCM 4.1.3.1) and
 			    // we are free to reuse this window
-			    widget->topData()->parentWinId = 0;
+			    widget->d->topData()->parentWinId = 0;
 			    // map the window if we were waiting for a
 			    // transition to withdrawn
 			    if ( qt_deferred_map_contains( widget ) ) {
 				qt_deferred_map_take( widget );
 				XMapWindow( appDpy, widget->winId() );
 			    }
-			} else if (widget->topData()->parentWinId !=
+			} else if (widget->d->topData()->parentWinId !=
 				   QPaintDevice::x11AppRootWindow()) {
 			    // the window manager has changed the WM State property...
 			    // we are  wanting to see if we are withdrawn so that we
@@ -3366,7 +3369,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
 				    // set the parent id to zero, so that show() will
 				    // work again
-				    widget->topData()->parentWinId = 0;
+				    widget->d->topData()->parentWinId = 0;
 				    // map the window if we were waiting for a
 				    // transition to withdrawn
 				    if ( qt_deferred_map_contains( widget ) ) {
@@ -3496,7 +3499,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    if ( keywidget && keywidget->isEnabled() ) { // should always exist
 #ifndef QT_NO_XIM
 		QInputContext *qic =
-		    (QInputContext *) keywidget->topLevelWidget()->topData()->xic;
+		    (QInputContext *) keywidget->topLevelWidget()->d->topData()->xic;
 
 		if ((qt_xim_style & XIMPreeditCallbacks) && event->xkey.keycode == 0 &&
 		     qic && qic->composing && qic->focusWidget) {
@@ -3650,7 +3653,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case UnmapNotify:				// window hidden
 	if ( widget->isTopLevel() && widget->isShown() ) {
-	    widget->topData()->spont_unmapped = 1;
+	    widget->d->topData()->spont_unmapped = 1;
 	    QHideEvent e;
 	    QApplication::sendSpontaneousEvent( widget, &e );
 	    widget->hideChildren( TRUE );
@@ -3659,8 +3662,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case MapNotify:				// window shown
 	if ( widget->isTopLevel() &&
-	     widget->topData()->spont_unmapped ) {
-	    widget->topData()->spont_unmapped = 0;
+	     widget->d->topData()->spont_unmapped ) {
+	    widget->d->topData()->spont_unmapped = 0;
 	    widget->showChildren( TRUE );
 	    QShowEvent e;
 	    QApplication::sendSpontaneousEvent( widget, &e );
@@ -3678,7 +3681,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    ;	// skip old reparent events
 	if ( event->xreparent.parent == QPaintDevice::x11AppRootWindow() ) {
 	    if ( widget->isTopLevel() ) {
-		widget->topData()->parentWinId = event->xreparent.parent;
+		widget->d->topData()->parentWinId = event->xreparent.parent;
 		if ( qt_deferred_map_contains( widget ) ) {
 		    qt_deferred_map_take( widget );
 		    XMapWindow( appDpy, widget->winId() );
@@ -3686,11 +3689,11 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    }
 	} else
 	    // store the parent. Useful for many things, embedding for instance.
-	    widget->topData()->parentWinId = event->xreparent.parent;
+	    widget->d->topData()->parentWinId = event->xreparent.parent;
 	if ( widget->isTopLevel() ) {
 	    // the widget frame strut should also be invalidated
-	    widget->topData()->fleft = widget->topData()->fright =
-	     widget->topData()->ftop = widget->topData()->fbottom = 0;
+	    widget->d->topData()->fleft = widget->d->topData()->fright =
+	     widget->d->topData()->ftop = widget->d->topData()->fbottom = 0;
 
 	    if ( qt_focus_model != FocusModel_Unknown ) {
 		// toplevel reparented...
@@ -4898,7 +4901,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
     if ( type == QEvent::KeyPress ) {
 	bool mb=FALSE;
 	if ( qt_xim ) {
-	    QTLWExtra*  xd = tlw->topData();
+	    QTLWExtra*  xd = tlw->d->topData();
 	    QInputContext *qic = (QInputContext *) xd->xic;
 	    if ( qic ) {
 		mb=TRUE;
@@ -5112,37 +5115,37 @@ static Bool qt_keypress_scanner(Display *, XEvent *event, XPointer arg)
     if (event->type != XKeyPress && event->type != XKeyRelease)
         return FALSE;
 
-    qt_auto_repeat_data *d = (qt_auto_repeat_data *) arg;
-    if (d->error ||
-        event->xkey.window  != d->window ||
-        event->xkey.keycode != d->keycode)
+    qt_auto_repeat_data *data = (qt_auto_repeat_data *) arg;
+    if (data->error ||
+        event->xkey.window  != data->window ||
+        event->xkey.keycode != data->keycode)
         return FALSE;
 
     if (event->type == XKeyPress) {
-        d->error = (! d->release || event->xkey.time - d->timestamp > 10);
-        return (! d->error);
+        data->error = (! data->release || event->xkey.time - data->timestamp > 10);
+        return (! data->error);
     }
 
     // must be XKeyRelease event
-    if (d->release) {
+    if (data->release) {
         // found a second release
-        d->error = TRUE;
+        data->error = TRUE;
         return FALSE;
     }
 
     // found a single release
-    d->release = TRUE;
-    d->timestamp = event->xkey.time;
+    data->release = TRUE;
+    data->timestamp = event->xkey.time;
 
     return FALSE;
 }
 
 static Bool qt_keyrelease_scanner(Display *, XEvent *event, XPointer arg)
 {
-    const qt_auto_repeat_data *d = (const qt_auto_repeat_data *) arg;
+    const qt_auto_repeat_data *data = (const qt_auto_repeat_data *) arg;
     return (event->type == XKeyRelease &&
-            event->xkey.window  == d->window &&
-            event->xkey.keycode == d->keycode);
+            event->xkey.window  == data->window &&
+            event->xkey.keycode == data->keycode);
 }
 
 #if defined(Q_C_CALLBACKS)
@@ -5501,8 +5504,8 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	QPoint newCPos( geometry().topLeft() );
 	QSize  newSize( event->xconfigure.width, event->xconfigure.height );
 
-	bool trust = (topData()->parentWinId == None ||
-		      topData()->parentWinId == QPaintDevice::x11AppRootWindow());
+	bool trust = (d->topData()->parentWinId == None ||
+		      d->topData()->parentWinId == QPaintDevice::x11AppRootWindow());
 
 	if (event->xconfigure.send_event || trust ) {
 	    // if a ConfigureNotify comes from a real sendevent request, we can
@@ -5514,7 +5517,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	if ( isVisible() )
 	    QApplication::syncX();
 
-        if (! extra || extra->compress_events) {
+        if (! d->extra || d->extra->compress_events) {
             // ConfigureNotify compression for faster opaque resizing
             XEvent otherEvent;
             while ( XCheckTypedWindowEvent( x11Display(), winId(), ConfigureNotify,
@@ -5781,11 +5784,11 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 
 #include <X11/SM/SMlib.h>
 
-class QSessionManagerData
+class QSessionManagerPrivate : public QObjectPrivate
 {
 public:
-    QSessionManagerData( QSessionManager* mgr, QString& id, QString& key )
-	: sm( mgr ), sessionId( id ), sessionKey( key ) {}
+    QSessionManagerPrivate( QSessionManager* mgr, QString& id, QString& key )
+	: QObjectPrivate(), sm( mgr ), sessionId( id ), sessionKey( key ) {}
     QSessionManager* sm;
     QStringList restartCommand;
     QStringList discardCommand;
@@ -5835,7 +5838,7 @@ static void sm_dieCallback( SmcConn smcConn, SmPointer clientData ) ;
 static void sm_shutdownCancelledCallback( SmcConn smcConn, SmPointer clientData );
 static void sm_saveCompleteCallback( SmcConn smcConn, SmPointer clientData );
 static void sm_interactCallback( SmcConn smcConn, SmPointer clientData );
-static void sm_performSaveYourself( QSessionManagerData* );
+static void sm_performSaveYourself( QSessionManagerPrivate* );
 
 static void resetSmState()
 {
@@ -5921,12 +5924,12 @@ static void sm_saveYourselfCallback( SmcConn smcConn, SmPointer clientData,
     if ( sm_isshutdown )
 	( (QT_smcConn*)smcConn )->shutdown_in_progress = TRUE;
 
-    sm_performSaveYourself( (QSessionManagerData*) clientData );
+    sm_performSaveYourself( (QSessionManagerPrivate*) clientData );
     if ( !sm_isshutdown ) // we cannot expect a confirmation message in that case
 	resetSmState();
 }
 
-static void sm_performSaveYourself( QSessionManagerData* smd )
+static void sm_performSaveYourself( QSessionManagerPrivate* smd )
 {
     if ( sm_isshutdown )
 	sm_blockUserInput = TRUE;
@@ -6041,7 +6044,7 @@ static void sm_saveYourselfPhase2Callback( SmcConn smcConn, SmPointer clientData
     if (smcConn != smcConnection )
 	return;
     sm_in_phase2 = TRUE;
-    sm_performSaveYourself( (QSessionManagerData*) clientData );
+    sm_performSaveYourself( (QSessionManagerPrivate*) clientData );
 }
 
 
@@ -6055,9 +6058,8 @@ void QSmSocketReceiver::socketActivated(int)
 #include "qapplication_x11.moc"
 
 QSessionManager::QSessionManager( QApplication * app, QString &id, QString& key )
-    : QObject( app, "session manager" )
+    : QObject( new QSessionManagerPrivate( this, id, key ), app, "session manager" )
 {
-    d = new QSessionManagerData( this, id, key );
     d->restartHint = RestartIfRunning;
 
     resetSmState();
@@ -6108,7 +6110,6 @@ QSessionManager::~QSessionManager()
       SmcCloseConnection( smcConnection, 0, 0 );
     smcConnection = 0;
     delete sm_receiver;
-    delete d;
 }
 
 QString QSessionManager::sessionId() const

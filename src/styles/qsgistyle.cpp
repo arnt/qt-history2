@@ -16,6 +16,7 @@
 
 #if !defined(QT_NO_STYLE_SGI) || defined(QT_PLUGIN)
 
+#include "qevent.h"
 #include "qpopupmenu.h"
 #include "qapplication.h"
 #include "qbutton.h"

@@ -13,7 +13,8 @@
 ****************************************************************************/
 
 #include "qwidget.h"
-#include "qwidget_p.h"
+#include "qevent.h"
+#include "qdesktopwidget.h"
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include "qnamespace.h"
@@ -45,6 +46,8 @@ void qt_updated_rootinfo();
 extern XIM qt_xim;
 extern XIMStyle qt_xim_style;
 #endif
+
+#include "qwidget_p.h"
 
 // Paint event clipping magic
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
@@ -681,7 +684,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
     }
 
     if ( isTopLevel() || !parent ) // we are toplevel, or reparenting to toplevel
-        topData()->parentWinId = 0;
+        d->topData()->parentWinId = 0;
 
     if ( parent != parentObj ) {
 	if ( parentObj )				// remove from parent
@@ -727,7 +730,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
     setEnabled( enable );
     setFocusPolicy( fp );
     if ( !capt.isNull() ) {
-	extra->topextra->caption = QString::null;
+	d->extra->topextra->caption = QString::null;
 	setCaption( capt );
     }
     if ( showIt )
@@ -747,8 +750,8 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
 	setAcceptDrops( TRUE );
     else {
 	checkChildrenDnd();
-	topData()->dnd = 0;
-	qt_dnd_enable(this, (extra && extra->children_use_dnd));
+	d->topData()->dnd = 0;
+	qt_dnd_enable(this, (d->extra && d->extra->children_use_dnd));
     }
 
     // re-enable mouse tracking
@@ -820,7 +823,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height,
 #ifndef QT_NO_XIM
     if ( text ) {
 	QWidget* tlw = topLevelWidget();
-	QTLWExtra *topdata = tlw->topData();
+	QTLWExtra *topdata = tlw->d->topData();
 
 	// trigger input context creation if it hasn't happened already
 	createInputContext();
@@ -838,7 +841,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height,
 #endif
 
     if ( QRect( x, y, width, height ) != microFocusHint() )
-	extraData()->micro_focus_hint.setRect( x, y, width, height );
+	d->extraData()->micro_focus_hint.setRect( x, y, width, height );
 }
 
 
@@ -851,9 +854,9 @@ void QWidget::setFontSys( QFont * )
 void QWidget::setBackgroundColorDirect( const QColor &color )
 {
     bg_col = color;
-    if ( extra && extra->bg_pix ) {		// kill the background pixmap
-	delete extra->bg_pix;
-	extra->bg_pix = 0;
+    if ( d->extra && d->extra->bg_pix ) {		// kill the background pixmap
+	delete d->extra->bg_pix;
+	d->extra->bg_pix = 0;
     }
     XSetWindowBackground( x11Display(), winId(), bg_col.pixel(x11Screen()) );
 }
@@ -864,13 +867,13 @@ static int allow_null_pixmaps = 0;
 void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 {
     QPixmap old;
-    if ( extra && extra->bg_pix )
-	old = *extra->bg_pix;
+    if ( d->extra && d->extra->bg_pix )
+	old = *d->extra->bg_pix;
     if ( !allow_null_pixmaps && pixmap.isNull() ) {
 	XSetWindowBackground( x11Display(), winId(), bg_col.pixel(x11Screen()) );
-	if ( extra && extra->bg_pix ) {
-	    delete extra->bg_pix;
-	    extra->bg_pix = 0;
+	if ( d->extra && d->extra->bg_pix ) {
+	    delete d->extra->bg_pix;
+	    d->extra->bg_pix = 0;
 	}
     } else {
 	QPixmap pm = pixmap;
@@ -880,14 +883,14 @@ void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 		bitBlt( &pm, 0, 0, &pixmap, 0, 0, pm.width(), pm.height() );
 	    }
 	}
-	if ( extra && extra->bg_pix )
-	    delete extra->bg_pix;
+	if ( d->extra && d->extra->bg_pix )
+	    delete d->extra->bg_pix;
 	else
-	    createExtra();
-	extra->bg_pix = new QPixmap( pm );
-	Q_CHECK_PTR( extra->bg_pix );
-	extra->bg_pix->x11SetScreen( x11Screen() );
-	XSetWindowBackgroundPixmap( x11Display(), winId(), extra->bg_pix->handle() );
+	    d->createExtra();
+	d->extra->bg_pix = new QPixmap( pm );
+	Q_CHECK_PTR( d->extra->bg_pix );
+	d->extra->bg_pix->x11SetScreen( x11Screen() );
+	XSetWindowBackgroundPixmap( x11Display(), winId(), d->extra->bg_pix->handle() );
 	if ( testWFlags(WType_Desktop) )	// save rootinfo later
 	    qt_updated_rootinfo();
     }
@@ -918,10 +921,10 @@ void QWidget::setBackgroundX11Relative()
 void QWidget::setCursor( const QCursor &cursor )
 {
     if ( cursor.handle() != arrowCursor.handle()
-	 || (extra && extra->curs) ) {
-	createExtra();
-	delete extra->curs;
-	extra->curs = new QCursor(cursor);
+	 || (d->extra && d->extra->curs) ) {
+	d->createExtra();
+	delete d->extra->curs;
+	d->extra->curs = new QCursor(cursor);
     }
     setWState( WState_OwnCursor );
     qt_x11_enforce_cursor( this );
@@ -930,9 +933,9 @@ void QWidget::setCursor( const QCursor &cursor )
 
 void QWidget::unsetCursor()
 {
-    if ( extra ) {
-	delete extra->curs;
-	extra->curs = 0;
+    if ( d->extra ) {
+	delete d->extra->curs;
+	d->extra->curs = 0;
     }
     if ( !isTopLevel() )
 	clearWState( WState_OwnCursor );
@@ -994,7 +997,7 @@ void QWidget::setCaption( const QString &caption )
     if ( QWidget::caption() == caption )
 	return;
 
-    topData()->caption = caption;
+    d->topData()->caption = caption;
     XSetWMName( x11Display(), winId(), qstring_to_xtp(caption) );
 
     QByteArray net_wm_name = caption.toUtf8();
@@ -1008,17 +1011,17 @@ void QWidget::setCaption( const QString &caption )
 
 void QWidget::setIcon( const QPixmap &pixmap )
 {
-    if ( extra && extra->topextra ) {
-	delete extra->topextra->icon;
-	extra->topextra->icon = 0;
+    if ( d->extra && d->extra->topextra ) {
+	delete d->extra->topextra->icon;
+	d->extra->topextra->icon = 0;
     } else {
-	createTLExtra();
+	d->createTLExtra();
     }
     Pixmap icon_pixmap = 0;
     Pixmap mask_pixmap = 0;
     if ( !pixmap.isNull() ) {
 	QPixmap* pm = new QPixmap( pixmap );
-	extra->topextra->icon = pm;
+	d->extra->topextra->icon = pm;
 	if ( !pm->mask() )
 	    pm->setMask( pm->createHeuristicMask() ); // may do detach()
 	icon_pixmap = pm->handle();
@@ -1044,8 +1047,8 @@ void QWidget::setIcon( const QPixmap &pixmap )
 
 void QWidget::setIconText( const QString &iconText )
 {
-    createTLExtra();
-    extra->topextra->iconText = iconText;
+    d->createTLExtra();
+    d->extra->topextra->iconText = iconText;
     XSetIconName( x11Display(), winId(), iconText.utf8() );
     XSetWMIconName( x11Display(), winId(), qstring_to_xtp(iconText) );
 }
@@ -1293,15 +1296,15 @@ QWidget *QWidget::keyboardGrabber()
 void QWidget::setActiveWindow()
 {
     QWidget *tlw = topLevelWidget();
-    if ( tlw->isVisible() && !tlw->topData()->embedded ) {
+    if ( tlw->isVisible() && !tlw->d->topData()->embedded ) {
 	XSetInputFocus( x11Display(), tlw->winId(), RevertToNone, qt_x_time);
 
 #ifndef QT_NO_XIM
 	// trigger input context creation if it hasn't happened already
 	createInputContext();
 
-	if (tlw->topData()->xic) {
-	    QInputContext *qic = (QInputContext *) tlw->topData()->xic;
+	if (tlw->d->topData()->xic) {
+	    QInputContext *qic = (QInputContext *) tlw->d->topData()->xic;
 	    qic->setFocus();
 	}
 #endif
@@ -1501,7 +1504,7 @@ void QWidget::showWindow()
 {
 
     if ( isTopLevel()  ) {
-	int sm = topData()->showMode;
+	int sm = d->topData()->showMode;
 	if ( sm ) { // handles minimize and reset
 	    XWMHints *h = XGetWMHints( x11Display(), winId() );
 	    XWMHints  wm_hints;
@@ -1515,10 +1518,10 @@ void QWidget::showWindow()
 	    XSetWMHints( x11Display(), winId(), h );
 	    if ( got_hints )
 		XFree( (char *)h );
-	    topData()->showMode = sm == 1?3:0; // trigger reset to normal state next time
+	    d->topData()->showMode = sm == 1?3:0; // trigger reset to normal state next time
 	}
-	if ( topData()->parentWinId &&
-	     topData()->parentWinId != QPaintDevice::x11AppRootWindow(x11Screen()) &&
+	if ( d->d->topData()->parentWinId &&
+	     d->topData()->parentWinId != QPaintDevice::x11AppRootWindow(x11Screen()) &&
 	     !isMinimized() ) {
 	    qt_deferred_map_add( this );
 	    return;
@@ -1542,7 +1545,7 @@ void QWidget::hideWindow()
 	if ( winId() ) // in nsplugin, may be 0
 	    XWithdrawWindow( x11Display(), winId(), x11Screen() );
 
-	QTLWExtra *top = topData();
+	QTLWExtra *top = d->topData();
 	crect.moveTopLeft( QPoint(crect.x() - top->fleft, crect.y() - top->ftop ) );
 
 	// zero the frame strut and mark it dirty
@@ -1573,7 +1576,7 @@ void QWidget::showMinimized()
 	if ( isVisible() && !isMinimized() )
 	    XIconifyWindow( x11Display(), winId(), x11Screen() );
 	else {
-	    topData()->showMode = 1;
+	    d->topData()->showMode = 1;
 	    show();
 	}
     } else {
@@ -1652,9 +1655,9 @@ void QWidget::showMaximized()
 	    int scr = x11Screen();
 	    int sw = DisplayWidth(dpy,scr);
 	    int sh = DisplayHeight(dpy,scr);
-	    if ( topData()->normalGeometry.width() < 0 )
-		topData()->normalGeometry = geometry();
-	    if ( !topData()->parentWinId && !isVisible() ) {
+	    if ( d->topData()->normalGeometry.width() < 0 )
+		d->topData()->normalGeometry = geometry();
+	    if ( !d->topData()->parentWinId && !isVisible() ) {
 		setGeometry(0, 0, sw, sh );
 		show();
 		qt_wait_for_window_manager( this );
@@ -1687,21 +1690,21 @@ void QWidget::showMaximized()
 void QWidget::showNormal()
 {
     if ( isTopLevel() ) {
-	if ( topData()->fullscreen ) {
+	if ( d->topData()->fullscreen ) {
 	    // when reparenting, preserve some widget flags
-	    reparent( 0, topData()->savedFlags, QPoint(0,0) );
-	    topData()->fullscreen = 0;
+	    reparent( 0, d->topData()->savedFlags, QPoint(0,0) );
+	    d->topData()->fullscreen = 0;
 	}
-	QRect r = topData()->normalGeometry;
+	QRect r = d->topData()->normalGeometry;
 	if ( r.width() >= 0 ) {
 	    // the widget has been maximized
-	    topData()->normalGeometry = QRect(0,0,-1,-1);
+	    d->topData()->normalGeometry = QRect(0,0,-1,-1);
 	    resize( r.size() );
 	    move( r.topLeft() );
 	}
     }
-    if ( extra && extra->topextra )
-	extra->topextra->fullscreen = 0;
+    if ( d->extra && d->extra->topextra )
+	d->extra->topextra->fullscreen = 0;
     if ( !isVisible() ) {
 	show();
     } else {
@@ -1837,11 +1840,11 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     if ( testWFlags(WType_Desktop) )
 	return;
     clearWState(WState_Maximized);
-    if ( extra ) {				// any size restrictions?
-	w = QMIN(w,extra->maxw);
-	h = QMIN(h,extra->maxh);
-	w = QMAX(w,extra->minw);
-	h = QMAX(h,extra->minh);
+    if ( d->extra ) {				// any size restrictions?
+	w = QMIN(w,d->extra->maxw);
+	h = QMIN(h,d->extra->maxh);
+	w = QMAX(w,d->extra->minw);
+	h = QMAX(h,d->extra->minh);
     }
     if ( w < 1 )				// invalid size
 	w = 1;
@@ -1862,10 +1865,10 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
     if ( isTopLevel() ) {
 	if ( isMove )
-	    topData()->uspos = 1;
+	    d->topData()->uspos = 1;
 	if ( isResize )
-	    topData()->ussize = 1;
-	do_size_hints( this, extra );
+	    d->topData()->ussize = 1;
+	do_size_hints( this, d->extra );
     }
 
     if ( isMove ) {
@@ -1929,11 +1932,11 @@ void QWidget::setMinimumSize( int minw, int minh )
     if ( minw < 0 || minh < 0 )
 	qWarning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
 #endif
-    createExtra();
-    if ( extra->minw == minw && extra->minh == minh )
+    d->createExtra();
+    if ( d->extra->minw == minw && d->extra->minh == minh )
 	return;
-    extra->minw = minw;
-    extra->minh = minh;
+    d->extra->minw = minw;
+    d->extra->minh = minh;
     if ( minw > width() || minh > height() ) {
 	bool resized = testWState( WState_Resized );
 	resize( QMAX(minw,width()), QMAX(minh,height()) );
@@ -1941,7 +1944,7 @@ void QWidget::setMinimumSize( int minw, int minh )
 	    clearWState( WState_Resized ); // not a user resize
     }
     if ( testWFlags(WType_TopLevel) )
-	do_size_hints( this, extra );
+	do_size_hints( this, d->extra );
     updateGeometry();
 }
 
@@ -1971,11 +1974,11 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 	maxh = QMAX( maxh, 0 );
     }
 #endif
-    createExtra();
-    if ( extra->maxw == maxw && extra->maxh == maxh )
+    d->createExtra();
+    if ( d->extra->maxw == maxw && d->extra->maxh == maxh )
 	return;
-    extra->maxw = maxw;
-    extra->maxh = maxh;
+    d->extra->maxw = maxw;
+    d->extra->maxh = maxh;
     if ( maxw < width() || maxh < height() ) {
 	bool resized = testWState( WState_Resized );
 	resize( QMIN(maxw,width()), QMIN(maxh,height()) );
@@ -1983,7 +1986,7 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 	    clearWState( WState_Resized ); // not a user resize
     }
     if ( testWFlags(WType_TopLevel) )
-	do_size_hints( this, extra );
+	do_size_hints( this, d->extra );
     updateGeometry();
 }
 
@@ -1995,13 +1998,13 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 */
 void QWidget::setSizeIncrement( int w, int h )
 {
-    QTLWExtra* x = topData();
+    QTLWExtra* x = d->topData();
     if ( x->incw == w && x->inch == h )
 	return;
     x->incw = w;
     x->inch = h;
     if ( testWFlags(WType_TopLevel) )
-	do_size_hints( this, extra );
+	do_size_hints( this, d->extra );
 }
 
 /*!
@@ -2012,14 +2015,14 @@ void QWidget::setSizeIncrement( int w, int h )
 */
 void QWidget::setBaseSize( int basew, int baseh )
 {
-    createTLExtra();
-    QTLWExtra* x = topData();
+    d->createTLExtra();
+    QTLWExtra* x = d->topData();
     if ( x->basew == basew && x->baseh == baseh )
 	return;
     x->basew = basew;
     x->baseh = baseh;
     if ( testWFlags(WType_TopLevel) )
-	do_size_hints( this, extra );
+	do_size_hints( this, d->extra );
 }
 
 /*!
@@ -2229,26 +2232,26 @@ int QWidget::metric( int m ) const
     return val;
 }
 
-void QWidget::createSysExtra()
+void QWidgetPrivate::createSysExtra()
 {
     extra->xDndProxy = 0;
     extra->children_use_dnd = FALSE;
     extra->compress_events = TRUE;
 }
 
-void QWidget::deleteSysExtra()
+void QWidgetPrivate::deleteSysExtra()
 {
 }
 
-void QWidget::createTLSysExtra()
+void QWidgetPrivate::createTLSysExtra()
 {
     // created lazily
     extra->topextra->xic = 0;
 }
 
-void QWidget::deleteTLSysExtra()
+void QWidgetPrivate::deleteTLSysExtra()
 {
-    destroyInputContext();
+    q->destroyInputContext();
 }
 
 /*
@@ -2269,13 +2272,13 @@ void QWidget::checkChildrenDnd()
 		const QWidget *child = static_cast<const QWidget *>(object);
 		children_use_dnd = (children_use_dnd ||
 				    child->acceptDrops() ||
-				    (child->extra &&
-				     child->extra->children_use_dnd));
+				    (child->d->extra &&
+				     child->d->extra->children_use_dnd));
 	    }
 	}
 
-	widget->createExtra();
-	widget->extra->children_use_dnd = children_use_dnd;
+	widget->d->createExtra();
+	widget->d->extra->children_use_dnd = children_use_dnd;
 
 	widget = widget->parentWidget();
     }
@@ -2444,7 +2447,7 @@ void QWidget::updateFrameStrut() const
     if (XTranslateCoordinates(QPaintDevice::x11AppDisplay(), l, w,
 			      0, 0, &transx, &transy, &p) &&
 	XGetWindowAttributes(QPaintDevice::x11AppDisplay(), w, &wattr)) {
-	QTLWExtra *top = that->topData();
+	QTLWExtra *top = that->d->topData();
 	top->fleft = transx;
 	top->ftop = transy;
 	top->fright = wattr.width - crect.width() - top->fleft;
@@ -2469,7 +2472,7 @@ void QWidget::updateFrameStrut() const
 void QWidget::createInputContext()
 {
     QWidget *tlw = topLevelWidget();
-    QTLWExtra *topdata = tlw->topData();
+    QTLWExtra *topdata = tlw->d->topData();
 
 #ifndef QT_NO_XIM
     if (qt_xim) {
@@ -2489,10 +2492,10 @@ void QWidget::createInputContext()
 void QWidget::destroyInputContext()
 {
 #ifndef QT_NO_XIM
-    QInputContext *qic = (QInputContext *) extra->topextra->xic;
+    QInputContext *qic = (QInputContext *) d->extra->topextra->xic;
     delete qic;
 #endif // QT_NO_XIM
-    extra->topextra->xic = 0;
+    d->extra->topextra->xic = 0;
 }
 
 
@@ -2505,7 +2508,7 @@ void QWidget::resetInputContext()
 #ifndef QT_NO_XIM
     if (qt_xim_style & XIMPreeditCallbacks) {
 	QWidget *tlw = topLevelWidget();
-	QTLWExtra *topdata = tlw->topData();
+	QTLWExtra *topdata = tlw->d->topData();
 
 	// trigger input context creation if it hasn't happened already
 	createInputContext();
@@ -2523,7 +2526,7 @@ void QWidget::focusInputContext()
 {
 #ifndef QT_NO_XIM
     QWidget *tlw = topLevelWidget();
-    QTLWExtra *topdata = tlw->topData();
+    QTLWExtra *topdata = tlw->d->topData();
 
     // trigger input context creation if it hasn't happened already
     createInputContext();
