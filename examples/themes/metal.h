@@ -15,10 +15,13 @@
 #ifndef METAL_H
 #define METAL_H
 
-#include <qwindowsstyle.h>
+
 #include <qpalette.h>
 
 #ifndef QT_NO_STYLE_WINDOWS
+
+#include <qwindowsstyle.h>
+
 
 class MetalStyle : public QWindowsStyle
 {

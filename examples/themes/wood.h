@@ -15,10 +15,13 @@
 #ifndef WOOD_H
 #define WOOD_H
 
-#include <qwindowsstyle.h>
+
 #include <qpalette.h>
 
 #ifndef QT_NO_STYLE_WINDOWS
+
+#include <qwindowsstyle.h>
+
 
 class NorwegianWoodStyle : public QWindowsStyle
 {

@@ -42,7 +42,7 @@
 
 #include <qapplication.h>
 #include <qimage.h>
-#include <qwindowsstyle.h>
+
 #include <qtabwidget.h>
 #include <qfont.h>
 #include <qworkspace.h>
