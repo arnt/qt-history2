@@ -134,6 +134,7 @@ ProjectGenerator::init()
 	QStringList dirs = Option::projfile::project_dirs;
 	if(Option::projfile::do_pwd)
 	    dirs.prepend(".");
+	const QString out_file = fileFixify(Option::output.name());
 	for(QStringList::Iterator pd = dirs.begin(); pd != dirs.end(); pd++) {
 	    if(QFile::exists((*pd))) {
 		QString newdir = (*pd);
@@ -148,12 +149,15 @@ ProjectGenerator::init()
 			QDir d(newdir, "*.pro");
 			d.setFilter(QDir::Files);
 			for(int i = 0; i < (int)d.count(); i++) {
-			    QString nd = newdir + QDir::separator() + d[i];
+			    QString nd = newdir;
+			    if(nd == ".")
+				nd = "";
+			    else if(!nd.isEmpty() && !nd.endsWith(QString(QChar(QDir::separator()))))
+				nd += QDir::separator();
+			    nd += d[i];
 			    fileFixify(nd);
-			    if(d[i] != "." && d[i] != ".." && !subdirs.contains(nd)) {
-				if(newdir + d[i] != Option::output_dir + Option::output.name())
-				    subdirs.append(nd);
-			    }
+			    if(d[i] != "." && d[i] != ".." && !subdirs.contains(nd) && !out_file.endsWith(nd)) 
+				subdirs.append(nd);
 			}
 		    }
 		    if(Option::projfile::do_recursive) {
