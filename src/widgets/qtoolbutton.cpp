@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#3 $
 **
 ** Implementation of something useful.
 **
@@ -20,7 +20,7 @@
 #include "qtoolbar.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#3 $");
 
 
 static QToolButton * threeDeeButton = 0;
@@ -195,16 +195,24 @@ QPixmap QToolButton::smallPixmap()
 
 
 /* \fn bool QToolButton::usesBigPixmap() const
- 
+
   Returns TRUE or FALSE.
- 
+
 */
 
 
 /* \fn bool QToolButton::usesTextLabel() const
- 
+
   Returns TRUE or FALSE.
- 
+
+*/
+
+
+/*! \fn const char * textLabel() const
+
+  Returns the text label in use by this tool button, or 0.
+  
+  \sa setTextLabel() usesTextLabel() setUsesTextLabel() setText()
 */
 
 /*!
