@@ -677,13 +677,14 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	QPainter p( d->pm, this );
 
 	const QColorGroup & g = colorGroup();
-	QColor bg = isEnabled() ? g.base() : g.background();
+	QBrush bg = g.brush((isEnabled()) ? QColorGroup::Base :
+			    QColorGroup::Background);
 	QFontMetrics fm = fontMetrics();
 	int markBegin = minMark();
 	int markEnd = maxMark();
 
 	p.fillRect( 0, 0, width(), height(), bg );
-
+	
 	QString display = displayText();
 	QString before = display.mid( 0, markBegin );
 	QString marked = display.mid( markBegin, markEnd - markBegin );
