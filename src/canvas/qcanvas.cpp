@@ -307,7 +307,7 @@ private:
 
 
 /*! \class QCanvasItemList
-  \brief A list of QCanvasItems.
+  \brief The QCanvasItemList class is a list of QCanvasItems.
   
   QCanvasItemList is a QValueList of pointers to QCanvasItems. This class is used by
   some methods in QCanvas that need to return a list of Items.

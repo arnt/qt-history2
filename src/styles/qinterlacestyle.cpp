@@ -54,7 +54,7 @@
 
 /*!
   \class QInterlaceStyle qinterlacestyle.h
-  \brief Look and Feel suitable for interlaced displays
+  \brief The QInterlaceStyle class provides a Look and Feel suitable for interlaced displays.
   \ingroup appearance
 
   This class implements a look and feel that reduces flicker as much as
