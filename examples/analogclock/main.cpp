@@ -25,7 +25,6 @@ int main(int argc, char *argv[])
 
     AnalogClock *clock = new AnalogClock;
     clock->resize( 100, 100 );
-    clock->setWindowTitle(app.tr("Qt Example - Analog Clock"));
     clock->show();
     app.setMainWidget(clock);
 

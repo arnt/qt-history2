@@ -24,6 +24,7 @@
 AnalogClock::AnalogClock(QWidget *parent)
     : QWidget(parent)
 {
+    setWindowTitle(tr("Qt Example - Analog Clock"));
     time = QTime::currentTime();
     QTimer *internalTimer = new QTimer(this);
     connect(internalTimer, SIGNAL(timeout()), SLOT(timeout()));
@@ -38,14 +39,17 @@ AnalogClock::AnalogClock(QWidget *parent)
 void AnalogClock::timeout()
 {
     QTime new_time = QTime::currentTime();
-    if (new_time.minute() != time.minute())
+    if (new_time.minute() != time.minute()) {
+        time = new_time;
         update();
+    }
 }
 
 /*
-    The clock is painted using a 1000x1000 square coordinate system, in
-    the a centered square, as big as possible. The widget's standard
-    foreground color is used to draw the clock face.
+    The clock is drawn in a 1000x1000 square coordinate system, and is
+    rendered to the widget in a centered square area that is as big as
+    possible. The widget's standard foreground color is used to draw the
+    clock face.
 */
 
 void AnalogClock::paintEvent(QPaintEvent *)
@@ -62,7 +66,6 @@ void AnalogClock::paintEvent(QPaintEvent *)
                       viewport.top() + viewport.height()/2 -size/2,
                       size, size);
 
-    time = QTime::currentTime();
     QPointArray pts;
 
     paint.save();
