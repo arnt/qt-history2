@@ -318,13 +318,12 @@ static QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef eve
 {
     UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
     bool handled_event = TRUE;
-    QWidget *widget = NULL;
     switch(eclass) {
     case kEventClassWindow: {
 	WindowRef wid;
 	GetEventParameter(event, kEventParamDirectObject, typeWindowRef, NULL,
 			  sizeof(WindowRef), NULL, &wid);
-	if(ekind == kEventWindowGetRegion && widget) {
+	if(ekind == kEventWindowGetRegion) {
 	    CallNextEventHandler(er, event);
 	    WindowRegionCode wcode;
 	    GetEventParameter(event, kEventParamWindowRegionCode, typeWindowRegionCode, NULL,
@@ -362,6 +361,8 @@ static const EventHandlerUPP make_win_eventUPP()
     return mac_win_eventUPP = NewEventHandlerUPP(qt_window_event);
 }
 
+//#define QMAC_USE_WDEF
+#ifdef QMAC_USE_WDEF
 static QMAC_PASCAL long qt_wdef(short, WindowRef window, short message, long param)
 {
     long result = 0;
@@ -394,6 +395,7 @@ static QMAC_PASCAL long qt_wdef(short, WindowRef window, short message, long par
     }
     return result;
 }
+#endif
 
 QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn,
 			 RgnHandle, void *w)
@@ -561,7 +563,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	//wattr |= kWindowLiveResizeAttribute;
 	if(testWFlags(WType_Popup) || testWFlags(WStyle_Tool) )
 	    wattr |= kWindowNoActivatesAttribute;
-#if 0
+#ifdef QMAC_USE_WDEF
 	if( (wclass == kPlainWindowClass && wattr == kWindowNoAttributes) || testWFlags(WStyle_Tool) ) {
 	    WindowDefSpec wds;
 	    wds.defType = kWindowDefProcPtr;
