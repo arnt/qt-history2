@@ -5,4 +5,5 @@ SUBDIRS       = blockingfortuneclient \
                 fortuneclient \
                 fortuneserver \
                 ftp \
+                http \
                 loopback
