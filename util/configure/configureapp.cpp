@@ -68,8 +68,6 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "SQL_PSQL" ]	    = "no";
     dictionary[ "SQL_TDS" ]	    = "no";
 
-    dictionary[ "REMOTE" ]	    = "no";
-
     dictionary[ "QT_SOURCE_TREE" ]  = QDir::currentDirPath();
     dictionary[ "QT_INSTALL_PREFIX" ] = dictionary[ "QT_SOURCE_TREE" ];
 
@@ -309,11 +307,6 @@ void Configure::parseCmdLine()
 	else if( (*args) == "-qmake-deps" )
 	    dictionary[ "DEPENDENCIES" ] = "yes";
 
-	else if( (*args) == "-remote" )
-	    dictionary[ "REMOTE" ] = "yes";
-	else if( (*args) == "-no-remote" )
-	    dictionary[ "REMOTE" ] = "yes";
-
 	else if( (*args) == "-D" ) {
 	    ++args;
 	    if (args==configCmdLine.end())
@@ -541,9 +534,6 @@ bool Configure::displayHelp()
 	cout << "-stl                 Enable STL support." << endl;
 	cout << "-no-stl            * Disable STL support." << endl  << endl;
 
-	cout << "-remote              Enable Remote Control." << endl;
-	cout << "-no-remote         * Disable Remote Control." << endl  << endl;
-
 	cout << "-accessibility     * Enable Windows Active Accessibility." << endl;
 	cout << "-no-accessibility    Disable Windows Active Accessibility." << endl  << endl;
 
@@ -634,10 +624,6 @@ void Configure::generateOutputVars()
 	dictionary[ "QMAKE_OUTDIR" ] += "_shared";
     } else {
 	dictionary[ "QMAKE_OUTDIR" ] += "_static";
-    }
-
-    if( dictionary[ "REMOTE" ] == "yes" ) {
-	qmakeConfig += "remote";
     }
 
     if( !qmakeLibs.isEmpty() ) {
@@ -979,7 +965,6 @@ void Configure::displayConfig()
     cout << "Debug symbols..............." << dictionary[ "DEBUG" ] << endl;
     cout << "Thread support.............." << dictionary[ "THREAD" ] << endl << endl;
 
-    cout << "Remote support.............." << dictionary[ "REMOTE" ] << endl;
     cout << "Accessibility support......." << dictionary[ "ACCESSIBILITY" ] << endl;
     cout << "Big Textcodecs.............." << dictionary[ "BIG_CODECS" ] << endl;
     cout << "Tablet support.............." << dictionary[ "TABLET" ] << endl;

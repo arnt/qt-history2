@@ -255,7 +255,6 @@ CFG_LARGEFILE=auto
 CFG_NEWABI=no ### need to break ABI for full Large File support...
 CFG_STL=auto
 CFG_NAS=no
-CFG_REMOTE=no
 CFG_QWS_DEPTHS=prompted
 D_FLAGS=
 I_FLAGS=
@@ -314,7 +313,7 @@ while [ -n "$1" ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-tablet|-stl|-freetype|-big-codecs|-xrender|-xft|-xkb|-nis|-largefile|-remote|-h|-help|-v|-verbose|-debug|-release|-fast)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-tablet|-stl|-freetype|-big-codecs|-xrender|-xft|-xkb|-nis|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -680,13 +679,6 @@ while [ -n "$1" ]; do
     newabi)
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
 	    CFG_NEWABI="$VAL"
-	else
-	    UNKNOWN_OPT=yes
-	fi
-	;;
-    remote)
-	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
-	    CFG_REMOTE="$VAL"
 	else
 	    UNKNOWN_OPT=yes
 	fi
@@ -2202,8 +2194,6 @@ fi
 [ "$CFG_NAS" = "system" ] && QMAKE_CONFIG="$QMAKE_CONFIG nas"
 [ "$CFG_BIG_CODECS" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG bigcodecs"
 
-[ "$CFG_REMOTE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG remote"
-
 [ "$CFG_QWS_FREETYPE" = "yes" -a "x$CFG_EMBEDDED" != "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG ft"
 if [ "$PLATFORM_X11" = "yes" ]; then
     [ "$CFG_SM" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG x11sm"
@@ -2395,7 +2385,6 @@ fi
 [ "$OPT_CONCURRENT" != "0" ] && echo "Concurrent .......... $OPT_CONCURRENT"
 [ "$CFG_INCREMENTAL" = "yes" ] && [ '!' -z "$INCREMENTAL" ] && echo "Incremental ......... $INCREMENTAL"
 echo "Configuration ....... $QMAKE_CONFIG"
-echo "Remote support ...... $CFG_REMOTE"
 echo "STL support ......... $CFG_STL"
 echo "Thread support ...... $CFG_THREAD"
 echo "NIS support ......... $CFG_NIS"
