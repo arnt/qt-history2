@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#39 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -388,8 +388,8 @@ QProcessPrivate::~QProcessPrivate()
 
 /*
   Closes all open sockets in the child process that are not needed by the child
-  process. Otherwise one child may have an open socket on stdin, etc. of
-  another child.
+  process. Otherwise one child may have an open socket on standard input, etc.
+  of another child.
 */
 void QProcessPrivate::closeOpenSocketsForChild()
 {
@@ -479,8 +479,8 @@ void QProcess::reset()
 
 
 /*!
-  Destructor; if the process is running, it is NOT terminated! Stdin, stdout
-  and stderr of the process are closed.
+  Destructor; if the process is running, it is NOT terminated! Standard input,
+  standard output and standard error of the process are closed.
 */
 QProcess::~QProcess()
 {
@@ -488,9 +488,9 @@ QProcess::~QProcess()
 }
 
 /*!
-  Runs the process. You can write data to the stdin of the process with
-  writeToStdin(), you can close stdin with closeStdin() and you can terminate the
-  process hangUp() resp. kill().
+  Runs the process. You can write data to the standard input of the process with
+  writeToStdin(), you can close standard input with closeStdin() and you can
+  terminate the process hangUp() resp. kill().
 
   Returns TRUE if the process could be started, otherwise FALSE.
 
@@ -502,23 +502,6 @@ bool QProcess::start()
     qDebug( "QProcess::start()" );
 #endif
     reset();
-
-#if 0
-    // ### this is not necessary, since reset() does all the cleanup?
-    // cleanup the notifiers
-    if ( d->notifierStdin ) {
-	delete d->notifierStdin;
-	d->notifierStdin = 0;
-    }
-    if ( d->notifierStdout ) {
-	delete d->notifierStdout;
-	d->notifierStdout = 0;
-    }
-    if ( d->notifierStderr ) {
-	delete d->notifierStderr;
-	d->notifierStderr = 0;
-    }
-#endif
 
     // open sockets for piping
     if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, d->socketStdin ) ) {
@@ -711,8 +694,9 @@ bool QProcess::isRunning()
 }
 
 /*!
-  Writes the data \a buf to the stdin of the process. The process may or may
-  not read this data. If the data was read, the signal wroteStdin() is emitted.
+  Writes the data \a buf to the standard input of the process. The process may
+  or may not read this data. If the data was read, the signal wroteStdin() is
+  emitted.
 */
 void QProcess::writeToStdin( const QByteArray& buf )
 {
@@ -726,14 +710,16 @@ void QProcess::writeToStdin( const QByteArray& buf )
 
 
 /*!
-  Closes stdin.
+  Closes standard input of the process.
 
-  If there is pending data, ### what happens with it?
+  If there is pending data, this function will delete it.
 */
 void QProcess::closeStdin()
 {
     if ( d->socketStdin[1] !=0 ) {
-	// ### what is with pending data?
+	while ( !d->stdinBuf.isEmpty() ) {
+	    delete d->stdinBuf.dequeue();
+	}
 	if ( d->notifierStdin ) {
 	    delete d->notifierStdin;
 	    d->notifierStdin = 0;
@@ -750,7 +736,7 @@ void QProcess::closeStdin()
 
 
 /*
-  The process has outputted data to either stdout or stderr.
+  The process has outputted data to either standard output or standard error.
 */
 void QProcess::socketRead( int fd )
 {
@@ -825,7 +811,7 @@ void QProcess::socketRead( int fd )
 
 
 /*
-  The process tries to read data from stdin.
+  The process tries to read data from standard input.
 */
 void QProcess::socketWrite( int fd )
 {
