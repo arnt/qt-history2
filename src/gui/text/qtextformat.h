@@ -332,7 +332,7 @@ public:
     { return intProperty(BlockIndent); }
 
     inline void setFloatPosition(FloatPosition f)
-    { return setProperty(CssFloat, (int)f); }
+    { setProperty(CssFloat, (int)f); }
     inline FloatPosition floatPosition() const
     { return (FloatPosition)intProperty(CssFloat, FloatNone); }
 
