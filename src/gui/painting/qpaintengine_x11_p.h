@@ -17,9 +17,10 @@
 
 #include "qregion.h"
 #include "qpen.h"
+#include <private/qpaintengine_p.h>
+
 #include "qx11info_x11.h"
 #include <private/qt_x11_p.h>
-#include <private/qpaintengine_p.h>
 
 static const short ropCodes[] = {                     // ROP translation table
     GXcopy, // CopyROP
