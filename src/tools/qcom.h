@@ -204,7 +204,7 @@ public:
 };
 
 #ifndef Q_CREATE_INSTANCE
-    #define Q_CREATE_INSTANCE( IMPLEMENTATION )		\
+#    define Q_CREATE_INSTANCE( IMPLEMENTATION )		\
 	IMPLEMENTATION *i = new IMPLEMENTATION;	\
 	QUnknownInterface* iface = 0; 			\
 	i->queryInterface( IID_QUnknown, &iface );	\
@@ -222,13 +222,18 @@ public:
 #define Q_REFCOUNT  ulong addRef() {return ref++;}ulong release() {if(!--ref){delete this;return 0;}return ref;}
 
 #ifndef Q_EXPORT_INTERFACE
-    #ifdef Q_WS_WIN
-	#define Q_EXPORT_INTERFACE() \
-	    Q_EXTERN_C __declspec(dllexport) QUnknownInterface *ucm_instantiate()
-    #else
-	#define Q_EXPORT_INTERFACE() \
-	    Q_EXTERN_C QUnknownInterface *ucm_instantiate()
-    #endif
+#    ifdef Q_WS_WIN
+#	ifdef Q_CC_BOR
+#	    define Q_EXPORT_INTERFACE() \
+		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* __stdcall ucm_instantiate()
+#	else
+#	    define Q_EXPORT_INTERFACE() \
+		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* ucm_instantiate()
+#	endif
+#    else
+#	define Q_EXPORT_INTERFACE() \
+	    Q_EXTERN_C QUnknownInterface* ucm_instantiate()
+#    endif
 #endif
 
 #endif //QT_NO_COMPONENT
