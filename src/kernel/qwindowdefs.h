@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#72 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#73 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -98,6 +98,8 @@ HANDLE qWinAppInst();
 HANDLE qWinAppPrevInst();
 int    qWinAppCmdShow();
 HANDLE qt_display_dc();
+
+enum WindowsVersion { WV_NT, WV_95, WV_32s };
 
 #endif // _WS_WIN16_ or _WS_WIN32_
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#43 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#42 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#43 $")
 
 
 /*****************************************************************************
@@ -51,8 +51,8 @@ static bool	app_do_modal	= FALSE;	// modal mode
 static bool	app_exit_loop	= FALSE;	// flag to exit local loop
 
 static QWidgetList *modal_stack = 0;		// stack of modal widgets
-QWidgetList	   *popupWidgets= 0;		// list of popup widgets
-bool		    popupCloseDownMode = FALSE;
+static QWidgetList *popupWidgets= 0;		// list of popup widgets
+static bool	    popupCloseDownMode = FALSE;
 
 typedef void  (*VFPTR)();
 typedef declare(QListM,void) QVFuncList;
@@ -66,6 +66,8 @@ static void	initTimers();
 static void	cleanupTimers();
 static bool	activateTimer( uint );
 static void	activateZeroTimers();
+
+WindowsVersion	qt_winver = WV_NT;
 
 QObject	       *qt_clipboard = 0;
 
@@ -179,6 +181,17 @@ int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
     appInst = instance;
     appPrevInst = prevInstance;
     appCmdShow = cmdShow;
+
+
+  // Detect the Windows version
+
+    DWORD dwVer = GetVersion();
+    if ( dwVer < 0x80000000 )
+	qt_winver = WV_NT;		// Windows NT 3.x
+    else if ( LOBYTE(LOWORD(dwVer)) < 4 )
+	qt_winver = WV_32s;		// Win32s
+    else
+	qt_winver = WV_95;		// Windows 95
 
   // Call user main()
 
