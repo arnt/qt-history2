@@ -91,27 +91,30 @@ void QSocketDevice::init()
 }
 
 
-QSocketDevice::Protocol QSocketDevice::getProtocol( int socket ) const
+QSocketDevice::Protocol QSocketDevice::getProtocol() const
 {
+    if ( isValid() ) {
 #if !defined (QT_NO_IPV6)
-    if (socket != -1) {
-	struct sockaddr_storage ss;
-	QT_SOCKLEN_T sslen = sizeof( ss );
-	if ( getsockname(socket, (struct sockaddr *)&ss, &sslen) == 0 ) {
-	    switch ( ss.ss_family ) {
+	struct sockaddr_storage sa;
+#else
+	struct sockaddr sa;
+#endif
+	memset( &sa, 0, sizeof(sa) );
+	QT_SOCKLEN_T sz = sizeof( sa );
+	if ( !::getsockname(fd, (struct sockaddr *)&sa, &sz) ) {
+	    switch ( sa.ss_family ) {
 		case AF_INET:
 		    return IPv4;
+#if !defined (QT_NO_IPV6)
 		case AF_INET6:
 		    return IPv6;
+#endif
 		default:
 		    return Unknown;
 	    }
-	} else {
-	    return Unknown;
 	}
     }
-#endif
-    return IPv4;
+    return Unknown;
 }
 
 /*!
@@ -201,7 +204,7 @@ bool QSocketDevice::blocking() const
 {
     if ( !isValid() )
 	return TRUE;
-    int s = fcntl( socket(), F_GETFL, 0 );
+    int s = fcntl(fd, F_GETFL, 0);
     return !(s >= 0 && ((s & O_NDELAY) != 0));
 }
 
@@ -225,9 +228,11 @@ void QSocketDevice::setBlocking( bool enable )
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug( "QSocketDevice::setBlocking( %d )", enable );
 #endif
-    int tmp = ::fcntl( socket(), F_GETFL, 0);
+    if ( !isValid() )
+	return;
+    int tmp = ::fcntl(fd, F_GETFL, 0);
     if ( tmp >= 0 )
-	tmp = ::fcntl( socket(), F_SETFL, enable ? (tmp&~O_NDELAY) : (tmp|O_NDELAY) );
+	tmp = ::fcntl( fd, F_SETFL, enable ? (tmp&~O_NDELAY) : (tmp|O_NDELAY) );
     if ( tmp >= 0 )
 	return;
     if ( e )
@@ -259,6 +264,8 @@ void QSocketDevice::setBlocking( bool enable )
 */
 int QSocketDevice::option( Option opt ) const
 {
+    if ( !isValid() )
+	return -1;
     int n = -1;
     int v = -1;
     switch ( opt ) {
@@ -278,7 +285,7 @@ int QSocketDevice::option( Option opt ) const
     if ( n != -1 ) {
 	QT_SOCKOPTLEN_T len;
 	len = sizeof(v);
-	int r = ::getsockopt( socket(), SOL_SOCKET, n, (char*)&v, &len );
+	int r = ::getsockopt( fd, SOL_SOCKET, n, (char*)&v, &len );
 	if ( r >= 0 )
 	    return v;
 	if ( !e ) {
@@ -307,6 +314,8 @@ int QSocketDevice::option( Option opt ) const
 */
 void QSocketDevice::setOption( Option opt, int v )
 {
+    if ( !isValid() )
+	return;
     int n = -1; // for really, really bad compilers
     switch ( opt ) {
     case Broadcast:
@@ -324,7 +333,7 @@ void QSocketDevice::setOption( Option opt, int v )
     default:
 	return;
     }
-    if ( ::setsockopt( socket(), SOL_SOCKET, n, (char*)&v, sizeof(v)) < 0 &&
+    if ( ::setsockopt( fd, SOL_SOCKET, n, (char*)&v, sizeof(v)) < 0 &&
 	 e == NoError ) {
 	switch( errno ) {
 	case EBADF:
@@ -353,6 +362,8 @@ void QSocketDevice::setOption( Option opt, int v )
 */
 bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 {
+    if ( !isValid() )
+	return FALSE;
     struct sockaddr_in a4;
     struct sockaddr *aa;
     QT_SOCKLEN_T aalen;
@@ -384,7 +395,7 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 	return FALSE;
     }
 
-    int r = qt_socket_connect( socket(), aa, aalen );
+    int r = qt_socket_connect( fd, aa, aalen );
     if ( r == 0 ) {
 	fetchConnectionParameters();
 	return TRUE;
@@ -438,6 +449,8 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 */
 bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 {
+    if ( !isValid() )
+	return FALSE;
     int r;
     struct sockaddr_in a4;
 #if !defined(QT_NO_IPV6)
@@ -450,7 +463,7 @@ bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 	Q_IPV6ADDR tmp = address.toIPv6Address();
 	memcpy( &a6.sin6_addr.s6_addr, &tmp, sizeof(tmp) );
 
-	r = qt_socket_bind( socket(), (struct sockaddr *)&a6, sizeof(a6) );
+	r = qt_socket_bind( fd, (struct sockaddr *)&a6, sizeof(a6) );
     } else
 #endif
     if ( address.isIPv4Address() ) {
@@ -459,7 +472,7 @@ bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 	a4.sin_port = htons( port );
 	a4.sin_addr.s_addr = htonl( address.toIPv4Address() );
 
-	r = qt_socket_bind( socket(), (struct sockaddr*)&a4, sizeof(a4) );
+	r = qt_socket_bind( fd, (struct sockaddr*)&a4, sizeof(a4) );
     } else {
 	e = Impossible;
 	return FALSE;
@@ -515,7 +528,7 @@ bool QSocketDevice::listen( int backlog )
 {
     if ( !isValid() )
 	return FALSE;
-    if ( qt_socket_listen( socket(), backlog ) >= 0 )
+    if ( qt_socket_listen( fd, backlog ) >= 0 )
 	return TRUE;
     if ( !e )
 	e = Impossible;
@@ -544,7 +557,7 @@ int QSocketDevice::accept()
     bool done;
     int s;
     do {
-        s = qt_socket_accept( socket(), (struct sockaddr*)&aa, &l );
+        s = qt_socket_accept( fd, (struct sockaddr*)&aa, &l );
         // we'll blithely throw away the stuff accept() wrote to aa
         done = TRUE;
         if ( s < 0 && e == NoError ) {
@@ -625,7 +638,7 @@ Q_LONG QSocketDevice::bytesAvailable() const
     */
     size_t nbytes = 0;
     // gives shorter than true amounts on Unix domain sockets.
-    if ( ::ioctl(socket(), FIONREAD, (char*)&nbytes) < 0 )
+    if ( ::ioctl(fd, FIONREAD, (char*)&nbytes) < 0 )
 	return -1;
     return (Q_LONG) *((int *) &nbytes);
 }
@@ -658,12 +671,12 @@ Q_LONG QSocketDevice::waitForMore( int msecs, bool *timeout ) const
     struct timeval tv;
 
     FD_ZERO( &fds );
-    FD_SET( socket(), &fds );
+    FD_SET( fd, &fds );
 
     tv.tv_sec = msecs / 1000;
     tv.tv_usec = (msecs % 1000) * 1000;
 
-    int rv = select( socket() + 1, &fds, 0, 0, msecs < 0 ? 0 : &tv );
+    int rv = select( fd+1, &fds, 0, 0, msecs < 0 ? 0 : &tv );
 
     if ( rv < 0 )
 	return -1;
@@ -712,13 +725,13 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 	    memset( &aa, 0, sizeof(aa) );
 	    QT_SOCKLEN_T sz;
 	    sz = sizeof( aa );
-	    r = ::recvfrom( socket(), data, maxlen, 0,
+	    r = ::recvfrom( fd, data, maxlen, 0,
 			    (struct sockaddr *)&aa, &sz );
 
 	    qt_socket_getportaddr( (struct sockaddr *)&aa, &pp, &pa);
 
 	} else {
-	    r = ::read( socket(), data, maxlen );
+	    r = ::read( fd, data, maxlen );
 	}
 	done = TRUE;
 	if ( r >= 0 || errno == EAGAIN || errno == EWOULDBLOCK ) {
@@ -789,7 +802,7 @@ Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
     int r = 0;
     bool timeout;
     while ( !done ) {
-	r = ::write( socket(), data, len );
+	r = ::write( fd, data, len );
 	done = TRUE;
 	if ( r < 0 && e == NoError &&
 	     errno != EAGAIN && errno != EWOULDBLOCK ) {
@@ -903,7 +916,7 @@ Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
     bool done = FALSE;
     int r = 0;
     while ( !done ) {
-	r = ::sendto( socket(), data, len, 0, aa, slen);
+	r = ::sendto( fd, data, len, 0, aa, slen);
 	done = TRUE;
 	if ( r < 0 && e == NoError &&
 	     errno != EAGAIN && errno != EWOULDBLOCK ) {
@@ -962,11 +975,11 @@ void QSocketDevice::fetchConnectionParameters()
     memset( &sa, 0, sizeof(sa) );
     QT_SOCKLEN_T sz;
     sz = sizeof( sa );
-    if ( !::getsockname( socket(), (struct sockaddr *)(&sa), &sz ) )
+    if ( !::getsockname( fd, (struct sockaddr *)(&sa), &sz ) )
 	qt_socket_getportaddr( (struct sockaddr *)&sa, &p, &a );
 
     sz = sizeof( sa );
-    if ( !::getpeername( socket(), (struct sockaddr *)(&sa), &sz ) )
+    if ( !::getpeername( fd, (struct sockaddr *)(&sa), &sz ) )
 	qt_socket_getportaddr( (struct sockaddr *)&sa, &pp, &pa );
 }
 

@@ -131,7 +131,7 @@ private:
 
     static void  init();
     int		 createNewSocket();
-    Protocol	 getProtocol( int ) const;
+    Protocol	 getProtocol() const;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -64,9 +64,17 @@ public:
 /*!
     \enum QSocketDevice::Protocol
 
-    \value Unknown
-    \value IPv4
-    \value IPv6
+    This enum type describes the protocol family of the socket. Possible values
+    are:
+
+    \value IPv4 The socket is an IPv4 socket.
+    \value IPv6 The socket is an IPv6 socket.
+    \value Unknown The protocol family of the socket is not known. This can
+	   happen if you use QSocketDevice with an already existing socket; it
+	   tries to determine the protocol family, but this can fail if the
+	   protocol family is not known to QSocketDevice.
+
+    \sa protocol() setSocket()
 */
 
 /*!
@@ -214,8 +222,6 @@ bool QSocketDevice::isValid() const
     Returns the socket type which is either \c QSocketDevice::Stream
     or \c QSocketDevice::Datagram.
 
-
-
     \sa socket()
 */
 QSocketDevice::Type QSocketDevice::type() const
@@ -224,13 +230,21 @@ QSocketDevice::Type QSocketDevice::type() const
 }
 
 /*!
-    Returns the socket type, which is one of \c Unknown, \c IPv4, or \c
-    IPv6.
+    Returns the socket's protocol family, which is one of \c Unknown, \c IPv4,
+    or \c IPv6.
+
+    QSocketDevice either creates a socket with a well known protocol family or
+    it uses an already existing socket. In the first case, this function
+    returns the protocol family it was constructed with. In the second case, it
+    tries to determine the protocol family of the socket; if this fails, it
+    returns \c Unknown.
+
+    \sa Protocol setSocket()
 */
 QSocketDevice::Protocol QSocketDevice::protocol() const
 {
     if ( d->protocol == Unknown )
-	d->protocol = getProtocol( fd );
+	d->protocol = getProtocol();
     return d->protocol;
 }
 
@@ -267,6 +281,7 @@ void QSocketDevice::setSocket( int socket, Type type )
 #endif
     t = type;
     fd = socket;
+    d->protocol = Unknown;
     e = NoError;
     setFlags( IO_Sequential );
     resetStatus();

@@ -30,12 +30,12 @@
 #  define QT_SS_ALIGNSIZE (sizeof(__int64))
 #  define QT_SS_PAD1SIZE (QT_SS_ALIGNSIZE - sizeof (short))
 #  define QT_SS_PAD2SIZE (QT_SS_MAXSIZE - (sizeof (short) + QT_SS_PAD1SIZE + QT_SS_ALIGNSIZE))
-typedef struct {
+typedef struct qt_sockaddr_storage {
       short ss_family;
       char __ss_pad1[QT_SS_PAD1SIZE];
       __int64 __ss_align;
       char __ss_pad2[QT_SS_PAD2SIZE];
-} qt_sockaddr_storage;
+};
 
 // sockaddr_in6 size changed between old and new SDK
 // Only the new version is the correct one, so always
@@ -75,65 +75,62 @@ static void cleanupWinSock() // post-routine
 
 void QSocketDevice::init()
 {
+#if !defined(QT_NO_IPV6)
     if ( !initialized ) {
 	WSAData wsadata;
-#if !defined(QT_NO_IPV6)
 	// IPv6 requires Winsock v2.0 or better.
 	if ( WSAStartup( MAKEWORD(2,0), &wsadata ) != 0 ) {
-
-#if defined(QSOCKETDEVICE_DEBUG)
+#  if defined(QSOCKETDEVICE_DEBUG)
 	    qDebug( "QSocketDevice: WinSock v2.0 initialization failed, disabling IPv6 support." );
+#  endif
+	} else {
+	    qAddPostRoutine( cleanupWinSock );
+	    initialized = 0x20;
+	    return;
+	}
+    }
+#endif
+
+    if (!initialized) {
+	WSAData wsadata;
+	if ( WSAStartup( MAKEWORD(1,1), &wsadata ) != 0 ) {
+#if defined(QT_CHECK_NULL)
+	    qWarning( "QSocketDevice: WinSock initialization failed" );
+#endif
+#if defined(QSOCKETDEVICE_DEBUG)
+	    qDebug( "QSocketDevice: WinSock initialization failed"  );
 #endif
 	    return;
-	} else {
-	    initialized = 0x20;
 	}
-
-	if (!initialized) {
-#endif
-	    if ( WSAStartup( MAKEWORD(1,1), &wsadata ) != 0 ) {
-#if defined(QT_CHECK_NULL)
-		qWarning( "QSocketDevice: WinSock initialization failed" );
-#endif
-#if defined(QSOCKETDEVICE_DEBUG)
-		qDebug( "QSocketDevice: WinSock initialization failed"  );
-#endif
-		return;
-	    }
-
-            initialized = 0x11;
-	}
-
 	qAddPostRoutine( cleanupWinSock );
-#if defined(QSOCKETDEVICE_DEBUG)
-	qDebug( "QSocketDevice: WinSock initialization OK" );
-#endif
+	initialized = 0x11;
     }
 }
 
-QSocketDevice::Protocol QSocketDevice::getProtocol( int socket ) const
+QSocketDevice::Protocol QSocketDevice::getProtocol() const
 {
+    if ( isValid() ) {
 #if !defined (QT_NO_IPV6)
-    if (socket != -1) {
-	qt_sockaddr_storage ss;
-	memset( &ss, 0, sizeof(ss) );
-	SOCKLEN_T sslen = sizeof( ss );
-	if ( !::getsockname(socket, (struct sockaddr *)&ss, &sslen) ) {
-	    switch ( ss.ss_family ) {
+	struct qt_sockaddr_storage sa;
+#else
+	struct sockaddr_in sa;
+#endif
+	memset( &sa, 0, sizeof(sa) );
+	SOCKLEN_T sz = sizeof( sa );
+	if ( !::getsockname(socket, (struct sockaddr *)&sa, &sz) ) {
+	    switch ( sa.ss_family ) {
 		case AF_INET:
 		    return IPv4;
+#if !defined (QT_NO_IPV6)
 		case AF_INET6:
 		    return IPv6;
+#endif
 		default:
 		    return Unknown;
 	    }
-	} else {
-	    return Unknown;
 	}
     }
-#endif
-    return IPv4;
-
+    return Unknown;
 }
 
 int QSocketDevice::createNewSocket( )
@@ -212,14 +209,18 @@ void QSocketDevice::setBlocking( bool enable )
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug( "QSocketDevice::setBlocking( %d )", enable );
 #endif
+    if ( !isValid() )
+	return;
 
     unsigned long dummy = enable ? 0 : 1;
-    ioctlsocket( socket(), FIONBIO, &dummy );
+    ioctlsocket( fd, FIONBIO, &dummy );
 }
 
 
 int QSocketDevice::option( Option opt ) const
 {
+    if ( !isValid() )
+	return -1;
     int n = -1;
     int v = -1;
     switch ( opt ) {
@@ -238,7 +239,7 @@ int QSocketDevice::option( Option opt ) const
     }
     if ( n != -1 ) {
 	SOCKLEN_T len = sizeof(v);
-	int r = ::getsockopt( socket(), SOL_SOCKET, n, (char*)&v, &len );
+	int r = ::getsockopt( fd, SOL_SOCKET, n, (char*)&v, &len );
 	if ( r != SOCKET_ERROR )
 	    return v;
 	if ( !e ) {
@@ -274,6 +275,8 @@ int QSocketDevice::option( Option opt ) const
 
 void QSocketDevice::setOption( Option opt, int v )
 {
+    if ( !isValid() )
+	return;
     int n = -1; // for really, really bad compilers
     switch ( opt ) {
 	case Broadcast:
@@ -291,7 +294,7 @@ void QSocketDevice::setOption( Option opt, int v )
 	default:
 	    return;
     }
-    int r = ::setsockopt( socket(), SOL_SOCKET, n, (char*)&v, sizeof(v) );
+    int r = ::setsockopt( fd, SOL_SOCKET, n, (char*)&v, sizeof(v) );
     if ( r == SOCKET_ERROR && e == NoError ) {
 	switch( WSAGetLastError() ) {
 	    case WSANOTINITIALISED:
@@ -325,6 +328,8 @@ void QSocketDevice::setOption( Option opt, int v )
 
 bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 {
+    if ( !isValid() )
+	return FALSE;
     struct sockaddr_in a4;
     struct sockaddr *aa;
     SOCKLEN_T aalen;
@@ -356,7 +361,7 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 	return FALSE;
     }
 
-    int r = ::connect( socket(), aa, aalen );
+    int r = ::connect( fd, aa, aalen );
 
     if ( r == SOCKET_ERROR )
     {
@@ -422,6 +427,8 @@ successful:
 
 bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 {
+    if ( !isValid() )
+	return FALSE;
     int r;
     struct sockaddr_in a4;
 #if !defined(QT_NO_IPV6)
@@ -434,7 +441,7 @@ bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 	Q_IPV6ADDR tmp = address.toIPv6Address();
 	memcpy( &a6.sin6_addr.qt_s6_addr, &tmp, sizeof(tmp) );
 
-	r = ::bind( socket(), (struct sockaddr *)&a6, sizeof(qt_sockaddr_storage) );
+	r = ::bind( fd, (struct sockaddr *)&a6, sizeof(struct qt_sockaddr_storage) );
     } else
 #endif
     if ( address.isIPv4Address() ) {
@@ -443,7 +450,7 @@ bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 	a4.sin_port = htons( port );
 	a4.sin_addr.s_addr = htonl( address.toIPv4Address() );
 
-	r = ::bind( socket(), (struct sockaddr*)&a4, sizeof(struct sockaddr_in) );
+	r = ::bind( fd, (struct sockaddr*)&a4, sizeof(struct sockaddr_in) );
     } else {
 	e = Impossible;
 	return FALSE;
@@ -492,7 +499,7 @@ bool QSocketDevice::listen( int backlog )
 {
     if ( !isValid() )
 	return FALSE;
-    if ( ::listen( socket(), backlog ) >= 0 )
+    if ( ::listen( fd, backlog ) >= 0 )
 	return TRUE;
     if ( !e )
 	e = Impossible;
@@ -505,7 +512,7 @@ int QSocketDevice::accept()
     if ( !isValid() )
 	return -1;
 #if !defined(QT_NO_IPV6)
-    qt_sockaddr_storage a;
+    struct qt_sockaddr_storage a;
 #else
     struct sockaddr a;
 #endif
@@ -559,7 +566,7 @@ Q_LONG QSocketDevice::bytesAvailable() const
     if ( !isValid() )
 	return -1;
     u_long nbytes = 0;
-    if ( ::ioctlsocket( socket(), FIONREAD, &nbytes) < 0 )
+    if ( ::ioctlsocket(fd, FIONREAD, &nbytes) < 0 )
 	return -1;
     return nbytes;
 }
@@ -574,12 +581,12 @@ Q_LONG QSocketDevice::waitForMore( int msecs, bool *timeout ) const
     struct timeval tv;
 
     FD_ZERO( &fds );
-    FD_SET( socket(), &fds );
+    FD_SET( fd, &fds );
 
     tv.tv_sec = msecs / 1000;
     tv.tv_usec = (msecs % 1000) * 1000;
 
-    int rv = select( fd + 1, &fds, 0, 0, msecs < 0 ? 0 : &tv );
+    int rv = select( fd+1, &fds, 0, 0, msecs < 0 ? 0 : &tv );
 
     if ( rv < 0 )
 	return -1;
@@ -618,14 +625,14 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 	// With IPv6 support, we must be prepared to receive both IPv4
 	// and IPv6 packets. The generic SOCKADDR_STORAGE (struct
 	// sockaddr_storage on unix) replaces struct sockaddr.
-	qt_sockaddr_storage a;
+	struct qt_sockaddr_storage a;
 #else
 	struct sockaddr_in a;
 #endif
 	memset( &a, 0, sizeof(a) );
 	SOCKLEN_T sz;
 	sz = sizeof( a );
-	r = ::recvfrom( socket(), data, maxlen, 0, (struct sockaddr *)&a, &sz );
+	r = ::recvfrom( fd, data, maxlen, 0, (struct sockaddr *)&a, &sz );
 #if !defined(QT_NO_IPV6)
 	// Check the family type, and translate the remote address
 	// accordingly.
@@ -645,7 +652,7 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 	    pa = QHostAddress( ntohl( a4->sin_addr.s_addr ) );
 	}
     } else {
-	r = ::recv( socket(), data, maxlen, 0 );
+	r = ::recv( fd, data, maxlen, 0 );
     }
     if ( r == SOCKET_ERROR && e == NoError ) {
 	switch( WSAGetLastError() ) {
@@ -720,7 +727,7 @@ Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
     Q_LONG r = 0;
     while ( !done ) {
 	// Don't write more than 64K (see Knowledge Base Q201213).
-	r = ::send( socket(), data, ( len>64*1024 ? 64*1024 : len ), 0 );
+	r = ::send( fd, data, ( len>64*1024 ? 64*1024 : len ), 0 );
 	done = TRUE;
 	if ( r == SOCKET_ERROR && e == NoError ) {//&& errno != WSAEAGAIN ) {
 	    switch( WSAGetLastError() ) {
@@ -832,7 +839,7 @@ Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
     bool done = FALSE;
     Q_LONG r = 0;
     while ( !done ) {
-	r = ::sendto( socket(), data, len, 0, aa, slen );
+	r = ::sendto( fd, data, len, 0, aa, slen );
 	done = TRUE;
 	if ( r == SOCKET_ERROR && e == NoError ) {//&& e != EAGAIN ) {
 	    switch( WSAGetLastError() ) {
@@ -895,14 +902,14 @@ void QSocketDevice::fetchConnectionParameters()
 	return;
     }
 #if !defined (QT_NO_IPV6)
-    qt_sockaddr_storage sa;
+    struct qt_sockaddr_storage sa;
 #else
     struct sockaddr_in sa;
 #endif
     memset( &sa, 0, sizeof(sa) );
     SOCKLEN_T sz;
     sz = sizeof( sa );
-    if ( !::getsockname( socket(), (struct sockaddr *)(&sa), &sz ) ) {
+    if ( !::getsockname( fd, (struct sockaddr *)(&sa), &sz ) ) {
 #if !defined (QT_NO_IPV6)
 	struct sockaddr *sap = (struct sockaddr *)&sa;
 	if (sap->sa_family == AF_INET6) {
@@ -931,14 +938,14 @@ void QSocketDevice::fetchPeerConnectionParameters()
     // do the getpeername() lazy on Windows (sales/arc-18/37759 claims that
     // there will be problems otherwise if you use MS Proxy server)
 #if !defined (QT_NO_IPV6)
-    qt_sockaddr_storage sa;
+    struct qt_sockaddr_storage sa;
 #else
     struct sockaddr_in sa;
 #endif
     memset( &sa, 0, sizeof(sa) );
     SOCKLEN_T sz;
     sz = sizeof( sa );
-    if ( !::getpeername( socket(), (struct sockaddr *)(&sa), &sz ) ) {
+    if ( !::getpeername( fd, (struct sockaddr *)(&sa), &sz ) ) {
 #if !defined (QT_NO_IPV6)
 	struct sockaddr *sa4 = (struct sockaddr *)&sa;
 	if (sa4->sa_family == AF_INET6) {
