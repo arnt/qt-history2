@@ -3119,6 +3119,7 @@ void Q3ListView::clear()
 
     d->focusItem = 0;
     d->selectAnchor = 0;
+    d->pressedItem = 0;
 
     // if it's down its downness makes no sense, so undown it
     d->buttonDown = false;
