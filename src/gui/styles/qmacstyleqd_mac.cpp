@@ -1738,14 +1738,9 @@ void QMacStyleQD::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                         p->fillRect(tb->rect, tb->palette.color(tb->bgRole));
                         info.state = kThemeStateInactive;
                     }
-
                     static_cast<QMacStyleQDPainter *>(p)->setport();
                     DrawThemeButton(qt_glb_mac_rect(button, p, false, off_rct),
                                     bkind, &info, 0, 0, 0, 0);
-                } else if (tb->parentPalette.brush(tb->parentBGRole).pixmap() &&
-                           !tb->parentPalette.brush(tb->parentBGRole).pixmap()->isNull()) {
-                    p->drawTiledPixmap(tb->rect, *tb->parentPalette.brush(tb->parentBGRole).pixmap(),
-                                       tb->pos);
                 }
             }
 
