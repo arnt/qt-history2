@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#35 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -253,7 +253,7 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
 
     if ( l[0] != qt_xdnd_dragsource_xid ) {
 	//	debug( "xdnd drag position from unexpected source (%08lx not %08lx)",
-	//       l[0], qt_xdnd_dragsource_xid );
+	//      l[0], qt_xdnd_dragsource_xid );
 	return;
     }
 
@@ -277,15 +277,22 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
 	    QDragLeaveEvent e;
 	    QApplication::sendEvent( qt_xdnd_current_widget, &e );
 	}
-	QDragEnterEvent de( p );
-	QApplication::sendEvent( c, &de );
-	if ( de.isAccepted() )
-	    me.accept( de.answerRect() );
-	else
-	    me.ignore( de.answerRect() );
+	if ( c->acceptDrops() ) {
+	    QDragEnterEvent de( p );
+	    QApplication::sendEvent( c, &de );
+	    if ( de.isAccepted() )
+		me.accept( de.answerRect() );
+	    else
+		me.ignore( de.answerRect() );
+	}
     } else {
 	if ( qt_xdnd_target_answerwas )
 	    me.accept();
+    }
+
+    if ( !c->acceptDrops() ) {
+	qt_xdnd_current_widget = 0;
+	return;
     }
 
     qt_xdnd_current_widget = c;
@@ -347,6 +354,7 @@ void qt_handle_xdnd_status( QWidget * w, const XEvent * xe )
 
 void qt_handle_xdnd_leave( QWidget *w, const XEvent * xe )
 {
+    //debug( "xdnd leave" );
     if ( !qt_xdnd_current_widget ||
 	 w->topLevelWidget() != qt_xdnd_current_widget->topLevelWidget() ) {
 	qt_xdnd_dragsource_xid = 0;
@@ -355,17 +363,16 @@ void qt_handle_xdnd_leave( QWidget *w, const XEvent * xe )
 
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
 
-    //debug( "xdnd leave" );
+    QDragLeaveEvent e;
+    QApplication::sendEvent( qt_xdnd_current_widget, &e );
 
     if ( l[0] != qt_xdnd_dragsource_xid ) {
+	// This often happens - leave other-process window quickly
 	//debug( "xdnd drag leave from unexpected source (%08lx not %08lx",
-	//       l[0], qt_xdnd_dragsource_xid );
+	       //l[0], qt_xdnd_dragsource_xid );
 	qt_xdnd_current_widget = 0;
 	return;
     }
-
-    QDragLeaveEvent e;
-    QApplication::sendEvent( qt_xdnd_current_widget, &e );
 
     if ( qt_xdnd_dragsource_xid && !QWidget::find( qt_xdnd_dragsource_xid ) )
 	XSelectInput( w->x11Display(), qt_xdnd_dragsource_xid, 0 );
