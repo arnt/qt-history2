@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#32 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#33 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -48,6 +48,8 @@ public:
 
     bool	autoUpdate()	const;
     void	setAutoUpdate( bool );
+    
+    void	setFixedVisibleLines( int lines );
 
 public slots:
     void       clear();

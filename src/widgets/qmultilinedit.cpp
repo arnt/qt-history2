@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#88 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#89 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -2049,6 +2049,19 @@ bool QMultiLineEdit::autoUpdate() const
 void QMultiLineEdit::setAutoUpdate( bool enable )
 {
     QTableView::setAutoUpdate( enable );
+}
+
+/*! 
+  Sets the fixed height of the QMultiLineEdit so that \e lines text lines
+  are visible given the current font.
+  
+  \sa setFixedHeight()
+ */
+void QMultiLineEdit::setFixedVisibleLines( int lines )
+{
+    int ls = fontMetrics().lineSpacing() + 1;
+    setFixedHeight( frameWidth()*2 + ls*lines );
+    return;
 }
 
 
