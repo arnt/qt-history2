@@ -118,13 +118,13 @@ MakefileGenerator::generateMocList(QString fn_target)
 		mocFile = fn_target.left(dir_pos+1);
 
 	    if(fn_target.right(ext_len) == Option::cpp_ext) {
-		mocFile += fn_target.mid(dir_pos+1, ext_pos - dir_pos) + Option::moc_ext;
+		mocFile += fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::moc_ext;
 		depends[fn_target].append(mocFile);
 		project->variables()["_SRCMOC"].append(mocFile);
 	    }
 	    else if(fn_target.right(ext_len) == Option::h_ext &&
 		    project->variables()["HEADERS"].findIndex(fn_target) != -1) {
-		mocFile += Option::moc_mod + fn_target.mid(dir_pos+1, ext_pos - dir_pos) + Option::cpp_ext;
+		mocFile += Option::moc_mod + fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::cpp_ext;
 		project->variables()["_HDRMOC"].append(mocFile);
 	    }
 
