@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#49 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#50 $
 **
 ** Global type declarations and definitions
 **
@@ -49,6 +49,8 @@
 #define _OS_ULTRIX_
 #elif defined(linux) || defined(__linux) || defined(__linux__)
 #define _OS_LINUX_
+#elif defined(__FreeBSD__)
+#define _OS_FREEBSD_
 #elif defined(sgi) || defined(__sgi)
 #define _OS_IRIX_
 #else
