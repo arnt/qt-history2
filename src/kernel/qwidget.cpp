@@ -3871,6 +3871,29 @@ void QWidget::sendHideEventsToChildren( bool spontaneous )
 
 void QWidget::polish()
 {
+#ifndef QT_NO_WIDGET_TOPEXTRA
+    if ( isTopLevel() ) {
+	const QPixmap *pm = icon();
+	if ( !pm || pm->isNull() ) {
+	    QWidget *mw = (QWidget *)parent();
+	    pm = mw ? mw->icon() : 0;
+    	    if ( pm && !pm->isNull() )
+		setIcon( *pm );
+	    else {
+		mw = mw ? mw->topLevelWidget() : 0;
+		pm = mw ? mw->icon() : 0;
+		if ( pm && !pm->isNull() )
+		    setIcon( *pm );
+		else {
+		    mw = qApp ? qApp->mainWidget() : 0;
+		    pm = mw ? mw->icon() : 0;
+		    if ( pm && !pm->isNull() )
+			setIcon( *pm );
+		}
+	    }
+	}
+    }
+#endif
     if ( !testWState(WState_Polished) ) {
 	if ( !own_font && !QApplication::font( this ).isCopyOf( QApplication::font() ) ) {
 	    setFont( QApplication::font( this ) );

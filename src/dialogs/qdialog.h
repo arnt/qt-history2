@@ -66,7 +66,6 @@ public:
 
     void	show();
     void	hide();
-    void	polish();
     void	move( int x, int y );
     void	move( const QPoint &p );
     void	resize( int w, int h );

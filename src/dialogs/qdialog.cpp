@@ -413,33 +413,6 @@ bool QDialog::eventFilter( QObject *o, QEvent *e )
     return QWidget::eventFilter( o, e );
 }
 
-/*! \reimp */
-void QDialog::polish()
-{
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    const QPixmap *pm = icon();
-    if ( !pm || pm->isNull() ) {
-	QWidget *mw = (QWidget *)parent();
-	pm = mw ? mw->icon() : 0;
-    	if ( pm && !pm->isNull() )
-	    setIcon( *pm );
-	else {
-	    mw = mw ? mw->topLevelWidget() : 0;
-	    pm = mw ? mw->icon() : 0;
-	    if ( pm && !pm->isNull() )
-		setIcon( *pm );
-	    else {
-		mw = qApp ? qApp->mainWidget() : 0;
-		pm = mw ? mw->icon() : 0;
-		if ( pm && !pm->isNull() )
-		    setIcon( *pm );
-	    }
-	}
-    }
-#endif
-    QWidget::polish();
-}
-
 /*****************************************************************************
   Event handlers
  *****************************************************************************/
