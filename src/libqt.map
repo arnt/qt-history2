@@ -2,49 +2,18 @@
   global:
   extern "C++"
   {
-	QGuardedPtrPrivate::*
+    QMenuBar::heightForWidth;
+    QMenuBar?virtual?table;
+    QMenuBar?type_info?node;
+    QMenuBar?type_info?function;
+    vtable?for?QMenuBar;
+    typeinfo?for?QMenuBar
+
   };
   local:
   extern "C++"
   {
-	QClipboardWatcher::*;
-	QColorLuminancePicker::*;
-	QErrorMessageTextView::*;
-	QETWidget::*;
-	QFDProgress*;
-	QFileDialogQFileListView::*;
-	QFtpDTP::*;
-	QFtpPI*;
-	QHttpNormalRequest::*;
-	QHttpRequest::*;
-	QHttpResponseHeader::*;
-	QMainWindowLayout::*;
-	Q*Private::*;    # collides with QGuardedPtrPrivate
-	QPSPrinter*;
-	Q*RegExpEngine::*;
-	Q*SvgDevice::*;
-	*QSvgDeviceState*;
-	ImgElement::*;
-	PixElement::*;
-	QRenameEdit::*;
-	QRollEffect::*;
-	QSharedDoubleBufferCleaner::*;
-	QSmSocketReceiver::*;
-	QSpinBoxValidator::*;
-	QSplitterHandle::*;
-	QSqlRecordShared::*;
-	QSVChildRec::*;
-	qt_xdnd_*;
-	QTipLabel::*;
-	QUnicodeTables::*;
-	QViewportWidget::*;
-	QWFlagWidget::*;
-	QWorkspaceChild::*;
-	QFontDef::*;
-	QFontStruct::*;
-	QFont*Codec::*;
-	QInputContext::*
+    QMenuBar::performDelayedChanges*;
+    *
   };
-  TT_*;
-  TTO_*;
 };
