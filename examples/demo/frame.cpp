@@ -14,7 +14,7 @@
 #include <qpopupmenu.h>
 #include <qmenubar.h>
 #include <qaccel.h>
-#include <qsplitter.h>
+#include <qhbox.h>
 #include <qlistbox.h>
 #include <qpainter.h>
 #include <qwidgetstack.h>
@@ -132,21 +132,22 @@ Frame::Frame( QWidget *parent, const char *name )
     mainMenu->insertItem( tr( "St&yle" ), styleMenu );
 
     // category chooser
-    splitter = new QSplitter( this );
-    categories = new QListBox( splitter );
+    hbox = new QHBox( this );
+    hbox->setMargin( 11 );
+    hbox->setSpacing( 6 );
+    categories = new QListBox( hbox );
     QFont f = categories->font();
     f.setWeight( QFont::Bold );
     categories->setFont( f );
     categories->setHScrollBarMode( QScrollView::AlwaysOff );
-    splitter->setResizeMode( categories, QSplitter::KeepSize );
 
     connect( categories, SIGNAL( clicked( QListBoxItem *) ),
                    	     SLOT( clickedCategory( QListBoxItem *) ) );
 
     // stack for the demo widgets
-    stack = new QWidgetStack( splitter );
+    stack = new QWidgetStack( hbox );
 
-    setCentralWidget( splitter );
+    setCentralWidget( hbox );
 }
 
 void Frame::addCategory( QWidget *w, const QPixmap &p1, const QPixmap &p2, const QString &n )
@@ -155,6 +156,7 @@ void Frame::addCategory( QWidget *w, const QPixmap &p1, const QPixmap &p2, const
     if ( w )
 	stack->addWidget( w, i );
     CategoryItem *item = new CategoryItem( categories, w, p1, p2, n, i );
+    categories->setFixedWidth( categories->sizeHint().width() );
     if ( !stack->visibleWidget() ) {
 	categories->setCurrentItem( item );
 	clickedCategory( item );

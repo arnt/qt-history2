@@ -12,7 +12,7 @@
 
 class QListBox;
 class QListBoxItem;
-class QSplitter;
+class QHBox;
 class QStyle;
 class QWidgetStack;
 
@@ -39,7 +39,7 @@ private:
     QWidget *createCategory( const QString& );
 
     QString title;
-    QSplitter *splitter;
+    QHBox * hbox;
     QListBox *categories;
     QWidgetStack *stack;
 };
