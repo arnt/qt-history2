@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#34 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#35 $
 **
 ** Definition of QApplication class
 **
@@ -49,8 +49,8 @@ public:
     static QWidget *desktop();			// get desktop widget
     QWidget	   *focusWidget() const;
 
-    static QWidget *widgetAt( int x, int y, child=FALSE );
-    static QWidget *widgetAt( const QPoint &, child=FALSE );
+    static QWidget *widgetAt( int x, int y, bool child=FALSE );
+    static QWidget *widgetAt( const QPoint &, bool child=FALSE );
 
     int		    exec( QWidget *mainWidget );// start event handing
     int		    exec();
