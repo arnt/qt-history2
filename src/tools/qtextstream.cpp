@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#33 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#34 $
 **
 ** Implementation of QTextStream class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#34 $");
 
 
 /*!
@@ -360,14 +360,22 @@ long QTextStream::input_int()
 	    break;
 	case dec:
 	    c = eat_ws( dev );
-	    if ( c == EOF )
+	    if ( c == EOF ) {
 		val = 0;
-	    else {
+	    } else {
 		if ( !(c == '-' || c == '+') )
 		    dev->ungetch( c );
-		val = (long)input_dec( this );
-		if ( c == '-' )
-		    val = -val;
+		if ( c == '-' ) {
+		    ulong v = input_dec( this );
+		    if ( v ) {		// ensure that LONG_MIN can be read
+			v--;
+			val = -((long)v) - 1;
+		    } else {
+			val = 0;
+		    }
+		} else {
+		    val = (long)input_dec( this );
+		}
 	    }
 	    break;
 	case hex:
