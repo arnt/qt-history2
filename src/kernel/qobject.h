@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#26 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#27 $
 **
 ** Definition of QObject class
 **
@@ -15,6 +15,7 @@
 
 #include "qobjdefs.h"
 #include "qstring.h"
+#include "qevent.h"
 
 
 class QObject					// base class for Q objects
