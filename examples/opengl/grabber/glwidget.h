@@ -39,6 +39,8 @@ private:
     GLuint makeGear(const GLfloat *reflectance, GLdouble innerRadius,
                     GLdouble outerRadius, GLdouble thickness,
                     GLdouble toothSize, GLint toothCount);
+    void drawGear(GLuint gear, GLdouble dx, GLdouble dy, GLdouble dz,
+                  GLdouble angle);
     void normalizeAngle(int *angle);
 
     GLuint gear1;

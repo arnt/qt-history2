@@ -5,7 +5,7 @@
 
 #include "glwidget.h"
 
-GLWidget::GLWidget(QWidget  * parent)
+GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent)
 {
     gear1 = 0;
@@ -16,7 +16,7 @@ GLWidget::GLWidget(QWidget  * parent)
     zRot = 0;
     gear1Rot = 0;
 
-    QTimer  * timer = new QTimer(this);
+    QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(advanceGears()));
     timer->start(20);
 }
@@ -87,58 +87,34 @@ void GLWidget::paintGL()
     glRotated(yRot / 16.0, 0.0, 1.0, 0.0);
     glRotated(zRot / 16.0, 0.0, 0.0, 1.0);
 
-    glPushMatrix();
-    glTranslated(-3.0, -2.0, 0.0);
-    glRotated(gear1Rot / 16.0, 0.0, 0.0, 1.0);
-    glCallList(gear1);
-    glPopMatrix();
+    drawGear(gear1, -3.0, -2.0, 0.0, gear1Rot / 16.0);
+    drawGear(gear2, +3.1, -2.0, 0.0, -2.0 * (gear1Rot / 16.0) - 9.0);
 
-    glPushMatrix();
-    glTranslated(3.1, -2.0, 0.0);
-    glRotated(-2.0 * (gear1Rot / 16.0)-9.0, 0.0, 0.0, 1.0);
-    glCallList(gear2);
-    glPopMatrix();
-
-    glPushMatrix();
-    glTranslated(-3.1, 2.2, -1.8);
-    glRotated(90.0, 1.0, 0.0, 0.0);
-    glRotated(2.0 * (gear1Rot / 16.0)-2.0, 0.0, 0.0, 1.0);
-    glCallList(gear3);
-    glPopMatrix();
+    glRotated(+90.0, 1.0, 0.0, 0.0);
+    drawGear(gear3, -3.1, -1.8, -2.2, +2.0 * (gear1Rot / 16.0) - 2.0);
 
     glPopMatrix();
 }
 
 void GLWidget::resizeGL(int width, int height)
 {
-#if 0
     int side = qMin(width, height);
     glViewport((width - side) / 2, (height - side) / 2, side, side);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(-0.5, +0.5, +0.5, -0.5, 4.0, 15.0);
-    glMatrixMode(GL_MODELVIEW);
-#else
-    GLdouble w = (float) width / (float) height;
-    GLdouble h = 1.0;
-
-    glViewport(0, 0, width, height);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glFrustum(-w, w, -h, h, 5.0, 60.0);
+    glFrustum(-1.0, +1.0, -1.0, 1.0, 5.0, 60.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glTranslated(0.0, 0.0, -40.0);
-#endif
 }
 
-void GLWidget::mousePressEvent(QMouseEvent  * event)
+void GLWidget::mousePressEvent(QMouseEvent *event)
 {
     lastPos = event->pos();
 }
 
-void GLWidget::mouseMoveEvent(QMouseEvent  * event)
+void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     int dx = event->x() - lastPos.x();
     int dy = event->y() - lastPos.y();
@@ -165,28 +141,27 @@ GLuint GLWidget::makeGear(const GLfloat *reflectance, GLdouble innerRadius,
 {
     const double Pi = 3.14159265358979323846;
 
+    GLuint list = glGenLists(1);
+    glNewList(list, GL_COMPILE);
+    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, reflectance);
+
     GLdouble r0 = innerRadius;
     GLdouble r1 = outerRadius - toothSize / 2.0;
     GLdouble r2 = outerRadius + toothSize / 2.0;
     GLdouble delta = (2.0 * Pi / toothCount) / 4.0;
     GLdouble z = thickness / 2.0;
-
-    GLuint list = glGenLists(1);
-    glNewList(list, GL_COMPILE);
-    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, reflectance);
+    int i, j;
 
     glShadeModel(GL_FLAT);
 
-    int i;
-
-    for (int j = 0; j < 2; ++j) {
-        GLdouble sign = (j == 0) ? +1.0 : -1.0;
+    for (i = 0; i < 2; ++i) {
+        GLdouble sign = (i == 0) ? +1.0 : -1.0;
 
         glNormal3d(0.0, 0.0, sign);
 
         glBegin(GL_QUAD_STRIP);
-        for (i = 0; i <= toothCount; ++i) {
-            GLdouble angle = i * 2.0 * Pi / toothCount;
+        for (j = 0; j <= toothCount; ++j) {
+            GLdouble angle = 2.0 * Pi * j / toothCount;
 	    glVertex3d(r0 * cos(angle), r0 * sin(angle), sign * z);
 	    glVertex3d(r1 * cos(angle), r1 * sin(angle), sign * z);
 	    glVertex3d(r0 * cos(angle), r0 * sin(angle), sign * z);
@@ -196,8 +171,8 @@ GLuint GLWidget::makeGear(const GLfloat *reflectance, GLdouble innerRadius,
         glEnd();
 
         glBegin(GL_QUADS);
-        for (i = 0; i < toothCount; ++i) {
-            GLdouble angle = i * 2.0 * Pi / toothCount;
+        for (j = 0; j < toothCount; ++j) {
+            GLdouble angle = 2.0 * Pi * j / toothCount;
 	    glVertex3d(r1 * cos(angle), r1 * sin(angle), sign * z);
 	    glVertex3d(r2 * cos(angle + delta), r2 * sin(angle + delta),
                        sign * z);
@@ -211,22 +186,21 @@ GLuint GLWidget::makeGear(const GLfloat *reflectance, GLdouble innerRadius,
 
     glBegin(GL_QUAD_STRIP);
     for (i = 0; i < toothCount; ++i) {
-        for (int j = 0; j < 2; ++j) {
+        for (j = 0; j < 2; ++j) {
+            GLdouble angle = 2.0 * Pi * (i + (j / 2.0)) / toothCount;
             GLdouble s1 = r1;
             GLdouble s2 = r2;
-            if (j == 0)
+            if (j == 1)
                 qSwap(s1, s2);
 
-            GLdouble angle = ((i * 2.0) + j) * Pi / toothCount;
-
 	    glNormal3d(cos(angle), sin(angle), 0.0);
-	    glVertex3d(s2 * cos(angle), s2 * sin(angle), +z);
-	    glVertex3d(s2 * cos(angle), s2 * sin(angle), -z);
+	    glVertex3d(s1 * cos(angle), s1 * sin(angle), +z);
+	    glVertex3d(s1 * cos(angle), s1 * sin(angle), -z);
 
-	    glNormal3d(s1 * sin(angle + delta) - s2 * sin(angle),
-                       s2 * cos(angle) - s1 * cos(angle + delta), 0.0);
-	    glVertex3d(s1 * cos(angle + delta), s1 * sin(angle + delta), +z);
-	    glVertex3d(s1 * cos(angle + delta), s1 * sin(angle + delta), -z);
+	    glNormal3d(s2 * sin(angle + delta) - s1 * sin(angle),
+                       s1 * cos(angle) - s2 * cos(angle + delta), 0.0);
+	    glVertex3d(s2 * cos(angle + delta), s2 * sin(angle + delta), +z);
+	    glVertex3d(s2 * cos(angle + delta), s2 * sin(angle + delta), -z);
         }
     }
     glVertex3d(r1, 0.0, +z);
@@ -239,8 +213,8 @@ GLuint GLWidget::makeGear(const GLfloat *reflectance, GLdouble innerRadius,
     for (i = 0; i <= toothCount; ++i) {
 	GLdouble angle = i * 2.0 * Pi / toothCount;
 	glNormal3d(-cos(angle), -sin(angle), 0.0);
-	glVertex3d(r0 * cos(angle), r0 * sin(angle), -thickness / 2.0);
-	glVertex3d(r0 * cos(angle), r0 * sin(angle), thickness / 2.0);
+	glVertex3d(r0 * cos(angle), r0 * sin(angle), +z);
+	glVertex3d(r0 * cos(angle), r0 * sin(angle), -z);
     }
     glEnd();
 
@@ -249,10 +223,20 @@ GLuint GLWidget::makeGear(const GLfloat *reflectance, GLdouble innerRadius,
     return list;
 }
 
-void GLWidget::normalizeAngle(int  * angle)
+void GLWidget::drawGear(GLuint gear, GLdouble dx, GLdouble dy, GLdouble dz,
+                        GLdouble angle)
 {
-    while ( * angle < 0)
-         * angle += 360 * 16;
-    while ( * angle > 360 * 16)
-         * angle -= 360 * 16;
+    glPushMatrix();
+    glTranslated(dx, dy, dz);
+    glRotated(angle, 0.0, 0.0, 1.0);
+    glCallList(gear);
+    glPopMatrix();
+}
+
+void GLWidget::normalizeAngle(int *angle)
+{
+    while (*angle < 0)
+        *angle += 360 * 16;
+    while (*angle > 360 * 16)
+        *angle -= 360 * 16;
 }
