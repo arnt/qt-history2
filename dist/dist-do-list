@@ -10,6 +10,14 @@ Also change the version number in:
     (alternative: Make a system that changes the version number
      automatically, so we won't have to do this next time)
 
+
+Check that GIFs made by util/makegifs/Makefile are up-to-date, and do not
+ include any unreleased widgets!
+    (alternative: make mkdist do this - probably too slow)
+
+Check that qdoc reports 0 undocumented member functions
+    (alternative: make mkdist fail)
+
 Pack the distributions.
 	Go through the file list, any files that shouldn't be there?
 
