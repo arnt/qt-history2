@@ -3,7 +3,7 @@
 **
 ** Index page
 **
-** Copyright (C) 1995-1997 by Trolltech AS.  All rights reserved.
+** Copyright (C) 1995-2002 by Trolltech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -18,33 +18,40 @@ static char ident[] = "$Id: $";
 The Qt Xt/Motif Support Extension assists the migration of old
 Xt and Motif based code to the more comfortable Qt toolkit.
 
-<h2>Information</h2>
+\section1 Information
 
 The Qt Xt/Motif Extension consists of the following classes:
-<ul>
-  <li>\link qxtapplication.html QXtApplication \endlink allows mixing of Xt/Motif and Qt widgets.
-  <li>\link qxtwidget.html QXtWidget \endlink is the base widget for Xt/Motif and Qt combination.
-</ul>
+\list
+\i \link qxtapplication.html QXtApplication \endlink allows mixing of
+Xt/Motif and Qt widgets.
+\i \link qxtwidget.html QXtWidget \endlink is the base widget for
+Xt/Motif and Qt combination.
+\endlist
 
-<h2>How-to</h2>
+\section1 How-to
 
-<ol>
- <li>Ensure you are using X11R6.
- <li>Ensure the programs you wish to port are compilable by a C++
-	compiler, or at least that this is the case for the parts
-	which need migration.
- <li>Decide whether you are writing a new Qt application reusing
-	old Xt widgets, or introducing new Qt widgets into an existing
-	Xt/Motif application. See the corresponding 
-        \link xt-motif-examples.html example programs. \endlink
-</ol>
+\list 1
 
-<h2>Known Bugs</h2>
+\i Ensure you are using X11R6.
 
-This extension is under development.  The following problems exist:
+\i Ensure the programs you wish to port are compilable by a C++
+compiler, or at least that this is the case for the parts which need
+migration.
 
-<ul>
- <li> The different focus models of Xt, Motif and Qt interfere.
- <li> Clipboard handling between Xt/Motif and Qt does not work properly.
-</ul>
+\i Decide whether you are writing a new Qt application reusing old Xt
+widgets, or introducing new Qt widgets into an existing Xt/Motif
+application. See the corresponding \link xt-motif-examples.html
+example programs. \endlink
+
+\endlist
+
+\section1 Known Bugs
+
+This extension is under development. The following problems exist:
+
+\list
+\i The different focus models of Xt, Motif and Qt interfere.
+\i Clipboard handling between Xt/Motif and Qt does not work properly.
+\endlist
+
 */

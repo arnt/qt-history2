@@ -8,9 +8,9 @@
   extension.
 
   To build the example, you must first build the
-  <a href=nsplugin.html>Qt Netscape Plugin Extension</a> library.
-  Then type <tt>make</tt> in <tt>extensions/nsplugin/examples/trivial/</tt>
-  and copy the resulting <tt>trivial.so</tt> or <tt>nptrivial.dll</tt>
+  \link nsplugin.html Qt Netscape Plugin Extension\endlink library.
+  Then type \c{make} in \c{extensions/nsplugin/examples/trivial/}
+  and copy the resulting \c{trivial.so} or \c{nptrivial.dll}
   to the Plugins directory of your WWW browser.
 
   <EMBED TYPE=trivial/very WIDTH=100 HEIGHT=100>

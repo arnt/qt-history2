@@ -20,7 +20,7 @@
   This plugin displays a \link http://www.libpng.org/pub/png/
   PNG format \endlink image.
 
-  New image format can be supported by adding new image I/O handlers
+  New image formats can be supported by adding new image I/O handlers
   to the Qt library (see QImage::defineIOHandler), thus providing the
   functionality in both applications and WWW plugins from the same
   code.

@@ -3,7 +3,7 @@
 **
 ** Index page
 **
-** Copyright (C) 1995-1997 by Trolltech AS.  All rights reserved.
+** Copyright (C) 1995-2002 by Trolltech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,90 +15,93 @@ static char ident[] = "$Id: $";
 
 \title Qt-based LiveConnect Plugins
 
-The Qt-based Netscape Plugin software makes it easy to write
-plugins
-such that they can be used on both Unix/Linux and Windows/95/NT,
-in Netscape and Internet Explorer, and any other
-web browser supporting the same protocol.
+The Qt-based Netscape Plugin software makes it easy to write plugins
+that can be used on both Unix/Linux and Windows/95/NT, in Netscape and
+Internet Explorer, and any other web browser supporting the same
+protocol.
 
 \section1 How-to
 
-<ol>
- <li>Download the
+\list 1
+ \i Download the
     \link http://home.netscape.com/comprod/development_partners/plugin_api/index.html 
     Plugin SDK from Netscape \endlink, and copy the following files from there to
-    <tt>$QTDIR/extensions/nsplugin/src</tt> :
-    <multicol cols=2>
-    <ul>
-	<li>common/npwin.cpp
-	<li>common/npunix.c
-	<li>include/npapi.h
-	<li>include/npupp.h
-	<li>include/jri.h
-	<li>include/jri_md.h
-	<li>include/jritypes.h
-    </ul>
-    </multicol>
- <li>Build the Netscape Plugin extension library, found in the
-	<tt>extensions/nsplugin/src</tt> directory of your Qt distribution.
+    \c{$QTDIR/extensions/nsplugin/src}
+    \list
+	\i \c common/npwin.cpp
+	\i \c common/npunix.c
+	\i \c include/npapi.h
+	\i \c include/npupp.h
+	\i \c include/jri.h
+	\i \c include/jri_md.h
+	\i \c include/jritypes.h
+    \endlist
+ \i Build the Netscape Plugin extension library, found in the
+	\c{extensions/nsplugin/src} directory of your Qt distribution.
 	This produces a static library to be linked with your plugin code.
- <li>Read the \link annotated.html plugin class documentation \endlink, and
+ \i Read the \link annotated.html plugin class documentation \endlink, and
 	examine the \link nsplugin-examples.html example plugins \endlink.
- <li>Do most of your development as a stand-alone Qt application - debugging
-	Netscape Plugins is cumbersome.  You may want to use <tt>signal(2)</tt>
+ \i Do most of your development as a stand-alone Qt application - debugging
+	Netscape Plugins is cumbersome.  You may want to use \c{signal(2)}
 	in your plugin to enable core-dumps if your browser disables them.
- <li>Note the platform-specific build steps below.
- <li>Read about the raw plugin interface
+ \i Note the platform-specific build steps below.
+ \i Read about the raw plugin interface
 	\link http://developer.netscape.com/docs/manuals/communicator/plugin/index.htm 
 	in Netscape's handbook. \endlink
- <li>If files viewed by a plugin are provided by an HTTP server
-	(using a <tt>http://...</tt> URL) then
+ \i If files viewed by a plugin are provided by an HTTP server
+	(using a \c{http://...} URL) then
 	the server must be configured to send the correct MIME type
-	for the file, such as by editing the <tt>mime.types</tt> file
-	of Apache.  If the files are viewed via a <tt>file://...</tt>
+	for the file, e.g. by editing Apache's \c{mime.types} file.
+	If the files are viewed via a \c{file://...}
 	URL, then the browser will use the filename extension to decide
 	the file type (and hence the plugin to load) - the user may need
 	to set the filename extension in the Helpers or Applications
 	section of their browser preferences.
-</ol>
+\endlist
 
+\omit
 We are working on streamlining the build process for Qt-based Netscape Plugins.	
+\endomit
 
 \section2 Building under X11
 
-<ul>
- <li>The Makefiles in the examples are appropriate for UNIX/X11.
- <li>The user must install the resulting Shared Object in the Plugins
+\list
+ \i The Makefiles in the examples are appropriate for UNIX/X11.
+ \i The user must install the resulting Shared Object in the Plugins
 	directory of the browser.
-</ul>
+\endlist
 
 \section2 Building under Windows
 
-<ul>
- <li>Qt needs to be built as a static library when building Netscape plugins, we are
+\list
+ \i Qt needs to be built as a static library when building Netscape
+ plugins.
+ \omit
+ , we are
      looking into the problem of making it work with Qt as a dynamic library.
- <li>Plugins must be named <tt>np</tt><i>name</i><tt>.dll</tt>,
+ \endomit
+ \i Plugins must be named \c{np}\e{name}\c{.dll},
      or the browser will ignore them.
- <li>The link step must include:
-    <ul>
-	<li><tt>/def:</tt><i>name</i><tt>.def</tt>
-	<li><tt>/dll</tt>
-	<li>a compiled resource file defining the
+ \i The link step must include:
+    \list
+	\i \c{/def:}\e{name}\c{.def}
+	\i \c{/dll}
+	\i a compiled resource file defining the
 		file/MIME types accepted by the plugin.
-    </ul>
- <li>The user must install the resulting DLL in the Plugins directory
+    \endlist
+ \i The user must install the resulting DLL in the Plugins directory
 	of the browser.
-</ul>
+\endlist
 
 \section1 Known Bugs
 
 The Qt-based LiveConnect Plugin binding code has a number of
-minor bugs, but is sufficiently stable for most production applications.
+minor bugs, but is sufficiently stable for many production applications.
 
-<ul>
- <li> MSIE 4.0 support is poor.
- <li> Crashes on X11 if window is closed via window manager.
- <li> Keyboard problems on Windows.
-</ul>
+\list
+ \i MSIE 4.0 support is poor.
+ \i Crashes on X11 if window is closed via window manager.
+ \i Keyboard problems on Windows.
+\endlist
 
 */

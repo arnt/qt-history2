@@ -1,15 +1,19 @@
-/*! \page mainlyMotif-editor-example.html 
+/*! 
+\page mainlyMotif-editor-example.html 
 
-  \ingroup xt-motif-examples
+\ingroup xt-motif-examples
 
-  \title Editors in a Motif form
+\title Editors in a Motif form
 
-  This example shows two simple text editors, with most of the
-  program written in Motif.  One editor is a Qt QMultiLineEdit, the
-  other is a Motif text widget.  They are bound together
-  in a Motif form widget.
-  <hr>
-  Implementation:
+This example shows two simple text editors, with most of the
+program written in Motif.  One editor is a Qt QMultiLineEdit, the
+other is a Motif text widget. They are bound together
+in a Motif form widget.
 
-  \include mainlyMotif/editor.cpp
+<hr>
+
+Implementation:
+
+\include mainlyMotif/editor.cpp
+
 */
