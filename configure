@@ -2773,7 +2773,8 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	    EXTRA_CFLAGS="$EXTRA_CFLAGS \$(QMAKE_CFLAGS_DEBUG)"
         fi
 	if [ "$PLATFORM_MAC" = "yes" ]; then
-	    echo "CARBON_LFLAGS +=-framework CoreServices" >>$mkfile
+	    echo "export MACOSX_DEPLOYMENT_TARGET = 10.2" >>$mkfile
+	    echo "CARBON_LFLAGS +=-framework CoreServices -framework CoreFoundation" >>$mkfile
 	    EXTRA_LFLAGS="$EXTRA_LFLAGS \$(CARBON_LFLAGS)"
 	    EXTRA_CFLAGS="$EXTRA_CFLAGS \$(CARBON_CFLAGS)"
 	    EXTRA_SOURCES="qcoresettings_mac.o qcore_mac.o"
