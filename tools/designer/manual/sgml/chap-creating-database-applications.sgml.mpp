@@ -1,20 +1,16 @@
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN"[
-<!ENTITY qd "<emphasis>Qt Designer</>">
-<!ENTITY dt "<classname>QDataTable</>">
-<!ENTITY db "<classname>QDataBrowser</>">
-<!ENTITY dv "<classname>QDataView</>">
-<!ENTITY ok "<guibutton>OK</>">
-<!ENTITY i "<literal>INSERT</>">
-<!ENTITY d "<literal>DELETE</>">
-<!ENTITY u "<literal>UPDATE</>">
-]>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
 
 <chapter id="creating-database-applications">
 <title>Creating Database Applications</>
 
+<!-- TODO 2 sidebars 
+    QDataTable Default Behaviour for INS/UPD/DEL
+    QDataBrowser Default Behaviour for INS/UPD/DEL
+-->
+
 <para>
 This chapter shows you how to use Qt's data-aware widgets from within
-&qd;. If you wish to run the examples or
+<emphasis>Qt Designer</>. If you wish to run the examples or
 create your own applications using these widgets you need access to
 a SQL database and a Qt database driver that can connect to the
 database. At the time of writing the drivers that Qt supports are QODBC
@@ -26,7 +22,7 @@ QPSQL7 (PostgreSQL 7) and QMYSQL (MySQL).
 Although you can use the Qt data-aware widgets to browse and edit data
 in SQL databases without having to write any SQL, a basic understanding
 of SQL is highly recommended. We assume some familiarity with
-<literal>SELECT</>, &i;, &u; and &d; statements. We also assume a basic
+<literal>SELECT</>, \ins, \upd and \del statements. We also assume a basic
 understanding of the concepts of normalisation and of primary and
 foreign keys. A standard text covering SQL databases is <citetitle
 pubwork="book">An Introduction to Database Systems (7th ed.)</> by C. J.
@@ -35,15 +31,15 @@ Date, ISBN 0201385902.
 
 <para>
 In the following text we describe the creation of the 'book'
-application. The application demonstrates how to use &dt;s including
+application. The application demonstrates how to use \class[QDataTable]s including
 in-place record editing and setting up master-detail relationships
-between &dt;s. It also explains how to drill down from a &dt; to another
-widget, for example to a &db; or a &dv; and how to perform record
-editing in &db;s. A great deal of functionality is available from the
-classes directly in &qd; although subclassing is always available for
+between \class[QDataTable]s. It also explains how to drill down from a \class[QDataTable] to another
+widget, for example to a \class[QDataBrowser] or a \class[QDataView] and how to perform record
+editing in \class[QDataBrowser]s. A great deal of functionality is available from the
+classes directly in <emphasis>Qt Designer</> although subclassing is always available for
 finer control.
 <figure><title>The Book Application</title>
-<graphic format="gif" fileref="images/book-book9-bookform.gif"></graphic>
+\img[book-book9]
 </figure>
 </para>
 
@@ -75,17 +71,17 @@ a single field, in a combobox for example.
 
     <para>
     There are two aspects of database connections that we must consider.
-    Firstly the connection we wish to use within &qd; itself, and
+    Firstly the connection we wish to use within <emphasis>Qt Designer</> itself, and
     secondly the connection we wish to use in the applications that we
     create.
     </para>
 
     <sect2 id="setting-up-qt-designers-connections">
-	<title>Setting Up &qd;'s Connections</>
+	<title>Setting Up <emphasis>Qt Designer</>'s Connections</>
 
 	<para>
 	<figure><title>Database Connections Dialog</title>
-	<graphic format="eps" fileref="images/database-connections-dialog.eps"></graphic>
+	\img[database-connections-dialog]
 	</figure>
 	Choose <guimenuitem>Edit|Database Connections</> from the menu
 	bar. The Database Connections dialog will appear. Click
@@ -101,29 +97,29 @@ a single field, in a combobox for example.
 	<guibutton>Connect</>. If the connection is made the connection
 	name will appear in the list box on the left hand side of the
 	dialog. You can now close the dialog; the connection settings
-	will remain in force until you change or delete them or quit &qd;. 
+	will remain in force until you change or delete them or quit <emphasis>Qt Designer</>. 
 	</para>
 
 	<para>
-	&qd; can remember database connection settings in
+	<emphasis>Qt Designer</> can remember database connection settings in
 	<command>qmake</> project files. Create a new project, e.g.
 	click <guimenuitem>File|New Project</> and complete the Project
 	Settings dialog. (See <xref linkend="using-project-files">
-	"Using Project Files".) Next time you start &qd; instead of
+	"Using Project Files".) Next time you start <emphasis>Qt Designer</> instead of
 	opening individual <literal>.ui</> files open the
-	<literal>.pro</> project file instead and &qd; will
+	<literal>.pro</> project file instead and <emphasis>Qt Designer</> will
 	automatically reload the project's connection settings.  To
 	activate the connection click <guimenuitem>Edit|Database
 	Connections</>. The connections previously saved with the
 	project will be listed in the left hand list box. Click the
 	connection you wish to use and then click <guibutton>Connect</>.
 	This connection will be used from now on, e.g. for previewing
-	&dt;s. Opening a project file also causes &qd; to load in the
+	\class[QDataTable]s. Opening a project file also causes <emphasis>Qt Designer</> to load in the
 	list of forms associated with the project into the Form List
 	window. In most of the discussion that follows we will assume
 	that you use project files and have clicked <guibutton>Connect</>
 	so that there is always a connection available when you work in
-	&qd;.
+	<emphasis>Qt Designer</>.
 	</para>
 
     </sect2>
@@ -135,7 +131,23 @@ a single field, in a combobox for example.
 	The applications you create must make their own connections to
 	the SQL database. 
 <example><title>createConnections() function</><programlisting>
-\scan eg/book/book1/main.cpp /bool createConnections..$/ /^}/
+bool createConnections()
+{
+    // create the default database connection
+    \b[QSqlDatabase] *defaultDB = \b[QSqlDatabase::addDatabase]( &quot;QPSQL6&quot; );
+    defaultDB-&gt;setDatabaseName( &quot;book&quot; );
+    defaultDB-&gt;setUserName( &quot;bookuser&quot; );
+    defaultDB-&gt;setPassword( &quot;bookpw&quot; );
+    defaultDB-&gt;setHostName( &quot;bookhost&quot; );
+    if ( ! defaultDB-&gt;open() ) { 
+	qWarning( &quot;Failed to open books database: &quot; + 
+		  defaultDB-&gt;lastError().driverText() );
+	qWarning( defaultDB-&gt;lastError().databaseText() );
+	return FALSE;
+    }
+
+    return TRUE;
+}
 </programlisting></example>
 	We call <function>addDatabase</> passing it the name of the
 	driver we wish to use. We then set the connection information by
@@ -168,16 +180,16 @@ a single field, in a combobox for example.
 </sect1>
 
 <sect1 id="using-qdatatable">
-<title>Using &dt;</>
+<title>Using \class[QDataTable]</>
 
     <para>
-    &dt;s may be placed on any form and provide browsing of database
-    tables and views. &dt;s can also be used to update or delete records
-    in-place. Inserting records via a &dt; usually requires connecting
+    \class[QDataTable]s may be placed on any form and provide browsing of database
+    tables and views. \class[QDataTable]s can also be used to update or delete records
+    in-place. Inserting records via a \class[QDataTable] usually requires connecting
     to the <function>primeInsert()</> signal, so that we can generate
     primary keys for example, or provide default values. If we wish to
     present records using a form view (perhaps combining data from
-    several tables and views) we would use &db;s and/or &dv;s.
+    several tables and views) we would use \class[QDataBrowser]s and/or \class[QDataView]s.
     </para>
 
     <sect2 id="quickly-viewing-a-database-table">
@@ -202,24 +214,24 @@ a single field, in a combobox for example.
 	</para>
 
 	<para>
-	We will now create a new form with a &dt; that's connected to
+	We will now create a new form with a \class[QDataTable] that's connected to
 	one of our database tables. 
 	</para>
 
 	<para>
 	Click <guimenuitem>File|New</>. The New Form dialog presents us
 	with a number of form templates to choose from. Choose the
-	'Dialog' form and click &ok;. Now click
+	'Dialog' form and click \ok. Now click
 	<guimenuitem>File|Save</>. You will be prompted for a filename,
 	call it <filename>book.ui</>. 
 	</para>
 
 	<sect3 id="setting-up-a-qdatatable">
-	<title>Setting up a &dt;</title>
+	<title>Setting up a \class[QDataTable]</title>
 
 	    <para>
-	    To place a &dt; widget on the form either click
-	    <guimenuitem>Tools|Views|QDataTable</> or click the &dt; toolbar
+	    To place a \class[QDataTable] widget on the form either click
+	    <guimenuitem>Tools|Views|QDataTable</> or click the \class[QDataTable] toolbar
 	    button. Click on the form and the SQL Table Wizard dialog will appear. 
 
 	    <orderedlist numeration="arabic">
@@ -228,9 +240,9 @@ a single field, in a combobox for example.
 		    The <emphasis>Database Connection and Table</>
 		    wizard page is used to set up a connection if one
 		    doesn't exist and to choose the table or view for
-		    the &dt;. (See <xref
+		    the \class[QDataTable]. (See <xref
 		    linkend="setting-up-qt-designers-connections">
-		    "Setting Up &qd;'s Connections".)
+		    "Setting Up <emphasis>Qt Designer</>'s Connections".)
 		    </para>
 
 		    <para>
@@ -246,7 +258,7 @@ a single field, in a combobox for example.
 		    <para>
 		    The <emphasis>Displayed Fields</> wizard page
 		    provides a means of selecting which fields should be
-		    displayed in the &dt; and in what order. By default all fields
+		    displayed in the \class[QDataTable] and in what order. By default all fields
 		    except the primary key (if there is one) are in the 
 		    Displayed Fields list box. The left and right blue arrow buttons
 		    can be used to move fields between the Displayed Fields and the
@@ -264,7 +276,7 @@ a single field, in a combobox for example.
 		    <para>
 		    The <emphasis>Table Properties</> wizard page provides
 		    convenient access to some of the database-related
-		    properties of the &dt;. 
+		    properties of the \class[QDataTable]. 
 		    </para>
 
 		    <para>
@@ -276,12 +288,12 @@ a single field, in a combobox for example.
 		<listitem>
 		    <para>
 		    The <emphasis>SQL</> wizard page is used to set
-		    the &dt;'s Filter and Sort properties. The Filter is an SQL
+		    the \class[QDataTable]'s Filter and Sort properties. The Filter is an SQL
 		    <literal>WHERE</> clause (without the word 'WHERE'). For
 		    example, to only list authors whose surnames begin with 'P', we
 		    would enter <literal>title LIKE 'P%'</>. The Available Fields
 		    list box lists all the fields. The Sort By list box lists the
-		    fields that the &dt; is to sort by and the direction of their
+		    fields that the \class[QDataTable] is to sort by and the direction of their
 		    sorting (ASCending or DESCending). The left and right blue
 		    arrows are used to move fields between the two list boxes. The
 		    up and down blue arrows move fields up and down within the Sort
@@ -298,7 +310,7 @@ a single field, in a combobox for example.
 		    <para>
 		    The <emphasis>Finish</> wizard page is gives us the
 		    opportunity to go back and change any of our settings.
-		    We will be able to change them later through the &dt;'s
+		    We will be able to change them later through the \class[QDataTable]'s
 		    properties so we can finish with the wizard.
 		    </para>
 
@@ -316,7 +328,7 @@ a single field, in a combobox for example.
 	    most of them are available in the property window. The display
 	    names, the fields they are based upon, and the order of
 	    appearance of the columns can be changed using the Edit Table
-	    dialog (explained later) by right clicking the &dt; and left
+	    dialog (explained later) by right clicking the \class[QDataTable] and left
 	    clicking Edit.
 	    </para>
 
@@ -343,7 +355,7 @@ a single field, in a combobox for example.
 		<listitem>
 		    <para>
 		    Click on the form and change its name to 'BookForm' and
-		    its caption to 'Book'. Click on the &dt; and change its
+		    its caption to 'Book'. Click on the \class[QDataTable] and change its
 		    name to 'AuthorDataTable'.
 		    </para>
 		</listitem>
@@ -374,7 +386,7 @@ a single field, in a combobox for example.
 	    </para>
 
 	    <para>
-	    This example shows how easy it is to use &dt; to show
+	    This example shows how easy it is to use \class[QDataTable] to show
 	    the contents of a database table or view. You can use the
 	    application we've just built to update and delete author
 	    records. In the versions that follow we will cover insertions,
@@ -406,13 +418,13 @@ a single field, in a combobox for example.
     </sect2>
 
     <sect2 id="inserting-records-in-qdatatables">
-    <title>Inserting Records in &dt;s</>
+    <title>Inserting Records in \class[QDataTable]s</>
 
 	<para>
 	Record insertion into a relational database usually requires
 	the generation of a unique primary key. Also we often want to
 	create default values for some fields to minimise the user's
-	work. We will create a slot to capture the &dt;s
+	work. We will create a slot to capture the \class[QDataTable]s
 	<function>primeInsert</> signal and populate the
 	<classname>QSqlRecord</> insertion buffer with a unique primary
 	key.
@@ -424,7 +436,7 @@ a single field, in a combobox for example.
 		Slots dialog. Click <guimenuitem>New Slot</>, then enter
 		the slot name <literal>primeInsertAuthor(QSqlRecord*)</>
 		into the Slot Properties' Slot line edit box. Click
-		&ok;.
+		\ok.
 		</para>
 	    </listitem>
 
@@ -435,7 +447,7 @@ a single field, in a combobox for example.
 		the form and release the mouse. The Edit Connections
 		dialog will now appear. Click the primeInsert signal and
 		then the primeInsertAuthor slot to make the connection.
-		Now click &ok;.
+		Now click \ok.
 		</para>
 	    </listitem>
 
@@ -468,28 +480,75 @@ a single field, in a combobox for example.
 	</para>
 
 	<para>
-	If we rebuild the application it will now support &i; as well as
-	&u; and &d;. We could easily have added additional code to
+	If we rebuild the application it will now support \ins as well as
+	\upd and \del. We could easily have added additional code to
 	insert default values, e.g. today's date into a date field, if
 	necessary.
 	</para>
 
 	<para>
-	We can now browse, &i;, &u; and
-	&d; records in the author table. Browsing is
+	We can now browse, \ins, \upd and
+	\del records in the author table. Browsing is
 	supported by clicking records and by using the arrow keys. Once
 	a record is active (highlighted) we can edit the database. Press
-	the <keycap>Insert</> key to &i; a new record;
-	press <keycap>F2</> to &u; the current record;
-	press the <keycap>Delete</> key to &d; the
+	the <keycap>Insert</> key to \ins a new record;
+	press <keycap>F2</> to \upd the current record;
+	press the <keycap>Delete</> key to \del the
 	current record. All these operations take place live and
 	immediately. Users can be given the opportunity to confirm
-	their edits by setting the &dt;'s confirmEdits property to True.
+	their edits by setting the \class[QDataTable]'s confirmEdits property to True.
 	If the confirmEdits property is True user confirmation will
 	be required for all insertions, updates and deletes. For finer
 	control you can set the confirmInsert, confirmUpdate and
 	confirmDelete properties individually.
 	</para>
+
+	<sidebar><title>\class[QDataTable] User Interface Interaction</>
+	<para>
+	The default user-interface behaviour for \class[QDataTable]s is as follows:
+	    \list[*]
+		\item\p
+		Users can move to records by clicking the scrollbar and
+		clicking records with the mouse. They can also use the
+		keyboard's arrow keys, and Page Up and Page Down keys.
+		\P\Item
+
+		\item\p
+		\ins is initiated by pressing the Ins (Insert) key.
+		The user moves between fields using Tab and
+		Shift+Tab. The \ins will take place if the user presses
+		Return or Tabs off the end of the last field. If
+		autoEdit is TRUE the insert will take place if the user
+		navigates to another record. \ins is cancelled by
+		pressing Esc (Escape). If autoEdit is FALSE navigating
+		to another record also cancels the \ins. Setting
+		confirmInsert to TRUE will require the user to confirm
+		each \ins via a message box.
+		\P\Item
+
+		\item\p
+		\upd is initiated by pressing F2. The update will take
+		place if the user presses Return or Tabs off the end of
+		the last field. If autoEdit is TRUE the update will take
+		place if the user navigates to another record. \upd is
+		cancelled by pressing Esc (Escape). If autoEdit is FALSE
+		navigating to another record also cancels the \upd.
+		Setting confirmUpdate to TRUE will require the user to
+		confirm each \upd via a message box.
+		\P\Item
+
+		\item\p
+		\del is achieved by pressing the Del (Delete) key.
+		Setting confirmDelete to TRUE will require the user to
+		confirm each \del via a message box.
+		\P\Item
+
+	    </itemizedlist>
+
+	    You can change this default behaviour programmatically if
+	    required.
+	</para>
+	</sidebar>
 
     </sect2>
 
@@ -501,34 +560,34 @@ a single field, in a combobox for example.
 	example an invoice table might list the numbers, dates and
 	customers for invoices, but not the actual invoice items which
 	the invoiceitem table might store. In the book application we 
-	wish to have a &dt; that we can use to browse
-	through the authors and a second &dt; to show
+	wish to have a \class[QDataTable] that we can use to browse
+	through the authors and a second \class[QDataTable] to show
 	the books they've written. 
 	</para>
 
 	<para>
-	Open the book project if it isn't already in &qd;. We will
-	modify this project to show two &dt;s that
+	Open the book project if it isn't already in <emphasis>Qt Designer</>. We will
+	modify this project to show two \class[QDataTable]s that
 	relate the author table to the book_view view. 
 
 	<orderedlist numeration="arabic">
 	    <listitem>
 		<para>
-		Click the author &dt; and then click the
+		Click the author \class[QDataTable] and then click the
 		<guibutton>Break Layout</> toolbutton.
 		</para>
 	    </listitem>
 
 	    <listitem>
 		<para>
-		Drag the bottom of the &dt; up so that it only occupies
+		Drag the bottom of the \class[QDataTable] up so that it only occupies
 		the top half of the form.
 		</para>
 	    </listitem>
 
 	    <listitem>
 		<para>
-		Now click on the &dt; toolbutton and click on the bottom
+		Now click on the \class[QDataTable] toolbutton and click on the bottom
 		half of the form. The SQL Table Wizard will appear.
 		(This Wizard is explained in <xref
 		linkend="quickly-viewing-a-database-table"> "Quickly
@@ -571,7 +630,7 @@ a single field, in a combobox for example.
 
 		    <listitem>
 			<para>
-			Change this &dt;'s name to "BookDataTable".
+			Change this \class[QDataTable]'s name to "BookDataTable".
 			</para>
 		    </listitem>
 		</orderedlist>
@@ -580,7 +639,7 @@ a single field, in a combobox for example.
 
 	    <listitem>
 		<para>
-		Shift+Click the top &dt; so that both &dt;s
+		Shift+Click the top \class[QDataTable] so that both \class[QDataTable]s
 		are selected and then click the <guibutton>Lay out Vertically
 		(in Splitter)</> toolbar button. 
 		</para>
@@ -598,10 +657,10 @@ a single field, in a combobox for example.
 
 	<para>
 	Run the form by clicking <guimenuitem>Preview|Preview Form</>.
-	All the authors are displayed in the top &dt;
+	All the authors are displayed in the top \class[QDataTable]
 	and all the book are displayed in the bottom
-	&dt;. Unfortunately we only want the book of the currently
-	selected author showing in the bottom &dt;. We will deal with
+	\class[QDataTable]. Unfortunately we only want the book of the currently
+	selected author showing in the bottom \class[QDataTable]. We will deal with
 	this by filtering the records in the book_view according to the
 	author in the author table.
 	</para>
@@ -609,13 +668,13 @@ a single field, in a combobox for example.
 	<sidebar><title>Using the Table Editor</>
 	<para>
 	<figure><title>Edit Table Dialog</title>
-	<graphic format="gif" fileref="images/edit-table-dialog.gif"></graphic>
+	\img[edit-table-dialog]
 	</figure>
-	&dt;s are created and set up using the SQL Table Wizard. Like
-	any other &qd; widget their properties may be changed in the
+	\class[QDataTable]s are created and set up using the SQL Table Wizard. Like
+	any other <emphasis>Qt Designer</> widget their properties may be changed in the
 	Properties window. Some of the column and row based properties
 	can also be be changed using the Edit Table dialog. This
-	dialog is invoked by right clicking the &dt; and left
+	dialog is invoked by right clicking the \class[QDataTable] and left
 	clicking the <guimenuitem>Edit</> menu item. The right hand half
 	of the Edit Table dialog is where we choose the fields we wish
 	to display, their order and their labels. The procedure for
@@ -662,18 +721,18 @@ a single field, in a combobox for example.
 	Once all the fields have been added you can change their
 	ordering by using the blue up and down arrow buttons. At any
 	point you can press <guibutton>Apply</> to see how the table
-	will look. Finally click the &ok; button to save the
+	will look. Finally click the \ok button to save the
 	properties you have set. You can always return to the table
 	editor to change these settings later.
 	</para>
 	</sidebar>
 
 	<sect3 id="filtering-one-qdatatable-by-another">
-	<title>Filtering One &dt; by Another</title>
+	<title>Filtering One \class[QDataTable] by Another</title>
 
 	    <para>
 	    To filter the book_view's records we need to capture the author
-	    &dt;'s <function>currentChanged()</> signal and change the
+	    \class[QDataTable]'s <function>currentChanged()</> signal and change the
 	    BookDataTable's filter accordingly.
 
 	    <orderedlist numeration="arabic">
@@ -682,7 +741,7 @@ a single field, in a combobox for example.
 		    Click <guimenuitem>Edit|Slots</>. In the Edit Slots
 		    dialog click <guimenuitem>New Slot</> and enter a slot
 		    name of <literal>newCurrentAuthor(const QSqlRecord*)</>.
-		    Click &ok;.
+		    Click \ok.
 		    </para>
 		</listitem> 
 
@@ -692,7 +751,7 @@ a single field, in a combobox for example.
 		    the AuthorDataTable and drag to the form; release the
 		    mouse on the form. The Edit Connections dialog will
 		    appear. Click the <function>currentChanged</> signal
-		    and the <function>newCurrentAuthor</> slot. Click &ok;.
+		    and the <function>newCurrentAuthor</> slot. Click \ok.
 		    </para>
 		</listitem>
 
@@ -768,7 +827,7 @@ a single field, in a combobox for example.
 		    the Quit button and drag to the form; release the
 		    mouse on the form. The Edit Connections dialog will
 		    appear. Click the <function>clicked</> signal
-		    and the <function>accept</> slot. Click &ok;.
+		    and the <function>accept</> slot. Click \ok.
 		    </para>
 		</listitem>
 	    </orderedlist>
@@ -780,22 +839,22 @@ a single field, in a combobox for example.
 </sect1>
 
 <sect1 id="using-qdatabrowser-and-qdataview">
-<title>Using &db; and &dv;</>
+<title>Using \class[QDataBrowser] and \class[QDataView]</>
  
     <sect2 id="drilling-down-to-a-form-with-qdatabrowser">
-    <title>Drilling Down to a Form with &db;</>
+    <title>Drilling Down to a Form with \class[QDataBrowser]</>
 
 	<sect3 id="setting-up-a-qdatabrowser">
-	<title>Setting up a &db;</title>
+	<title>Setting up a \class[QDataBrowser]</title>
 
 	<para>
 	We will create a new form to allow users to edit book records. Click
 	the <guibutton>New</> toolbar button, click the Dialog template from
-	the New Form dialog and click &ok;. Change the name of the form to
+	the New Form dialog and click \ok. Change the name of the form to
 	EditBookForm and its caption to 'Edit Books'. Click the
 	<guibutton>Save</> toolbar button and call the file
 	<filename>editbook.ui</>. Now that we have the form we can add a
-	&db; to show the book records.
+	\class[QDataBrowser] to show the book records.
 
 	<orderedlist numeration="arabic">
 	    <listitem>
@@ -809,9 +868,9 @@ a single field, in a combobox for example.
 		<para>
 		The <emphasis>Database Connection and Table</>
 		wizard page is used to set up a connection if one doesn't exist
-		and to choose the table or view for the &db;. (See <xref
+		and to choose the table or view for the \class[QDataBrowser]. (See <xref
 		linkend="setting-up-qt-designers-connections"> "Setting
-		Up &qd;'s Connections".)
+		Up <emphasis>Qt Designer</>'s Connections".)
 		</para>
 
 		<para>
@@ -826,7 +885,7 @@ a single field, in a combobox for example.
 		<para> 
 		The <emphasis>Displayed Fields</> wizard page wizard
 		provides a means of selecting which fields should be
-		displayed in the &db; and in what order. By default all
+		displayed in the \class[QDataBrowser] and in what order. By default all
 		fields except the primary key (if there is one) are in the
 		right hand Displayed Fields list box. The left and right
 		blue arrow buttons can be used to move fields between the
@@ -859,13 +918,13 @@ a single field, in a combobox for example.
 	    <listitem>
 		<para>
 		The <emphasis>SQL</> wizard page is used to set
-		the &db;'s Filter and Sort properties. The Filter is an SQL
+		the \class[QDataBrowser]'s Filter and Sort properties. The Filter is an SQL
 		<literal>WHERE</> clause (without the word 'WHERE'). For
 		example, to only list book that cost less than 50 (of our
 		currency, e.g. dollars), we 
 		would enter <literal>price < 50</>. The Available Fields
 		list box lists all the fields. The Sort By list box lists the
-		fields that the &db; is to sort by and the direction of their
+		fields that the \class[QDataBrowser] is to sort by and the direction of their
 		sorting (ASCending or DESCending). The left and right blue
 		arrows are used to move fields between the two list boxes. The
 		up and down blue arrows move fields up and down within the Sort
@@ -893,8 +952,8 @@ a single field, in a combobox for example.
 
 	    <listitem>
 		<para>
-		The &db; will now appear on the form. Drag the bottom of the
-		form up to make it shorter. Click the &db; then click the
+		The \class[QDataBrowser] will now appear on the form. Drag the bottom of the
+		form up to make it shorter. Click the \class[QDataBrowser] then click the
 		<guibutton>Break Layout</> toolbar button. Click the buttons
 		then click the <guibutton>Break Layout</> toolbar button. 
 		Add another button called 'ButtonPushButton' with the text
@@ -906,10 +965,10 @@ a single field, in a combobox for example.
 		<para>
 		Shift+Click the Insert, Update, Delete and Close
 		buttons, then click the <guibutton>Lay Out Horizontally</>
-		toolbar button. Click the &db;, then click the
+		toolbar button. Click the \class[QDataBrowser], then click the
 		<guibutton>Lay Out in a Grid</> toolbar button. Finally
 		click the form and click the <guibutton>Lay Out
-		Vertically</> toolbar button. Now click the &db; and
+		Vertically</> toolbar button. Now click the \class[QDataBrowser] and
 		rename it 'BookDataBrowser'.
 		</para>
 	    </listitem>
@@ -933,6 +992,50 @@ a single field, in a combobox for example.
 
 	</orderedlist>
 	</para>
+
+	<sidebar><title>\class[QDataBrowser] User Interface Interaction</>
+	<para>
+	The default user-interface behaviour for \class[QDataBrowser]s is as follows:
+	    \list[*]
+		\item\p
+		\ins is initiated by pressing the Insert button. The
+		user moves between fields using Tab and Shift+Tab. If
+		the user presses the Update button the \ins will take
+		place and the user will be taken to the record they have
+		just inserted. If the user presses the Insert button
+		(i.e. a second time) the \ins will take place and a new
+		insertion will be initiated. If autoEdit is TRUE the
+		\ins will take place if the user navigates to another
+		record. \ins is cancelled by pressing the Delete key. If
+		autoEdit is FALSE navigating to another record also
+		cancels the \ins. Setting confirmInsert to TRUE will
+		require the user to confirm each \ins via a message box.
+		\P\Item
+
+		\item\p
+		\upd is automatically initiated whenever the user
+		navigates to a record. An update will take place if the
+		user presses the Update button. If autoEdit is TRUE the
+		update will take place if the user navigates to another
+		record. \upd is cancelled by pressing the Delete button.
+		If autoEdit is FALSE navigating to another record also
+		cancels the \upd. Setting confirmUpdate to TRUE will
+		require the user to confirm each \upd via a message box.
+		\P\Item
+
+		\item\p
+		\del is achieved by pressing the Delete button.
+		Setting confirmDelete to TRUE will require the user to
+		confirm each \del via a message box.
+		\P\Item
+
+	    </itemizedlist>
+
+	    You can change this default behaviour programmatically if
+	    required.
+	</para>
+	</sidebar>
+
 	</sect3>
 
 	<sect3 id="performing-the-drilldown">
@@ -950,13 +1053,13 @@ a single field, in a combobox for example.
 		<para> 
 		We need to make a new slot to connect the Edit Books'
 		button's <function>clicked()</> signal to. Click on the Book
-		form to make it &qd;'s active form. Invoke the Edit Slots
+		form to make it <emphasis>Qt Designer</>'s active form. Invoke the Edit Slots
 		dialog and create a new slot called 'editClicked()'. Now
 		click the <guibutton>Connect Signal/Slots</> toolbar button.
 		Click the Edit Books button and drag to the form; release
 		the mouse on the form. In the Edit Connections dialog
 		connect the <function>clicked()</> signal to the
-		<function>editClicked()</> slot. Click &ok; to leave the
+		<function>editClicked()</> slot. Click \ok to leave the
 		dialog.
 		</para>
 	    </listitem> 
@@ -976,7 +1079,7 @@ a single field, in a combobox for example.
 	    <listitem>
 		<para>
 		Because our code refers to a class declared in
-		<filename>editbook.h</> and to a &db; we need to add two
+		<filename>editbook.h</> and to a \class[QDataBrowser] we need to add two
 		includes. Click on the BookForm, then click on the Source
 		tab of the Object Hierarchy window. Right click the 'Includes (In
 		Declaration)' item and click New. Type in
@@ -991,16 +1094,16 @@ a single field, in a combobox for example.
 	<para>
 	Now when we navigate through the author and book records in the
 	BookForm we can click the Edit Books button to launch our Edit Books
-	dialog. Although the dialog supports &u;, &d; and navigation over
+	dialog. Although the dialog supports \upd, \del and navigation over
 	the book table, we cannot edit the foreign keys nor perform inserts.
-	We will deal with insertion in the same way as we did with the &dt;,
+	We will deal with insertion in the same way as we did with the \class[QDataTable],
 	then we will handle the foreign keys.
 	</para>
 
 	</sect3>
 	
 	<sect3 id="inserting-into-a-qdatabrowser">
-	<title>Inserting into a &db;</title>
+	<title>Inserting into a \class[QDataBrowser]</title>
 
 	<para>
 	We will create a slot to receive the Edit Books form's
@@ -1017,7 +1120,7 @@ a single field, in a combobox for example.
 		<para>
 		Click <guimenuitem>Edit|Slots</>, then click the
 		<guibutton>New Slot</> button and type the new slot name
-		in the Slot Properties Slot edit box. Click &ok;.
+		in the Slot Properties Slot edit box. Click \ok.
 		</para>
 	    </listitem> 
 
@@ -1032,7 +1135,7 @@ a single field, in a combobox for example.
 		click the BookDataBrowser and drag to the form; release
 		the mouse on the form. Now click the
 		<function>primeInsert()</> signal and the
-		primeInsertBook slot. Click &ok;.
+		primeInsertBook slot. Click \ok.
 		</para>
 	    </listitem> 
 
@@ -1043,7 +1146,7 @@ a single field, in a combobox for example.
 		<function>primeInsertBook</> function. We need to change
 		it to the following:
 <programlisting>
-\scan eg/book/book6/editbook.cpp c_filter /EditBookForm::primeInsertBook/ /^}/
+\scan eg/book/book6/editbook.cpp /EditBookForm::primeInsertBook/ /^}/
 </programlisting>
 		</para>
 	    </listitem> 
@@ -1061,7 +1164,7 @@ a single field, in a combobox for example.
 
 
 	<sect3 id="handling-foreign-keys-in-a-qdatabrowser">
-	<title>Handling Foreign Keys in a &db;</title>
+	<title>Handling Foreign Keys in a \class[QDataBrowser]</title>
 
 	<para>
 	</para>
