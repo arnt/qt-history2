@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#39 $
 **
 ** Implementation of QScrollView class
 **
@@ -157,22 +157,22 @@ struct QScrollViewData {
 \class QScrollView qscrollview.h
 \brief The QScrollView widget provides a scrolling area with on-demand scrollbars.
 
-The QScrollView can be used in two ways:
-<ol>
- <li> to view a (large) QWidget
- <li> to view a (large) object with an arbitrary display requirement.
-</ol>
+The QScrollView is a large canvas - potentially larger than the coordinate
+system normally supported by the underlying window system.  This is important,
+as is is quite easy to go beyond such limitations (eg. many web pages are
+more than 32000 pixels high).  Additionally, the QScrollView can have
+QWidgets positioned on it that scroll around with the drawn content.  These
+subwidgets can also have positions outside the normal coordinate range
+(but they are still limited in size).
 
-To use a QScrollView in the first way, use setContents(QWidget*) to set the large
-widget to be viewed.
+To provide content for the widget, inherit from QScrollView and
+override drawContentsOffset(), and use resizeContents() to set
+the size of the viewed area.  Use addChild(), moveChild(), and showChild()
+to position widgets on the view.
 
-For the second technique, you must inherit from QScrollView and override
-drawContentsOffset(), and use resizeContents() to set
-the size of the viewed area.
+Note also the effect of resizePolicy().
 
-QWidgets have a maximum size, limited by the underlying window system,
-of 32767 by 32767 pixels.  The second technique is not constrained by
-this limitation, but currently the scrollbars fail beyond about
+Currently the scrollbars fail beyond about
 1000000 pixels due to integer overflow.
 
 <img src=qscrollview-m.gif> <img src=qscrollview-w.gif>
@@ -180,8 +180,7 @@ this limitation, but currently the scrollbars fail beyond about
 
 
 /*!
-Constructs a QScrollView.  A single child can then be set with the setContents()
-method.
+Constructs a QScrollView.
 */
 
 QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
@@ -197,7 +196,7 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
 }
 
 /*!
-Destructs the QScrollView.  Any QWidget set with setContents() will be destructed.
+Destructs the QScrollView.  Any children added with addChild() will be destructed.
 */
 QScrollView::~QScrollView()
 {
@@ -208,7 +207,7 @@ QScrollView::~QScrollView()
     delete d2;
 }
 
-// This variable allows ensureVisible to move the contents widget then
+// This variable allows ensureVisible to move the contents then
 // update both the sliders.  Otherwise, updating the sliders would
 // cause two image scrolls, creating ugly flashing.
 //
@@ -229,7 +228,8 @@ void QScrollView::vslide( int pos )
 }
 
 /*!
-  Updates scrollbars - all possibilities considered.
+  Updates scrollbars - all possibilities considered.  You should never
+  need to call this in your code.
 */
 void QScrollView::updateScrollBars()
 {
@@ -292,7 +292,7 @@ void QScrollView::updateScrollBars()
 	porth=h-sbDim-tmarg-bmarg;
     } else {
 	if (!needh)
-	    hslide( 0 ); // move widget to left
+	    hslide( 0 ); // move to left
 	d->hbar.hide();
 	porth=h-tmarg-bmarg;
     }
@@ -300,7 +300,7 @@ void QScrollView::updateScrollBars()
 	portw=w-sbDim-lmarg-rmarg;
     } else {
 	if (!needv)
-	    vslide( 0 ); // move widget to top
+	    vslide( 0 ); // move to top
 	d->vbar.hide();
 	portw=w-lmarg-rmarg;
     }
@@ -423,7 +423,7 @@ QScrollView::ScrollBarMode QScrollView::vScrollBarMode() const
   \define QScrollView::ScrollBarMode
 
   <ul>
-   <li> \c Auto shows a scrollbar when the widget or area is too tall to fit.
+   <li> \c Auto (the default) shows a scrollbar when the content is too tall to fit.
    <li> \c AlwaysOff never shows a scrollbar.
    <li> \c AlwaysOn always shows a scrollbar.
   </ul>
@@ -452,7 +452,7 @@ QScrollView::ScrollBarMode QScrollView::hScrollBarMode() const
 /*!
   Sets the mode for the horizontal scrollbar.
   <ul>
-   <li> \c Auto shows a scrollbar when the widget or area is too wide to fit.
+   <li> \c Auto (the default) shows a scrollbar when the content is too wide to fit.
    <li> \c AlwaysOff never shows a scrollbar.
    <li> \c AlwaysOn always shows a scrollbar.
   </ul>
@@ -518,30 +518,30 @@ void QScrollView::setCornerWidget(QWidget* corner)
     }
 }
 
+
 /*!
-  Sets the widget to appear in the scrolling area.
-  Passing 0 shows no widget in the scrolling area.
-  Any previous widget is hidden.
-  You may call setContents() with the same widget at different times.
+  Sets the resize policy to \a r.
 
-  All widgets set here will be deleted by the QScrollView when it destructs
-  unless you seperately
-  recreate the widget after setting some other widget (or 0).
+  \define QScrollView::ResizePolicy
 
-  Any \e newly set widget should have no current parent.
-
-  \code
-    QScrollView vp(...);
-    vp.setContents(new MyLargeWidget);
-  \endcode
+  The policies are:
+  <ul>
+   <li> \c Default is the initial value.  It converts to \c Manual if 
+	    the view is resized with resizeContents(), or to \c AutoOne
+	    if a child is added.
+   <li> \c Manual means the view stays the size set by resizeContents().
+   <li> \c AutoOne means that if there is only only child widget, the
+	    view stays the size of that widget.
+  </ul>
 */
-
-
 void QScrollView::setResizePolicy( ResizePolicy r )
 {
     d->policy = r;
 }
 
+/*!
+  Returns the currently set ResizePolicy.
+*/
 QScrollView::ResizePolicy QScrollView::resizePolicy() const
 {
     return d->policy;
@@ -603,21 +603,38 @@ void QScrollView::moveChild(QWidget* child, int x, int y)
     addChild(child,x,y);
 }
 
+/*
+  Returns the X position of the given child widget.
+  Use this rather than QWidget::x() for widgets added to the view.
+*/
 int QScrollView::childX(QWidget* child)
 {
     return d->rec(child)->x;
 }
 
+/*
+  Returns the Y position of the given child widget.
+  Use this rather than QWidget::y() for widgets added to the view.
+*/
 int QScrollView::childY(QWidget* child)
 {
     return d->rec(child)->y;
 }
 
+/*
+  Returns TRUE if \a child is visible.
+  Use this rather than QWidget::isVisible() for widgets added to the view.
+*/
 bool QScrollView::childIsVisible(QWidget* child)
 {
     return d->rec(child)->wantshown;
 }
 
+/*
+  Sets the visibility of \a child.
+  Use this rather than QWidget::show() or QWidget::hide()
+  for widgets added to the view.
+*/
 void QScrollView::showChild(QWidget* child, bool y)
 {
     ChildRec* r = d->rec(child);
@@ -627,8 +644,9 @@ void QScrollView::showChild(QWidget* child, bool y)
 
 
 /*!
-  This event filter ensures the scrollbars are updated when the
-  contents widget is resized, shown, hidden, or destroyed.
+  This event filter ensures the scrollbars are updated when a single
+  contents widget is resized, shown, hidden, or destroyed, and passes
+  mouse events to the QScrollView.
 */
 
 bool QScrollView::eventFilter( QObject *obj, QEvent *e )
@@ -644,17 +662,15 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	  case Event_MouseButtonDblClick:
 	  case Event_MouseMove:
 	    {
+#if 0 // ######### this will be useful - check QListView though
 		// Propagate to me
 		//
 		// Safe to do this, since there is no part of
 		// me visible for the user to otherwise click on.
 		//
-		QMouseEvent *me = (QMouseEvent*)e;
-		QMouseEvent myme( me->type(),
-				QPoint(me->x() - d->viewport.x(),
-				       me->y() - d->viewport.y()),
-				me->button(), me->state() );
-		qApp->sendEvent( this, &myme );
+		qApp->sendEvent( this, me );
+		return TRUE;
+#endif
 	    } break;
 	  case Event_ChildRemoved:
 	    removeChild(((QChildEvent*)e)->child());
@@ -708,7 +724,7 @@ QScrollBar* QScrollView::horizontalScrollBar() { return &d->hbar; }
 QScrollBar* QScrollView::verticalScrollBar() { return &d->vbar; }
 
 /*!
- Scrolls the widget or area so that the point (x, y) is visible
+ Scrolls the content so that the point (x, y) is visible
  with at least 50-pixel margins (if possible, otherwise centered).
 */
 void QScrollView::ensureVisible( int x, int y )
@@ -717,7 +733,7 @@ void QScrollView::ensureVisible( int x, int y )
 }
 
 /*!
- Scrolls the widget or area so that the point (x, y) is visible
+ Scrolls the content so that the point (x, y) is visible
  with at least the given pixel margins (if possible, otherwise centered).
 */
 void QScrollView::ensureVisible( int x, int y, int xmargin, int ymargin )
@@ -770,7 +786,7 @@ void QScrollView::ensureVisible( int x, int y, int xmargin, int ymargin )
 }
 
 /*!
- Scrolls the widget or area so that the point (x, y) is in the top-left corner.
+ Scrolls the content so that the point (x, y) is in the top-left corner.
 */
 void QScrollView::setContentsPos( int x, int y )
 {
@@ -787,7 +803,7 @@ void QScrollView::setContentsPos( int x, int y )
 }
 
 /*!
- Scrolls the widget or area by \a x to the left and \a y upwards.
+ Scrolls the content by \a x to the left and \a y upwards.
 */
 void QScrollView::scrollBy( int dx, int dy )
 {
@@ -795,7 +811,7 @@ void QScrollView::scrollBy( int dx, int dy )
 }
 
 /*!
- Scrolls the widget or area so that the point (x,y) is in the
+ Scrolls the content so that the point (x,y) is in the
  center of visible area.
 */
 void QScrollView::center( int x, int y )
@@ -804,7 +820,7 @@ void QScrollView::center( int x, int y )
 }
 
 /*!
- Scrolls the widget or area so that the point (x,y) is visible,
+ Scrolls the content so that the point (x,y) is visible,
  with the given margins (as fractions of visible area).
 
  eg.
@@ -832,7 +848,7 @@ void QScrollView::center( int x, int y, float xmargin, float ymargin )
 */
 
 /*!
-  Moves the contents widget or area.
+  Moves the contents.
 */
 void QScrollView::moveContents(int x, int y)
 {
@@ -956,13 +972,14 @@ void QScrollView::resizeContents( int w, int h )
 
   Draws the rectangle (\a clipx, \a clipy, \a clipw, \a cliph ) of the
   contents, offset by (\a offsetx, \a offsety ) using painter \a p.
-  All four are given in the scroll views's coordinates.  \a clipx and
-  \a clipy are typically large positive numbers, \a offsetx and \a
-  offsety are typically large negative numbers.
+  All four are given in the scroll views's coordinates.  All of
+  \a clipx, \a clipy, \a offsetx and \a offsety are typically large
+  positive numbers.
 
   Note that the final coordinates you give to QPainter methods must be
   within the range supported by the underlying window systems - about
-  +/- 32000.
+  +/- 32000 at most, often much less - +/- 4000 or so is all you should
+  rely expect.
 
   For example:
   \code
@@ -979,13 +996,13 @@ void QScrollView::resizeContents( int w, int h )
     if (x2 > clipx+clipw-1) x2=clipx+clipw-1;
     if (y2 > clipy+cliph-1) y2=clipy+cliph-1;
 
-    // Offset the coordinates...
-    x1 += ox;
-    x2 += ox;
-    y1 += oy;
-    y2 += oy;
+    // Translate to scrolled coordinates...
+    x1 -= ox;
+    x2 -= ox;
+    y1 -= oy;
+    y2 -= oy;
 
-    // Paint using the coordinates...
+    // Paint using the new small coordinates...
     if ( x2 >= x1 && y2 >= y1 )
 	p->fillRect(x1, y1, x2-x1+1, y2-y1+1, red);
   }
@@ -1029,7 +1046,9 @@ void QScrollView::changeFrameRect(const QRect& r)
     QRect oldr = frameRect();
     if (oldr != r) {
 	setFrameRect(r);
-	//viewport()->update();
+	// Redraw frames
+	update(r);
+	update(oldr);
     }
 }
 
