@@ -458,7 +458,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	wm_hints.initial_state = NormalState;
 	wm_hints.flags = InputHint | StateHint;
 
-	if (p) { // the real client leader (head of the group)
+	if ( p && ! p->isDesktop() ) {
+            // the real client leader (head of the group)
 	    wm_hints.window_group = p->winId();
 	    wm_hints.flags |= WindowGroupHint;
 	}
