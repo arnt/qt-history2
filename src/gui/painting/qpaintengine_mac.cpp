@@ -660,12 +660,12 @@ QQuickDrawPaintEngine::drawPolyline(const QPointArray &pa, int index, int npoint
 
     setupQDPen();
     /* We draw 5000 chunks at a time because of limitations in QD */
-    for(int chunk = 0; chunk < pa.size(); ) {
+    for(int chunk = index; chunk < npoints; ) {
 	//make a region of it
 	PolyHandle poly = OpenPoly();
 	MoveTo(pa[chunk].x()+d->offx, pa[chunk].y()+d->offy);
 	for(int last_chunk=chunk+5000; chunk < last_chunk; chunk++) {
-	    if(chunk == pa.size())
+	    if(chunk == npoints)
 		break;
 	    LineTo(pa[chunk].x()+d->offx, pa[chunk].y()+d->offy);
 	}
