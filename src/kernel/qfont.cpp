@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#58 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -18,8 +18,9 @@
 #include "qdict.h"
 #include "qstrlist.h"
 #include "qdstream.h"
+#include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#57 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#58 $");
 
 
 /*!
@@ -276,10 +277,16 @@ int QFont::pointSize() const
 }
 
 /*!
-  Sets the point size (e.g. 12 or 18). If the point size is not available
-  the closest available will be used.
+  Sets the point size to \a pointSize. The point size must be greater
+  than zero.
+  
+  Example:
+  \code
+    QFont font( "courier" );
+    font.setPointSize( 18 );
+  \endcode
 
-  Setting of point sizes less than or equal to 0 will be ignored.
+  If the point size is not available the closest available will be used.
 
   \sa pointSize(), QFontInfo, \link fontmatch.html font matching\endlink
 */
@@ -348,7 +355,13 @@ int QFont::weight() const
 /*!
   Sets the weight (or boldness).
 
-  The enum \c Weight contains the predefined font weights.
+  The enum \c QFont::Weight contains the predefined font weights:<ul>
+  <li> \c QFont::Light (25)
+  <li> \c QFont::Normal (50)
+  <li> \c QFont::DemiBold (63)
+  <li> \c QFont::Bold (75)
+  <li> \c QFont::Black (87)
+  </ul>
 
   Strictly speaking you can use all values in the range [0,99] (where
   0 is ultralight and 99 is extremely black), but there is such a
@@ -361,22 +374,19 @@ int QFont::weight() const
   \endcode
 
   If the specified weight is not available the closest available will
-  be used.  Use QFontInfo to check the actual weight.
-
-  If you try to set the weight to a value outside the legal range,
-  setWeight() ignores you.
+  be used. Use QFontInfo to check the actual weight.
 
   \sa weight(), QFontInfo, \link fontmatch.html font matching\endlink
 */
 
 void QFont::setWeight( int weight )
 {
-#if defined(CHECK_RANGE)
     if ( weight < 0 || weight > 99 ) {
+#if defined(CHECK_RANGE)
 	warning( "QFont::setWeight: Value out of range (%d)", weight );
+#endif
 	return;
     }
-#endif
     if ( (int)d->req.weight != weight ) {
 	detach();
 	d->req.weight = weight;
@@ -484,9 +494,11 @@ bool QFont::fixedPitch() const
 
 
 /*!
-  Sets fixed pitch on or off. If the mode selected is not available
-  the other will be used. A fixed pitch font is a font that has constant
-  character pixel width.
+  Sets fixed pitch on or off.
+  
+  A fixed pitch font is a font that has constant character pixel width.  
+  If the mode selected is not available the other will be used.
+
   \sa fixedPitch(), QFontInfo, \link fontmatch.html font matching\endlink
 */
 
@@ -503,7 +515,7 @@ void QFont::setFixedPitch( bool enable )
 /*!
   Returns the StyleHint set by setStyleHint().
 
-  \sa setStyleHint() QFontInfo::styleHint()
+  \sa setStyleHint(), QFontInfo::styleHint()
 */
 
 QFont::StyleHint QFont::styleHint() const
@@ -603,7 +615,7 @@ void QFont::setCharSet( CharSet charset )
 
 
 /*!
-  Returns the value set by setRawMode.
+  Returns the value set by setRawMode().
   \sa setRawMode()
 */
 
@@ -630,7 +642,7 @@ bool QFont::rawMode() const
 	QFont font( "-*-fixed-*-*-*-*-*-140-75-75-c-*-iso8859-1" );
 	font.setRawMode( TRUE );
 	if ( !font.exactMatch() )
-	    debug( "Sorry, could not find the X specific font" );
+	    fatal( "Sorry, could not find the X specific font" );
     #endif
   \endcode
 
@@ -734,7 +746,7 @@ void  QFont::setDefaultFont( const QFont &f )
   QFont substitution management
  *****************************************************************************/
 
-typedef Q_DECLARE(QDictM,char)	     QFontSubst;
+typedef Q_DECLARE(QDictM,char)	       QFontSubst;
 typedef Q_DECLARE(QDictIteratorM,char) QFontSubstIt;
 static QFontSubst *fontSubst = 0;
 
@@ -763,7 +775,6 @@ static void initFontSubst()			// create substitution dict
     for ( int i=0; initTbl[i] != 0; i += 2 )
 	fontSubst->insert( initTbl[i],	qstrdup(initTbl[i+1]) );
     qAddPostRoutine( cleanupFontSubst );
-
 }
 
 
@@ -854,6 +865,94 @@ void QFont::listSubstitutions( QStrList *list )
 }
 
 
+/*
+  Internal function. Converts boolean font settings (except dirty)
+  to an unsigned 8-bit number. Used for serialization etc.
+*/
+
+static Q_UINT8 get_font_bits( const QFontDef &f )
+{
+    Q_UINT8 bits = 0;
+    if ( f.italic )
+	bits |= 0x01;
+    if ( f.underline )
+	bits |= 0x02;
+    if ( f.strikeOut )
+	bits |= 0x04;
+    if ( f.fixedPitch )
+	bits |= 0x08;
+    if ( f.hintSetByUser )
+	bits |= 0x10;
+    if ( f.rawMode )
+	bits |= 0x20;
+    return bits;
+}
+
+/*
+  Internal function. Sets boolean font settings (except dirty)
+  from an unsigned 8-bit number. Used for serialization etc.
+*/
+
+static void set_font_bits( Q_UINT8 bits, QFontDef *f )
+{
+    f->italic	     = (bits & 0x01) != 0;
+    f->underline     = (bits & 0x02) != 0;
+    f->strikeOut     = (bits & 0x04) != 0;
+    f->fixedPitch    = (bits & 0x08) != 0;
+    f->hintSetByUser = (bits & 0x10) != 0;
+    f->rawMode	     = (bits & 0x20) != 0;
+}
+
+
+static void hex2( uchar n, char *s )
+{
+    uchar b = (n >> 4) & 0x0f;
+    *s++ = b + (b < 10 ? '0' : ('a'-10));
+    b = n & 0x0f;
+    *s++ = b + (b < 10 ? '0' : ('a'-10));
+    *s = '\0';
+}
+
+static void hex4( ushort n, char *s )
+{
+    hex2( (n >> 8) & 0xff, s );
+    hex2( n & 0xff, s+2 );
+}
+
+
+/*!
+  Returns the font's key, which is a textual representation of the font
+  settings. It is typically used to insert and find fonts in a
+  dictionary or a cache.
+  \sa QDict, QCache
+*/
+
+QString QFont::key() const
+{
+    if ( d->req.rawMode )
+	return d->req.family.lower();
+    int	    len = d->req.family.length();
+    QString s( len+13 );
+    UINT8   bits = get_font_bits( d->req );
+    char   *p = s.data();
+    CHECK_PTR( p );
+    hex4( d->req.pointSize, p );
+    p += 4;
+    if ( len ) {
+	strcpy( p, d->req.family.data() );
+	while ( *p ) {
+	    *p = tolower(*p);
+	    p++;
+	}
+    }
+    hex2( bits, p );
+    hex2( d->req.weight, p+2 );
+    hex2( d->req.styleHint, p+4 );
+    hex2( d->req.charSet, p+6 );
+    return s;
+}
+
+
 /*****************************************************************************
   QFont stream functions
  *****************************************************************************/
@@ -865,25 +964,12 @@ void QFont::listSubstitutions( QStrList *list )
 
 QDataStream &operator<<( QDataStream &s, const QFont &f )
 {
-    UINT8 bits = 0;
-    if ( f.d->req.italic )
-	bits |= 0x01;
-    if ( f.d->req.underline )
-	bits |= 0x02;
-    if ( f.d->req.strikeOut )
-	bits |= 0x04;
-    if ( f.d->req.fixedPitch )
-	bits |= 0x08;
-    if ( f.d->req.hintSetByUser )
-	bits |= 0x10;
-    if ( f.d->req.rawMode )
-	bits |= 0x20;
     return s << f.d->req.family
 	     << (INT16)f.d->req.pointSize
 	     << (UINT8)f.d->req.styleHint
 	     << (UINT8)f.d->req.charSet
 	     << (UINT8)f.d->req.weight
-	     << bits;
+	     << get_font_bits(f.d->req);
 }
 
 /*!
@@ -898,8 +984,8 @@ QDataStream &operator>>( QDataStream &s, QFont &f )
     f.d = new QFontData;
     CHECK_PTR( f.d );
 
-    INT16 pointSize;
-    UINT8 styleHint, charSet, weight, bits;
+    Q_INT16 pointSize;
+    Q_UINT8 styleHint, charSet, weight, bits;
     s >> f.d->req.family;
     s >> pointSize;
     s >> styleHint >> charSet >> weight >> bits;
@@ -908,13 +994,8 @@ QDataStream &operator>>( QDataStream &s, QFont &f )
     f.d->req.styleHint	   = styleHint;
     f.d->req.charSet	   = charSet;
     f.d->req.weight	   = weight;
-    f.d->req.italic	   = (bits & 0x01) ? TRUE : FALSE;
-    f.d->req.underline	   = (bits & 0x02) ? TRUE : FALSE;
-    f.d->req.strikeOut	   = (bits & 0x04) ? TRUE : FALSE;
-    f.d->req.fixedPitch	   = (bits & 0x08) ? TRUE : FALSE;
-    f.d->req.hintSetByUser = (bits & 0x10) ? TRUE : FALSE;
-    f.d->req.rawMode	   = (bits & 0x20) ? TRUE : FALSE;
     f.d->req.dirty	   = TRUE;
+    set_font_bits( bits, &(f.d->req) );
 
     return s;
 }
