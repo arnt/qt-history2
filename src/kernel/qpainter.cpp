@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#119 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#120 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qwidget.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#119 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#120 $");
 
 
 /*!
@@ -2120,8 +2120,9 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	    else
 		painter->drawText( x+xc, y+yp, p, k );	// draw the text
 	    if ( (*cp & TABSTOP) == TABSTOP ) {
-		xp = bxp + (*cp++ & WIDTHBITS);
-		xc = bxc + (*cp++ & WIDTHBITS);
+		int w = (*cp++ & WIDTHBITS);
+		xp = bxp + w;
+		xc = bxc + w;
 	    } else {				// *cp == 0 || *cp == BEGLINE
 		break;
 	    }
