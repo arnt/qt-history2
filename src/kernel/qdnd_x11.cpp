@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#25 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -381,6 +381,61 @@ void qt_handle_xdnd_finished( QWidget *, const XEvent * xe )
     }
 }
 
+
+bool QDragManager::eventFilter( QObject * o, QEvent * e)
+{
+    if ( o != dragSource ) {
+	//debug( "unexpected event for object %p - %s/%s",
+	//       o, o->name( "unnamed" ), o->className() );
+	o->removeEventFilter( this );
+	return FALSE;
+    }
+
+    ASSERT( object != 0 );
+
+    if ( beingCancelled ) {
+	if ( e->type() == Event_KeyRelease &&
+	     ((QKeyEvent*)e)->key() == Key_Escape ) {
+	    dragSource->removeEventFilter( this );
+	    object = 0;
+	    dragSource = 0;
+	    beingCancelled = FALSE;
+	    return TRUE; // block the key release
+	}
+	return FALSE;
+    }
+
+    if ( e->type() == Event_MouseMove ) {
+	move( dragSource->mapToGlobal( ((QMouseEvent *)e)->pos() ) );
+	return TRUE;
+    } else if ( e->type() == Event_MouseButtonRelease ) {
+	drop();
+	dragSource->removeEventFilter( this );
+	object = 0;
+	dragSource = 0;
+	beingCancelled = FALSE;
+	return TRUE;
+    } else if ( e->type() == Event_KeyPress &&
+		((QKeyEvent*)e)->key() == Key_Escape ) {
+	cancel();
+	dragSource->removeEventFilter( this );
+	object = 0;
+	dragSource = 0;
+	beingCancelled = FALSE;
+	return TRUE;
+    } else if ( e->type() == Event_DragResponse ) {
+	if ( ((QDragResponseEvent *)e)->dragAccepted() ) {
+	    QApplication::setOverrideCursor( arrowCursor, restoreCursor );
+	    restoreCursor = TRUE;
+	} else {
+	    QApplication::setOverrideCursor( *noDropCursor, restoreCursor );
+	    restoreCursor = TRUE;
+	}
+	return TRUE;
+    }
+
+    return FALSE;
+}
 
 
 void QDragManager::cancel()

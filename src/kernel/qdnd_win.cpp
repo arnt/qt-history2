@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#11 $
 **
 ** WM_FILES implementation for Qt.
 **
@@ -466,6 +466,10 @@ QOleDropTarget *current_drop=0;
 static
 LPDATAOBJECT current_dropobj = 0;
 
+bool QDragManager::eventFilter( QObject *, QEvent *)
+{
+    return FALSE;
+}
 
 void QDragManager::cancel()
 {

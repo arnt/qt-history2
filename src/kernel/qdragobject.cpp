@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#19 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -71,63 +71,6 @@ QDragManager::~QDragManager()
 
 
 
-bool QDragManager::eventFilter( QObject * o, QEvent * e)
-{
-    if ( o != dragSource ) {
-	//debug( "unexpected event for object %p - %s/%s",
-	//       o, o->name( "unnamed" ), o->className() );
-	o->removeEventFilter( this );
-	return FALSE;
-    }
-
-    ASSERT( object != 0 );
-
-    if ( beingCancelled ) {
-	if ( e->type() == Event_KeyRelease &&
-	     ((QKeyEvent*)e)->key() == Key_Escape ) {
-	    dragSource->removeEventFilter( this );
-	    object = 0;
-	    dragSource = 0;
-	    beingCancelled = FALSE;
-	    return TRUE; // block the key release
-	}
-	return FALSE;
-    }
-
-    if ( e->type() == Event_MouseMove ) {
-	move( dragSource->mapToGlobal( ((QMouseEvent *)e)->pos() ) );
-	return TRUE;
-    } else if ( e->type() == Event_MouseButtonRelease ) {
-	drop();
-	dragSource->removeEventFilter( this );
-	object = 0;
-	dragSource = 0;
-	beingCancelled = FALSE;
-	return TRUE;
-    } else if ( e->type() == Event_KeyPress &&
-		((QKeyEvent*)e)->key() == Key_Escape ) {
-	cancel();
-	dragSource->removeEventFilter( this );
-	object = 0;
-	dragSource = 0;
-	beingCancelled = FALSE;
-	return TRUE;
-    } else if ( e->type() == Event_DragResponse ) {
-	if ( ((QDragResponseEvent *)e)->dragAccepted() ) {
-	    QApplication::setOverrideCursor( arrowCursor, restoreCursor );
-	    restoreCursor = TRUE;
-	} else {
-	    QApplication::setOverrideCursor( *noDropCursor, restoreCursor );
-	    restoreCursor = TRUE;
-	}
-	return TRUE;
-    }
-
-    return FALSE;
-}
-
-
-
 
 /*!  Creates a drag object which is a child of \a dragSource and
   named \a name.
@@ -153,8 +96,14 @@ QDragObject::~QDragObject()
 }
 
 
-/*!  Starts a drag operation using the contents of this object. */
+/*!
+  Starts a drag operation using the contents of this object.
 
+  Under X11, this function usually returns immediately.  Under Windows,
+  it does not return until the drag is complete. In either case,
+  the application should take care to prepare for events that might
+  occur during the drag \e prior to calling this function.
+*/
 void QDragObject::startDrag()
 {
     if ( manager )
