@@ -111,7 +111,7 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=FALSE
 	    quote.pop();
 	} else if(vals[x] == '\'' || vals[x] == '"') {
 	    quote.push(vals[x]);
-	} else if(quote.isEmpty() && 
+	} else if(quote.isEmpty() &&
 		  ((do_semicolon && vals[x] == ';') ||  vals[x] == ' ')) {
 	    ret << vals.mid(last, x - last);
 	    last = x+1;
@@ -130,7 +130,7 @@ bool
 QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 {
     QString s = t.simplifyWhiteSpace();
-    int hash_mark = s.find('#'); 
+    int hash_mark = s.find('#');
     if(hash_mark != -1) //good bye comments
 	s = s.left(hash_mark);
     if(s.isEmpty()) /* blank_line */
@@ -298,7 +298,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
     var = varMap(var); //backwards compatability
 
     /* vallist is the broken up list of values */
-    QStringList vallist = split_value_list(vals, (var == "DEPENDPATH" || var == "INCLUDEPATH")); 
+    QStringList vallist = split_value_list(vals, (var == "DEPENDPATH" || var == "INCLUDEPATH"));
     if(!vallist.grep("=").isEmpty())
 	warn_msg(WarnParser, "Detected possible line continuation: {%s} %s:%d",
 		 var.latin1(), parser.file.latin1(), parser.line_no);
@@ -557,12 +557,13 @@ QMakeProject::read(const QString &project, const QString &, bool just_project)
     }
 
     QStringList &templ = vars["TEMPLATE"];
-    if(templ.isEmpty()) 
+    if(templ.isEmpty())
 	templ.append(QString("app"));
     else if(vars["TEMPLATE"].first().endsWith(".t"))
 	templ = QStringList(templ.first().left(templ.first().length() - 2));
-    if(!Option::user_template_prefix.isEmpty())
-	templ.prepend(Option::user_template_prefix);
+    if ( !Option::user_template_prefix.isEmpty() ) {
+	templ.first().prepend(Option::user_template_prefix);
+    }
 
     if(vars["TARGET"].isEmpty()) {
 	// ### why not simply use:
@@ -598,7 +599,7 @@ QMakeProject::isActiveConfig(const QString &x)
 	return TRUE;
 
     QRegExp re(x, FALSE, TRUE);
-    if((Option::target_mode == Option::TARG_MACX_MODE || Option::target_mode == Option::TARG_QNX6_MODE || 
+    if((Option::target_mode == Option::TARG_MACX_MODE || Option::target_mode == Option::TARG_QNX6_MODE ||
 	Option::target_mode == Option::TARG_UNIX_MODE) && x == "unix")
 	return TRUE;
     else if(Option::target_mode == Option::TARG_MACX_MODE && x == "macx")
@@ -704,7 +705,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	QRegExp regx(args[1]);
 	QStringList &l = place[args[0]];
 	for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
-	    if(regx.exactMatch((*it))) 
+	    if(regx.exactMatch((*it)))
 		return TRUE;
 	}
 	return FALSE;
@@ -818,9 +819,9 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	int sf = scope_flag;
 	TestStatus sc = test_status;
 	bool r = read(file.latin1(), place);
-	if(r) 
+	if(r)
 	    vars["QMAKE_INTERNAL_INCLUDED_FILES"].append(file);
-	else 
+	else
 	    warn_msg(WarnParser, "%s:%d: Failure to include file %s.",
 		     pi.file.latin1(), pi.line_no, file.latin1());
 	parser = pi;
