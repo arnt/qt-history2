@@ -500,6 +500,12 @@ void QTipManager::showTip()
 	    label->resize( t->geometry.size() );
 	connect( label, SIGNAL(destroyed()), SLOT(labelDestroyed()) );
     }
+    // the above deletion and creation of a QTipLabel causes events to be sent. We had reports that the widget
+    // pointer was 0 after this. This is in principle possible if the wrong kind of events get sent through our event
+    // filter in this time. So better be safe and check widget once again here.
+    if (!widget)
+	return;
+
 #ifdef Q_WS_MAC
     QRect screen = QApplication::desktop()->availableGeometry( scr );
 #else
