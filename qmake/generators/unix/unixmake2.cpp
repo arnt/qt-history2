@@ -368,6 +368,10 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		    if(!incr_objs.isEmpty())
 			incr_objs += " ";
 		    incr_objs += "-L" + destdir;
+		} else {
+		    if(!incr_objs.isEmpty())
+			incr_objs += " ";
+		    incr_objs += "-L" + QDir::currentDirPath();
 		}
 		if(!incr_objs.isEmpty())
 		    incr_objs += " ";
