@@ -420,13 +420,14 @@ void DirectoryView::contentsDropEvent( QDropEvent *e )
 
 	e->accept();
 
-	for ( int i = 0; i < lst.count(); ++i ) {
-	    QString filename = lst.at( i );
+
+	for ( uint i = 0; i < lst.count(); ++i ) {
+	    QString filename = QDir::convertSeparators(QUriDrag::uriToLocalFile(lst.at(i)));
 	    str += filename + "\n";
 	}
 	str += QString( "\nTo\n\n   %1" )
-	       .arg( fullPath(item) );
-
+	    .arg( QDir::convertSeparators(fullPath(item)) );
+	
 	QMessageBox::information( this, "Drop target", str, "Not implemented" );
     } else
 	e->ignore();
@@ -443,6 +444,13 @@ QString DirectoryView::fullPath(QListViewItem* item)
 	else
 	    fullpath = item->text(0) + fullpath;
     }
+#ifdef Q_WS_WIN
+	if (fullpath.length() > 2 && fullpath[1] != ':') {
+		QDir dir(fullpath);
+		fullpath = dir.currentDirPath().left(2) + fullpath;
+	}
+#endif
+	
     return fullpath;
 }
 
@@ -471,10 +479,10 @@ void DirectoryView::contentsMouseMoveEvent( QMouseEvent* e )
 	    QString source = fullPath(item);
 	    if ( QFile::exists(source) ) {
 		QUriDrag* ud = new QUriDrag(viewport());
-		ud->setUnicodeUris( source );
+		ud->setFileNames( source );
 		if ( ud->drag() )
 		    QMessageBox::information( this, "Drag source",
-					      QString("Delete ")+source, "Not implemented" );
+		    QString("Delete ") + QDir::convertSeparators(source), "Not implemented" );
 	    }
 	}
     }

@@ -418,19 +418,19 @@ void QtFileIconViewItem::dropped( QDropEvent *e, const QValueList<QIconDragItem>
 	return;
     }
 
-    QList<QByteArray> lst;
-    QUriDrag::decode( e, lst );
+    QStringList lst;
+    QUriDrag::decodeLocalFiles( e, lst );
 
     QString str;
     if ( e->action() == QDropEvent::Copy )
 	str = "Copy\n\n";
     else
 	str = "Move\n\n";
-    for ( int i = 0; i < lst.count(); ++i )
-	str += QString( "   %1\n" ).arg( lst.at( i ) );
+    for ( uint i = 0; i < lst.count(); ++i )
+	str += QString( "   %1\n" ).arg( lst[i] );
     str += QString( "\n"
-		    "To\n\n"
-		    "	%1" ).arg( filename() );
+	"To\n\n"
+	"	%1" ).arg( filename() );
 
     QMessageBox::information( iconView(), e->action() == QDropEvent::Copy ? "Copy" : "Move" , str, "Not Implemented" );
     if ( e->action() == QDropEvent::Move )
@@ -696,23 +696,23 @@ void QtFileIconView::slotDropped( QDropEvent *e, const QValueList<QIconDragItem>
 	return;
     }
 
-    QList<QByteArray> lst;
-    QUriDrag::decode( e, lst );
+    QStringList lst;
+    QUriDrag::decodeLocalFiles( e, lst );
 
     QString str;
     if ( e->action() == QDropEvent::Copy )
 	str = "Copy\n\n";
     else
 	str = "Move\n\n";
-    for ( int i = 0; i < lst.count(); ++i )
-	str += QString( "   %1\n" ).arg( lst.at( i ) );
+    for ( uint i = 0; i < lst.count(); ++i )
+	str += QString( "   %1\n" ).arg( QDir::convertSeparators(lst[i]) );
     str += QString( "\n"
-		    "To\n\n"
-		    "	%1" ).arg( viewDir.absPath() );
+	"To\n\n"
+	"	%1" ).arg( viewDir.absPath() );
 
     QMessageBox::information( this, e->action() == QDropEvent::Copy ? "Copy" : "Move" , str, "Not Implemented" );
     if ( e->action() == QDropEvent::Move )
-	QMessageBox::information( this, "Remove" , str, "Not Implemented" );
+	QMessageBox::information( this, "Remove" , QDir::convertSeparators(lst.join("\n")), "Not Implemented" );
     e->acceptAction();
     openItem = 0;
 }

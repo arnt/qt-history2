@@ -715,7 +715,7 @@ QByteArray QWindowsMimeUri::convertToMime( QByteArray data, const char* mime, in
     if ( hdrop->fWide ) {
 	while ( filesw[i] ) {
 	    QString fn = QString::fromUcs2( filesw+i );
-	    texturi += QUriDrag::unicodeUriToUri(fn);
+	    texturi += QUriDrag::localFileToUri(fn);
 	    texturi += "\r\n";
 	    i += fn.length()+1;
 	}
@@ -739,7 +739,12 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
     QStoredDrag t("text/uri-list");
     t.setEncodedData(data);
     QStringList fn;
-    QUriDrag::decodeToUnicodeUris( &t, fn );
+    QUriDrag::decodeLocalFiles(&t, fn);
+	
+    QStringList::Iterator i1;
+    for ( i1 = fn.begin(); i1!=fn.end(); ++i1 )
+	(*i1).replace("/", "\\");
+
 
     int size = sizeof(DROPFILES)+2;
     QStringList::Iterator i;
@@ -782,6 +787,7 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
 	}
 	*f = 0;
     } );
+	
     return result;
 }
 

@@ -1228,8 +1228,8 @@ QByteArray QStoredDrag::encodedData(const char* m) const
 /*!
     Constructs an object to drag the list of URIs in \a uris. The \a
     dragSource and \a name arguments are passed on to QStoredDrag.
-    Note that URIs are always in escaped UTF-8 encoding, as defined by
-    the W3C.
+
+    Note that URIs are always in escaped UTF8 encoding.
 */
 QUriDrag::QUriDrag( QList<QByteArray> uris,
 	    QWidget * dragSource, const char * name ) :
@@ -1257,6 +1257,8 @@ QUriDrag::~QUriDrag()
 
 /*!
     Changes the list of \a uris to be dragged.
+
+    Note that URIs are always in escaped UTF8 encoding.
 */
 void QUriDrag::setUris( const QList<QByteArray> &uris )
 {
@@ -1340,8 +1342,13 @@ static uint htod( int h )
 void QUriDrag::setFileNames( const QStringList & fnames )
 {
     QList<QByteArray> uris;
-    for ( int i = 0; i < fnames.count(); ++i)
-	uris.append( localFileToUri(fnames.at(i)) );
+    for ( QStringList::ConstIterator i = fnames.begin();
+    i != fnames.end(); ++i ) {
+	QCString fileUri = localFileToUri(*i);
+	if (!fileUri.isEmpty())
+	    uris.append(fileUri);
+    }
+
     setUris( uris );
 }
 
@@ -1410,22 +1417,29 @@ QByteArray QUriDrag::unicodeUriToUri(const QString& uuri)
 QByteArray QUriDrag::localFileToUri(const QString& filename)
 {
     QString r = filename;
+    
+    //check that it is an absolute file
+#ifdef Q_WS_WIN
+    if (!(r.length() > 3 && r[0].isLetter() && r[1] == ':' && (r[2] == '\\' || r[2] == '/'))) 
+	return QCString();
+    else if (r.length() == 2 && !(r[0].isLetter() && r[1] == ':'))
+	return QCString();
+#else
+    if (!(r.length() >= 1 && r[0] == '/')))
+	return QCString();
+#endif
+    
 #ifdef Q_WS_WIN
     // Slosh -> Slash
     int slosh;
     while ( (slosh=r.find('\\')) >= 0 ) {
 	r[slosh] = '/';
     }
+    
     // Drive
-    if ( r[0] != '/' ) {
-	int colon = r.find(':');
-	if ( colon >= 0 ) {
-	    r[colon] = '|';
-	    if ( r[colon+1] != '/' )
-		r.insert(colon+1,'/');
-	}
+    if ( r[0] != '/' )
 	r.insert(0,'/');
-    }
+
 #endif
 #if defined ( Q_WS_X11 ) && 0
     // URL without the hostname is considered to be errorneous by XDnD.
@@ -1443,6 +1457,8 @@ QByteArray QUriDrag::localFileToUri(const QString& filename)
 /*!
     Returns the Unicode URI (only useful for displaying to humans)
     equivalent of \a uri.
+	
+    Note that URIs are always in escaped UTF8 encoding.
 
     \sa localFileToUri()
 */
@@ -1473,6 +1489,8 @@ QString QUriDrag::uriToUnicodeUri(const char* uri)
 /*!
     Returns the name of a local file equivalent to \a uri or a null
     string if \a uri is not a local file.
+
+    Note that URIs are always in escaped UTF8 encoding.
 
     \sa localFileToUri()
 */
