@@ -5206,6 +5206,7 @@ QString &QString::operator+=( char c )
 const char* QString::latin1() const
 {
     if ( !d->ascii  || !d->islatin1 ) {
+	delete [] d->ascii;
 	d->ascii = unicodeToLatin1( d->unicode, d->len );
 	d->islatin1 = TRUE;
     }
@@ -5226,6 +5227,7 @@ const char* QString::ascii() const
 #ifndef QT_NO_TEXTCODEC
     if ( QTextCodec::codecForCStrings() ) {
 	if ( !d->ascii || d->islatin1 ) {
+	    delete [] d->ascii;
 	    QCString s = QTextCodec::codecForCStrings()->fromUnicode( *this );
 	    s.detach();
 	    d->ascii = s.data();
