@@ -2,8 +2,7 @@
 
 \section1 Introduction
 
-\QD's toolbar buttons provide fast access to common functionality. 
-
+\QD's toolbar buttons provide fast access to common functionality.
 Toolbar buttons are grouped in several toolbars. Toolbars have a
 handle at the left hand side which can be clicked to minimize the
 toolbar. Toolbars that have been minimized have their handle appear
@@ -88,6 +87,27 @@ word you are looking for to place the cursor in the editor.
 
 \section1 The Tools Toolbar Buttons
 
+####################################################################
+The tools toolbar buttons are provided in two views. The default view
+is the new Toolbox that appears on the left side of Designer. The
+toolbox is divided into categories including a "Common Widgets"
+catgory that you can customize for fast and easy access. If you prefer
+to use the original toolbar setup, you can access the toolbars by
+clicking \Menu {Windows|Toolbars} and then selecting the toolbars you
+want to be visible from the context menu. 
+
+\img toolbox.png
+\caption The Toolbox
+
+The Toolbox contains categories describing the type of toolbuttons you
+can find within each catgory. Click a category name to access the
+toolbuttons in that category. To use a widget in a category, click the
+widget to activate it. Click the 'x' in the right hand corner of the
+Toolbox to close it. To make the Toolbox appear again, click \Menu
+{Window|Views|Toolbox}.
+
+######## Maybe I should add these paragraphs a little later right?
+
 If you want to add the same kind of widget several times to a form,
 for example, several push buttons, \e{double click} the widget's
 toolbar button. After this, every time you click the form a new widget
@@ -127,10 +147,9 @@ that you want to be the buddy. Release the mouse button and the buddy is set.
 
 \endlist
 
+\img buttons.png
 \img qd-buttonstoolbuttons3.png
 \caption Buttons
-
-#############Toolbox###################################
 
 \section2 Buttons
 
@@ -152,6 +171,7 @@ form, to place a CheckBox on the form.
 
 \endlist
 
+\img containers.png
 \img qd-containertoolbuttons3.png
 \caption Containers
 
@@ -174,6 +194,7 @@ Page'.
 
 \endlist
 
+\img views.png
 \img qd-viewstoolbuttons5.png
 \caption Views 
 
@@ -194,6 +215,7 @@ place a Table on the form.
 
 \endlist
 
+\img database.png
 \img qd-databasetoolbuttons3.png
 \caption Database Toolbuttons
 
@@ -211,6 +233,7 @@ form, to place a DataView on the form.
 
 \endlist
 
+\img input.png
 \img qd-inputtoolbuttons3.png
 \caption Input Toolbuttons
 
@@ -249,6 +272,7 @@ form, to place a Dial on the form.
 
 \endlist
 
+\img display.png
 \img qd-displaytoolbuttons3.png
 \caption Display Toolbuttons
 

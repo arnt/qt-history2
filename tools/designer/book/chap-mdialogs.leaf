@@ -563,6 +563,21 @@ button. The cursor is placed at the beginning of the line in the file.
 
 Click the \Button Close button to leave the dialog.
 
+\section1 The Tools Dialogs
+
+Click \Menu{Tools|Configure Toolbox} to invoke the \Dialog{Configure
+Toolbox Dialog}. This dialog is used to view a list of available tools
+and a list of the tools in the Common Widgets category in the toolbox.
+To add widgets to the Common Widgets category, click a widget from the
+Available Widgets list and then click the \Button Add. The selected
+widget now appears in the Common Widgets category. To remove a widget
+from the Common Widgets list, click a widget, then click \Button
+Remove. To move a widget up or down in the Common Widgets list, click
+the up or down arrows. 
+
+Click \OK to accept the configurations to the toolbox. Click \CANCEL
+to leave the dialog. 
+
 \section1 The Help Dialogs
 
 \target dialog-qt-designer
@@ -836,11 +851,6 @@ Date, or Attributes column headers to sort the folders or files.
 
 Click \Button Open to open the selected file. Click \CANCEL to leave
 the dialog without opening a file.
-
-\section3 ####Tools|Configure Toolbox###
-
-
-
 
 \img qd-chooseanimage.png
 \caption Choose an Image
