@@ -1349,6 +1349,7 @@ MakefileGenerator::write()
     findLibraries();
     if((Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE || //write prl
        Option::qmake_mode == Option::QMAKE_GENERATE_PRL) &&
+       project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty() &&
        project->isActiveConfig("create_prl") && project->first("TEMPLATE") == "lib" &&
        !project->isActiveConfig("plugin")) {
 	QString prl = var("TARGET");
