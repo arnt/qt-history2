@@ -1066,12 +1066,16 @@ void QWidget::setWindowState(uint newstate)
                 d->topData()->normalGeometry = geometry();
             if (isVisible() && !(newstate & Qt::WindowMinimized)) {
                 ShowWindow(winId(), (newstate & Qt::WindowMaximized) ? max : normal);
-                QRect r = d->topData()->normalGeometry;
-                if (!(newstate & Qt::WindowMaximized) && r.width() >= 0) {
-                    if (pos() != r.topLeft() || size() !=r.size()) {
-                        d->topData()->normalGeometry = QRect(0,0,-1,-1);
-                        setGeometry(r);
+                if (!(newstate & Qt::WindowFullScreen)) {
+                    QRect r = d->topData()->normalGeometry;
+                    if (!(newstate & Qt::WindowMaximized) && r.width() >= 0) {
+                        if (pos() != r.topLeft() || size() !=r.size()) {
+                            d->topData()->normalGeometry = QRect(0,0,-1,-1);
+                            setGeometry(r);
+                        }
                     }
+                } else {
+                    updateFrameStrut();
                 }
             }
         }
@@ -1097,20 +1101,22 @@ void QWidget::setWindowState(uint newstate)
                 if (isVisible())
                     style |= WS_VISIBLE;
                 SetWindowLongA(winId(), GWL_STYLE, style);
+
                 UINT swpf = SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOSIZE | SWP_NOMOVE;
                 if (newstate & Qt::WindowActive)
                     swpf |= SWP_NOACTIVATE;
                 SetWindowPos(winId(), 0, 0, 0, 0, 0, swpf);
                 updateFrameStrut();
 
-                // the widget is still maximized
-                if (newstate & Qt::WindowMaximized) {
-                    if (isVisible())
-                        ShowWindow(winId(), max);
-                } else {
+                // preserve maximized state
+                if (isVisible())
+                    ShowWindow(winId(), (newstate & Qt::WindowMaximized) ? max : normal);
+
+                if (!(newstate & Qt::WindowMaximized)) {
                     QRect r = d->topData()->normalGeometry;
                     d->topData()->normalGeometry = QRect(0,0,-1,-1);
-                    setGeometry(r);
+                    if (r.isValid())
+                        setGeometry(r);
                 }
             }
         }
