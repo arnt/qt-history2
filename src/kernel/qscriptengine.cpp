@@ -44,7 +44,7 @@ static inline void positionCluster( QTextEngine *engine, QScriptItem *si, int gf
 
     QGlyphLayout *glyphs = engine->glyphs( si );
 
-    QFontEngine *f = si->font();
+    QFontEngine *f = engine->fontEngine(*si);
     glyph_metrics_t baseInfo = f->boundingBox( glyphs[gfrom].glyph );
 
     if ( si->analysis.script == QFont::Hebrew ) {
@@ -282,10 +282,11 @@ static void convertToCMap( const QChar *chars, int len, QTextEngine *engine, QSc
 
     si->num_glyphs = len;
     engine->ensureSpace( len );
-    int error = si->font()->stringToCMap( chars, len, glyphs, &si->num_glyphs, (si->analysis.bidiLevel %2) );
+    QFontEngine *font = engine->fontEngine(*si);
+    int error = font->stringToCMap( chars, len, glyphs, &si->num_glyphs, (si->analysis.bidiLevel %2) );
     if ( error == QFontEngine::OutOfMemory ) {
 	engine->ensureSpace( si->num_glyphs );
-	si->font()->stringToCMap( chars, len, glyphs, &si->num_glyphs, (si->analysis.bidiLevel %2) );
+	font->stringToCMap( chars, len, glyphs, &si->num_glyphs, (si->analysis.bidiLevel %2) );
     }
 }
 
@@ -947,8 +948,9 @@ static void arabic_attributes( int /*script*/, const QString &text, int from, in
 static void arabic_shape( int /*script*/, const QString &string, int from, int len,
 			  QTextEngine *engine, QScriptItem *si )
 {
+    QFontEngine *font = engine->fontEngine(*si);
 #if defined( Q_WS_X11) && !defined( QT_NO_XFTFREETYPE )
-    QOpenType *openType = si->font()->openType();
+    QOpenType *openType = font->openType();
 
     if ( openType && openType->supportsScript( QFont::Arabic ) ) {
 	arabicSyriacOpenTypeShape( QFont::Arabic, openType, string,  from,  len, engine, si );

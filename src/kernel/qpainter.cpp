@@ -1194,7 +1194,7 @@ void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
     QScriptItem *si = &engine->items[ti.item()];
 
     engine->shape( ti.item() );
-    QFontEngine *fe = si->font();
+    QFontEngine *fe = engine->fontEngine(*si);
     Q_ASSERT( fe );
 
     x += si->x;
@@ -1210,6 +1210,15 @@ void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
     gf.glyphs = engine->glyphs( si );
     fe->draw( this, x,  y, gf, textFlags );
 }
+
+void QPainter::drawGlyphs(const QPoint& p, const QGlyphFragment &gf)
+{
+    if (!isActive())
+	return;
+    dgc->updateState(ds);
+    gf.font->draw( this, p.x(),  p.y(), gf, 0 );
+}
+
 
 QRect QPainter::boundingRect(int x, int y, int w, int h, int flags, const QString &str, int len,
 			     QTextParag **internal)

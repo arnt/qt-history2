@@ -310,6 +310,7 @@ private:
     friend class QWidgetPrivate;
     friend class Q3TextFormatCollection;
     friend class QTextLayout;
+    friend class QTextEngine;
     friend class QTextItem;
 
 #ifndef QT_NO_DATASTREAM

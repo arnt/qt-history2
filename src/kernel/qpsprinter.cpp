@@ -1827,7 +1827,7 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
     int yo = 0;
 
     QGlyphLayout *glyphs = engine->glyphs( &si );
-    bool glyphIndices = si.font()->type() == QFontEngine::Xft;
+    bool glyphIndices = engine->fontEngine(si)->type() == QFontEngine::Xft;
 
     stream << "<";
     if ( si.analysis.bidiLevel % 2 ) {

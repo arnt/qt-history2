@@ -65,7 +65,7 @@ public:
     QTextEngine *engine() const { return eng; }
     int item() const { return itm; }
 
-    int custom() const;
+    int format() const;
 
 private:
     friend class QTextLayout;
@@ -90,7 +90,6 @@ public:
     int descent() const;
     int textWidth() const;
 
-#if 0
     enum Edge {
 	Leading,
 	Trailing
@@ -104,7 +103,6 @@ public:
     int cursorToX( int *cPos, Edge edge = Leading ) const;
     inline int cursorToX( int cPos, Edge edge = Leading ) const { return cursorToX( &cPos, edge ); }
     int xToCursor( int x, CursorPosition = BetweenCharacters ) const;
-#endif
 
     void adjust(int y, int x1, int x2);
     int from() const;
@@ -122,6 +120,7 @@ private:
 };
 
 class QPainter;
+class QTextFormatCollection;
 
 class Q_GUI_EXPORT QTextLayout
 {
@@ -134,9 +133,9 @@ public:
     ~QTextLayout();
 
     void setText( const QString& string, const QFont& fnt );
+    void setText( const QString& string, const QTextFormatCollection *formats );
     void setText( const QString& string);
-
-    void enableKerning(bool enable);
+    QString text() const;
 
     enum LineBreakStrategy {
 	AtWordBoundaries,
@@ -146,9 +145,7 @@ public:
     /* add an additional item boundary eg. for style change */
     void setBoundary( int strPos );
 
-    void setProperty(int from, int length, const QFont &f, int custom = 0);
-    inline void setFont(int from, int length, const QFont &f)
-	{ setProperty(from, length, f); }
+    void setFormat(int from, int length, int format);
 
     int numItems() const;
     QTextItem itemAt( int i ) const;

@@ -3820,7 +3820,7 @@ void QTextString::checkBidi() const
     const QTextStringChar *end = start + length;
 
     // determines the properties we need for layouting
-    QTextEngine textEngine( toString(), 0 );
+    QTextEngine textEngine(toString());
     textEngine.itemize(QTextEngine::SingleLine);
     const QCharAttributes *ca = textEngine.attributes() + length-1;
     QTextStringChar *ch = (QTextStringChar *)end - 1;

@@ -68,12 +68,6 @@ typedef unsigned short glyph_t;
 
 #if defined( Q_WS_X11 ) || defined ( Q_WS_QWS ) || defined (Q_WS_MAC)
 
-struct qoffset_t {
-    short x;
-    short y;
-};
-Q_DECLARE_TYPEINFO(qoffset_t, Q_PRIMITIVE_TYPE);
-
 typedef int advance_t;
 
 struct QScriptAnalysis
@@ -163,7 +157,7 @@ struct GlyphAttributes {
     unsigned short clusterStart    :1;  // First glyph of representation of cluster
     unsigned short mark            :1;  // needs to be positioned around base char
     unsigned short zeroWidth       :1;  // ZWJ, ZWNJ etc, with no width
-    unsigned short reserved        :1;
+    unsigned short dontPrint       :1;
     unsigned short combiningClass  :8;
 };
 Q_DECLARE_TYPEINFO(GlyphAttributes, Q_PRIMITIVE_TYPE);
@@ -187,13 +181,8 @@ struct QScriptItem
 			   isObject( FALSE ), hasPositioning( FALSE ),
 			   descent( -1 ), ascent( -1 ), width( -1 ),
 			   x( 0 ), y( 0 ), num_glyphs( 0 ), glyph_data_offset( 0 ),
-			   custom(0), fontEngine( 0 ) { }
-    QScriptItem(const QScriptItem &o);
-    ~QScriptItem();
-    QScriptItem &operator=(const QScriptItem &o);
+			   format(-1) { }
 
-    void setFont(QFontEngine *e);
-    QFontEngine *font() const { return fontEngine; }
     int position;
     QScriptAnalysis analysis;
     unsigned short isSpace  : 1;
@@ -208,9 +197,7 @@ struct QScriptItem
     int y;
     int num_glyphs;
     int glyph_data_offset;
-    int custom;
-private:
-    QFontEngine *fontEngine;
+    int format;
 };
 
 
@@ -237,7 +224,7 @@ struct QGlyphLayout
 {
     glyph_t glyph;
     advance_t advance;
-    qoffset_t offset;
+    struct { short x; short y; } offset;
     GlyphAttributes attributes;
 };
 Q_DECLARE_TYPEINFO(QGlyphLayout, Q_PRIMITIVE_TYPE);
@@ -247,21 +234,33 @@ struct QGlyphFragment
 {
     QScriptAnalysis analysis;
     unsigned short hasPositioning : 1;
+    unsigned short underline : 1;
+    unsigned short overline : 1;
+    unsigned short strikeout : 1;
     short descent;
     int ascent;
     int width;
     int num_glyphs;
+    QFontEngine *font;
     QGlyphLayout *glyphs;
 };
 Q_DECLARE_TYPEINFO(QGlyphFragment, Q_PRIMITIVE_TYPE);
 
 
 class QFontPrivate;
+class QTextFormatCollection;
 
 class QTextEngine {
 public:
-    QTextEngine( const QString &str, QFontPrivate *f );
+    QTextEngine( const QString &str) : fnt(0), formats(0)
+	{ init(str); }
+    QTextEngine( const QString &str, QFontPrivate *f ) : fnt(f), formats(0)
+	{ init(str); if (fnt) fnt->ref(); }
+    QTextEngine( const QString &str, const QTextFormatCollection *fmts ) : fnt(0), formats(fmts)
+	{ init(str); }
     ~QTextEngine();
+
+    void init(const QString &str);
 
     enum Mode {
 	Full = 0x00,
@@ -276,7 +275,7 @@ public:
 
     const QCharAttributes *attributes();
 
-    void setProperty(int from, int length, QFontPrivate *font, int custom);
+    void setFormat(int from, int length, int format);
     void setBoundary(int strPos);
 
     void shape( int item ) const;
@@ -291,14 +290,16 @@ public:
     int width( int charFrom, int numChars ) const;
     glyph_metrics_t boundingBox( int from,  int len ) const;
 
-    void enableKerning(bool enable) { kern = enable; }
-
     int length( int item ) const {
 	const QScriptItem &si = items[item];
 	int from = si.position;
 	item++;
 	return ( item < items.size() ? items[item].position : string.length() ) - from;
     }
+
+    QFontEngine *fontEngine(const QScriptItem &si) const;
+    QFontPrivate *fontPrivate(const QScriptItem &si) const;
+
     void splitItem( int item, int pos );
 
     unsigned short *logClustersPtr;
@@ -323,6 +324,7 @@ public:
 
     QString string;
     QFontPrivate *fnt;
+    const QTextFormatCollection *formats;
     int lineWidth;
     int widthUsed;
     int firstItemInLine;
@@ -330,7 +332,6 @@ public:
     QChar::Direction direction : 5;
     unsigned int haveCharAttributes : 1;
     unsigned int widthOnly : 1;
-    unsigned int kern : 1;
     unsigned int reserved : 24;
     unsigned int textFlags;
 

@@ -16,51 +16,10 @@
 #include <qfont.h>
 #include "qfontdata_p.h"
 #include "qfontengine_p.h"
+#include "qtextformat.h"
 #include <qstring.h>
 #include <private/qunicodetables_p.h>
 #include <stdlib.h>
-
-
-QScriptItem::QScriptItem(const QScriptItem &o)
-    : position( o.position ), analysis(o.analysis),
-      isSpace( o.isSpace ), isTab( o.isTab ),
-      isObject( o.isObject ), hasPositioning( o.hasPositioning ),
-      descent( o.descent ), ascent( o.ascent ), width( o.width ),
-      x( o.x ), y( o.y ), num_glyphs( o.num_glyphs ), glyph_data_offset( o.glyph_data_offset ),
-      custom(o.custom), fontEngine( o.fontEngine )
-{
-    if (fontEngine) fontEngine->ref();
-}
-
-QScriptItem &QScriptItem::operator=(const QScriptItem &o)
-{
-    position = o.position;
-    analysis = o.analysis;
-    isSpace = o.isSpace;
-    isTab = o.isTab;
-    isObject = o.isObject;
-    hasPositioning = o.hasPositioning;
-    descent = o.descent;
-    ascent = o.ascent;
-    width = o.width;
-    x = o.x; y = o.y;
-    num_glyphs = o.num_glyphs;
-    glyph_data_offset = o.glyph_data_offset;
-    custom = o.custom;
-
-    if (o.fontEngine) o.fontEngine->ref();
-    if (fontEngine) fontEngine->deref();
-    fontEngine = o.fontEngine;
-
-    return *this;
-}
-
-QScriptItem::~QScriptItem() { if (fontEngine) fontEngine->deref(); }
-void QScriptItem::setFont(QFontEngine *e) {
-    if (e) e->ref();
-    if (fontEngine) fontEngine->deref();
-    fontEngine = e;
-}
 
 
 // -----------------------------------------------------------------------------------------------------
@@ -858,14 +817,17 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
 
 
 
-QTextEngine::QTextEngine( const QString &str, QFontPrivate *f )
-    : string(str), fnt(f), direction(QChar::DirON), haveCharAttributes(FALSE), widthOnly(FALSE), kern(false)
+void QTextEngine::init(const QString &str)
 {
+    string = str;
+    direction = QChar::DirON;
+    haveCharAttributes = false;
+    widthOnly = false;
+
 #ifdef Q_WS_WIN
     if ( !resolvedUsp10 )
 	resolveUsp10();
 #endif
-    if ( fnt ) fnt->ref();
 
     num_glyphs = qMax( 16, str.length()*3/2 );
     int space_charAttributes = (sizeof(QCharAttributes)*str.length()+sizeof(void*)-1)/sizeof(void*);
@@ -931,7 +893,7 @@ const QCharAttributes *QTextEngine::attributes()
     return charAttributes;
 }
 
-void QTextEngine::setProperty(int from, int length, QFontPrivate *font, int custom)
+void QTextEngine::setFormat(int from, int length, int format)
 {
     if (from >= string.length())
 	return;
@@ -939,16 +901,10 @@ void QTextEngine::setProperty(int from, int length, QFontPrivate *font, int cust
     setBoundary(from+length);
     setBoundary(from);
 
-    int item = 0;
-    while ( item < items.size() && items[item].position <= from )
-	item++;
-    item--;
+    int item = findItem(from);
     while (item < items.size() && items[item].position < from+length) {
 	QScriptItem &si = items[item];
-	QFont::Script script = (QFont::Script)si.analysis.script;
-
-	si.setFont(font->engineForScript(script));
-	si.custom = custom;
+	si.format = format;
 	++item;
     }
 }
@@ -1110,7 +1066,7 @@ glyph_metrics_t QTextEngine::boundingBox( int from,  int len ) const
 		    charEnd++;
 		glyphEnd = (charEnd == ilen) ? si->num_glyphs : logClusters[charEnd];
 		if ( glyphStart <= glyphEnd  ) {
-		    QFontEngine *fe = si->font();
+		    QFontEngine *fe = fontEngine(*si);
 		    glyph_metrics_t m = fe->boundingBox( glyphs+glyphStart, glyphEnd-glyphStart );
 		    gm.x = qMin( gm.x, m.x + gm.xoff );
 		    gm.y = qMin( gm.y, m.y + gm.yoff );
@@ -1135,3 +1091,30 @@ int QTextEngine::findItem(int strPos) const
     }
     return item;
 }
+
+QFontPrivate *QTextEngine::fontPrivate(const QScriptItem &si) const
+{
+    QFontPrivate *fp = fnt;
+    if (!fp) {
+	Q_ASSERT(formats);
+	QTextFormat f = formats->format(si.format);
+	Q_ASSERT(f.isCharFormat());
+	QTextCharFormat chf = f.toCharFormat();
+	fp = chf.font().d;
+    }
+    return fp;
+}
+
+QFontEngine *QTextEngine::fontEngine(const QScriptItem &si) const
+{
+    if (!fnt) {
+	Q_ASSERT(formats);
+	QTextFormat f = formats->format(si.format);
+	Q_ASSERT(f.isCharFormat());
+	QTextCharFormat chf = f.toCharFormat();
+	QFont font = chf.font();
+	return font.d->engineForScript((QFont::Script)si.analysis.script);
+    }
+    return fnt->engineForScript((QFont::Script)si.analysis.script);
+}
+

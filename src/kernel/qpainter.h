@@ -39,6 +39,7 @@ class QBrush;
 class QWMatrix;
 class QFontInfo;
 class QFontMetrics;
+class QGlyphFragment;
 
 class Q_GUI_EXPORT QPainter : public Qt
 {
@@ -184,6 +185,7 @@ public:
 
     void drawTextItem(int x, int y, const QTextItem &ti, int textflags = 0);
     void drawTextItem(const QPoint& p, const QTextItem &ti, int textflags = 0);
+    void drawGlyphs(const QPoint& p, const QGlyphFragment &f);
 
     QRect boundingRect(int x, int y, int w, int h, int flags,
 		       const QString&, int len = -1, QTextParag **intern=0);

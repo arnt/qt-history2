@@ -17,6 +17,7 @@
 #include <qapplication.h>
 #include <qpainter.h>
 #include <qstackarray.h>
+#include <qtextformat.h>
 
 #include "qfontengine_p.h"
 
@@ -76,9 +77,9 @@ int QTextItem::length() const
     return eng->length(itm);
 }
 
-int QTextItem::custom() const
+int QTextItem::format() const
 {
-    return eng->items[itm].custom;
+    return eng->items[itm].format;
 }
 
 
@@ -199,7 +200,7 @@ QTextLayout::QTextLayout()
 
 QTextLayout::QTextLayout(const QString& string)
 {
-    d = new QTextEngine(string, 0);
+    d = new QTextEngine(string);
 }
 
 QTextLayout::QTextLayout( const QString& string, QPainter *p )
@@ -218,21 +219,27 @@ QTextLayout::~QTextLayout()
     delete d;
 }
 
-void QTextLayout::enableKerning(bool enable)
-{
-    d->enableKerning(enable);
-}
-
 void QTextLayout::setText( const QString& string, const QFont& fnt )
 {
     delete d;
     d = new QTextEngine( (string.isNull() ? (const QString&)QString::fromLatin1("") : string), fnt.d );
 }
 
+void QTextLayout::setText( const QString& string, const QTextFormatCollection *formats )
+{
+    delete d;
+    d = new QTextEngine( (string.isNull() ? (const QString&)QString::fromLatin1("") : string), formats );
+}
+
 void QTextLayout::setText( const QString& string )
 {
     delete d;
-    d = new QTextEngine( (string.isNull() ? (const QString&)QString::fromLatin1("") : string), 0 );
+    d = new QTextEngine( (string.isNull() ? (const QString&)QString::fromLatin1("") : string));
+}
+
+QString QTextLayout::text() const
+{
+    return d->string;
 }
 
 /* add an additional item boundary eg. for style change */
@@ -279,9 +286,9 @@ QTextItem QTextLayout::findItem( int strPos ) const
     return QTextItem();
 }
 
-void QTextLayout::setProperty(int from, int length, const QFont &f, int custom)
+void QTextLayout::setFormat(int from, int length, int format)
 {
-    d->setProperty(from, length, f.d, custom);
+    d->setFormat(from, length, format);
 }
 
 void QTextLayout::beginLayout( QTextLayout::LayoutMode m, int textFlags )
@@ -751,7 +758,7 @@ QTextLine QTextLayout::lineAt(int i) const
 QRect QTextLine::rect() const
 {
     const QScriptLine& si = eng->lines[i];
-    return QRect( si.x, si.y - si.ascent, si.width, si.ascent+si.descent );
+    return QRect( si.x, si.y, si.width, si.ascent+si.descent );
 }
 
 int QTextLine::x() const
@@ -817,7 +824,7 @@ void QTextLine::draw( QPainter *p, int x, int y )
     int nItems = lastItem-firstItem+1;
 
     x += line.x;
-    y += line.y;
+    y += line.y + line.ascent;
 
     // ########## Justification
     if (eng->textFlags & Qt::AlignRight)
@@ -849,8 +856,15 @@ void QTextLine::draw( QPainter *p, int x, int y )
 
 	QGlyphLayout *glyphs = eng->glyphs(&si);
 
-	QFontEngine *fe = si.font();
+	QFontEngine *fe = eng->fontEngine(si);
 	Q_ASSERT( fe );
+	if (eng->formats) {
+	    QTextFormat f = eng->formats->format(si.format);
+	    Q_ASSERT(f.isCharFormat());
+	    QTextCharFormat chf = f.toCharFormat();
+	    QColor c = chf.color();
+	    p->setPen(c);
+	}
 
 	QGlyphFragment gf;
 	gf.analysis = si.analysis;
@@ -860,11 +874,208 @@ void QTextLine::draw( QPainter *p, int x, int y )
 	gf.width = si.width;
 	gf.num_glyphs = ge - gs + 1;
 	gf.glyphs = glyphs + gs;
-	fe->draw( p, x, y+line.ascent, gf, 0 /*textFlags*/ );
+	gf.font = fe;
+	p->drawGlyphs(QPoint(x, y), gf);
 	while (gs <= ge) {
 	    x += glyphs[gs].advance;
 	    ++gs;
 	}
-	++item;
     }
+}
+
+
+
+int QTextLine::cursorToX( int *cPos, Edge edge ) const
+{
+    int pos = *cPos;
+
+    int itm = eng->findItem(pos);
+    QScriptItem *si = &eng->items[itm];
+    pos -= si->position;
+
+    eng->shape( itm );
+    QGlyphLayout *glyphs = eng->glyphs(si);
+    unsigned short *logClusters = eng->logClusters( si );
+
+    int l = eng->length( itm );
+    if ( pos > l )
+	pos = l;
+    if ( pos < 0 )
+	pos = 0;
+
+    int glyph_pos = pos == l ? si->num_glyphs : logClusters[pos];
+    if ( edge == Trailing ) {
+	// trailing edge is leading edge of next cluster
+	while ( glyph_pos < si->num_glyphs && !glyphs[glyph_pos].attributes.clusterStart )
+	    glyph_pos++;
+    }
+
+    int x = 0;
+    bool reverse = eng->items[itm].analysis.bidiLevel % 2;
+
+    if ( reverse ) {
+	for ( int i = si->num_glyphs-1; i >= glyph_pos; i-- )
+	    x += glyphs[i].advance;
+    } else {
+	for ( int i = 0; i < glyph_pos; i++ )
+	    x += glyphs[i].advance;
+    }
+
+    // add the items left of the cursor
+
+    const QScriptLine &line = eng->lines[i];
+    int lineEnd = line.from + line.length;
+    // don't draw trailing spaces or take them into the layout.
+    const QCharAttributes *attributes = eng->attributes();
+    while (lineEnd > line.from && attributes[lineEnd-1].whiteSpace)
+	--lineEnd;
+
+    int firstItem = eng->findItem(line.from);
+    int lastItem = eng->findItem(lineEnd - 1);
+    int nItems = lastItem-firstItem+1;
+
+    x += line.x;
+
+    // ########## Justification
+    if (eng->textFlags & Qt::AlignRight)
+	x += line.width - line.textWidth;
+    else if (eng->textFlags & Qt::AlignHCenter)
+	x += (line.width - line.textWidth)/2;
+
+    QStackArray<int> visualOrder(nItems);
+    QStackArray<unsigned char> levels(nItems);
+    for (int i = 0; i < nItems; ++i)
+	levels[i] = eng->items[i+firstItem].analysis.bidiLevel;
+    QTextEngine::bidiReorder(nItems, levels, visualOrder);
+
+    for (int i = 0; i < nItems; ++i) {
+	int item = visualOrder[i]+firstItem;
+	if (item == itm)
+	    break;
+	QScriptItem &si = eng->items[item];
+
+	if ( si.isTab || si.isObject ) {
+	    x += si.width;
+	    continue;
+	}
+	int start = qMax(line.from, si.position);
+	int end = qMin(lineEnd, si.position + eng->length(item));
+
+	unsigned short *logClusters = eng->logClusters(&si);
+
+	int gs = logClusters[start-si.position];
+	int ge = logClusters[end-si.position-1];
+
+	QGlyphLayout *glyphs = eng->glyphs(&si);
+
+	while (gs <= ge) {
+	    x += glyphs[gs].advance;
+	    ++gs;
+	}
+    }
+
+
+//     qDebug("cursorToX: pos=%d, gpos=%d x=%d", pos, glyph_pos, x );
+    *cPos = pos + si->position;
+    return x;
+}
+
+int QTextLine::xToCursor( int x, CursorPosition cpos ) const
+{
+    const QScriptLine &line = eng->lines[i];
+
+    if (!line.length)
+	return line.from;
+
+    int lineEnd = line.from + line.length;
+    // don't draw trailing spaces or take them into the layout.
+    const QCharAttributes *attributes = eng->attributes();
+    while (lineEnd > line.from && attributes[lineEnd-1].whiteSpace)
+	--lineEnd;
+
+    int firstItem = eng->findItem(line.from);
+    int lastItem = eng->findItem(lineEnd - 1);
+    int nItems = lastItem-firstItem+1;
+
+    x -= line.x;
+
+    // ########## Justification
+    if (eng->textFlags & Qt::AlignRight)
+	x -= line.width - line.textWidth;
+    else if (eng->textFlags & Qt::AlignHCenter)
+	x -= (line.width - line.textWidth)/2;
+
+    QStackArray<int> visualOrder(nItems);
+    QStackArray<unsigned char> levels(nItems);
+    for (int i = 0; i < nItems; ++i)
+	levels[i] = eng->items[i+firstItem].analysis.bidiLevel;
+    QTextEngine::bidiReorder(nItems, levels, visualOrder);
+
+    int gl_before = 0;
+    int gl_after = 0;
+    int it_before = 0;
+    int it_after = 0;
+    int x_before = 0xffff;
+    int x_after = 0xffff;
+
+
+    for (int i = 0; i < nItems; ++i) {
+	int item = visualOrder[i]+firstItem;
+	QScriptItem &si = eng->items[item];
+
+	if ( si.isTab || si.isObject ) {
+	    x -= si.width;
+	    continue;
+	}
+	int start = qMax(line.from, si.position);
+	int end = qMin(lineEnd, si.position + eng->length(item));
+
+	unsigned short *logClusters = eng->logClusters(&si);
+
+	int gs = logClusters[start-si.position];
+	int ge = logClusters[end-si.position-1];
+
+	QGlyphLayout *glyphs = eng->glyphs(&si);
+
+	while (1) {
+	    if (glyphs[gs].attributes.clusterStart) {
+		if (x > 0) {
+		    gl_before = gs;
+		    it_before = item;
+		    x_before = x;
+		}
+		if (x <= 0) {
+		    gl_after = gs;
+		    it_after = item;
+		    x_after = -x;
+		    goto end;
+		}
+	    }
+	    if (gs > ge)
+		break;
+	    x -= glyphs[gs].advance;
+	    ++gs;
+	}
+    }
+
+ end:
+
+    int item;
+    int glyph;
+    if (cpos == OnCharacters || x_before < x_after) {
+	item = it_before;
+	glyph = gl_before;
+    } else {
+	item = it_after;
+	glyph = gl_after;
+    }
+
+    // find the corresponding cursor position
+    const QScriptItem &si = eng->items[item];
+    unsigned short *logClusters = eng->logClusters(&si);
+    int i;
+    for (i = 0; i < eng->length(item); ++i)
+	if (logClusters[i] == glyph)
+	    break;
+    return si.position + i;
 }
