@@ -10,7 +10,6 @@ QTDIR_build:REQUIRES += "contains(QT_CONFIG, accessibility)"
 SOURCES  += main.cpp \
 	    simplewidgets.cpp \
 	    rangecontrols.cpp \
-	    containers.cpp \
 	    complexwidgets.cpp \
 	    qaccessiblewidgets.cpp \
 	    qaccessiblemenu.cpp
@@ -18,7 +17,6 @@ SOURCES  += main.cpp \
 HEADERS  += qaccessiblewidgets.h \
 	    simplewidgets.h \
 	    rangecontrols.h \
-	    containers.h \
 	    complexwidgets.h \
 	    qaccessiblemenu.h
 

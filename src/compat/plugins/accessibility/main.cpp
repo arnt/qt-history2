@@ -23,6 +23,7 @@ QStringList CompatAccessibleFactory::keys() const
     list << "QIconView";
 #endif
     list << "QListView";
+    list << "QWidgetStack";
 
     return list;
 }
@@ -42,8 +43,9 @@ QAccessibleInterface *CompatAccessibleFactory::create(const QString &classname, 
 #endif
     } else if (classname == "QListView") {
         iface = new QAccessibleListView(widget);
+    } else if (classname == "QWidgetStack") {
+        iface = new QAccessibleWidgetStack(widget);
     }
-
     return iface;
 }
 

@@ -3,7 +3,6 @@
 #include "simplewidgets.h"
 #include "rangecontrols.h"
 #include "complexwidgets.h"
-#include "containers.h"
 
 #include <qaccessibleplugin.h>
 #include <qpushbutton.h>
@@ -165,8 +164,6 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         iface = new QAccessibleWidget(widget, ToolTip);
     } else if (classname == "QFrame") {
         iface = new QAccessibleWidget(widget, Border);
-    } else if (classname == "QWidgetStack") {
-        iface = new QAccessibleWidgetStack(widget);
     }
 
     return iface;

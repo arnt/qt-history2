@@ -7,6 +7,8 @@ VERSION  = 1.0.0
 
 QTDIR_build:REQUIRES += accessibility
 
+QT += compat
+
 SOURCES  += main.cpp \
             qaccessiblecompat.cpp
 
