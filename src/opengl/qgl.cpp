@@ -1259,7 +1259,7 @@ void qgl_delete_d( const QGLWidget * w )
 		glDeleteLists( it.value(), 256 );
 	    }
 	}
-	qgl_d_ptr->remove(w);
+	qgl_d_ptr->erase(w);
     }
 }
 
