@@ -1994,7 +1994,7 @@ QString Doc::htmlExtensionList()
 
 Doc::Doc( Kind kind, const Location& loc, const QString& htmlText,
 	  const QString& name, const QString& whatsThis )
-    : ki( kind ), lo( loc ), html( htmlText ), nam( name ), whats( whatsThis ),
+    : html( htmlText ), ki( kind ), lo( loc ), nam( name ), whats( whatsThis ),
       inter( FALSE ), obs( FALSE )
 {
 }
@@ -2552,6 +2552,61 @@ PropertyDoc::PropertyDoc( const Location& loc, const QString& html,
 {
 }
 
+void PropertyDoc::setFunctions( const QString& read, const QString& readRef,
+				const QString& write, const QString& writeRef,
+				const QString& reset, const QString& resetRef )
+{
+    static QRegExp seeAlso( "<p>\\\\sa[^a-zA-Z]" );
+
+    QStringList funcs;
+    QStringList refs;
+    QStringList roles;
+
+    if ( !write.isEmpty() ) {
+	funcs.append( write );
+	refs.append( writeRef );
+	roles.append( QString("set") );
+    }
+    if ( !read.isEmpty() ) {
+	funcs.append( read );
+	refs.append( readRef );
+	roles.append( QString("get") );
+    }
+    if ( !reset.isEmpty() ) {
+	funcs.append( reset );
+	funcs.append( resetRef );
+	roles.append( QString("reset") );
+    }
+
+    QStringList::ConstIterator f = funcs.begin();
+    QStringList::ConstIterator g = refs.begin();
+    QStringList::ConstIterator r = roles.begin();
+    QValueStack<QString> seps = separators( funcs.count(),
+					    QString(".\n") );
+
+    QString t;
+    t = QString( "<p>" );
+    while ( f != funcs.end() ) {
+	QString role = *r;
+	if ( f == funcs.begin() )
+	    role[0] = role[0].upper();
+
+	t += role;
+	t += QString( " this property's value with <a href=\"#%1\">%2</a>()" )
+	     .arg( *g ).arg( *f );
+	t += seps.pop();
+	++g;
+	++r;
+	++f;
+    }
+
+    // this is hackish
+    int k = seeAlso.search( html );
+    if ( k == -1 )
+	k = html.length();
+    html.insert( k, t );
+}
+
 PageLikeDoc::PageLikeDoc( Kind kind, const Location& loc, const QString& html,
 			  const QString& title, const QString& heading )
     : Doc( kind, loc, html ), ttl( title ), hding( heading )
@@ -2599,7 +2654,7 @@ Base64Doc::Base64Doc( const Location& loc, const QString& html,
 
 void Base64Doc::print( BinaryWriter& out )
 {
-    out.putsBase64( htmlData().latin1() );
+    out.putsBase64( html.latin1() );
 }
 
 PlainpageDoc::PlainpageDoc( const Location& loc, const QString& html,
@@ -2610,7 +2665,7 @@ PlainpageDoc::PlainpageDoc( const Location& loc, const QString& html,
 
 void PlainpageDoc::print( BinaryWriter& out )
 {
-    out.puts( htmlData().latin1() );
+    out.puts( html.latin1() );
 }
 
 DefgroupDoc::DefgroupDoc( const Location& loc, const QString& html,

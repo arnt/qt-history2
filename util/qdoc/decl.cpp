@@ -163,60 +163,6 @@ static void printHtmlLongMembers( HtmlWriter& out,
 		    ++r;
 		}
 	    }
-
-	    if ( (*m)->kind() == Decl::Property ) {
-		PropertyDecl *prop = (PropertyDecl *) *m;
-
-		QStringList funcs;
-		QStringList roles;
-		if ( !prop->writeFunction().isEmpty() ) {
-		    funcs.append( prop->writeFunction() );
-		    roles.append( QString("set") );
-		}
-		if ( !prop->readFunction().isEmpty() ) {
-		    funcs.append( prop->readFunction() );
-		    roles.append( QString("get") );
-		}
-		if ( !prop->resetFunction().isEmpty() ) {
-		    funcs.append( prop->resetFunction() );
-		    roles.append( QString("reset") );
-		}
-
-		QStringList::ConstIterator f = funcs.begin();
-		QStringList::ConstIterator r = roles.begin();
-		QValueStack<QString> seps = separators( funcs.count(),
-							QString(".\n") );
-		out.putsMeta( "<p>" );
-		while ( f != funcs.end() ) {
-		    QString role = *r;
-		    if ( f == funcs.begin() )
-			role[0] = role[0].upper();
-
-		    out.puts( role.latin1() );
-		    out.printfMeta( " this property's value with"
-				    " <a href=\"#%s\">%s</a>()",
-				    Decl::ref(*f).latin1(), (*f).latin1() );
-		    out.puts( seps.pop() );
-		    ++r;
-		    ++f;
-		}
-
-#if 0
-		if ( prop->stored() != prop->storedDefault() ) {
-		    out.puts( "This property is" );
-		    if ( !prop->stored() )
-			out.puts( "not " );
-		    out.puts( "stored.\n" );
-		}
-		if ( prop->designable() != prop->designableDefault() ) {
-		    out.puts( "This property is" );
-		    if ( !prop->designable() )
-			out.puts( "not " );
-		    out.puts( "designable.\n" );
-		}
-#endif
-	    }
-
 	    ++m;
 	}
     }
@@ -908,20 +854,30 @@ static void checkParams( const FunctionDecl *funcDecl,
 void ClassDecl::fillInDocsForThis()
 {
     /*
-      Provide standard documentation for property getters and (re)setters.
+      Provide standard documentation for property getters and
+      (re)setters. Also append the standard text "Get the property's
+      value..."
     */
     QMap<QString, PropertyDecl *> propertyMap;
     QMap<QString, PropertyDecl *>::Iterator q;
 
     QValueList<PropertyDecl *>::ConstIterator p = props.begin();
     while ( p != props.end() ) {
-	if ( (*p)->propertyDoc() != 0 ) {
+	PropertyDoc *pd = (*p)->propertyDoc();
+	if ( pd != 0 ) {
 	    if ( !(*p)->readFunction().isEmpty() )
 		propertyMap.insert( (*p)->readFunction(), *p );
 	    if ( !(*p)->writeFunction().isEmpty() )
 		propertyMap.insert( (*p)->writeFunction(), *p );
 	    if ( !(*p)->resetFunction().isEmpty() )
 		propertyMap.insert( (*p)->resetFunction(), *p );
+
+	    pd->setFunctions( (*p)->readFunction(),
+			      Decl::ref((*p)->readFunction()),
+			      (*p)->writeFunction(),
+			      Decl::ref((*p)->writeFunction()),
+			      (*p)->resetFunction(),
+			      Decl::ref((*p)->resetFunction()) );
 	}
 	++p;
     }
@@ -943,15 +899,18 @@ void ClassDecl::fillInDocsForThis()
 		  also has the right parameter type.
 		*/
 		if ( func->name() == (*q)->readFunction() ) {
-		    if ( whether )
-			html = QString( "Returns TRUE %1, otherwise returns"
-					 " FALSE" );
-		    else
-			html = QString( "Returns %1" );
+		    if ( func->parameters().count() == 0 ) {
+			if ( whether )
+			    html = QString( "Returns TRUE %1, otherwise returns"
+					     " FALSE" );
+			else
+			    html = QString( "Returns %1" );
+		    }
 		} else if ( func->name() == (*q)->resetFunction() ) {
-		    html = QString( "Resets %1" );
+		    if ( func->parameters().count() == 0 )
+			html = QString( "Resets %1" );
 		} else {
-		    if ( func->parameters().count() > 0 &&
+		    if ( func->parameters().count() == 1 &&
 			 func->parameters().first().dataType().toString()
 				 .find((*q)->dataType().toString()) != -1 ) {
 			html = QString( "Sets %1" );
@@ -1512,10 +1471,6 @@ void PropertyDecl::printHtmlShort( HtmlWriter& out ) const
 	out.puts( " - " );
 	out.putsMeta( propertyDoc()->brief() );
     }
-#if 0
-    if ( writeFunction().isEmpty() )
-	out.putsMeta( "&nbsp; <em>(read only)</em>" );
-#endif
 }
 
 void PropertyDecl::printHtmlLong( HtmlWriter& out ) const

@@ -108,7 +108,7 @@ public:
     void printHtml( HtmlWriter& out ) const;
 
 protected:
-    const QString& htmlData() const { return html; }
+    QString html;
 
     static StringSet extlist;
     static QMap<QString, QString> classext;
@@ -123,7 +123,6 @@ private:
 
     Kind ki;
     Location lo;
-    QString html;
     QString nam;
     QString whats;
     QString fnam;
@@ -223,6 +222,9 @@ public:
 		 const QString& brief );
 
     const QString& brief() const { return bf; }
+    void setFunctions( const QString& read, const QString& readRef,
+		       const QString& write, const QString& writeRef,
+		       const QString& reset, const QString& resetRef );
 
 private:
     QString bf;
