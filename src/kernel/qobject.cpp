@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#166 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#167 $
 **
 ** Implementation of QObject class
 **
@@ -485,37 +485,23 @@ bool QObject::inherits( const char *clname ) const
 
 
 /*!
-  \fn const char *QObject::name() const
-
-  Returns the name of this object, or 0 if the object does not have a
-  name.
-
-  The object name is set by the constructor or by the setName() function.
-  The object name is not very useful in the current version of Qt, but
-  will become increasingly important in the future.
-
-  The queryList() function searches the object tree for objects that
-  matches a particular object name.
-
-  \sa setName(), className(), queryList()
-*/
-
-/*!
-  \overload const char *QObject::name( const char * defaultName ) const
-
   Returns the name of this object, or \a defaultName if the object
-  does not have a name.
-
-  This version of name() is particularly useful for debug() calls such as:
+  does not have a name.  \a defaultName defaults to "unnamed" so that
+  printf() (used in debug()) will not be asked to output a null
+  pointer.  If you want a null pointer to be returned for unnamed
+  objects, you can call name(0).
 
   \code
     debug( "MyClass::setPrecision(): (%s) unable to set precision to %f",
-	    name( "unnamed" ), newPrecision );
+	    name(), newPrecision );
   \endcode
-
-  name( "unnamed" ) is used here so that printf() (used in debug())
-  will not be asked to output a null pointer.
 */
+
+const char * QObject::name( const char * defaultName ) const
+{
+    return objname ? objname : defaultName;
+}
+
 
 /*!
   Sets the name of this object to \e name.  The default name is the
