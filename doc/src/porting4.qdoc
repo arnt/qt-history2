@@ -17,9 +17,15 @@
 
     This document describes porting applications from Qt 3 to Qt 4.
 
+    ### no integral conversion for containers? strings?
+
+    ### QVector etc. are initialized to 0 by default?
+
     ### How to port from Qt 2.3 to Qt 4.
 
     ### missing sort() functions?
+
+    ### make sure all QT_COMPAT enums are documented here and omitvalue otherwise
 
     If you haven't yet made the decision about porting, or are unsure
     about whether it is worth it, take a look at the \link
@@ -218,6 +224,16 @@
             }
         \endcode
     \endlist
+
+    \section1 QAquaStyle
+
+    The QAquaStyle class first appeared in Qt 3.0, when the Qt/Mac
+    port was first released. It emulated Apple's "Aqua" theme. In Qt
+    3.1, QAquaStyle was obsoleted by QMacStyle, which uses Appearance
+    Manager to perform its drawing.
+
+    The QAquaStyle class is no longer provided in Qt 4. Use QMacStyle
+    instead.
 
     \section1 QAsciiCache<T>
 
@@ -764,7 +780,7 @@
     If you use QDict's auto-delete feature (by calling
     QDict::setAutoDelete(true)), you need to do some more work. You
     have two options: Either you call \c delete yourself whenever you
-    remove an item from the container, or you can use
+    remove an item from the container, or you use
     QMultiHash<QString, T> instead of QMultiHash<QString, T *> (i.e.
     store values directly instead of pointers to values). Here, we'll
     see when to call \c delete.
@@ -1727,13 +1743,201 @@
 
     \section1 QPtrVector<T>
 
-    ###
+    QPtrVector<T> has been moved to the \l{Qt 3 compatibility
+    library}. It has been replaced by the more modern QVector class.
+
+    When porting to Qt 4, you can use QVector<T *> as an alternative
+    to QPtrVector<T>. The APIs of QPtrVector<T> and QVector<T *> are
+    somewhat similar. The main issue is that QPtrVector supports
+    auto-delete whereas QVector doesn't. (See \l{What's Wrong with
+    Auto-Delete} for an explanation of why the Qt 4 containers don't
+    offer that feature.)
+
+    The following table summarizes the API differences between the
+    two classes:
+
+    \table
+    \header \i QPtrVector function \i QVector equivalent
+    \row \i QPtrVector::autoDelete() \i See discussion below
+    \row \i QPtrVector::bsearch(const T *) \i qBinaryFind()
+    \row \i QPtrVector::contains(const T *) \i QVector::count(T *)
+    \row \i QPtrVector::containsRef(const T *) \i QVector::count(T *)
+    \row \i QPtrVector::count() \i See remark below
+    \row \i QPtrVector::insert(uint, T *) \i See remark below
+    \row \i QPtrVector::isNull() \i N/A
+    \row \i QPtrVector::remove(uint) \i See remark below
+    \row \i QPtrVector::setAutoDelete() \i See discussion below
+    \row \i QPtrVector::sort() \i qHeapSort()
+    \row \i QPtrVector::take(uint) \i See remark below
+    \row \i QPtrVector::toList(QGList *) \i QList::QList(const QVector &)
+    \endtable
+
+    Remarks:
+
+    \list 1
+    \i  QPtrVector::insert(uint, T *) sets an item to store a certain
+        pointer value. This is \e not the same as QVector::insert(int, T *),
+        which creates space for the item by moving following items by
+        one position. Use \c{vect[i] = ptr} to set a QVector item to
+        a particular value.
+    \i  QPtrVector::remove(uint) sets an item to be 0. This is \e not
+        the same as QVector::removeAt(int), which entirely erases the
+        item, reducing the size of the vector. Use \c{vect[i] = 0} to
+        set a QVector item to 0.
+    \i  Likewise, QPtrVector::take(uint) sets an item to be 0 and
+        returns the previous value of the item. Again, this is easy to
+        achieve using QVector::operator[]().
+    \i  QPtrVector::count() returns the number of non-null items in
+        the vector, whereas QVector::count() (like QVector::size())
+        returns the number of items (null or non-null) in the vector.
+        Fortunately, it's not too hard to simulate QPtrVector::count().
+
+        \oldcode
+        int numValidItems = vect.count();
+        \newcode
+        int numValidItems = vect.size() - vect.count(0);
+        \endcode
+    \endlist
+
+    If you use QVector's auto-delete feature (by calling
+    QVector::setAutoDelete(true)), you need to do some more work. You
+    have two options: Either you call \c delete yourself whenever you
+    remove an item from the container, or you use QVector<T> instead
+    of QVector<T *> (i.e. store values directly instead of pointers
+    to values). Here, we'll see when to call \c delete.
+
+    The following table summarizes the idioms that you need to watch
+    out for if you want to call \c delete yourself.
+
+    \table
+    \header \i QPtrVector idiom \i QVector idiom
+    \row
+        \i
+        \code
+        vect.insert(i, ptr);
+        \endcode
+        \i
+        \code
+        delete vect[i];
+        vect[i] = ptr;
+        \endcode
+    \row
+        \i
+        \code
+        vect.remove(i);
+        \endcode
+        \i
+        \code
+        delete vect[i];
+        vect[i] = 0;
+        \endcode
+    \row
+        \i
+        \code
+        T *ptr = vect.take(i);
+        \endcode
+        \i
+        \code
+        T *ptr = vect[i];
+        vect[i] = 0;
+        \endcode
+    \row
+        \i
+        \code
+        vect.resize(n)
+        \endcode
+        \i
+        \code
+        while (n > vect.size())
+            vect.append(0);
+        while (n < vect.size() {
+            T *ptr = vect.last();
+            vect.remove(vect.size() - 1);
+            delete ptr;
+        }
+        \endcode
+    \row
+        \i
+        \code
+        vect.clear();
+        \endcode
+
+        (also called from QPtrVector's destructor)
+
+        \i
+        \code
+        for (int i = 0; i < vect.size(); ++i)
+            T *ptr = vect[i];
+            vect[i] = 0;
+            delete ptr;
+        }
+        \endcode
+
+        In 99% of cases, the following idiom also works:
+
+        \code
+        qDeleteAll(vect);
+        vect.clear();
+        \endcode
+
+        However, it may lead to crashes if \c vect is referenced from
+        the value type's destructor, because \c vect contains
+        dangling pointers until clear() is called.
+    \endtable
+
+    Be aware that QPtrVector's destructor automatically calls
+    clear(). If you have a QPtrVector data member in a custom class
+    and use the auto-delete feature, you will need to call \c delete
+    on all the items in the container from your class destructor to
+    avoid a memory leak.
 
     \section1 QRangeControl
 
-    ###
+    In Qt 3, various "range control" widgets (QDial, QScrollBar,
+    QSlider, and QSpinBox) inherited from both QWidget and
+    QRangeControl.
 
-    (undocumented QSpinWidget)
+    In Qt 4, QRangeControl has been replaced with the new
+    QAbstractSlider class, which inherits from QWidget and provides
+    similar functionality. Apart from eliminating unnecessary
+    multiple inheritance, the new design allows QAbstractSlider to
+    contain signals, slots, and properties.
+
+    The old QRangeControl class has been moved to the \l{Qt 3
+    compatibility library}, together with the (undocumented)
+    QSpinWidget class.
+
+    If you use QRangeControl as a base class in your application, you
+    can switch to use QAbstractSlider instead.
+
+    \oldcode
+        class VolumeControl : public QWidget, public QRangeControl
+        {
+            ...
+        protected:
+            void valueChange() {
+                update();
+                emit valueChanged(value());
+            }
+            void rangeChange() {
+                update();
+            }
+            void stepChange() {
+                update();
+            }
+        };
+    \newcode
+        class VolumeControl : public QAbstractSlider
+        {
+            ...
+        protected:
+            void sliderChange(SliderChange change) {
+                update();
+                if (change == SliderValueChange)
+                    emit valueChanged(value());
+            }
+        };
+    \endcode
 
     \section1 QRect
 
@@ -1792,7 +1996,32 @@
 
     \section1 QSignal
 
-    ###
+    The QSignal class has been completely redesigned in Qt 4. For
+    compatibility, the old QSignal class has been renamed Q3Signal
+    and has been moved to the \l{Qt 3 compatibility library}.
+
+    The new QSignal class is a template class, where the template
+    type gives the parameter type of the signal. For example, if you
+    used Q3Signal class's @C{intSignal(int)} signal, you can now use
+    QSignal<int>'s @C{signal(int)} signal instead.
+
+    The Q3Signal::setParameter(), Q3Signal::parameter(),
+    Q3Signal::setValue(), and Q3Signal::value() functions have no
+    direct equivalent in Qt 4. Instead, pass the value to
+    QSignal::activate().
+
+    \oldcode
+        QSignal signal;
+        signal.connect(target, SLOT(display(int)));
+        ...
+        signal.setParameter(5);
+        signal.activate();
+    \newcode
+        QSignal<int> signal;
+        signal.connect(target, SLOT(display(int)));
+        ...
+        signal.activate(5);
+    \endcode
 
     \section1 QSimpleRichText
 
@@ -1803,10 +2032,10 @@
 
     \section1 QSlider
 
-    The functions sliderStart() and sliderRect() have been removed.
-    You can retrieve this functionality with
+    The QSlider::sliderStart() and QSlider::sliderRect() functons
+    have been removed. You can retrieve this information using
     QAbstractSlider::sliderPosition() and
-    QStyle::querySubControlMetrics() respectively.
+    QStyle::querySubControlMetrics(), respectively.
 
     \section1 QSortedList
 
@@ -1894,18 +2123,105 @@
 
     \section1 QString
 
-    If you specify a negative value for \e len to left() or right() then
-    an empty string is returned.
+    Here are the main issues to be aware of when porting QString to
+    Qt 4:
 
-    The QString constructor that takes a QByteArray no longer considers a 0 as
-    the end of the string, but rather includes all 0 into the string. The
-    resulting string has always the length of the byte array.
+    \list 1
+    \i  The QString::QString(QChar) constructor performed implicit
+        conversion in Qt 3. Now, you will need a cast to convert a
+        QChar to a QString.
 
-    \list
-    \i local8Bit() now returns a \c const \c{char *}. If you want a
-    QByteArray/QCString use toLocal8Bit()
-    \i utf8() now returns a \c const \c{char *}. If you want a
-    QByteArray/QCString use toUtf8()
+    \i  The QString::QString(const QByteArray &) constructor used to
+        stop at the first '\\0' it encountered, for compatibility
+        with Qt 1. This quirk has now been fixed; in Qt 4, the
+        resulting QString always has the same length as the
+        QByteArray that was passed to the constructor.
+
+    \i  The QString::null static constant has been deprecated in Qt
+        4. For compatibility, Qt 4 provides a QString::null symbol
+        that behaves more or less the same as the old constant. The
+        new idiom is to write QString() instead of QString::null, or
+        to call clear().
+
+        \oldcode
+            str1 = QString::null;
+            if (str2 == QString::null)
+                do_something(QString::null);
+        \newcode
+            str1.clear();
+            if (str2.isNull())
+                do_something(QString());
+        \endcode
+
+    \i  QString::at() returned a non-const reference, whereas the
+        new QString::at() returns a const value. Code like
+
+        \code
+        str.at(0) = 'X';
+        \endcode
+
+        will no longer compile. Instead, use QString::operator[]:
+
+        \code
+        str[0] = 'X';
+        \endcode
+
+    \i  The QString::contains(\e x) function (where \e x is a
+        character or a string) has been renamed QString::count(\e x).
+        In addition, there now exists a set of QString::contains()
+        functions that returns a boolean value. Replace old calls to
+        contains() with either count() or contains(), depending on
+        whether you care about the specific number of occurrences of
+        a character in the string or only care about whether the
+        string contains that character or not.
+
+    \i  Many functions in QString had a \c bool parameter that
+        specified case sensitivity. In Qt 4, in the interest of code
+        readability and maintainability, the \c bool parameters have
+        been replaced by the Qt::CaseSensitivity enum, which can take
+        the values Qt::CaseSensitive and Qt::CaseInsensitive.
+
+        \oldcode
+            if (url.startsWith("http:", false))
+                ...
+        \newcode
+            if (url.startsWith("http:", Qt::CaseInsensitive))
+                ...
+        \nedcode
+
+    \i  The QString::setExpand(uint, QChar) function, which already
+        was obsolete in Qt 3, is no longer available. Use
+        QString::operator[] instead.
+
+        \oldcode
+            str.setExpand(32, '$');
+        \newcode
+            str[32] = '$';
+        \endcode
+
+    \i  The \c QT_NO_ASCII_CAST and \c QT_NO_CAST_ASCII macros have
+        been renamed \c QT_NO_CAST_TO_ASCII and \c
+        QT_NO_CAST_FROM_ASCII, respectively.
+
+    \i  QString::ascii() and QString::latin1() now
+        return "" (the empty string) rather than 0 (the null
+        pointer). The new behavior prevents crashes when interfacing
+        with the standard C++ library.
+
+    \i  QString::utf8() and QString::local8Bit() used to return a
+        QByteArray. They now return a \c{const char *}, to be
+        consistent with QString::ascii() and QString::latin1(). Call
+        QString::toUtf8() or QString::toLocal8Bit() if you want a
+        QByteArray.
+
+    \i  The QString::data() used to return the same as
+        QString::ascii(). It now returns a pointer to the Unicode
+        data stored in the QString object. Call QString::ascii() if
+        you want the old behavior.
+
+    \i  QString::simpleText() has been renamed
+        QString::isSimpleText().
+
     \endlist
 
     \section1 QStringList
@@ -2101,11 +2417,21 @@
 
     \section1 QVariant
 
-    The following functions are obsolete. Most will continue to work in
-    COMPAT mode, but we recommend not using them in new code.
+    The QVariant class has been split into two classes: QCoreVariant
+    and QVariant. The new QVariant class inherits QCoreVariant and
+    adds GUI-related types. In practice, this has no consequences for
+    existing Qt applications.
 
-    \list
-    \i QVariant::toColorGroup() - use QVariant::toPalette() instead.
+    In addition, some changes to the rest of the Qt library have
+    implications on QVariant as well:
+
+    \list 1
+    \i The \c QCoreVariant::ColorGroup enum value is defined only
+       if \c QT_COMPAT is defined.
+    \i The \c QCoreVariant::IconSet enum value has been renamed
+       \c QCoreVariant::Icon.
+    \i The \c QCoreVariant::CString enum value is now a synonym for
+       \c QCoreVariant::ByteArray.
     \endlist
 
     \section1 QWhatsThis
