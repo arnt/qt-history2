@@ -61,7 +61,7 @@ To port code using Qt 2.x to use Qt 3.x:
 \i Be sure your code compiles and runs well on all your target platforms
    with Qt 2.x.
 \i Recompile with Qt 3.x.  For each error, search below for related
-   identifiers (eg. function names, class names) - this documented is
+   identifiers (eg. function names, class names) - this document is
    structured to mention all relevant identifiers to facilitate such
    searching, even if that makes it a little verbose.
 \i If you get stuck, ask on the \link http://qt-interest.trolltech.com/
