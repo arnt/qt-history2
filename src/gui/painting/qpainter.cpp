@@ -442,13 +442,6 @@ bool QPainter::begin(QPaintDevice *pd, bool unclipped)
             d->state->font = widget->font();
             d->state->pen = widget->palette().color(widget->foregroundRole());
             d->state->bgBrush = widget->palette().brush(widget->backgroundRole());
-            const QWidget *wp = widget;
-            QPoint offset;
-            while(((QWidgetPrivate*)wp->d_ptr)->isBackgroundInherited()) {
-                offset += wp->pos();
-                wp = wp->parentWidget();
-            }
-            d->state->bgOrigin = -offset;
             d->state->ww = d->state->vw = widget->width();
             d->state->wh = d->state->vh = widget->height();
             break;
