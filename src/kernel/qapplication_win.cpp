@@ -49,6 +49,7 @@
 #include "qlibrary.h"
 #include "qt_windows.h"
 #include <private/qinternal_p.h>
+#include <private/qinputcontext_p.h>
 #include "qstyle.h"
 
 #include <windowsx.h>
@@ -869,6 +870,8 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
     }
 #undef FIX_DOUBLE
 #endif
+
+    QInputContext::init();
 }
 
 /*****************************************************************************
@@ -895,6 +898,8 @@ void qt_cleanup()
 	ReleaseDC( 0, displayDC );
 	displayDC = 0;
     }
+
+    QInputContext::shutdown();
 
 #ifndef Q_OS_TEMP
   // Deinitialize OLE/COM
@@ -1681,7 +1686,8 @@ bool QApplication::processNextEvent( bool canWait )
 	if ( handled )
 	    return TRUE;
     }
-    TranslateMessage( &msg );			// translate to WM_CHAR
+
+    QInputContext::TranslateMessage( &msg );			// translate to WM_CHAR
 
 #if defined(QT_THREAD_SUPPORT)
     qApp->lock();
@@ -1762,35 +1768,6 @@ void QApplication::winFocus( QWidget *widget, bool gotFocus )
     }
 }
 
-static
-QString imestring_to_unicode(char *s, int len)
-{
-    if ( len <= 0 )
-	return QString::null;
-#ifdef Q_OS_TEMP
-	QString res = QString( (QChar *)s, len/sizeof(QChar) );
-	return res;
-#else
-#ifdef UNICODE
-    if ( qt_winver & Qt::WV_NT_based ) {
-	QString res = QString( (QChar *)s, len/sizeof(QChar) );
-	return res;
-    } else
-#endif
-    {
-	s[len+1] = 0;
-	WCHAR *wc = new WCHAR[len+1];
-	int l = MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
-	    s, len, wc, len+1);
-	QString res = QString( (QChar *)wc, l );
-	delete [] wc;
-	return res;
-    }
-#endif
-}
-
-
-static int inputcharset = CP_ACP;
 
 //#define Q_IME_DEBUG
 
@@ -1808,9 +1785,9 @@ void qt_winEndImeComposition( QWidget *fw )
     QApplication::sendEvent( fw, &e );
     *imeComposition = QString::null;
     imePosition = -1;
-    HIMC imc = ImmGetContext( fw->winId() ); // Should we store it?
-    ImmNotifyIME( imc, NI_COMPOSITIONSTR, CPS_CANCEL, 0 );
-    ImmReleaseContext( fw->winId(), imc );
+    HIMC imc = QInputContext::getContext( fw->winId() );
+    QInputContext::notifyIME( imc, NI_COMPOSITIONSTR, CPS_CANCEL, 0 );
+    QInputContext::releaseContext( fw->winId(), imc );
 }
 
 //
@@ -1818,6 +1795,7 @@ void qt_winEndImeComposition( QWidget *fw )
 //
 
 static bool inLoop = FALSE;
+static int inputcharset = CP_ACP;
 
 #define RETURN(x) { inLoop=FALSE;return x; }
 
@@ -2409,23 +2387,18 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			    result = qt_sendSpontaneousEvent( fw, &e );
 			    imePosition = 0;
 			}
-			HIMC imc = ImmGetContext( fw->winId() ); // Should we store it?
-			char buffer[256];
-			LONG buflen = -1;
+			HIMC imc = QInputContext::getContext( fw->winId() ); // Should we store it?
+			if ( !imeComposition )
+			    imeComposition = new QString();
 			if (lParam & GCS_RESULTSTR ) {
-			    buflen = ImmGetCompositionString( imc, GCS_RESULTSTR, &buffer, 255 );
+			    *imeComposition = QInputContext::getCompositionString( imc, GCS_RESULTSTR );
 			    imePosition = -1;
 			} else if ( lParam & GCS_COMPSTR ) {
-			    buflen = ImmGetCompositionString( imc, GCS_COMPSTR, &buffer, 255 );
-			}
-			if ( buflen != -1 ) {
-			    if ( !imeComposition )
-				imeComposition = new QString();
-			    *imeComposition = imestring_to_unicode( buffer, buflen );
+			    *imeComposition = QInputContext::getCompositionString( imc, GCS_COMPSTR );
 			}
 			if ( imePosition != -1 ) {
 			    if ( lParam & GCS_CURSORPOS ) {
-				imePosition = ImmGetCompositionString( imc, GCS_CURSORPOS, &buffer, 255 ) & 0xffff;
+				QInputContext::getCompositionString( imc, GCS_CURSORPOS, &imePosition );
 			    } else if ( lParam & CS_NOMOVECARET ) {
 				imePosition = imeComposition->length();
 			    }
@@ -2433,7 +2406,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 #ifdef Q_IME_DEBUG
 			qDebug("imecomposition: cursor pos at %d", imePosition );
 #endif
-			ImmReleaseContext( fw->winId(), imc );
+			QInputContext::releaseContext( fw->winId(), imc );
 			QIMEvent e( (lParam & GCS_RESULTSTR ? QEvent::IMEnd : QEvent::IMCompose), *imeComposition, imePosition );
 			if (lParam & GCS_RESULTSTR )
 			    *imeComposition = QString::null;
@@ -2566,16 +2539,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	RETURN(FALSE);
 
 do_default:
-#ifdef Q_OS_TEMP
-	RETURN( DefWindowProc(hwnd,message,wParam,lParam) )
-#else
-#if defined(UNICODE)
-    if ( qt_winver & Qt::WV_NT_based )
-	RETURN( DefWindowProc(hwnd,message,wParam,lParam) )
-    else
-#endif
-	RETURN( DefWindowProcA(hwnd,message,wParam,lParam) )
-#endif
+    RETURN( QInputContext::DefWindowProc(hwnd,message,wParam,lParam) )
 }
 
 
