@@ -135,17 +135,20 @@ void FormWindowCursor::setProperty(const QString &name, const QVariant &value)
         m_formWindow->commandHistory()->push(new QtCommand(QtCommand::MacroBegin, tr("changed '%1'").arg(name)));
 
     for (int i=0; i<N; ++i) {
-        QWidget *w = selectedWidget(i);
-
-        IPropertySheet *sheet = qt_extension<IPropertySheet*>(m_formWindow->core()->extensionManager(), w);
-        Q_ASSERT(sheet);
-
-        SetPropertyCommand *cmd = new SetPropertyCommand(m_formWindow);
-        cmd->init(w, name, value);
-
-        m_formWindow->commandHistory()->push(cmd);
+        QWidget *widget = selectedWidget(i);
+        setWidgetProperty(widget, name, value);
     }
 
     if (N > 1)
         m_formWindow->commandHistory()->push(new QtCommand(QtCommand::MacroEnd));
+}
+
+void FormWindowCursor::setWidgetProperty(QWidget *widget, const QString &name, const QVariant &value)
+{
+    IPropertySheet *sheet = qt_extension<IPropertySheet*>(m_formWindow->core()->extensionManager(), widget);
+    Q_ASSERT(sheet);
+
+    SetPropertyCommand *cmd = new SetPropertyCommand(m_formWindow);
+    cmd->init(widget, name, value);
+    m_formWindow->commandHistory()->push(cmd);
 }
