@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#128 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#129 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -36,7 +36,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#128 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#129 $")
 
 
 /*****************************************************************************
@@ -1178,13 +1178,17 @@ int QApplication::enter_loop()
 		    break;
 
 		case KeyPress:			// keyboard event
-		case KeyRelease:
-		    if ( focus_widget )
+		case KeyRelease: {
+		    QWidget *w = QWidget::keyboardGrabber();
+		    if ( w )
+			widget = (QETWidget*)w;
+		    else if ( focus_widget )
 			widget = (QETWidget*)focus_widget;
 		    else
 			widget = (QETWidget*)widget->topLevelWidget();
 		    if ( !widget->isDisabled() )
 			widget->translateKeyEvent( &event );
+		    }
 		    break;
 
 		case MappingNotify:		// keyboard mapping changed
