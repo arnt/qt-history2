@@ -1,3 +1,4 @@
+\row \o QButton \o QAbstractButton
 \row \o QGrid \o QGridWidget
 \row \o QHBox \o QHBoxWidget
 \row \o QIconSet \o QIcon
