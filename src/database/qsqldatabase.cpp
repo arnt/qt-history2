@@ -150,8 +150,10 @@ QSql QSqlDatabase::query( const QString & sqlquery ) const
     return d->driver->query( sqlquery );
 }
 
-/*! Executes an SQL statement (i.e., INSERT, UPDATE, DELETE statement) on the database,
-    and returns the number of affected rows.
+/*! Executes an SQL statement (i.e., INSERT, UPDATE, DELETE statement)
+    on the database, and returns the number of affected rows.  Use
+    lastError() to recover error information.
+    
     \sa query(), createResult()
 */
 
@@ -159,12 +161,14 @@ int QSqlDatabase::exec( const QString & sql ) const
 {
     QSql r = d->driver->createResult();
     r.setQuery( sql );
+    d->driver->setLastError( r.lastError() );
     return r.affectedRows();
 }
 
-/*! Opens the database using the connection values which were passed to reset().
-    Returns TRUE on success, and FALSE if there was an error.  Error
-    information can be retrieved using the lastError() method.
+/*! Opens the database using the connection values which were passed
+    to reset().  Returns TRUE on success, and FALSE if there was an
+    error.  Error information can be retrieved using the lastError()
+    method.
 
     \sa lastError()
 */
