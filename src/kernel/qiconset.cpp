@@ -220,7 +220,7 @@ struct QIconSetPrivate: public QShared
 */
 
 /*!
-  \enum QIconSet::On
+  \enum QIconSet::State
 
   This enum describes the state for which a pixmap is intended to be provided.
   The \e state can be:
