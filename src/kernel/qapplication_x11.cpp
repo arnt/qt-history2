@@ -331,7 +331,7 @@ static QTextCodec * input_mapper = 0;
 
 QObject	       *qt_clipboard = 0;
 Time		qt_x_time = CurrentTime;
-extern bool	qt_check_selection_sentinel( XEvent* ); //def in qclipboard_x11
+// extern bool	qt_check_selection_sentinel( XEvent* ); //def in qclipboard_x11
 
 static void	qt_save_rootinfo();
 static bool	qt_try_modal( QWidget *, XEvent * );
@@ -636,7 +636,7 @@ static bool qt_set_desktop_properties()
 	    properties.writeBlock(data, nitems);
 	    offset += nitems / 4;
 	}
-	
+
 	XFree( (unsigned char *) data );
     }
 
@@ -1408,6 +1408,49 @@ void qAddPostRoutine( Q_CleanUpFunction p )
     }
     postRList->insert( 0, (void *)p );		// store at list head
 }
+
+
+void qRemovePostRoutine( Q_CleanUpFunction p )
+{
+    if (! postRList) return;
+
+    void *postr = postRList->first();
+
+    while ( postr ) {
+	if (postr == (void *) p) {
+	    postRList->remove();
+	}
+
+	postr = postRList->next();
+    }
+}
+
+
+// HACK HACK
+/*
+void clean_post_routines(void *obj, unsigned long len, const char *name) {
+    QListIterator<void> post_it(*postRList);
+    void *post;
+
+    unsigned long objl = (unsigned long) obj, ptrl;
+
+    while ((post = post_it.current()) != 0) {
+    	++post_it;
+
+ 	ptrl = (unsigned long) post;
+
+	if (ptrl >= objl && ptrl <= (objl + len)) {
+	    qDebug("clean_post_routines: cleaning post routine for '%s'", name);
+
+	    postRList->remove(post);
+
+	    //	    break;
+	}
+    }
+}
+*/
+// </HACK>
+
 
 char *qAppName()				// get application name
 {
@@ -2456,10 +2499,13 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	qt_x_time = event->xproperty.time;
 	if ( event->xproperty.window == appRootWin ) { // root properties
 	    if ( event->xproperty.atom == qt_selection_sentinel ) {
-		if ( qt_check_selection_sentinel( event ) )
-		     emit clipboard()->dataChanged();
-	    }
-	    else if ( obey_desktop_settings ) {
+		qDebug("qapplication_x11.cpp:%d: TODO: fix the _QT_SELECTION_SENTINEL "
+		       "mechanism", __LINE__);
+		
+		// if (clipboard()->receivers(SIGNAL(dataChanged())) &&
+		//     qt_check_selection_sentinel( event ) )
+		//     emit clipboard()->dataChanged();
+	    } else if ( obey_desktop_settings ) {
 		if ( event->xproperty.atom == qt_resource_manager )
 		    qt_set_x11_resources();
 		else if ( event->xproperty.atom == qt_desktop_properties )
@@ -2470,8 +2516,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	}
 	return 0;
     }
-
-    if ( !widget ) {				// don't know this window
+    
+    if ( !widget ) {				// don't know this windows
 	QWidget* popup = QApplication::activePopupWidget();
 	if ( popup ) {
 
@@ -2482,7 +2528,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	      Unfortunately this translation is currently only
 	      possible with a known widget. I'll change that soon
 	      (Matthias).
-	     */
+	    */
 
 	    // Danger - make sure we don't lock the server
 	    switch ( event->type ) {
@@ -2524,7 +2570,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case ButtonRelease:
     case MotionNotify:
 	qt_x_time = (event->type == MotionNotify) ?
-			     event->xmotion.time : event->xbutton.time;
+		    event->xmotion.time : event->xbutton.time;
 	widget->translateMouseEvent( event );
 	break;
 
@@ -3555,7 +3601,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	}
 
 	Display* dpy = x11Display(); // store display, send() may destroy us
-	
+
 	if ( popupButtonFocus ) {
 	    QMouseEvent e( type, popupButtonFocus->mapFromGlobal(globalPos),
 			   globalPos, button, state );

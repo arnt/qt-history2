@@ -31,7 +31,7 @@
 #include "qobject.h"
 #endif // QT_H
 
-#ifndef QT_NO_CLIPBOARD 
+#ifndef QT_NO_CLIPBOARD
 
 class QMimeSource;
 
@@ -69,8 +69,12 @@ protected:
     friend class QApplication;
     friend class QBaseApplication;
     friend class QDragManager;
-
+    friend class QMimeSource;
+    
 private:	// Disabled copy constructor and operator=
+    
+    void clobber();
+    
 #if defined(Q_DISABLE_COPY)
     QClipboard( const QClipboard & );
     QClipboard &operator=( const QClipboard & );
