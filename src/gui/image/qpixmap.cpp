@@ -292,7 +292,7 @@ QPixmap::QPixmap(const QSize &size, int depth, Optimization optimization)
     \sa Qt::ImageConversionFlags isNull() load() loadFromData() save() imageFormat() Optimization
 */
 
-QPixmap::QPixmap(const QString& fileName, const char *format, 
+QPixmap::QPixmap(const QString& fileName, const char *format,
                  Qt::ImageConversionFlags flags, Optimization optimization)
     : QPaintDevice(QInternal::Pixmap)
 {
@@ -980,7 +980,7 @@ static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
             || child->isHidden() || !child->geometry().intersects(r))
             continue;
         QRect cr = r & child->geometry();
-        cr.moveBy(-child->pos());
+        cr.translate(-child->pos());
         grabWidget_helper(child, res, buf, cr, offset + child->pos());
     }
 }
@@ -1247,7 +1247,7 @@ Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
 }
 #endif
 
-/*! 
+/*!
     \internal
 */
 

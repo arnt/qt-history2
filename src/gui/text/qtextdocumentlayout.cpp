@@ -460,7 +460,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
                 cellRect.setWidth(td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1) - cellRect.left());
                 cellRect.setHeight(td->rowPositions.at(r + rspan - 1) + td->heights.at(r + rspan - 1) - cellRect.top());
 
-                cellRect.moveBy(off);
+                cellRect.translate(off);
                 if (!cellRect.intersects(painter->clipRegion().boundingRect()))
                     continue;
 
@@ -547,7 +547,7 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
     QColor bgCol = blockFormat.backgroundColor();
     if (bgCol.isValid()) {
         QRect r = bl.layout()->rect();
-        r.moveBy(offset);
+        r.translate(offset);
         painter->fillRect(r , bgCol);
     }
 
@@ -625,10 +625,10 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
 
     QRect r(pos, size);
 
-    r.moveBy( - size.width(),
+    r.translate( - size.width(),
              (fontMetrics.height() / 2 - size.height() / 2));
 
-    r.moveBy(-fontMetrics.width(" "), 0);
+    r.translate(-fontMetrics.width(" "), 0);
 
     painter->save();
 
@@ -750,13 +750,13 @@ void QTextDocumentLayoutPrivate::setCellPosition(QTextTableData *td, const QText
     foreach (QTextFrame *frame, td->layoutedFrames)
         if (isFrameInCell(cell, frame)) {
             QTextFrameData *cd = data(frame);
-            cd->boundingRect.moveBy(pos);
+            cd->boundingRect.translate(pos);
         }
 
     for (QTextFrame::Iterator it = cell.begin(); !it.atEnd(); ++it) {
         if (QTextFrame *c = it.currentFrame()) {
             QTextFrameData *cd = data(c);
-            cd->boundingRect.moveBy(pos);
+            cd->boundingRect.translate(pos);
         } else {
             QTextBlock bl = it.currentBlock();
             QTextLayout *tl = bl.layout();
@@ -1486,7 +1486,7 @@ void QTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextInline
         QTextFrameData *fd = data(frame);
         if (fd->position != QTextFrameFormat::InFlow) {
             r = fd->boundingRect;
-            r.moveBy(data(frame->parentFrame())->boundingRect.topLeft());
+            r.translate(data(frame->parentFrame())->boundingRect.topLeft());
         }
     }
 //    qDebug() << "drawObject at" << r;

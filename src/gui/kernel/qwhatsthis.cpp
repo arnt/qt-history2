@@ -321,7 +321,7 @@ void QWhatsThat::paintEvent(QPaintEvent*)
     if (doc) {
         p.translate(r.x(), r.y());
         QRect rect = r;
-        rect.moveBy(-r.x(), -r.y());
+        rect.translate(-r.x(), -r.y());
         p.setClipRect(rect);
         QAbstractTextDocumentLayout::PaintContext context;
         context.textColorFromPalette = true;
@@ -435,7 +435,7 @@ bool QWhatsThisPrivate::eventFilter(QObject *o, QEvent *e)
             // we don't react to these keys, they are used for context menus
             return false;
         } else if (kev->key() != Qt::Key_Shift && kev->key() != Qt::Key_Alt // not a modifier key
-                   && kev->key() != Qt::Key_Control && kev->key() != Qt::Key_Meta) {  
+                   && kev->key() != Qt::Key_Control && kev->key() != Qt::Key_Meta) {
             QWhatsThis::leaveWhatsThisMode();
         }
     } break;
