@@ -661,6 +661,91 @@ QFontEngine::Type QFontEngineWin::type() const
     return QFontEngine::Win;
 }
 
+static inline float qt_fixed_to_float(const FIXED &p) {
+    return float(p.value) + float(p.fract) / 65536.0;
+}
+
+static inline QPointF qt_to_qpointf(const POINTFX &pt) {
+    return QPointF(qt_fixed_to_float(pt.x), -qt_fixed_to_float(pt.y));
+}
+
+#ifndef GGO_UNHINTED
+#define GGO_UNHINTED 0x0100
+#endif
+
+void QFontEngineWin::addOutlineToPath(float x, float y, const QGlyphLayout *glyphs, int numGlyphs,
+                                      QPainterPath *path)
+{
+    QPointF oset(x, y);
+    MAT2 mat;
+    mat.eM11.value = mat.eM22.value = 1;
+    mat.eM11.fract = mat.eM22.fract = 0;
+    mat.eM21.value = mat.eM12.value = 0;
+    mat.eM21.fract = mat.eM12.fract = 0;
+
+    HDC hdc = dc();
+    Q_ASSERT(hdc);
+    GLYPHMETRICS gMetric;
+    uint glyphFormat = GGO_BEZIER | GGO_GLYPH_INDEX | GGO_UNHINTED;
+
+    for (int i=0; i<numGlyphs; ++i) {
+        memset(&gMetric, 0, sizeof(GLYPHMETRICS));
+        int bufferSize = GetGlyphOutline(hdc, glyphs[i].glyph, glyphFormat, &gMetric, 0, 0, &mat);
+        if (bufferSize == GDI_ERROR) {
+            qSystemWarning("QFontEngineWin::addOutlineToPath, GetGlyphOutline(1) failed");
+            return;
+        }
+        void *dataBuffer = new char[bufferSize];
+        DWORD ret = GetGlyphOutline(hdc, glyphs[i].glyph, glyphFormat, &gMetric, bufferSize, dataBuffer, &mat);
+        if (ret == GDI_ERROR) {
+            qSystemWarning("QFontEngineWin::addOutlineToPath, GetGlyphOutline(2) failed");
+            return;
+        }
+
+        int offset = 0;
+        int headerOffset = 0;
+        TTPOLYGONHEADER *ttph = 0;
+
+        while (headerOffset < bufferSize) {
+            ttph = (TTPOLYGONHEADER*)((char *)dataBuffer + headerOffset);
+
+            QPointF lastPoint(qt_to_qpointf(ttph->pfxStart));
+            path->moveTo(lastPoint + oset);
+            offset += sizeof(TTPOLYGONHEADER);
+            TTPOLYCURVE *curve;
+            while (offset<int(headerOffset + ttph->cb)) {
+                curve = (TTPOLYCURVE*)((char*)(dataBuffer) + offset);
+                Q_ASSERT(curve->wType != TT_PRIM_QSPLINE);
+                switch (curve->wType) {
+                case TT_PRIM_LINE: {
+                    for (int i=0; i<curve->cpfx; ++i) {
+                        QPointF p = qt_to_qpointf(curve->apfx[i]) + oset;
+                        path->lineTo(p);
+                    }
+                    break;
+                }
+                case TT_PRIM_CSPLINE: {
+                    for (int i=0; i<curve->cpfx; ) {
+                        QPointF p2 = qt_to_qpointf(curve->apfx[i++]) + oset;
+                        QPointF p3 = qt_to_qpointf(curve->apfx[i++]) + oset;
+                        QPointF p4 = qt_to_qpointf(curve->apfx[i++]) + oset;
+                        path->curveTo(p2, p3, p4);
+                    }
+                    break;
+                }
+                }
+                offset += sizeof(TTPOLYCURVE) + (curve->cpfx-1) * sizeof(POINTFX);
+            }
+            path->closeSubpath();
+            headerOffset += ttph->cb;
+        }
+
+        oset += QPointF(gMetric.gmCellIncX, gMetric.gmCellIncY);
+
+        delete [] dataBuffer;
+    }
+
+}
 
 
 // box font engine

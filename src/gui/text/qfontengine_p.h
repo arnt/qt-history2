@@ -91,7 +91,7 @@ public:
 #ifndef Q_WS_X11
     virtual void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags) = 0;
 #endif
-    virtual void addOutlineToPath(float, float, const QGlyphLayout *, int, QPainterPath *) {}
+    virtual void addOutlineToPath(float, float, const QGlyphLayout *, int, QPainterPath *) { }
 
     virtual glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs) = 0;
     virtual glyph_metrics_t boundingBox(glyph_t glyph) = 0;
@@ -464,6 +464,10 @@ public:
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
     void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
+
+    void addOutlineToPath(float x, float y, const QGlyphLayout *glyphs, int numGlyphs,
+                          QPainterPath *path);
+
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
