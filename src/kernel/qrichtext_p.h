@@ -109,9 +109,8 @@ public:
 
     QTextBidiContext *parent;
 
-
     // refcounting....
-    mutable int count;
+    int count;
 };
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -150,7 +149,6 @@ public:
 
     void setIndex( int i, bool restore = TRUE );
 
-    bool checkParens();
     void checkIndex();
 
     int offsetX() const { return ox; }
@@ -165,9 +163,6 @@ public:
 
 private:
     enum Operation { EnterBegin, EnterEnd, Next, Prev, Up, Down };
-
-    bool checkOpenParen();
-    bool checkClosedParen();
 
     void push();
     void pop();
@@ -284,9 +279,9 @@ class QTextDocument : public QObject
 public:
     enum SelectionIds {
 	Standard = 0,
-	ParenMismatch,
-	ParenMatch,
-	Search,
+	Selection1,
+	Selection2,
+	Selection3,
 	Temp // This selection must not be drawn, it's used e.g. by undo/redo to
 	// remove multiple lines with removeSelectedText()
     };
@@ -332,9 +327,6 @@ public:
 
     void setIndent( QTextIndent *i );
     QTextIndent *indent() const;
-
-    void setParenCheckingEnabled( bool b );
-    bool isParenCheckingEnabled() const;
 
     QColor selectionColor( int id ) const;
     bool invertSelectionText( int id ) const;
@@ -467,7 +459,7 @@ private:
     QMap<int, Selection> selections;
     QMap<int, bool> selectionText;
     QString filename;
-    bool parenCheck, completion;
+    bool completion;
     QTextCommandHistory *commandHistory;
     QTextFormatter *pFormatter;
     QTextIndent *indenter;
@@ -1228,21 +1220,6 @@ inline void QTextCursor::setIndex( int i, bool restore )
     idx = i;
 }
 
-inline bool QTextCursor::checkParens()
-{
-    QChar c( string->at( idx )->c );
-    if ( c == '{' || c == '(' || c == '[' ) {
-	return checkOpenParen();
-    } else if ( idx > 0 ) {
-	c = string->at( idx - 1 )->c;
-	if ( c == '}' || c == ')' || c == ']' ) {
-	    return checkClosedParen();
-	}
-    }
-
-    return FALSE;
-}
-
 inline void QTextCursor::setParag( QTextParag *s, bool restore )
 {
     if ( restore )
@@ -1347,16 +1324,6 @@ inline void QTextDocument::setIndent( QTextIndent *i )
 inline QTextIndent *QTextDocument::indent() const
 {
     return indenter;
-}
-
-inline void QTextDocument::setParenCheckingEnabled( bool b )
-{
-    parenCheck = b;
-}
-
-inline bool QTextDocument::isParenCheckingEnabled() const
-{
-    return parenCheck;
 }
 
 inline QColor QTextDocument::selectionColor( int id ) const

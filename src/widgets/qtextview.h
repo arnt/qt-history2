@@ -70,7 +70,7 @@ public:
     QTextView( QWidget *parent = 0, const char *name = 0 );
     virtual ~QTextView();
 
-#if defined(QTEXTEDIT_OPEN_API)
+#if defined(QRICHTEXT_OPEN_API)
     QTextDocument *document() const;
     QTextCursor *textCursor() const;
 #endif
@@ -133,6 +133,8 @@ public:
     void scrollToAnchor( const QString& name );
     QString anchorAt(const QPoint& pos);
 
+    void repaintChanged();
+
 public slots:
     virtual void undo();
     virtual void redo();
@@ -181,7 +183,8 @@ signals:
     void textChanged();
     void highlighted( const QString& );
     void linkClicked( const QString& );
-
+    void cursorPositionChanged( QTextCursor *c );
+    
 protected:
     void setFormat( QTextFormat *f, int flags );
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
@@ -199,7 +202,7 @@ protected:
 #endif
     bool eventFilter( QObject *o, QEvent *e );
     bool focusNextPrevChild( bool next );
-#if !defined(QTEXTEDIT_OPEN_API)
+#if !defined(QRICHTEXT_OPEN_API)
     QTextDocument *document() const;
     QTextCursor *textCursor() const;
 #endif
@@ -258,7 +261,6 @@ private:
     void doKeyboardAction( int action );
     bool doCompletion();
     void checkUndoRedoInfo( UndoRedoInfo::Type t );
-    void repaintChanged();
     void updateCurrentFormat();
     void handleReadOnlyKeyEvent( QKeyEvent *e );
     void makeParagVisible( QTextParag *p );

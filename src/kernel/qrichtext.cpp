@@ -850,157 +850,6 @@ void QTextCursor::indent()
 	idx = ni;
 }
 
-bool QTextCursor::checkOpenParen()
-{
-    if ( !doc->isParenCheckingEnabled() )
-	return FALSE;
-
-    QTextParag::ParenList parenList = string->parenList();
-
-    QTextParag::Paren openParen, closedParen;
-    QTextParag *closedParenParag = string;
-
-    int i = 0;
-    int ignore = 0;
-    bool foundOpen = FALSE;
-    QChar c = string->at( idx )->c;
-    while ( TRUE ) {
-	if ( !foundOpen ) {
-	    if ( i >= (int)parenList.count() )
-		goto aussi;
-	    openParen = parenList[ i ];
-	    if ( openParen.pos != idx ) {
-		++i;
-		continue;
-	    } else {
-		foundOpen = TRUE;
-		++i;
-	    }
-	}
-	
-	if ( i >= (int)parenList.count() ) {
-	    while ( TRUE ) {
-		closedParenParag = closedParenParag->next();
-		if ( !closedParenParag )
-		    goto aussi;
-		if ( closedParenParag->parenList().count() > 0 ) {
-		    parenList = closedParenParag->parenList();
-		    break;
-		}
-	    }
-	    i = 0;
-	}
-	
-	closedParen = parenList[ i ];
-	if ( closedParen.type == QTextParag::Paren::Open ) {
-	    ignore++;
-	    ++i;
-	    continue;
-	} else {
-	    if ( ignore > 0 ) {
-		ignore--;
-		++i;
-		continue;
-	    }
-	
-	    int id = QTextDocument::ParenMatch;
-	    if ( c == '{' && closedParen.chr != '}' ||
-		 c == '(' && closedParen.chr != ')' ||
-		 c == '[' && closedParen.chr != ']' )
-		id = QTextDocument::ParenMismatch;
-	    doc->setSelectionStart( id, this );
-	    int tidx = idx;
-	    QTextParag *tstring = string;
-	    idx = closedParen.pos + 1;
-	    string = closedParenParag;
-	    doc->setSelectionEnd( id, this );
-	    string = tstring;
-	    idx = tidx;
-	    return TRUE;
-	}
-	
-	++i;
-    }
-
- aussi:
-    return FALSE;
-}
-
-bool QTextCursor::checkClosedParen()
-{
-    if ( !doc->isParenCheckingEnabled() )
-	return FALSE;
-
-    QTextParag::ParenList parenList = string->parenList();
-
-    QTextParag::Paren openParen, closedParen;
-    QTextParag *openParenParag = string;
-
-    int i = parenList.count() - 1;
-    int ignore = 0;
-    bool foundClosed = FALSE;
-    QChar c = string->at( idx - 1 )->c;
-    while ( TRUE ) {
-	if ( !foundClosed ) {
-	    if ( i < 0 )
-		goto aussi;
-	    closedParen = parenList[ i ];
-	    if ( closedParen.pos != idx - 1 ) {
-		--i;
-		continue;
-	    } else {
-		foundClosed = TRUE;
-		--i;
-	    }
-	}
-	
-	if ( i < 0 ) {
-	    while ( TRUE ) {
-		openParenParag = openParenParag->prev();
-		if ( !openParenParag )
-		    goto aussi;
-		if ( openParenParag->parenList().count() > 0 ) {
-		    parenList = openParenParag->parenList();
-		    break;
-		}
-	    }
-	    i = parenList.count() - 1;
-	}
-	
-	openParen = parenList[ i ];
-	if ( openParen.type == QTextParag::Paren::Closed ) {
-	    ignore++;
-	    --i;
-	    continue;
-	} else {
-	    if ( ignore > 0 ) {
-		ignore--;
-		--i;
-		continue;
-	    }
-	
-	    int id = QTextDocument::ParenMatch;
-	    if ( c == '}' && openParen.chr != '{' ||
-		 c == ')' && openParen.chr != '(' ||
-		 c == ']' && openParen.chr != '[' )
-		id = QTextDocument::ParenMismatch;
-	    doc->setSelectionStart( id, this );
-	    int tidx = idx;
-	    QTextParag *tstring = string;
-	    idx = openParen.pos;
-	    string = openParenParag;
-	    doc->setSelectionEnd( id, this );
-	    string = tstring;
-	    idx = tidx;
-	    return TRUE;
-	}
-	
-	--i;
-    }
-
- aussi:
-    return FALSE;
-}
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -1016,7 +865,6 @@ QTextDocument::QTextDocument( QTextDocument *p )
     useFC = TRUE;
     pFormatter = 0;
     indenter = 0;
-    parenCheck = FALSE;
     completion = FALSE;
     fCollection = new QTextFormatCollection;
     fParag = 0;
@@ -2888,10 +2736,8 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     for ( i = 0; i < length(); i++ ) {
 	chr = at( i );
 	cw = chr->width();
-	if ( chr->c == '\t' ) {
-	    int tw = nextTab( startX );
-	    cw = QMAX( cw, tw - startX + 1 );
-	}
+	if ( chr->c == '\t' && i < length() - 1 )
+	    cw = at( i + 1 )->x - chr->x + 1;
 	
 	// init a new line
 	if ( chr->lineStart ) {

@@ -682,9 +682,7 @@ void QTextView::contentsMouseReleaseEvent( QMouseEvent * )
 	    doc->copySelectedText( QTextDocument::Standard );
 	mousePressed = FALSE;
     }
-    if ( cursor->checkParens() ) {
-	repaintChanged();
-    }
+    emit cursorPositionChanged( cursor );
     updateCurrentFormat();
     inDoubleClick = FALSE;
 
@@ -863,9 +861,7 @@ void QTextView::doResize()
 
 void QTextView::doChangeInterval()
 {
-    if ( cursor->checkParens() )
-	repaintChanged();
-
+    emit cursorPositionChanged( cursor );
     interval = 0;
 }
 
