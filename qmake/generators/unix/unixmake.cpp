@@ -92,10 +92,12 @@ UnixMakefileGenerator::init()
     if(!project->isEmpty("QMAKE_INCDIR"))
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
     if(!project->isEmpty("QMAKE_LIBDIR")) {
-	if ( !project->isEmpty("QMAKE_RPATH") )
-	    project->variables()["QMAKE_LFLAGS"] += varGlue("QMAKE_LIBDIR", " " + var("QMAKE_RPATH"),
-							    " " + var("QMAKE_RPATH"), "");
-	project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue( "QMAKE_LIBDIR", "-L", " -L", "" );
+	const QStringList &libdirs = project->values("QMAKE_LIBDIR");
+	for(QStringList::ConstIterator it = libdirs.begin(); it != libdirs.end(); ++it) {
+	    if ( !project->isEmpty("QMAKE_RPATH") )
+		project->variables()["QMAKE_LFLAGS"] += var("QMAKE_RPATH") + (*it);
+	    project->variables()["QMAKE_LIBDIR_FLAGS"] += "-L" + (*it);
+	}
     }
     if ( project->isActiveConfig("moc") )
 	setMocAware(TRUE);
@@ -459,6 +461,7 @@ UnixMakefileGenerator::processPrlFiles()
 							     l.replace("\"","")));
 		    } else if(opt.startsWith("-l") && !processed[opt]) {
 			QString lib = opt.right(opt.length() - 2);
+			qDebug("Looking for %s", lib.latin1());
 			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
  			    if(!project->isActiveConfig("compile_libtool")) { //give them the .libs..
  				QString la = mdd->local_dir + Option::dir_sep + "lib" + lib + Option::libtool_ext;
@@ -470,6 +473,7 @@ UnixMakefileGenerator::processPrlFiles()
  			    }
 
 			    QString prl = mdd->local_dir + Option::dir_sep + "lib" + lib;
+			    qDebug("Looking in %s", prl.latin1());
 			    if(processPrlFile(prl)) {
 				if(prl.startsWith(mdd->local_dir))
 				    prl.replace(0, mdd->local_dir.length(), mdd->real_dir);
