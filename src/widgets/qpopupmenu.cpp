@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#159 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#160 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -1430,6 +1430,8 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
     case Key_Escape:
 	// just hide one
 	hide();
+	if ( parentMenu && parentMenu->isMenuBar )
+	    ((QMenuBar *)parentMenu)->setWindowsAltMode( FALSE, -1);
 	break;
 
     case Key_Left:
