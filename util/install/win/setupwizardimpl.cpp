@@ -348,8 +348,8 @@ static bool createDir( const QString& fullPath )
     return success;
 }
 
-SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool modal, WFlags flag ) :
-    QWizard( pParent, pName, modal, flag ),
+SetupWizardImpl::SetupWizardImpl( QWidget* parent, const char* name, bool modal, WFlags flag ) :
+    QWizard( parent, name, modal, flag ),
     tmpPath( QEnvironment::getTempPath() ),
     filesCopied( false ),
     filesToCompile( 0 ),
@@ -366,7 +366,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     finishPage( 0 )
 {
     // initialize
-    if ( !pName )
+    if ( !name )
 	setName( "SetupWizard" );
     resize( 600, 390 );
 #if defined(QSA)
@@ -425,13 +425,14 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 #if defined(Q_OS_WIN32)
     // First check for MSVC 6.0
     QString regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual C++", "ProductDir", QEnvironment::LocalMachine );
-    if ( regValue.length() )
+    if (!regValue.isEmpty())
 	sysGroupButton = MSVC_BUTTON;
 
     // MSVC.NET 7.0 & 7.1 takes presedence over 6.0
     regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0", "InstallDir", QEnvironment::LocalMachine );
-    QString regValue2 = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.1", "InstallDir", QEnvironment::LocalMachine );
-    if ( QMAX( regValue.length(), regValue2.length() ) )
+    if (regValue.isEmpty())
+	regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.1", "InstallDir", QEnvironment::LocalMachine );
+    if (!regValue.isEmpty())
 	sysGroupButton = MSVCNET_BUTTON;
 #endif
 
@@ -492,15 +493,11 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 static bool copyFile( const QString& src, const QString& dest )
 {
 #ifdef Q_WS_WIN
-    if ( qWinVersion() & Qt::WV_NT_based ) {
-	bool res;
-	TCHAR *tsrc = (TCHAR*)qt_winTchar_new( src );
-	res = CopyFileW( tsrc, (const wchar_t *) dest.ucs2(), false );
-	delete tsrc;
-	return res;
-    } else {
+    QT_WA( {
+	return CopyFileW( (const wchar_t*)src.ucs2(), (const wchar_t*)dest.ucs2(), false );
+    }, {
 	return CopyFileA( src.local8Bit(), dest.local8Bit(), false );
-    }
+    } );
 #else
     int len;
     const int buflen = 4096;
@@ -510,10 +507,9 @@ static bool copyFile( const QString& src, const QString& dest )
     if (!srcFile.open( IO_ReadOnly ))
 	return false;
     destFile.remove();
-    if (!destFile.open( IO_WriteOnly )) {
-	srcFile.close();
+    if (!destFile.open( IO_WriteOnly ))
 	return false;
-    }
+
     while (!srcFile.atEnd()) {
 	len = srcFile.readBlock( buf, buflen );
 	if (len <= 0)
@@ -577,7 +573,7 @@ void SetupWizardImpl::initPages()
 	ADD_PAGE( foldersPage,		FoldersPageImpl		)
 #endif
 	ADD_PAGE( configPage,		ConfigPageImpl		)
-	ADD_PAGE( progressPage,		ProgressPageImpl		)
+	ADD_PAGE( progressPage,		ProgressPageImpl	)
 	ADD_PAGE( buildPage,		BuildPageImpl		)
 	ADD_PAGE( finishPage,		FinishPageImpl		)
     }
@@ -594,6 +590,9 @@ void SetupWizardImpl::initPages()
 	licenseAgreementPage->titleStr = "License agreement Qt";
 	licenseAgreementPageQsa->titleStr = "License agreement QSA";
     }
+    if ( optionsPage ) {
+	setBackEnabled( optionsPage, FALSE );
+    }
     if ( optionsPageQsa ) {
 	optionsPageQsa->installExamples->hide();
 	optionsPageQsa->installTools->hide();
@@ -609,8 +608,9 @@ void SetupWizardImpl::initPages()
 	optionsPageQsa->titleStr = "Options for QSA";
 	optionsPageQsa->shortTitleStr = "Choose options for QSA";
     }
+    if ( configPage )
+	setBackEnabled( configPage, FALSE );
     if ( progressPage ) {
-	setBackEnabled( progressPage, FALSE );
 	setNextEnabled( progressPage, FALSE );
     }
     if ( buildPage ) {
@@ -733,62 +733,88 @@ void SetupWizardImpl::clickedSystem( int sys )
 	default:
 	    break;
     }
+    if (!isVisible())
+	return;
+    QString makeCmd = globalInformation.text(GlobalInformation::MakeTool);
+    if ( !optionsPage->skipBuild->isChecked() && optionsPage->skipBuild->isEnabled() ) {
+	if( !findFile( makeCmd ) ) {
+	    // ### try to adjust environment
+	    QMessageBox::critical( this, "Environment problems",
+					 "The installation program can't find the make tool '" + makeCmd + "'.\n"
+					 "Make sure the path to it is present in the PATH environment\n"
+					 "variable and restart the installation.\n"
+					 "\n"
+					 "You can find the path to the tool using the 'Find' tool\n"
+					 "and add the location to the environment settings of your\n"
+					 "system. Please contact your local system administration if\n"
+					 "you have difficulties finding the files, or if you don't\n"
+					 "know how to modifiy the environment settings of your system." );
+	}
+	if ( globalInformation.sysId() != GlobalInformation::Borland && !findFile( "string.h" ) ) {
+	    // ### try to adjust environment
+	    QMessageBox::critical( this, "Environment problems",
+				  "The file 'string.h' could not be located in any directory\n"
+				  "listed in the 'INCLUDE' environment variable.\n"
+				  "You might have to install the platform headers, or adjust\n"
+				  "the environment variables of your system, and restart the\n"
+				  "installation.\n\n"
+				  "Please contact your local system administration if you have\n"
+				  "difficulties finding the file, or if you don't know how to\n"
+				  "modify the environment settings on your system." );
+	}
+    }
 #endif
 }
 
 void SetupWizardImpl::readCleanerOutput()
 {
-    updateOutputDisplay( &cleaner );
+    updateDisplay( cleaner.readStdout(), currentOLine );
 }
 
 void SetupWizardImpl::readConfigureOutput()
 {
-    updateOutputDisplay( &configure );
+    updateDisplay( configure.readStdout(), currentOLine );
 }
 
 void SetupWizardImpl::readMakeOutput()
 {
-    updateOutputDisplay( &make );
+    updateDisplay( make.readStdout(), currentOLine );
 }
 
 void SetupWizardImpl::readAssistantOutput()
 {
 #if defined(QSA)
-    updateOutputDisplay( &assistant );
+    updateDisplay( assistant.readStdout(), currentOLine );
 #endif
 }
 
 void SetupWizardImpl::readCleanerError()
 {
-    updateErrorDisplay( &cleaner );
+    updateDisplay( cleaner.readStderr(), currentELine  );
 }
 
 void SetupWizardImpl::readConfigureError()
 {
-    updateErrorDisplay( &configure );
+    updateDisplay( configure.readStderr(), currentELine );
 }
 
 void SetupWizardImpl::readMakeError()
 {
-    updateErrorDisplay( &make );
+    updateDisplay( make.readStderr(), currentELine  );
 }
 
 void SetupWizardImpl::readAssistantError()
 {
 #if defined(QSA)
-    updateOutputDisplay( &assistant );
+    updateDisplay( assistant.readStderr(), currentELine );
 #endif
 }
 
-void SetupWizardImpl::updateOutputDisplay( QProcess* proc )
+void SetupWizardImpl::updateDisplay( const QString &input, QString &output)
 {
-    QString outbuffer;
-
-    outbuffer = QString( proc->readStdout() );
-
-    for( int i = 0; i < (int)outbuffer.length(); i++ ) {
-	QChar c = outbuffer[ i ];
-	switch( char( c ) ) {
+    const QChar *c = input.unicode();
+    for( int i = 0; i < (int)input.length(); ++i, ++c ) {
+	switch( char( *c ) ) {
 	case '\r':
 	case 0x00:
 	    break;
@@ -796,54 +822,21 @@ void SetupWizardImpl::updateOutputDisplay( QProcess* proc )
 	    currentOLine += "    ";  // Simulate a TAB by using 4 spaces
 	    break;
 	case '\n':
-	    if( currentOLine.length() ) {
+	    if( output.length() ) {
 		if ( !globalInformation.reconfig() ) {
-		    if ( currentOLine.right( 4 ) == ".cpp" ||
-			 currentOLine.right( 2 ) == ".c" ||
-			 currentOLine.right( 4 ) == ".pro" ||
-			 currentOLine.right( 3 ) == ".ui" ) {
+		    if ( output.right( 4 ) == ".cpp" ||
+			 output.right( 2 ) == ".c" ||
+			 output.right( 4 ) == ".pro" ||
+			 output.right( 3 ) == ".ui" ) {
 			buildPage->compileProgress->setProgress( ++filesCompiled );
 		    }
 		}
-		logOutput( currentOLine );
-		currentOLine = "";
+		logOutput( output );
+		output = "";
 	    }
 	    break;
 	default:
-	    currentOLine += c;
-	    break;
-	}
-    }
-}
-
-void SetupWizardImpl::updateErrorDisplay( QProcess* proc )
-{
-    QString outbuffer;
-
-    outbuffer = QString( proc->readStderr() );
-
-    for( int i = 0; i < (int)outbuffer.length(); i++ ) {
-	QChar c = outbuffer[ i ];
-	switch( char( c ) ) {
-	case '\r':
-	case 0x00:
-	    break;
-	case '\t':
-	    currentELine += "    ";  // Simulate a TAB by using 4 spaces
-	    break;
-	case '\n':
-	    if( currentELine.length() ) {
-		if( currentOLine.right( 4 ) == ".cpp" ||
-		    currentOLine.right( 2 ) == ".c" ||
-		    currentOLine.right( 4 ) == ".pro" )
-		    buildPage->compileProgress->setProgress( ++filesCompiled );
-
-		logOutput( currentELine );
-		currentELine = "";
-	    }
-	    break;
-	default:
-	    currentELine += c;
+	    output += *c;
 	    break;
 	}
     }
@@ -972,6 +965,7 @@ void SetupWizardImpl::doFinalIntegration()
 	    break;
     }
 
+    // #### TODO: support debug description autoexp.dat for VS.2003
     if ( autoexp ) {
 	if ( !autoexp->exists() ) {
 	    autoexp->open( IO_WriteOnly );
@@ -1030,6 +1024,9 @@ void SetupWizardImpl::doFinalIntegration()
 	}
         delete usertype;
     }
+
+    //### the next stuff should be a separate function, and only called
+    //### when user selected "create icons blah"
 
 
     /*
@@ -1139,7 +1136,7 @@ void SetupWizardImpl::doFinalIntegration()
 
 void SetupWizardImpl::makeDone()
 {
-    makeDone( !make.normalExit() || ( make.normalExit() && make.exitStatus() ) );
+    makeDone( !make.normalExit() || make.exitStatus() );
 }
 
 void SetupWizardImpl::makeDone( bool error )
@@ -1154,7 +1151,7 @@ void SetupWizardImpl::makeDone( bool error )
     } else if ( make.workingDirectory() == QEnvironment::getEnv( "QTDIR" ) ) {
 	QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake" );
 	QStringList args;
-	args << makeCmds[ globalInformation.sysId() ];
+	args << globalInformation.text(GlobalInformation::MakeTool);
 	args << "sub-examples";
 
 	make.setWorkingDirectory( optionsPageQsa->installPath->text() );
@@ -1185,21 +1182,20 @@ void SetupWizardImpl::makeDone( bool error )
 
 void SetupWizardImpl::configDone()
 {
-    QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake mingw32-make nmake make" );
     QStringList args;
 
     if( globalInformation.reconfig() && !configPage->rebuildInstallation->isChecked() )
 	showPage( finishPage );
 
 #if !defined(EVAL) && !defined(EDU) && !defined(NON_COMMERCIAL)
-    if( !configure.normalExit() || ( configure.normalExit() && configure.exitStatus() ) ) {
+    if( !configure.normalExit() || configure.exitStatus() ) {
 	logOutput( "The configure process failed.\n" );
 	emit wizardPageFailed( indexOf(currentPage()) );
 	buildPage->restartBuild->setText( "Restart configure" );
     } else
 #endif
     {
-	args << makeCmds[ globalInformation.sysId() ];
+	args << globalInformation.text(GlobalInformation::MakeTool);
 #if !defined(EVAL) && !defined(EDU) && !defined(NON_COMMERCIAL)
 	args << "sub-src";
 	args << "sub-plugins";
@@ -1238,6 +1234,7 @@ void SetupWizardImpl::configDone()
 	make.setArguments( args );
 
 	if( !make.start() ) {
+	    //### a bit too late here, and non-assistive error message
 	    logOutput( "Could not start make process.\n"
 		       "Make sure that your compiler tools are installed\n"
 		       "and registered correctly in your PATH environment." );
@@ -1252,21 +1249,21 @@ void SetupWizardImpl::configDone()
 void SetupWizardImpl::restartBuild()
 {
     if ( configure.isRunning() || 
-       (!configure.isRunning() && (!configure.normalExit() || (configure.normalExit() && configure.exitStatus()))) ) {
+       (!configure.isRunning() && (!configure.normalExit() || configure.exitStatus())) ) {
 	if ( configure.isRunning() ) {	// Stop configure
 	    configure.kill();
 	    buildPage->restartBuild->setText( "Restart configure" );
 	    logOutput( "\n*** Configure stopped by user...\n" );
 	    backButton()->setEnabled( TRUE );
 	} else {			// Restart configure
-	    wizardPageShowed( indexOf(currentPage()) );
+	    emit wizardPageShowed( indexOf(currentPage()) );
 	    backButton()->setEnabled( FALSE );
 	    cleanDone();
 	    buildPage->restartBuild->setText( "Stop configure" );
 	    logOutput( "\n*** Configure restarted by user...\n" );
 	}
     } else if ( make.isRunning() || 
-	      (!make.isRunning() && (!make.normalExit() || (make.normalExit() && make.exitStatus()))) ) {
+	      (!make.isRunning() && (!make.normalExit() || make.exitStatus())) ) {
 	if ( make.isRunning() ) {	// Stop compile
 	    make.kill();
 	    buildPage->restartBuild->setText( "Restart compile" );
@@ -1341,6 +1338,7 @@ void SetupWizardImpl::saveSet( QListView* list )
 
 void SetupWizardImpl::showPage( QWidget* newPage )
 {
+    // ### not allowing illegal options would be smarter...
     if ( currentPage() == configPage
 	 && newPage == progressPage
 	 && !verifyConfig() ) {
@@ -1395,22 +1393,6 @@ void SetupWizardImpl::showPageOptions()
 #if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
     optionsPage->installDocs->setEnabled( FALSE );
     optionsPage->skipBuild->setEnabled( FALSE );
-#  if defined(Q_OS_WIN32)
-    optionsPage->installExamples->setEnabled( TRUE );
-    optionsPage->installTutorials->setEnabled( TRUE );
-#    if defined(NON_COMMERCIAL)
-    optionsPage->installExtensions->hide();
-#    else
-    optionsPage->installExtensions->setChecked( TRUE );
-    optionsPage->installExtensions->setEnabled( TRUE );
-#    endif
-    optionsPage->installTools->setEnabled( FALSE );
-#  else
-    optionsPage->installExamples->setEnabled( FALSE );
-    optionsPage->installTutorials->setEnabled( FALSE );
-    optionsPage->installExtensions->setChecked( FALSE );
-    optionsPage->installExtensions->setEnabled( FALSE );
-#  endif
     if ( globalInformation.sysId()==GlobalInformation::Borland ) {
 	optionsPage->sysMsvcNet->setEnabled( FALSE );
 	optionsPage->sysMsvc->setEnabled( FALSE );
@@ -1422,6 +1404,22 @@ void SetupWizardImpl::showPageOptions()
 	optionsPage->sysBorland->setEnabled( FALSE );
 	optionsPage->sysOther->setEnabled( FALSE );
     }
+#  if defined(Q_OS_WIN32)
+    optionsPage->installExamples->setEnabled( TRUE );
+    optionsPage->installTutorials->setEnabled( TRUE );
+    optionsPage->installTools->setEnabled( FALSE );
+#    if defined(NON_COMMERCIAL)
+    optionsPage->installExtensions->hide();
+#    else
+    optionsPage->installExtensions->setChecked( TRUE );
+    optionsPage->installExtensions->setEnabled( TRUE );
+#    endif
+#  else
+    optionsPage->installExamples->setEnabled( FALSE );
+    optionsPage->installTutorials->setEnabled( FALSE );
+    optionsPage->installExtensions->setChecked( FALSE );
+    optionsPage->installExtensions->setEnabled( FALSE );
+#  endif
 #else
 #  if defined(Q_OS_WIN32)
     // No need to offer the option of skipping the build on 9x, it's skipped anyway
@@ -1433,39 +1431,9 @@ void SetupWizardImpl::showPageOptions()
 
 void SetupWizardImpl::showPageFolders()
 {
-    QStringList makeCmds = QStringList::split( ' ', "nmake.exe make.exe gmake.exe make nmake.exe mingw32-make.exe nmake.exe make.exe" );
-    QString makeCmd = makeCmds[ globalInformation.sysId() ];
-    if ( optionsPage->skipBuild->isChecked() && optionsPage->skipBuild->isEnabled() ) {
-	if( !findFile( makeCmd ) ) {
-	    QMessageBox::critical( this, "Environment problems",
-					 "The installation program can't find the make tool '" + makeCmd + "'.\n"
-					 "Make sure the path to it is present in the PATH environment\n"
-					 "variable and restart the installation.\n"
-					 "\n"
-					 "You can find the path to the tool using the 'Find' tool\n"
-					 "and add the location to the environment settings of your\n"
-					 "system. Please contact your local system administration if\n"
-					 "you have difficulties finding the files, or if you don't\n"
-					 "know how to modifiy the environment settings of your system." );
-	    qApp->quit();
-	}
-	if ( globalInformation.sysId() != GlobalInformation::Borland && !findFile( "string.h" ) ) {
-	    QMessageBox::critical( this, "Environment problems",
-				  "The file 'string.h' could not be located in any directory\n"
-				  "listed in the 'INCLUDE' environment variable.\n"
-				  "You might have to install the platform headers, or adjust\n"
-				  "the environment variables of your system, and restart the\n"
-				  "installation.\n\n"
-				  "Please contact your local system administration if you have\n"
-				  "difficulties finding the file, or if you don't know how to\n"
-				  "modify the environment settings on your system." );
-	    qApp->quit();
-	}
-    }
+    //### trigger test for compiler installation (in clickedSystem)
 
-    QStringList devSys = QStringList::split( ';',"Microsoft Visual Studio 6.0 path;Borland C++ Builder path;GNU C++ path;MAC X buildtool path;Microsoft Visual Studio .NET path;MinGW C++ path;Other compiler path" );
-
-    foldersPage->devSysLabel->setText( devSys[ globalInformation.sysId() ] );
+    foldersPage->devSysLabel->setText(globalInformation.text(GlobalInformation::IDE) + " path");
     foldersPage->devSysPath->setEnabled( (globalInformation.sysId() == GlobalInformation::MSVC) || (globalInformation.sysId() == GlobalInformation::MSVCNET) );
     foldersPage->devSysPathButton->setEnabled( (globalInformation.sysId() == GlobalInformation::MSVC) || (globalInformation.sysId() == GlobalInformation::MSVCNET) );
 #if defined(Q_OS_WIN32)
@@ -1627,6 +1595,7 @@ void SetupWizardImpl::showPageProgress()
 	    QDir windowsFolderDir( shell.windowsFolderName );
 #  if !defined(EVAL) && !defined(EDU) && !defined(NON_COMMERCIAL)
 	    {
+		//#### there is a static copyFile function...
 		// move $QTDIR/install.exe to $QTDIR/bin/install.exe
 		// This is done because install.exe is also used to reconfigure Qt
 		// (and this expects install.exe in bin). We can't move install.exe
@@ -1695,6 +1664,7 @@ void SetupWizardImpl::showPageProgress()
 			);
 	    }
 	    for ( it=qtDlls.begin(); it!=qtDlls.end(); ++it ) {
+		//### add serial number etc. to log
 		logFiles( tr("Patching the Qt library %1.").arg(*it) );
 		int ret = trDoIt( lib.absFilePath(*it),
 #    if defined(EVAL)
@@ -1794,21 +1764,21 @@ void SetupWizardImpl::showPageProgress()
     }
     if ( copySuccessful ) {
 #if defined(Q_OS_WIN32)
-    /*
-    ** Then record the installation in the registry, and set up the uninstallation
-    */
-    QStringList uninstaller;
-    uninstaller << ( QString("\"") + shell.windowsFolderName + "\\quninstall.exe" + QString("\"") );
-    uninstaller << optionsPage->installPath->text();
+	/*
+	** Then record the installation in the registry, and set up the uninstallation
+	*/
+	QStringList uninstaller;
+	uninstaller << ( QString("\"") + shell.windowsFolderName + "\\quninstall.exe" + QString("\"") );
+	uninstaller << optionsPage->installPath->text();
 
-    if( foldersPage->folderGroups->currentItem() == 0 )
-	uninstaller << ( QString("\"") + shell.commonProgramsFolderName + QString("\\") + foldersPage->folderPath->text() + QString("\"") );
-    else
-	uninstaller << ( QString("\"") + shell.localProgramsFolderName + QString("\\") + foldersPage->folderPath->text() + QString("\"") );
+	if( foldersPage->folderGroups->currentItem() == 0 )
+	    uninstaller << ( QString("\"") + shell.commonProgramsFolderName + QString("\\") + foldersPage->folderPath->text() + QString("\"") );
+	else
+	    uninstaller << ( QString("\"") + shell.localProgramsFolderName + QString("\\") + foldersPage->folderPath->text() + QString("\"") );
 
-    uninstaller << ( QString("\"") + globalInformation.qtVersionStr() + QString("\"") );
+	uninstaller << ( QString("\"") + globalInformation.qtVersionStr() + QString("\"") );
 
-    QEnvironment::recordUninstall( QString( "Qt " ) + globalInformation.qtVersionStr(), uninstaller.join( " " ) );
+	QEnvironment::recordUninstall( QString( "Qt " ) + globalInformation.qtVersionStr(), uninstaller.join( " " ) );
 #endif
 	autoContTimer.start( 1000 );
     }
@@ -1881,232 +1851,6 @@ void SetupWizardImpl::showPageFinish()
 		 "http://www.trolltech.com/products/qt/evaluate.html";
 #endif
     finishPage->finishText->setText( finishMsg );
-}
-
-void SetupWizardImpl::setStaticEnabled( bool se )
-{
-    bool enterprise = licenseInfo[ "PRODUCTS" ] == "qt-enterprise";
-    if ( se ) {
-	if ( accOn->isOn() ) {
-	    accOn->setOn( false );
-	    accOff->setOn( true );
-	}
-	if ( bigCodecsOff->isOn() ) {
-	    bigCodecsOn->setOn( true );
-	    bigCodecsOff->setOn( false );
-	}
-	if ( mngPlugin->isOn() ) {
-	    mngDirect->setOn( true );
-	    mngPlugin->setOn( false );
-	    mngOff->setOn( false );
-	}
-	if ( pngPlugin->isOn() ) {
-	    pngDirect->setOn( true );
-	    pngPlugin->setOn( false );
-	    pngOff->setOn( false );
-	}
-	if ( jpegPlugin->isOn() ) {
-	    jpegDirect->setOn( true );
-	    jpegPlugin->setOn( false );
-	    jpegOff->setOn( false );
-	}
-	if ( sgiPlugin->isOn() ) {
-	    sgiPlugin->setOn( false );
-	    sgiDirect->setOn( true );
-	}
-	if ( cdePlugin->isOn() ) {
-	    cdePlugin->setOn( false );
-	    cdeDirect->setOn( true );
-	}
-	if ( motifplusPlugin->isOn() ) {
-	    motifplusPlugin->setOn( false );
-	    motifplusDirect->setOn( true );
-	}
-	if ( motifPlugin->isOn() ) {
-	    motifPlugin->setOn( false );
-	    motifDirect->setOn( true );
-	}
-	if ( platinumPlugin->isOn() ) {
-	    platinumPlugin->setOn( false );
-	    platinumDirect->setOn( true );
-	}
-	if ( xpPlugin->isOn() ) {
-	    xpPlugin->setOn( false );
-	    xpOff->setOn( true );
-	}
-	if ( enterprise ) {
-	    if ( mysqlPlugin->isOn() ) {
-		mysqlPlugin->setOn( false );
-		mysqlDirect->setOn( true );
-	    }
-	    if ( ociPlugin->isOn() ) {
-		ociPlugin->setOn( false );
-		ociDirect->setOn( true );
-	    }
-	    if ( odbcPlugin->isOn() ) {
-		odbcPlugin->setOn( false );
-		odbcDirect->setOn( true );
-	    }
-	    if ( psqlPlugin->isOn() ) {
-		psqlPlugin->setOn( false );
-		psqlDirect->setOn( true );
-	    }
-	    if ( tdsPlugin->isOn() ) {
-		tdsPlugin->setOn( false );
-		tdsDirect->setOn( true );
-	    }
-	    if ( db2Plugin->isOn() ) {
-		db2Plugin->setOn( false );
-		db2Direct->setOn( true );
-	    }
-	}
-	accOn->setEnabled( false );
-	bigCodecsOff->setEnabled( false );
-	mngPlugin->setEnabled( false );
-	pngPlugin->setEnabled( false );
-	jpegPlugin->setEnabled( false );
-	sgiPlugin->setEnabled( false );
-	cdePlugin->setEnabled( false );
-	motifPlugin->setEnabled( false );
-	motifplusPlugin->setEnabled( false );
-	motifPlugin->setEnabled( false );
-	platinumPlugin->setEnabled( false );
-	xpPlugin->setEnabled( false );
-	if ( enterprise ) {
-	    mysqlPlugin->setEnabled( false );
-	    ociPlugin->setEnabled( false );
-	    odbcPlugin->setEnabled( false );
-	    psqlPlugin->setEnabled( false );
-	    tdsPlugin->setEnabled( false );
-	    db2Plugin->setEnabled( false );
-	}
-    } else {
-	accOn->setEnabled( true );
-	bigCodecsOff->setEnabled( true );
-	mngPlugin->setEnabled( true );
-	pngPlugin->setEnabled( true );
-	jpegPlugin->setEnabled( true );
-	sgiPlugin->setEnabled( true );
-	cdePlugin->setEnabled( true );
-	motifplusPlugin->setEnabled( true );
-	motifPlugin->setEnabled( true );
-	platinumPlugin->setEnabled( true );
-	xpPlugin->setEnabled( true );
-	if ( enterprise ) {
-	    mysqlPlugin->setEnabled( true );
-	    ociPlugin->setEnabled( true );
-	    odbcPlugin->setEnabled( true );
-	    psqlPlugin->setEnabled( true );
-	    tdsPlugin->setEnabled( true );
-	    db2Plugin->setEnabled( true );
-	}
-    }
-    setJpegDirect( mngDirect->isOn() );
-}
-
-void SetupWizardImpl::setJpegDirect( bool jd )
-{
-    // direct MNG support requires also direct JPEG support
-    if ( jd ) {
-	jpegOff->setOn( FALSE );
-	jpegPlugin->setOn( FALSE );
-	jpegDirect->setOn( TRUE );
-
-	jpegOff->setEnabled( FALSE );
-	jpegPlugin->setEnabled( FALSE );
-	jpegDirect->setEnabled( TRUE );
-    } else {
-	jpegOff->setEnabled( TRUE );
-	if ( !staticItem->isOn() )
-	    jpegPlugin->setEnabled( TRUE );
-	jpegDirect->setEnabled( TRUE );
-    }
-}
-
-void SetupWizardImpl::optionClicked( QListViewItem *i )
-{
-    if ( !i || i->rtti() != QCheckListItem::RTTI )
-	return;
-
-    QCheckListItem *item = (QCheckListItem*)i;
-    if ( item->type() != QCheckListItem::RadioButton )
-	return;
-
-    if ( item->text(0) == "Static" && item->isOn() ) {
-	setStaticEnabled( TRUE );
-	if ( QMessageBox::information( this, "Are you sure?", "It will not be possible to build components "
-				  "or plugins if you select the static build of the Qt library.\n"
-				  "New features, e.g souce code editing in Qt Designer, will not "
-				  "be available, "
-				  "\nand you or users of your software might not be able "
-				  "to use all or new features, e.g. new styles.\n\n"
-				  "Are you sure you want to build a static Qt library?",
-				  "OK", "Revert" ) ) {
-		item->setOn( FALSE );
-		if ( ( item = (QCheckListItem*)configPage->configList->findItem( "Shared", 0, 0 ) ) ) {
-		item->setOn( TRUE );
-		configPage->configList->setCurrentItem( item );
-		setStaticEnabled( FALSE );
-	    }
-	}
-	return;
-    } else if ( item->text( 0 ) == "Shared" && item->isOn() ) {
-	setStaticEnabled( FALSE );
-	if( ( (QCheckListItem*)configPage->configList->findItem( "Non-threaded", 0, 0 ) )->isOn() ) {
-	    if( QMessageBox::information( this, "Are you sure?", "Single-threaded, shared configurations "
-								 "may cause instabilities because of runtime "
-								 "library conflicts.", "OK", "Revert" ) ) {
-		item->setOn( FALSE );
-		if( ( item = (QCheckListItem*)configPage->configList->findItem( "Static", 0, 0 ) ) ) {
-		    item->setOn( TRUE );
-		    configPage->configList->setCurrentItem( item );
-		    setStaticEnabled( TRUE );
-		}
-	    }
-	}
-    }
-    else if( item->text( 0 ) == "Non-threaded" && item->isOn() ) {
-	if( ( (QCheckListItem*)configPage->configList->findItem( "Shared", 0, 0 ) )->isOn() ) {
-	    if( QMessageBox::information( this, "Are you sure?", "Single-threaded, shared configurations "
-								 "may cause instabilities because of runtime "
-								 "library conflicts.", "OK", "Revert" ) ) {
-		item->setOn( FALSE );
-		if( (item = (QCheckListItem*)configPage->configList->findItem( "Threaded", 0, 0 ) ) ) {
-		    item->setOn( TRUE );
-		    configPage->configList->setCurrentItem( item );
-		}
-	    }
-	}
-    } else if ( item==mngDirect || item==mngPlugin || item==mngOff ) {
-	setJpegDirect( mngDirect->isOn() );
-    } else if ( item==db2Direct && odbcDirect->isOn() ) {
-	if ( odbcPlugin->isEnabled() )
-	    odbcPlugin->setOn(TRUE);
-	else 
-	    odbcOff->setOn(TRUE);
-    } else if ( item==odbcDirect && db2Direct->isOn() ) {
-	if ( db2Plugin->isEnabled() )
-	    db2Plugin->setOn(TRUE);
-	else 
-	    db2Off->setOn(TRUE);
-    }
-}
-
-void SetupWizardImpl::configPageChanged()
-{
-    if ( configPage->configList->isVisible() ) {
-	configPage->configList->setSelected( configPage->configList->currentItem(), true );
-	optionSelected( configPage->configList->currentItem() );
-    } else if ( configPage->advancedList->isVisible() ) {
-	configPage->advancedList->setSelected( configPage->advancedList->currentItem(), true );
-	optionSelected( configPage->advancedList->currentItem() );
-    }
-#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
-    else if ( configPage->installList->isVisible() ) {
-	configPage->installList->setSelected( configPage->installList->currentItem(), true );
-	optionSelected( configPage->installList->currentItem() );
-    }
-#endif
 }
 
 void SetupWizardImpl::licenseChanged()
@@ -2234,17 +1978,15 @@ void SetupWizardImpl::logFiles( const QString& entry, bool close )
 	if( !fileLog.open( IO_WriteOnly | IO_Translate ) )
 	    return;
     }
-    QTextStream outstream( &fileLog );
 
-    // ######### At the moment, there is a bug in QTextEdit. The log output
-    // will cause the application to grow that much that we can't install the
-    // evaluation packages on lusa -- for now, disable the output that we get
-    // the packages out.
-#if 0
+#if 1
     progressPage->filesDisplay->append( entry + "\n" );
 #else
     progressPage->filesDisplay->setText( "Installing files...\n" + entry + "\n" );
 #endif
+
+    static QTextStream outstream;
+    outstream.setDevice( &fileLog );
     outstream << ( entry + "\n" );
 
     if( close )
@@ -2253,7 +1995,6 @@ void SetupWizardImpl::logFiles( const QString& entry, bool close )
 
 void SetupWizardImpl::logOutput( const QString& entry, bool close )
 {
-    static QTextStream outstream;
     if( !outputLog.isOpen() ) {
 	QDir installDir;
 	if ( optionsPage )
@@ -2264,9 +2005,11 @@ void SetupWizardImpl::logOutput( const QString& entry, bool close )
 	if( !outputLog.open( IO_WriteOnly | IO_Translate ) )
 	    return;
     }
-    outstream.setDevice( &outputLog );
 
     buildPage->outputDisplay->append( entry + "\n" );
+
+    static QTextStream outstream;
+    outstream.setDevice( &outputLog );
     outstream << ( entry + "\n" );
 
     if( close )
@@ -2286,11 +2029,11 @@ void SetupWizardImpl::archiveMsg( const QString& msg )
 #ifdef Q_WS_WIN
 static HANDLE createFile( const QString &entryName, DWORD attr1, DWORD attr2 )
 {
-    if ( qWinVersion() & Qt::WV_NT_based ) {
-	return ::CreateFileW( entryName.ucs2(), attr1, attr2, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
-    } else {
+    QT_WA({
+    	return ::CreateFileW( entryName.ucs2(), attr1, attr2, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+    }, {
 	return ::CreateFileA( entryName.local8Bit(), attr1, attr2, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
-    }
+    })
 }
 #endif
 
@@ -2592,6 +2335,7 @@ void SetupWizardImpl::accept()
 
 void SetupWizardImpl::clickedSkipBuild()
 {
+    //### use setDisabled(TRUE)
     bool enable = !optionsPage->skipBuild->isChecked();
     optionsPage->installTools->setEnabled( enable );
     optionsPage->installExtensions->setEnabled( enable );

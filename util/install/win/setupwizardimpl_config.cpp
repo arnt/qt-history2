@@ -23,6 +23,232 @@
 #include <qvalidator.h>
 #include <qdatetime.h>
 
+void SetupWizardImpl::setStaticEnabled( bool se )
+{
+    bool enterprise = licenseInfo[ "PRODUCTS" ] == "qt-enterprise";
+    if ( se ) {
+	if ( accOn->isOn() ) {
+	    accOn->setOn( false );
+	    accOff->setOn( true );
+	}
+	if ( bigCodecsOff->isOn() ) {
+	    bigCodecsOn->setOn( true );
+	    bigCodecsOff->setOn( false );
+	}
+	if ( mngPlugin->isOn() ) {
+	    mngDirect->setOn( true );
+	    mngPlugin->setOn( false );
+	    mngOff->setOn( false );
+	}
+	if ( pngPlugin->isOn() ) {
+	    pngDirect->setOn( true );
+	    pngPlugin->setOn( false );
+	    pngOff->setOn( false );
+	}
+	if ( jpegPlugin->isOn() ) {
+	    jpegDirect->setOn( true );
+	    jpegPlugin->setOn( false );
+	    jpegOff->setOn( false );
+	}
+	if ( sgiPlugin->isOn() ) {
+	    sgiPlugin->setOn( false );
+	    sgiDirect->setOn( true );
+	}
+	if ( cdePlugin->isOn() ) {
+	    cdePlugin->setOn( false );
+	    cdeDirect->setOn( true );
+	}
+	if ( motifplusPlugin->isOn() ) {
+	    motifplusPlugin->setOn( false );
+	    motifplusDirect->setOn( true );
+	}
+	if ( motifPlugin->isOn() ) {
+	    motifPlugin->setOn( false );
+	    motifDirect->setOn( true );
+	}
+	if ( platinumPlugin->isOn() ) {
+	    platinumPlugin->setOn( false );
+	    platinumDirect->setOn( true );
+	}
+	if ( xpPlugin->isOn() ) {
+	    xpPlugin->setOn( false );
+	    xpOff->setOn( true );
+	}
+	if ( enterprise ) {
+	    if ( mysqlPlugin->isOn() ) {
+		mysqlPlugin->setOn( false );
+		mysqlDirect->setOn( true );
+	    }
+	    if ( ociPlugin->isOn() ) {
+		ociPlugin->setOn( false );
+		ociDirect->setOn( true );
+	    }
+	    if ( odbcPlugin->isOn() ) {
+		odbcPlugin->setOn( false );
+		odbcDirect->setOn( true );
+	    }
+	    if ( psqlPlugin->isOn() ) {
+		psqlPlugin->setOn( false );
+		psqlDirect->setOn( true );
+	    }
+	    if ( tdsPlugin->isOn() ) {
+		tdsPlugin->setOn( false );
+		tdsDirect->setOn( true );
+	    }
+	    if ( db2Plugin->isOn() ) {
+		db2Plugin->setOn( false );
+		db2Direct->setOn( true );
+	    }
+	}
+	accOn->setEnabled( false );
+	bigCodecsOff->setEnabled( false );
+	mngPlugin->setEnabled( false );
+	pngPlugin->setEnabled( false );
+	jpegPlugin->setEnabled( false );
+	sgiPlugin->setEnabled( false );
+	cdePlugin->setEnabled( false );
+	motifPlugin->setEnabled( false );
+	motifplusPlugin->setEnabled( false );
+	motifPlugin->setEnabled( false );
+	platinumPlugin->setEnabled( false );
+	xpPlugin->setEnabled( false );
+	if ( enterprise ) {
+	    mysqlPlugin->setEnabled( false );
+	    ociPlugin->setEnabled( false );
+	    odbcPlugin->setEnabled( false );
+	    psqlPlugin->setEnabled( false );
+	    tdsPlugin->setEnabled( false );
+	    db2Plugin->setEnabled( false );
+	}
+    } else {
+	accOn->setEnabled( true );
+	bigCodecsOff->setEnabled( true );
+	mngPlugin->setEnabled( true );
+	pngPlugin->setEnabled( true );
+	jpegPlugin->setEnabled( true );
+	sgiPlugin->setEnabled( true );
+	cdePlugin->setEnabled( true );
+	motifplusPlugin->setEnabled( true );
+	motifPlugin->setEnabled( true );
+	platinumPlugin->setEnabled( true );
+	xpPlugin->setEnabled( true );
+	if ( enterprise ) {
+	    mysqlPlugin->setEnabled( true );
+	    ociPlugin->setEnabled( true );
+	    odbcPlugin->setEnabled( true );
+	    psqlPlugin->setEnabled( true );
+	    tdsPlugin->setEnabled( true );
+	    db2Plugin->setEnabled( true );
+	}
+    }
+    setJpegDirect( mngDirect->isOn() );
+}
+
+void SetupWizardImpl::setJpegDirect( bool jd )
+{
+    // direct MNG support requires also direct JPEG support
+    if ( jd ) {
+	jpegOff->setOn( FALSE );
+	jpegPlugin->setOn( FALSE );
+	jpegDirect->setOn( TRUE );
+
+	jpegOff->setEnabled( FALSE );
+	jpegPlugin->setEnabled( FALSE );
+	jpegDirect->setEnabled( TRUE );
+    } else {
+	jpegOff->setEnabled( TRUE );
+	if ( !staticItem->isOn() )
+	    jpegPlugin->setEnabled( TRUE );
+	jpegDirect->setEnabled( TRUE );
+    }
+}
+
+void SetupWizardImpl::optionClicked( QListViewItem *i )
+{
+    if ( !i || i->rtti() != QCheckListItem::RTTI )
+	return;
+
+    QCheckListItem *item = (QCheckListItem*)i;
+    if ( item->type() != QCheckListItem::RadioButton )
+	return;
+
+    if ( item->text(0) == "Static" && item->isOn() ) {
+	setStaticEnabled( TRUE );
+	if ( QMessageBox::information( this, "Are you sure?", "It will not be possible to build components "
+				  "or plugins if you select the static build of the Qt library.\n"
+				  "New features, e.g souce code editing in Qt Designer, will not "
+				  "be available, "
+				  "\nand you or users of your software might not be able "
+				  "to use all or new features, e.g. new styles.\n\n"
+				  "Are you sure you want to build a static Qt library?",
+				  "OK", "Revert" ) ) {
+		item->setOn( FALSE );
+		if ( ( item = (QCheckListItem*)configPage->configList->findItem( "Shared", 0, 0 ) ) ) {
+		item->setOn( TRUE );
+		configPage->configList->setCurrentItem( item );
+		setStaticEnabled( FALSE );
+	    }
+	}
+	return;
+    } else if ( item->text( 0 ) == "Shared" && item->isOn() ) {
+	setStaticEnabled( FALSE );
+	if( ( (QCheckListItem*)configPage->configList->findItem( "Non-threaded", 0, 0 ) )->isOn() ) {
+	    if( QMessageBox::information( this, "Are you sure?", "Single-threaded, shared configurations "
+								 "may cause instabilities because of runtime "
+								 "library conflicts.", "OK", "Revert" ) ) {
+		item->setOn( FALSE );
+		if( ( item = (QCheckListItem*)configPage->configList->findItem( "Static", 0, 0 ) ) ) {
+		    item->setOn( TRUE );
+		    configPage->configList->setCurrentItem( item );
+		    setStaticEnabled( TRUE );
+		}
+	    }
+	}
+    }
+    else if( item->text( 0 ) == "Non-threaded" && item->isOn() ) {
+	if( ( (QCheckListItem*)configPage->configList->findItem( "Shared", 0, 0 ) )->isOn() ) {
+	    if( QMessageBox::information( this, "Are you sure?", "Single-threaded, shared configurations "
+								 "may cause instabilities because of runtime "
+								 "library conflicts.", "OK", "Revert" ) ) {
+		item->setOn( FALSE );
+		if( (item = (QCheckListItem*)configPage->configList->findItem( "Threaded", 0, 0 ) ) ) {
+		    item->setOn( TRUE );
+		    configPage->configList->setCurrentItem( item );
+		}
+	    }
+	}
+    } else if ( item==mngDirect || item==mngPlugin || item==mngOff ) {
+	setJpegDirect( mngDirect->isOn() );
+    } else if ( item==db2Direct && odbcDirect->isOn() ) {
+	if ( odbcPlugin->isEnabled() )
+	    odbcPlugin->setOn(TRUE);
+	else 
+	    odbcOff->setOn(TRUE);
+    } else if ( item==odbcDirect && db2Direct->isOn() ) {
+	if ( db2Plugin->isEnabled() )
+	    db2Plugin->setOn(TRUE);
+	else 
+	    db2Off->setOn(TRUE);
+    }
+}
+
+void SetupWizardImpl::configPageChanged()
+{
+    if ( configPage->configList->isVisible() ) {
+	configPage->configList->setSelected( configPage->configList->currentItem(), true );
+	optionSelected( configPage->configList->currentItem() );
+    } else if ( configPage->advancedList->isVisible() ) {
+	configPage->advancedList->setSelected( configPage->advancedList->currentItem(), true );
+	optionSelected( configPage->advancedList->currentItem() );
+    }
+#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
+    else if ( configPage->installList->isVisible() ) {
+	configPage->installList->setSelected( configPage->installList->currentItem(), true );
+	optionSelected( configPage->installList->currentItem() );
+    }
+#endif
+}
+
 void SetupWizardImpl::cleanDone()
 {
 #if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
@@ -51,11 +277,10 @@ void SetupWizardImpl::cleanDone()
 	logOutput( QString("Warning: can't open the .qmake.cache file for reading: %1\n").arg( qmakeCache.errorString() ) );
     }
 
-    QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++ macx-g++ win32-msvc.net win32-g++ win32-watcom" );
     QStringList args;
     args << ( qtdir + "\\bin\\configure.exe" );
     args << "-spec";
-    args << mkSpecs[ globalInformation.sysId() ];
+    args << globalInformation.text(GlobalInformation::Mkspec);
     if ( globalInformation.sysId() == GlobalInformation::MSVC )
 	args << "-dsp";
     else if ( globalInformation.sysId() == GlobalInformation::MSVCNET )
@@ -431,7 +656,6 @@ void SetupWizardImpl::cleanDone()
 
 void SetupWizardImpl::prepareEnvironment()
 {
-    QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++ macx-g++ win32-msvc.net win32-g++ win32-watcom" );
     QByteArray pathBuffer;
     QStringList path;
     QString qtDir;
@@ -498,7 +722,7 @@ void SetupWizardImpl::prepareEnvironment()
 
     QEnvironment::putEnv( "QTDIR", qtDir, envSpec );
     if ( globalInformation.sysId() != GlobalInformation::Other )
-	QEnvironment::putEnv( "QMAKESPEC", mkSpecs[ globalInformation.sysId() ], envSpec );
+	QEnvironment::putEnv( "QMAKESPEC", globalInformation.text(GlobalInformation::Mkspec), envSpec );
     else
 	QEnvironment::putEnv( "QMAKESPEC", optionsPage->sysOtherCombo->currentText(), envSpec );
 #if defined(Q_OS_WIN32)

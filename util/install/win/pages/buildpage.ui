@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>462</width>
-            <height>273</height>
+            <height>276</height>
         </rect>
     </property>
     <property name="caption">
@@ -43,13 +43,19 @@
                         </font>
                     </property>
                     <property name="vScrollBarMode">
-                        <enum>Auto</enum>
+                        <enum>AlwaysOn</enum>
                     </property>
                     <property name="hScrollBarMode">
                         <enum>AlwaysOn</enum>
                     </property>
+                    <property name="textFormat">
+                        <enum>LogText</enum>
+                    </property>
                     <property name="wordWrap">
                         <enum>NoWrap</enum>
+                    </property>
+                    <property name="autoFormatting">
+                        <set>AutoNone</set>
                     </property>
                 </widget>
                 <widget class="QLayoutWidget">
@@ -63,9 +69,6 @@
                         <widget class="QProgressBar">
                             <property name="name">
                                 <cstring>compileProgress</cstring>
-                            </property>
-                            <property name="progress">
-                                <number>50</number>
                             </property>
                             <property name="percentageVisible">
                                 <bool>false</bool>

@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
 <class>ProgressPage</class>
 <widget class="QWidget">
     <property name="name">
@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>440</width>
-            <height>283</height>
+            <height>286</height>
         </rect>
     </property>
     <property name="caption">
@@ -27,21 +27,27 @@
         </property>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>Layout39</cstring>
+                <cstring>layout2</cstring>
             </property>
             <vbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <property name="margin">
-                    <number>0</number>
-                </property>
-                <property name="spacing">
-                    <number>6</number>
-                </property>
-                <widget class="QMultiLineEdit">
+                <widget class="QTextEdit">
                     <property name="name">
                         <cstring>filesDisplay</cstring>
+                    </property>
+                    <property name="vScrollBarMode">
+                        <enum>AlwaysOn</enum>
+                    </property>
+                    <property name="hScrollBarMode">
+                        <enum>AlwaysOff</enum>
+                    </property>
+                    <property name="textFormat">
+                        <enum>LogText</enum>
+                    </property>
+                    <property name="linkUnderline">
+                        <bool>false</bool>
                     </property>
                     <property name="wordWrap">
                         <enum>NoWrap</enum>
@@ -49,11 +55,8 @@
                     <property name="undoDepth">
                         <number>0</number>
                     </property>
-                    <property name="readOnly">
-                        <bool>true</bool>
-                    </property>
-                    <property name="undoRedoEnabled">
-                        <bool>false</bool>
+                    <property name="autoFormatting">
+                        <set>AutoNone</set>
                     </property>
                 </widget>
                 <widget class="QProgressBar">

@@ -17,7 +17,7 @@ class SetupWizardImpl : public QWizard
 {
     Q_OBJECT
 public:
-    SetupWizardImpl( QWidget* pParent = NULL, const char* pName = NULL, bool modal = FALSE, WFlags f = 0 );
+    SetupWizardImpl( QWidget* parent = 0, const char* name = NULL, bool modal = FALSE, WFlags f = 0 );
 
     void showPage( QWidget* );
     void stopProcesses();
@@ -117,8 +117,7 @@ private:
     QString currentOLine;
     QString currentELine;
 
-    void updateOutputDisplay( QProcess* proc );
-    void updateErrorDisplay( QProcess* proc );
+    void updateDisplay(const QString &input, QString &output);
 #if defined(Q_OS_WIN32)
     void installIcons( const QString& iconFolder, const QString& dirName, bool common );
 #endif

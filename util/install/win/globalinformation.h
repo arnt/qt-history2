@@ -25,11 +25,20 @@ public:
 	MSVCNET = 4,
 	MinGW   = 5,
 	Watcom  = 6,
-	Other   = 7
+	Intel	= 7,
+	Other   = 8
 
     };
     void setSysId( SysId );
     SysId sysId() const;
+
+    enum Text {
+	MakeTool,
+	IDE,
+	Mkspec
+    };
+
+    QString text(Text t) const;
 
 private:
     bool _reconfig;

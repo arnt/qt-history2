@@ -32,6 +32,8 @@ int main( int argc, char** argv )
 		globalInformation.setSysId( GlobalInformation::MinGW );
 	    } else if ( qmakespec == "win32-watcom" ) {
 		globalInformation.setSysId( GlobalInformation::Watcom );
+	    } else if ( qmakespec == "win32-icc" ) {
+		globalInformation.setSysId( GlobalInformation::Intel );
 	    } else {
 		globalInformation.setSysId( GlobalInformation::Other );
 	    }
@@ -53,15 +55,15 @@ int main( int argc, char** argv )
 	}
     }
 
-    if( wizard = new SetupWizardImpl( NULL, NULL, false, Qt::WStyle_NormalBorder | Qt::WStyle_Customize | Qt::WStyle_MinMax | Qt::WStyle_SysMenu | Qt::WStyle_Title ) ) {
-	wizard->show();
+    wizard = new SetupWizardImpl( 0, 0, false, Qt::WStyle_NormalBorder | Qt::WStyle_Customize | Qt::WStyle_MinMax | Qt::WStyle_SysMenu | Qt::WStyle_Title );
+    wizard->show();
 
-	app.setMainWidget( wizard );
+    app.setMainWidget( wizard );
+    res = app.exec();
 
-	res = app.exec();
+    wizard->stopProcesses();
 
-	wizard->stopProcesses();
-    }
+    //### memory leak
 
     return res;
 }
