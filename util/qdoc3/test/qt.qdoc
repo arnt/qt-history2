@@ -4,7 +4,9 @@ project			= Qt
 language		= Cpp
 headerdirs		= $QTDIR/src
 sourcedirs              = $QTDIR/src \
-                          $QTDIR/doc
+                          $QTDIR/doc \
+                          $QTDIR/extensions/activeqt/doc \
+                          $QTDIR/extensions/motif/doc
 sources.fileextensions	= "*.cpp *.doc"
 exampledirs		= $QTDIR/doc/snippets \
 			  $QTDIR/examples/advanced \

@@ -32,7 +32,6 @@ macro.i61                       = "\\i{6,1}"
 macro.i71                       = "\\i{7,1}"
 macro.i81                       = "\\i{8,1}"
 macro.i91                       = "\\i{9,1}"
-macro.compat                    = "\\internal"
 
 spurious			= "Missing comma in .*" \
 				  "Missing pattern .*"
