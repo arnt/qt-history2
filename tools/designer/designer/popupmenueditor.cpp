@@ -84,8 +84,7 @@ PopupMenuEditorItem::PopupMenuEditorItem( PopupMenuEditor * menu, QObject * pare
       s( 0 ),
       m( menu ),
       separator( FALSE ),
-      removable( FALSE ),
-      dirty( TRUE )
+      removable( FALSE )
 {
     init();
     a = new QAction( this );
@@ -100,8 +99,7 @@ PopupMenuEditorItem::PopupMenuEditorItem( QAction * action, PopupMenuEditor * me
       s( 0 ),
       m( menu ),
       separator( FALSE ),
-      removable( TRUE ),
-      dirty( TRUE )
+      removable( TRUE )
 {
     init();
     if ( /*a->name() == "qt_separator_action" ||*/ a->inherits( "QSeparatorAction" ) )
@@ -117,8 +115,7 @@ PopupMenuEditorItem::PopupMenuEditorItem( PopupMenuEditorItem * item, PopupMenuE
       s( 0 ),
       m( menu ),
       separator( item->separator ),
-      removable( item->removable ),
-      dirty( TRUE )
+      removable( item->removable )
 {
     init();
     if ( ::qt_cast<QActionGroup*>(a) )
@@ -248,8 +245,7 @@ PopupMenuEditor::PopupMenuEditor( FormWindow * fw, QWidget * parent, const char 
       arrowWidth( 30 ),
       borderSize( 2 ),
       currentField( 1 ),
-      currentIndex( 0 ),
-      drawAll( 0 )
+      currentIndex( 0 )
 {
     init();
 }
@@ -265,8 +261,7 @@ PopupMenuEditor::PopupMenuEditor( FormWindow * fw, PopupMenuEditor * menu,
       arrowWidth( menu->arrowWidth ),
       borderSize( menu->borderSize ),
       currentField( menu->currentField ),
-      currentIndex( menu->currentIndex ),
-      drawAll( 0 )
+      currentIndex( menu->currentIndex )
 {
     init();
     PopupMenuEditorItem * i;
@@ -320,11 +315,8 @@ void PopupMenuEditor::insert( PopupMenuEditorItem * item, int index )
     item->m = this;
     item->s->parentMenu = this;
     resizeToContents();
-    if ( isVisible() && parentMenu ) {
-	if ( parentMenu->inherits( "PopupMenuEditor" ) )
-	     ((PopupMenuEditor*)parentMenu)->currentItem()->setDirty( TRUE );
+    if ( isVisible() && parentMenu )
 	parentMenu->update(); // draw arrow in parent menu
-    }
     emit inserted( item->action() );
 }
 
@@ -400,8 +392,6 @@ void PopupMenuEditor::exchange( int a, int b )
 	return; // do nothing
     itemList.replace( b, ia );
     itemList.replace( a, ib );
-    ia->setDirty( TRUE );
-    ib->setDirty( TRUE );
 }
 
 void PopupMenuEditor::cut( int index )
@@ -560,9 +550,7 @@ void PopupMenuEditor::resizeToContents()
     dropLine->resize( s.width(), 2 );
     s.rwidth() += borderSize * 2;
     s.rheight() += borderSize * 2;
-    drawAll = 3;
     resize( s );
-    // FIXME: the multilevel drawAll is a hack to keep the drawAll flag for two paint events.
 }
 
 void PopupMenuEditor::showSubMenu()
@@ -625,13 +613,9 @@ void PopupMenuEditor::removeItem( int index )
 									       idx );
 	formWnd->commandHistory()->addCommand( cmd );
 	cmd->execute();
-	if ( itemList.count() == 0 &&  parentMenu ) {
-	    if ( parentMenu->inherits( "PopupMenuEditor" ) )
-	     ((PopupMenuEditor*)parentMenu)->currentItem()->setDirty( TRUE );
+	if ( itemList.count() == 0 && parentMenu )
 	    parentMenu->update();
-	}
 	resizeToContents();
-	drawAll++; // one more draw event
     }
 }
 
@@ -722,26 +706,20 @@ void PopupMenuEditor::paintEvent( QPaintEvent * )
 
 void PopupMenuEditor::mousePressEvent( QMouseEvent * e )
 {
-    currentItem()->setDirty( TRUE );
     mousePressPos = e->pos();
     setFocusAt( mousePressPos );
-    currentItem()->setDirty( TRUE );
     e->accept();
     update();
 }
 
 void PopupMenuEditor::mouseDoubleClickEvent( QMouseEvent * )
 {
-    currentItem()->setDirty( TRUE );
     setFocusAt( mousePressPos );
-    currentItem()->setDirty( TRUE );
-
     if ( currentItem() == &addSeparator ) {
 	PopupMenuEditorItem * i = createItem( new QSeparatorAction( 0 ) );
 	i->setSeparator( TRUE );
 	return;
     }
-
     if ( currentField == 0 ) {
 	choosePixmap();
 	resizeToContents();
@@ -842,7 +820,6 @@ void PopupMenuEditor::dropEvent( QDropEvent * e )
 
     draggedItem = 0;
     PopupMenuEditorItem * i = 0;
-    setFocusAt( e->pos() );
 
     if ( e->provides( "qt/popupmenueditoritemptr" ) ) {
 	PopupMenuEditorItemPtrDrag::decode( e, &i );
@@ -981,9 +958,9 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 
 void PopupMenuEditor::focusInEvent( QFocusEvent * )
 {
-    drawAll = 1;
     showSubMenu();
     update();
+    parentMenu->update();
 }
 
 void PopupMenuEditor::focusOutEvent( QFocusEvent * )
@@ -1009,7 +986,6 @@ void PopupMenuEditor::drawItem( QPainter * p, PopupMenuEditorItem * i,
     int h = r.height();
 
     p->fillRect( r, colorGroup().brush( QColorGroup::Background ) );
-    i->setDirty( FALSE );
 
     if ( i->isSeparator() ) {
 	style().drawPrimitive( QStyle::PE_Separator, p,
@@ -1069,7 +1045,7 @@ void PopupMenuEditor::drawItems( QPainter * p )
 {
     int flags = 0;
     int idx = 0;
-    bool dragging = dropLine->isVisible();
+    
     QColorGroup enabled = colorGroup();
     QColorGroup disabled = palette().disabled();
     QRect focus;
@@ -1081,16 +1057,14 @@ void PopupMenuEditor::drawItems( QPainter * p )
 	    rect.setHeight( itemHeight( i ) );
 	    if ( idx == currentIndex )
 		focus = rect;
-	    if ( drawAll || i->isDirty() || dragging ) {
-		if ( i->action()->isEnabled() ) {
-		    flags = QStyle::Style_Enabled;
-		    p->setPen( enabled.buttonText() );
-		} else {
-		    flags = QStyle::Style_Default;
-		    p->setPen( disabled.buttonText() );
-		}
-		drawItem( p, i, rect, flags );
+	    if ( i->action()->isEnabled() ) {
+		flags = QStyle::Style_Enabled;
+		p->setPen( enabled.buttonText() );
+	    } else {
+		flags = QStyle::Style_Default;
+		p->setPen( disabled.buttonText() );
 	    }
+	    drawItem( p, i, rect, flags );
 	    rect.moveBy( 0, rect.height() );
 	}
 	i = itemList.next();
@@ -1102,22 +1076,17 @@ void PopupMenuEditor::drawItems( QPainter * p )
     rect.setHeight( itemHeight( &addItem ) );
     if ( idx == currentIndex )
 	focus = rect;
-    if ( drawAll || addItem.isDirty() || dragging )
-	drawItem( p, &addItem, rect, QStyle::Style_Default );
+    drawItem( p, &addItem, rect, QStyle::Style_Default );
     rect.moveBy( 0, rect.height() );
     idx++;
     rect.setHeight( itemHeight( &addSeparator ) );
     if ( idx == currentIndex )
 	focus = rect;
-    if ( drawAll || addSeparator.isDirty() || dragging )
-	drawItem( p, &addSeparator, rect, QStyle::Style_Default );
+    drawItem( p, &addSeparator, rect, QStyle::Style_Default );
     idx++;
 
     if ( hasFocus() && !draggedItem )
 	drawWinFocusRect( p, focus );
-
-    if ( drawAll > 0 )
-	drawAll--;
 }
 
 QSize PopupMenuEditor::contentsSize()
@@ -1207,18 +1176,20 @@ void PopupMenuEditor::dropInPlace( PopupMenuEditorItem * i, int y )
     PopupMenuEditorItem * n = itemList.first();
 
     while ( n ) {
-	    dy = itemHeight( n );
-	    if ( iy + dy / 2 > y )
-		break;
-	    iy += dy;
+	dy = itemHeight( n );
+	if ( iy + dy / 2 > y )
+	    break;
+	iy += dy;
 	idx++;
 	n = itemList.next();
     }
-
+    int count = itemList.count();
+    int same = itemList.find( i );
     AddActionToPopupCommand * cmd = new AddActionToPopupCommand( "Drop Item", formWnd, this, i, idx );
     formWnd->commandHistory()->addCommand( cmd );
     cmd->execute();
-    currentIndex = idx;
+    currentIndex = ( same >= 0 && same < idx ) ? idx - 1 : idx;
+    currentField = 1;
 }
 
 void PopupMenuEditor::dropInPlace( QActionGroup * g, int y )
@@ -1283,7 +1254,6 @@ void PopupMenuEditor::clearCurrentField()
 
 void PopupMenuEditor::navigateUp( bool ctrl )
 {
-    currentItem()->setDirty( TRUE );
     if ( currentIndex > 0 ) {
 	hideSubMenu();
 	if ( ctrl ) {
@@ -1299,7 +1269,6 @@ void PopupMenuEditor::navigateUp( bool ctrl )
 	} else {
 	    safeDec();
 	}
-	currentItem()->setDirty( TRUE );
 	showSubMenu();
     } else if ( parentMenu ) {
 	parentMenu->setFocus();
@@ -1309,7 +1278,6 @@ void PopupMenuEditor::navigateUp( bool ctrl )
 
 void PopupMenuEditor::navigateDown( bool ctrl )
 {
-    currentItem()->setDirty( TRUE );
     hideSubMenu();
     if ( ctrl ) {
 	if ( currentIndex < ( (int)itemList.count() - 1 ) ) { // safe index
@@ -1328,13 +1296,11 @@ void PopupMenuEditor::navigateDown( bool ctrl )
     }
     if ( currentIndex >= (int)itemList.count() )
 	currentField = 1;
-    currentItem()->setDirty( TRUE );
     showSubMenu();
 }
 
 void PopupMenuEditor::navigateLeft()
 {
-    currentItem()->setDirty( TRUE );
     if ( currentItem()->isSeparator() ||
 	 currentIndex >= (int)itemList.count() ||
 	 currentField == 0 ) {
@@ -1351,7 +1317,6 @@ void PopupMenuEditor::navigateLeft()
 
 void PopupMenuEditor::navigateRight()
 {
-    currentItem()->setDirty( TRUE );
     if ( !currentItem()->isSeparator() &&
 	 currentIndex < (int)itemList.count() ) {
 	if ( currentField == 2 ) {
@@ -1390,7 +1355,6 @@ void PopupMenuEditor::leaveEditMode( QKeyEvent * e )
 
     PopupMenuEditorItem * i = 0;
     if ( e && e->key() == Qt::Key_Escape ) {
- 	drawAll++;
  	update();
 	return;
     }

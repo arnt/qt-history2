@@ -58,10 +58,6 @@ public:
 
     void setRemovable( bool enable ) { removable = enable; }
     bool isRemovable() const { return removable; }
-
-    void setDirty( bool enable ) { dirty = enable; }
-    bool isDirty() const { return dirty; }
-
     void showMenu( int x, int y );
     void hideMenu();
     void focusOnMenu();
@@ -82,7 +78,6 @@ private:
     PopupMenuEditor * m;
     uint separator : 1;
     uint removable : 1;
-    uint dirty : 1;
 };
 
 class FormWindow;
@@ -209,7 +204,6 @@ private:
 
     int currentField;
     int currentIndex;
-    int drawAll;
     QPoint mousePressPos;
     static PopupMenuEditorItem * draggedItem;
 
