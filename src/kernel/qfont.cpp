@@ -1401,7 +1401,7 @@ bool QFont::fromString(const QString &descrip)
     QStringList l(QStringList::split(',', descrip));
 
     int count = l.count();
-    if (count != 10 && count != 9) {
+    if ( !count || ( count > 2 && count < 9 ) || count > 10 ) {
 
 #ifdef QT_CHECK_STATE
 	qWarning("QFont::fromString: invalid description '%s'", descrip.latin1());
@@ -1411,7 +1411,8 @@ bool QFont::fromString(const QString &descrip)
     }
 
     setFamily(l[0]);
-    setPointSizeFloat(l[1].toDouble());
+    if ( count > 1 )
+	setPointSizeFloat(l[1].toDouble());
     if ( count == 9 ) {
 	setStyleHint((StyleHint) l[2].toInt());
 	setWeight(l[3].toInt());
@@ -1420,7 +1421,7 @@ bool QFont::fromString(const QString &descrip)
 	setStrikeOut(l[6].toInt());
 	setFixedPitch(l[7].toInt());
 	setRawMode(l[8].toInt());
-    } else {
+    } else if ( count == 10 ) {
 	setPixelSize(l[2].toInt());
 	setStyleHint((StyleHint) l[3].toInt());
 	setWeight(l[4].toInt());
