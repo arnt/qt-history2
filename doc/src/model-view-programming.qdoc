@@ -223,11 +223,11 @@ This is a convention used by the model/view classes.
 We can obtain the model indexes for both items shown in the diagram:
 
 \code
-QModelIndex topLevelIndex = model->index(2, 1, QModelIndex::Null); // 'X'
+QModelIndex topLevelIndex = model->index(2, 1, QModelIndex()); // 'X'
 QModelIndex childIndex = model->index(3, 4, topLevelIndex);
 \endcode
 
-Note that we used \c QModelIndex::Null to construct an invalid model
+Note that we used \c QModelIndex() to construct an invalid model
 index.
 
 \section2 Item Roles
@@ -364,7 +364,7 @@ data from a model:
 \i Model indexes are used to access items in the model. The row, column,
    and parent model index are needed to specify the item.
 \i To access top-level items in a model, specify a null model index
-   as the parent index with \c QModelIndex::Null.
+   as the parent index with \c QModelIndex().
 \i Items contain data for different roles. To obtain the data for a
    particular role, both the model index and the role must be supplied
    to the model.
