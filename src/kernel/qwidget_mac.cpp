@@ -1236,7 +1236,8 @@ QRegion QWidget::clippedRegion(bool do_children)
 		    QWidget *sw = (QWidget *)(*it);
 		    tmp = posInWindow(sw);
 		    QRect sr(tmp.x(), tmp.y(), sw->width(), sw->height());
-		    if(sw->isVisible() && extra->clip_saved.contains(sr)) {
+		    if(sw->topLevelWidget() == topLevelWidget() && 
+		       sw->isVisible() && extra->clip_saved.contains(sr)) {
 			QRegion sibrgn(sr);
 			if(sw->extra && !sw->extra->mask.isNull()) {
 			    QRegion mask = sw->extra->mask;
