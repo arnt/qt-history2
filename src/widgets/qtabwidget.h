@@ -118,7 +118,6 @@ signals:
 
 private slots:
     void showTab( int );
-//####    void relayoutTabs();
 
 private:
     QTabWidgetData *d;

@@ -205,7 +205,6 @@ QTabWidget::QTabWidget( QWidget *parent, const char *name, WFlags f )
     d->stack->setFrameStyle( QFrame::TabWidgetPanel | QFrame::Raised );
 #ifdef Q_OS_TEMP
     d->pos = Bottom;
-    connect( qApp->desktop(), SIGNAL(workAreaResized(int)), this, SLOT(relayoutTabs()) );
 #endif
 
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
@@ -694,18 +693,6 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 	taby = height() - t.height() - lw;
 	stacky = 0;
 	exty = taby - (exth - overlap);
-#ifdef Q_OS_TEMP
-	// Make sure that bottom tabs are always available,
-	// even when the Input Panel is open.
-	QRect trect( mapToGlobal( QPoint(tabx, taby) ), QSize(t.width(), t.height()) );
-	QRect avail = qApp->desktop()->availableGeometry();
-	if ( !avail.contains( trect, TRUE ) ) {
-	    // The TabBar is not fully displayed in the 
-	    // available area, so we need to override
-	    taby -= trect.bottom() - avail.bottom();
-	}
-
-#endif
     } else { // Top
 	taby = 0;
 	stacky = t.height()-lw + (exth - overlap);
@@ -749,13 +736,6 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 	d->rightCornerWidget->move( x, y + taby );
     }
 }
-
-#ifdef Q_OS_TEMP
-void QTabWidget::relayoutTabs()
-{
-    setUpLayout();
-}
-#endif
 
 /*!
     \reimp
