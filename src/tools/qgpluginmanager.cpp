@@ -315,16 +315,16 @@ void QGPluginManager::addLibraryPath( const QString& path )
 	return;
 
 #if defined(Q_OS_WIN32)
-    QString filter = "dll";
+    QString filter = "*.dll";
 #elif defined(Q_OS_MACX)
-    QString filter = "dylib";
+    QString filter = "*.dylib; *.so";
 #elif defined(Q_OS_HPUX)
-    QString filter = "sl";
+    QString filter = "*.sl";
 #elif defined(Q_OS_UNIX)
-    QString filter = "so";
+    QString filter = "*.so";
 #endif
 
-    QStringList plugins = QDir(path).entryList( "*." + filter );
+    QStringList plugins = QDir(path).entryList( filter );
     for ( QStringList::Iterator p = plugins.begin(); p != plugins.end(); ++p ) {
 	QString lib = QDir::cleanDirPath( path + "/" + *p );
 	if ( libList.contains( lib ) )

@@ -323,7 +323,7 @@ QString QLibrary::library() const
     if ( filename.findRev( '.' ) <= filename.findRev( '/' ) )
 	filename += ".dll";
 #elif defined(Q_OS_MACX)
-    if ( filename.find( ".dylib" ) == -1 )
+    if ( !QFile::exists(filename) && filename.find( ".dylib" ) == -1 )
 	filename += ".dylib";
 #else
 #if defined(Q_OS_HPUX)
