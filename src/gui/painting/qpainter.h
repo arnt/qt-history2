@@ -271,6 +271,8 @@ public:
     RenderHints supportedRenderHints() const;
     RenderHints renderHints() const;
 
+    QPaintEngine *paintEngine() const;
+
     static void setRedirected(const QPaintDevice *device, QPaintDevice *replacement,
                               const QPoint& offset = QPoint());
     static QPaintDevice *redirected(const QPaintDevice *device, QPoint *offset = 0);

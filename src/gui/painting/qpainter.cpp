@@ -933,6 +933,7 @@ void QPainter::restore()
     // Propegate the changes since save to this one so that they can be dirtied and restored
     d->state->changeFlags |= tmp->changeFlags;
 
+
     // trigger clip update if the clip path/region has changed since
     // last save
     if (!d->state->clipInfo.isEmpty()
@@ -1108,6 +1109,16 @@ bool QPainter::end()
 
     --d->device->painters;
     return ended;
+}
+
+
+/*!
+    Returns the paint engine that the painter is currently operating
+    on, if the painter is active; otherwise 0.
+*/
+QPaintEngine *QPainter::paintEngine() const
+{
+    return d->engine;
 }
 
 
