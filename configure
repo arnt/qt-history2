@@ -945,7 +945,9 @@ then
 
     # symlink the mkspecs directory
     rm -f $outpath/mkspecs
-    ln -s $relpath/mkspecs $outpath/mkspecs
+    mkdir $outpath/mkspecs
+    ln -s $relpath/mkspecs/* $outpath/mkspecs
+    rm -f $outpath/mkspecs/default
 
     # symlink the linguist/doc directory (to make the assistant happy)
     mkdir -p $outpath/tools/linguist
