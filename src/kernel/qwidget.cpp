@@ -4516,6 +4516,14 @@ bool QWidget::event( QEvent *e )
 	}
 #endif
 
+    case QEvent::WindowBlocked:
+    case QEvent::WindowUnblocked:
+	for (int i = 0; i < d->children.size(); ++i) {
+	    QObject *o = d->children.at(i);
+	    QApplication::sendEvent( o, e );
+	}
+	break;
+
     default:
 	return FALSE;
     }
