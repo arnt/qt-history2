@@ -227,7 +227,7 @@ QCString uTypeExtra( QCString ctype )
   This table is copied from qvariant.cpp. If you change
   one, change both.
 */
-static const int ntypes = 33;
+static const int ntypes = 35;
 static const char* const type_map[ntypes] =
 {
     0,
@@ -262,7 +262,9 @@ static const char* const type_map[ntypes] =
     "QByteArray",
     "QBitArray",
     "QKeySequence",
-    "QPen"
+    "QPen",
+    "Q_LLONG",
+    "Q_ULLONG"
 };
 
 int qvariant_nameToType( const char* name )
@@ -447,6 +449,10 @@ struct Property
 	    type = "QMap<QString,QVariant>";
 	} else if ( type == "QValueList" ) {
 	    type = "QValueList<QVariant>";
+	} else if ( type == "LongLong" ) {
+	    type = "Q_LLONG";
+	} else if ( type == "ULongLong" ) {
+	    type = "Q_ULLONG";
 	}
     }
 
@@ -3357,6 +3363,10 @@ void generateClass()		      // generate C++ source code for a class
 		    fprintf( out, "v->asMap()" );
 		else if ( type == "QValueList<QVariant>" )
 		    fprintf( out, "v->asList()" );
+		else if ( type == "Q_LLONG" )
+		    fprintf( out, "v->asLongLong()" );
+		else if ( type == "Q_ULLONG" )
+		    fprintf( out, "v->asULongLong()" );
 		else if ( isVariantType( type ) ) {
 		    if ( type[0] == 'Q' )
 			type = type.mid(1);
