@@ -50,7 +50,9 @@ listResourceFile(const QString &file)
         fprintf(stderr, "Unable to open %s", file.latin1());
         return ret;
     }
-    QString filePath = QFileInfo(file).path() + '/';
+    QString filePath = QFileInfo(file).path();
+    if(!filePath.isEmpty() && !filePath.endsWith(QLatin1String("/")))
+        filePath += '/';
     QDomDocument document;
     document.setContent(&in);
     QDomElement root = document.firstChild().toElement();
