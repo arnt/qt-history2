@@ -56,7 +56,6 @@
 #define CS_PUBLIC
 #endif //Q_OS_WIN32
 
-
 #ifdef DBNTWIN32
 #define QMSGHANDLE DBMSGHANDLE_PROC
 #define QERRHANDLE DBERRHANDLE_PROC
@@ -175,11 +174,11 @@ static QPtrDict<QTDSPrivate> errs;
 
 extern "C" {
 static int CS_PUBLIC qTdsMsgHandler ( DBPROCESS* dbproc,
-			    DBINT msgno,
+			    DBINT /*msgno*/,
 			    int msgstate,
 			    int severity,
 			    char* msgtext,
-			    char* srvname,
+			    char* /*srvname*/,
 			    char* /*procname*/,
 			    int /*line*/)
 {
@@ -203,7 +202,7 @@ static int CS_PUBLIC qTdsMsgHandler ( DBPROCESS* dbproc,
 static int CS_PUBLIC qTdsErrHandler( DBPROCESS* dbproc,
 				int /*severity*/,
 				int dberr,
-				int oserr,
+				int /*oserr*/,
 				char* dberrstr,
 				char* oserrstr)
 {
@@ -410,8 +409,10 @@ QTDSDriver::QTDSDriver( QObject * parent, const char * name )
     : QSqlDriver(parent,name ? name : "QTDS"), inTransaction( FALSE )
 {
     init();
-//    dberrhandle( (QERRHANDLE)qTdsErrHandler );
-//    dbmsghandle( (QMSGHANDLE)qTdsMsgHandler );
+    // the following two code-lines will fail compilation on some FreeTDS versions
+    // just comment them out if you have FreeTDS (you won't get any errors and warnings then)
+    dberrhandle( (QERRHANDLE)qTdsErrHandler );
+    dbmsghandle( (QMSGHANDLE)qTdsMsgHandler );
 }
 
 void QTDSDriver::init()
