@@ -874,11 +874,9 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
         d->paintDevice->releaseDC(glHdc);
 }
 
-
-// ### fix me
 void *QGLContext::getProcAddress(const QString &proc) const
 {
-    return 0;
+    return wglGetProcAddress(proc.latin1());
 }
 
 /*****************************************************************************
