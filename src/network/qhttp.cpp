@@ -1,15 +1,24 @@
-/****************************************************
- *
- * QHttpHeader
- *
- ****************************************************/
-
 #include "qhttp.h"
 
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP
 
 #include "qsocket.h"
 #include "qtextstream.h"
+
+/****************************************************
+ *
+ * QHttpHeader
+ *
+ ****************************************************/
+
+/*!
+  \class QHttpHeader qhttp.h
+  \brief The QHttpHeader class contains header information for HTTP.
+
+  \module network
+
+  fnord
+*/
 
 class QHttpHeaderPrivate
 {
@@ -242,6 +251,15 @@ QHttpHeader::Connection QHttpHeader::connection() const
  *
  ****************************************************/
 
+/*!
+  \class QHttpReplyHeader qhttp.h
+  \brief The QHttpReplyHeader class contains reply header information for HTTP.
+
+  \module network
+
+  fnord
+*/
+
 QHttpReplyHeader::QHttpReplyHeader()
 {
 }
@@ -346,6 +364,16 @@ bool QHttpReplyHeader::hasAutoContentLength() const
  *
  ****************************************************/
 
+/*!
+  \class QHttpRequestHeader qhttp.h
+  \brief The QHttpRequestHeader class contains request header information for
+  HTTP.
+
+  \module network
+
+  fnord
+*/
+
 QHttpRequestHeader::QHttpRequestHeader()
     : QHttpHeader()
 {
@@ -438,6 +466,15 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
  * QHttpClient
  *
  ****************************************************/
+
+/*!
+  \class QHttpClient qhttp.h
+  \brief The QHttpClient class provides a HTTP client.
+
+  \module network
+
+  fnord
+*/
 
 QHttpClient::QHttpClient( QObject* parent, const char* name )
     : QObject( parent, name ), m_state( QHttpClient::Idle ), m_idleTimer( 0 ),
@@ -860,6 +897,15 @@ QIODevice* QHttpClient::device()
  *
  ****************************************************/
 
+/*!
+  \class QHttpServer qhttp.h
+  \brief The QHttpServer class provides a HTTP server.
+
+  \module network
+
+  fnord
+*/
+
 QHttpServer::QHttpServer( int port, QObject* parent, const char* name )
     : QServerSocket( port, 0, parent, name )
 {
@@ -870,6 +916,15 @@ QHttpServer::QHttpServer( int port, QObject* parent, const char* name )
  * QHttpConnection
  *
  ****************************************************/
+
+/*!
+  \class QHttpConnection qhttp.h
+  \brief The QHttpConnection class provides ???
+
+  \module network
+
+  fnord
+*/
 
 QHttpConnection::QHttpConnection( int socket, QObject* parent, const char* name )
     : QObject( parent, name ), m_bytesToWrite( 0 ), m_state( Created ), m_killTimer( 0 ),
