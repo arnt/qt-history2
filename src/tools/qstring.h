@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#12 $
+** $Id: //depot/qt/main/src/tools/qstring.h#13 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -104,14 +104,14 @@ inline char *qstrncpy( char *dest, const char *src, int len )
 
 inline int qstrcmp( const char *s1, const char *s2 )
 {
-    return (s1 && s2) ? strcmp(s1,s2) : ((int)s2 - (int)s1);
+    return (s1 && s2) ? strcmp(s1,s2) : (int)((long)s2 - (long)s1);
 }
 
 #define strcmp qstrcmp
 
 inline int qstrncmp( const char *s1, const char *s2, uint len )
 {
-    return (s1 && s2) ? strncmp(s1,s2,len) : ((int)s2 - (int)s1);
+    return (s1 && s2) ? strncmp(s1,s2,len) : (int)((long)s2 - (long)s1);
 }
 
 #define strncmp qstrncmp

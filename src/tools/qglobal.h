@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#10 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#11 $
 **
 ** Global type declarations and definitions
 **
@@ -180,7 +180,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian );
 #endif
 
 #if !defined(CC_WARNINGS)
-#define NO_WARNINGS				// comment to get cc warnings
+#define NO_WARNINGS				// comment to get C++ warnings
 #endif
 #if defined(NO_WARNINGS)
 #if defined(_CC_MSC_)

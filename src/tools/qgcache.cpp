@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#11 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qstring.h"				/* used for statistics */
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgcache.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgcache.cpp#11 $";
 #endif
 
 
@@ -93,7 +93,7 @@ public:
 		  { return (QCacheItem*)QGDict::take(key); }
     bool  insert( const char *key, const QCacheItem *ci )
 		  { return QGDict::look(key,(GCI)ci,1)!=0;}
-    bool  remove( const char *key )	{ QGDict::remove(key); }
+    bool  remove( const char *key )	{ return QGDict::remove(key); }
     void  statistics()			{ QGDict::statistics(); }
 };
 

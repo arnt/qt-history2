@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#4 $
 **
 ** Implementation of QIODevice class
 **
@@ -13,7 +13,7 @@
 #include "qiodev.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qiodevice.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qiodevice.cpp#4 $";
 #endif
 
 
@@ -103,5 +103,5 @@ int QIODevice::readLine( char *data, uint maxlen )
 	    break;
     }
     *p++ = '\0';
-    return (int)p - (int)data;
+    return (int)((long)p - (long)data);
 }
