@@ -157,10 +157,8 @@ void SourceFile::setModified( bool m )
 
 bool SourceFile::closeEvent()
 {
-    if ( !isModified() ) {
-	// ### remove from project
+    if ( !isModified() )
 	return TRUE;
-    }
 
     if ( ed )
 	ed->save();
