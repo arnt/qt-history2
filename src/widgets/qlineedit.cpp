@@ -2244,7 +2244,7 @@ void QLineEditPrivate::finishChange( int validateFromState, bool setModified )
 	if ( setModified )
 	    modified = TRUE;
 	if ( textDirty )
-	    emit q->textChanged( text );
+	    emit q->textChanged( maskData ? stripString(text) : text );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( q, 0, QAccessible::ValueChanged );
 #endif
