@@ -630,13 +630,14 @@ QSize QLabel::sizeHint() const
 
 QSize QLabel::minimumSizeHint() const
 {
+    QSize s(-1, -1);
 #ifndef QT_NO_RICHTEXT
     if ( doc )
-	return QSize( d->minimumWidth, -1 );
+	s = QSize( d->minimumWidth, -1 );
+    else
 #endif
-    QSize s(-1, -1);
-    if ( (align & WordBreak) == 0 )
-	s = sizeHint();
+	if ( (align & WordBreak) == 0 )
+	    s = sizeHint();
     if ( sizePolicy().horData() == QSizePolicy::Ignored )
 	s.rwidth() = -1;
     if ( sizePolicy().verData() == QSizePolicy::Ignored )
