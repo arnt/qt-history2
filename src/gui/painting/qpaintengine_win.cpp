@@ -571,15 +571,15 @@ void QWin32PaintEngine::drawLine(const QLineF &line)
             path = true;
         }
     }, { });
-    MoveToEx(d->hdc, (int)x1, (int)y1, 0);
-    LineTo(d->hdc, (int)x2, (int)y2);
+    MoveToEx(d->hdc, qRound(x1), qRound(y1), 0);
+    LineTo(d->hdc, qRound(x2), qRound(y2));
     if (path) {
         EndPath(d->hdc);
         StrokePath(d->hdc);
-        MoveToEx(d->hdc, (int)x2, (int)y2, 0);
+        MoveToEx(d->hdc, qRound(x2), qRound(y2), 0);
     }
     if (plot_pixel)
-        SetPixelV(d->hdc, (int)x2, (int)y2, d->pColor);
+        SetPixelV(d->hdc, qRound(x2), qRound(y2), d->pColor);
 #else
     POINT pts[2];
     pts[0].x = x1;  pts[0].y = y1;
@@ -1108,7 +1108,7 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pos, const QTextItem &ti)
             for(int i = 0; i < ti.num_glyphs; i++) {
                 QString str(QChar(glyphs->glyph));
                 QByteArray cstr = str.toLocal8Bit();
-                TextOutA(d->hdc, int(x + qRound(glyphs->offset.x())), int(y + qRound(glyphs->offset.y())),
+                TextOutA(d->hdc, qRound(x + glyphs->offset.x()), qRound(y + glyphs->offset.y()),
                          cstr.data(), cstr.length());
                 x += qRound(glyphs->advance.x());
                 glyphs++;
@@ -2671,7 +2671,7 @@ void QGdiplusPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
         p->save();
         p->translate(r.x(), r.y());
         p->setClipRegion(QRegion(*bitmap));
-        p->fillRect(0, 0, (int)r.width(), (int)r.height(), p->pen().color());
+        p->fillRect(QRectF(0, 0, r.width(), r.height()), p->pen().color());
         p->restore();
         return;
     }

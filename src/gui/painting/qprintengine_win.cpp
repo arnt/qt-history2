@@ -582,7 +582,7 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
         if( xs!=1 || ys!=1 )
             bm = bm.transform( QMatrix( xs, 0, 0, ys, 0, 0 ) );
         QRegion r( bm );
-        r.translate((int)pos.x(), (int)pos.y() );
+        r.translate(qRound(pos.x()), qRound(pos.y()) );
         if ( paint->hasClipping() )
             r &= paint->clipRegion();
         paint->save();
@@ -1025,8 +1025,8 @@ QRect QWin32PrintEngine::paperRect() const
 {
     double scale = d->resolution / (double) GetDeviceCaps(d->hdc, LOGPIXELSY);
     return QRect(0, 0,
-                 int(GetDeviceCaps(d->hdc, PHYSICALWIDTH) * scale),
-                 int(GetDeviceCaps(d->hdc, PHYSICALHEIGHT) * scale));
+                 qRound(GetDeviceCaps(d->hdc, PHYSICALWIDTH) * scale),
+                 qRound(GetDeviceCaps(d->hdc, PHYSICALHEIGHT) * scale));
 }
 
 QRect QWin32PrintEngine::pageRect() const
@@ -1036,7 +1036,7 @@ QRect QWin32PrintEngine::pageRect() const
     int pagey = GetDeviceCaps(d->hdc, PHYSICALOFFSETY);
     int pagew = GetDeviceCaps(d->hdc, HORZRES) - pagex;
     int pageh = GetDeviceCaps(d->hdc, VERTRES) - pagey;
-    return QRect(int(pagex*scale), int(pagey*scale), int(pagew*scale), int(pageh*scale));
+    return QRect(qRound(pagex*scale), qRound(pagey*scale), qRound(pagew*scale), qRound(pageh*scale));
 }
 
 bool QWin32PrintEngine::isActive() const
