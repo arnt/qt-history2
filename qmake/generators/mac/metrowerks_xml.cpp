@@ -43,6 +43,11 @@
 #include <stdlib.h>
 #ifdef Q_OS_MAC
 #include "Files.h"
+#include <qdict.h>
+#include "Resources.h"
+#include "Script.h"
+#include <sys/types.h>
+#include <sys/stat.h>
 #endif
 
 MetrowerksMakefileGenerator::MetrowerksMakefileGenerator(QMakeProject *p) : MakefileGenerator(p), init_flag(FALSE)
@@ -82,6 +87,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 	xmlfile = project->first("MWERKS_XML_TEMPLATE");
     }
     xmlfile = findTemplate(xmlfile);
+    createFork(Option::output.name());
 
     QFile file(xmlfile);
     if(!file.open(IO_ReadOnly )) {
@@ -200,6 +206,10 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 			p.replace(QRegExp("/"), ":");
 			if(p.right(1) != ':')
 			    p += ':';
+
+			QString recursive = "false";
+			if(p.right(11) == ".framework:")
+			    recursive = "true";
 			t << "\t\t\t\t\t<SETTING>" << endl
 			  << "\t\t\t\t\t\t<SETTING><NAME>SearchPath</NAME>" << endl
 			  << "\t\t\t\t\t\t\t<SETTING><NAME>Path</NAME>"
@@ -207,7 +217,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 			  << "\t\t\t\t\t\t\t<SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>" << endl
 			  << "\t\t\t\t\t\t\t<SETTING><NAME>PathRoot</NAME><VALUE>Absolute</VALUE></SETTING>" << endl
 			  << "\t\t\t\t\t\t</SETTING>" << endl
-			  << "\t\t\t\t\t\t<SETTING><NAME>Recursive</NAME><VALUE>true</VALUE></SETTING>" << endl
+			  << "\t\t\t\t\t\t<SETTING><NAME>Recursive</NAME><VALUE>" << recursive << "</VALUE></SETTING>" << endl
 			  << "\t\t\t\t\t\t<SETTING><NAME>HostFlags</NAME><VALUE>All</VALUE></SETTING>" << endl
 			  << "\t\t\t\t\t</SETTING>" << endl;
 		    }
@@ -229,6 +239,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 	if(!mocfile.open(IO_WriteOnly)) {
 	    fprintf(stderr, "Cannot open MOCS file: %s\n", mocs.latin1());
 	} else {
+	    createFork(mocs);
 	    QTextStream mocs(&mocfile);
 	    QStringList &list = project->variables()["SRCMOC"];
 	    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
@@ -238,6 +249,26 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		mocs << src << endl;
 	    }
 	    mocfile.close();
+	}
+    }
+
+    if(!project->isEmpty("CODEWARRIOR_PREFIX_HEADER")) {
+	QFile prefixfile(project->first("CODEWARRIOR_PREFIX_HEADER"));
+	if(!prefixfile.open(IO_WriteOnly)) {
+	    fprintf(stderr, "Cannot open PREFIX file: %s\n", prefixfile.name().latin1());
+	} else {
+	    createFork(project->first("CODEWARRIOR_PREFIX_HEADER"));
+	    QTextStream prefix(&prefixfile);
+	    QStringList &list = project->variables()["DEFINES"];
+	    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+		if((*it).find('=') != -1) {
+		    int x = (*it).find('=');
+		    prefix << "#define " << (*it).left(x) << " " << (*it).right((*it).length() - x - 1) << endl;
+		} else {
+		    prefix << "#define " << (*it) << endl;
+		}
+	    }
+	    prefixfile.close();
 	}
     }
     return TRUE;
@@ -250,7 +281,6 @@ MetrowerksMakefileGenerator::init()
 {
     if(init_flag)
 	return;
-    Option::mkfile::do_deps = FALSE; //not necesary since mw doesn't care!
     QStringList::Iterator it;
     init_flag = TRUE;
 
@@ -275,6 +305,21 @@ MetrowerksMakefileGenerator::init()
 	setMocAware(TRUE);
     }
     MakefileGenerator::init();
+
+    //set the files to the type I expect
+    QDict<void> seen(293);;
+    QStringList &s = project->variables()["SOURCES"];
+    for(QStringList::Iterator src_it = s.begin(); src_it != s.end(); ++src_it) {
+	seen.insert((*src_it), (void *)1);
+	createFork((*src_it)); //the file itself
+	QStringList &d = depends[(*src_it)]; //depends
+	for(QStringList::Iterator dep_it = d.begin(); dep_it != d.end(); ++dep_it) {
+	    if(!seen.find((*dep_it))) {
+		seen.insert((*dep_it), (void *)1);
+		createFork((*dep_it));
+	    }
+	}
+    }
 
     //let metrowerks find the files
     QString paths[] = { QString("SOURCES"),QString("HEADERS"),QString::null };
@@ -310,11 +355,7 @@ MetrowerksMakefileGenerator::init()
 	    QString dir = "/System/Library/Frameworks/" + (*val_it) + ".framework/";
 	    if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
 	       project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
-		project->variables()["DEPENDPATH"].append(dir);
-	    QString headers = dir + "Headers/";
-	    if(project->variables()["DEPENDPATH"].findIndex(headers) == -1 &&
-	       project->variables()["INCLUDEPATH"].findIndex(headers) == -1)
-		project->variables()["DEPENDPATH"].append(headers);
+		project->variables()["INCLUDEPATH"].append(dir);
 	    if(project->variables()["LIBRARIES"].findIndex((*val_it)) == -1)
 		project->variables()["LIBRARIES"].append((*val_it));
 	} else if((*val_it).left(1) != "-") {
@@ -331,6 +372,10 @@ MetrowerksMakefileGenerator::init()
 	}
     }
 
+    if(!project->isEmpty("DEFINES"))
+	project->variables()["CODEWARRIOR_PREFIX_HEADER"].append(project->first("TARGET") + "_prefix.h");
+
+    //finally set the target up
     project->variables()["TARGET_STEM"] = project->variables()["TARGET"];
     if(project->first("TEMPLATE") == "lib") 
 	project->variables()["TARGET"].first() =  "lib" + project->first("TARGET") + ".lib";
@@ -347,3 +392,34 @@ MetrowerksMakefileGenerator::findTemplate(QString file)
     return ret;
 }
 
+void
+MetrowerksMakefileGenerator::createFork(const QString &f)
+{
+#ifdef Q_OS_MAC
+    FSRef fref;
+    FSSpec fileSpec;
+    if(QFile::exists(f)) {
+	mode_t perms = 0;
+	{
+	    struct stat s;
+	    stat(f.latin1(), &s);
+	    if(!(s.st_mode & S_IWUSR)) {
+		perms = s.st_mode;
+		chmod(f.latin1(), perms | S_IWUSR);
+	    }
+	}
+	FILE *o = fopen(f.latin1(), "a");
+	if(FSPathMakeRef((const UInt8 *)f.latin1(), &fref, NULL) == noErr) {
+	    if(FSGetCatalogInfo(&fref, kFSCatInfoNone, NULL, NULL, &fileSpec, NULL) == noErr) 
+		FSpCreateResFile(&fileSpec, 'CUTE', 'TEXT', smSystemScript);
+	    else 
+		qDebug("bogus %d", __LINE__);
+	} else 
+	    qDebug("bogus %d", __LINE__);
+	if(o)
+	    fclose(o);
+	if(perms)
+	    chmod(f.latin1(), perms);
+    }
+#endif
+}

@@ -61,6 +61,15 @@
                 <SETTING><NAME>InterpretDOSAndUnixPaths</NAME><VALUE>true</VALUE></SETTING>
 
                 <SETTING><NAME>UserSearchPaths</NAME>
+                    <SETTING>
+                        <SETTING><NAME>SearchPath</NAME>
+                            <SETTING><NAME>Path</NAME><VALUE>:</VALUE></SETTING>
+                            <SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>
+                            <SETTING><NAME>PathRoot</NAME><VALUE>Project</VALUE></SETTING>
+                        </SETTING>
+                        <SETTING><NAME>Recursive</NAME><VALUE>true</VALUE></SETTING>
+                        <SETTING><NAME>HostFlags</NAME><VALUE>All</VALUE></SETTING>
+                    </SETTING>
                     $$CODEWARRIOR_DEPENDPATH
                 </SETTING>
                 <SETTING><NAME>SystemSearchPaths</NAME>
@@ -146,7 +155,7 @@
                         <SETTING><NAME>IgnoredByMake</NAME><VALUE>false</VALUE></SETTING>
                     </SETTING>
                     <SETTING>
-                        <SETTING><NAME>FileType</NAME><VALUE>$$QMAKE_DEFAULT_FILETYPE</VALUE></SETTING>
+                        <SETTING><NAME>FileType</NAME><VALUE>TEXT</VALUE></SETTING>
                         <SETTING><NAME>FileExtension</NAME><VALUE>.arr</VALUE></SETTING>
                         <SETTING><NAME>Compiler</NAME><VALUE></VALUE></SETTING>
                         <SETTING><NAME>Precompile</NAME><VALUE>false</VALUE></SETTING>
@@ -155,7 +164,7 @@
                         <SETTING><NAME>IgnoredByMake</NAME><VALUE>false</VALUE></SETTING>
                     </SETTING>
                     <SETTING>
-                        <SETTING><NAME>FileType</NAME><VALUE>$$QMAKE_DEFAULT_FILETYPE</VALUE></SETTING>
+                        <SETTING><NAME>FileType</NAME><VALUE>TEXT</VALUE></SETTING>
                         <SETTING><NAME>FileExtension</NAME><VALUE>.bh</VALUE></SETTING>
                         <SETTING><NAME>Compiler</NAME><VALUE>Balloon Help</VALUE></SETTING>
                         <SETTING><NAME>Precompile</NAME><VALUE>false</VALUE></SETTING>
@@ -164,7 +173,7 @@
                         <SETTING><NAME>IgnoredByMake</NAME><VALUE>false</VALUE></SETTING>
                     </SETTING>
                     <SETTING>
-                        <SETTING><NAME>FileType</NAME><VALUE>$$QMAKE_DEFAULT_FILETYPE</VALUE></SETTING>
+                        <SETTING><NAME>FileType</NAME><VALUE>TEXT</VALUE></SETTING>
                         <SETTING><NAME>FileExtension</NAME><VALUE>.c</VALUE></SETTING>
                         <SETTING><NAME>Compiler</NAME><VALUE>MW C/C++ PPC</VALUE></SETTING>
                         <SETTING><NAME>Precompile</NAME><VALUE>false</VALUE></SETTING>
@@ -173,7 +182,7 @@
                         <SETTING><NAME>IgnoredByMake</NAME><VALUE>false</VALUE></SETTING>
                     </SETTING>
                     <SETTING>
-                        <SETTING><NAME>FileType</NAME><VALUE>$$QMAKE_DEFAULT_FILETYPE</VALUE></SETTING>
+                        <SETTING><NAME>FileType</NAME><VALUE>TEXT</VALUE></SETTING>
                         <SETTING><NAME>FileExtension</NAME><VALUE>.c++</VALUE></SETTING>
                         <SETTING><NAME>Compiler</NAME><VALUE>MW C/C++ PPC</VALUE></SETTING>
                         <SETTING><NAME>Precompile</NAME><VALUE>false</VALUE></SETTING>
@@ -182,7 +191,7 @@
                         <SETTING><NAME>IgnoredByMake</NAME><VALUE>false</VALUE></SETTING>
                     </SETTING>
                     <SETTING>
-                        <SETTING><NAME>FileType</NAME><VALUE>$$QMAKE_DEFAULT_FILETYPE</VALUE></SETTING>
+                        <SETTING><NAME>FileType</NAME><VALUE>TEXT</VALUE></SETTING>
                         <SETTING><NAME>FileExtension</NAME><VALUE>.cc</VALUE></SETTING>
                         <SETTING><NAME>Compiler</NAME><VALUE>MW C/C++ PPC</VALUE></SETTING>
                         <SETTING><NAME>Precompile</NAME><VALUE>false</VALUE></SETTING>
@@ -191,7 +200,7 @@
                         <SETTING><NAME>IgnoredByMake</NAME><VALUE>false</VALUE></SETTING>
                     </SETTING>
                     <SETTING>
-                        <SETTING><NAME>FileType</NAME><VALUE>$$QMAKE_DEFAULT_FILETYPE</VALUE></SETTING>
+                        <SETTING><NAME>FileType</NAME><VALUE>TEXT</VALUE></SETTING>
                         <SETTING><NAME>FileExtension</NAME><VALUE>.cp</VALUE></SETTING>
                         <SETTING><NAME>Compiler</NAME><VALUE>MW C/C++ PPC</VALUE></SETTING>
                         <SETTING><NAME>Precompile</NAME><VALUE>false</VALUE></SETTING>
@@ -200,7 +209,7 @@
                         <SETTING><NAME>IgnoredByMake</NAME><VALUE>false</VALUE></SETTING>
                     </SETTING>
                     <SETTING>
-                        <SETTING><NAME>FileType</NAME><VALUE>$$QMAKE_DEFAULT_FILETYPE</VALUE></SETTING>
+                        <SETTING><NAME>FileType</NAME><VALUE>TEXT</VALUE></SETTING>
                         <SETTING><NAME>FileExtension</NAME><VALUE>.cpp</VALUE></SETTING>
                         <SETTING><NAME>Compiler</NAME><VALUE>MW C/C++ PPC</VALUE></SETTING>
                         <SETTING><NAME>Precompile</NAME><VALUE>false</VALUE></SETTING>
@@ -209,7 +218,7 @@
                         <SETTING><NAME>IgnoredByMake</NAME><VALUE>false</VALUE></SETTING>
                     </SETTING>
                     <SETTING>
-                        <SETTING><NAME>FileType</NAME><VALUE>$$QMAKE_DEFAULT_FILETYPE</VALUE></SETTING>
+                        <SETTING><NAME>FileType</NAME><VALUE>TEXT</VALUE></SETTING>
                         <SETTING><NAME>FileExtension</NAME><VALUE>.exp</VALUE></SETTING>
                         <SETTING><NAME>Compiler</NAME><VALUE></VALUE></SETTING>
                         <SETTING><NAME>Precompile</NAME><VALUE>false</VALUE></SETTING>
@@ -218,7 +227,7 @@
                         <SETTING><NAME>IgnoredByMake</NAME><VALUE>false</VALUE></SETTING>
                     </SETTING>
                     <SETTING>
-                        <SETTING><NAME>FileType</NAME><VALUE>$$QMAKE_DEFAULT_FILETYPE</VALUE></SETTING>
+                        <SETTING><NAME>FileType</NAME><VALUE>TEXT</VALUE></SETTING>
                         <SETTING><NAME>FileExtension</NAME><VALUE>.h</VALUE></SETTING>
                         <SETTING><NAME>Compiler</NAME><VALUE>MW C/C++ PPC</VALUE></SETTING>
                         <SETTING><NAME>Precompile</NAME><VALUE>false</VALUE></SETTING>
@@ -227,7 +236,7 @@
                         <SETTING><NAME>IgnoredByMake</NAME><VALUE>true</VALUE></SETTING>
                     </SETTING>
                     <SETTING>
-                        <SETTING><NAME>FileType</NAME><VALUE>$$QMAKE_DEFAULT_FILETYPE</VALUE></SETTING>
+                        <SETTING><NAME>FileType</NAME><VALUE>TEXT</VALUE></SETTING>
                         <SETTING><NAME>FileExtension</NAME><VALUE>.mocs</VALUE></SETTING>
                         <SETTING><NAME>Compiler</NAME><VALUE>McMoc</VALUE></SETTING>
                         <SETTING><NAME>Precompile</NAME><VALUE>false</VALUE></SETTING>
@@ -236,7 +245,7 @@
                         <SETTING><NAME>IgnoredByMake</NAME><VALUE>false</VALUE></SETTING>
                     </SETTING>
                     <SETTING>
-                        <SETTING><NAME>FileType</NAME><VALUE>$$QMAKE_DEFAULT_FILETYPE</VALUE></SETTING>
+                        <SETTING><NAME>FileType</NAME><VALUE>TEXT</VALUE></SETTING>
                         <SETTING><NAME>FileExtension</NAME><VALUE>.pch</VALUE></SETTING>
                         <SETTING><NAME>Compiler</NAME><VALUE>MW C/C++ PPC</VALUE></SETTING>
                         <SETTING><NAME>Precompile</NAME><VALUE>true</VALUE></SETTING>
@@ -245,7 +254,7 @@
                         <SETTING><NAME>IgnoredByMake</NAME><VALUE>false</VALUE></SETTING>
                     </SETTING>
                     <SETTING>
-                        <SETTING><NAME>FileType</NAME><VALUE>$$QMAKE_DEFAULT_FILETYPE</VALUE></SETTING>
+                        <SETTING><NAME>FileType</NAME><VALUE>TEXT</VALUE></SETTING>
                         <SETTING><NAME>FileExtension</NAME><VALUE>.pch++</VALUE></SETTING>
                         <SETTING><NAME>Compiler</NAME><VALUE>MW C/C++ PPC</VALUE></SETTING>
                         <SETTING><NAME>Precompile</NAME><VALUE>true</VALUE></SETTING>
@@ -254,7 +263,7 @@
                         <SETTING><NAME>IgnoredByMake</NAME><VALUE>false</VALUE></SETTING>
                     </SETTING>
                     <SETTING>
-                        <SETTING><NAME>FileType</NAME><VALUE>$$QMAKE_DEFAULT_FILETYPE</VALUE></SETTING>
+                        <SETTING><NAME>FileType</NAME><VALUE>TEXT</VALUE></SETTING>
                         <SETTING><NAME>FileExtension</NAME><VALUE>.r</VALUE></SETTING>
                         <SETTING><NAME>Compiler</NAME><VALUE>Rez</VALUE></SETTING>
                         <SETTING><NAME>Precompile</NAME><VALUE>false</VALUE></SETTING>
@@ -263,7 +272,7 @@
                         <SETTING><NAME>IgnoredByMake</NAME><VALUE>false</VALUE></SETTING>
                     </SETTING>
                     <SETTING>
-                        <SETTING><NAME>FileType</NAME><VALUE>$$QMAKE_DEFAULT_FILETYPE</VALUE></SETTING>
+                        <SETTING><NAME>FileType</NAME><VALUE>TEXT</VALUE></SETTING>
                         <SETTING><NAME>FileExtension</NAME><VALUE>.s</VALUE></SETTING>
                         <SETTING><NAME>Compiler</NAME><VALUE>PPCAsm</VALUE></SETTING>
                         <SETTING><NAME>Precompile</NAME><VALUE>false</VALUE></SETTING>
@@ -272,7 +281,7 @@
                         <SETTING><NAME>IgnoredByMake</NAME><VALUE>false</VALUE></SETTING>
                     </SETTING>
                     <SETTING>
-                        <SETTING><NAME>FileType</NAME><VALUE>$$QMAKE_DEFAULT_FILETYPE</VALUE></SETTING>
+                        <SETTING><NAME>FileType</NAME><VALUE>TEXT</VALUE></SETTING>
                         <SETTING><NAME>FileExtension</NAME><VALUE>.xpm</VALUE></SETTING>
                         <SETTING><NAME>Compiler</NAME><VALUE>MW C/C++ PPC</VALUE></SETTING>
                         <SETTING><NAME>Precompile</NAME><VALUE>false</VALUE></SETTING>
@@ -488,7 +497,7 @@
                 <SETTING><NAME>MWFrontEnd_C_onlystdkeywords</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWFrontEnd_C_enumsalwaysint</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWFrontEnd_C_mpwpointerstyle</NAME><VALUE>0</VALUE></SETTING>
-                <SETTING><NAME>MWFrontEnd_C_prefixname</NAME><VALUE></VALUE></SETTING>
+                <SETTING><NAME>MWFrontEnd_C_prefixname</NAME><VALUE>$$CODEWARRIOR_PREFIX_HEADER</VALUE></SETTING>
                 <SETTING><NAME>MWFrontEnd_C_ansistrict</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWFrontEnd_C_mpwcnewline</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWFrontEnd_C_wchar_type</NAME><VALUE>0</VALUE></SETTING>
