@@ -5633,6 +5633,13 @@ static char *qdtoa ( double d, int mode, int ndigits, int *decpt, int *sign, cha
 #ifdef Q_OS_WIN
     _clear87();
     unsigned int oldbits = _control87(0, 0);
+#ifndef MCW_EM
+#    ifdef _MCW_EM
+#        define MCW_EM _MCW_EM
+#    else
+#        define MCW_EM 0x0008001F
+#    endif
+#endif
     _control87(MCW_EM, MCW_EM);
 #endif
 
