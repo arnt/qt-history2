@@ -297,11 +297,14 @@ QMakeProject::read(QString file, QMap<QString, QStringList> &place)
 	while ( !t.eof() ) {
 	    line_count++;
 	    line = t.readLine().stripWhiteSpace();
-	    line.replace(QRegExp("#.*$"), ""); /* bye comments */
+	    int prelen = line.length();
+	    line.replace(QRegExp("#.*$"), ""); // bye comments
 	    if(!line.isEmpty() && line.right(1) == "\\") {
 		line.truncate(line.length() - 1);
 		s += line + " ";
-	    } else {
+	    } else if(!line.isEmpty() || (line.isEmpty() && !prelen)) {
+		if(s.isEmpty() && line.isEmpty())
+		    continue;
 		if(!line.isEmpty())
 		    s += line;
 		if(!s.isEmpty()) {
@@ -318,7 +321,7 @@ QMakeProject::read(QString file, QMap<QString, QStringList> &place)
 }
 
 bool
-QMakeProject::read(QString project, QString pwd)
+QMakeProject::read(QString project, QString)
 {
     if(cfile.isEmpty()) {
 	// hack to get the Option stuff in there
