@@ -3419,7 +3419,7 @@ HRESULT QAxServerBase::internalActivate()
 	// Gone active by now, take care of UIACTIVATE
 	canTakeFocus = qt.widget->focusPolicy() != QWidget::NoFocus && !inDesignMode;
 	if ( !canTakeFocus && !inDesignMode ) {
-	    QList<QWidget*> widgets = qt.widget->findChildren(0, (QWidget*)0);
+	    QList<QWidget*> widgets = qFindChildren<QWidget*>(qt.widget);
 	    for (int w = 0; w < widgets.count(); ++w) {
 		QWidget *widget = widgets[w];
 		canTakeFocus = widget->focusPolicy() != QWidget::NoFocus;
@@ -3444,13 +3444,13 @@ HRESULT QAxServerBase::internalActivate()
 	    if ( m_spInPlaceFrame ) {
 		hr = m_spInPlaceFrame->SetActiveObject( this, QStringToBSTR(class_name) );
 		if ( !FAILED(hr) ) {
-		    menuBar = ( qt.widget && !qax_disable_inplaceframe ) ? qt.widget->findChild( 0, (QMenuBar*)0 ) : 0;
+		    menuBar = ( qt.widget && !qax_disable_inplaceframe ) ? qFindChild<QMenuBar*>(qt.widget) : 0;
 		    if ( menuBar && !menuBar->isVisible() ) {
 			createMenu( menuBar );
 			menuBar->hide();
 			menuBar->installEventFilter( this );
 		    }
-		    statusBar = qt.widget ? qt.widget->findChild( 0, (QStatusBar*)0 ) : 0;
+		    statusBar = qt.widget ? qFindChild<QStatusBar*>(qt.widget) : 0;
 		    if ( statusBar && !statusBar->isVisible() ) {
 			const int index = statusBar->metaObject()->indexOfSignal("messageChanged(const QString&)");
 //XXX			connectInternal( statusBar, index, (QObject*)this, 2, -1 );

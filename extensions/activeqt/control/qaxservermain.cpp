@@ -174,7 +174,7 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
     lpCmdLine = GetCommandLineA(); //this line necessary for _ATL_MIN_CRT
     QString cmdLine = QString::fromLatin1( lpCmdLine );
 
-    QStringList cmds = QStringList::split( " ", cmdLine );
+    QStringList cmds = cmdLine.split(" ");
     int nRet = 0;
     bool run = TRUE;
     bool runServer = FALSE;
