@@ -514,11 +514,13 @@ void QMenuBar::macUpdatePopup(MenuRef mr)
 
     int mid = GetMenuID( mr );
     if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups->find(mid)) {
-	emit mpb->qpopup->aboutToShow();
-	if(1 || mpb->qpopup->mac_dirty_popup) {
-	    mpb->qpopup->mac_dirty_popup = 0;
-	    DeleteMenuItems(mr, 1, CountMenuItems(mr));
-	    activeMenuBar->syncPopups(mr, mpb->qpopup);
+	if(mpb->qpopup) {
+	    emit mpb->qpopup->aboutToShow();
+	    if(1 || mpb->qpopup->mac_dirty_popup) {
+		mpb->qpopup->mac_dirty_popup = 0;
+		DeleteMenuItems(mr, 1, CountMenuItems(mr));
+		activeMenuBar->syncPopups(mr, mpb->qpopup);
+	    }
 	}
     } 
 }
