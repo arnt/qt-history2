@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#355 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#356 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3093,51 +3093,51 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 #define	XK_ISO_Left_Tab					0xFE20
 #endif
 static KeySym KeyTbl[] = {			// keyboard mapping table
-    XK_Escape,		Key_Escape,		// misc keys
-    XK_Tab,		Key_Tab,
-    XK_ISO_Left_Tab,    Key_Backtab,
-    XK_BackSpace,	Key_Backspace,
-    XK_Return,		Key_Return,
-    XK_Insert,		Key_Insert,
-    XK_Delete,		Key_Delete,
-    XK_Clear,		Key_Delete,
-    XK_Pause,		Key_Pause,
-    XK_Print,		Key_Print,
-    0x1005FF60,		Key_SysReq,		// hardcoded Sun SysReq
-    0x1007ff00,		Key_SysReq,		// hardcoded X386 SysReq
-    XK_Home,		Key_Home,		// cursor movement
-    XK_End,		Key_End,
-    XK_Left,		Key_Left,
-    XK_Up,		Key_Up,
-    XK_Right,		Key_Right,
-    XK_Down,		Key_Down,
-    XK_Prior,		Key_Prior,
-    XK_Next,		Key_Next,
-    XK_Shift_L,		Key_Shift,		// modifiers
-    XK_Shift_R,		Key_Shift,
-    XK_Shift_Lock,	Key_Shift,
-    XK_Control_L,	Key_Control,
-    XK_Control_R,	Key_Control,
-    XK_Meta_L,		Key_Meta,
-    XK_Meta_R,		Key_Meta,
-    XK_Alt_L,		Key_Alt,
-    XK_Alt_R,		Key_Alt,
-    XK_Caps_Lock,	Key_CapsLock,
-    XK_Num_Lock,	Key_NumLock,
-    XK_Scroll_Lock,	Key_ScrollLock,
-    XK_KP_Space,	Key_Space,		// numeric keypad
-    XK_KP_Tab,		Key_Tab,
-    XK_KP_Enter,	Key_Enter,
-    XK_KP_Equal,	Key_Equal,
-    XK_KP_Multiply,	Key_Asterisk,
-    XK_KP_Add,		Key_Plus,
-    XK_KP_Separator,	Key_Comma,
-    XK_KP_Subtract,	Key_Minus,
-    XK_KP_Decimal,	Key_Period,
-    XK_KP_Divide,	Key_Slash,
-    XK_Super_L,		Key_Super_L,
-    XK_Super_R,		Key_Super_R,
-    XK_Menu,		Key_Menu,
+    XK_Escape,		Qt::Key_Escape,		// misc keys
+    XK_Tab,		Qt::Key_Tab,
+    XK_ISO_Left_Tab,    Qt::Key_Backtab,
+    XK_BackSpace,	Qt::Key_Backspace,
+    XK_Return,		Qt::Key_Return,
+    XK_Insert,		Qt::Key_Insert,
+    XK_Delete,		Qt::Key_Delete,
+    XK_Clear,		Qt::Key_Delete,
+    XK_Pause,		Qt::Key_Pause,
+    XK_Print,		Qt::Key_Print,
+    0x1005FF60,		Qt::Key_SysReq,		// hardcoded Sun SysReq
+    0x1007ff00,		Qt::Key_SysReq,		// hardcoded X386 SysReq
+    XK_Home,		Qt::Key_Home,		// cursor movement
+    XK_End,		Qt::Key_End,
+    XK_Left,		Qt::Key_Left,
+    XK_Up,		Qt::Key_Up,
+    XK_Right,		Qt::Key_Right,
+    XK_Down,		Qt::Key_Down,
+    XK_Prior,		Qt::Key_Prior,
+    XK_Next,		Qt::Key_Next,
+    XK_Shift_L,		Qt::Key_Shift,		// modifiers
+    XK_Shift_R,		Qt::Key_Shift,
+    XK_Shift_Lock,	Qt::Key_Shift,
+    XK_Control_L,	Qt::Key_Control,
+    XK_Control_R,	Qt::Key_Control,
+    XK_Meta_L,		Qt::Key_Meta,
+    XK_Meta_R,		Qt::Key_Meta,
+    XK_Alt_L,		Qt::Key_Alt,
+    XK_Alt_R,		Qt::Key_Alt,
+    XK_Caps_Lock,	Qt::Key_CapsLock,
+    XK_Num_Lock,	Qt::Key_NumLock,
+    XK_Scroll_Lock,	Qt::Key_ScrollLock,
+    XK_KP_Space,	Qt::Key_Space,		// numeric keypad
+    XK_KP_Tab,		Qt::Key_Tab,
+    XK_KP_Enter,	Qt::Key_Enter,
+    XK_KP_Equal,	Qt::Key_Equal,
+    XK_KP_Multiply,	Qt::Key_Asterisk,
+    XK_KP_Add,		Qt::Key_Plus,
+    XK_KP_Separator,	Qt::Key_Comma,
+    XK_KP_Subtract,	Qt::Key_Minus,
+    XK_KP_Decimal,	Qt::Key_Period,
+    XK_KP_Divide,	Qt::Key_Slash,
+    XK_Super_L,		Qt::Key_Super_L,
+    XK_Super_R,		Qt::Key_Super_R,
+    XK_Menu,		Qt::Key_Menu,
     0,			0
 };
 

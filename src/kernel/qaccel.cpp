@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#54 $
 **
 ** Implementation of QAccel class
 **
@@ -103,7 +103,7 @@ static QAccelItem *find_key( QAccelList &list, int key, int ascii )
     register QAccelItem *item = list.first();
     while ( item ) {
 	int k = item->key;
-	if ( (k & ASCII_ACCEL) != 0 && (k & 0xff) == ascii ) {
+	if ( (k & Qt::ASCII_ACCEL) != 0 && (k & 0xff) == ascii ) {
 	    break;
 	} else {
 	    if ( k == key )
