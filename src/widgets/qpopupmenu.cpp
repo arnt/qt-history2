@@ -388,6 +388,11 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     QPoint mouse = QCursor::pos();
     snapToMouse = snapToMouse && pos == mouse;
 
+    // have to emit here as a menu might be setup in a slot connected
+    // to aboutToShow which will change the size of the menu
+    supressAboutToShow = TRUE;
+    emit aboutToShow();
+
     QWidget *desktop = QApplication::desktop();
     int sw = desktop->width();			// screen width
     int sh = desktop->height();			// screen height
