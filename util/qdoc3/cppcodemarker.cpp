@@ -530,7 +530,8 @@ const Node *CppCodeMarker::resolveTarget(const QString &target, const Tree *tree
     } else {
         QStringList path = target.split("::");
         const Node *node;
-        if ((node = tree->findNode(path, relative, Tree::SearchBaseClasses)))
+        if ((node = tree->findNode(path, relative,
+                                   Tree::SearchBaseClasses | Tree::SearchEnumValues)))
             return node;
     }
     return 0;

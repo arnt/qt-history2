@@ -1,22 +1,13 @@
 From Jasmin:
 
+  * Q_OVERRIDE() fix
   * implement \target and \keyword
-  * be smart about enum types Foo::Bar vs. Bar when comparing functions
-  * be smart about const & non-const when comparing functions
-
   * expand QObjectList -> QList<QObject *>
   * Drop return type in "List of all members" pages.
   * \enum Qt::ScrollBarPolicy (qviewport.cpp contains documentation for  \enum Qt::ScrollBarPolicy, and it 
   does show up in the docs, but not as a link from the properties in QViewport)
   * qhboxwidget.html#sizeHint is broken (apparently)
 
---
-
-From Matthias:
-
-  * Q_OVERRIDE() fix
-
---
 
   * support <qglobal.h>'s typedefs with \typedef (qglobal.qdoc)
   * fix \value (e.g. Qt::BitmapCursor in qcursor.cpp)
@@ -66,6 +57,8 @@ NICE FEATURES:
   * implement inheritance tree for each class (as a PNG)
   * avoid <p>...</p> in table/item cells without relying on horrible kludge
   * prevent macros from having same name as commands
+  * be smart about enum types Foo::Bar vs. Bar when comparing functions
+  * be smart about const & non-const when comparing functions
 
 OTHER:
   * make qdoc run faster

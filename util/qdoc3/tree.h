@@ -13,18 +13,18 @@ class TreePrivate;
 class Tree
 {
 public:
-    enum FindMode { IgnoreBaseClasses, SearchBaseClasses };
+    enum FindFlag { SearchBaseClasses = 0x1, SearchEnumValues = 0x2 };
 
     Tree();
     ~Tree();
 
-    Node *findNode(const QStringList &path, Node *relative = 0, FindMode mode = IgnoreBaseClasses);
+    Node *findNode(const QStringList &path, Node *relative = 0, int findFlags = 0);
     Node *findNode(const QStringList &path, Node::Type type, Node *relative = 0,
-                   FindMode mode = IgnoreBaseClasses);
+                   int findFlags = 0);
     FunctionNode *findFunctionNode(const QStringList &path, Node *relative = 0,
-                                   FindMode mode = IgnoreBaseClasses);
+                                   int findFlags = 0);
     FunctionNode *findFunctionNode(const QStringList &parentPath, const FunctionNode *clone,
-                                   Node *relative = 0, FindMode mode = IgnoreBaseClasses);
+                                   Node *relative = 0, int findFlags = 0);
     void addBaseClass(ClassNode *subclass, Node::Access access, const QStringList &basePath,
 		      const QString &dataTypeWithTemplateArgs);
     void addPropertyFunction(PropertyNode *property, const QString &funcName,
@@ -38,15 +38,13 @@ public:
     NamespaceNode *root() { return &roo; }
 
     QString version() const { return vers; }
-    const Node *findNode(const QStringList &path, const Node *relative = 0,
-                         FindMode mode = IgnoreBaseClasses) const;
+    const Node *findNode(const QStringList &path, const Node *relative = 0, int findFlags = 0) const;
     const Node *findNode(const QStringList &path, Node::Type type, const Node *relative = 0,
-                         FindMode mode = IgnoreBaseClasses) const;
+                         int findFlags = 0) const;
     const FunctionNode *findFunctionNode(const QStringList &path, const Node *relative = 0,
-                                         FindMode mode = IgnoreBaseClasses) const;
+                                         int findFlags = 0) const;
     const FunctionNode *findFunctionNode(const QStringList &parentPath, const FunctionNode *clone,
-                                         const Node *relative = 0,
-                                         FindMode mode = IgnoreBaseClasses) const;
+                                         const Node *relative = 0, int findFlags = 0) const;
     const NamespaceNode *root() const { return &roo; }
 
 private:

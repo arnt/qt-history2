@@ -184,7 +184,7 @@ void InnerNode::normalizeOverloads()
 void InnerNode::deleteChildren()
 {
     while (!children.isEmpty())
-	delete children.first();
+	delete children.takeFirst();
 }
 
 bool InnerNode::isInnerNode() const
@@ -215,6 +215,16 @@ const FunctionNode *InnerNode::findFunctionNode(
 {
     InnerNode *that = (InnerNode *) this;
     return that->findFunctionNode( clone );
+}
+
+const EnumNode *InnerNode::findEnumNodeForValue(const QString &enumValue) const
+{
+    foreach (const Node *node, enumChildren) {
+        const EnumNode *enume = static_cast<const EnumNode *>(node);
+	if (enume->hasItem(enumValue))
+            return enume;
+    }
+    return 0;
 }
 
 int InnerNode::overloadNumber( const FunctionNode *func ) const
@@ -285,13 +295,16 @@ void InnerNode::addChild( Node *child )
 	    secs.append( func );
 	}
     } else {
+	if (child->type() == Enum)
+            enumChildren.append(child);
 	childMap.insert( child->name(), child );
     }
 }
 
 void InnerNode::removeChild( Node *child )
 {
-    children.removeAll( child );
+    children.removeAll(child);
+    enumChildren.removeAll(child);
     if ( child->type() == Function ) {
 	QMap<QString, Node *>::Iterator prim =
 		primaryFunctionMap.find( child->name() );
@@ -455,6 +468,7 @@ EnumNode::EnumNode( InnerNode *parent, const QString& name )
 void EnumNode::addItem( const EnumItem& item )
 {
     itms.append( item );
+    names.insert(item.name());
 }
 
 Node::Access EnumNode::itemAccess(const QString &name) const

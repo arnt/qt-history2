@@ -77,6 +77,7 @@ private:
 };
 
 class FunctionNode;
+class EnumNode;
 
 typedef QList<Node *> NodeList;
 
@@ -101,6 +102,7 @@ public:
     const Node *findNode( const QString& name, Type type ) const;
     const FunctionNode *findFunctionNode( const QString& name ) const;
     const FunctionNode *findFunctionNode( const FunctionNode *clone ) const;
+    const EnumNode *findEnumNodeForValue( const QString &enumValue ) const;
     const NodeList & childNodes() const { return children; }
     const NodeList & relatedNodes() const { return related; }
     int overloadNumber( const FunctionNode *func ) const;
@@ -120,6 +122,7 @@ private:
 
     QStringList inc;
     NodeList children;
+    NodeList enumChildren;
     NodeList related;
     QMap<QString, Node *> childMap;
     QMap<QString, Node *> primaryFunctionMap;
@@ -220,6 +223,7 @@ public:
 
     void addItem( const EnumItem& item );
     void setFlagsType(TypedefNode *typedeff);
+    bool hasItem(const QString &name) const { return names.contains(name); }
 
     const QList<EnumItem>& items() const { return itms; }
     Access itemAccess( const QString& name ) const;
@@ -228,6 +232,7 @@ public:
 
 private:
     QList<EnumItem> itms;
+    QSet<QString> names;
     const TypedefNode *ft;
 };
 
