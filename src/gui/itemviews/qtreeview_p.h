@@ -82,6 +82,7 @@ public:
     void relayout(const QModelIndex &parent);
     void reexpandChildren(const QModelIndex &parent);
 
+    void updateVerticalPageStep();
     void updateVerticalScrollbar();
     void updateHorizontalScrollbar();
 

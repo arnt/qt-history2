@@ -44,7 +44,6 @@ void QTableViewPrivate::init()
 
 void QTableViewPrivate::updateVerticalScrollbar()
 {
-    int steps = q->verticalStepsPerItem();
     int height = viewport->height();
     int count = verticalHeader->count();
 
@@ -58,16 +57,16 @@ void QTableViewPrivate::updateVerticalScrollbar()
     int y = height;
     while (y > 0 && count > 0)
         y -= verticalHeader->sectionSize(--count);
-    int max = count * steps;
+    int max = count * verticalStepsPerItem;
 
     // set page step size
     int visibleCount = verticalHeader->count() - count - 1;
-    q->verticalScrollBar()->setPageStep(visibleCount * steps);
+    q->verticalScrollBar()->setPageStep(visibleCount * verticalStepsPerItem);
 
     if (y < 0) { // if the last item starts above the viewport, we have to backtrack
         int sectionSize = verticalHeader->sectionSize(count);
         if (sectionSize) // avoid division by zero
-            max += ((-y * steps)/ sectionSize) + 1; // how many units to add
+            max += ((-y * verticalStepsPerItem)/ sectionSize) + 1; // how many units to add
     }
 
     q->verticalScrollBar()->setRange(0, max);
@@ -75,7 +74,6 @@ void QTableViewPrivate::updateVerticalScrollbar()
 
 void QTableViewPrivate::updateHorizontalScrollbar()
 {
-    int steps = q->horizontalStepsPerItem();
     int width = viewport->width();
     int count = horizontalHeader->count();
 
@@ -89,16 +87,16 @@ void QTableViewPrivate::updateHorizontalScrollbar()
     int x = width;
     while (x > 0 && count > 0)
         x -= horizontalHeader->sectionSize(--count);
-    int max = count * steps;
+    int max = count * horizontalStepsPerItem;
 
     // set page step size
     int visibleCount = horizontalHeader->count() - count - 1;
-    q->horizontalScrollBar()->setPageStep(visibleCount * steps);
+    q->horizontalScrollBar()->setPageStep(visibleCount * horizontalStepsPerItem);
 
     if (x < 0) { // if the last item starts left of the viewport, we have to backtrack
         int sectionSize = horizontalHeader->sectionSize(count);
         if (sectionSize) // avoid division by zero
-            max += ((-x * steps) / sectionSize) + 1;
+            max += ((-x * horizontalStepsPerItem) / sectionSize) + 1;
     }
 
     q->horizontalScrollBar()->setRange(0, max);

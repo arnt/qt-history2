@@ -1567,8 +1567,8 @@ void QAbstractItemView::keyboardSearch(const QString &search)
     // special case for searches with same key like 'aaaaa'
     bool sameKey = false;
     if (d->keyboardInput.length() > 1) {
-        sameKey = d->keyboardInput.count(d->keyboardInput.at(d->keyboardInput.length() - 1)) ==
-                  d->keyboardInput.length();
+        int c = d->keyboardInput.count(d->keyboardInput.at(d->keyboardInput.length() - 1));
+        sameKey = (c == d->keyboardInput.length());
         if (sameKey)
             skipRow = true;
     }
