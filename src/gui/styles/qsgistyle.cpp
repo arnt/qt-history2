@@ -1264,7 +1264,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 	{
 #ifndef QT_NO_SCROLLBAR
 	    QScrollBar *scrollbar = (QScrollBar*)widget;
-	    bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
+	    bool maxedOut = (scrollbar->minimum() == scrollbar->maximum());
 	    if ( maxedOut )
 		flags &= ~Style_Enabled;
 

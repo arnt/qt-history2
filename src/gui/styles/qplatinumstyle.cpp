@@ -1325,8 +1325,8 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 	int sliderlen;
 
 	// calculate length
-	if ( sb->maxValue() != sb->minValue() ) {
-	    uint range = sb->maxValue() - sb->minValue();
+	if ( sb->maximum() != sb->minimum() ) {
+	    uint range = sb->maximum() - sb->minimum();
 	    sliderlen = ( sb->pageStep() * maxlen ) /
 			( range + sb->pageStep() );
 

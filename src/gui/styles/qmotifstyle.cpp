@@ -1352,7 +1352,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 				lh = child->height();
 			    else
 				lh = p->fontMetrics().height() + 2 * v->itemMargin();
-			    lh = QMAX( lh, QApplication::globalStrut().height() );
+			    lh = qMax( lh, QApplication::globalStrut().height() );
 			    if ( lh % 2 > 0 )
 				lh++;
 			    linebot = y + lh/2;
@@ -1582,8 +1582,8 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	int sliderlen;
 
 	// calculate slider length
-	if (scrollbar->maxValue() != scrollbar->minValue()) {
-	    uint range = scrollbar->maxValue() - scrollbar->minValue();
+	if (scrollbar->maximum() != scrollbar->minimum()) {
+	    uint range = scrollbar->maximum() - scrollbar->minimum();
 	    sliderlen = (scrollbar->pageStep() * maxlen) /
 			(range + scrollbar->pageStep());
 

@@ -1078,7 +1078,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 #ifndef QT_NO_SCROLLBAR
 	    const QScrollBar *scrollbar = (const QScrollBar *) widget;
 	    QRect addline, subline, addpage, subpage, slider, first, last;
-	    bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
+	    bool maxedOut = (scrollbar->minimum() == scrollbar->maximum());
 
 	    subline = querySubControlMetrics(control, widget, SC_ScrollBarSubLine, opt);
 	    addline = querySubControlMetrics(control, widget, SC_ScrollBarAddLine, opt);

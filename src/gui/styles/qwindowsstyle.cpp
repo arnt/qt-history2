@@ -110,9 +110,9 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
 	    widget = widget->topLevelWidget();
 
 	    // Alt has been pressed - find all widgets that care
-	    QObjectList l = widget->queryList("QWidget");
+	    QList<QWidget *> l = qFindChildren<QWidget *>(widget);
 	    for (int pos=0; pos<l.size(); ++pos) {
-		QWidget *w = static_cast<QWidget*>(l.at(pos));
+		QWidget *w = l.at(pos);
 		if (w->isTopLevel() || !w->isVisible() ||
 		    w->style().styleHint(SH_UnderlineAccelerator, w))
 		    l.removeAt(pos);
@@ -135,9 +135,9 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
 	    // Update state
 	    alt_down = FALSE;
 	    // Repaint only menubars
-	    QObjectList l = widget->queryList("QMenuBar");
+	    QList<QMenuBar *> l = qFindChildren<QMenuBar *>(widget);
 	    for (int pos=0; pos<l.size(); ++pos) {
-		QMenuBar *menuBar  = static_cast<QMenuBar*>(l.at(pos));
+		QMenuBar *menuBar  = l.at(pos);
 		menuBar->repaint();
 	    }
 	}
