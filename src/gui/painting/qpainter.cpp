@@ -1992,15 +1992,24 @@ void QPainter::drawPath(const QPainterPath &path)
 
     // Fill the path...
     if (d->state->brush.style() != Qt::NoBrush) {
-        QList<QPolygonF> fills = path.toFillPolygons(convertMatrix);
+        QList<QPolygonF> fills;
+        if (!(d->engine->emulationSpecifier & QPaintEngine::CoordTransform)
+              && d->state->txop > QPainterPrivate::TxTranslate) {
+            fills = path.toFillPolygons(d->state->matrix);
+            d->updateInvMatrix();
+            for (int i=0; i<fills.size(); ++i)
+                fills[i] = fills.at(i) * d->invMatrix;
+        } else {
+            fills = path.toFillPolygons(convertMatrix);
+        }
         save();
         QPoint tmpRedir = d->redirection_offset;
         d->redirection_offset = QPoint();
-        resetMatrix();
         setPen(Qt::NoPen);
 	d->engine->updateState(d->state);
         for (int i=0; i<fills.size(); ++i) {
             if (emulationSpecifier) {
+                resetMatrix();
                 d->draw_helper(&fills.at(i), path.fillRule(), QPainterPrivate::PolygonShape,
                                QPainterPrivate::StrokeAndFillDraw, emulationSpecifier);
             } else {
