@@ -66,7 +66,7 @@ void ConversionForm::convert()
 
     // set the result
     int decimals = decimalsSpinBox->value();
-    resultTextLabel->setText( QString::number( result, 'f', decimals ) );
+    resultLineEdit->setText( QString::number( result, 'f', decimals ) );
     numberLineEdit->setText( QString::number( input, 'f', decimals ) );
 }
 
