@@ -187,6 +187,8 @@ void qDebug( const char *msg, ... )
 	    fprintf( mac_debug, "\n" );		// add newline
 	    fflush( mac_debug );
 	}
+    } else {
+	exit(0);
     }
 }
 
