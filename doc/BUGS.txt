@@ -29,6 +29,8 @@ QFileDialog
 
 QWorkspace
     QWidget::isMinimzed(), isMaximized() return wrong value
+    setFocus() on an iconified but active window doesn't normalize (setFocus returns without sending event,
+								    and sending event manually crashes :o( )
 
 WType_Popup
     Children don't get enter/leave events.
