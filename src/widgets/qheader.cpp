@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#13 $
 **
 **  Table header
 **
@@ -79,7 +79,7 @@ static unsigned char vsplitm_bits[] = {
 
 
 /*!
-  \class QHeader QHeader.h
+  \class QHeader qheader.h
   \brief The QHeader widget class provides a table header.
 
   This is a table heading of the type used in a list view. It gives
@@ -245,13 +245,6 @@ void QHeader::init( int n )
     trackingIsOn = FALSE;
 }
 
-/*void QHeader::recalc()
-{
-    warning( "recalc must die!" );
-    return;
-}
-*/
-
 /*!
   Sets the header orientation.  The \e orientation must be
   QQHeader::Vertical or QQHeader::Horizontal.
@@ -356,6 +349,8 @@ int QHeader::pos2idx( int c )
 int QHeader::findLine( int c )
 {
     int i = pos2idx( c );
+    if ( i == -1 )
+	return handleIdx; //####### frustrating, but safe behaviour.
     if ( i == handleIdx )
 	return i;
     if ( i == handleIdx - 1 &&  pPos( handleIdx ) - c > MARKSIZE/2 )
