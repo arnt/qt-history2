@@ -2491,7 +2491,7 @@ void QPainter::fix_neg_rect( int *x, int *y, int *w, int *h )
   varieties.
 
   This function draws formatted text.  The \a tf text format is
-  really of type Qt::AlignmentFlags.
+  really of type Qt::AlignmentFlags and Qt::TextFlags OR'd together.
 
   Horizontal alignment defaults to AlignAuto and vertical alignment
   defaults to AlignTop.
@@ -2795,6 +2795,12 @@ void qt_format_text( const QFont& font, const QRect &r,
     }
     if ( painter ) {
 	xoff += r.x();
+	if ( r.width() < parag->pseudoDocument()->wused ) {
+	    if ( ( tf & Qt::AlignHCenter ) == Qt::AlignHCenter )
+		xoff -= parag->pseudoDocument()->wused / 2 - r.width() / 2;
+	    else if ( ( tf & Qt::AlignRight ) == Qt::AlignRight )
+		xoff -= parag->pseudoDocument()->wused - r.width();
+	}
 	if ( tf & Qt::AlignRight )
 	    xoff -= 2; // ### strange
 	yoff += r.y();
