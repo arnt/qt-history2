@@ -10,10 +10,27 @@ static const int repeatTime    = 100;
 
 
 /*!
+  \class QSlider qslider.h
+
+  \brief The QSlider widget class provides a vertical or horizontal slider.
+
+  A slider is used to let the user control a value within a
+  program-definable range. In contrast to a QScrollBar, the QSlider
+  widget has a constant size slider.
+
+  QSlider only offers integer ranges.
+
+  The recommended thickness of a slider is 16 pixels.
+
+  \ingroup realwidgets
+*/
+
+
+/*!
   Constructs a slider.
 
-  \arg \e minValue is the minimum scroll bar value.
-  \arg \e maxValue is the maximum scroll bar value.
+  \arg \e minValue is the minimum slider value.
+  \arg \e maxValue is the maximum slider value.
   \arg \e step is the page step value.
   \arg \e value is the initial value.
   \arg \e orientation must be QSlider::Vertical or QSlider::Horizontal.
@@ -43,14 +60,14 @@ void QSlider::init()
 
 /*!
   \fn void QSlider::setTracking( bool enable )
-  Enables scroll bar tracking if \e enable is TRUE, or disables tracking
+  Enables slider tracking if \e enable is TRUE, or disables tracking
   if \e enable is FALSE.
 
-  If tracking is enabled (default), the scroll bar emits the
+  If tracking is enabled (default), the slider emits the
   valueChanged() signal whenever the slider is being dragged.  If
-  tracking is disabled, the scroll bar emits the valueChanged() signal
+  tracking is disabled, the slider emits the valueChanged() signal
   when the user relases the mouse button (unless the value happens to
-  be the same sa before).
+  be the same as before).
 
   \sa tracking()
 */
@@ -72,7 +89,7 @@ void QSlider::init()
  */
 int QSlider::positionFromValue( int v ) const
 {
-    int  available = (orient == Horizontal) ? width() -SLIDE_WIDTH - 2*SLIDE_BORDER : height() - SLIDE_WIDTH - 2*SLIDE_BORDER; //###
+    int  available = (orient == Horizontal) ? width() -SLIDE_WIDTH - 2*SLIDE_BORDER : height() - SLIDE_WIDTH - 2*SLIDE_BORDER;
     int range = maxValue() - minValue();
     return range > 0 ? ( v * available ) / (range): 0;
 }
@@ -82,7 +99,7 @@ int QSlider::positionFromValue( int v ) const
  */
 int QSlider::valueFromPosition( int p ) const
 {
-    int  available = (orient == Horizontal) ? width() -SLIDE_WIDTH - 2*SLIDE_BORDER : height() - SLIDE_WIDTH - 2*SLIDE_BORDER; //###
+    int  available = (orient == Horizontal) ? width() -SLIDE_WIDTH - 2*SLIDE_BORDER : height() - SLIDE_WIDTH - 2*SLIDE_BORDER; 
     int range = maxValue() - minValue();
     return available > 0 ? (2 * p * range + available ) / (2*available): 0;
 }
@@ -198,7 +215,7 @@ void QSlider::paintSlider( int oldPos, int newPos )
 	    c = oldPos + SLIDE_BORDER;
 	    d = newPos - oldPos;
 	} else {
-	    c = newPos + SLIDE_WIDTH + SLIDE_BORDER; //###
+	    c = newPos + SLIDE_WIDTH + SLIDE_BORDER;
 	    d = oldPos - newPos;
 	}
 	if ( orient == Horizontal )
@@ -272,7 +289,7 @@ void QSlider::mousePressEvent( QMouseEvent *e )
 }
 
 /*!
-  Handles mouse move events for the scroll bar.
+  Handles mouse move events for the slider.
 */
 
 void QSlider::mouseMoveEvent( QMouseEvent *e )
@@ -281,7 +298,7 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
 	return;					// left mouse button is up
     if ( state != Dragging )
 	return;
-    int  available = (orient == Horizontal) ? width() - SLIDE_WIDTH - 2*SLIDE_BORDER : height() - SLIDE_WIDTH - 2*SLIDE_BORDER; //###
+    int  available = (orient == Horizontal) ? width() - SLIDE_WIDTH - 2*SLIDE_BORDER : height() - SLIDE_WIDTH - 2*SLIDE_BORDER;
     int pos = (orient == Horizontal) ?  e->pos().x(): e->pos().y();
     int oldPos = sliderPos;
     sliderPos = QMIN( available, QMAX( 0, pos - clickOffset) );
@@ -299,7 +316,7 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
 
 
 /*!
-  Handles mouse release events for the scroll bar.
+  Handles mouse release events for the slider.
 */
 
 void QSlider::mouseReleaseEvent( QMouseEvent *e )
