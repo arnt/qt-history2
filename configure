@@ -949,7 +949,7 @@ then
     fi
     if [ "x$STL" = "xauto" ]
     then
-	SHY="*"
+	SHY="+"
 	SHN=" "
     else
 	SHY=" "
@@ -982,8 +982,10 @@ Installation options:
     -headerdir dir ..... Headers will be installed to dir
 			  (default PREFIX/headers)
 
- The defaults (*) are usually acceptable.  Here is a short explanation of
- each option:
+ The defaults (*) are usually acceptable.  If marked with a plus (+) a test
+ for that feature has not been done yet, but will be evaluated later, the
+ plus simply denotes the default value. Here is a short explanation of each
+ option:
 
  *  -release ........... Compile and link Qt with debugging turned off.
     -debug ............. Compile and link Qt with debugging turned on.
@@ -1201,13 +1203,8 @@ then
 	sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$outpath,g" \
 	    -e "s,@QMAKE_LIBRARIES@,$DYLIB_LINK,g" -e "s,@QMAKESPEC@,$QMAKESPEC,g" $in_mkfile >>$mkfile
     done
-    if [ "$VERBOSE" = "yes" ]; then
-	(cd $outpath/qmake; /bin/sh -c $MAKE || \
-	(echo "QMake failed to build. Aborting." && exit 2)) || exit 2
-    else
-	(cd $outpath/qmake; /bin/sh -c $MAKE >/dev/null 2>&1 || \
-	(echo "QMake failed to build. Aborting." && exit 2)) || exit 2
-    fi
+
+    (cd $outpath/qmake; /bin/sh -c $MAKE || (echo "QMake failed to build. Aborting." && exit 2)) || exit 2
 fi
 
 #stl must be 
