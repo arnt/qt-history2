@@ -91,33 +91,6 @@ private:
     QListBox* listbox;
 };
 
-
-class MyMenuItem : public QCustomMenuItem
-{
-public:
-    MyMenuItem( const QString& s, const QFont& f )
-	: string( s ), font( f ){};
-    ~MyMenuItem(){}
-
-    void paint( QPainter* p, const QPalette& /*cg*/, bool /*act*/,
-		bool /*enabled*/, int x, int y, int w, int h )
-    {
-	p->setFont ( font );
-	p->drawText( x, y, w, h,
-		     AlignAuto | AlignVCenter | ShowPrefix | DontClip,
-		     string );
-    }
-
-    QSize sizeHint()
-    {
-	return QFontMetrics( font ).size( AlignAuto | AlignVCenter |
-					  ShowPrefix | DontClip,  string );
-    }
-private:
-    QString string;
-    QFont font;
-};
-
 //
 // Construct the WidgetView with children
 //
@@ -193,23 +166,6 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     plainStyleID = id = popup->insertItem( "&Plain" );
     popup->setAccel( CTRL+Key_T, id );
 
-    popup->insertSeparator();
-    QFont f = font();
-    f.setBold( TRUE );
-    id = popup->insertItem( new MyMenuItem( "&Bold", f ) );
-    popup->setAccel( CTRL+Key_B, id );
-    f = font();
-    f.setItalic( TRUE );
-    id = popup->insertItem( new MyMenuItem( "&Italic", f ) );
-    popup->setItemChecked( id, TRUE );
-    popup->setAccel( CTRL+Key_I, id );
-    f = font();
-    f.setUnderline( TRUE );
-    id = popup->insertItem( new MyMenuItem( "&Underline", f ) );
-    popup->setAccel( CTRL+Key_U, id );
-    f = font();
-    f.setStrikeOut( TRUE );
-    id = popup->insertItem( new MyMenuItem( "&Strike", f ) );
     connect( textStylePopup, SIGNAL(activated(int)),
 	     this, SLOT(popupSelected(int)) );
 
