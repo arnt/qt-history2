@@ -116,10 +116,12 @@ public:
 		break;
 	    }
 	}
+#ifndef QT_NO_WIDGET_TOPEXTRA
 	if ( tipstring.isEmpty() ) {
 	    if ( t->visibleText() != t->caption() )
 		tipstring = t->caption();
 	}
+#endif
 	if(!tipstring.isEmpty())
 	    tip( QRect(pos, controlSize), tipstring );
     }
@@ -153,8 +155,10 @@ QTitleBar::QTitleBar (QWidget* w, QWidget* parent, const char* name)
     d->window = w;
     d->buttonDown = QStyle::SC_None;
     d->act = 0;
+#ifndef QT_NO_WIDGET_TOPEXTRA
     if ( w )
 	setCaption( w->caption() );
+#endif
 
     readColors();
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
@@ -467,6 +471,7 @@ void QTitleBar::mouseDoubleClickEvent( QMouseEvent *e )
 
 void QTitleBar::cutText()
 {
+#ifndef QT_NO_WIDGET_TOPEXTRA
     QFontMetrics fm( font() );
 
     int maxw = style().querySubControlMetrics(QStyle::CC_TitleBar, this,
@@ -482,21 +487,25 @@ void QTitleBar::cutText()
 	    i--;
 	d->cuttext = txt.left( i ) + "...";
     }
+#endif
 }
 
 void QTitleBar::setCaption( const QString& title )
 {
+#ifndef QT_NO_WIDGET_TOPEXTRA
     if( caption() == title)
 	return;
     QWidget::setCaption( title );
     cutText();
 
     repaint( FALSE );
+#endif
 }
 
 
 void QTitleBar::setIcon( const QPixmap& icon )
 {
+#ifndef QT_NO_WIDGET_TOPEXTRA
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
     QRect menur = style().querySubControlMetrics(QStyle::CC_TitleBar, this,
 						  QStyle::SC_TitleBarSysMenu);
@@ -515,14 +524,15 @@ void QTitleBar::setIcon( const QPixmap& icon )
 	theIcon.convertFromImage( icon.convertToImage().smoothScale(neww,
 								   menur.height()) );
     } else
-#endif
-    {
 	theIcon = icon;
-    }
 
     QWidget::setIcon( theIcon );
+#else
+    QWidget::setIcon( icon );
+#endif
 
     repaint(FALSE);
+#endif
 }
 
 void QTitleBar::enterEvent( QEvent * )
