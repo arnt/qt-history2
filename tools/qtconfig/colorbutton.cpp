@@ -10,6 +10,7 @@
 #include <qcolordialog.h>
 #include <qpainter.h>
 #include <qdragobject.h>
+#include <qstyle.h>
 
 
 ColorButton::ColorButton(QWidget *parent, const char *name)

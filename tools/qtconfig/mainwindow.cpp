@@ -18,6 +18,7 @@
 #include <qsettings.h>
 #include <qmessagebox.h>
 #include <qtextview.h>
+#include <qstyle.h>
 
 
 // from qapplication.cpp and qapplication_x11.cpp - These are NOT for external use
