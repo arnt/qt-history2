@@ -550,6 +550,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
 
 void QAbstractItemView::resizeEvent(QResizeEvent *e)
 {
+    d->backBuffer.resize(e->size());
     QViewport::resizeEvent(e);
     updateGeometries();
 }

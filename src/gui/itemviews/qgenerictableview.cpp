@@ -174,8 +174,7 @@ void QGenericTableView::drawGrid(QPainter *p, int x, int y, int w, int h) const
 
 void QGenericTableView::paintEvent(QPaintEvent *e)
 {
-//    QPainter painter(&d->backBuffer);
-    QPainter painter(d->viewport);
+    QPainter painter(&d->backBuffer, d->viewport);
     QRect area = e->rect();
 
     int colfirst = columnAt(area.left());
@@ -230,9 +229,10 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
                 drawGrid(&painter, colp, rowp, colw - 1, rowh - 1);
         }
     }
-//     painter.end();
-//     painter.begin(d->viewport);
-//     painter.drawPixmap(0, 0, d->backBuffer);
+    
+    painter.end();
+    painter.begin(d->viewport);
+    painter.drawPixmap(0, 0, d->backBuffer);
 }
 
 bool QGenericTableView::event(QEvent *e)

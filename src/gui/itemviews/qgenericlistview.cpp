@@ -521,7 +521,7 @@ void QGenericListView::dropEvent(QDropEvent *e)
             QRect rect = itemRect(index);
             d->viewport->update(d->mapToViewport(rect));
             moveItem(index.row(), rect.topLeft() + delta);
-            d->viewport->update(d->mapToViewport(rect));
+            d->viewport->update(itemViewportRect(index));
         }
         stopAutoScroll();
     } else {
@@ -563,7 +563,7 @@ void QGenericListView::getViewOptions(QItemOptions *options) const
 
 void QGenericListView::paintEvent(QPaintEvent *e)
 {
-    QPainter painter(d->viewport);
+    QPainter painter(&d->backBuffer, d->viewport);
 
     QItemOptions options;
     getViewOptions(&options);
@@ -590,11 +590,15 @@ void QGenericListView::paintEvent(QPaintEvent *e)
         delegate->paint(&painter, options, *it);
     }
 
+    painter.end();
+    painter.begin(d->viewport);
+    painter.drawPixmap(0, 0, d->backBuffer);
+    
     if (!d->draggedItems.isEmpty() && d->viewport->rect().contains(d->draggedItemsPos)) {
         QPoint delta = (d->movement == Snap
                         ? d->snapToGrid(d->draggedItemsPos) - d->snapToGrid(d->pressedPosition)
                         : d->draggedItemsPos - d->pressedPosition);
-        painter.translate(delta.x(), delta.y());
+        painter.translate(delta.x(), delta.y()); // FIXME: this will make the drawpixmap slower
         d->draggedItemsRect = d->drawItems(&painter, d->draggedItems);
         d->draggedItemsRect.moveBy(delta.x(), delta.y());
     }

@@ -255,7 +255,7 @@ void QGenericTreeView::ensureItemVisible(const QModelIndex &item)
 
 void QGenericTreeView::paintEvent(QPaintEvent *e)
 {
-    QPainter painter(d->viewport);
+    QPainter painter(&d->backBuffer, d->viewport);
     QRect area = e->rect();
 
     if (d->items.isEmpty())
@@ -296,6 +296,10 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
         y += options.itemRect.height();
         ++i;
     }
+
+    painter.end();
+    painter.begin(d->viewport);
+    painter.drawPixmap(0, 0, d->backBuffer);
 }
 
 void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const QModelIndex &index) const
