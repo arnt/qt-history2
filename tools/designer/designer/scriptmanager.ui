@@ -1,0 +1,405 @@
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>ScriptManager</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>ScriptManager</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>644</width>
+            <height>540</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Script Manager</string>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
+            <number>11</number>
+        </property>
+        <property name="spacing">
+            <number>6</number>
+        </property>
+        <widget class="QTabWidget" row="0" column="0" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>tabWidget</cstring>
+            </property>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>tab</cstring>
+                </property>
+                <attribute name="title">
+                    <string>Manage Scripts</string>
+                </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QListBox" row="0" column="0" rowspan="5" colspan="1">
+                        <property name="name">
+                            <cstring>ListBox1</cstring>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton" row="4" column="1">
+                        <property name="name">
+                            <cstring>PushButton4</cstring>
+                        </property>
+                        <property name="text">
+                            <string></string>
+                        </property>
+                        <property name="pixmap">
+                            <pixmap>image0</pixmap>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton" row="0" column="1">
+                        <property name="name">
+                            <cstring>PushButton1</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Add Script...</string>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton" row="1" column="1">
+                        <property name="name">
+                            <cstring>PushButton2</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Remove Script</string>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton" row="3" column="1">
+                        <property name="name">
+                            <cstring>PushButton3</cstring>
+                        </property>
+                        <property name="text">
+                            <string></string>
+                        </property>
+                        <property name="pixmap">
+                            <pixmap>image1</pixmap>
+                        </property>
+                    </widget>
+                    <spacer row="2" column="1">
+                        <property name="name" stdset="0">
+                            <cstring>Spacer1</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QButtonGroup" row="0" column="2" rowspan="5" colspan="1">
+                        <property name="name">
+                            <cstring>ButtonGroup1</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Script Properties</string>
+                        </property>
+                        <vbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>11</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QCheckBox">
+                                <property name="name">
+                                    <cstring>CheckBox1</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Add to Menu</string>
+                                </property>
+                            </widget>
+                            <widget class="QCheckBox">
+                                <property name="name">
+                                    <cstring>CheckBox2</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Add to Toolbar</string>
+                                </property>
+                            </widget>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>Layout1</cstring>
+                                </property>
+                                <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <property name="margin">
+                                        <number>0</number>
+                                    </property>
+                                    <property name="spacing">
+                                        <number>6</number>
+                                    </property>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>TextLabel1</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Pixmap:</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>TextLabel2</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>TextLabel2</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QToolButton">
+                                        <property name="name">
+                                            <cstring>ToolButton1</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>...</string>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                        </vbox>
+                    </widget>
+                </grid>
+            </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>tab</cstring>
+                </property>
+                <attribute name="title">
+                    <string>Edit Scripts</string>
+                </attribute>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>Layout3</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>0</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>TextLabel3</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Script:</string>
+                                </property>
+                            </widget>
+                            <widget class="QComboBox">
+                                <property name="name">
+                                    <cstring>ComboBox1</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>7</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                            </widget>
+                            <widget class="QToolButton">
+                                <property name="name">
+                                    <cstring>ToolButton2</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>...</string>
+                                </property>
+                            </widget>
+                            <spacer>
+                                <property name="name" stdset="0">
+                                    <cstring>Spacer2</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>20</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                            <widget class="QToolButton">
+                                <property name="name">
+                                    <cstring>buttonNew</cstring>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="pixmap">
+                                    <pixmap>image2</pixmap>
+                                </property>
+                            </widget>
+                            <widget class="QToolButton">
+                                <property name="name">
+                                    <cstring>ToolButton4</cstring>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="pixmap">
+                                    <pixmap>image3</pixmap>
+                                </property>
+                            </widget>
+                            <spacer>
+                                <property name="name" stdset="0">
+                                    <cstring>Spacer4</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Minimum</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>20</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                            <widget class="QToolButton">
+                                <property name="name">
+                                    <cstring>buttonPlay</cstring>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="pixmap">
+                                    <pixmap>image4</pixmap>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                    <widget class="QButtonGroup">
+                        <property name="name">
+                            <cstring>editorGroup</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Editor</string>
+                        </property>
+                    </widget>
+                </vbox>
+            </widget>
+        </widget>
+        <widget class="QPushButton" row="1" column="1">
+            <property name="name">
+                <cstring>PushButton7</cstring>
+            </property>
+            <property name="text">
+                <string>Close</string>
+            </property>
+        </widget>
+        <spacer row="1" column="0">
+            <property name="name" stdset="0">
+                <cstring>Spacer3</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Horizontal</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>20</height>
+                </size>
+            </property>
+        </spacer>
+    </grid>
+</widget>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="1085">789c5dd0cd6ee2301000e03b4f11911b5ad1189290a8da0324a5e90f29941e2aadf6e0d84ea10d1020849ad5befb7a3cceaa29e2e06f663c33ce55cf7a9dcfacde55e758d16acd2cb6a207abc74f9b8dfcf5fbe79f4e97f896fabb8145ba3f3addbec5ac74b715704ed5d9769c01cb73e0423368f80224c190e53e70091c389e83d98366e83942679f0c43cc7e0087c4f3307b63c8b1d559337459c6810f48df137aab49436c750f748917320f78418e4cf65993fa04b33572c4313b067a039f333de80e39e238680ff4d5d2581c69d2c0c3ad8e0db1f30619127cd1dcd00c7a4452824c80a321359d73cd8c129c1b1b0acc726030a414b31299f9989d1952a4d0ccc23073819f861c973c2133d3b904aacf6ceeda9a8c12bc5b219929de21f9005900a99bf9f8e9a8a159728a5477f5d77847367719305373b1788b14668d4c9337d95b2437ef5d03b9c84df10a28fc866fc05c9522fbf0b369c6b8d0c7ffb1fc6db57effb0bfc68acd7657ee0fedba63599dea73d18a7dca525ec6ed3aa16293a81d2bf232beb1bfc578d58a416731ad641da95381b1e3f496ca939432c9f3bb7b8c450f8fb39994b18c93493a36fda2a7b9aa8ae3e4b278b69b192aa822499dc2d6cddc68b94ff697f46c7fdd255ad6f5e2dbdbfac7c3cbd8ecf7f7baf30f538f0154</data>
+    </image>
+    <image name="image1">
+        <data format="XPM.GZ" length="1040">789c5dcf4d73a2401006e0bbbf82726ed61609ca0c4c6ded0125dfd1985baab6f600338c280a46fc08a6f6bf2f3ddd26abc0619eb7677a9aab9ef3361d3bbdab4ebd4db673e5a83cd9383dbd5bad9adf7f7e7d76ba9e70dacfe78ed7fdd1e9ba8e72265599c17adaae99773df033cb9818225f2cc38132027887f4af8d01ee817dc935720d1c7827d648c1910f969273cd8123e4a93a21d2d95ba0ef098d631864409b6f2c13c195063e210389d55720ef0b8dd56764e021c7c8905acd2c93b66aa71a224389fffb0e14fd4062f51119d290115252ab2391c6585ab653a5f6de033294f8fbf74849175544eacc80c120e478b644267451434c90a9659a78d8aa2066585d00c33425ae80d25702b92352756ea91475ce90ba8f4c80299cb5177d58ea8c5a6d819a67b4595b66865a29602632628e3406b9011a73a26b1f96a40c575f19536dc7d959c6543e5f1466f95fd646aba22cabf5fb57c636f9a24ddaa75e52c6b6f90ea3aada2f313b7ccc1b1b1da3e128a67df09aaa1addb82963dfb3b8b7cdf18e9dcfe70e8b687f91b1fba25acf2eb2a289460f17d9a28c4c7c9e1d8ae8f1e9227b1e4feafa859d9f8de378fa8afbfefeecfc030f08f1a3</data>
+    </image>
+    <image name="image2">
+        <data format="XPM.GZ" length="1142">789cc5d2494f023114c0f13b9f62023762583a9d42633cb028278d4713e3a12b1df6656040e377775e5f91c1c0d91692f9f1ef0302d3ac476fafcf51bd59d966224b55a49cd84475bd9bcf8fef1f0f5f952a2151f18893a85dbdab541b918a5e960b03d7aeb8aeb5fc02f681ed2e6ce018485a84125f3f81318fbb31075a206dc78afab7d59e8276a9009a408554c084509510a0442609520099609cf9c33560477678470247404e799b53e0d653f1842be010289410c27303945432e90ff73c75410d3c061ae401a812695402dc2315410e0219f2c95317f4b38f8106b9066aa385f63fec2ad0209740c3b4310c98230d41ce021972e7591c357e761228900ba02d9af587a7484b90f34086cc3cad15d602d3408b6c5c5da752135215dfdf8edd9f524b4fcbb9cb22ce65e22e8a3c97e9cc958b3a97f962e94a45973e07d6b998df92aed69badbb3693a6d96e7f7d26cdf2c3cd99e33fcc5c94bc5c3ee195b0a7cb5ea9f4d3e96c96ef7278ae06c35271f9e3d3f180bb371c954ac35dacf2bf7dfb3eb852beef2b3f8e582913</data>
+    </image>
+    <image name="image3">
+        <data format="XPM.GZ" length="2157">789cadd34b4fe3301007f07b3f45446e6835348e93265aed8137050a9437acf6e0d8e9032894522005ed775f7b3c0e7d04c1613b8de82ff3cfc4d4e9cab27779d4f296576a4f6331ee4b4ff6c4c85b56cf83c1e4f79f5fefb525c63cfd8e638f2dfda82db5c79ef40e1eee7303e869f8757ca177d08929f42b5992d78d8324e08175979c909fc992fc64ccea8c333bff1e9d6aa7e88e71988632b4be35e682732ed08a9c9073b2b4f67de3887149eb97ce11feb3d0b08e22ea67ced47f430b6d3b7f979c527e93acc817c6312b3db18e03f2102d6277bd708eedfc13b2bbbe65dc084b17d60d37ef88ecd67f8cce4a3f90ddfd7ce746863e242bbb7f3e3853bf6d9c84ae0f81751290afc811ede73e3a2b9d3a2776de3639a57ee24cfd3a59d1f3b056daeeff8171cad3280cd05ba56dff122d4bc7cea944ef9153ea8f9cb99dc7c98af2abc682a78a9eaf736b11088e7e444be19e8f1bb22047cec2ce0bc939f9cc38e319cbecbc3e5a65317dff8c2c32853e25e7e46b631965b98cd04d6bc9c82fe498bc8156daf6fa31599007c62a92b9b2f93b6bc5acdbe3ef97cb830f023290a020af383ad085de475ea7fb7003b770a76b5071dcc3030ccd159417f008237882b19ef3bc70bcc02b143099cabfc12aacc1baee6c541e3d5d9b5379095bb00d3bd0c4ce7cd9b3bb5379057bb08ff90d7dbc2cfced416b269fc3c117f3879fcc5f9cddc4f5ffaff9f3b36d55cf3fac9c6eeaa8727e5befe26c1deb644bef55012795f3e7d3859e6baaf864fe67eb29f45d36bf5cff299cc1397e3277ba98997f09570bf3afcbbc59db74be037508f4b9d93c831038e58b99f574f14c31978f743aa6f50fa1319537fb3731dfc04c2590fa809f74cff73ff278c59735fdfbfdf6effdefcfda3f65441260</data>
+    </image>
+    <image name="image4">
+        <data format="XPM.GZ" length="584">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523232500022130543251d2e253d856405bffcbc54105b19c856360003103711c24d36827093405c0b630b430b63b0462c805c7165651ce289a83208f1c444651ce2c85a50c491b4a089c3b5a08bc3b460aa4f4ac2667e124418dd3d505134f727c18551fc8b10450e9f2464614478a288921ffe18e2b5d65c000a0b7591</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>PushButton7</sender>
+        <signal>clicked()</signal>
+        <receiver>ScriptManager</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
+        <sender>buttonPlay</sender>
+        <signal>clicked()</signal>
+        <receiver>ScriptManager</receiver>
+        <slot>buttonPlayClicked()</slot>
+    </connection>
+    <connection>
+        <sender>buttonNew</sender>
+        <signal>clicked()</signal>
+        <receiver>ScriptManager</receiver>
+        <slot>buttonNewClicked()</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in implementation">scriptmanager.ui.h</include>
+</includes>
+<forwards>
+    <forward>class QTextEdit;</forward>
+</forwards>
+<variables>
+    <variable>QTextEdit *editor;</variable>
+</variables>
+<slots>
+    <slot>init()</slot>
+    <slot>buttonPlayClicked()</slot>
+    <slot>buttonNewClicked()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
