@@ -153,12 +153,13 @@ extern bool qt_try_modal(QWidget *, XEvent *); // defined in qapplication_x11.cp
 
 static bool xt_grab = false;
 static Window xt_grab_focus_window = None;
+static Display *xt_grab_display = 0;
 
 Boolean qmotif_event_dispatcher(XEvent *event)
 {
     QApplication::sendPostedEvents();
 
-    if (event->xany.display == QMotif::display() && xt_grab) {
+    if (xt_grab && event->xany.display == xt_grab_display) {
 	if (event->type == XFocusIn && event->xfocus.mode == NotifyWhileGrabbed) {
 	    GDEBUG("Xt: grab moved to window 0x%lx (detail %d)",
 		   event->xany.window, event->xfocus.detail);
@@ -169,11 +170,13 @@ Boolean qmotif_event_dispatcher(XEvent *event)
 		       event->xany.window, event->xfocus.detail);
 		xt_grab = false;
 		xt_grab_focus_window = None;
+                xt_grab_display = 0;
 	    } else if (event->type == DestroyNotify
 		       && event->xany.window == xt_grab_focus_window) {
 		GDEBUG("Xt: grab window destroyed (0x%lx)", xt_grab_focus_window);
 		xt_grab = false;
 		xt_grab_focus_window = None;
+                xt_grab_display = 0;
 	    }
 	}
     }
@@ -182,7 +185,7 @@ Boolean qmotif_event_dispatcher(XEvent *event)
     QWidgetMapper::Iterator it = mapper->find(event->xany.window);
     QWidget *widget = it == mapper->end() ? 0 : *it;
     if (!widget && QWidget::find(event->xany.window) == 0) {
-	if (!xt_grab && event->xany.display == QMotif::display()
+	if (!xt_grab
             && (event->type == XFocusIn
                 && (event->xfocus.mode == NotifyGrab
                     || event->xfocus.mode == NotifyWhileGrabbed))
@@ -192,6 +195,7 @@ Boolean qmotif_event_dispatcher(XEvent *event)
                    event->xany.window, event->xfocus.detail);
 	    xt_grab = true;
 	    xt_grab_focus_window = event->xany.window;
+            xt_grab_display = event->xany.display;
 	}
 
 	// event is not for Qt, try Xt
@@ -206,7 +210,7 @@ Boolean qmotif_event_dispatcher(XEvent *event)
 	widget = it != mapper->end() ? *it : 0;
 
  	if (widget && (event->type == XKeyPress ||
-			 event->type == XKeyRelease))  {
+                       event->type == XKeyRelease))  {
 	    // remap key events to keep accelerators working
  	    event->xany.window = widget->winId();
  	}
@@ -222,10 +226,10 @@ Boolean qmotif_event_dispatcher(XEvent *event)
 	*/
 	bool do_deliver = true;
 	if (xt_grab && (event->type == ButtonPress   ||
-			  event->type == ButtonRelease ||
-			  event->type == MotionNotify  ||
-			  event->type == EnterNotify   ||
-			  event->type == LeaveNotify))
+                        event->type == ButtonRelease ||
+                        event->type == MotionNotify  ||
+                        event->type == EnterNotify   ||
+                        event->type == LeaveNotify))
 	    do_deliver = false;
 
 	last_xevent = event;
