@@ -854,6 +854,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     else
 	memset( dptr, 0xff, dbytes );
 
+#if 0
     int m11 = qRound((double)mat.m11()*65536.0);
     int m12 = qRound((double)mat.m12()*65536.0);
     int m21 = qRound((double)mat.m21()*65536.0);
@@ -963,6 +964,24 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	m22ydy += m22;
 	p += p_inc;
     }
+#else
+    int	  xbpl, p_inc;
+    if ( depth1 ) {
+	xbpl  = (w+7)/8;
+	p_inc = dbpl - xbpl;
+    } else {
+	xbpl  = (w*bpp)/8;
+	p_inc = dbpl - xbpl;
+    }
+
+    if ( !qt_xForm_helper( mat, 0, QT_XFORM_TYPE_WINDOWSPIXMAP, bpp, dptr, xbpl, p_inc, h, sptr, sbpl, ws, hs ) ){
+#if defined(QT_CHECK_RANGE)
+	qWarning( "QPixmap::xForm: display not supported (bpp=%d)",bpp);
+#endif
+	QPixmap pm;
+	return pm;
+    }
+#endif
 
     delete [] sptr;
 

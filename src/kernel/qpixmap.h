@@ -303,7 +303,12 @@ Q_EXPORT QDataStream &operator>>( QDataStream &, QPixmap & );
  *****************************************************************************/
 
 #ifndef QT_NO_TRANSFORMATIONS
-Q_EXPORT bool qt_xForm_helper( const QWMatrix&, int, bool, int, uchar*, int, int, int, uchar*, int, int, int );
+#  define QT_XFORM_TYPE_MSBFIRST 0
+#  define QT_XFORM_TYPE_LSBFIRST 1
+#  if defined(Q_WS_WIN)
+#    define QT_XFORM_TYPE_WINDOWSPIXMAP 2
+#  endif
+bool qt_xForm_helper( const QWMatrix&, int, int, int, uchar*, int, int, int, uchar*, int, int, int );
 #endif
 
 #endif // QPIXMAP_H

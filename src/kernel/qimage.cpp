@@ -2875,12 +2875,16 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
 	    break;
     }
 
-    bool msbfirst = systemByteOrder() == BigEndian; // ### is this right?
+    int type;
+    if ( systemByteOrder() == BigEndian ) // ### is this right?
+	type = QT_XFORM_TYPE_MSBFIRST;
+    else
+	type = QT_XFORM_TYPE_LSBFIRST;
     int dbpl = dImage.bytesPerLine();
-    qt_xForm_helper( mat, 0, msbfirst, bpp,
+    qt_xForm_helper( mat, 0, type, bpp,
 	    dImage.bits(),
-	    dbpl, // ### right?
-	    0, //p_inc, // ### right?
+	    dbpl,
+	    0,
 	    hd, sptr, sbpl, ws, hs );
     return dImage;
 }

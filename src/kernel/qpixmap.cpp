@@ -1179,8 +1179,35 @@ QDataStream &operator>>( QDataStream &s, QPixmap &pixmap )
   the source data.
 */
 #ifndef QT_NO_TRANSFORMATIONS
+#undef IWX_MSB
+#define IWX_MSB(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
+			    if ( *(sptr+sbpl*(trigy>>16)+(trigx>>19)) &		      \
+				 (1 << (7-((trigx>>16)&7))) )			      \
+				*dptr |= b;					      \
+			}							      \
+			trigx += m11;						      \
+			trigy += m12;
+	// END OF MACRO
+#undef IWX_LSB
+#define IWX_LSB(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
+			    if ( *(sptr+sbpl*(trigy>>16)+(trigx>>19)) &		      \
+				 (1 << ((trigx>>16)&7)) )			      \
+				*dptr |= b;					      \
+			}							      \
+			trigx += m11;						      \
+			trigy += m12;
+	// END OF MACRO
+#undef IWX_PIX
+#define IWX_PIX(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
+			    if ( (*(sptr+sbpl*(trigy>>16)+(trigx>>19)) &	      \
+				 (1 << (7-((trigx>>16)&7)))) == 0 )		      \
+				*dptr &= ~b;					      \
+			}							      \
+			trigx += m11;						      \
+			trigy += m12;
+	// END OF MACRO
 bool qt_xForm_helper( const QWMatrix &trueMat, int xoffset,
-	bool msbfirst, int depth,
+	int type, int depth,
 	uchar *dptr, int dbpl, int p_inc, int dHeight,
 	uchar *sptr, int sbpl, int sWidth, int sHeight
 	)
@@ -1258,47 +1285,49 @@ bool qt_xForm_helper( const QWMatrix &trueMat, int xoffset,
 		return FALSE;
 		}
 	    }
-	} else if ( msbfirst ) {		// mono bitmap MSB first
-	    while ( dptr < maxp ) {
-#undef IWX
-#define IWX(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
-		    if ( *(sptr+sbpl*(trigy>>16)+(trigx>>19)) &		      \
-			 (1 << (7-((trigx>>16)&7))) )			      \
-			*dptr |= b;					      \
-		}							      \
-		trigx += m11;						      \
-		trigy += m12;
-	// END OF MACRO
-		IWX(128);
-		IWX(64);
-		IWX(32);
-		IWX(16);
-		IWX(8);
-		IWX(4);
-		IWX(2);
-		IWX(1);
-		dptr++;
-	    }
-	} else {				// mono bitmap LSB first
-	    while ( dptr < maxp ) {
-#undef IWX
-#define IWX(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
-		    if ( *(sptr+sbpl*(trigy>>16)+(trigx>>19)) &		      \
-			 (1 << ((trigx>>16)&7)) )			      \
-			*dptr |= b;					      \
-		}							      \
-		trigx += m11;						      \
-		trigy += m12;
-	// END OF MACRO
-		IWX(1);
-		IWX(2);
-		IWX(4);
-		IWX(8);
-		IWX(16);
-		IWX(32);
-		IWX(64);
-		IWX(128);
-		dptr++;
+	} else  {
+	    switch ( type ) {
+		case QT_XFORM_TYPE_MSBFIRST:
+		    while ( dptr < maxp ) {
+			IWX_MSB(128);
+			IWX_MSB(64);
+			IWX_MSB(32);
+			IWX_MSB(16);
+			IWX_MSB(8);
+			IWX_MSB(4);
+			IWX_MSB(2);
+			IWX_MSB(1);
+			dptr++;
+		    }
+		    break;
+		case QT_XFORM_TYPE_LSBFIRST:
+		    while ( dptr < maxp ) {
+			IWX_LSB(1);
+			IWX_LSB(2);
+			IWX_LSB(4);
+			IWX_LSB(8);
+			IWX_LSB(16);
+			IWX_LSB(32);
+			IWX_LSB(64);
+			IWX_LSB(128);
+			dptr++;
+		    }
+		    break;
+#  if defined(Q_WS_WIN)
+		case QT_XFORM_TYPE_WINDOWSPIXMAP:
+		    while ( dptr < maxp ) {
+			IWX_PIX(128);
+			IWX_PIX(64);
+			IWX_PIX(32);
+			IWX_PIX(16);
+			IWX_PIX(8);
+			IWX_PIX(4);
+			IWX_PIX(2);
+			IWX_PIX(1);
+			dptr++;
+		    }
+		    break;
+#  endif
 	    }
 	}
 	m21ydx += m21;
@@ -1307,4 +1336,7 @@ bool qt_xForm_helper( const QWMatrix &trueMat, int xoffset,
     }
     return TRUE;
 }
+#undef IWX_MSB
+#undef IWX_LSB
+#undef IWX_PIX
 #endif // QT_NO_TRANSFORMATIONS

@@ -1725,8 +1725,12 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     qDebug( "bits per pixel.... %d", xi->bits_per_pixel );
 #endif
 
-    bool  msbfirst = xi->bitmap_bit_order == MSBFirst;
-    int	  xbpl, p_inc;
+    int type;
+    if ( xi->bitmap_bit_order == MSBFirst )
+	type = QT_XFORM_TYPE_MSBFIRST;
+    else
+	type = QT_XFORM_TYPE_LSBFIRST;
+    int	xbpl, p_inc;
     if ( depth1 ) {
 	xbpl  = (w+7)/8;
 	p_inc = dbpl - xbpl;
@@ -1739,7 +1743,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 #endif
     }
 
-    if ( !qt_xForm_helper( mat, xi->xoffset, msbfirst, bpp, dptr, xbpl, p_inc, h, sptr, sbpl, ws, hs ) ){
+    if ( !qt_xForm_helper( mat, xi->xoffset, type, bpp, dptr, xbpl, p_inc, h, sptr, sbpl, ws, hs ) ){
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QPixmap::xForm: display not supported (bpp=%d)",bpp);
 #endif
