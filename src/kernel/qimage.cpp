@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#223 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#224 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2332,13 +2332,13 @@ bool QImage::save( const QString &fileName, const char* format ) const
 
 /*!
   \relates QImage
-  Writes an image to the stream as a BMP image.
+  Writes an image to the stream as a PNG image.
   \sa QImage::save()
 */
 
 QDataStream &operator<<( QDataStream &s, const QImage &image )
 {
-    QImageIO io( s.device(), "BMP" );
+    QImageIO io( s.device(), "PNG" );
     io.setImage( image );
     io.write();
     return s;
