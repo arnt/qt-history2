@@ -357,8 +357,7 @@ class Q3DateTimeEditor : public QWidget
 {
     Q_OBJECT
 public:
-    Q3DateTimeEditor(Q3DateTimeEditBase * parent=0,
-                       const char * name=0);
+    Q3DateTimeEditor(Q3DateTimeEditBase *widget, QWidget *parent, const char* name=0);
     ~Q3DateTimeEditor();
 
     void setControlWidget(Q3DateTimeEditBase * widget);
@@ -419,12 +418,11 @@ protected:
     Constructs an empty datetime editor with parent \a parent and
     called \a name.
 */
-Q3DateTimeEditor::Q3DateTimeEditor(Q3DateTimeEditBase * parent,
-                                  const char * name)
+Q3DateTimeEditor::Q3DateTimeEditor(Q3DateTimeEditBase *widget, QWidget *parent, const char * name)
     : QWidget(parent, name)
 {
     d = new Q3DateTimeEditorPrivate();
-    cw = parent;
+    cw = widget;
     init();
 }
 
@@ -906,13 +904,12 @@ void Q3DateEdit::init()
 {
     d = new Q3DateEditPrivate();
     d->controls = new QDateTimeSpinWidget(this, 0);
-    d->ed = new Q3DateTimeEditor(this);
+    d->ed = new Q3DateTimeEditor(this, d->controls);
     d->controls->setEditWidget(d->ed);
     setFocusProxy(d->ed);
     connect(d->controls, SIGNAL(stepUpPressed()), SLOT(stepUp()));
     connect(d->controls, SIGNAL(stepDownPressed()), SLOT(stepDown()));
-    connect(this, SIGNAL(valueChanged(QDate)),
-             SLOT(updateButtons()));
+    connect(this, SIGNAL(valueChanged(QDate)), SLOT(updateButtons()));
     d->ed->appendSection(QNumberSection(0,4));
     d->ed->appendSection(QNumberSection(5,7));
     d->ed->appendSection(QNumberSection(8,10));
@@ -1540,7 +1537,6 @@ bool Q3DateEdit::setFocusSection(int s)
     \i If the day or month is 0 then it will be set to 1 or the
     minimum valid day/month in the range.
     \endlist
-
 */
 
 void Q3DateEdit::fix()
@@ -1807,8 +1803,8 @@ Q3TimeEdit::Q3TimeEdit(const QTime& time, QWidget * parent, const char * name)
 void Q3TimeEdit::init()
 {
     d = new Q3TimeEditPrivate();
-    d->ed = new Q3DateTimeEditor(this, "time edit base");
     d->controls = new QDateTimeSpinWidget(this, 0);
+    d->ed = new Q3DateTimeEditor(this, d->controls, "time edit base");
     d->controls->setEditWidget(d->ed);
     setFocusProxy(d->ed);
     connect(d->controls, SIGNAL(stepUpPressed()), SLOT(stepUp()));
@@ -2678,10 +2674,8 @@ void Q3DateTimeEdit::init()
     de = new Q3DateEdit(this, "qt_datetime_dateedit");
     te = new Q3TimeEdit(this, "qt_datetime_timeedit");
     d->adv = false;
-    connect(de, SIGNAL(valueChanged(QDate)),
-             this, SLOT(newValue(QDate)));
-    connect(te, SIGNAL(valueChanged(QTime)),
-             this, SLOT(newValue(QTime)));
+    connect(de, SIGNAL(valueChanged(QDate)), this, SLOT(newValue(QDate)));
+    connect(te, SIGNAL(valueChanged(QTime)), this, SLOT(newValue(QTime)));
     setFocusProxy(de);
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 }
