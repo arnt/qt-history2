@@ -2116,6 +2116,8 @@ void pnmscale(const QImage& src, QImage& dst)
   copyright notice and this permission notice appear in supporting
   documentation.  This software is provided "as is" without express or
   implied warranty.
+
+  \sa mirror()
 */
 QImage QImage::smoothScale(int w, int h) const
 {
@@ -2280,6 +2282,106 @@ QImage QImage::createHeuristicMask( bool clipTight ) const
     return m;
 }
 
+/*
+  This code is contributed by Philipp Lang,
+  GeneriCom Software Germany (www.generi.com)
+  under the terms of the QPL, Version 1.0
+*/
+
+/*!
+  Returns the image mirrored in the horizontal and/or vertical direction.
+
+  \sa smoothScale()
+*/
+QImage QImage::mirror(bool horizontal, bool vertical) const
+{
+    QImage result = copy(); // Could be avoided.
+
+    if (height() <= 1 || width() <= 1)
+	return result;
+    
+    // Vertical mirror
+    if (vertical) {
+	int bpl = result.bytesPerLine();
+	int y1, y2;
+	for (y1 = 0, y2 = result.height()-1; y1 < y2; y1++, y2--) {
+	    uchar* a1 = result.scanLine(y1);
+	    uchar* a2 = result.scanLine(y2);
+	    for (int x = bpl; x > 0; x--) {
+		uchar c = *a1;
+		*a1++ = *a2;
+		*a2++ = c;
+	    }
+	}
+    }
+    
+    // Horizontal mirror
+    if (horizontal) {
+	if (result.depth() == 32) {
+	    for (int y = result.height()-1; y >= 0; y--) {
+		uint* a1 = (uint *)result.scanLine(y);
+		uint* a2 = a1+result.width()-1;
+		while (a1 < a2) {
+		    uint c = *a1;
+		    *a1++ = *a2;
+		    *a2-- = c;
+		}
+	    }
+	} else if (result.depth() == 8) {
+	    for (int y = result.height()-1; y >= 0; y--) {
+		uchar* a1 = result.scanLine(y);
+		uchar* a2 = a1+result.width()-1;
+		while (a1 < a2) {
+		    uchar c = *a1;
+		    *a1++ = *a2;
+		    *a2-- = c;
+		}
+	    }
+	} else if (result.depth() == 1) {
+	    // Flip bytes
+	    uchar* fliptab = qt_get_bitflip_array();
+	    int bpl = (result.width()+7)/8;
+	    for (int y = result.height()-1; y >= 0; y--) {
+		uchar* a1 = result.scanLine(y);
+		uchar* a2 = a1+bpl-1;
+		while (a1 <= a2) {
+		    uchar c = *a1;
+		    *a1++ = fliptab[*a2];
+		    *a2-- = fliptab[c];
+		}
+	    }
+	    // Shift bits if unaligned
+	    int shift = result.width() % 8;
+	    if (shift != 0) {
+		if (result.bitOrder() == QImage::LittleEndian) {
+		    for (int y = result.height()-1; y >= 0; y--) {
+			uchar* a = result.scanLine(y)+bpl-1;
+			uchar* a0 = result.scanLine(y);
+			uchar c = 0;
+			while (a >= a0) {
+			    uchar nc = *a << shift;
+			    *a-- = (*a >> (8-shift)) | c;
+			    c = nc;
+			}
+		    }
+		} else {
+		    for (int y = result.height()-1; y >= 0; y--) {
+			uchar* a = result.scanLine(y)+bpl-1;
+			uchar* a0 = result.scanLine(y);
+			uchar c = 0;
+			while (a >= a0) {
+			    uchar nc = *a >> shift;
+			    *a-- = (*a << (8-shift)) | c;
+			    c = nc;
+			}
+		    }
+		}
+	    }
+	}
+    }
+    return result;
+}
+
 
 /*!
   Returns a QImage which is a vertically mirrored copy of this
@@ -2288,7 +2390,10 @@ QImage QImage::createHeuristicMask( bool clipTight ) const
 
 QImage QImage::mirror() const
 {
-    QImage res = copy();
+    // DO NOT MAINTAIN THIS FUNCTION.  Improve the other one above
+    //            and use mirror(FALSE,TRUE) here.
+
+    QImage res = copy(); // Why? We write the whole image.
     if ( !isNull() ) {
 	int numScanLines = height();
 	int lineSize = bytesPerLine();

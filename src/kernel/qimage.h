@@ -124,6 +124,7 @@ public:
     QImage	createHeuristicMask( bool clipTight=TRUE ) const;
 
     QImage	mirror() const;
+    QImage	mirror(bool horizontally, bool vertically) const;
     QImage	swapRGB() const;
 
     static Endian systemBitOrder();
