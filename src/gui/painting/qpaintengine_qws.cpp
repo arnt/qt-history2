@@ -153,7 +153,7 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev, bool unclipped)
         if (w->isVisible() && w->topLevelWidget()->isVisible()) {
             int rgnIdx = w->topLevelWidget()->data->alloc_region_index;
             if (rgnIdx >= 0) {
-                r = (unclipped || w->testWFlags(WPaintUnclipped)) ? w->allocatedRegion() : w->paintableRegion();
+                r = (unclipped || w->testAttribute(WA_PaintUnclipped)) ? w->allocatedRegion() : w->paintableRegion();
                 QRegion req;
                 bool changed = false;
                 QWSDisplay::grab();

@@ -339,7 +339,7 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev, bool unclipped)
         if (d->usesWidgetDC) {
             d->hdc = w->hdc;                        // during paint event
         } else {
-            if (unclipped || w->testWFlags(WPaintUnclipped)) {
+            if (unclipped || w->testAttribute(WA_PaintUnclipped)) {
                 d->hdc = GetWindowDC(w->winId());
                 if (w->isTopLevel()) {
                     int dx = w->geometry().x() - w->frameGeometry().x();

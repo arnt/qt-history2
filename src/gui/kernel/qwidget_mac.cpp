@@ -375,11 +375,11 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
                        !widget->d->isBackgroundInherited()) {
                         QBrush bg = widget->palette().brush(widget->d->bg_role);
                         QRect rr = qrgn.boundingRect();
-                        bool was_unclipped = widget->testWFlags(Qt::WPaintUnclipped);
-                        widget->clearWFlags(Qt::WPaintUnclipped);
+                        bool was_unclipped = widget->testAttribute(Qt::WA_PaintUnclipped);
+                        widget->setAttribute(Qt::WA_PaintUnclipped, false);
                         QPainter p(widget);
                         if(was_unclipped)
-                            widget->setWFlags(Qt::WPaintUnclipped);
+                            widget->setAttribute(Qt::WA_PaintUnclipped);
                         p.setClipRegion(qrgn);
                         if(bg.pixmap())
                             p.drawTiledPixmap(rr, *bg.pixmap(),

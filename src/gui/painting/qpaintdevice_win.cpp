@@ -304,7 +304,7 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
         }
     } else {
         if (!dst_dc && td == QInternal::Widget) {
-            if (((QWidget*)dst)->testWFlags(Qt::WPaintUnclipped))
+            if (((QWidget*)dst)->testAttribute(Qt::WA_PaintUnclipped))
                 dst_dc = GetWindowDC(((QWidget*)dst)->winId());
             else
                 dst_dc = GetDC(((QWidget*)dst)->winId());

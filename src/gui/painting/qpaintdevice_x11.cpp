@@ -376,7 +376,7 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
         src_pm = 0;
         mono_src = false;
         mask = 0;
-        include_inferiors = ((QWidget*)src)->testWFlags(Qt::WPaintUnclipped);
+        include_inferiors = ((QWidget*)src)->testAttribute(Qt::WA_PaintUnclipped);
         graphics_exposure = td == QInternal::Widget;
     }
     if (td == QInternal::Pixmap) {
@@ -387,7 +387,7 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
     } else {
         mono_dst = false;
         include_inferiors = include_inferiors ||
-                            ((QWidget*)dst)->testWFlags(Qt::WPaintUnclipped);
+                            ((QWidget*)dst)->testAttribute(Qt::WA_PaintUnclipped);
     }
 
     if (mono_dst && !mono_src) {        // dest is 1-bit pixmap, source is not

@@ -211,7 +211,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             clearWFlags(WStyle_ContextHelp);
     }
     if (!desktop) {
-        // if (!testWFlags(WPaintUnclipped))
+        // if (!testAttribute(WA_PaintUnclipped))
         // ### Commented out for now as it causes some problems, but
         // this should be correct anyway, so dig some more into this
             style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN ;

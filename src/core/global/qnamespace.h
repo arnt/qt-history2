@@ -196,7 +196,7 @@ public:
 
         WDestructiveClose        = 0x00010000,        // misc flags
         WPaintDesktop            = 0x00020000,
-        WPaintUnclipped          = 0x00040000,
+        //reserved WPaintUnclipped = 0x00040000,
         //reserved WPaintClever  = 0x00080000,
         //reserved WResizeNoErase= 0x00100000,
         WMouseNoMask             = 0x00200000,
@@ -290,6 +290,7 @@ public:
         WA_OutsideWSRange,
         WA_GrabbedShortcut,
         WA_TransparentForMouseEvents,
+        WA_PaintUnclipped,
 
         // Add new attributes above this!
         WA_AttributeCount

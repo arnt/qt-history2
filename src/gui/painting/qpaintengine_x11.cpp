@@ -588,12 +588,11 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev, bool unclipped)
 //         QBrush defaultBrush;
 //         ps->brush = defaultBrush;
 //     }
-    if (w && (unclipped || w->testWFlags(WPaintUnclipped))) {  // paint direct on device
+    if (w && (unclipped || w->testAttribute(WA_PaintUnclipped))) {  // paint direct on device
         setf(NoCache);
         setf(UsePrivateCx);
-        // ### These are called later by QPainter, right?
-//         updatePen(ps);
-//         updateBrush(ps);
+ 	updatePen(QPen(black));
+ 	updateBrush(QBrush(white), QPoint());
         XSetSubwindowMode(d->dpy, d->gc, IncludeInferiors);
         XSetSubwindowMode(d->dpy, d->gc_brush, IncludeInferiors);
 #ifndef QT_NO_XFT
@@ -618,10 +617,6 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev, bool unclipped)
     }
 
     d->clip_serial = gc_cache_clip_serial++;
-    // ### Called by QPainter later, right?
-//     updateBrush(ps);
-//     updatePen(ps);
-//     updateClipRegion(ps);
 
     return true;
 }
@@ -630,7 +625,7 @@ bool QX11PaintEngine::end()
 {
     setActive(false);
     if (d->pdev->devType() == QInternal::Widget  &&                 // #####
-        ((QWidget*)d->pdev)->testWFlags(WPaintUnclipped)) {
+        ((QWidget*)d->pdev)->testAttribute(WA_PaintUnclipped)) {
         if (d->gc)
             XSetSubwindowMode(d->dpy, d->gc, ClipByChildren);
         if (d->gc_brush)
@@ -685,7 +680,7 @@ void QX11PaintEngine::drawRect(const QRect &r)
     ::Picture pict = d->rendhd ? XftDrawPicture((XftDraw *) d->rendhd) : 0;
 
     if (pict) {
-	if (d->cbrush.style() != NoBrush) {
+	if (d->cbrush.style() != NoBrush && d->cbrush.color().alpha() != 255) {
 	    if (d->cpen.style() == NoPen) {
 		XRenderColor xc;
 		QColor qc = d->cbrush.color();

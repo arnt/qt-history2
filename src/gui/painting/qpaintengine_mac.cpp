@@ -144,7 +144,7 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev, bool unclipped)
             d->offy = wp.y();
         }
         if(!unclipped)
-            unclipped = (bool)w->testWFlags(WPaintUnclipped);
+            unclipped = (bool)w->testAttribute(WA_PaintUnclipped);
 
         if(!d->locked) {
             LockPortBits(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())));
@@ -1023,7 +1023,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, bool unclipped)
             d->offy = wp.y();
         }
         if(!unclipped)
-            unclipped = (bool)w->testWFlags(WPaintUnclipped);
+            unclipped = (bool)w->testAttribute(WA_PaintUnclipped);
 
         if(w->isDesktop()) {
             if(!unclipped)

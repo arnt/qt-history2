@@ -1552,6 +1552,8 @@ void QWidget::repaint(const QRegion& rgn)
     if (testAttribute(WA_NoSystemBackground)) {
         if (double_buffer && !testAttribute(WA_NoBackground)) {
             GC gc = qt_xget_temp_gc(d->xinfo->screen(), false);
+	    if (testAttribute(WA_PaintUnclipped))
+		XSetSubwindowMode(d->xinfo->display(), gc, IncludeInferiors);
             XCopyArea(d->xinfo->display(), winId(), hd, gc,
                       brWS.x(), brWS.y(), brWS.width(), brWS.height(), 0, 0);
         }
@@ -1617,6 +1619,8 @@ void QWidget::repaint(const QRegion& rgn)
     if (double_buffer) {
         GC gc = qt_xget_temp_gc(d->xinfo->screen(), false);
         QVector<QRect> rects = rgn.rects();
+	if (testAttribute(WA_PaintUnclipped))
+	    XSetSubwindowMode(d->xinfo->display(), gc, IncludeInferiors);
         for (int i = 0; i < rects.size(); ++i) {
             QRect rr = d->mapToWS(rects[i]);
             XCopyArea(d->xinfo->display(), hd, winId(), gc,

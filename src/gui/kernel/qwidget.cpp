@@ -606,10 +606,6 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     \value WPaintDesktop  gives this widget paint events for the
     desktop.
 
-    \value WPaintUnclipped  makes all painters operating on this
-    widget unclipped. Children of this widget or other widgets in
-    front of it do not clip the area the painter can paint on.
-
     \value WMouseNoMask  indicates that even if the widget has a mask,
     it wants mouse events for its entire rectangle.
 
@@ -1915,7 +1911,7 @@ QRect QWidget::frameGeometry() const
     return data->crect;
 }
 
-/*! 
+/*!
     \property QWidget::x
 
     \brief the x coordinate of the widget relative to its parent including
@@ -6036,7 +6032,7 @@ const QPixmap *QWidget::icon() const
     \row \i WA_SetBackgroundRole \i Indicates that the widgets has an
     explicit background role\i Function QWidget::setBackgroundRole()
 
-    \row \i WA_NoBackground \ i indicates that the widget paints all
+    \row \i WA_NoBackground \i Indicates that the widget paints all
     its pixels when it receives a paint event. It is thus not required
     for operations like updating, resizing, scrolling and focus
     changes to call erase the widget before generating paint
@@ -6067,6 +6063,10 @@ const QPixmap *QWidget::icon() const
     \row \i WA_PaintOnScreen \i Indicates that the widget wants to
     draw directly onto the screen (implies no double buffering). This
     is not supported on all platforms. \i Widget author.
+
+    \row \i WA_PaintUnclipped \i Makes all painters operating on this
+    widget unclipped. Children of this widget or other widgets in
+    front of it do not clip the area the painter can paint on.
 
     \row \i WA_WindowModified \i Indicates that the window is marked as
     modified. On some platforms this will mean nothing, on others
