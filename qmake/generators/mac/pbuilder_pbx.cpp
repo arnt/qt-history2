@@ -1070,8 +1070,14 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "\t\t\t" << ");" << "\n"
 	  << "\t\t\t" << "buildSettings = {" << "\n"
 	  << "\t\t\t\t" << "COPY_PHASE_STRIP = " << (as_release ? "YES" : "NO") << ";" << "\n";
-	if(as_release) 
+	if(as_release) {
 	    t << "\t\t\t\t" << "DEBUGGING_SYMBOLS = NO;" << "\n";
+	} else {
+	    t << "\t\t\t\t" << "GCC_ENABLE_FIX_AND_CONTINUE = YES;" << "\n"
+	      << "\t\t\t\t" << "GCC_GENERATE_DEBUGGING_SYMBOLS = YES;" << "\n"
+	      << "\t\t\t\t" << "GCC_OPTIMIZATION_LEVEL = 0;" << "\n"
+	      << "\t\t\t\t" << "ZERO_LINK = YES;" << "\n";
+	}
 	t << "\t\t\t" << "};" << "\n"
 	  << "\t\t\t" << "isa = PBXBuildStyle;" << "\n"
 	  << "\t\t\t" << "name = " << (as_release ? "Deployment" : "Development") << ";" << "\n"
