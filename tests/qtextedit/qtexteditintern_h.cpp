@@ -390,6 +390,9 @@ public:
     int listDepth() const;
     void setListDepth( int d );
 
+    void setAlignment( int a );
+    int alignment() const;
+    
 private:
     struct Selection {
 	int start, end;
@@ -411,7 +414,8 @@ private:
     Type typ;
     int left;
     int depth;
-
+    int align;
+    
 };
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -484,7 +488,7 @@ protected:
 class QTextEditFormat
 {
     friend class QTextEditFormatCollection;
-    
+
 public:
     enum Flags {
 	Bold = 1,
@@ -496,7 +500,7 @@ public:
 	Font = Bold | Italic | Underline | Family | Size,
 	Format = Font | Color
     };
-    
+
     QTextEditFormat( const QFont &f, const QColor &c );
     QTextEditFormat( const QTextEditFormat &fm );
     QColor color() const;
@@ -516,13 +520,13 @@ public:
     void setFont( const QFont &f );
     void setColor( const QColor &c );
 
-    bool operator==( const QTextEditFormat &f ) const;    
+    bool operator==( const QTextEditFormat &f ) const;
     QTextEditFormatCollection *parent() const;
     QString key() const;
-    
+
     void addRef();
     void removeRef();
-    
+
 private:
     void update();
     void generateKey();
@@ -539,7 +543,7 @@ private:
     QTextEditFormatCollection *collection;
     int ref;
     QString k;
-    
+
 };
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -554,14 +558,14 @@ public:
     QTextEditFormat *format( QTextEditFormat *f );
     QTextEditFormat *format( QTextEditFormat *of, QTextEditFormat *nf, int flags );
     void remove( QTextEditFormat *f );
-    
+
 private:
     QTextEditFormat *defFormat, *lastFormat;
     QDict<QTextEditFormat> cKey;
     QTextEditFormat *cres;
     QString kof, knf;
     int cflags;
-    
+
 };
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -855,11 +859,11 @@ inline int QTextEditFormat::descent() const
     return dsc;
 }
 
-inline bool QTextEditFormat::operator==( const QTextEditFormat &f ) const 
+inline bool QTextEditFormat::operator==( const QTextEditFormat &f ) const
 {
     return k == f.k;
 }
-    
+
 inline QTextEditFormatCollection *QTextEditFormat::parent() const
 {
     return collection;
@@ -869,7 +873,7 @@ inline void QTextEditFormat::addRef()
 {
     ref++;
 #ifdef DEBUG_COLLECTION
-    qDebug( "add ref of '%s' to %d (%p)", k.latin1(), ref, this ); 
+    qDebug( "add ref of '%s' to %d (%p)", k.latin1(), ref, this );
 #endif
 }
 
@@ -879,7 +883,7 @@ inline void QTextEditFormat::removeRef()
     if ( !collection )
 	return;
 #ifdef DEBUG_COLLECTION
-    qDebug( "remove ref of '%s' to %d (%p)", k.latin1(), ref, this ); 
+    qDebug( "remove ref of '%s' to %d (%p)", k.latin1(), ref, this );
 #endif
     if ( ref == 0 )
 	collection->remove( this );
@@ -1143,6 +1147,19 @@ inline int QTextEditParag::leftIndent() const
 inline int QTextEditParag::listDepth() const
 {
     return depth;
+}
+
+inline void QTextEditParag::setAlignment( int a )
+{
+    if ( a == align )
+	return;
+    align = a;
+    invalidate( 0 );
+}
+
+inline int QTextEditParag::alignment() const
+{
+    return align;
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

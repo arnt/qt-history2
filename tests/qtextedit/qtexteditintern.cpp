@@ -405,6 +405,7 @@ void QTextEditCursor::splitAndInsertEmtyParag( bool ind, bool updateIds )
 	s->append( " " );
 	s->setType( string->type() );
 	s->setListDepth( string->listDepth() );
+	s->setAlignment( string->alignment() );
 	if ( ind ) {
 	    s->indent();
 	    s->format();
@@ -417,6 +418,7 @@ void QTextEditCursor::splitAndInsertEmtyParag( bool ind, bool updateIds )
 	s->append( " " );
 	s->setType( string->type() );
 	s->setListDepth( string->listDepth() );
+	s->setAlignment( string->alignment() );
 	if ( ind ) {
 	    int oi, ni;
 	    s->indent( &oi, &ni );
@@ -433,6 +435,7 @@ void QTextEditCursor::splitAndInsertEmtyParag( bool ind, bool updateIds )
 	QTextEditParag *s = new QTextEditParag( doc, string, n, updateIds );
 	s->setType( string->type() );
 	s->setListDepth( string->listDepth() );
+	s->setAlignment( string->alignment() );
 	s->append( str );
 	if ( ind ) {
 	    int oi, ni;
@@ -1149,7 +1152,7 @@ void QTextEditString::setFormat( int index, QTextEditFormat *f, bool useCollecti
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextEditParag::QTextEditParag( QTextEditDocument *d, QTextEditParag *pr, QTextEditParag *nx, bool updateIds )
-    : invalid( -1 ), p( pr ), n( nx ), doc( d ), typ( Normal )
+    : invalid( -1 ), p( pr ), n( nx ), doc( d ), typ( Normal ), align( Qt::AlignLeft )
 {
     if ( p )
  	p->n = this;
@@ -1628,6 +1631,30 @@ int QTextEditFormatterBreakWords::format( QTextEditParag *parag, int start )
 	x += ww;
     }
 
+    // ############## unefficient!!!!!!!!!!!!!!!!!!!!!! - rewrite that!!!!
+    if ( parag->alignment() & Qt::AlignHCenter || parag->alignment() & Qt::AlignRight ) {
+	int last = 0;
+	QMap<int, QTextEditParag::LineStart*>::Iterator it = parag->lineStartList().begin();
+	while ( TRUE ) {
+	    it++;
+	    int i = 0;
+	    if ( it == parag->lineStartList().end() )
+		i = parag->length() - 1;
+	    else
+		i = it.key() - 1;
+	    c = &parag->string()->at( i );
+	    int lw = c->x + c->format->width( c->c );
+	    int diff = w - lw;
+	    if ( parag->alignment() & Qt::AlignHCenter )
+		diff /= 2;
+	    for ( int j = last; j <= i; ++j )
+		parag->string()->at( j ).x += diff;
+	    last = i + 1;
+	    if ( it == parag->lineStartList().end() )
+		break;
+	}
+    }
+    
     y += h;
     return y;
 }
@@ -1660,7 +1687,7 @@ QTextEditFormat *QTextEditFormatCollection::format( QTextEditFormat *f )
 	lastFormat->addRef();
 	return lastFormat;
     }
-    
+
     if ( f == lastFormat || ( lastFormat && f->key() == lastFormat->key() ) ) {
 #ifdef DEBUG_COLLECTION
 	qDebug( "need '%s', good case!", f->key().latin1() );
@@ -1678,7 +1705,7 @@ QTextEditFormat *QTextEditFormatCollection::format( QTextEditFormat *f )
 	lastFormat->addRef();
 	return lastFormat;
     }
-    
+
 #ifdef DEBUG_COLLECTION
     qDebug( "need '%s', worst case!", f->key().latin1() );
 #endif
@@ -1697,7 +1724,7 @@ QTextEditFormat *QTextEditFormatCollection::format( QTextEditFormat *of, QTextEd
 	cres->addRef();
 	return cres;
     }
-    
+
     cres = new QTextEditFormat( *of );
     kof = of->key();
     knf = nf->key();
@@ -1715,7 +1742,7 @@ QTextEditFormat *QTextEditFormatCollection::format( QTextEditFormat *of, QTextEd
     if ( flags & QTextEditFormat::Color )
 	cres->col = nf->col;
     cres->update();
-    
+
     QTextEditFormat *fm = cKey.find( cres->key() );
     if ( !fm ) {
 #ifdef DEBUG_COLLECTION
@@ -1731,7 +1758,7 @@ QTextEditFormat *QTextEditFormatCollection::format( QTextEditFormat *of, QTextEd
 	cres = fm;
 	cres->addRef();
     }
-		     		     
+		     		
     return cres;
 }
 
@@ -1761,7 +1788,7 @@ void QTextEditFormat::setItalic( bool b )
     fn.setItalic( b );
     update();
 }
- 
+
 void QTextEditFormat::setUnderline( bool b )
 {
     if ( b == fn.underline() )

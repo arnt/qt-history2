@@ -45,10 +45,12 @@ public:
     void setPointSize( int s );
     void setColor( const QColor &c );
     void setFont( const QFont &f );
-    
+
+    void setParagType( int );
+    void setAlignment( int );
+
 protected:
     void setFormat( QTextEditFormat *f, int flags );
-    void setParagType( int );
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     void keyPressEvent( QKeyEvent *e );
     void resizeEvent( QResizeEvent *e );

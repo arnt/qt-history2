@@ -420,6 +420,15 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		    else
 			setParagType( (int)QTextEditParag::Normal );
 		} break;
+		case Key_Q:
+		    setAlignment( Qt::AlignLeft );
+		    break;
+		case Key_W:
+		    setAlignment( Qt::AlignHCenter );
+		    break;
+		case Key_E:
+		    setAlignment( Qt::AlignRight );
+		    break;
 		}
 	    }
     }
@@ -1134,6 +1143,28 @@ void QTextEdit::setParagType( int t )
 	while ( start ) {
 	    start->setType( type );
 	    start->setListDepth( cursor->parag()->listDepth() );
+	    if ( start == end )
+		break;
+	    start = start->next();
+	}
+	repaintChanged();
+	formatMore();
+    }
+    drawCursor( TRUE );
+}
+
+void QTextEdit::setAlignment( int a )
+{
+    drawCursor( FALSE );
+    if ( !doc->hasSelection( QTextEditDocument::Standard ) ) {
+	cursor->parag()->setAlignment( a );
+	repaintChanged();
+    } else {
+	QTextEditParag *start = doc->selectionStart( QTextEditDocument::Standard );
+	QTextEditParag *end = doc->selectionEnd( QTextEditDocument::Standard );
+	lastFormatted = start;
+	while ( start ) {
+	    start->setAlignment( a );
 	    if ( start == end )
 		break;
 	    start = start->next();
