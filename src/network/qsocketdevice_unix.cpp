@@ -519,13 +519,6 @@ int QSocketDevice::accept()
 /*!
     Returns the number of bytes available for reading, or -1 if an
     error occurred.
-
-    \warning On Microsoft Windows, we use the ioctlsocket() function
-    to determine the number of bytes queued on the socket. According
-    to Microsoft (KB Q125486), ioctlsocket() sometimes returns an
-    incorrect number. The only safe way to determine the amount of
-    data on the socket is to read it using readBlock(). QSocket has
-    workarounds to deal with this problem.
 */
 Q_LONG QSocketDevice::bytesAvailable() const
 {
