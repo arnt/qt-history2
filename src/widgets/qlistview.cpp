@@ -535,6 +535,7 @@ void QListViewItem::init()
     visible = TRUE;
     allow_rename = FALSE;
     renameBox = 0;
+    enabled = TRUE;
 }
 
 /* If \a b is TRUE, the item is made visible, else it is hidden, so
@@ -582,6 +583,30 @@ void QListViewItem::setRenameEnabled( bool b )
 bool QListViewItem::renameEnabled() const
 {
     return (bool)allow_rename;
+}
+
+/*! Sets the item to be enabled, if \a b is TRUE, else to disabled. A
+  disabled item is drawn gayed-out and not accessable by the user.
+*/
+
+void QListViewItem::setEnabled( bool b )
+{
+    if ( (bool)enabled == b )
+	return;
+    enabled = b;
+    QListView *lv = listView();
+    if ( lv )
+	lv->triggerUpdate();
+}
+
+/*! Returns whether this item is enabled or disabled.
+
+  \sa setEnabled()
+*/
+
+bool QListViewItem::isEnabled() const
+{
+    return (bool)enabled;
 }
 
 /*!  If in-place renaming of this item is enabled (see
@@ -1091,7 +1116,7 @@ void QListViewItem::invalidateHeight()
 
 void QListViewItem::setOpen( bool o )
 {
-    if ( o == (bool)open )
+    if ( o == (bool)open || !enabled )
 	return;
     open = o;
 
@@ -1600,10 +1625,17 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	 (column==0 || listView()->allColumnsShowFocus()) ) {
 	p->fillRect( r - marg, 0, width - r + marg, height(),
 		     cg.brush( QColorGroup::Highlight ) );
-	p->setPen( cg.highlightedText() );
+	if ( enabled || !lv )
+	    p->setPen( cg.highlightedText() );
+	else if ( !enabled && lv)
+	    p->setPen( lv->palette().disabled().highlightedText() );
     } else {
-	p->setPen( cg.text() );
+	if ( enabled || !lv )
+	    p->setPen( cg.text() );
+	else if ( !enabled && lv)
+	    p->setPen( lv->palette().disabled().text() );
     }
+
 
     bool reverse = QApplication::reverseLayout();
     int iconWidth = 0;
@@ -3132,7 +3164,7 @@ QListViewItem * QListViewItem::itemAbove()
 		c = c->siblingItem;		// assign c's sibling to c
 	}
     }
-    if ( c && !c->height() )
+    if ( c && ( !c->height() || !c->isEnabled() ) )
 	return c->itemAbove();
     return c;
 }
@@ -3168,7 +3200,7 @@ QListViewItem * QListViewItem::itemBelow()
 	if ( c )
 	    c = c->siblingItem;
     }
-    if ( c && !c->height() )
+    if ( c && ( !c->height() || !c->isEnabled() ) )
 	return c->itemBelow();
     return c;
 }
@@ -3426,6 +3458,8 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     d->buttonDown = TRUE;
 
     QListViewItem * i = itemAt( vp );
+    if ( i && !i->isEnabled() )
+	return;
     if ( i == currentItem() && i && i->isSelected() )
 	d->renameTimer->start( QApplication::doubleClickInterval(), TRUE );
     QListViewItem *oldCurrent = currentItem();
@@ -3627,6 +3661,8 @@ void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
 
     QPoint vp = contentsToViewport(e->pos());
     QListViewItem *i = itemAt( vp );
+    if ( i && !i->isEnabled() )
+	return;
     if ( i && vp.x() + contentsX() < itemMargin() + ( i->depth() + ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() )
 	i = 0;
     emitClicked = emitClicked && d->pressedItem == i;
@@ -3674,7 +3710,7 @@ void QListView::contentsMouseDoubleClickEvent( QMouseEvent * e )
 
     QListViewItem * i = itemAt( vp );
 
-    if ( !i )
+    if ( !i || !i->isEnabled() )
 	return;
 
     if ( !i->isOpen() ) {
@@ -3701,6 +3737,8 @@ void QListView::contentsMouseMoveEvent( QMouseEvent * e )
     QPoint vp = contentsToViewport(e->pos());
 
     QListViewItem * i = itemAt( vp );
+    if ( i && !i->isEnabled() )
+	return;
     if ( i != d->highlighted ) {
 	if ( i ) {
 	    emit onItem( i );
@@ -3917,7 +3955,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
     case Key_Enter:
     case Key_Return:
 	d->currentPrefix.truncate( 0 );
-	if ( i && !i->isSelectable() &&
+	if ( i && !i->isSelectable() && i->isEnabled() &&
 	     ( i->childCount() || i->isExpandable() || i->isOpen() ) ) {
 	    i->setOpen( !i->isOpen() );
 	    return;
@@ -4399,7 +4437,7 @@ QListViewItem * QListView::selectedItem() const
 
 void QListView::setCurrentItem( QListViewItem * i )
 {
-    if ( !i || d->focusItem == i )
+    if ( !i || d->focusItem == i || !i->isEnabled() )
 	return;
 
     QListViewItem * prev = d->focusItem;

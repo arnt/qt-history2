@@ -167,6 +167,9 @@ public:
     bool renameEnabled() const;
     virtual void startRename();
 
+    virtual void setEnabled( bool b );
+    bool isEnabled() const;
+
 protected:
     virtual void enforceSortOrder() const;
     virtual void setHeight( int );
@@ -201,6 +204,7 @@ private:
     uint allow_drop : 1;
     uint visible : 1;
     uint allow_rename : 1;
+    uint enabled;
 
     QListViewItem * parentItem;
     QListViewItem * siblingItem;
