@@ -17,7 +17,7 @@ void QDragManager::updateCursor()
   printf("%s %d\n",__FILE__,__LINE__);
 }
 
-void QDragManager::cancel()
+void QDragManager::cancel(bool)
 {
   printf("%s %d\n",__FILE__,__LINE__);
 }

@@ -829,6 +829,7 @@ QSessionManager::~QSessionManager()
 
 QString QSessionManager::sessionId() const
 {
+    return QString;
 }
 
 bool QSessionManager::allowsInteraction()
@@ -853,9 +854,9 @@ void QSessionManager::setRestartHint( RestartHint )
 {
 }
 
-RestartHint QSessionManager::restartHint() const
+QSessionManager::RestartHint QSessionManager::restartHint() const
 {
-    return RestartIfRunning;
+    return QSessionManager::RestartIfRunning;
 }
 
 void QSessionManager::setRestartCommand( const QStringList& )
