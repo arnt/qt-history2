@@ -1481,10 +1481,11 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
 }
 
 bool
-MakefileGenerator::verifyExtraCompiler(const QString &comp, const QString &file)
+MakefileGenerator::verifyExtraCompiler(const QString &comp, const QString &file_unfixed)
 {
     if(noIO())
         return false;
+    const QString file = Option::fixPathToLocalOS(file_unfixed);
 
     if(project->values(comp + ".CONFIG").indexOf("moc_verify") != -1) {
         if(!file.isNull()) {
