@@ -277,7 +277,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	    }
 	    return TRUE;
 	}
-	qWarning( "QDir::readDirEntries: Cannot read the directory: %s (UTF8)",
+	qWarning( "QDir::readDirEntries: Cannot read the directory: %s (UTF-8)",
 		  dPath.utf8().data() );
 	return FALSE;
     }

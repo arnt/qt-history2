@@ -1227,7 +1227,7 @@ QByteArray QStoredDrag::encodedData(const char* m) const
 /*!
     Constructs an object to drag the list of URIs in \a uris. The \a
     dragSource and \a name arguments are passed on to QStoredDrag.
-    Note that URIs are always in escaped UTF8 encoding, as defined by
+    Note that URIs are always in escaped UTF-8 encoding, as defined by
     the W3C.
 */
 QUriDrag::QUriDrag( QList<QByteArray> uris,

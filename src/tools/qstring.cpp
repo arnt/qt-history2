@@ -2345,7 +2345,7 @@ QByteArray qt_winQString2MB( const QString& s, int uclen )
 	} else {
 #ifndef QT_NO_DEBUG
 	    // Fail.
-	    qWarning("WideCharToMultiByte cannot convert multibyte text (error %d): %s (UTF8)",
+	    qWarning("WideCharToMultiByte cannot convert multibyte text (error %d): %s (UTF-8)",
 		r, s.utf8());
 #endif
 	    break;

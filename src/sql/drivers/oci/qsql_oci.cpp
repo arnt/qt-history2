@@ -23,7 +23,7 @@
 #include <stdlib.h>
 
 #define QOCI_DYNAMIC_CHUNK_SIZE  255
-static const ub2 CSID_UTF8 = 871; // UTF8 not defined in Oracle 8 libraries
+static const ub2 CSID_UTF8 = 871; // UTF-8 not defined in Oracle 8 libraries
 static const ub1 CSID_NCHAR = SQLCS_NCHAR;
 
 #ifdef OCI_UTF16ID
@@ -927,7 +927,7 @@ int QOCIResultPrivate::readLOBs( QSqlRecord& res )
 	    buf = new QByteArray( amount );
 	    //		}
 	    
-	    // get lob charset ID and tell oracle to transform it into UTF8
+	    // get lob charset ID and tell oracle to transform it into UTF-8
 	    ub1 csfrm = 0;
 	    r = OCILobCharSetForm( d->env, d->err, lob, &csfrm );
 	    if ( r != 0 ) {

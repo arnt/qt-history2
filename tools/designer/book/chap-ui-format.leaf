@@ -677,7 +677,7 @@ integers for the size type are:
     \i 5 - Preferred
     \i 7 - Expanding
     \endlist
-\i \c string - a Unicode string value (in UTF8), e.g. 
+\i \c string - a Unicode string value (in UTF-8), e.g. 
 \c{<string>Some text</string>}
 \endlist
 
