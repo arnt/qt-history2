@@ -228,7 +228,7 @@ QTextEdit
  - Reformat after changing tab-stop size.
 
 New function:
-	void zoopTo( int size );
+	void zoomTo( int size );
 
 QTextIStream
 ------------
