@@ -465,10 +465,10 @@ QVariant QDirModel::headerData(int section, Qt::Orientation orientation, int rol
         if (role != DisplayRole)
             return QVariant();
 	switch (section) {
-        case 0: return "Name";
-        case 1: return "Size";
-        case 2: return "Type";
-        case 3: return "Modified";
+        case 0: return tr("Name");
+        case 1: return tr("Size");
+        case 2: return tr("Type");
+        case 3: return tr("Modified");
         default: return QVariant();
         }
     }
@@ -558,9 +558,7 @@ void QDirModel::sort(int column, Qt::SortOrder order)
 
 QStringList QDirModel::mimeTypes() const
 {
-    QStringList types;
-    types << "text/uri-list";
-    return types;
+    return QStringList("text/uri-list");
 }
 
 /*!
