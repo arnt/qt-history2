@@ -143,14 +143,5 @@ void QMainWindow::childEvent(QChildEvent *event)
 /*! \reimp */
 bool QMainWindow::event(QEvent *event)
 { 
-    if(event->type() == QEvent::StatusTip) {
-        QStatusBar *sbar = statusBar();
-        QStatusTipEvent *se = static_cast<QStatusTipEvent*>(event);
-        if(se->tip().isNull())
-            sbar->clear();
-        else
-            sbar->message(se->tip());
-        return true;
-    }
     return QWidget::event(event); 
 }
