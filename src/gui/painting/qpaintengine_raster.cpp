@@ -845,7 +845,7 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
     qDebug() << " - QRasterPaintEngine::drawImage(), r=" << r << " sr=" << sr << " image=" << img.size() << "depth=" << img.depth();
 #endif
 
-    const QImage image = img.depth() == 32 ? img : img.convertDepth(32);
+    const QImage image = img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
 
     Q_D(QRasterPaintEngine);
     TextureFillData textureData = {
@@ -896,14 +896,18 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
     QPainterPath path;
     path.addRect(r);
 
-    QImage *image = qt_image_for_pixmap(pixmap);
+    QImage image;
 
-    if (pixmap.depth() == 1)
-        image = d->colorizeBitmap(image, d->pen.color());
+    if (pixmap.depth() == 1) {
+        image = pixmap.toImage();
+        image = *d->colorizeBitmap(&image, d->pen.color());
+    } else {
+        image = pixmap.toImage().convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    }
 
     TextureFillData textureData = {
         d->rasterBuffer,
-        image->bits(), image->width(), image->height(), image->hasAlphaBuffer(),
+        ((const QImage &)(image)).bits(), image.width(), image.height(), image.hasAlphaBuffer(),
         0., 0., 0., 0., 0., 0.,
         d->drawHelper->blendTiled,
         d->bilinear ? d->drawHelper->blendTransformedBilinearTiled : d->drawHelper->blendTransformedTiled
