@@ -142,8 +142,8 @@ public:
     <img src="qpushbt-m.png"> <img src="qpushbt-w.png">
 
     In Qt, the QAbstractButton base class provides most of the modes
-    and other API, and QPushButton provides GUI logic. See QPushButton for
-    more information about the API.
+    and other API, and QPushButton provides GUI logic.
+    See QAbstractButton for more information about the API.
 
     \sa QToolButton, QRadioButton QCheckBox
     \link guibooks.html#fowler GUI Design Handbook: Push Button\endlink
