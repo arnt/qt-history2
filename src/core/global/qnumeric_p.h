@@ -67,9 +67,9 @@ static inline bool qIsNan(double d)
 {
     uchar *ch = (uchar *)&d;
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
-        return (ch[0] & 0x7f) == 0x7f && ch[1] == 0xf8;
+        return (ch[0] & 0x7f) == 0x7f && ch[1] > 0xf0;
     } else {
-        return (ch[7] & 0x7f) == 0x7f && ch[6] == 0xf8;
+        return (ch[7] & 0x7f) == 0x7f && ch[6] > 0xf0;
     }
 }
 
@@ -97,9 +97,9 @@ static inline bool qIsNan(float d)
 {
     uchar *ch = (uchar *)&d;
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
-        return (ch[0] & 0x7f) == 0x7f && ch[1] == 0xc0;
+        return (ch[0] & 0x7f) == 0x7f && ch[1] > 0x80;
     } else {
-        return (ch[3] & 0x7f) == 0x7f && ch[2] == 0xc0;
+        return (ch[3] & 0x7f) == 0x7f && ch[2] > 0x80;
     }
 }
 
