@@ -3,8 +3,8 @@
 
 #include "qstringlist.h"
 
-class SourceFile;
-class SourceDependChildren;
+struct SourceFile;
+struct SourceDependChildren;
 class SourceFiles;
 
 class QMakeLocalFileName {

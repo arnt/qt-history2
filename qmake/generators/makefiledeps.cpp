@@ -222,6 +222,10 @@ void QMakeSourceFileInfo::setFileMocable(const QMakeLocalFileName &)
 
 }
 
+#ifdef Q_WS_WIN
+#define S_ISDIR(x) (x == _S_IFDIR)
+#endif
+
 QMakeLocalFileName QMakeSourceFileInfo::findFileForDep(const QMakeLocalFileName &file)
 {
     struct stat fst;
