@@ -774,7 +774,10 @@ void MainWindow::readSettings()
 
     QString settingsString = QString::fromUtf8("widgetbox");
     QWidget *w = core->widgetBox()->topLevelWidget();
-    QRect defaultRect(availG.topLeft(), w->sizeHint());
+    QSize sz = w->sizeHint();
+    sz.setHeight(qMin(sz.height() + 300, availG.height()));
+    sz.setWidth(qMin(sz.width() + 50, availG.width()));
+    QRect defaultRect(availG.topLeft(), sz);
     readSizeSettings(settings, settingsString, w, defaultRect);
 
     settingsString = QString::fromUtf8("objectinspector");
