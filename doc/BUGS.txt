@@ -42,9 +42,6 @@ QWorkspace
 WType_Popup
     Children don't get enter/leave events.
 
-QListBox
-    Inserting items in an empty listbox *with* focus doesn't emit highlighted signal
-
 Accelerator eating broken, this time on Unix
     Ref. support/arc-08/16327
 
