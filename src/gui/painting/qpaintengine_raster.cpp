@@ -500,10 +500,9 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->bilinear = false;
     d->opaqueBackground = false;
     d->bgBrush = Qt::white;
-    d->rasterOperation = // device->depth() == 1
-//                          ? QRasterPaintEnginePrivate::SourceCopy
-//                          :
-                         QRasterPaintEnginePrivate::SourceOverComposite;
+    d->rasterOperation = device->depth() == 1
+                         ? QRasterPaintEnginePrivate::SourceCopy
+                         : QRasterPaintEnginePrivate::SourceOverComposite;
 
     d->deviceRect = QRect(0, 0, device->width(), device->height());
 
@@ -535,10 +534,10 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     }
 #endif
 
-    if (device->devType() == QInternal::Image && device->depth() == 32) {
-        d->flushOnEnd = false; // Direct access so no flush.
+    if (device->devType() == QInternal::Image) {
+        d->flushOnEnd = d->deviceDepth != 32; // Direct access for 32 bit so no flush.
         d->rasterBuffer->prepare(static_cast<QImage *>(device));
-        if (static_cast<QImage *>(device)->hasAlphaBuffer())
+        if (static_cast<QImage *>(device)->hasAlphaBuffer() && d->deviceDepth == 32)
             layout =  DrawHelper::Layout_ARGB;
 #ifdef Q_WS_QWS
     } else if (device->devType() == QInternal::Pixmap) {
@@ -558,21 +557,6 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
 
     d->rasterBuffer->resetClip();
 
-#ifndef Q_WS_QWS
-    // Copy contents of pixmap over to ourselves...
-    if (device->devType() == QInternal::Pixmap) {
-#ifdef Q_WS_WIN
-        HDC pmhdc = device->getDC();
-        BitBlt(d->rasterBuffer->hdc(), 0, 0, device->width(), device->height(),
-               pmhdc, 0, 0, SRCCOPY);
-        device->releaseDC(pmhdc);
-#else
-        Q_ASSERT_X(false, "QRasterPaintEngine::begin()", "Painting on pixmaps not supported for this platform");
-#endif
-        if (static_cast<QPixmap *>(device)->hasAlphaChannel())
-            layout =  DrawHelper::Layout_ARGB;
-    }
-#endif
     d->drawHelper = qDrawHelper + layout;
 
     updateMatrix(QMatrix());
@@ -1384,7 +1368,7 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
     case Qt::SolidPattern:
         fillData->callback = qt_span_solidfill;
         fillData->data = solidFillData;
-        solidFillData->color = mapColor(brush.color());
+        solidFillData->color = brush.color();
         solidFillData->rop = rasterOperation;
         solidFillData->rasterBuffer = fillData->rasterBuffer;
         solidFillData->blendColor = drawHelper->blendColor;
@@ -1591,15 +1575,6 @@ ARGB *QRasterPaintEnginePrivate::gradientStopColors(const QGradient *gradient)
 }
 
 
-ARGB QRasterPaintEnginePrivate::mapColor(const QColor &c) const
-{
-#ifdef Q_WS_WIN
-    if (deviceDepth == 1)
-        return ARGB(0, c.red(), c.green(), c.blue());
-#endif
-    return c;
-}
-
 QImage *QRasterPaintEnginePrivate::colorizeBitmap(const QImage *image, const QColor &color)
 {
     tempImage = QImage(image->size(), 32);
@@ -1657,10 +1632,24 @@ void QRasterBuffer::prepare(int w, int h)
 
 void QRasterBuffer::prepare(QImage *image)
 {
-    prepareClip(image->width(), image->height());
 
-    m_buffer = (ARGB *)image->bits();
-
+    int depth = image->depth();
+    if (depth == 32) {
+        prepareClip(image->width(), image->height());
+        m_buffer = (ARGB *)image->bits();
+    } else if (depth == 1) {
+        prepare(image->width(), image->height());
+        ARGB table[2] = { image->color(0), image->color(1) };
+        for (int y=0; y<image->height(); ++y) {
+            ARGB *bscan = scanLine(y);
+            // ### use image scanlines directly
+            for (int x=0; x<image->width(); ++x) {
+                bscan[x] = table[image->pixelIndex(x, y)];
+            }
+        }
+    } else {
+        qWarning("QRasterBuffer::prepare() cannot prepare from image of depth=%d", depth);
+    }
     m_width = image->width();
     m_height = image->height();
 }
@@ -2218,6 +2207,22 @@ QImage QRasterBuffer::clipImage() const
     }
     return image;
 }
+
+QImage QRasterBuffer::bufferImage() const
+{
+    QImage image(m_width, m_height, 32);
+
+    for (int y = 0; y < m_height; ++y) {
+        ARGB *span = const_cast<QRasterBuffer *>(this)->scanLine(y);
+
+        for (int x=0; x<m_width; ++x) {
+            ARGB argb = span[x];
+            image.setPixel(x, y, qRgba(argb.r, argb.g, argb.b, argb.a));
+        }
+    }
+    image.setAlphaBuffer(true);
+    return image;
+}
 #endif
 
 void QRasterBuffer::flushTo1BitImage(QImage *target) const
@@ -2230,7 +2235,7 @@ void QRasterBuffer::flushTo1BitImage(QImage *target) const
         ARGB *sourceLine = const_cast<QRasterBuffer *>(this)->scanLine(y);
         for (int x=0; x<w; ++x) {
             ARGB p = sourceLine[x];
-            target->setPixel(x, y, qGray(p.r, p.g, p.b) > 127 ? 1 : 0);
+            target->setPixel(x, y, qGray(p.r, p.g, p.b) > 127 ? 0 : 1);
         }
     }
 
