@@ -655,7 +655,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
     if ( matrix.m12() == 0.0F  && matrix.m21() == 0.0F &&
 	 matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F &&
-	 depth() == defaultDepth() // ### stretchBlt limitation
+	 depth() == defaultDepth() && // ### stretchBlt limitation
+	 !data->mask
 	)
     {
 	if ( mat.m11() == 1.0F && mat.m22() == 1.0F )
