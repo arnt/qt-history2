@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#4 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#5 $
 **
 ** Definition of 
 **
@@ -38,7 +38,7 @@ public:
 
     int children() const { return childCount; }
 
-    bool isOpen() const { return open; }
+    bool isOpen() const { return open && childCount>0; }
     virtual void setOpen( bool );
 
     virtual void paintCell( QPainter *,  const QColorGroup & cg,
