@@ -55,8 +55,8 @@ struct QDispatchInterface;
 
 struct Q_EXPORT QUBuffer
 {
-    virtual Q_LONG readBlock( char *data, Q_ULONG maxlen ) = 0;
-    virtual Q_LONG writeBlock( const char *data, Q_ULONG len ) = 0;
+    virtual long read( char *data, ulong maxlen ) = 0;
+    virtual long write( const char *data, ulong len ) = 0;
 };
 
 

@@ -40,11 +40,11 @@
 
 #ifndef QT_H
 #include "qiodevice.h"
-#include "qucom.h"
+#include "qstring.h"
 #endif // QT_H
 
 
-class Q_EXPORT QBuffer : public QIODevice, public QUBuffer
+class Q_EXPORT QBuffer : public QIODevice
 {
 public:
     QBuffer();
