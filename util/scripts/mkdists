@@ -450,6 +450,12 @@ for $platform ( "x11", "qws" ) {
     &rmrf( "$qtdir/examples/desktop" ) unless $platform eq "x11";
     &rmrf( "$qtdir/examples/sound" ) unless $platform eq "x11";
     &rmrf( "$qtdir/examples/winmanager" ); # unless $platform eq "qws";
+    &rmrf( "$qtdir/extensions/opengl" ) unless $platform eq "x11";
+    &rmrf( "$qtdir/extensions/xembed" ) unless $platform eq "x11";
+    &rmrf( "$qtdir/extensions/imageio" ) unless $platform eq "x11";
+    &rmrf( "$qtdir/extensions/nsplugin" ) unless $platform eq "x11";
+    &rmrf( "$qtdir/extensions/sound" ) unless $platform eq "x11";
+    &rmrf( "$qtdir/extensions/xt" ) unless $platform eq "x11";
 
     # lose empty directories
 
