@@ -42,6 +42,9 @@
 #include "qaccel.h"
 #include "qshared.h"
 #include "qvaluelist.h"
+#ifndef QT_NO_REGEXP
+# include "qregexp.h"
+#endif
 
 #ifdef Q_WS_MAC
 #define QMAC_CTRL  (QString(QChar(0x2318)))
@@ -378,71 +381,75 @@ int QKeySequence::assign( QString keyseq )
  */
 int QKeySequence::decodeString( const QString& str )
 {
-    int k = 0;
-    int p = str.findRev( '+', str.length() - 2 ); // -2 so that Ctrl++ works
-    QString name;
-    if ( p > 0 ) {
-	name = str.mid( p + 1 );
-    } else {
-	name = str;
+    int ret = 0;
+    QString accel = str;
+    struct {
+	int qt_key;
+	QString name;
+    } modifiers[] = {
+#ifdef QMAC_CTRL
+	{ CTRL, QMAC_CTRL },
+#endif
+#ifdef QMAC_ALT
+	{ ALT, QMAC_ALT },
+#endif
+#ifdef QMAC_META
+	{ META, QMAC_META },
+#endif
+#ifdef QMAC_SHIFT
+	{ SHIFT, QMAC_SHIFT },
+#endif
+	{ CTRL, "ctrl+" }, { CTRL, QAccel::tr("Ctrl").lower() + "+" },
+	{ SHIFT, "shift+" }, { SHIFT, QAccel::tr("Shift").lower() + "+" },
+	{ ALT, "alt+" }, { ALT, QAccel::tr("Alt").lower() + "+" },
+	{ META, "meta+" }, { ALT, QAccel::tr("Meta").lower() + "+" },
+	{ 0, QString::null } };
+
+    QString sl = accel.lower();
+    for(int i = 0; !modifiers[i].name.isNull(); i++) {
+	if(sl.contains(modifiers[i].name)) {
+	    ret |= modifiers[i].qt_key;
+#ifndef QT_NO_REGEXP
+	    accel.remove(QRegExp(QRegExp::escape(modifiers[i].name), FALSE));
+#else
+	    accel.remove(modifiers[i].name);
+#endif
+	}
     }
+
+    int p = accel.findRev("+");
+    if(p != -1)
+	accel = accel.mid(p+1);
+
     int fnum = 0;
-    if ( name.length() == 1 ) {
-	char ltr = name[0].upper().latin1();
+    if ( accel.length() == 1 ) {
+	char ltr = accel[0].upper().latin1();
 	// We can only upper A-Z without problems.
 	if ( ltr < (char) Key_A || ltr > (char) Key_Z )
-	    k = name[0].unicode();
+	    ret |= accel[0].unicode();
 	else
-	    k = name[0].upper().unicode();
-	k |= UNICODE_ACCEL;
-    } else if ( name[0] == 'F' && (fnum = name.mid(1).toInt()) ) {
-	k = Key_F1 + fnum - 1;
+	    ret |= accel[0].upper().unicode();
+	ret |= UNICODE_ACCEL;
+    } else if ( accel[0] == 'F' && (fnum = accel.mid(1).toInt()) ) {
+        ret |= Key_F1 + fnum - 1;
     } else {
 	// Check through translation table for the correct key name
 	// ...or fall back on english table.
+	bool found = FALSE;
 	for ( int tran = 0; tran < 2; tran++ ) {
 	    for ( int i = 0; keyname[i].name; i++ ) {
-		if ( tran ? name == QAccel::tr(keyname[i].name)
-			  : name == keyname[i].name ) {
-		    k = keyname[i].key;
-		    goto done;
+		if ( tran ? accel == QAccel::tr(keyname[i].name)
+			  : accel == keyname[i].name ) {
+		    ret |= keyname[i].key;
+		    found = TRUE;
+		    break;
 		}
 	    }
+	    if(found)
+		break;
 	}
     }
-done:
-    if ( p > 0 ) {
-	QString sl = str.lower();
-
-#ifdef QMAC_CTRL
-	if ( sl.contains(QMAC_CTRL) )
-	    k |= CTRL;
-#endif
-	if ( sl.contains("ctrl+") || sl.contains(QAccel::tr("Ctrl").lower() + "+") )
-	    k |= CTRL;
-
-#ifdef QMAC_ALT
-	if ( sl.contains(QMAC_ALT) )
-	    k |= ALT;
-#endif
-	if ( sl.contains("alt+") || sl.contains(QAccel::tr("Alt").lower() + "+") )
-	    k |= ALT;
-
-#ifdef QMAC_META
-	if ( sl.contains(QMAC_META) )
-	    k |= META;
-#endif
-	if ( sl.contains("meta+") || sl.contains(QAccel::tr("Meta").lower() + "+") )
-	    k |= META;
-
-#ifdef QMAC_SHIFT
-	if ( sl.contains(QMAC_SHIFT) )
-	    k |= SHIFT;
-#endif
-	if ( sl.contains("shift+") || sl.contains(QAccel::tr("Shift").lower() + "+") )
-	    k |= SHIFT;
-    }
-    return k;
+    return ret;
 }
 
 
