@@ -1231,8 +1231,7 @@ void QPopupMenu::enableAccel( bool enable )
 {
     if ( autoaccel )
 	autoaccel->setEnabled( enable );
-    else
-	accelDisabled = !enable;		// rememeber when updateAccel
+    accelDisabled = !enable;		// rememeber when updateAccel
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
     while ( (mi=it.current()) ) {		// do the same for sub popups
