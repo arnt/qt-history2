@@ -512,9 +512,9 @@ void QToolBox::setCurrentPage( QWidget *page )
     if( !tb )
 	return;
 
-    tb->setSelected( TRUE );
     if ( d->lastButton )
 	d->lastButton->setSelected( FALSE );
+    tb->setSelected( TRUE );
     d->lastButton = tb;
     if ( d->currentPage )
 	d->currentPage->hide();
@@ -556,12 +556,19 @@ void QToolBox::removePage( QWidget *page )
     if ( !tb )
 	return;
 
-    activateClosestPage( page );
-
     page->hide();
     tb->hide();
     d->layout->remove( page );
     d->layout->remove( tb );
+    d->pages.remove( page );
+    d->pageList->remove( d->page( page ) );
+
+    if ( d->pageList->isEmpty() ) {
+	d->lastButton = 0;
+	d->currentPage = 0;
+    } else {
+	setCurrentPage( d->pages.find( d->pageList->first()->button ) );
+    }
 }
 
 /*!
