@@ -2079,32 +2079,7 @@ static void convert_X32_to_Indexed8(QImageData *dst, const QImageData *src, Qt::
                 src_data += src->bytes_per_line;
                 dest_data += dst->bytes_per_line;
             }
-        } else if ((flags & Qt::Dither_Mask) == Qt::OrderedDither) {
-            for (int y = 0; y < src->height; y++) {
-                const QRgb *p = (const QRgb *)src_data;
-                const QRgb *end = p + src->width;
-                uchar *b = dest_data;
-
-                int x = 0;
-                while (p < end) {
-                    uint d = bayer_matrix[y & 15][x & 15] << 8;
-
-#define DITHER(p, d, m) ((uchar) ((((256 * (m) + (m) + 1)) * (p) + (d)) >> 16))
-                    *b++ =
-                        INDEXOF(
-                            DITHER(qRed(*p), d, MAX_R),
-                            DITHER(qGreen(*p), d, MAX_G),
-                            DITHER(qBlue(*p), d, MAX_B)
-                            );
-#undef DITHER
-
-                    p++;
-                    x++;
-                }
-                src_data += src->bytes_per_line;
-                dest_data += dst->bytes_per_line;
-            }
-        } else { // Diffuse
+        } else if ((flags & Qt::Dither_Mask) == Qt::DiffuseDither) {
             int* line1[3];
             int* line2[3];
             int* pv[3];
@@ -2176,6 +2151,8 @@ static void convert_X32_to_Indexed8(QImageData *dst, const QImageData *src, Qt::
                         *b++ = INDEXOF(pv[2][x],pv[1][x],pv[0][x]);
                     }
                 }
+                src_data += src->bytes_per_line;
+                dest_data += dst->bytes_per_line;
             }
             delete [] line1[0];
             delete [] line2[0];
@@ -2186,6 +2163,31 @@ static void convert_X32_to_Indexed8(QImageData *dst, const QImageData *src, Qt::
             delete [] pv[0];
             delete [] pv[1];
             delete [] pv[2];
+        } else { // OrderedDither
+            for (int y = 0; y < src->height; y++) {
+                const QRgb *p = (const QRgb *)src_data;
+                const QRgb *end = p + src->width;
+                uchar *b = dest_data;
+
+                int x = 0;
+                while (p < end) {
+                    uint d = bayer_matrix[y & 15][x & 15] << 8;
+
+#define DITHER(p, d, m) ((uchar) ((((256 * (m) + (m) + 1)) * (p) + (d)) >> 16))
+                    *b++ =
+                        INDEXOF(
+                            DITHER(qRed(*p), d, MAX_R),
+                            DITHER(qGreen(*p), d, MAX_G),
+                            DITHER(qBlue(*p), d, MAX_B)
+                            );
+#undef DITHER
+
+                    p++;
+                    x++;
+                }
+                src_data += src->bytes_per_line;
+                dest_data += dst->bytes_per_line;
+            }
         }
 
 #ifndef QT_NO_IMAGE_DITHER_TO_1
