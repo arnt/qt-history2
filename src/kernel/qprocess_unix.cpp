@@ -441,7 +441,6 @@ void QProcess::dataStdin( const QByteArray& buf )
     d->stdinBuf.enqueue( new QByteArray(buf) );
     if ( d->notifierStdin != 0 )
         d->notifierStdin->setEnabled( TRUE );
-    socketWrite( d->socketStdin[1] );
 }
 
 
@@ -563,9 +562,11 @@ void QProcess::socketWrite( int fd )
 #if defined(QPROCESS_DEBUG)
     qDebug( "QProcess::socketWrite(): write to stdin (%d)", fd );
 #endif
-    d->stdinBufRead += ::write( fd,
+    ssize_t ret = ::write( fd,
 	    d->stdinBuf.head()->data() + d->stdinBufRead,
 	    d->stdinBuf.head()->size() - d->stdinBufRead );
+    if ( ret > 0 )
+	d->stdinBufRead += ret;
     if ( d->stdinBufRead == (ssize_t)d->stdinBuf.head()->size() ) {
 	d->stdinBufRead = 0;
 	delete d->stdinBuf.dequeue();
