@@ -1,0 +1,23 @@
+Dear CUSTOMER,
+
+Thank you for your interest in Qt.
+
+You may download the trial version of Qt for Windows from a hidden
+directory on our ftp server.  The package consists of two files:
+
+	ftp://ftp.troll.no/.private/SECRET/qtwin131trial.zip
+	ftp://ftp.troll.no/.private/SECRET/qt_msvc5.zip
+
+qtwin131.zip contains Qt header files, example programs, a tutorial and a
+comprehensive on-line documentation.  The other file contains a
+time-limited trial version of the Qt library for your compiler.
+
+The real distribution includes the full source code and supports Microsoft
+Visual C++ 4.x and 5.0, Borland C++, Symantec C++, Watcom C++ and
+Cygnus Win32 gcc.
+
+Please don't hesitate to contact us if you have any questions about Qt.
+
+Kind regards,
+
+-haavard

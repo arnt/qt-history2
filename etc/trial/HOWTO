@@ -1,0 +1,76 @@
+
+INITIAL STEPS TO BUILD THE TRIAL
+--------------------------------
+
+We unpack Qt 1.31 and patch with the trial source patches.
+
+Compile Qt, create these libraries:
+  - MSVC++ 5.0
+  - MSVC++ 4.2
+  - Borland C++ 5.0
+  - Cygwin 32 gcc
+
+Create examples/tutorial makefiles for Borland and Cygnus using TMAKE.
+
+The trial should consist of two packages:
+  qtwin131trial.zip - contains Qt without source code, library or makefiles.
+		    - This can be stored on ftp.troll.no
+and one of these:
+  qtlib_msvc5.zip   - library and makefiles for MS Visual C++ 5
+  qtlib_msvc4.zip   - library and makefiles for MS Visual C++ 4
+  qtlib_borland.zip - library and makefiles for Borland C++ 5
+  qtlib_gcc.zip	    - library and makefiles for Cygnus Win32 gcc
+
+Directory structure:
+  trial/msvc5/qt/lib
+  trial/msvc5/qt/examples/
+  trial/msvc5/qt/examples/*
+  trial/msvc5/qt/tutorial/
+  trial/msvc5/qt/tutorial/*
+  trial/msvc4/qt/lib
+    ... and so on.
+
+
+FOR EACH TRIAL
+--------------
+
+When a customer wants a trial, we need this info:
+  Name
+  Company (optional)
+  Email
+  Compiler
+  Expiry
+
+We run a perl scripts which starts a GUI program to create feed it with
+paramters.  Starts with a dialog which takes the four important
+parameters.  The date field is filled in by default.
+
+"Cancel" is clicked.  The program terminates.
+
+"OK" is clicked (default?).
+
+SQL: begin tran
+The program first checks if the user has already been registered as
+a trial user.  If so, it prints the old record(s).
+Then it checks if the company has ran a trial before in the same way.
+A listbox shows these results.
+The user can "OK" or "Cancel" the operation.
+Then the data is inserted and the highest identifier is returned.
+SQL: commit tran
+
+Then, the program prints the results:
+name *
+company *
+email *
+compiler *
+expiry * 
+
+The initial perl scripts now calls qtrial to build the actual trial, zips
+the files and uses scp to transfer the file to zen.  It then uses ssh +
+md5sum to check that the file has been successfully transferred.
+Copies it to ftp/.private/<key>/qtlib_msvc5.zip.
+Tries up to 5 times in case of errors.
+Makes a hard link from trial/qtwin131trial.zip to ftp/.private/<key>
+
+Finally, produce a nice letter which is printed on stdout. If $EDITOR
+is defined, use the editor.
