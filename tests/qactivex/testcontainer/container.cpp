@@ -113,7 +113,7 @@ public:
 
 
     QTestContainer( const QString &control )
-	: QObject( 0, "Test Container" ), exceptionCalled(FALSE), exceptionCode(0)
+	: QObject( 0, "Test Container" ), fireCalled(FALSE), exceptionCalled(FALSE), exceptionCode(0)
     {
 	object = new QAxObject( control, this, "Test Control" );
 	Q_ASSERT( !object->isNull() );
@@ -517,10 +517,14 @@ public:
 	QAxObject *subType = object->querySubObject( "subType()" );
 	Q_ASSERT( subType );
 	if ( subType ) {
+	    connect(subType, SIGNAL(fire()), this, SLOT(fire()) );
 	    subType->setProperty( "unicode", m_unicode );
 	    VERIFY_EQUAL( subType->property( "unicode" ), m_unicode );
 	    subType->setProperty( "number", m_number );
 	    VERIFY_EQUAL( subType->property( "number" ), m_number );
+	    Q_ASSERT(!fireCalled);
+	    subType->dynamicCall("emitFire()");
+	    Q_ASSERT(fireCalled);
 	}
 
 	QAxObject *subTypeNum = object->querySubObject( "subTypeNum(int)", m_number );
@@ -660,6 +664,11 @@ public slots:
 	exceptionContext= context;
     }
 
+    void fire()
+    {
+	fireCalled = TRUE;
+    }
+
 signals:
     void setUnicodeSlot( const QString &string );
     void getAndSetUnicodeSlot( QString &string );
@@ -708,7 +717,8 @@ private:
     long m_longnumber;  
 */
 
-    bool exceptionCalled;
+    bool fireCalled;
+    bool exceptionCalled;    
     int exceptionCode;
     QString exceptionSrc;
     QString exceptionDesc;
