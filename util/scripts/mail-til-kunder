@@ -1,5 +1,10 @@
 #!/usr/bin/perl
 
+die "You didn't edit the file.";
+
+exit;
+return(0);
+
 $version="1.31";                      # May include "beta", etc.
 $sourcedir="~/qt";                       # Location on zen.linpro.no
 $winfile="qtwin131.zip";                 # Name of Windows archive
