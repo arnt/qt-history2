@@ -77,7 +77,7 @@
  *****************************************************************************/
 //#define DEBUG_EVENTS [like EventDebug but more specific to Qt]
 //#define DEBUG_DROPPED_EVENTS
-//#define DEBUG_KEY_MAPS
+#define DEBUG_KEY_MAPS
 //#define DEBUG_MOUSE_MAPS
 //#define DEBUG_MODAL_EVENTS
 //#define DEBUG_PLATFORM_SETTINGS
@@ -1975,8 +1975,17 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		}
 #endif
 		int macButton = button;
-		if(button == QMouseEvent::LeftButton && (modifiers & controlKey))
+		static bool macButtonModified = false;
+		if(ekind == kEventMouseDown &&
+		   button == QMouseEvent::LeftButton && 
+		   (modifiers & controlKey)) {
 		    macButton = QMouseEvent::RightButton;
+		    macButtonModified = true;
+		}
+		if(ekind == kEventMouseUp && macButtonModified) {
+		    macButtonModified = false;
+		    macButton = QMouseEvent::RightButton;
+                }
 		QMouseEvent qme(etype, plocal, p, macButton, state | keys);
 		QApplication::sendSpontaneousEvent(widget, &qme);
 	    }
