@@ -18,6 +18,10 @@
 #include <QStringList>
 #include <QtXml/QDomDocument>
 
+#ifdef Q_CC_MIPS
+#pragma set woff 1460 /* turn off some harmless warnings for MIPSpro*/
+#endif
+
 /*******************************************************************************
 ** Forward declarations
 */
