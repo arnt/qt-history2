@@ -69,7 +69,7 @@ void InvokeMethod::methodSelected( const QString &method )
 	} else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
 	    ptype = (const char*)param->typeExtra;
 	} else if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
-	    ptype = QVariant::typeToName( (QVariant::Type)*(int*)param->typeExtra );
+	    ptype = QVariant::typeToName( (QVariant::Type)*(char*)param->typeExtra );
 	} else if ( QUType::isEqual( param->type, &static_QUType_QVariant ) ) {
 	    ptype = param->type->desc();
 	} else if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
