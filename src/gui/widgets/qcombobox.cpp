@@ -980,6 +980,8 @@ int QComboBox::currentItem() const
 
 void QComboBox::setCurrentItem(int row)
 {
+    if (!model())
+        return;
     QModelIndex index = model()->index(row, 0, root());
     if (!index.isValid() || index == d->currentIndex)
         return;
