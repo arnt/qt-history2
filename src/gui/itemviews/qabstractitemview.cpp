@@ -624,7 +624,7 @@ void QAbstractItemView::reset()
     }
     d->editors.clear();
     d->persistent.clear();
-    d->state = NoState;
+    setState(NoState);
     if (isVisible())
         doItemsLayout();
      // the view will be updated later
@@ -1014,12 +1014,11 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
     QPoint pos = e->pos();
     QModelIndex index = itemAt(pos);
 
-    QModelIndex buddy = model()->buddy(index);
-    if (state() == EditingState && d->editors.contains(buddy))
+    if (state() == EditingState)
         return;
 
-    selectionModel()->select(index, selectionCommand(index, e));
     setState(NoState);
+    selectionModel()->select(index, selectionCommand(index, e));
 
     if (index == d->pressedItem)
         emit clicked(index, e->button(), e->modifiers());
@@ -1402,7 +1401,7 @@ bool QAbstractItemView::edit(const QModelIndex &index,
         && d->editTriggers & AnyKeyPressed
         && trigger & AnyKeyPressed)
         QApplication::sendEvent(editor->focusProxy() ? editor->focusProxy() : editor, event);
-    d->state = EditingState;
+    setState(EditingState);
     editor->show();
     editor->setFocus();
 
@@ -1498,7 +1497,7 @@ void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndE
 {
     // close the editor
     if (editor && !d->persistent.contains(editor)) { // if the editor is not persistent, remove it
-        d->state = NoState;
+        setState(NoState);
         QObject::disconnect(editor, SIGNAL(destroyed(QObject*)),
                             this, SLOT(editorDestroyed(QObject*)));
         QModelIndex index = d->editors.key(editor);
@@ -1555,8 +1554,8 @@ void QAbstractItemView::editorDestroyed(QObject *editor)
     QPersistentModelIndex key = d->editors.key(w);
     d->editors.remove(key);
     d->persistent.removeAll(w);
-    if (d->state == EditingState)
-        d->state = NoState;
+    if (state() == EditingState)
+        setState(NoState);
 }
 
 // ###DOC: this value is also used by the "scroll in item units" algorithm to
@@ -1827,14 +1826,15 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
         // painting in the next paint event is too late (because of scrolling)
         d->viewport->repaint(rect);
         // if we are editing, commit the data and close the editor
-        if (state() == EditingState) {
-            QModelIndex buddy = model()->buddy(previous);
-            QWidget *editor = d->editors.value(buddy);
-            if (editor) {
-                commitData(editor);
-                closeEditor(editor, QAbstractItemDelegate::NoHint);
-            }
+        qDebug() << state();
+        //if (state() == EditingState) { // FIXME: the state got changed to NoState
+        QModelIndex buddy = model()->buddy(previous);
+        QWidget *editor = d->editors.value(buddy);
+        if (editor) {
+            commitData(editor);
+            closeEditor(editor, QAbstractItemDelegate::NoHint);
         }
+        //}
     }
 
     if (current.isValid()) {
