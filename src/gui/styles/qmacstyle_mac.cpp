@@ -563,14 +563,19 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
                 ret = QSize(r.right - r.left, r.bottom - r.top);
         }
     } else if(ct == QStyle::CT_ComboBox) {
-        if(sz == QAquaSizeLarge)
-            ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricPopupButtonHeight)+1);
-        else if(sz == QAquaSizeSmall)
-            ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallPopupButtonHeight)+1);
+        const QComboBox *cmb = ::qt_cast<const QComboBox *>(widg);
+        if (sz == QAquaSizeLarge ||
+            (sz != QAquaSizeLarge && cmb && cmb->isEditable()
+             && QSysInfo::MacintoshVersion < QSysInfo::MV_PANTHER)) {
+            ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricPopupButtonHeight) + 1);
+        } else if (sz == QAquaSizeSmall) {
+            ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallPopupButtonHeight) + 1);
+        }
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-        else if(sz == QAquaSizeMini)
+        else if (sz == QAquaSizeMini)
             ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricMiniPopupButtonHeight));
 #endif
+
     } else if(ct == QStyle::CT_ToolButton && sz == QAquaSizeSmall) {
         int width = 0, height = 0;
         if(szHint == QSize(-1, -1)) { //just 'guess'..
@@ -2152,21 +2157,25 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
             if (sb->parts & (QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown)) {
                 HIThemeButtonDrawInfo bdi;
                 bdi.version = qt_mac_hitheme_version;
-                switch (qt_aqua_size_constrain(widget)) {
+                QAquaWidgetSize aquaSize = qt_aqua_size_constrain(widget);
+                switch (aquaSize) {
                     case QAquaSizeUnknown:
                     case QAquaSizeLarge:
                         bdi.kind = kThemeIncDecButton;
                         break;
                     case QAquaSizeMini:
+                    case QAquaSizeSmall:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
                         if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                            bdi.kind = kThemeIncDecButtonMini;
-                            break;
+                            if (aquaSize == QAquaSizeMini)
+                                bdi.kind = kThemeIncDecButtonMini;
+                            else
+                                bdi.kind = kThemeIncDecButtonSmall;
+                        } else {
+                            bdi.kind = kThemeIncDecButton;
                         }
-#endif
-                    case QAquaSizeSmall:
-                        bdi.kind = kThemeIncDecButtonSmall;
                         break;
+#endif
                 }
                 if (!(sb->stepEnabled & (QAbstractSpinBox::StepUpEnabled
                                         | QAbstractSpinBox::StepDownEnabled)))
@@ -2213,21 +2222,25 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
             if (cmb->editable) {
                 bdi.adornment |= kThemeAdornmentArrowDownArrow;
                 comborect = q->querySubControlMetrics(QStyle::CC_ComboBox, cmb, QStyle::SC_ComboBoxArrow ,widget);
-                switch (qt_aqua_size_constrain(widget)) {
+                QAquaWidgetSize aSize = qt_aqua_size_constrain(widget);
+                switch (aSize) {
                     case QAquaSizeUnknown:
                     case QAquaSizeLarge:
                         bdi.kind = kThemeArrowButton;
                         break;
                     case QAquaSizeMini:
+                    case QAquaSizeSmall:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
                         if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                            bdi.kind = kThemeArrowButtonMini;
-                            break;
+                            if (aSize == QAquaSizeMini)
+                                bdi.kind = kThemeArrowButtonMini;
+                            else
+                                bdi.kind = kThemeArrowButtonSmall;
+                        } else {
+                            bdi.kind = kThemeArrowButton;
                         }
-#endif
-                    case QAquaSizeSmall:
-                        bdi.kind = kThemeArrowButtonSmall;
                         break;
+#endif
                 }
                 QRect lineeditRect(cmb->rect);
                 lineeditRect.setWidth(cmb->rect.width() - comborect.width());
