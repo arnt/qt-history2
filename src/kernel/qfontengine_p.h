@@ -476,6 +476,7 @@ public:
     void appendTo(QTextEngine *engine, QScriptItem *si, bool doLogClusters = TRUE);
 
     const int *mapping(int &len);
+    inline void setLength(int len) { str->length = len; }
     unsigned short *glyphs() { return str->string; }
 private:
     bool loadTables( FT_ULong script);

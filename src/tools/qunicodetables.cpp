@@ -11840,12 +11840,13 @@ enum Script {
 
     KatakanaHalfWidth,		// from JIS X 0201
     // End
-    NScripts
+    NScripts,
+    UnknownScript = NScripts
 };
 
 // copied form qfont.h, as we can't include it in tools. Do not modify without
 // changing the script enum in qfont.h aswell.
-const unsigned char QUnicodeTables::otherScripts [116] = {
+const unsigned char QUnicodeTables::otherScripts [120] = {
 #define SCRIPTS_02 0
     0xaf, Latin, 0xff, SpacingModifiers, 			// row 0x02, index 0
 #define SCRIPTS_03 4
@@ -11868,28 +11869,28 @@ const unsigned char QUnicodeTables::otherScripts [116] = {
 #define SCRIPTS_18 48
     0xaf, Mongolian, 0xff, Unicode,		       	// row 0x18, index 46
 #define SCRIPTS_20 52
-    0x6f, Unicode, 0x9f, NumberForms,
+    0x0b, Unicode, 0x0d, UnknownScript, 0x6f, Unicode, 0x9f, NumberForms,
     0xab, CurrencySymbols, 0xac, Latin,
     0xcf, CurrencySymbols, 0xff, CombiningMarks,		// row 0x20, index 50
-#define SCRIPTS_21 64
+#define SCRIPTS_21 68
     0x4f, LetterlikeSymbols, 0x8f, NumberForms,
     0xff, MathematicalOperators,					// row 0x21, index 62
-#define SCRIPTS_24 70
+#define SCRIPTS_24 74
     0x5f, TechnicalSymbols, 0xff, EnclosedAndSquare,	// row 0x24, index 68
-#define SCRIPTS_2e 74
+#define SCRIPTS_2e 78
     0x7f, Unicode, 0xff, Han,				// row 0x2e, index 72
-#define SCRIPTS_30 78
+#define SCRIPTS_30 82
     0x3f, Han, 0x9f, Hiragana, 0xff, Katakana,	// row 0x30, index 76
-#define SCRIPTS_31 84
+#define SCRIPTS_31 88
     0x2f, Bopomofo, 0x8f, Hangul, 0x9f, Han,
     0xff, Unicode,						// row 0x31, index 82
-#define SCRIPTS_fb 92
+#define SCRIPTS_fb 96
     0x06, Latin, 0x1c, Unicode, 0x4f, Hebrew,
     0xff, Arabic,						// row 0xfb, index 90
-#define SCRIPTS_fe 100
+#define SCRIPTS_fe 104
     0x1f, Unicode, 0x2f, CombiningMarks, 0x6f, Unicode,
     0xff, Arabic,						// row 0xfe, index 98
-#define SCRIPTS_ff 108
+#define SCRIPTS_ff 112
     0x5e, Katakana, 0x60, Unicode,        		// row 0xff, index 106
     0x9f, KatakanaHalfWidth, 0xff, Unicode
 };

@@ -33,6 +33,12 @@
 **
 **********************************************************************/
 
+// ------------------------------------------------------------------------------------------------------------------
+//
+// Continuation of middle eastern languages
+//
+// ------------------------------------------------------------------------------------------------------------------
+
 // #### stil missing: identify invalid character combinations
 static void hebrew_shape(int script, const QString &string, int from, int len,
 			 QTextEngine *engine, QScriptItem *si)
@@ -120,6 +126,7 @@ enum Form {
     StressMark,
     IndependentVowel,
     LengthMark,
+    Control,
     Other
 };
 
@@ -964,6 +971,8 @@ static inline Form form( unsigned short uc ) {
     if ( uc < 0x900 || uc > 0xdff ) {
 	if ( uc == 0x25cc )
 	    return Consonant;
+	if ( uc == 0x200c || uc == 0x200d )
+	    return Control;
 	return Other;
     }
     return (Form)indicForms[uc-0x900];
@@ -1086,7 +1095,7 @@ static const IndicOrdering malayalam_order [] = {
 static const IndicOrdering * const indic_order[] = {
     devanagari_order, // Devanagari
     bengali_order, // Bengali
-    // Gurmukhi
+    gurmukhi_order, // Gurmukhi
     devanagari_order, // Gujarati
     bengali_order, // Oriya
     tamil_order, // Tamil
@@ -1157,7 +1166,7 @@ static inline void splitMatra(unsigned short *reordered, int matra, int &len, in
     len++;
 }
 
-// #define INDIC_DEBUG
+#define INDIC_DEBUG
 #ifdef INDIC_DEBUG
 #define IDEBUG qDebug
 #else
@@ -1200,6 +1209,8 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
     } else {
 	memcpy( reordered, string.unicode() + from, len*sizeof( QChar ) );
     }
+    if (reordered[len-1] == 0x200c) // zero width non joiner
+	len--;
 
     int i;
     int base = 0;
@@ -1232,7 +1243,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	//
  	// * In Kannada and Telugu, the base consonant cannot be
  	//   farther than 3 consonants from the end of the syllable.
-	if (form(*uc) == Consonant) {
+	if (form(*uc) == Consonant || (script == QFont::Bengali && form(*uc) == IndependentVowel)) {
 	    beginsWithRa = ((len > 2) && *uc == ra && *(uc+1) == halant);
 	    base = (beginsWithRa && (properties & HasReph) ? 2 : 0);
 	    IDEBUG("    length = %d, beginsWithRa = %d, base=%d", len, beginsWithRa, base );
@@ -1332,7 +1343,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 		    toPos += 2;
 		if (script == QFont::Devanagari || script == QFont::Gujarati || script == QFont::Bengali) {
 		    if (matra_position == Post || matra_position == Split) {
-			toPos = matra + 1;
+			toPos = matra;
 			matra -= 2;
 		    }
 		} else if (script == QFont::Kannada) {
@@ -1461,6 +1472,10 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 
     int firstGlyph = si->num_glyphs;
 
+    bool control = FALSE;
+    for (int i = 0; i < len; ++i)
+	control |= (form(reordered[i]) == Control);
+
 #ifndef QT_NO_XFTFREETYPE
     if (openType) {
 	int error = si->fontEngine->stringToCMap((QChar *)reordered, len, glyphs, 0, &len,
@@ -1522,8 +1537,16 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	memset(where, 0, len*sizeof(bool));
 	for (i = 0; i < base; ++i)
 	    where[i] = TRUE;
+	if (control) {
+	    for (i = 2; i < len; ++i) {
+		if (form(reordered[i]) == Control && reordered[i] == 0x200d) {
+		    where[i-1] = TRUE;
+		    where[i-2] = TRUE;
+		}
+	    }
+	}
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'h', 'a', 'l', 'f' ), where);
-	openType->applyGSUBFeature(FT_MAKE_TAG( 'p', 's', 'b', 'f' ));
+	openType->applyGSUBFeature(FT_MAKE_TAG( 'p', 's', 't', 'f' ));
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'v', 'a', 't', 'u' ));
 
 	// Conjunkts and typographical forms
@@ -1565,6 +1588,21 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	for (i = 0; i < newLen; ++i)
 	    ga[i] = glyphAttributes[char_map[i]];
 
+	if (control) {
+	    IDEBUG("found a control char in the syllable");
+	    int i = 0, j = 0;
+	    unsigned short *g = openType->glyphs();
+	    while (1) {
+		if (form(reordered[char_map[i]]) == Control)
+		    ++i;
+		if (i >= newLen)
+		    break;
+		g[j] = g[i];
+		++i;
+		++j;
+	    }
+	    openType->setLength(j);
+	}
 
 	openType->appendTo(engine, si, FALSE);
 
@@ -1627,7 +1665,7 @@ static int indic_nextSyllableBoundary( int script, const QString &s, int start, 
     pos++;
 
     if ( state != Consonant && state != IndependentVowel ) {
-	if ( state != Other )
+	if ( state != Other && state != Control )
 	    *invalid = TRUE;
 	goto finish;
     }
@@ -1636,12 +1674,18 @@ static int indic_nextSyllableBoundary( int script, const QString &s, int start, 
 	Form newState = form( uc[pos].unicode() );
 // 	qDebug("state[%d]=%d (uc=%4x)", pos, newState, uc[pos].unicode() );
 	switch( newState ) {
+	case Control:
+	    if (uc[pos].unicode() == 0x200d) // Zero width joiner
+		newState = state;
+	    break;
 	case Consonant:
 	    if ( state == Halant )
 		break;
 	    goto finish;
 	case Halant:
 	    if ( state == Nukta || state == Consonant )
+		break;
+	    if ( script == QFont::Bengali && pos == 1 && state == IndependentVowel )
 		break;
 	    goto finish;
 	case Nukta:

@@ -188,8 +188,10 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl
 
 	    unsigned short uc = text[i].unicode();
 	    QFont::Script s = (QFont::Script)scriptForChar( uc );
+	    if (s == QFont::UnknownScript)
+		s = script;
 
-	    if (s != script && (::category( uc ) != QChar::Mark_NonSpacing || script == QFont::NoScript)) {
+	    if (s != script) {
 		item.analysis.script = s;
 		item.analysis.bidiLevel = level;
 		item.position = i;
@@ -202,6 +204,8 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl
 
 	    unsigned short uc = text[i].unicode();
 	    QFont::Script s = (QFont::Script)scriptForChar( uc );
+	    if (s == QFont::UnknownScript)
+		s = script;
 
 	    QChar::Category category = ::category( uc );
 	    if ( uc == 0xfffcU || uc == 0x2028U ) {
@@ -819,12 +823,9 @@ void QTextEngine::splitItem( int item, int pos )
     if ( pos <= 0 )
 	return;
 
-#ifdef Q_WS_WIN
-    // if we use Uniscribe we have to ensure we get correct shaping for arabic and other
+    // we have to ensure we get correct shaping for arabic and other
     // complex languages so we have to call shape _before_ we split the item.
-    if (hasUsp10)
-	shape(item);
-#endif
+    shape(item);
 
     if ( items.d->size == items.d->alloc )
 	items.resize( items.d->size + 1 );
@@ -873,7 +874,7 @@ int QTextEngine::width( int from, int len ) const
 	QScriptItem *si = &items[i];
 	int pos = si->position;
 	int ilen = length( i );
-// 	qDebug("item %d: from %d len %d", i, pos, ilen );
+//  	qDebug("item %d: from %d len %d", i, pos, ilen );
 	if ( pos >= from + len )
 	    break;
 	if ( pos + ilen > from ) {
