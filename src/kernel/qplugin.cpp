@@ -213,7 +213,7 @@ QPlugInInterface* QPlugIn::loadInterface()
 
     if ( info ) {
 	info->appInterface = appInterface;
-	if ( !info->ref() ) {
+	if ( !info->addRef() ) {
 	    delete info;
 	    info = 0;
 	}
@@ -255,13 +255,15 @@ QString QPlugIn::library() const
 
 /*!
   Forwards the query to the QPlugInInterface and returns the result.
+
+  \sa QUnknownInterface::queryInterface
 */
-QUnknownInterface* QPlugIn::queryInterface( const QString &request, bool rec )
+QUnknownInterface* QPlugIn::queryInterface( const QString &request, bool recusive, bool regexp )
 {
     if ( !use() )
 	return 0;
 
-    QUnknownInterface *iface = info->queryInterface( request, rec );
+    QUnknownInterface *iface = info->queryInterface( request, recusive, regexp );
 
     return iface;
 }

@@ -17,7 +17,7 @@
 */
 QSqlDriverPlugInManager::QSqlDriverPlugInManager( const QString& path, const QString& filter,
 	QApplicationInterface* appIface, QPlugIn::LibraryPolicy pol )
-: QInterfaceManager<QSqlDriverInterface>( path, filter, appIface, pol )
+: QInterfaceManager<QSqlDriverInterface>( "QSqlDriverInterface", path, filter, appIface, pol )
 {
 }
 

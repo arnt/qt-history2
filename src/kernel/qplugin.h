@@ -71,7 +71,7 @@ public:
 
     QString library() const;
 
-    QUnknownInterface *queryInterface( const QString&, bool rec = TRUE );
+    QUnknownInterface *queryInterface( const QString&, bool recursive = TRUE, bool regexp = TRUE );
 
 private:
     bool use();
