@@ -543,12 +543,15 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
     case PdcDrawLineSegments:
 	{
 	    a = *p[0].ptarr;
-	    for (uint i = 0; i < a.size() / 2; i++) {
+	    int end = a.size() / 2;
+	    for (uint i = 0; i < end; i++) {
 		e = doc.createElement( "line" );
 		e.setAttribute( "x1", a[int(2*i)].x() );
 		e.setAttribute( "y1", a[int(2*i)].y() );
 		e.setAttribute( "x2", a[int(2*i+1)].x() );
 		e.setAttribute( "y2", a[int(2*i+1)].y() );
+		if ( i < end - 1 ) // The last one will be done at the end
+		    appendChild( e, c );
 	    }
 	}
 	break;
@@ -677,6 +680,20 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 	break;
     }
 
+    appendChild( e, c );
+
+    return TRUE;
+}
+
+/*!
+    \internal
+
+    Appends the child and applys any style and transformation.
+
+*/
+
+void QSvgDevice::appendChild( QDomElement &e, int c )
+{
     if ( !e.isNull() ) {
 	current.appendChild( e );
 	if ( c == PdcSave )
@@ -691,9 +708,8 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 		dirtyTransform = FALSE;
 	}
     }
-
-    return TRUE;
 }
+
 
 /*!
     \internal

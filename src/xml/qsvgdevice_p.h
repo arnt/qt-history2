@@ -109,6 +109,7 @@ private:
     void drawPath( const QString &data );
 
     // writing
+    void appendChild( QDomElement &e, int c );
     void applyStyle( QDomElement *e, int c ) const;
     void applyTransform( QDomElement *e ) const;
 
