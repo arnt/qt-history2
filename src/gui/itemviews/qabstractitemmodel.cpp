@@ -517,14 +517,14 @@ QAbstractItemModel::~QAbstractItemModel()
     it, each with its own role. The roles are used when visualizing
     and editing the items in the views.
 
-    \value Display The data rendered as text.
-    \value Decoration The data rendered as an icon.
-    \value Edit The data in a form suitable for editing in an item editor.
-    \value ToolTip The data displayed in the item's tooltip.
-    \value StatusTip The data displayed in the status bar.
-    \value WhatsThis The data displayed for the item in "What's This?"
+    \value Role_Display The data rendered as text.
+    \value Role_Decoration The data rendered as an icon.
+    \value Role_Edit The data in a form suitable for editing in an item editor.
+    \value Role_ToolTip The data displayed in the item's tooltip.
+    \value Role_StatusTip The data displayed in the status bar.
+    \value Role_WhatsThis The data displayed for the item in "What's This?"
     mode.
-    \value User The first custom role defined by the user.
+    \value Role_User The first custom role defined by the user.
 */
 
 /*!
