@@ -1079,8 +1079,8 @@ QString QComboTableItem::text( int i ) const
 }
 
 /*! 
-    If \b is TRUE the combobox item can be edited, i.e. the user can
-    enter a string item themselves. If \b is FALSE the user may not
+    If \a b is TRUE the combobox item can be edited, i.e. the user can
+    enter a string item themselves. If \a b is FALSE the user may not
     enter an item, they may only choose one of the existing items.
 
   \sa isEditable()
