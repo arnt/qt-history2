@@ -281,9 +281,11 @@ bool QLayoutWidget::event(QEvent *e)
             updateSizePolicy();
             break;
 
-        case QEvent::LayoutRequest:
-            // resize(layout()->sizeHint());
-            break;
+        case QEvent::LayoutRequest: {
+            bool rtn = QWidget::event(e);
+            update();
+            return rtn;
+        }
 
         default:
             break;
