@@ -1303,9 +1303,9 @@ QFont QTextCharFormat::font() const
 /*!
     \enum QTextBlockFormat::Direction
 
-    \value LeftToRight
-    \value RightToLeft
-    \value AutoDirection
+    \value LeftToRight   The text flows from left to right.
+    \value RightToLeft   The text flows from right to left.
+    \value AutoDirection The configuration of the system determines the direction.
 */
 
 /*!
@@ -1322,9 +1322,9 @@ QFont QTextCharFormat::font() const
 */
 
 /*!
-    \fn void QTextBlockFormat::setDirection(Direction dir)
+    \fn void QTextBlockFormat::setDirection(Direction direction)
 
-    Sets the text's direction to \a dir.
+    Sets the text's direction to the specified \a direction.
 
     \sa direction()
 */
@@ -1342,7 +1342,7 @@ QFont QTextCharFormat::font() const
 /*!
     \fn void QTextBlockFormat::setAlignment(Qt::Alignment alignment)
 
-    Sets the paragraph's alignment to \a alignment.
+    Sets the paragraph's \a alignment.
 
     \sa alignment()
 */
@@ -1360,7 +1360,7 @@ QFont QTextCharFormat::font() const
 /*!
     \fn void QTextBlockFormat::setTopMargin(int margin)
 
-    Sets the paragraph's top margin to \a margin.
+    Sets the paragraph's top \a margin.
 
     \sa topMargin() setBottomMargin() setLeftMargin() setRightMargin() setFirstLineMargin()
 */
@@ -1378,7 +1378,7 @@ QFont QTextCharFormat::font() const
 /*!
     \fn void QTextBlockFormat::setBottomMargin(int margin)
 
-    Sets the paragraph's bottom margin to \a margin.
+    Sets the paragraph's bottom \a margin.
 
     \sa bottomMargin() setTopMargin() setLeftMargin() setRightMargin() setFirstLineMargin()
 */
@@ -1396,8 +1396,8 @@ QFont QTextCharFormat::font() const
 /*!
     \fn void QTextBlockFormat::setLeftMargin(int margin)
 
-    Sets the paragraph's left margin to \a margin. Indentation can be
-    applied separately with setIndent().
+    Sets the paragraph's left \a margin. Indentation can be applied separately
+    with setIndent().
 
     \sa leftMargin() setRightMargin() setTopMargin() setBottomMargin() setFirstLineMargin()
 */
@@ -1415,7 +1415,7 @@ QFont QTextCharFormat::font() const
 /*!
     \fn void QTextBlockFormat::setRightMargin(int margin)
 
-    Sets the paragraph's right margin to \a margin.
+    Sets the paragraph's right \a margin.
 
     \sa rightMargin() setLeftMargin() setTopMargin() setBottomMargin() setFirstLineMargin()
 */
@@ -1451,11 +1451,10 @@ QFont QTextCharFormat::font() const
 
 
 /*!
-    \fn void QTextBlockFormat::setIndent(int indent)
+    \fn void QTextBlockFormat::setIndent(int indentation)
 
-    Sets the paragraph's indent to \a indent. Margins are set
-    independently of indentation, for example with, setLeftMargin()
-    and setFirstLineMargin().
+    Sets the paragraph's \a indentation. Margins are set independently of
+    indentation with setLeftMargin() and setFirstLineMargin().
 
     \sa indent()
 */
@@ -1592,9 +1591,28 @@ QFont QTextCharFormat::font() const
 
     \ingroup text
 
-    A frame comprises one or more blocks.
+    A text frame groups together one or more blocks of text, providing a layer
+    of structure larger than the paragraph. The format of a frame specifies
+    how it is rendered and positioned on the screen. It does not directly
+    specify the behavior of the text formatting within, but provides
+    constraints on the layout of its children.
 
-    A QTextFrameFormat specifies the characteristics of a frame.
+    The frame format defines the width() and height() of the frame on the
+    screen. Each frame can have a border() that surrounds its contents with
+    a rectangular box. The border is surrounded by a margin() around the frame,
+    and the contents of the frame are kept separate from the border by the
+    frame's padding(). This scheme is similar to the box model used by Cascading
+    Style Sheets for HTML pages.
+
+    \img qtextframe-style.png
+
+    The position() of a frame is set using setPosition() and determines how it
+    is located relative to the surrounding text.
+
+    The validity of a QTextFrameFormat object can be determined with the
+    isValid() function.
+
+    \sa QTextFrame QTextBlockFormat
 */
 
 /*!
