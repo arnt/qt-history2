@@ -1944,11 +1944,13 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 	    }
 	}
     }
-    if ( hasNewPar && curpar != fParag && !cursor ) {
+
+    if ( hasNewPar && curpar != fParag && !cursor && stylesPar != curpar ) {
 	// cleanup unused last paragraphs
 	curpar = curpar->p;
 	delete curpar->n;
     }
+
     if ( !anchorName.isEmpty()  ) {
 	curpar->at(curpar->length() - 1)->setAnchor( anchorName, curpar->at( curpar->length() - 1 )->anchorHref() );
 	anchorName = QString::null;
