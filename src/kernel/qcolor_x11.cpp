@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#54 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#54 $");
 
 
 /*****************************************************************************
@@ -47,6 +47,7 @@ static bool	color_init = FALSE;		// module was initialized
 static int	current_alloc_context = 0;	// current color alloc context
 static Visual  *g_vis	= 0;			// visual
 static XColor  *g_carr	= 0;			// color array
+static bool    *g_our_alloc = 0;		// our allocated colors
 static bool	g_truecolor;
 static uint	red_mask , green_mask , blue_mask;
 static int	red_shift, green_shift, blue_shift;
@@ -56,14 +57,19 @@ static int	red_shift, green_shift, blue_shift;
   This function is called from the event loop. It resets the colorAvail
   flag so that the application can retry to allocate read-only colors
   that other applications may have deallocated lately.
+
+  The g_our_alloc and g_carr are global arrays that optimize color
+  approximation when there are no more colors left to allocate.
 */
 
 void qt_reset_color_avail()
 {
     colorAvail = TRUE;
     if ( g_carr ) {				// color array was allocated
+	delete [] g_our_alloc;
+	g_our_alloc = 0;
 	delete [] g_carr;
-	g_carr = 0;				// reset
+	g_carr = 0;
     }
 }
 
@@ -364,6 +370,9 @@ uint QColor::alloc()
 		xc++;
 	    }
 	    XQueryColors( dpy, QPaintDevice::x11Colormap(), g_carr, maxi );
+	    g_our_alloc = new bool[maxi];
+	    CHECK_PTR( g_our_alloc );
+	    memset( g_our_alloc, FALSE, sizeof(g_our_alloc) );
 	}
 	xc = &g_carr[0];
 	for ( i=0; i<maxi; i++ ) {		// find closest color
@@ -382,7 +391,10 @@ uint QColor::alloc()
 	    pix = BlackPixel( dpy, scr );
 	    return pix;
 	}
-	XAllocColor( dpy, QPaintDevice::x11Colormap(), &g_carr[mincol] );
+	if ( !g_our_alloc[mincol] ) {		// we haven't allocated it
+	    XAllocColor( dpy, QPaintDevice::x11Colormap(), &g_carr[mincol] );
+	    g_our_alloc[mincol] = TRUE;
+	}
 	pix = g_carr[mincol].pixel;		// allocated X11 color
 	rgbVal &= RGB_MASK;
     }
