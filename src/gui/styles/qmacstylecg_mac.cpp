@@ -535,6 +535,9 @@ int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const Q3StyleOpt
     case SH_Menu_Scrollable:
         ret = true;
         break;
+    case SH_LineEdit_PasswordCharacter:
+        ret = kBulletUnicode;
+        break;
     default:
         ret = QWindowsStyle::styleHint(sh, widget, opt, d);
     }
