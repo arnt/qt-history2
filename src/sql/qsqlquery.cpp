@@ -118,7 +118,7 @@ void QSqlResultShared::slotResultDestroyed()
     For example:
 
     \code
-    QSqlQuery query( "select name from customer;" );
+    QSqlQuery query( "select name from customer" );
     while ( query.next() ) {
 	QString name = query.value(0).toString();
 	doSomething( name );
@@ -267,7 +267,7 @@ bool QSqlQuery::exec ( const QString& query )
 
     The fields are numbered from left to right using the text of the
     \c SELECT statement, e.g. in "select forename, surname from
-    people;", field 0 is forename and field 1 is surname. Using
+    people", field 0 is forename and field 1 is surname. Using
     <tt>SELECT *</tt> is not recommended because the order of the
     fields in the query is undefined.
 
