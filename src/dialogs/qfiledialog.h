@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#52 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#53 $
 **
 ** Definition of QFileDialog class
 **
@@ -80,7 +80,7 @@ public:
 
     void clear();
     void show();
-    void startRename();
+    void startRename( bool check = TRUE );
     void setSelected( QListBoxItem *i, bool s );
     void setSelected( int i, bool s );
 
@@ -102,7 +102,7 @@ private:
     bool renaming;
     QTimer* renameTimer;
     QListBoxItem *renameItem;
-    
+
 };
 
 class QFileListView : public QListView
@@ -115,7 +115,7 @@ public:
     QFileListView( QWidget *parent, QFileDialog *d );
 
     void clear();
-    void startRename();
+    void startRename( bool check = TRUE );
 
 protected:
     void viewportMousePressEvent( QMouseEvent *e );
@@ -135,7 +135,7 @@ private:
     bool renaming;
     QTimer* renameTimer;
     QListViewItem *renameItem;
-    
+
 };
 
 class Q_EXPORT QFileDialog : public QDialog
@@ -233,11 +233,21 @@ private slots:
     void modeButtonsDestroyed();
 
 private:
+    enum PopupAction {
+        PA_Open = 0,
+        PA_Delete,
+        PA_Rename,
+        PA_SortAscent,
+        PA_SortDescent,
+        PA_Cancel
+    };
+    
     void init();
     bool trySetSelection( const QFileInfo&, bool );
-    void deleteFile( QListBoxItem *item );
-    void deleteFile( QListViewItem *item );
-
+    void deleteFile( const QString &filename );
+    void popupContextMenu( const QString &filename, bool withSort, 
+                           PopupAction &action, const QPoint &p );
+    
     QDir cwd;
     QString fileName;
 
