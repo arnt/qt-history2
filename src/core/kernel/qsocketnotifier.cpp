@@ -27,16 +27,16 @@
 
     \ingroup io
 
-    This class makes it possible to write asynchronous socket-based
-    code in Qt. Using synchronous socket operations blocks the
-    program, which is clearly not acceptable for an event-driven GUI
-    program.
+    The QSocketNotifier class makes it possible to write asynchronous
+    socket-based code in Qt. Synchronous socket operations block
+    execution of the program, which is clearly not acceptable for an
+    event-driven GUI application.
 
     Once you have opened a non-blocking socket (whether for TCP, UDP,
     a UNIX-domain socket, or any other protocol family your operating
     system supports), you can create a socket notifier to monitor the
-    socket. Then you connect the activated() signal to the slot you
-    want to be called when a socket event occurs.
+    socket. You can then connect the activated() signal to the slot you
+    want to be called whenever a socket event occurs.
 
     Note for Windows users: the socket passed to QSocketNotifier will
     become non-blocking, even if it was created as a blocking socket.
@@ -70,7 +70,7 @@
     \endcode
 
     The optional \e parent argument can be set to make the socket
-    notifier a child of any QObject, e.g. a widget. This will ensure
+    notifier a child of any QObject; e.g. a widget. This will ensure
     that it is automatically destroyed when the widget is destroyed.
 
     For read notifiers it makes little sense to connect the
@@ -85,22 +85,23 @@
     instance if you \e must use TCP urgent data.)
 
     For write notifiers, immediately disable the notifier after the
-    activated() signal has been received and you have sent the data to
-    be written on the socket. When you have more data to be written,
-    enable it again to get a new activated() signal. The exception is
-    if the socket data writing operation (send() or equivalent) fails
-    with a "would block" error, which means that some buffer is full
-    and you must wait before sending more data. In that case you do
-    not need to disable and re-enable the write notifier; it will fire
-    again as soon as the system allows more data to be sent.
+    activated() signal has been received, and when you have sent the
+    data to be written on the socket. When you have more data to be
+    written, enable it again to get a new activated() signal. The
+    exception is if the socket data writing operation (send() or
+    equivalent) fails with a "would block" error, which means that
+    some buffer is full and you must wait before sending more data.
+    In that case you do not need to disable and re-enable the write
+    notifier; it will fire again as soon as the system allows more
+    data to be sent.
 
     The behavior of a write notifier that is left in enabled state
     after having emitting the first activated() signal (and no "would
     block" error has occurred) is undefined. Depending on the
-    operating system, it may fire on every pass of the event loop or
+    operating system, it may fire on every pass of the event loop, or
     not at all.
 
-    If you need a time-out for your sockets you can use either \link
+    If you need a timeout for your sockets you can use either \link
     QObject::startTimer() timer events\endlink or the QTimer class.
 
     Socket action is detected in the \link QApplication::exec() main
@@ -114,15 +115,19 @@
 /*!
     \enum QSocketNotifier::Type
 
-    \value Read
-    \value Write
-    \value Exception
+    The socket notifier can be used to inform the application of the
+    following types of event:
+
+    \value Read       There is incoming data.
+    \value Write      Data can be written.
+    \value Exception  An exception has occurred.
 */
 
 
 /*!
-    Constructs a socket notifier called \a name, with the parent, \a
-    parent. It watches \a socket for \a type events, and enables it.
+    Constructs a socket notifier called \a name, with the given
+    \a parent. It enables the \a socket, and watches for events of the
+    given \a type.
 
     It is generally advisable to explicitly enable or disable the
     socket notifier, especially for write notifiers.
@@ -168,7 +173,7 @@ QSocketNotifier::~QSocketNotifier()
     exception event).
     \endlist
 
-    The \a socket argument is the \link socket() socket\endlink identifier.
+    The \a socket is the \link socket() socket\endlink identifier.
 
     \sa type(), socket()
 */
@@ -202,8 +207,8 @@ QSocketNotifier::~QSocketNotifier()
 */
 
 /*!
-    Enables the notifier if \a enable is true or disables it if \a
-    enable is false.
+    If \a enable is true, the notifier is enabled; otherwise the notifier
+    is disabled.
 
     The notifier is enabled by default.
 

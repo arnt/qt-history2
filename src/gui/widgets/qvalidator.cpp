@@ -93,6 +93,7 @@
     \value Acceptable    The string is acceptable as a final result;
                          i.e. it is valid.
 
+    \omitvalue Valid
 */
 
 

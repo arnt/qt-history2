@@ -58,7 +58,7 @@ Q_GLOBAL_STATIC(QDnsAgent, agent)
     QDns supports Internationalized Domain Names (IDNs) through the
     IDNA and Punycode standards.
 
-    \sa QDnsHostInfo
+    \sa QDnsHostInfo \l{http://ietf.org/rfc/rfc3492}{RFC 3492}
 */
 
 /*!
@@ -69,11 +69,14 @@ Q_GLOBAL_STATIC(QDnsAgent, agent)
 
     Example:
 
+    The lookup is performed by a single function call:
+
     \code
         QDns::getHostByName("www.trolltech.com", this, SLOT(lookedUp(const QDnsHostInfo&)));
     \endcode
 
-    And here is the implementation of the slot:
+    The implementation of the slot prints basic information about the
+    addresses returned by the lookup, or reports an error if it failed:
 
     \code
         void MyWidget::lookedUp(const QDnsHostInfo &host)
@@ -158,7 +161,8 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
 #endif
 }
 
-/*! \overload
+/*!     
+    \overload
 
     Performs a blocking name lookup. Execution of the program is
     suspended until the results of the lookup are ready. Returns the
@@ -197,10 +201,11 @@ QDnsHostInfo QDns::getHostByName(const QString &name)
     return QDnsAgent::getHostByName(name);
 }
 
-/*! \internal
+/*! 
+    \internal
     Pops a query off the queries list, performs a blocking call to
     QDnsAgent::getHostByName(), and emits the resultsReady()
-    signal. Then starts over until the queries list is empty.
+    signal. This process repeats until the queries list is empty.
 */
 void QDnsAgent::run()
 {
@@ -247,12 +252,14 @@ void QDnsAgent::run()
     A QDnsHostInfo is passed to the slot invoked by
     QDns::getHostByName(). It contains the result of the lookup.
 
-    host() returns the host name that was looked up. Call addresses()
+    host() returns the host name that was found. Call addresses()
     to get the list of IP addresses for the host.
 
     If the lookup failed, error() returns the type of error that
     occurred. errorString() gives a human readable description of the
     lookup error.
+
+    \sa QDns
 */
 
 /*!
@@ -264,7 +271,7 @@ void QDnsAgent::run()
 */
 
 /*!
-    Constructs an empty QDnsHostInfo object.
+    Constructs an empty host info object.
 */
 QDnsHostInfo::QDnsHostInfo()
     : d(new QDnsHostInfoPrivate)
@@ -282,7 +289,8 @@ QDnsHostInfo::QDnsHostInfo(const QDnsHostInfo &hostInfo)
 }
 
 /*!
-    Assigns the data of \a hostInfo to this class.
+    Assigns the data of the \a hostInfo object to this host info object,
+    and returns a reference to it.
 */
 QDnsHostInfo &QDnsHostInfo::operator =(const QDnsHostInfo &hostInfo)
 {
@@ -295,7 +303,7 @@ QDnsHostInfo &QDnsHostInfo::operator =(const QDnsHostInfo &hostInfo)
 }
 
 /*!
-    Destructor.
+    Destroys the host info object.
 */
 QDnsHostInfo::~QDnsHostInfo()
 {

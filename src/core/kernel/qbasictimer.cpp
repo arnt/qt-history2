@@ -33,9 +33,9 @@
     a QObject subclass. When the timer times out it will send a timer
     event to the QObject subclass. The timer can be stopped at any
     time using stop(). isActive() returns true for a timer that is
-    running: i.e. has been started but has not reached the
-    timeout time and has not been stopped. The timer's ID can be
-    retrieved using timerId().
+    running; i.e. it has been started, has not reached the timeout time,
+    and has not been stopped. The timer's ID can be retrieved using
+    timerId().
 */
 
 
@@ -55,8 +55,8 @@
 /*!
     \fn bool QBasicTimer::isActive() const
 
-    Returns true if the timer is running and hasn't yet timed
-    out and has not been stopped; otherwise returns false.
+    Returns true if the timer is running, has not yet timed
+    out, and has not been stopped; otherwise returns false.
 
     \sa start() stop()
 */
@@ -70,10 +70,12 @@
 */
 
 /*!
+    \fn void QBasicTimer::start(int msec, QObject *object)
+
     Starts (or restarts) the timer with a \a msec milliseconds
     timeout.
 
-    The object, \a obj, will receive timer events.
+    The given \a object will receive timer events.
 
     \sa stop() isActive() QObject::timerEvent()
  */
