@@ -503,27 +503,31 @@ void QApplication::setGlobalMouseTracking( bool b)
 
 static QWidget *recursive_match(QWidget *widg, int x, int y)
 {
-  // Keep looking until we find ourselves in a widget with no kiddies
-  // where the x,y is
-  if(!widg)
-    return 0;
+    // Keep looking until we find ourselves in a widget with no kiddies
+    // where the x,y is
+    if(!widg)
+	return 0;
 
-  const QObjectList *objl=widg->children();
-  if(!objl) // No children
-    return widg;
-  for(QObjectListIt it(*objl); it.current(); ++it) {
-    if((*it)->isWidgetType()) {
-      QWidget *curwidg=(QWidget *)(*it);
-      int wx=curwidg->x(), wy=curwidg->y();
-      int wx2=wx+curwidg->width(), wy2=wy+curwidg->height();
-      if(x>=wx && y>=wy && x<=wx2 && y<=wy2) {
-	return recursive_match(curwidg,x-wx,y-wy);
-      }
+    const QObjectList *objl=widg->children();
+    if(!objl) // No children 
+	return widg;
+
+    QObjectListIt it(*objl);
+    for(it.toLast(); it.current(); --it) {
+	if((*it)->isWidgetType()) {
+	    QWidget *curwidg=(QWidget *)(*it);
+	    if(curwidg->isVisible()) {
+		int wx=curwidg->x(), wy=curwidg->y();
+		int wx2=wx+curwidg->width(), wy2=wy+curwidg->height();
+		if(x>=wx && y>=wy && x<=wx2 && y<=wy2) {
+		    return recursive_match(curwidg,x-wx,y-wy);
+		} 
+	    }
+	}
     }
-  }
-  // If we get here, it's within a widget that has children, but isn't in any
-  // of the children
-  return widg;
+    // If we get here, it's within a widget that has children, but isn't in any
+    // of the children
+    return widg;
 }
 
 /*!
@@ -1325,6 +1329,8 @@ int QApplication::macProcessEvent(MSG * m)
 		mouse_button_state = QMouseEvent::LeftButton; //FIXME
 		QMouseEvent qme( QEvent::MouseButtonPress, plocal, p, mouse_button_state, 0);
 		QApplication::sendEvent( widget, &qme );
+		
+		qDebug("I have send the event to %s %s", widget->name(), widget->className());
 	    }
 	}
 	else do_mouse_down( er ); //do resize/move stuff
