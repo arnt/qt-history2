@@ -105,20 +105,9 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	 src_incremental=FALSE, moc_incremental=FALSE;
 
     t << "####### Compiler, tools and options" << endl << endl;
-    t << "CC       = ";
-    if (project->isActiveConfig("thread") &&
-	! project->variables()["QMAKE_CC_THREAD"].isEmpty())
-	t << var("QMAKE_CC_THREAD") << endl;
-    else
-	t << var("QMAKE_CC") << endl;
+    t << "CC       = " << var("QMAKE_CC") << endl;
 
-    t << "CXX      = ";
-    if (project->isActiveConfig("thread") &&
-	! project->variables()["QMAKE_CXX_THREAD"].isEmpty())
-	t << var("QMAKE_CXX_THREAD") << endl;
-    else
-	t << var("QMAKE_CXX") << endl;
-
+    t << "CXX      = " << var("QMAKE_CXX") << endl;
     t << "LEX      = " << var("QMAKE_LEX") << endl;
     t << "YACC     = " << var("QMAKE_YACC") << endl;
     t << "CFLAGS   = " << var("QMAKE_CFLAGS") << " "
@@ -139,13 +128,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << varGlue("INCLUDEPATH"," -I", " -I", "") << endl;
 
     if(!project->isActiveConfig("staticlib")) {
-	t << "LINK     = ";
-	if (project->isActiveConfig("thread") &&
-	    ! project->variables()["QMAKE_LINK_THREAD"].isEmpty())
-	    t << var("QMAKE_LINK_THREAD") << endl;
-	else
-	    t << var("QMAKE_LINK") << endl;
-
+	t << "LINK     = " << var("QMAKE_LINK") << endl;
 	t << "LFLAGS   = " << var("QMAKE_LFLAGS") << endl;
 	t << "LIBS     = " << "$(SUBLIBS) " << var("QMAKE_LIBDIR_FLAGS") << " " << var("QMAKE_LIBS") << endl;
     }
@@ -1133,8 +1116,6 @@ void UnixMakefileGenerator::init2()
 							"." + project->first("VER_MAJ"));
 
 	    project->variables()["TARGET"] = project->variables()["TARGET_x.y.z"];
-	    if(project->isActiveConfig("qt"))
-		project->variables()["DEFINES"].append("QT_PLUGIN");
 	} else if ( !project->isEmpty("QMAKE_HPUX_SHLIB") ) {
 	    project->variables()["TARGET_"].append("lib" + project->first("TARGET") + ".sl");
 	    if(project->isActiveConfig("lib_version_first"))

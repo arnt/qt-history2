@@ -76,34 +76,12 @@ UnixMakefileGenerator::init()
     }
 
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
-
-    bool is_qt = (project->first("TARGET") == "qt" || project->first("TARGET") == "qte" ||
-		  project->first("TARGET") == "qt-mt" || project->first("TARGET") == "qte-mt");
-    bool extern_libs = !project->isEmpty("QMAKE_APP_FLAG") ||
-		       (!project->isEmpty("QMAKE_LIB_FLAG") &&
-			project->isActiveConfig("dll")) || is_qt;
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     if ( (!project->isEmpty("QMAKE_LIB_FLAG") && !project->isActiveConfig("staticlib") ) ||
 	 (project->isActiveConfig("qt") &&  project->isActiveConfig( "plugin" ) )) {
 	if(configs.findIndex("dll") == -1) configs.append("dll");
     } else if ( !project->isEmpty("QMAKE_APP_FLAG") || project->isActiveConfig("dll") ) {
 	configs.remove("staticlib");
-    }
-    if ( project->isActiveConfig("warn_off") ) {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_WARN_OFF"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_WARN_OFF"];
-    } else if ( project->isActiveConfig("warn_on") ) {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_WARN_ON"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_WARN_ON"];
-    }
-    if ( project->isActiveConfig("debug") ) {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_DEBUG"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_DEBUG"];
-	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_DEBUG"];
-    } else {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_RELEASE"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RELEASE"];
-	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_RELEASE"];
     }
     if(!project->isEmpty("QMAKE_INCREMENTAL"))
 	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_INCREMENTAL"];
@@ -118,93 +96,6 @@ UnixMakefileGenerator::init()
 	    project->variables()["QMAKE_LFLAGS"] += varGlue("QMAKE_LIBDIR", " " + var("QMAKE_RPATH"),
 							    " " + var("QMAKE_RPATH"), "");
 	project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue( "QMAKE_LIBDIR", "-L", " -L", "" );
-    }
-    if ( project->isActiveConfig("qtopia") ) {
-	if(configs.findIndex("qtopialib") == -1)
-	    configs.append("qtopialib");
-	if(configs.findIndex("qtopiainc") == -1)
-	    configs.append("qtopiainc");
-    }
-    if ( project->isActiveConfig("qtopiainc") )
-	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QTOPIA"];
-    if ( project->isActiveConfig("qtopialib") ) {
-	if(!project->isEmpty("QMAKE_LIBDIR_QTOPIA"))
-	    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_QTOPIA", "-L", " -L", "");
-	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QTOPIA"];
-    }
-    if ( project->isActiveConfig("qt") ) {
-	if ( project->isActiveConfig("accessibility" ) )
-	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
-	if ( project->isActiveConfig("tablet") )
-	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_TABLET_SUPPORT");
-	if(configs.findIndex("moc")) configs.append("moc");
-	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QT"];
-	if ( !project->isActiveConfig("debug") )
-	    project->variables()["DEFINES"].append("QT_NO_DEBUG"); //never exported
-	if ( !is_qt ) {
-	    if ( !project->isEmpty("QMAKE_RPATH") ) {
-		if ( !project->isEmpty("QMAKE_RTLDIR_QT") )
-		    project->variables()["QMAKE_LFLAGS"] += varGlue("QMAKE_RTLDIR_QT", " " + var("QMAKE_RPATH"),
-								    " " + var("QMAKE_RPATH"), "");
-		else if ( !project->isEmpty("QMAKE_LIBDIR_QT") )
-		    project->variables()["QMAKE_LFLAGS"] += varGlue("QMAKE_LIBDIR_QT", " " + var("QMAKE_RPATH"),
-								    " " + var("QMAKE_RPATH"), "");
-	    }
-	    if ( !project->isEmpty("QMAKE_LIBDIR_QT") )
-		project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_QT", "-L", " -L", "");
-	    if ( project->isActiveConfig("thread") && !project->isEmpty("QMAKE_LIBS_QT_THREAD") )
-		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_THREAD"];
-	    else
-		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
-	}
-    }
-    if ( project->isActiveConfig("opengl") ) {
-	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_OPENGL"];
-	if(!project->isEmpty("QMAKE_LIBDIR_OPENGL"))
-	    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_OPENGL", "-L", " -L", "");
-	if ( is_qt )
-	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL_QT"];
-	else
-	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
-    }
-    if ( extern_libs && (project->isActiveConfig("qt") || project->isActiveConfig("opengl")) ) {
-	if(configs.findIndex("x11lib") == -1)
-	    configs.append("x11lib");
-	if ( project->isActiveConfig("opengl") && configs.findIndex("x11inc") == -1 )
-	    configs.append("x11inc");
-    }
-    if ( project->isActiveConfig("x11") ) {
-	if(configs.findIndex("x11lib") == -1)
-	    configs.append("x11lib");
-	if(configs.findIndex("x11inc") == -1)
-	    configs.append("x11inc");
-    }
-    if ( project->isActiveConfig("x11inc") )
-	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_X11"];
-    if ( project->isActiveConfig("x11lib") ) {
-	if(!project->isEmpty("QMAKE_LIBDIR_X11"))
-	    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_X11", "-L", " -L", "");
-	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_X11"];
-    }
-    if ( project->isActiveConfig("x11sm") )
-	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_X11SM"];
-    if ( project->isActiveConfig("dylib") )
-	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_DYNLOAD"];
-    if ( project->isActiveConfig("thread") ) {
-	if(project->isActiveConfig("qt"))
-	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_THREAD_SUPPORT");
-	if ( !project->isEmpty("QMAKE_CFLAGS_THREAD")) {
-	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_THREAD"];
-	    project->variables()["PRL_EXPORT_CFLAGS"] += project->variables()["QMAKE_CFLAGS_THREAD"];
-	}
-	if( !project->isEmpty("QMAKE_CXXFLAGS_THREAD")) {
-	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_THREAD"];
-	    project->variables()["PRL_EXPORT_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_THREAD"];
-	}
-	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_THREAD"];
-	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_THREAD"];
-	if(!project->isEmpty("QMAKE_LFLAGS_THREAD"))
-	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_THREAD"];
     }
     if ( project->isActiveConfig("moc") )
 	setMocAware(TRUE);
@@ -466,7 +357,7 @@ UnixMakefileGenerator::findLibraries()
 							 l.replace("\"","")));
 		} else if(opt.startsWith("-l")) {
 		    stub = opt.mid(2);
-		} else if(project->isActiveConfig("macx") && opt.startsWith("-framework")) {
+		} else if(Option::target_mode == Option::TARG_MACX_MODE && opt.startsWith("-framework")) {
 		    if(opt.length() > 11) {
 			opt = opt.mid(11);
 		    } else {
@@ -593,7 +484,7 @@ UnixMakefileGenerator::processPrlFiles()
 				break;
 			    }
 			}
-		    } else if(project->isActiveConfig("macx") && opt.startsWith("-framework")) {
+		    } else if(Option::target_mode == Option::TARG_MACX_MODE && opt.startsWith("-framework")) {
 			if(opt.length() > 11) {
 			    opt = opt.mid(11);
 			} else {

@@ -198,9 +198,8 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	t << "\t" << var( "QMAKE_POST_LINK" ) << endl;
     if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
 	QStringList dlldirs = project->variables()["DLLDESTDIR"];
-	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) {
+	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) 
 	    t << "\n\t" << "-$(COPY_FILE) $(TARGET) " << *dlldir;
-	}
     }
     QString targetfilename = project->variables()["TARGET"].first();
     if(project->isActiveConfig("activeqt")) {
@@ -263,10 +262,6 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
       << varGlue("OBJECTS","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
       << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n")
       << varGlue("CLEAN_FILES","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n");
-    if ( project->isActiveConfig("activeqt")) {
-	t << ("\n\t-$(DEL_FILE) tmp\\" + targetfilename + ".*");
-	t << "\n\t-$(DEL_FILE) tmp\\dump.*";
-    }
     if(!project->isEmpty("IMAGES"))
 	t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-$(DEL_FILE) ", "\n\t-$(DEL_FILE) ", "");
     t << endl;
@@ -326,112 +321,18 @@ NmakeMakefileGenerator::init()
     bool is_qt = (project->first("TARGET") == "qt"QTDLL_POSTFIX || project->first("TARGET") == "qt-mt"QTDLL_POSTFIX);
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
 
-    QString targetfilename = project->variables()["TARGET"].first();
     QStringList &configs = project->variables()["CONFIG"];
-    if (project->isActiveConfig("qt") && project->isActiveConfig("shared"))
-	project->variables()["DEFINES"].append("QT_DLL");
-    if (project->isActiveConfig("qt_dll"))
-	if(configs.findIndex("qt") == -1) configs.append("qt");
-    if ( project->isActiveConfig("qtopia") ) {
-	if(configs.findIndex("qtopialib") == -1)
-	    configs.append("qtopialib");
-	if(configs.findIndex("qtopiainc") == -1)
-	    configs.append("qtopiainc");
-    }
-    if ( project->isActiveConfig("qt") ) {
-	if ( project->isActiveConfig( "plugin" ) ) {
-	    project->variables()["CONFIG"].append("dll");
-	    if(project->isActiveConfig("qt"))
-		project->variables()["DEFINES"].append("QT_PLUGIN");
-	}
-	if ( (project->variables()["DEFINES"].findIndex("QT_NODLL") == -1) &&
-         ((project->variables()["DEFINES"].findIndex("QT_MAKEDLL") != -1 ||
-           project->variables()["DEFINES"].findIndex("QT_DLL") != -1) ||
-          (getenv("QT_DLL") && !getenv("QT_NODLL"))) ) {
-	    project->variables()["QMAKE_QT_DLL"].append("1");
-	    if ( is_qt && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() )
-		project->variables()["CONFIG"].append("dll");
-	}
-	if ( project->isActiveConfig("thread") )
-	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_THREAD_SUPPORT");
-	if ( project->isActiveConfig("accessibility" ) )
-	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
-	if ( project->isActiveConfig("tablet") )
-	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_TABLET_SUPPORT");
-    }
     if ( project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
 	project->variables()["CONFIG"].remove("staticlib");
 	project->variables()["QMAKE_APP_OR_DLL"].append("1");
     } else {
 	project->variables()["CONFIG"].append("staticlib");
     }
-    if ( project->isActiveConfig("warn_off") ) {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_WARN_OFF"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_WARN_OFF"];
-    } else if ( project->isActiveConfig("warn_on") ) {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_WARN_ON"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_WARN_ON"];
-    }
-    if ( project->isActiveConfig("debug") ) {
-        if ( project->isActiveConfig("thread") ) {
-	    // use the DLL RT even here
-	    if ( project->variables()["DEFINES"].contains("QT_DLL") ) {
-		project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MT_DLLDBG"];
-		project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MT_DLLDBG"];
-	    } else {
-		project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MT_DBG"];
-		project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MT_DBG"];
-	    }
-	}
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_DEBUG"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_DEBUG"];
-	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_DEBUG"];
-    } else {
-	if ( project->isActiveConfig("thread") ) {
-	    if ( project->variables()["DEFINES"].contains("QT_DLL") ) {
-		project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MT_DLL"];
-		project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MT_DLL"];
-	    } else {
-		project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MT"];
-		project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MT"];
-	    }
-	}
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_RELEASE"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RELEASE"];
-	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_RELEASE"];
-    }
-    if ( project->isActiveConfig("thread") && !project->variables()["DEFINES"].contains("QT_DLL")
-	&& !is_qt && project->first("TARGET") != "qtmain") {
-	project->variables()["QMAKE_LFLAGS"].append("/NODEFAULTLIB:\"libc\"");
-    }
-
     if ( !project->variables()["QMAKE_INCDIR"].isEmpty())
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
-    if ( project->isActiveConfig("qt") || project->isActiveConfig("opengl") )
-	project->variables()["CONFIG"].append("windows");
-    if ( project->isActiveConfig("qtopiainc") )
-	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QTOPIA"];
-    if ( project->isActiveConfig("qtopialib") ) {
-	if(!project->isEmpty("QMAKE_LIBDIR_QTOPIA"))
-	    project->variables()["QMAKE_LIBDIR"] += project->variables()["QMAKE_LIBDIR_QTOPIA"];
-	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QTOPIA"];
-    }
     if ( project->isActiveConfig("qt") ) {
-	project->variables()["CONFIG"].append("moc");
-	project->variables()["INCLUDEPATH"] +=	project->variables()["QMAKE_INCDIR_QT"];
-	project->variables()["QMAKE_LIBDIR"] += project->variables()["QMAKE_LIBDIR_QT"];
-	if ( !project->isActiveConfig("debug") )
-	    project->variables()["DEFINES"].append("QT_NO_DEBUG"); //never exported
 	if ( is_qt && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
-	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty()) {
-		project->variables()["DEFINES"].append("QT_MAKEDLL");
-		project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_QT_DLL"];
-	    }
 	} else {
-	    if(project->isActiveConfig("thread"))
-		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_THREAD"];
-	    else
-		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 		int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
 		if ( hver == -1 )
@@ -455,15 +356,7 @@ NmakeMakefileGenerator::init()
 	    }
 	}
     }
-    if ( project->isActiveConfig("opengl") ) {
-	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
-	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_OPENGL"];
-    }
     if ( project->isActiveConfig("dll") ) {
-	project->variables()["QMAKE_CFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_CFLAGS_CONSOLE_DLL"];
-	project->variables()["QMAKE_CXXFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_CXXFLAGS_CONSOLE_DLL"];
-	project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_LFLAGS_CONSOLE_DLL"];
-	project->variables()["QMAKE_LFLAGS_WINDOWS_ANY"] = project->variables()["QMAKE_LFLAGS_WINDOWS_DLL"];
 	if ( !project->variables()["QMAKE_LIB_FLAG"].isEmpty()) {
 	    project->variables()["TARGET_EXT"].append(
 		QStringList::split('.',project->first("VERSION")).join("") + ".dll");
@@ -471,46 +364,13 @@ NmakeMakefileGenerator::init()
 	    project->variables()["TARGET_EXT"].append(".dll");
 	}
     } else {
-	project->variables()["QMAKE_CFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_CFLAGS_CONSOLE"];
-	project->variables()["QMAKE_CXXFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_CXXFLAGS_CONSOLE"];
-	project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_LFLAGS_CONSOLE"];
-	project->variables()["QMAKE_LFLAGS_WINDOWS_ANY"] = project->variables()["QMAKE_LFLAGS_WINDOWS"];
 	if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
 	    project->variables()["TARGET_EXT"].append(".exe");
 	} else {
 	    project->variables()["TARGET_EXT"].append(".lib");
 	}
     }
-    if ( project->isActiveConfig("windows") ) {
-	if ( project->isActiveConfig("console") ) {
-	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_CONSOLE_ANY"];
-	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_CONSOLE_ANY"];
-	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"];
-	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_CONSOLE"];
-	} else {
-	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_WINDOWS_ANY"];
-	}
-	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_WINDOWS"];
-    } else {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_CONSOLE_ANY"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_CONSOLE_ANY"];
-	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"];
-	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_CONSOLE"];
-    }
-    if ( project->isActiveConfig("stl") ) {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_STL_ON"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_STL_ON"];
-    } else {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_STL_OFF"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_STL_OFF"];
-    }
-    if ( project->isActiveConfig("exceptions") ) {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_EXCEPTIONS_ON"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_EXCEPTIONS_ON"];
-    } else {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_EXCEPTIONS_OFF"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_EXCEPTIONS_OFF"];
-    }
+
     if ( project->isActiveConfig("rtti") ) {
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_RTTI_ON"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RTTI_ON"];
@@ -518,8 +378,6 @@ NmakeMakefileGenerator::init()
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_RTTI_OFF"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RTTI_OFF"];
     }
-
-
     if ( project->isActiveConfig("moc") )
 	setMocAware(TRUE);
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
@@ -547,8 +405,6 @@ NmakeMakefileGenerator::init()
 
     if ( !project->variables()["DEF_FILE"].isEmpty() )
 	project->variables()["QMAKE_LFLAGS"].append(QString("/DEF:") + project->first("DEF_FILE"));
-    if(!project->isActiveConfig("incremental"))
-	project->variables()["QMAKE_LFLAGS"].append(QString("/incremental:no"));
 
     if ( !project->variables()["VERSION"].isEmpty() ) {
 	QString version = project->variables()["VERSION"][0];
@@ -586,5 +442,9 @@ NmakeMakefileGenerator::init()
 	project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + version + ".pdb");
 	project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + version + ".ilk");
 	project->variables()["QMAKE_CLEAN"].append("vc*.pdb");
+    }
+    if ( project->isActiveConfig("activeqt")) {
+	project->variables()["QMAKE_CLEAN"].append("tmp\\" + project->first("QMAKE_ORIG_TARGET") + ".*");
+	project->variables()["QMAKE_CLEAN"].append("tmp\\dump.*");
     }
 }

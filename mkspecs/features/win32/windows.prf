@@ -1,0 +1,8 @@
+!console {
+   dll {
+     QMAKE_LFLAGS += $$QMAKE_LFLAGS_WINDOWS_DLL
+   } else {
+     QMAKE_LFLAGS += $$QMAKE_LFLAGS_WINDOWS
+   }
+}
+QMAKE_LIBS += $$QMAKE_LIBS_WINDOWS

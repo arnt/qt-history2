@@ -634,16 +634,11 @@ QMakeProject::read(uchar cmd)
     }
 
     if(cmd & ReadFeatures) {
-	QHash<QString, bool> processed_configs;
 	QStringList &configs = vars["CONFIG"];
 	debug_msg(1, "Processing CONFIG features");
-	for(QStringList::Iterator it = configs.begin(); it != configs.end(); ++it) {
-	    QString conf = (*it).stripWhiteSpace();
-	    if(conf.isNull() || processed_configs[conf])
-		continue;
-	    processed_configs.insert(conf, TRUE);
-	    doProjectInclude(conf, TRUE, vars);
-	}
+	for(QStringList::Iterator it = configs.begin(); it != configs.end(); ++it) 
+	    doProjectInclude((*it), TRUE, vars);
+	doProjectInclude("feature_default", TRUE, vars); //final to do the last setup
     }
 
     /* now let the user override the template from an option.. */
@@ -771,6 +766,7 @@ bool
 QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QStringList> &place, 
 			       const QString &seek_var)
 {
+
     if(feature) {
 	if(!file.endsWith(Option::prf_ext))
 	    file += Option::prf_ext;
@@ -831,7 +827,7 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 #endif
 		}
 	    }
-	    feature_roots << Option::mkfile::qmakespec;
+	    feature_roots << Option::mkfile::qmakespec + QDir::separator() + "features";
 	    if(const char *qtdir = getenv("QTDIR")) {
 		for(QStringList::Iterator concat_it = concat.begin(); 
 		    concat_it != concat.end(); ++concat_it) 
@@ -867,6 +863,10 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 	    }
 	    if(!found) 
 		return FALSE;
+	    if(vars["QMAKE_INTERNAL_INCLUDED_FEATURES"].findIndex(file) != -1)
+		return TRUE;
+	    vars["QMAKE_INTERNAL_INCLUDED_FEATURES"].append(file);
+	    
 	}
     }
     if(QDir::isRelativePath(file)) {
@@ -914,7 +914,7 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
     } else {
 	r = read(file.latin1(), place);
     }
-    if(r)
+    if(r) 
 	vars["QMAKE_INTERNAL_INCLUDED_FILES"].append(orig_file);
     else
 	warn_msg(WarnParser, "%s:%d: Failure to include file %s.",
@@ -938,10 +938,10 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 
     if(func == "requires") {
 	return doProjectCheckReqs(args, place);
-    } else if(func == "equals") {
+    } else if(func == "equals" || func == "isEqual") {
 	if(args.count() != 2) {
-	    fprintf(stderr, "%s:%d: equals(variable, value) requires two arguments.\n", parser.file.latin1(),
-		    parser.line_no);
+	    fprintf(stderr, "%s:%d: %s(variable, value) requires two arguments.\n", parser.file.latin1(),
+		    parser.line_no, func.latin1());
 	    return FALSE;
 	}
 	QString value = args[1];
@@ -1281,49 +1281,13 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		    fprintf(stderr, "%s:%d: fromfile(file, variable) requires two arguments.\n",
 			    parser.file.latin1(), parser.line_no);
 		} else {
-		    QString file = arg_list[0];
+		    QString file = arg_list[0], seek_var = arg_list[1];
 		    file = Option::fixPathToLocalOS(file);
 		    file.replace("\"", "");
 
-		    if(QDir::isRelativePath(file)) {
-			QStringList include_roots;
-			include_roots << Option::output_dir;
-			QString pfilewd = QFileInfo(parser.file).dirPath();
-			if(pfilewd.isEmpty())
-			    include_roots << pfilewd;
-			if(Option::output_dir != QDir::currentDirPath())
-			    include_roots << QDir::currentDirPath();
-			for(QStringList::Iterator it = include_roots.begin(); it != include_roots.end(); ++it) {
-			    if(QFile::exists((*it) + QDir::separator() + file)) {
-				file = (*it) + QDir::separator() + file;
-				break;
-			    }
-			}
-		    }
-		    QString orig_file = file;
-		    int di = file.findRev(Option::dir_sep);
-		    QDir sunworkshop42workaround = QDir::current();
-		    QString oldpwd = sunworkshop42workaround.currentDirPath();
-		    if(di != -1 && QDir::setCurrent(file.left(file.findRev(Option::dir_sep))))
-			file = file.right(file.length() - di - 1);
-		    parser_info pi = parser;
-		    int sb = scope_block;
-		    int sf = scope_flag;
-		    TestStatus sc = test_status;
 		    QMap<QString, QStringList> tmp;
-		    bool r = read(file.latin1(), tmp);
-		    if(r) {
-			replacement = tmp[arg_list[1]].join(" ");
-			vars["QMAKE_INTERNAL_INCLUDED_FILES"].append(orig_file);
-		    } else {
-			warn_msg(WarnParser, "%s:%d: Failure to include file %s.",
-				 pi.file.latin1(), pi.line_no, orig_file.latin1());
-		    }
-		    parser = pi;
-		    test_status = sc;
-		    scope_flag = sf;
-		    scope_block = sb;
-		    QDir::setCurrent(oldpwd);
+		    if(doProjectInclude(file, FALSE, tmp, seek_var)) 
+			replacement = tmp[seek_var].join(" "); //should I use " "?
 		}
 	    } else if(val.lower() == "eval") {
 		for(QStringList::ConstIterator arg_it = arg_list.begin();

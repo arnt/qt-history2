@@ -291,50 +291,6 @@ void VcprojGenerator::init()
 
     debug_msg(1, "Generator: MSVC.NET: Initializing variables" );
 
-/*
-    // Once to be nice and clean code...
-    // Wouldn't life be great?
-
-    // Are we building Qt?
-    bool is_qt =
-	( project->first("TARGET") == "qt"QTDLL_POSTFIX ||
-	  project->first("TARGET") == "qt-mt"QTDLL_POSTFIX );
-
-    // Are we using Qt?
-    bool isQtActive = project->isActiveConfig("qt");
-
-    if ( isQtActive ) {
-	project->variables()["CONFIG"] += "moc";
-	project->variables()["CONFIG"] += "windows";
-	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QT"];
-	project->variables()["QMAKE_LIBDIR"] += project->variables()["QMAKE_LIBDIR_QT"];
-
-	if( projectTarget == SharedLib )
-	    project->variables()["DEFINES"] += "QT_DLL";
-
-	if( project->isActiveConfig("accessibility" ) )
-	    project->variables()["DEFINES"] += "QT_ACCESSIBILITY_SUPPORT";
-
-	if ( project->isActiveConfig("plugin")) {
-	    project->variables()["DEFINES"] += "QT_PLUGIN";
-	    project->variables()["CONFIG"] += "dll";
-	}
-
-	if( project->isActiveConfig("thread") ) {
-	    project->variables()["DEFINES"] += "QT_THREAD_SUPPORT";
-	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_THREAD"];
-	} else {
-	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
-	}
-    }
-
-    if ( project->isActiveConfig("opengl") ) {
-	project->variables()["CONFIG"] += "windows"; // <-- Also in 'qt' above
-	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
-	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_OPENGL"];
-
-    }
-*/
     initOld();	   // Currently calling old DSP code to set variables. CLEAN UP!
 
     // Figure out what we're trying to build
@@ -438,9 +394,9 @@ void VcprojGenerator::initCompilerTool()
     vcProject.Configuration.compiler.ObjectFile = placement ;
     //vcProject.Configuration.compiler.PrecompiledHeaderFile = placement + project->first("QMAKE_ORIG_TARGET") + ".pch";
 
+    vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS"] );
     if ( project->isActiveConfig("debug") ){
 	// Debug version
-	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS"] );
 	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_DEBUG"] );
 	if ( project->isActiveConfig("thread") ) {
 	    if ( (projectTarget == Application) || (projectTarget == StaticLib) )
@@ -452,7 +408,6 @@ void VcprojGenerator::initCompilerTool()
 	}
     } else {
 	// Release version
-	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS"] );
 	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_RELEASE"] );
 	vcProject.Configuration.compiler.PreprocessorDefinitions += "QT_NO_DEBUG";
 	vcProject.Configuration.compiler.PreprocessorDefinitions += "NDEBUG";
@@ -467,10 +422,6 @@ void VcprojGenerator::initCompilerTool()
     }
 
     // Common for both release and debug
-    if ( project->isActiveConfig("warn_off") )
-	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_WARN_OFF"] );
-    else if ( project->isActiveConfig("warn_on") )
-	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_WARN_ON"] );
     if ( project->isActiveConfig("windows") )
 	vcProject.Configuration.compiler.PreprocessorDefinitions += project->variables()["MSVCPROJ_WINCONDEF"];
 
@@ -731,28 +682,6 @@ void VcprojGenerator::initOld()
     init_flag = TRUE;
     QStringList::Iterator it;
 
-    if ( project->isActiveConfig("stl") ) {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_STL_ON"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_STL_ON"];
-    } else {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_STL_OFF"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_STL_OFF"];
-    }
-    if ( project->isActiveConfig("exceptions") ) {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_EXCEPTIONS_ON"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_EXCEPTIONS_ON"];
-    } else {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_EXCEPTIONS_OFF"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_EXCEPTIONS_OFF"];
-    }
-    if ( project->isActiveConfig("rtti") ) {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_RTTI_ON"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RTTI_ON"];
-    } else {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_RTTI_OFF"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RTTI_OFF"];
-    }
-
     // this should probably not be here, but I'm using it to wrap the .t files
     if(project->first("TEMPLATE") == "vcapp" )
 	project->variables()["QMAKE_APP_FLAG"].append("1");
@@ -767,39 +696,12 @@ void VcprojGenerator::initOld()
 
    QStringList &configs = project->variables()["CONFIG"];
 
-    if ( project->isActiveConfig( "shared" ) )
-	project->variables()["DEFINES"].append( "QT_DLL" );
-
-    if ( project->isActiveConfig( "qt_dll" ) &&
-	 configs.findIndex("qt") == -1 )
-	    configs.append("qt");
-
-    if ( project->isActiveConfig( "qt" ) ) {
-	if ( project->isActiveConfig( "plugin" ) ) {
-	    project->variables()["CONFIG"].append( "dll" );
-	    project->variables()["DEFINES"].append( "QT_PLUGIN" );
-	}
-	if ( ( project->variables()["DEFINES"].findIndex( "QT_NODLL" )   == -1 ) &&
-	    (( project->variables()["DEFINES"].findIndex( "QT_MAKEDLL" ) != -1   ||
-	       project->variables()["DEFINES"].findIndex( "QT_DLL" )     != -1 ) ||
-	     ( getenv( "QT_DLL" ) && !getenv( "QT_NODLL" ))) ) {
-	    project->variables()["QMAKE_QT_DLL"].append( "1" );
-	    if ( is_qt && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() )
-		project->variables()["CONFIG"].append( "dll" );
-	}
-    }
-
     // If we are a dll, then we cannot be a staticlib at the same time...
     if ( project->isActiveConfig( "dll" ) || !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
 	project->variables()["CONFIG"].remove( "staticlib" );
 	project->variables()["QMAKE_APP_OR_DLL"].append( "1" );
     } else {
 	project->variables()["CONFIG"].append( "staticlib" );
-    }
-
-    // If we need 'qt' and/or 'opengl', then we need windows and not console
-    if ( project->isActiveConfig( "qt" ) || project->isActiveConfig( "opengl" ) ) {
-	project->variables()["CONFIG"].append( "windows" );
     }
 
     // Decode version, and add it to $$MSVCPROJ_VERSION --------------
@@ -819,15 +721,7 @@ void VcprojGenerator::initOld()
 	project->variables()["QMAKE_LIBDIR"] += project->variables()["QMAKE_LIBDIR_QT"];
 
 	if ( is_qt && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
-	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
-		project->variables()["DEFINES"].append("QT_MAKEDLL");
-		project->variables()["QMAKE_LFLAGS"].append("/BASE:0x39D00000");
-	    }
 	} else {
-	    if(project->isActiveConfig("thread"))
-		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_THREAD"];
-	    else
-		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 		int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
 		if( hver==-1 ) {
@@ -850,43 +744,9 @@ void VcprojGenerator::initOld()
 		    project->variables()["MSVCPROJ_LFLAGS"].append("/DEF:"+project->first("DEF_FILE"));
 		}
 	    }
-	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") ) {
+	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") )
 		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_ENTRY"];
-	    }
 	}
-    }
-
-    // Set target directories ----------------------------------------
- //   if ( !project->first("OBJECTS_DIR").isEmpty() )
-	//project->variables()["MSVCPROJ_OBJECTSDIR"] = project->first("OBJECTS_DIR");
- //   else
-	//project->variables()["MSVCPROJ_OBJECTSDIR"] = project->isActiveConfig( "release" )?"Release":"Debug";
- //   if ( !project->first("DESTDIR").isEmpty() )
-	//project->variables()["MSVCPROJ_TARGETDIR"] = project->first("DESTDIR");
- //   else
-	//project->variables()["MSVCPROJ_TARGETDIR"] = project->isActiveConfig( "release" )?"Release":"Debug";
-
-    // OPENGL --------------------------------------------------------
-    if ( project->isActiveConfig("opengl") ) {
-	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
-	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_OPENGL"];
-    }
-
-    // THREAD --------------------------------------------------------
-    if ( project->isActiveConfig("thread") ) {
-	if(project->isActiveConfig("qt"))
-	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_THREAD_SUPPORT" );
-	if ( !project->variables()["DEFINES"].contains("QT_DLL") && is_qt
-	     && project->first("TARGET") != "qtmain" )
-	    project->variables()["QMAKE_LFLAGS"].append("/NODEFAULTLIB:libc");
-    }
-
-    // ACCESSIBILITY -------------------------------------------------
-    if(project->isActiveConfig("qt")) {
-	if ( project->isActiveConfig("accessibility" ) )
-	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
-	if ( project->isActiveConfig("tablet") )
-	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_TABLET_SUPPORT");
     }
 
     // DLL -----------------------------------------------------------
@@ -898,24 +758,14 @@ void VcprojGenerator::initOld()
 	} else {
 	    project->variables()["TARGET_EXT"].append(".dll");
 	}
-    }
-    // EXE / LIB -----------------------------------------------------
-    else {
+    } else { // EXE / LIB -----------------------------------------------------
 	if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() )
 	    project->variables()["TARGET_EXT"].append(".exe");
 	else
 	    project->variables()["TARGET_EXT"].append(".lib");
     }
-
     project->variables()["MSVCPROJ_VER"] = "7.00";
     project->variables()["MSVCPROJ_DEBUG_OPT"] = "/GZ /ZI";
-
-    // INCREMENTAL:NO ------------------------------------------------
-    if(!project->isActiveConfig("incremental")) {
-	project->variables()["QMAKE_LFLAGS"].append(QString("/INCREMENTAL:no"));
-        if ( is_qt )
-	    project->variables()["MSVCPROJ_DEBUG_OPT"] = "/GZ /Zi";
-    }
 
     // MOC -----------------------------------------------------------
     if ( project->isActiveConfig("moc") )

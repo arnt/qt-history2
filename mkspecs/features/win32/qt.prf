@@ -1,0 +1,33 @@
+shared:DEFINES += QT_DLL
+CONFIG *= windows moc
+plugin {
+    CONFIG += dll
+    DEFINES += QT_PLUGIN
+}
+!contains(DEFINES, QT_NODLL) {
+  QT_ENV_DLL = $$(QT_DLL)
+  QT_ENV_NO_DLL = $$(QT_NODLL)
+  !isEmpty(QT_ENV_DLL):isEmpty(QT_ENV_NO_DLL):DEFINES += QT_DLL
+  contains(DEFINES, QT_MAKEDLL)|contains(DEFINES, QT_DLL) {
+     QMAKE_QT_DLL = 1
+     target_qt:!isEmpty(QMAKE_LIB_FLAG):CONFIG += dll;
+  }
+}
+INCLUDEPATH += $$QMAKE_INCDIR_QT
+QMAKE_LIBDIR += $$QMAKE_LIBDIR_QT
+!debug:DEFINES += QT_NO_DEBUG
+target_qt:!isEmpty(QMAKE_LIB_FLAG) {
+  !isEmpty(QMAKE_QT_DLL) {
+     DEFINES += QT_MAKEDLL
+     QMAKE_LFLAGS += $$QMAKE_LFLAGS_QT_DLL
+  } 
+} else {
+  thread {
+      LIBS += $$QMAKE_LIBS_QT_THREAD
+  } else {
+      LIBS += $$QMAKE_LIBS_QT
+  }
+  !isEmpty(QMAKE_QT_DLL) {
+
+  }
+}

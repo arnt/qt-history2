@@ -7,7 +7,7 @@ DESTDIR		= $$QMAKE_LIBDIR_QT
 DLLDESTDIR	= ../bin
 
 CONFIG		+= qt warn_on depend_includepath
-CONFIG          += qmake_cache
+CONFIG          += qmake_cache target_qt
 
 unix:CONFIG     += create_libtool create_pc
 
@@ -135,7 +135,6 @@ thread {
 	!win32-borland:TARGET = qt-mt
 	win32-borland:TARGET = qtmt
 	embedded:TARGET = qte-mt
-	DEFINES += QT_THREAD_SUPPORT
 }
 
 !cups:DEFINES += QT_NO_CUPS
