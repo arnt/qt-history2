@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#221 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#222 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -662,10 +662,10 @@ void QPopupMenu::updateSize()
 	    maxPMWidth = QMAX( maxPMWidth,
 			       mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4 );
     }
-    
 
-    for ( QMenuItemListIt it( *mitems ); it.current(); ++it ) {
-	mi = it.current();
+
+    for ( QMenuItemListIt it2( *mitems ); it2.current(); ++it2 ) {
+	mi = it2.current();
 	int w = 0;
 	int itemHeight = style().popupMenuItemHeight( checkable, mi, fm );
 	
@@ -860,13 +860,13 @@ int QPopupMenu::itemHeight( int row ) const
 void QPopupMenu::drawItem( QPainter* p, int tab, QMenuItem* mi,
 			   bool act, int x, int y, int w, int h)
 {
-    
+
     bool dis = (selfItem && !selfItem->isEnabled()) || !mi->isEnabled();
     style().drawPopupMenuItem(p, checkable, maxPMWidth, tab, mi, palette(),
 			      act, !dis, x, y, w, h);
-    
+
     return;
-    
+
 
     const QColorGroup & g = colorGroup();
     GUIStyle gs	  = style();
