@@ -84,7 +84,7 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
                         }
                     } else {
                         RCCFileInfo res;
-                        res.name = name.isNull() ? file.fileName() : name.section('/', -1);
+                        res.name = name.isNull() ? file.filePath() : name;
                         res.fileinfo = QFileInfo(file);
                         files.append(res);
                     }
