@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#206 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#207 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1162,8 +1162,7 @@ void QLineEdit::clipboardChanged()
 #if defined(_WS_X11_)
     disconnect( QApplication::clipboard(), SIGNAL(dataChanged()),
 		this, SLOT(clipboardChanged()) );
-    markDrag = markAnchor = cursorPos;
-    repaint( !hasFocus() );
+    deselect();
 #endif
 }
 
