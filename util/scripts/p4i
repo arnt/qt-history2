@@ -10,6 +10,7 @@ $all = 0;
 $ask = 1;
 $force = 0;
 $ignoredeleted = 0;
+$resolve = 1;
 
 # Simplify program name, if it is a path.
 $orig_argv0 = $0; #save the old $0
@@ -24,7 +25,7 @@ if ( $line !~ /^Perforce/ ) {
 }
 
 sub usage {
-    printf "$0 [--all] [--force] [--ignoredeleted] [change]\n";
+    printf "$0 [--all] [--force] [--ignoredeleted] [--noresolve] [change]\n";
     printf "     default change is last change\n";
     exit( 0 );
 }
@@ -40,6 +41,8 @@ for $arg ( @ARGV ) {
     $force = 1;
   } elsif ( $arg eq "--ignoredeleted" ) {
     $ignoredeleted = 1;
+  } elsif ( $arg eq "--noresolve" ) {
+    $resolve = 0;
   } elsif ( $arg =~ /^\d+$/ ) {
     $change = $arg;
   } else {
@@ -301,21 +304,27 @@ if ( $abort ) {
 while ( @filesToResolve ) {
     $files = join( " ", map { "\"$_\"" } @filesToResolve );
     $linecount = 0;
-    open( P4, "$P4 resolve -am $files 2>&1 |") || die "$0: Couldn't exec $P4: $!\n";
-    while ( $line = <P4> ) {
-	$linecount++;
-	chomp( $line );
-	if ( $line =~ /^\/\// ) {
-	    ($file, $message) = split( m/ - /, $line);
-	    if ( $message eq "resolve skipped." ) {
-		push ( @skippedFiles, $file );
-		print "File $file skipped: $message\n";
-	    } else {
-		print "File $file accepted\n";
+    if ( $resolve ) {
+	open( P4, "$P4 resolve -am $files 2>&1 |") || die "$0: Couldn't exec $P4: $!\n";
+	while ( $line = <P4> ) {
+	    $linecount++;
+	    chomp( $line );
+	    if ( $line =~ /^\/\// ) {
+		($file, $message) = split( m/ - /, $line);
+		if ( $message eq "resolve skipped." ) {
+		    push ( @skippedFiles, $file );
+		    print "File $file skipped: $message\n";
+		} else {
+		    print "File $file accepted\n";
+		}
 	    }
 	}
+	close( P4 );
+    } else {
+	for my $file ( @filesToResolve ) {
+	    push(@skippedFiles, $file);
+	}
     }
-    close( P4 );
     if ( $#skippedFiles > -1 ) {
 	print "Skipped these files: ".join( "\n", @skippedFiles )."\n";
 	print "Please resolve these files manually, and then press enter.\n";
