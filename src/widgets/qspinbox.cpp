@@ -56,7 +56,7 @@ class QSpinBoxPrivate
 public:
     QSpinBoxPrivate() {}
     QSpinWidget* controls;
-    uint selreq 	: 1;
+    uint selreq	: 1;
 };
 
 class QSpinBoxValidator : public QIntValidator
@@ -84,13 +84,12 @@ QValidator::State QSpinBoxValidator::validate( QString& str, int& pos ) const
     if ( overhead == 0 ) {
 	state = QIntValidator::validate( str, pos );
     } else {
-	bool stripedVersion;
+	bool stripedVersion = FALSE;
 	if ( str.length() >= overhead && str.startsWith(pref)
 	     && (str.endsWith(suff)
 		 || (stripedVersion = str.endsWith(suffStriped))) ) {
-	    if ( stripedVersion ) {
+	    if ( stripedVersion )
 		overhead = pref.length() + suffStriped.length();
-	    }
 	    QString core = str.mid( pref.length(), str.length() - overhead );
 	    int corePos = pos - pref.length();
 	    state = QIntValidator::validate( core, corePos );
