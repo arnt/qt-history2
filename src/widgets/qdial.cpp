@@ -54,9 +54,7 @@ public:
     bool tracking;
     bool doNotEmit;
     double target;
-    QTimer *blinkTimer;
-    QColor color;
-    QRegion eraseArea;
+    QRect eraseArea;
     bool eraseAreaValid;
     bool showNotches;
 
@@ -123,13 +121,10 @@ QDial::QDial( QWidget *parent, const char *name )
     : QWidget( parent, name ), QRangeControl()
 {
     d = new QDialPrivate;
-    d->blinkTimer = new QTimer( this );
-    connect( d->blinkTimer, SIGNAL( timeout() ),
-	     this, SLOT( blink() ) );
-    d->color = colorGroup().foreground();
     d->eraseAreaValid = FALSE;
     d->showNotches = FALSE;
     setFocusPolicy( QWidget::WeakWheelFocus );
+    setBackgroundMode( NoBackground );
 }
 
 
@@ -149,13 +144,10 @@ QDial::QDial( int minValue, int maxValue, int pageStep, int value,
       QRangeControl( minValue, maxValue, 1, pageStep, value )
 {
     d = new QDialPrivate;
-    d->blinkTimer = new QTimer( this );
-    connect( d->blinkTimer, SIGNAL( timeout() ),
-	     this, SLOT( blink() ) );
-    d->color = colorGroup().foreground();
     d->eraseAreaValid = FALSE;
     d->showNotches = FALSE;
     setFocusPolicy( QWidget::WeakWheelFocus );
+    setBackgroundMode( NoBackground );
 }
 
 /*!
@@ -163,7 +155,6 @@ QDial::QDial( int minValue, int maxValue, int pageStep, int value,
 */
 QDial::~QDial()
 {
-    delete d->blinkTimer;
     delete d;
 }
 
@@ -191,21 +182,6 @@ bool QDial::tracking() const
 {
     return d ? d->tracking : TRUE;
 }
-
-QSize QDial::sizeHint() const
-{
-    return QSize(19,19);
-}
-
-/*!
-
-*/
-
-QSizePolicy QDial::sizePolicy() const
-{
-    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
-}
-
 
 /*!  Makes QRangeControl::setValue() available as a slot.
 */
@@ -247,70 +223,60 @@ void QDial::resizeEvent( QResizeEvent * e )
 
 void QDial::paintEvent( QPaintEvent * e )
 {
-    QPainter p( this );
-    p.setClipRect( e->rect() );
-    p.setPen( colorGroup().foreground() );
-
-    paint( p );
-
-    p.end();
+    repaintScreen( &e->rect() );
 }
 
 /*!
   Paints the dial.
 */
 
-void QDial::paint( QPainter &p )
+void QDial::repaintScreen( const QRect *cr )
 {
-    int r = QMIN( width(), height() )/2;
+    QPainter p( this );
 
-    int bigLineSize = r / 6;
-    if ( bigLineSize < 4 )
-	bigLineSize = 4;
-    if ( bigLineSize > r/2 )
-	bigLineSize = r/2;
-
-    int xc = width()/2;
-    int yc = height()/2;
-
-    if ( !d->lines.size() ) {
-	int ns = notchSize();
-	int notches = (maxValue()+notchSize()-1-minValue()) / ns;
-	d->lines.resize( 2+2*notches );
-	int smallLineSize = bigLineSize / 2;
-	int i;
-	for( i=0; i<=notches; i++ ) {
-	    double angle = d->wrapping
-			   ? m_pi*3/2 - i*2*m_pi/notches
-			   : (m_pi*8 - i*10*m_pi/notches)/6;
-	    double s = sin( angle ); // sin/cos aren't defined as const...
-	    double c = cos( angle );
-	    if ( i == 0 ||
-		 ns*i/pageStep() > ns*(i-1)/pageStep() ) {
-		d->lines[2*i] = QPoint( (int)(0.5+xc+(r-bigLineSize)*c),
-					(int)(0.5+yc-(r-bigLineSize)*s) );
-		d->lines[2*i+1] = QPoint( (int)(0.5+xc+r*c),
-					  (int)(0.5+yc-r*s) );
-	    } else {
-		d->lines[2*i] = QPoint( (int)(0.5+xc+(r-1-smallLineSize)*c),
-					(int)(0.5+yc-(r-1-smallLineSize)*s) );
-		d->lines[2*i+1] = QPoint( (int)(0.5+xc+(r-1)*c),
-					  (int)(0.5+yc-(r-1)*s) );
-	    }
-	}
+    // calculate clip-region for erasing background
+    bool resetClipping = FALSE;
+    if ( cr ) {
+	p.setClipRect( *cr );
+    } else if ( d->eraseAreaValid ) {
+	QRegion reg = d->eraseArea;
+	double a;
+	reg = reg.subtract( calcArrow( a ) );
+	p.setClipRegion( reg );
+	resetClipping = TRUE;
+    }
+	
+    QRect br( calcDial() );
+    p.setPen( NoPen );
+    if ( style() == MotifStyle )
+	p.setBrush( colorGroup().brush( QColorGroup::Mid ) );
+    else {
+	p.setBrush( colorGroup().brush( QColorGroup::Light ).pixmap() ?
+		    colorGroup().brush( QColorGroup::Light ) :	
+		    QBrush( colorGroup().light(), Dense4Pattern ) );
+	p.setBackgroundMode( OpaqueMode );
+    }
+    p.drawEllipse( br );
+    
+    p.save();
+    QRegion remaining( 0, 0, width(), height() );
+    remaining = remaining.subtract( QRegion( br, QRegion::Ellipse ) );
+    remaining = remaining.intersect( p.clipRegion() );
+    p.setClipRegion( remaining );
+    p.fillRect( remaining.boundingRect(), colorGroup().brush( QColorGroup::Background ) );
+    p.restore();
+    
+    if ( resetClipping ) {
+	if ( cr )
+	    p.setClipRect( *cr );
+	else
+	    p.setClipRect( QRect( 0, 0, width(), height() ) );
     }
 
-    if ( d->showNotches )
+    if ( d->showNotches ) {
+	p.setPen( colorGroup().foreground() );
 	p.drawLineSegments( d->lines );
-
-    int d_ = r / 6;
-    int dx = d_ + ( width() - 2 * r ) / 2;
-    int dy = d_ + ( height() - 2 * r ) / 2;
-    QRect br( dx, dy, r * 2 - 2 * d_ - 2, r * 2 - 2 * d_ - 2 );
-
-    p.setPen( NoPen );
-    p.setBrush( QBrush( colorGroup().light(), Dense4Pattern ) );
-    p.drawEllipse( br );
+    }
 
     p.setPen( QPen( colorGroup().dark() ) );
     p.drawArc( br, 60 * 16, 180 * 16 );
@@ -318,36 +284,13 @@ void QDial::paint( QPainter &p )
     p.drawArc( br, 240 * 16, 180 * 16 );
 
     double a;
-    if ( maxValue() == minValue() )
-	a = m_pi/2;
-    else if ( d->wrapping )
-	a = m_pi*3/2 - (value()-minValue())*2*m_pi/(maxValue()-minValue());
-    else
-	a = (m_pi*8 - (value()-minValue())*10*m_pi/(maxValue()-minValue()))/6;
-    int len = r - bigLineSize - 1;
-    if ( len < 5 )
-	len = 5;
-    int back = len/4;
-    if ( back < 1 )
-	back = 1;
-    QPointArray arrow( 3 );
-    arrow[0] = QPoint( (int)(0.5+xc+len*cos(a)),
-		       (int)(0.5+yc-len*sin(a)) );
-    arrow[1] = QPoint( (int)(0.5+xc+back*cos(a+m_pi*5/6)),
-		       (int)(0.5+yc-back*sin(a+m_pi*5/6)) );
-    arrow[2] = QPoint( (int)(0.5+xc+back*cos(a-m_pi*5/6)),
-		       (int)(0.5+yc-back*sin(a-m_pi*5/6)) );
-
-    d->eraseArea = arrow.boundingRect();
+    QPointArray arrow( calcArrow( a ) );
+    QRect ea( arrow.boundingRect() );
+    d->eraseArea = ea;
     d->eraseAreaValid = TRUE;
 
-    if ( isEnabled() ) {
-	p.setPen( d->color );
-	p.setBrush( d->color );
-    } else {
-	p.setPen( colorGroup().foreground() );
-	p.setBrush( colorGroup().foreground() );
-    }
+    p.setPen( NoPen );
+    p.setBrush( colorGroup().brush( QColorGroup::Button ) );
     p.drawPolygon( arrow );
 
     a = angle( QPoint( width() / 2, height() / 2 ), arrow[ 0 ] );
@@ -366,13 +309,13 @@ void QDial::paint( QPainter &p )
 	p.setPen( colorGroup().dark() );
 	p.drawLine( arrow[ 1 ], arrow[ 2 ] );
 	p.drawLine( arrow[ 0 ], arrow[ 1 ] );
-    } else if ( a >= 45	 && a < 135 ) {
+    } else if ( a >= 45 && a < 135 ) {
 	p.setPen( colorGroup().dark() );
 	p.drawLine( arrow[ 2 ], arrow[ 0 ] );
 	p.drawLine( arrow[ 1 ], arrow[ 2 ] );
 	p.setPen( colorGroup().light() );
 	p.drawLine( arrow[ 0 ], arrow[ 1 ] );
-    } else if ( a >= 135  && a < 200 ) {
+    } else if ( a >= 135 && a < 200 ) {
 	p.setPen( colorGroup().dark() );
 	p.drawLine( arrow[ 2 ], arrow[ 0 ] );
 	p.setPen( colorGroup().light() );
@@ -380,6 +323,10 @@ void QDial::paint( QPainter &p )
 	p.drawLine( arrow[ 1 ], arrow[ 2 ] );
     }
 
+    if ( hasFocus() ) {
+	p.setClipping( FALSE );
+	style().drawFocusRect( &p, br, colorGroup(), &backgroundColor() );
+    }
 }
 
 
@@ -389,12 +336,6 @@ void QDial::paint( QPainter &p )
 
 void QDial::keyPressEvent( QKeyEvent * e )
 {
-    if ( d->blinkTimer && d->blinkTimer->isActive() ) {
-	d->blinkTimer->stop();
-	d->color = colorGroup().background();
-	repaint( FALSE );
-    }
-
     switch ( e->key() ) {
     case Key_Left: case Key_Down:
 	subtractLine();
@@ -418,9 +359,6 @@ void QDial::keyPressEvent( QKeyEvent * e )
 	e->ignore();
 	break;
     }
-
-    if ( d->blinkTimer && hasFocus() )
-	d->blinkTimer->start( QApplication::cursorFlashTime() / 2 );
 }
 
 
@@ -430,12 +368,6 @@ void QDial::keyPressEvent( QKeyEvent * e )
 
 void QDial::mousePressEvent( QMouseEvent * e )
 {
-    if ( d->blinkTimer && d->blinkTimer->isActive() ) {
-	d->blinkTimer->stop();
-	d->color = colorGroup().background();
-	repaint( FALSE );
-    }
-
     setValue( valueFromPoint( e->pos() ) );
     emit dialPressed();
 }
@@ -449,9 +381,6 @@ void QDial::mouseReleaseEvent( QMouseEvent * e )
 {
     setValue( valueFromPoint( e->pos() ) );
     emit dialReleased();
-
-    if ( d->blinkTimer && hasFocus() )
-	d->blinkTimer->start( QApplication::cursorFlashTime() / 2 );
 }
 
 
@@ -484,12 +413,10 @@ void QDial::wheelEvent( QWheelEvent * )
 
 */
 
-void QDial::focusInEvent( QFocusEvent * )
+void QDial::focusInEvent( QFocusEvent *e )
 {
-    if ( !d->blinkTimer )
-	return;
-
-    d->blinkTimer->start( QApplication::cursorFlashTime() / 2 );
+    QWidget::focusInEvent( e );
+    repaintScreen();
 }
 
 
@@ -499,28 +426,8 @@ void QDial::focusInEvent( QFocusEvent * )
 
 void QDial::focusOutEvent( QFocusEvent * e )
 {
-    if ( !d->blinkTimer )
-	return;
-
-    d->blinkTimer->stop();
-    d->color = colorGroup().background();
     QWidget::focusOutEvent(e );
-}
-
-/*!
-  \internal
-  Does blinking of the arrow when it has the focus.
-*/
-
-void QDial::blink()
-{
-    if ( hasFocus() ) {
-	if ( d->color == colorGroup().background() )
-	    d->color = colorGroup().mid();
-	else
-	    d->color = colorGroup().background();
-	repaint( FALSE );
-    }
+    repaintScreen();
 }
 
 /*!
@@ -751,31 +658,6 @@ void QDial::subtractPage()
 */
 
 /*!
-  Repaints the dial flickerfree.
-*/
-
-void QDial::repaintScreen()
-{
-    int rad = QMIN( width(), height() ) / 2;
-    int d_ = rad / 6;
-    int dx = d_ + ( width() - 2 * rad ) / 2;
-    int dy = d_ + ( height() - 2 * rad ) / 2;
-    QRegion r( dx, dy, rad * 2 - 2 * d_, rad * 2 - 2 * d_, QRegion::Ellipse );
-    QPainter p;
-    p.begin( this );
-    p.setClipRegion( r );
-    p.save();
-    if ( d->eraseAreaValid ) {
-	r = r.intersect( d->eraseArea );
-	p.setClipRegion( r );
-    }
-    p.fillRect( QRect( dx, dy, rad * 2 - 2 * d_, rad * 2 - 2 * d_ ), colorGroup().background() );
-    p.restore();
-    paint( p );
-    p.end();
-}
-
-/*!
   Enables or disables showing of notches. If \a b is TRUE, the notches
   are shown, else not.
 */
@@ -794,3 +676,102 @@ bool QDial::showNotches()
 {
     return d->showNotches;
 }
+
+QSize QDial::minimumSize() const
+{
+    return QSize( 50, 50 );
+}
+
+QSize QDial::sizeHint() const
+{
+    return QSize( 100, 100 );
+}
+
+QSizePolicy QDial::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+}
+
+QPointArray QDial::calcArrow( double &a ) const
+{
+    int r = QMIN( width(), height() ) / 2;
+    if ( maxValue() == minValue() )
+	a = m_pi / 2;
+    else if ( d->wrapping )
+	a = m_pi * 3 / 2 - ( value() - minValue() ) * 2 * m_pi / ( maxValue() - minValue() );
+    else
+	a = ( m_pi * 8 - ( value() - minValue() ) * 10 * m_pi / ( maxValue() - minValue() ) ) / 6;
+
+    int xc = width() / 2;
+    int yc = height() / 2;
+
+    int len = r - calcBigLineSize() - 1;
+    if ( len < 5 )
+	len = 5;
+    int back = len/4;
+    if ( back < 1 )
+	back = 1;
+
+    QPointArray arrow( 3 );
+    arrow[0] = QPoint( (int)( 0.5 + xc + len * cos(a) ),
+		       (int)( 0.5 + yc -len * sin( a ) ) );
+    arrow[1] = QPoint( (int)( 0.5 + xc + back * cos( a + m_pi * 5 / 6 ) ),
+		       (int)( 0.5 + yc - back * sin( a + m_pi * 5 / 6 ) ) );
+    arrow[2] = QPoint( (int)( 0.5 + xc + back * cos( a - m_pi * 5 / 6 ) ),
+		       (int)( 0.5 + yc - back * sin( a - m_pi * 5 / 6 ) ) );
+    return arrow;
+}
+
+QRect QDial::calcDial() const
+{
+    int r = QMIN( width(), height() ) / 2;
+    int d_ = r / 6;
+    int dx = d_ + ( width() - 2 * r ) / 2;
+    int dy = d_ + ( height() - 2 * r ) / 2;
+    return QRect( dx, dy, r * 2 - 2 * d_ - 2, r * 2 - 2 * d_ - 2 );
+}
+
+int QDial::calcBigLineSize() const
+{
+    int r = QMIN( width(), height() ) / 2;
+    int bigLineSize = r / 6;
+    if ( bigLineSize < 4 )
+	bigLineSize = 4;
+    if ( bigLineSize > r / 2 )
+	bigLineSize = r / 2;
+    return bigLineSize;
+}
+
+void QDial::calcLines()
+{
+    if ( !d->lines.size() ) {
+	int r = QMIN( width(), height() ) / 2;
+	int bigLineSize = calcBigLineSize();
+	int xc = width() / 2;
+	int yc = height() / 2;
+	int ns = notchSize();
+	int notches = ( maxValue() + notchSize() - 1 - minValue() ) / ns;
+	d->lines.resize( 2 + 2 * notches );
+	int smallLineSize = bigLineSize / 2;
+	int i;
+	for( i = 0; i <= notches; i++ ) {
+	    double angle = d->wrapping
+		? m_pi * 3 / 2 - i * 2 * m_pi / notches
+		: (m_pi * 8 - i * 10 * m_pi / notches) / 6;
+	    double s = sin( angle ); // sin/cos aren't defined as const...
+	    double c = cos( angle );
+	    if ( i == 0 ||
+		 ns * i /pageStep() > ns*( i - 1) / pageStep() ) {
+		d->lines[ 2 * i ] = QPoint( (int)( 0.5 + xc + ( r - bigLineSize ) * c ),
+					(int)( 0.5 + yc - ( r - bigLineSize ) * s ) );
+		d->lines[2*i+1] = QPoint( (int)( 0.5 + xc + r * c ),
+					  (int)( 0.5 + yc - r * s ) );
+	    } else {
+		d->lines[2*i] = QPoint( (int)( 0.5 + xc + ( r - 1 - smallLineSize ) * c ),
+					(int)( 0.5 + yc - ( r - 1 - smallLineSize ) * s ) );
+		d->lines[2*i+1] = QPoint( (int)( 0.5 + xc + ( r - 1 ) * c ),
+					  (int)( 0.5 + yc -( r - 1 ) * s ) );
+	    }
+	}
+    }
+}    

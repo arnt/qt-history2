@@ -43,24 +43,25 @@ public:
     QDial( int minValue, int maxValue, int pageStep, int value,
 	   QWidget *parent=0, const char *name=0 );
     ~QDial();
-    
+
     virtual void setTracking( bool enable );
     bool tracking() const;
-    
-    QSize sizeHint() const;
-    QSizePolicy sizePolicy() const;
 
     virtual void setWrapping( bool on );
     bool wrapping() const;
-    
+
     int notchSize() const;
-    
+
     virtual void setNotchTarget( double );
     double notchTarget() const;
 
     void setShowNotches( bool b );
     bool showNotches();
 
+    QSize minimumSize() const;
+    QSize sizeHint() const;
+    QSizePolicy sizePolicy() const;
+    
 public slots:
     virtual void setValue( int );
     void addLine();
@@ -89,19 +90,18 @@ protected:
     void valueChange();
     void rangeChange();
 
-    void repaintScreen();
-    void paint( QPainter &p );
-
-protected slots:
-    void blink();
-
+    void repaintScreen( const QRect *cr = 0 );
 
 private:
     QDialPrivate * d;
 
     int valueFromPoint( const QPoint & ) const;
     double angle( const QPoint &, const QPoint & ) const;
-
+    QPointArray calcArrow( double &a ) const;
+    QRect calcDial() const;
+    int calcBigLineSize() const;
+    void calcLines();
+    
 private: // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QDial( const QDial & );
