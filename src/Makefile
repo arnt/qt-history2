@@ -7,7 +7,7 @@
 BASEDIR		= $(QTDIR)
 INCDIR		= $(BASEDIR)/include
 LIBDIR		= $(BASEDIR)/lib
-DISTDIR		= /tmp/qt-0.91
+DISTDIR		= /tmp/qt-0.93
 
 ####### Compiler
 
@@ -21,7 +21,7 @@ CC		= gcc
 ####### Targets
 
 AOUTTARGET	= $(LIBDIR)/libqt.a
-ELFTARGET	= $(LIBDIR)/libqt.so.0.9.2
+ELFTARGET	= $(LIBDIR)/libqt.so.0.9.3
 ELFTARGETPRE	= libqt.so.0
 
 #######	Sub directories
@@ -37,7 +37,6 @@ all:
 	@echo "  make aout    - creates an aout static library"
 	@echo "  make aoutdbg - creates an aout static library w/debug info"
 	@echo "  make elf     - creates an ELF dynamic library"
-	@echo "  make elf26   - creates an ELF dynamic library"
 	@echo "  make elfdbg  - creates an ELF dynamic library w/debug info"
 	@echo "  make moc     - creates the meta object compiler"
 	@echo "  make tools   - creates the tools library"
@@ -86,11 +85,6 @@ elf:
 	make lib 'CFLAGS=$(CFLAGS) $(ELFCFLAGS)' 'OBJDIR=obj/elf'
 	/bin/rm -f $(ELFTARGET)
 	$(CC) -shared -o $(ELFTARGET) obj/elf/*/*.o -lX11 -lgcc -lc
-
-elf26:
-	make lib 'CFLAGS=$(CFLAGS) -V 2.6.3 $(ELFCFLAGS)' 'OBJDIR=obj/elf26'
-	/bin/rm -f $(ELFTARGET)
-	$(CC) -shared -o $(ELFTARGET) obj/elf26/*/*.o -lX11 -lgcc -lc
 
 elfdbg:
 	make lib 'CFLAGS=$(CDBGFLAGS) $(ELFCFLAGS)' 'OBJDIR=obj/elfdbg'
