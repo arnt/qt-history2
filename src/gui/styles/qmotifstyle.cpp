@@ -227,21 +227,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         if (const QStyleOptionFocusRect *fropt = qstyleoption_cast<const QStyleOptionFocusRect *>(opt)) {
             if ((fropt->state & State_HasFocus) && focus && focus->isVisible())
                 break;
-            QColor bg = fropt->backgroundColor;
-            QPen oldPen = p->pen();
-            if (bg.isValid()) {
-                int h, s, v;
-                bg.getHsv(&h, &s, &v);
-                if (v >= 128)
-                    p->setPen(Qt::black);
-                else
-                    p->setPen(Qt::white);
-            } else {
-                p->setPen(opt->palette.foreground().color());
-            }
-            p->drawRect(QRect(opt->rect.x() + 1, opt->rect.y() + 1, opt->rect.width() - 2,
-                              opt->rect.height() - 2));
-            p->setPen(oldPen);
+            QCommonStyle::drawPrimitive(pe, opt, p, w);
         }
         break;
 

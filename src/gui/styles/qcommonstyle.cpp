@@ -122,8 +122,8 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             } else {
                 p->setPen(opt->palette.foreground().color());
             }
-            p->drawRect(QRect(opt->rect.x() + 1, opt->rect.y() + 1, opt->rect.width() - 2,
-                              opt->rect.height() - 2));
+            QRect focusRect = opt->rect.adjusted(1, 1, -1, -1);
+            p->drawRect(focusRect.adjusted(0, 0, -1, -1)); //draw pen inclusive
             p->setPen(oldPen);
         }
         break;
