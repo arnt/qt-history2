@@ -62,7 +62,6 @@
 #include "qfontencodings_p.h"
 
 
-// #define Q_SUPERFONT_METRICS
 // #define QFONTLOADER_DEBUG
 // #define QFONTCACHE_DEBUG
 
@@ -83,18 +82,50 @@ static char *qt_x11encodings[][QFontPrivate::NScripts + 1] = {
     { "iso8859-15"       , 0 }, // EXTLATINA15
 
     // TODO: Latin Extended-B
+    { 0                      }, // EXTLATINB
+    { 0                      }, // EXTIPA
+    { 0                      }, // EXTLATINADDL
+    { 0                      }, // LATINLIGATURE
 
+    { 0                      }, // DIACRITICAL
+
+    { "iso8859-7"        , 0 }, // GREEK
+    { 0                      }, // EXTGREEK
     { "iso8859-5",
       "koi8-r",
       "koi8-ru"          , 0 }, // CYRILLIC
+    { 0                      }, // CYRILLICHISTORIC
+    { 0                      }, // EXTCYRILLIC
+    { 0                      }, // ARMENIAN
+    { 0                      }, // GEORGIAN
+    { 0                      }, // RUNIC
+    { 0                      }, // OGHAM
+
+    { "iso8859-8"        , 0 }, // HEBREW
+    { 0                      }, // HEBREWPRESENTATION
     { "iso8859-6.8x",
       "iso8859-6"        , 0 }, // ARABIC
-    { "iso8859-7"        , 0 }, // GREEK
-    { "iso8859-8"        , 0 }, // HEBREW
+    { 0                      }, // ARABICPRESENTATIONA
+    { 0                      }, // ARABICPRESENTATIONB
+    { 0                      }, // SYRIAC
+    { 0                      }, // THAANA
 
+    { 0                      }, // DEVANAGARI
+    { 0                      }, // BENGALI
+    { 0                      }, // GURMUKHI
+    { 0                      }, // GUJARATI
+    { 0                      }, // ORIYA
     { "tscii-*"          , 0 }, // TAMIL
+    { 0                      }, // TELUGU,
+    { 0                      }, // KANNADA,
+    { 0                      }, // MALAYALAM,
+    { 0                      }, // SINHALA,
     { "tis620-0",
       "iso8859-11"       , 0 }, // THAI
+    { 0                      }, // LAO,
+    { 0                      }, // TIBETAN,
+    { 0                      }, // MYANMAR,
+    { 0                      }, // KHMER,
 
     { "jisx0208.1983-0",
       "gb2312.1980-0",
@@ -104,9 +135,15 @@ static char *qt_x11encodings[][QFontPrivate::NScripts + 1] = {
     { "jisx0208.1983-0"  , 0 }, // KATAKANA
     { "ksc5601.1987-0"   , 0 }, // HANGUL
     { "gb2312.1980-0"    , 0 }, // BOPOMOFO
+    { 0                      }, // YI
+
+    { 0                      }, // ETHOPIC
+    { 0                      }, // CHEROKEE
+    { 0                      }, // CANADIANABORIGINAL
+    { 0                      }, // MONGOLIAN
 
     { "iso10646-1",
-      "unicode-*"        , 0 }, // Unicode == ISO-10646-1 (for now)
+      "unicode-*"        , 0 }, // UNICODE == ISO-10646-1 (for now)
 
     { "*-*"              , 0 } // UnknownScript
 };
@@ -122,23 +159,62 @@ static int qt_x11indices[QFontPrivate::NScripts + 1] = {
     0, // EXTLATINA14
     0, // EXTLATINA15
 
-    0, // CYRILLIC
-    0, // ARABIC
-    0, // GREEK
-    0, // HEBREW
+    0, // EXTLATINB
+    0, // EXTIPA
+    0, // EXTLATINADDL
+    0, // LATINLIGATURE
 
+    0, // DIACRITICAL
+
+    0, // GREEK
+    0, // EXTGREEK
+    0, // CYRILLIC
+    0, // CYRILLICHISTORIC
+    0, // EXTCYRILLIC
+    0, // ARMENIAN
+    0, // GEORGIAN
+    0, // RUNIC
+    0, // OGHAM
+
+    0, // HEBREW
+    0, // HEBREWPRESENTATION
+    0, // ARABIC
+    0, // ARABICPRESENTATIONA
+    0, // ARABICPRESENTATIONB
+    0, // SYRIAC
+    0, // THAANA
+
+    0, // DEVANAGARI
+    0, // BENGALI
+    0, // GURMUKHI
+    0, // GUJARATI
+    0, // ORIYA
     0, // TAMIL
+    0, // TELUGU
+    0, // KANNADA
+    0, // MALAYALAM
+    0, // SINHALA
     0, // THAI
+    0, // LAO
+    0, // TIBETAN
+    0, // MYANMAR
+    0, // KHMER
 
     0, // HAN
     0, // HIRAGANA
     0, // KATAKANA
     0, // HANGUL
     0, // BOPOMOFO
+    0, // YI
 
-    0, // Unicode
+    0, // ETHOPIC
+    0, // CHEROKEE
+    0, // CANADIANABORIGINAL
+    0, // MONGOLIAN
 
-    0  // UnknownScript
+    0, // UNICODE
+
+    0, // NScripts
 };
 
 
@@ -1122,7 +1198,7 @@ void QFontPrivate::computeLineWidth()
     if ( nlw < 2 && score >= 1050 ) nlw = 2;
     if ( nlw == 0 ) nlw = 1;
 
-    if (nlw > lWidth) lWidth = nlw;
+    if (nlw > lineWidth) lineWidth = nlw;
 }
 
 
@@ -1241,41 +1317,137 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 
 		XCharStruct *xcs = f->per_char + 0xfffe;
 
-		if (xcs && xcs->width + xcs->ascent + xcs->descent == 0) {
+#ifdef QFONTLOADER_DEBUG
+
+		if (xcs) {
+		    qDebug("QFP::load: bounding box for undefined char: %d %d %d",
+			   xcs->width, xcs->ascent, xcs->descent);
+ 		} else {
+		    qDebug("QFP::load: unicode font doesn't have undefined char?");
+		}
+
+#endif // QFONTLOADER_DEBUG
+
+		if (xcs && xcs->width == 0 && xcs->ascent + xcs->descent == 0) {
 		    uchar row, cell;
 
 		    switch (script) {
-		    case QFontPrivate::BASICLATIN:  row  = 0x00; cell = 0x30; break;
-		    case QFontPrivate::EXTLATINA2:  row  = 0x01; cell = 0x02; break;
-		    case QFontPrivate::EXTLATINA3:  row  = 0x01; cell = 0x08; break;
-		    case QFontPrivate::EXTLATINA4:  row  = 0x01; cell = 0x00; break;
-		    case QFontPrivate::EXTLATINA9:  row  = 0x01; cell = 0x00; break;
-		    case QFontPrivate::EXTLATINA14: row  = 0x01; cell = 0x74; break;
-		    case QFontPrivate::EXTLATINA15: row  = 0x01; cell = 0x52; break;
-
-		    case QFontPrivate::CYRILLIC:    row  = 0x04; cell = 0x10; break;
-		    case QFontPrivate::ARABIC:      row  = 0x06; cell = 0x30; break;
-		    case QFontPrivate::GREEK:       row  = 0x03; cell = 0x90; break;
-		    case QFontPrivate::HEBREW:      row  = 0x05; cell = 0xd0; break;
-
-		    case QFontPrivate::TAMIL:       row  = 0x0b; cell = 0x80; break;
-		    case QFontPrivate::THAI:        row  = 0x0e; cell = 0x00; break;
-
-		    case QFontPrivate::HAN:         row  = 0x4e; cell = 0x00; break;
-		    case QFontPrivate::HIRAGANA:    row  = 0x30; cell = 0x50; break;
-		    case QFontPrivate::KATAKANA:    row  = 0x30; cell = 0xb0; break;
-		    case QFontPrivate::HANGUL:      row  = 0xac; cell = 0x00; break;
-		    case QFontPrivate::BOPOMOFO:    row  = 0x31; cell = 0x10; break;
-
-		    default:                 row  = cell = 0;
+		    case BasicLatin:
+			row = 0x00; cell = 0x30; break;
+		    case LatinExtA2:
+			row = 0x01; cell = 0x02; break;
+		    case LatinExtA3:
+			row = 0x01; cell = 0x08; break;
+		    case LatinExtA4:
+			row = 0x01; cell = 0x00; break;
+		    case LatinExtA9:
+			row = 0x01; cell = 0x00; break;
+		    case LatinExtA14:
+			row = 0x01; cell = 0x74; break;
+		    case LatinExtA15:
+			row = 0x01; cell = 0x52; break;
+		    case LatinExtB:
+			row = 0x01; cell = 0x80; break;
+		    case IPAExt:
+			row = 0x02; cell = 0x50; break;
+		    case LatinExtADDL:
+			row = 0x1e; cell = 0x00; break;
+		    case LatinLigatures:
+			row = 0xfb; cell = 0x00; break;
+		    case Diacritical:
+			row = 0x03; cell = 0x00; break;
+		    case Greek:
+			row = 0x03; cell = 0x90; break;
+		    case GreekExt:
+			row = 0x1f; cell = 0x00; break;
+		    case Cyrillic:
+			row = 0x04; cell = 0x10; break;
+		    case CyrillicHistoric:
+			row = 0x04; cell = 0x60; break;
+		    case CyrillicExt:
+			row = 0x04; cell = 0x90; break;
+		    case Armenian:
+			row = 0x05; cell = 0x40; break;
+		    case Georgian:
+			row = 0x10; cell = 0xa0; break;
+		    case Runic:
+			row = 0x16; cell = 0xa0; break;
+		    case Ogham:
+			row = 0x16; cell = 0x80; break;
+		    case Hebrew:
+			row = 0x05; cell = 0xd0; break;
+		    case HebrewPresentation:
+			row = 0xfb; cell = 0x20; break;
+		    case Arabic:
+			row = 0x06; cell = 0x30; break;
+		    case ArabicPresentationA:
+			row = 0xfb; cell = 0x50; break;
+		    case ArabicPresentationB:
+			row = 0xfe; cell = 0x70; break;
+		    case Syriac:
+			row = 0x07; cell = 0x10; break;
+		    case Thaana:
+			row = 0x07; cell = 0x80; break;
+		    case Devanagari:
+			row = 0x09; cell = 0x10; break;
+		    case Bengali:
+			row = 0x09; cell = 0x90; break;
+		    case Gurmukhi:
+			row = 0xa0; cell = 0x10; break;
+		    case Gujarati:
+			row = 0x0a; cell = 0x90; break;
+		    case Oriya:
+			row = 0x0b; cell = 0x10; break;
+		    case Tamil:
+			row = 0x0b; cell = 0x90; break;
+		    case Telugu:
+			row = 0x0c; cell = 0x10; break;
+		    case Kannada:
+			row = 0x0c; cell = 0x90; break;
+		    case Malayalam:
+			row = 0x0d; cell = 0x10; break;
+		    case Sinhala:
+			row = 0x0d; cell = 0x90; break;
+		    case Thai:
+			row = 0x0e; cell = 0x10; break;
+		    case Lao:
+			row = 0xe0; cell = 0x81; break;
+		    case Tibetan:
+			row = 0x0f; cell = 0x00; break;
+		    case Myanmar:
+			row = 0x10; cell = 0x00; break;
+		    case Khmer:
+			row = 0x17; cell = 0x80; break;
+		    case Han:
+			row = 0x4e; cell = 0x00; break;
+		    case Hiragana:
+			row = 0x30; cell = 0x50; break;
+		    case Katakana:
+			row = 0x30; cell = 0xb0; break;
+		    case Hangul:
+			row = 0xac; cell = 0x00; break;
+		    case Bopomofo:
+			row = 0x31; cell = 0x10; break;
+		    case Yi:
+			row = 0xa0; cell = 0x00; break;
+		    case Ethiopic:
+			row = 0x12; cell = 0x00; break;
+		    case Cherokee:
+			row = 0x13; cell = 0xa0; break;
+		    case CanadianAboriginal:
+			row = 0x14; cell = 0x10; break;
+		    default:
+			row = cell = 0;
 		    }
 
+		    ch.cell() = cell;
+		    ch.row()  = row;
+
 		    if (row + cell != 0) {
-			ch.cell() = cell;
-			ch.row()  = row;
 			xcs = f->per_char + ch.unicode();
 
-			hasChar = (xcs && xcs->width + xcs->ascent + xcs->descent != 0);
+			hasChar = (xcs && (xcs->width != 0 ||
+					   xcs->ascent + xcs->descent != 0));
 		    }
 		}
 	    }
@@ -1284,7 +1456,7 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 
 #ifdef QFONTLOADER_DEBUG
 		qDebug("QFontPrivate::load: %p unicode font has char "
-		       "0x%04d for %d %s", this, ch.unicode(), script,
+		       "0x%02x%02x for %d %s", this, ch.row(), ch.cell(), script,
 		       qt_x11encodings[script][qt_x11indices[script]]);
 #endif // QFONTLOADER_DEBUG
 
@@ -1296,7 +1468,7 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 
 #ifdef QFONTLOADER_DEBUG
 	    } else {
-		qDebug("QFontPrivate::load: unicode font doesn't have char 0x%04d",
+		qDebug("QFontPrivate::load: unicode font doesn't have char 0x%04x",
 		       ch.unicode());
 #endif // QFONTLOADER_DEBUG
 
@@ -1383,6 +1555,17 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 	return;
     }
 
+    // if we have no way to map this script, we give up
+    if (! qt_x11encodings[script][qt_x11indices[script]]) {
+
+#ifdef QFONTLOADER_DEBUG
+	qDebug("QFontPrivate::load: no nothing about script %d, giving up", script);
+#endif // QFONTLOADER_DEBUG
+
+	x11data.fontstruct[script] = (QFontStruct *) -1;
+	return;
+    }
+
     // font was never loaded, we need to do that now
     XFontStruct *f = 0;
 
@@ -1400,7 +1583,7 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 #endif // QFONTLOADER_DEBUG
 
 	    exactMatch = FALSE;
-	    
+
 	    if (! (f = XLoadQueryFont(QPaintDevice::x11AppDisplay(),
 				      lastResortFont().latin1()))) {
 		qFatal("QFontPrivate::load: Internal error");
@@ -1484,7 +1667,7 @@ void QFont::initialize()
 {
     if (QFontPrivate::NScripts != NSCRIPTSEGCSHACK) {
 	qFatal("The QFontPrivate::Script enum has changed, but the x11data.fontstruct\n"
-	       "member array size wasn't updated");
+	       "member array size wasn't updated (%d)", QFontPrivate::NScripts);
     }
 
     // get some sample text based on the users locale.  we use this to determine the
@@ -1598,7 +1781,7 @@ void QFont::cacheStatistics()
 */
 Qt::HANDLE QFont::handle() const
 {
-    
+
 #ifndef QT_NO_COMPAT
     // qDebug("QFont::handle: checking charset for !QT_NO_COMPAT");
     // qDebug("QFont::handle: d->charset is %d '%s'", d->charset,
@@ -1621,13 +1804,19 @@ Qt::HANDLE QFont::handle() const
 #endif
 
     d->load(QFontPrivate::defaultScript);
-    
+
     // find the first font id and return that
     for (int i = 0; i < QFontPrivate::NScripts; i++) {
-	if (d->x11data.fontstruct[i]) {
+	QFontStruct *qfs = d->x11data.fontstruct[i];
+
+	if (qfs) {
 	    d->load((QFontPrivate::Script) i);
 
-	    return ((XFontStruct *) d->x11data.fontstruct[i]->handle)->fid;
+	    qfs = d->x11data.fontstruct[i];
+
+	    if (qfs && qfs != (QFontStruct *) -1) {
+		return ((XFontStruct *) qfs->handle)->fid;
+	    }
 	}
     }
 
@@ -1648,11 +1837,13 @@ Qt::HANDLE QFont::handle() const
 QString QFont::rawName() const
 {
     d->load(QFontPrivate::defaultScript);
-    if (! d->x11data.fontstruct[QFontPrivate::defaultScript]) {
+
+    QFontStruct *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
+    if (! qfs || qfs == (QFontStruct *) -1) {
 	return QString::null;
     }
 
-    return QString::fromLatin1(d->x11data.fontstruct[QFontPrivate::defaultScript]->name);
+    return QString::fromLatin1(qfs->name);
 }
 
 
@@ -1746,40 +1937,15 @@ void QFont::setPixelSizeFloat( float pixelSize )
 */
 int QFontMetrics::ascent() const
 {
-
-#ifdef Q_SUPERFONT_METRICS
-
-    XFontStruct *f;
-    int a = 0, aa;
-    for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-	// dont load new scripts...
-	if (! d->x11data.fontstruct[i]) continue;
-
-	// but keep old ones up to date...
-	d->load((QFontPrivate::Script) i);
-
-	f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
-	aa = f->max_bounds.ascent;
-	if (aa > a)
-	    a = aa;
-    }
-
-    return a);
-
-#else // !Q_SUPERFONT_METRICS
-
     d->load(QFontPrivate::defaultScript);
-    if (! d->x11data.fontstruct[QFontPrivate::defaultScript]) {
-        return d->request.pointSize * 3 / 40;
+
+    QFontStruct *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
+    if (! qfs || qfs == (QFontStruct *) -1) {
+	return d->request.pointSize * 3 / 40;
     }
-
-    XFontStruct *f =
-	(XFontStruct *) d->x11data.fontstruct[QFontPrivate::defaultScript]->handle;
-
+    
+    XFontStruct *f = (XFontStruct *) qfs->handle;
     return f->max_bounds.ascent;
-
-#endif // Q_SUPERFONT_METRICS
-
 }
 
 
@@ -1794,36 +1960,15 @@ int QFontMetrics::ascent() const
 */
 int QFontMetrics::descent() const
 {
+    d->load(QFontPrivate::defaultScript);
 
-#ifdef Q_SUPERFONT_METRICS
-
-    XFontStruct *f;
-    int c = 0, cc;
-    for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-	if (! d->x11data.fontstruct[i]) continue;
-
-	d->load((QFontPrivate::Script) i);
-
-	f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
-	cc = f->max_bounds.descent - 1;
-	if (cc > c)
-	    c = cc;
+    QFontStruct *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
+    if (! qfs || qfs == (QFontStruct *) -1) {
+	return 0;
     }
 
-    return c);
-
-#else // !Q_SUPERFONT_METRICS
-
-    d->load(QFontPrivate::defaultScript);
-    if (! d->x11data.fontstruct[QFontPrivate::defaultScript])
-	return 0;
-
-    XFontStruct *f =
-	(XFontStruct *) d->x11data.fontstruct[QFontPrivate::defaultScript]->handle;
+    XFontStruct *f = (XFontStruct *) qfs->handle;
     return f->max_bounds.descent - 1;
-
-#endif // Q_SUPERFONT_METRICS
-
 }
 
 
@@ -1838,11 +1983,13 @@ bool QFontMetrics::inFont(QChar ch) const
 	return FALSE;
 
     d->load(script);
-    if (! d->x11data.fontstruct[script]) {
+
+    QFontStruct *qfs = d->x11data.fontstruct[script];
+    if (! qfs || qfs == (QFontStruct *) -1) {
 	return FALSE;
     }
 
-    XFontStruct *f = (XFontStruct *) d->x11data.fontstruct[script]->handle;
+    XFontStruct *f = (XFontStruct *) qfs->handle;
 
     if (f->max_byte1) {
         return (ch.cell() >= f->min_char_or_byte2 &&
@@ -1851,6 +1998,7 @@ bool QFontMetrics::inFont(QChar ch) const
 		ch.row() <= f->max_byte1);
     } else if (ch.row()) {
         uint ch16 = ch.unicode();
+
 	return (ch16 >= f->min_char_or_byte2 &&
 		ch16 <= f->max_char_or_byte2);
     }
@@ -1930,19 +2078,17 @@ int QFontMetrics::leftBearing(QChar ch) const
     QFontPrivate::Script script = QFontPrivate::scriptForChar(ch);
 
     if (script == QFontPrivate::UnknownScript) {
-     	qDebug("QFM::leftBearing: need to handle unknown text");
 	return 0;
     }
 
     d->load(script);
-    if (! d->x11data.fontstruct[script]) {
-     	qDebug("QFM::leftBearing: need to handle unknown text");
+
+    QFontStruct *qfs = d->x11data.fontstruct[script];
+    if (! qfs || qfs == (QFontStruct *) -1) {
 	return 0;
     }
 
-    XCharStruct *xcs =
-	charStr(d->x11data.fontstruct[script]->codec,
-		((XFontStruct *) d->x11data.fontstruct[script]->handle), ch, 0);
+    XCharStruct *xcs = charStr(qfs->codec, ((XFontStruct *) qfs->handle), ch, 0);
     return xcs ? xcs->width : 0;
 }
 
@@ -1964,19 +2110,17 @@ int QFontMetrics::rightBearing(QChar ch) const
     QFontPrivate::Script script = QFontPrivate::scriptForChar(ch);
 
     if (script == QFontPrivate::UnknownScript) {
-     	qDebug("QFM::rightBearing: need to handle unknown text");
 	return 0;
     }
 
     d->load(script);
-    if (! d->x11data.fontstruct[script]) {
-     	qDebug("QFM::rightBearing: need to handle unknown text");
+
+    QFontStruct *qfs = d->x11data.fontstruct[script];
+    if (! qfs || qfs == (QFontStruct *) -1) {
 	return 0;
     }
 
-    XCharStruct *xcs =
-	charStr(d->x11data.fontstruct[script]->codec,
-		((XFontStruct *) d->x11data.fontstruct[script]->handle), ch, 0);
+    XCharStruct *xcs = charStr(qfs->codec, ((XFontStruct *) qfs->handle), ch, 0);
     return xcs ? xcs->width : 0;
 }
 
@@ -1992,22 +2136,47 @@ int QFontMetrics::rightBearing(QChar ch) const
 */
 int QFontMetrics::minLeftBearing() const
 {
-    XFontStruct *f;
-    int mlb = SHRT_MAX;
+    if ( d->actual.lbearing == SHRT_MIN ) {
+	XFontStruct *f;
+	int mlb = SHRT_MAX;
+	int mx = 0;
 
-    for(int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-	if (! d->x11data.fontstruct[i]) {
-	    continue;
+	for(int i = 0; i < QFontPrivate::NScripts - 1; i++) {
+	    if (! d->x11data.fontstruct[i]) {
+		continue;
+	    }
+
+	    d->load((QFontPrivate::Script) i);
+
+	    if (! d->x11data.fontstruct[i] ||
+		d->x11data.fontstruct[i] == (QFontStruct *) -1) {
+		continue;
+	    }
+
+	    f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
+
+	    if ( f->per_char ) {
+		XCharStruct *cs = f->per_char;
+		int nc = MAXINDEX(f) + 1;
+		mx = cs->lbearing;
+
+		for (int c = 1; c < nc; c++) {
+		    int nmx = cs[c].lbearing;
+		    if (nmx < mx) mx = nmx;
+		}
+	    } else {
+		mx = f->min_bounds.lbearing;
+	    }
+
+	    if (mx < mlb) {
+		mlb = mx;
+	    }
 	}
 
-	d->load((QFontPrivate::Script) i);
-
-	f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
-	if (f->min_bounds.lbearing < mlb)
-	    mlb = f->min_bounds.lbearing;
+	d->actual.lbearing = mlb;
     }
 
-    return mlb;
+    return d->actual.lbearing;
 }
 
 
@@ -2035,6 +2204,11 @@ int QFontMetrics::minRightBearing() const
 
 	    d->load((QFontPrivate::Script) i);
 
+	    if (! d->x11data.fontstruct[i] ||
+		d->x11data.fontstruct[i] == (QFontStruct *) -1) {
+		continue;
+	    }
+
 	    f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
 
 	    if ( f->per_char ) {
@@ -2054,7 +2228,7 @@ int QFontMetrics::minRightBearing() const
 		mrb = mx;
 	}
 
-	d->actual.rbearing = mx;
+	d->actual.rbearing = mrb;
     }
 
     return d->actual.rbearing;
@@ -2070,36 +2244,15 @@ int QFontMetrics::minRightBearing() const
 */
 int QFontMetrics::height() const
 {
+    d->load(QFontPrivate::defaultScript);
 
-#ifdef Q_SUPERFONT_METRICS
-
-    XFontStruct *f;
-    int h = 0, hh;
-    for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-	if (! d->x11data.fontstruct[i]) continue;
-
-	d->load((QFontPrivate::Script) i);
-
-	f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
-	hh = f->max_bounds.ascent + f->max_bounds.descent);
-	if (hh > h)
-	    h = hh;
+    QFontStruct *qfs =  d->x11data.fontstruct[QFontPrivate::defaultScript];
+    if (! qfs || qfs == (QFontStruct *) -1) {
+	return (d->request.pointSize * 3 / 40) + 1;
     }
 
-    return h;
-
-#else // !Q_SUPERFONT_METRICS
-
-    d->load(QFontPrivate::defaultScript);
-if (! d->x11data.fontstruct[QFontPrivate::defaultScript])
-	return (d->request.pointSize * 3 / 40) + 1;
-
-    XFontStruct *f =
-	(XFontStruct *) d->x11data.fontstruct[QFontPrivate::defaultScript]->handle;
+    XFontStruct *f = (XFontStruct *) qfs->handle;
     return f->max_bounds.ascent + f->max_bounds.descent;
-
-#endif // Q_SUPERFONT_METRICS
-
 }
 
 
@@ -2112,38 +2265,15 @@ if (! d->x11data.fontstruct[QFontPrivate::defaultScript])
 */
 int QFontMetrics::leading() const
 {
+    d->load(QFontPrivate::defaultScript);
 
-#ifdef Q_SUPERFONT_METRICS
-
-    XFontStruct *f;
-    int l = 0, ll;
-    for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-	if (! d->x11data.fontstruct[i]) continue;
-
-	d->load((QFontPrivate::Script) i);
-
-	f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
-	ll = f->ascent + f->descent - f->max_bounds.ascent -
-			     f->max_bounds.descent);
-	if (ll > l)
-	    l = ll;
+    QFontStruct *qfs =  d->x11data.fontstruct[QFontPrivate::defaultScript];
+    if (! qfs || qfs == (QFontStruct *) -1) {
+	return 0;
     }
 
-    return l;
-
-#else // !Q_SUPERFONT_METRICS
-
-    d->load(QFontPrivate::defaultScript);
-    if (! d->x11data.fontstruct[QFontPrivate::defaultScript])
-	return 0;
-
-    XFontStruct *f =
-	(XFontStruct *) d->x11data.fontstruct[QFontPrivate::defaultScript]->handle;
-
+    XFontStruct *f = (XFontStruct *) qfs->handle;
     return f->ascent + f->descent - f->max_bounds.ascent - f->max_bounds.descent;
-
-#endif // Q_SUPERFONT_METRICS
-
 }
 
 
@@ -2186,6 +2316,9 @@ int QFontMetrics::lineSpacing() const
 
   \sa boundingRect()
 */
+
+#ifndef QT_NO_COMPAT
+
 int QFontMetrics::width(QChar ch) const
 {
     QFontPrivate::Script script = QFontPrivate::scriptForChar(ch);
@@ -2195,147 +2328,18 @@ int QFontMetrics::width(QChar ch) const
     }
 
     d->load(script);
-    if (! d->x11data.fontstruct[script]) {
+
+    QFontStruct *qfs =  d->x11data.fontstruct[script];
+    if (! qfs || qfs == (QFontStruct *) -1) {
 	return d->request.pointSize * 3 / 40;
     }
 
-    XCharStruct *xcs =
-	charStr(d->x11data.fontstruct[script]->codec,
-		((XFontStruct *) d->x11data.fontstruct[script]->handle), ch, 0);
-
+    XCharStruct *xcs = charStr(qfs->codec, ((XFontStruct *) qfs->handle), ch, 0);
     return xcs ? xcs->width : d->request.pointSize * 3 / 40;
 }
 
+#endif // QT_NO_COMPAT
 
-/*!
-  Returns the width in pixels of the first \e len characters of \e str.
-
-  If \e len is negative (the default value is), the whole string is used.
-
-  Note that this value is \e not equal to boundingRect().width();
-  boundingRect() returns a rectangle describing the pixels this string
-  will cover whereas width() r eturns the distance to where the next string
-  should be drawn.
-
-  \sa boundingRect()
-*/
-int QFontMetrics::width( const QString &str, int len ) const
-{
-    if (len < 0)
-	len = str.length();
-    if (len == 0)
-	return 0;
-
-    // this algorithm is similar to the one used for painting
-    const QChar *uc = str.unicode();
-    QFontPrivate::Script currs = QFontPrivate::NoScript, tmp;
-    XFontStruct *f;
-    int i;
-
-    QByteArray mapped;
-    int currw = 0;
-    int lasts = -1;
-
-    for (i = 0; i < len; i++) {
-	tmp = QFontPrivate::scriptForChar(*uc++);
-
-	if (tmp != currs) {
-	    if (lasts >= 0) {
-		f = 0;
-		
-		if (currs != QFontPrivate::UnknownScript) {
-		    d->load(currs);
-		    
-		    if (d->x11data.fontstruct[currs]) {
-			f = (XFontStruct *) d->x11data.fontstruct[currs]->handle;
-		    } else {
-			tmp = QFontPrivate::UnknownScript;
-		    }
-		    
-		}
-		
-		if (f) {
-		    if (d->x11data.fontstruct[currs]->codec) {
-			mapped = d->x11data.fontstruct[currs]->codec->
-				 fromUnicode(str, lasts, i - lasts );
-			
-			if (f->max_byte1) {
-			    currw += XTextWidth16(f, (XChar2b *) mapped.data(),
-						  mapped.size() / 2);
-			} else {
-			    currw += XTextWidth(f, mapped.data(), mapped.size());
-			}
-			
-			mapped.resize(0);
-		    } else {
-			// we are dealing with unicode text and a unicode font - YAY
-			if (f->max_byte1) {
-			    currw +=
-				XTextWidth16(f, (XChar2b *) (str.unicode() + lasts),
-					     i - lasts);
-			} else {
-			    // STOP: we want to use unicode, but don't have a multi-byte
-			    // font?  something is seriously wrong... assume we have text
-			    // we know nothing about
-			    
-			    tmp = QFontPrivate::UnknownScript;
-			    currw += (i - lasts) * (d->request.pointSize * 3 / 40);
-			}
-		    }
-		} else {
-		    currw += (i - lasts) * (d->request.pointSize * 3 / 40);
-		}
-	    }
-	    
-	    currs = tmp;
-	    lasts = i;
-	}
-    }
-    
-    if (lasts >= 0) {
-	f = 0;
-	
-	if (currs != QFontPrivate::UnknownScript) {
-	    d->load(currs);
-
-	    if (d->x11data.fontstruct[currs]) {
-		f = (XFontStruct *) d->x11data.fontstruct[currs]->handle;
-	    }
-	}
-	
-	if (f) {
-	    if (d->x11data.fontstruct[currs]->codec) {
-		mapped = d->x11data.fontstruct[currs]->codec->
-			 fromUnicode( str, lasts, i - lasts );
-		if (f->max_byte1) {
-		    currw +=
-			XTextWidth16(f, (XChar2b *) mapped.data(),
-				     mapped.size() / 2);
-		} else {
-		    currw +=
-			XTextWidth(f, mapped.data(), mapped.size());
-		}
-	    } else {
-		if (f->max_byte1) {
-		    // we are dealing with unicode text and a unicode font - YAY
-		    currw +=
-			XTextWidth16(f, (XChar2b *) (str.unicode() + lasts),
-				     i - lasts);
-		} else {
-		    // STOP: we want to use unicode, but don't have a multi-byte
-		    // font?  something is seriously wrong... assume we have text
-		    // we know nothing about
-		    
-		    currw += (i - lasts) * (d->request.pointSize * 3 / 40);
-		}
-	    }
-	} else {
-	    currw += (i - lasts) * (d->request.pointSize * 3 / 40);
-	}
-    }
-    
-    return currw;
-}
 
 /*!
   Returns the width of the character at position \e pos in the string \e str.
@@ -2356,15 +2360,141 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     }
 
     d->load(script);
-    if (! d->x11data.fontstruct[script]) {
+
+    QFontStruct *qfs = d->x11data.fontstruct[script];
+    if (! qfs || qfs == (QFontStruct *) -1) {
         return d->request.pointSize * 3 / 40;
     }
 
-    XCharStruct *xcs =
-	charStr(d->x11data.fontstruct[script]->codec,
-		((XFontStruct *) d->x11data.fontstruct[script]->handle), str, pos);
-
+    XCharStruct *xcs = charStr(qfs->codec, ((XFontStruct *) qfs->handle), str, pos);
     return xcs ? xcs->width : d->request.pointSize * 3 / 40;
+}
+
+
+/*!
+  Returns the width in pixels of the first \e len characters of \e str.
+  If \e len is negative (the default value is), the whole string is used.
+
+  Note that this value is \e not equal to boundingRect().width();
+  boundingRect() returns a rectangle describing the pixels this string
+  will cover whereas width() r eturns the distance to where the next string
+  should be drawn.
+
+  \sa boundingRect()
+*/
+int QFontMetrics::width( const QString &str, int len ) const
+{
+    if (len < 0)
+	len = str.length();
+    if (len == 0)
+	return 0;
+
+    // this algorithm is similar to the one used for painting
+    const QChar *uc = str.unicode();
+    QFontPrivate::Script currs = QFontPrivate::NoScript, tmp;
+    QFontStruct *qfs;
+    XFontStruct *f;
+    int i;
+
+    QByteArray mapped;
+    int currw = 0;
+    int lasts = -1;
+
+    for (i = 0; i < len; i++) {
+	tmp = QFontPrivate::scriptForChar(*uc++);
+
+	if (tmp != currs) {
+	    if (lasts >= 0) {
+		qfs = 0;
+		f = 0;
+
+		if (currs != QFontPrivate::UnknownScript) {
+		    d->load(currs);
+
+		    qfs = d->x11data.fontstruct[currs];
+		    if (qfs || qfs != (QFontStruct *) -1) {
+			f = (XFontStruct *) qfs->handle;
+		    }
+		}
+
+		if (f) {
+		    if (qfs->codec) {
+			mapped = qfs->codec->fromUnicode(str, lasts, i - lasts );
+
+			if (f->max_byte1) {
+			    currw += XTextWidth16(f, (XChar2b *) mapped.data(),
+						  mapped.size() / 2);
+			} else {
+			    currw += XTextWidth(f, mapped.data(), mapped.size());
+			}
+
+			mapped.resize(0);
+		    } else {
+			// we are dealing with unicode text and a unicode font - YAY
+			if (f->max_byte1) {
+			    currw +=
+				XTextWidth16(f, (XChar2b *) (str.unicode() + lasts),
+					     i - lasts);
+			} else {
+			    // STOP: we want to use unicode, but don't have a multi-byte
+			    // font?  something is seriously wrong... assume we have text
+			    // we know nothing about
+
+			    currw += (i - lasts) * (d->request.pointSize * 3 / 40);
+			}
+		    }
+		} else {
+		    currw += (i - lasts) * (d->request.pointSize * 3 / 40);
+		}
+	    }
+
+	    currs = tmp;
+	    lasts = i;
+	}
+    }
+
+    if (lasts >= 0) {
+	qfs = 0;
+	f = 0;
+
+	if (currs != QFontPrivate::UnknownScript) {
+	    d->load(currs);
+
+	    qfs =  d->x11data.fontstruct[currs];
+	    if (qfs && qfs != (QFontStruct *) -1) {
+		f = (XFontStruct *) qfs->handle;
+	    }
+	}
+
+	if (f) {
+	    if (qfs->codec) {
+		mapped = qfs->codec->fromUnicode( str, lasts, i - lasts );
+
+		if (f->max_byte1) {
+		    currw += XTextWidth16(f, (XChar2b *) mapped.data(),
+					  mapped.size() / 2);
+		} else {
+		    currw += XTextWidth(f, mapped.data(), mapped.size());
+		}
+	    } else {
+		if (f->max_byte1) {
+		    // we are dealing with unicode text and a unicode font - YAY
+		    currw += XTextWidth16(f, (XChar2b *) (str.unicode() + lasts),
+					  i - lasts);
+		} else {
+		    // STOP: we want to use unicode, but don't have a multi-byte
+		    // font?  something is seriously wrong... assume we have text
+		    // we know nothing about
+
+		    currw += (i - lasts) * (d->request.pointSize * 3 / 40);
+		}
+	    }
+	} else {
+	    currw += (i - lasts) * (d->request.pointSize * 3 / 40);
+	}
+    }
+    
+    return currw;
 }
 
 
@@ -2388,19 +2518,23 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 */
 QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 {
-    if (len < 0) len = str.length();
-
-    // Values are printerAdjusted during calculations.
-
+    if (len < 0)
+	len = str.length();
+    if (len == 0)
+	return QRect();
+    
     // this algorithm is similar to width(const QString &, int)
     const QChar *uc = str.unicode();
     QFontPrivate::Script currs = QFontPrivate::NoScript, tmp;
-    QByteArray mapped;
+    QFontStruct *qfs;
     XFontStruct *f;
+    int i;
+    
+    QByteArray mapped;
+    int lasts = -1;
+    
     XCharStruct overall;
     XCharStruct immediate;
-    int lasts = -1;
-    int i;
     int unused;
 
     // zero overall
@@ -2415,22 +2549,22 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 
 	if (tmp != currs) {
 	    if (lasts >= 0) {
-		f = 0; 
-		
+		qfs = 0;
+		f = 0;
+
 		if (currs != QFontPrivate::UnknownScript) {
 		    d->load(currs);
-		    
-		    if (d->x11data.fontstruct[currs]) {
-			f = (XFontStruct *) d->x11data.fontstruct[currs]->handle;
-		    } else {
-			tmp = QFontPrivate::UnknownScript;
+
+		    qfs = d->x11data.fontstruct[currs];
+		    if (qfs && qfs != (QFontStruct *) -1) {
+			f = (XFontStruct *) qfs->handle;
 		    }
 		}
 		
 		if (f) {
-		    if (d->x11data.fontstruct[currs]->codec) {
-			mapped = d->x11data.fontstruct[currs]->codec->
-				 fromUnicode(str, lasts, i - lasts );
+		    if (qfs->codec) {
+			mapped = qfs->codec->fromUnicode(str, lasts, i - lasts );
+
 			if (f->max_byte1) {
 			    XTextExtents16(f, (XChar2b *) mapped.data(),
 					   mapped.size() / 2, &unused, &unused,
@@ -2475,8 +2609,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 			    // STOP: we want to use unicode, but don't have a multi-byte
 			    // font?  something is seriously wrong... assume we have text
 			    // we know nothing about
-			
-			    tmp = QFontPrivate::UnknownScript;
+
 			    int tqa = d->request.pointSize * 3 / 40;
 			    overall.ascent = QMAX(overall.ascent, tqa);
 			    overall.width += (i - lasts) * tqa;
@@ -2487,28 +2620,31 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 		    overall.ascent = QMAX(overall.ascent, tqa);
 		    overall.width += (i - lasts) * tqa;
 		}
-	    }		    
-	    
+	    }
+
 	    currs = tmp;
 	    lasts = i;
 	}
     }
 
     if (lasts >= 0) {
+	qfs = 0;
 	f = 0;
-	
+
 	if (currs != QFontPrivate::UnknownScript) {
 	    d->load(currs);
 
-	    if (d->x11data.fontstruct[currs]) {
-		f = (XFontStruct *) d->x11data.fontstruct[currs]->handle;
+	    qfs = d->x11data.fontstruct[currs];
+
+	    if (qfs && qfs != (QFontStruct *) -1) {
+		f = (XFontStruct *) qfs->handle;
 	    }
 	}
 	
 	if (f) {
-	    if (d->x11data.fontstruct[currs]->codec) {
-		mapped = d->x11data.fontstruct[currs]->codec->
-			 fromUnicode(str, lasts, i - lasts );
+	    if (qfs->codec) {
+		mapped = qfs->codec->fromUnicode(str, lasts, i - lasts );
+
 		if (f->max_byte1) {
 		    XTextExtents16(f, (XChar2b *) mapped.data(),
 				   mapped.size() / 2, &unused, &unused, &unused,
@@ -2529,8 +2665,6 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 		    overall.descent = QMAX(overall.descent, immediate.descent);
 		    overall.width += immediate.width;
 		}
-
-		mapped.resize(0);
 	    } else {
 		// we are dealing with unicode text and a unicode font - YAY
 		if (f->max_byte1) {
@@ -2547,7 +2681,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 		    // STOP: we want to use unicode, but don't have a multi-byte
 		    // font?  something is seriously wrong... assume we have text
 		    // we know nothing about
-			
+
 		    int tqa = d->request.pointSize * 3 / 40;
 		    overall.ascent = QMAX(overall.ascent, tqa);
 		    overall.width += (i - lasts) * tqa;
@@ -2559,7 +2693,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 	    overall.width += (i - lasts) * tqa;
 	}
     }
-    
+
     overall.lbearing = overall.lbearing;
     overall.rbearing = overall.rbearing;
     overall.ascent = overall.ascent;
@@ -2614,7 +2748,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 		ascent = soTop;
 	}
     }
-
+    
     return QRect(startX, -ascent, width, descent + ascent);
 }
 
@@ -2625,14 +2759,24 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 int QFontMetrics::maxWidth() const
 {
     XFontStruct *f;
+    QFontStruct *qfs;
     int w = 0, ww;
+
     for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-	if (! d->x11data.fontstruct[i]) continue;
+	if (! d->x11data.fontstruct[i]) {
+	    continue;
+	}
 
 	d->load((QFontPrivate::Script) i);
 
+	qfs = d->x11data.fontstruct[i];
+	if (! qfs || qfs == (QFontStruct *) -1) {
+	    continue;
+	}
+
 	f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
 	ww = f->max_bounds.width;
+
 	if (ww > w)
 	    w = ww;
     }
@@ -2677,5 +2821,5 @@ int QFontMetrics::lineWidth() const
     // lazy computation of linewidth
     d->computeLineWidth();
     
-    return d->lWidth;
+    return d->lineWidth;
 }

@@ -114,35 +114,73 @@ public:
 class QFontPrivate : public QShared
 {
 public:
-	enum Script {
+    enum Script {
 	// Basic Latin with Latin-1 Supplement
-	BASICLATIN,
+	BasicLatin,
 
 	// To get Latin Extended-A characters from various ISO-8859-* encodings
-	EXTLATINA2, // Extended Latin from ISO-8859-2
-	EXTLATINA3, // Extended Latin from ISO-8859-3
-	EXTLATINA4, // Extended Latin from ISO-8859-4
-	EXTLATINA9, // Extended Latin from ISO-8859-9
-	EXTLATINA14, // Extended Latin from ISO-8859-14
-	EXTLATINA15, // Extended Latin from ISO-8859-15
+	LatinExtA2, // Extended Latin from ISO-8859-2
+	LatinExtA3, // Extended Latin from ISO-8859-3
+	LatinExtA4, // Extended Latin from ISO-8859-4
+	LatinExtA9, // Extended Latin from ISO-8859-9
+	LatinExtA14, // Extended Latin from ISO-8859-14
+	LatinExtA15, // Extended Latin from ISO-8859-15
 
 	// TODO: support for Latin Extended-B characters
+	LatinExtB, // Extended Latin (B)
+	IPAExt, // IPA Extensions
+	LatinExtADDL, // Addition Extended Latin
+	LatinLigatures, // Latin Ligatures
 
-	CYRILLIC,
-	ARABIC,
-	GREEK,
-	HEBREW,
+	Diacritical,
+	
+	Greek,
+	GreekExt, // Extended Greek
+	Cyrillic,
+	CyrillicHistoric, // *NO* codec exists for this
+	CyrillicExt, // nor for this
+	Armenian,
+	Georgian,
+	Runic,
+	Ogham,
+
+	Hebrew,
+	HebrewPresentation,
+	Arabic,
+	ArabicPresentationA,
+	ArabicPresentationB,
+	Syriac,
+	Thaana,
 
 	// South/Southeast Asian Scripts
-	TAMIL,
-	THAI,
+	Devanagari,
+	Bengali,
+	Gurmukhi,
+	Gujarati,
+	Oriya,
+	Tamil,
+	Telugu,
+	Kannada,
+	Malayalam,
+	Sinhala,
+	Thai,
+	Lao,
+	Tibetan,
+	Myanmar,
+	Khmer,
 
 	// East Asian Scripts
-	HAN,
-	HIRAGANA,
-	KATAKANA,
-	HANGUL,
-	BOPOMOFO,
+	Han,
+	Hiragana,
+	Katakana,
+	Hangul,
+	Bopomofo,
+	Yi,
+
+	Ethiopic,
+	Cherokee,
+	CanadianAboriginal,
+	Mongolian,
 
 	Unicode,
 
@@ -159,13 +197,13 @@ public:
     // array size because it thinks QFontPrivate is still incomplete.  If you change
     // the above enum you *MUST* update this number to be equal to the new NScripts
     // value, lest you suffer firey death at the hand of qFatal().
-#define NSCRIPTSEGCSHACK 19
+#define NSCRIPTSEGCSHACK 54
 
     static Script scriptForChar(const QChar &c);
 
 public:
     QFontPrivate()
-	: exactMatch(FALSE), lWidth(1)
+	: exactMatch(FALSE), lineWidth(1)
     {
 #ifndef QT_NO_COMPAT
 	// charset = QFont::AnyCharSet;
@@ -174,7 +212,7 @@ public:
 
     QFontPrivate(const QFontPrivate &fp)
 	: QShared(fp), request(fp.request), actual(fp.actual),
-	  exactMatch(fp.exactMatch), lWidth(1)
+	  exactMatch(fp.exactMatch), lineWidth(1)
     {
 #ifndef QT_NO_COMPAT
 	// charset = fp.charset;
@@ -187,19 +225,19 @@ public:
     QFontDef actual;
 
     bool exactMatch;
-    int lWidth;
+    int lineWidth;
 
-	// common functions
+    // common functions
     QString defaultFamily() const;
     QString lastResortFamily() const;
     QString lastResortFont() const;
     QString key() const;
-    int		    lineWidth()  const;
+    // int lineWidth()  const;
 
-	static int getFontWeight(const QCString &, bool = FALSE);
+    static int getFontWeight(const QCString &, bool = FALSE);
 
-#if defined(Q_WS_X11)    
-	static char **getXFontNames(const char *, int *);
+#if defined(Q_WS_X11)
+    static char **getXFontNames(const char *, int *);
     static bool fontExists(const QString &);
     static bool parseXFontName(const QCString &, char **);
     static bool fillFontDef(const QCString &, QFontDef *, QCString *);
@@ -282,7 +320,7 @@ public:
 #endif // Q_WS_X11
 
 #if defined(Q_WS_WIN)
-	QFontPrivate( const QString &key );
+    QFontPrivate( const QString &key );
     void load();
 
     bool	    dirty()      const;
@@ -304,9 +342,9 @@ private:
     } tm;
     QFontDef	s;
     int		lw;
-//    friend void QFont::initFontInfo() const;
+    //    friend void QFont::initFontInfo() const;
 #endif
-    
+
 #ifndef QT_NO_COMPAT
     // source compatibility for QFont
     // QFont::CharSet charsetcompat;

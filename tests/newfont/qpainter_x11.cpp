@@ -2836,6 +2836,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
     // step 2
     const QChar *uc = str.unicode() + pos;
     QFontPrivate::Script currs = QFontPrivate::NoScript, tmp;
+    QFontStruct *qfs;
     XFontStruct *f;
     int i;
 
@@ -2846,28 +2847,26 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 	// 2a. encoding boundary
 	if (tmp != currs) {
 	    if (currt != 0) {
+		qfs = 0;
 		f = 0;
 
 		if (truples[currt - 1].script != QFontPrivate::UnknownScript) {
 		    cfont.d->load(truples[currt - 1].script);
-
-		    if (cfont.d->x11data.fontstruct[truples[currt - 1].script]) {
-			f = (XFontStruct *) cfont.d->
-			    x11data.fontstruct[truples[currt - 1].script]->handle;
-		    } else {
-			tmp = QFontPrivate::UnknownScript;
+		    
+		    qfs = cfont.d->x11data.fontstruct[truples[currt - 1].script];
+		    if (qfs && qfs != (QFontStruct *) -1) {
+			f = (XFontStruct *) qfs->handle;
 		    }
 		}
-
+		
 		if (f) {
 		    // 2b. string width (this is for the PREVIOUS truple)
-		    if (cfont.d->x11data.fontstruct[truples[currt - 1].script]->codec) {
+		    if (qfs->codec) {
 			truples[currt - 1].mapped =
-			    cfont.d->
-			    x11data.fontstruct[truples[currt - 1].script]->codec->
-			    fromUnicode( str, truples[currt - 1].stroffset,
-					 i + pos - truples[currt - 1].stroffset );
-			
+			    qfs->codec-> fromUnicode( str, truples[currt - 1].stroffset,
+						      i + pos -
+						      truples[currt - 1].stroffset );
+
 			if (f->max_byte1) {
 			    currx +=
 				XTextWidth16(f, (XChar2b *)
@@ -2890,7 +2889,6 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 			    // font?  something is seriously wrong... assume we have text
 			    // we know nothing about
 
-			    tmp = QFontPrivate::UnknownScript;
 			    currx += (i + pos - truples[currt - 1].stroffset) *
 				     (cfont.d->request.pointSize * 3 / 40);
 			}
@@ -2912,27 +2910,26 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
     }
 
     if (currt != 0) {
+	qfs = 0;
 	f = 0;
 
 	if (truples[currt - 1].script != QFontPrivate::UnknownScript) {
 	    cfont.d->load(truples[currt - 1].script);
 
-	    if (cfont.d->x11data.fontstruct[truples[currt - 1].script]) {
+	    qfs = cfont.d->x11data.fontstruct[truples[currt - 1].script];
+	    if (qfs && qfs != (QFontStruct *) -1) {
 		f = (XFontStruct *) cfont.d->
 		    x11data.fontstruct[truples[currt - 1].script]->handle;
-	    } else {
-		currs = QFontPrivate::UnknownScript;
 	    }
 	}
-
+	
 	if (f) {
 	    // 2b. string width (this is for the PREVIOUS truple)
-	    if (cfont.d->x11data.fontstruct[truples[currt - 1].script]->codec) {
+	    if (qfs->codec) {
 		truples[currt - 1].mapped =
-		    cfont.d->x11data.fontstruct[truples[currt - 1].script]->codec->
-		    fromUnicode( str, truples[currt - 1].stroffset,
-				 i + pos - truples[currt - 1].stroffset );
-
+		    qfs->codec->fromUnicode( str, truples[currt - 1].stroffset,
+					     i + pos - truples[currt - 1].stroffset );
+		
 		if (f->max_byte1) {
 		    currx += XTextWidth16(f, (XChar2b *)
 					  truples[currt - 1].mapped.data(),
@@ -2952,7 +2949,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 		    // font?  something is seriously wrong... assume we have text
 		    // we know nothing about
 
-		    currs = QFontPrivate::UnknownScript;
+		    // currs = QFontPrivate::UnknownScript;
 		    currx += (i + pos - truples[currt - 1].stroffset) *
 			     (cfont.d->request.pointSize * 3 / 40);
 		}
@@ -2963,7 +2960,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 	}
     } else if (truples[currt].script != QFontPrivate::UnknownScript) {
 	// make sure the last font for the text is at least loaded
-	cfont.d->load(truples[currt].script);
+	// cfont.d->load(truples[currt].script);
     }
 
     // step 3
@@ -2977,11 +2974,17 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 	// step 5
 	int j;
 	currs = truples[i].script;
-
+	
 	if (currs != QFontPrivate::UnknownScript) {
-	    f = (XFontStruct *) cfont.d->x11data.fontstruct[currs]->handle;
+	    qfs = cfont.d->x11data.fontstruct[currs];
+	} else {
+	    qfs = 0;
+	}
+	
+	if (qfs && qfs != (QFontStruct *) -1) {
+	    f = (XFontStruct *) qfs->handle;
 	    XSetFont(dpy, gc, f->fid);
-
+	    
 	    for (j = i; j < len; j++) {
 		if (truples[j].stroffset == -1) {
 		    break;
@@ -2993,7 +2996,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 
 		int l;
 		if (truples[j + 1].stroffset == -1) {
-		    l = len - truples[j].stroffset;
+		    l = len + pos - truples[j].stroffset;
 		} else {
 		    l = truples[j + 1].stroffset - truples[j].stroffset;
 		}
@@ -3012,11 +3015,11 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 			int inc = cfont.d->request.pointSize * 3 / 40;
 
 			for (int k = 0; k < l; k++) {
-			    rects[k].x = truples[j].xoffset + (k * inc) + 1;
-			    rects[k].y = y - inc + 1;
-			    rects[k].width = rects[k].height = inc - 2;
+			    rects[k].x = truples[j].xoffset + (k * inc);
+			    rects[k].y = y - inc + 2;
+			    rects[k].width = rects[k].height = inc - 3;
 			}
-
+			
 			XDrawRectangles(dpy, hd, gc, rects, l);
 			delete [] rects;
 		    }
@@ -3054,9 +3057,9 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 		XRectangle *rects = new XRectangle[l];
 
 		for (int k = 0; k < l; k++) {
-		    rects[k].x = truples[j].xoffset + (k * inc) + 1;
-		    rects[k].y = y - inc + 1;
-		    rects[k].width = rects[k].height = inc - 2;
+		    rects[k].x = truples[j].xoffset + (k * inc);
+		    rects[k].y = y - inc + 2;
+		    rects[k].width = rects[k].height = inc - 3;
 		}
 
 		XDrawRectangles(dpy, hd, gc, rects, l);
