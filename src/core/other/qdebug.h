@@ -20,6 +20,7 @@
 #endif
 
 #ifndef QT_NO_DEBUG
+
 class Q_CORE_EXPORT QDebug
 {
     struct Stream {
@@ -75,7 +76,7 @@ inline Q_CORE_EXPORT QDebug qDebug() { return QDebug(); }
 
 #else
 
-class Q_CORE_EXPORT QNoDebug
+class QNoDebug
 {
 public:
     inline QNoDebug(){}
@@ -89,7 +90,7 @@ public:
     inline QNoDebug &maybeSpace() { return *this; }
 };
 #undef qDebug
-inline Q_CORE_EXPORT QNoDebug qDebug() { return QNoDebug(); }
+inline QNoDebug qDebug() { return QNoDebug(); }
 #define qDebug if(1) ; else qDebug
 
 #endif
