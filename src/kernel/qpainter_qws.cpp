@@ -230,11 +230,12 @@ void QPainter::setFont( const QFont &font )
     if ( !isActive() )
 	qWarning( "QPainter::setFont: Will be reset by begin()" );
 #endif
+
     if ( cfont.d != font.d ) {
 	cfont = font;
 	setf(DirtyFont);
     }
-    gfx->setFont(cfont);
+    updateFont();
 }
 
 
@@ -244,7 +245,8 @@ void QPainter::updateFont()
     if(testf(ExtDev)) {
 	QPDevCmdParam param[1];
 	param[0].font = &cfont;
-	pdev->cmd( QPaintDevice::PdcSetFont, this, param );
+	if(!pdev->cmd( QPaintDevice::PdcSetFont, this, param ))
+	    return;
     }
     gfx->setFont(cfont);
 }
