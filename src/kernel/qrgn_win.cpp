@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#20 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -21,7 +21,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#20 $");
 
 
 static QRegion *empty_region = 0;
@@ -42,9 +42,6 @@ QRegion::QRegion()
     }
     data = empty_region->data;
     data->ref();
-#if defined(DEBUG)
-    ASSERT( data->bop.isNull() && data->rgn == 0 );
-#endif
 }
 
 QRegion::QRegion( bool )
@@ -64,13 +61,11 @@ QRegion::QRegion( const QRect &r, RegionType t )
 	data->rgn = CreateRectRgn( rr.left(),	 rr.top(),
 				   rr.right()+1, rr.bottom()+1 );
 	id = QRGN_SETRECT;
-    }
-    else if ( t == Ellipse ) {			// elliptic region
+    } else if ( t == Ellipse ) {		// elliptic region
 	data->rgn = CreateEllipticRgn( rr.left(),    rr.top(),
 				       rr.right()+1, rr.bottom()+1 );
 	id = QRGN_SETELLIPSE;
-    }
-    else {
+    } else {
 #if defined(CHECK_RANGE)
 	warning( "QRegion: Invalid region type" );
 #endif
@@ -85,8 +80,7 @@ QRegion::QRegion( const QPointArray &a, bool winding )
     if ( winding ) {
 	r = WINDING;
 	c = QRGN_SETPTARRAY_WIND;
-    }
-    else {
+    } else {
 	r = ALTERNATE;
 	c = QRGN_SETPTARRAY_ALT;
     }
@@ -143,7 +137,7 @@ bool QRegion::isNull() const
 
 bool QRegion::isEmpty() const
 {
-    return data->rgn == 0;
+    return data->bop.isNull() || data->rgn == 0;
 }
 
 

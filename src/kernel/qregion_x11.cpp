@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#25 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#25 $");
 
 
 static QRegion *empty_region = 0;
@@ -30,7 +30,8 @@ static void cleanup_empty_region()
 
 
 /*!
-  Constructs an empty region.
+  Constructs an null region.
+  \sa isNull()
 */
 
 QRegion::QRegion()
@@ -45,7 +46,7 @@ QRegion::QRegion()
 }
 
 /*!
-  Internal constructor that creates an empty region.
+  Internal constructor that creates a null region.
 */
 
 QRegion::QRegion( bool )
@@ -78,14 +79,12 @@ QRegion::QRegion( const QRect &r, RegionType t )
 	xr.height = rr.height();
 	XUnionRectWithRegion( &xr, data->rgn, data->rgn );
 	id = QRGN_SETRECT;
-    }
-    else if ( t == Ellipse ) {			// elliptic region
+    } else if ( t == Ellipse ) {			// elliptic region
 	QPointArray a;
 	a.makeEllipse( rr.x(), rr.y(), rr.width(), rr.height() );
 	id = QRGN_SETELLIPSE;
 	data->rgn = XPolygonRegion( (XPoint*)a.data(), a.size(), EvenOddRule );
-    }
-    else {
+    } else {
 #if defined(CHECK_RANGE)
 	warning( "QRegion: Invalid region type" );
 #endif
@@ -108,8 +107,7 @@ QRegion::QRegion( const QPointArray &a, bool winding )
     if ( winding ) {
 	r = WindingRule;
 	c = QRGN_SETPTARRAY_WIND;
-    }
-    else {
+    } else {
 	r = EvenOddRule;
 	c = QRGN_SETPTARRAY_ALT;
     }
@@ -172,7 +170,12 @@ QRegion QRegion::copy() const
 
 
 /*!
-  Returns TRUE if the region is a null region.
+  Returns TRUE if the region is a null region, otherwise FALSE.
+
+  A null region is a region that has not been initialized. The
+  documentation for isEmpty() contains an example that shows how to use
+  isNull() and isEmpty().
+
   \sa isEmpty()
 */
 
@@ -182,13 +185,31 @@ bool QRegion::isNull() const
 }
 
 /*!
-  Returns TRUE if the region is empty, or FALSE if it is
-  non-empty. \sa isNull()
+  Returns TRUE if the region is empty, or FALSE if it is non-empty.
+
+  Example:
+  \code
+    QRegion r1( 10, 10, 20, 20 );
+    QRegion r2( 40, 40, 20, 20 );
+    QRegion r3;
+    r1.isNull();		// FALSE
+    r1.isEmpty();		// FALSE
+    r3.isNull();		// TRUE
+    r3.isEmpty();		// TRUE
+    r3 = r1.intersect( r2 );	// r3 = intersection of r1 and r2
+    r3.isNull();		// FALSE
+    r3.isEmpty();		// TRUE
+    r3 = r1.unite( r2 );	// r3 = union of r1 and r2
+    r3.isNull();		// FALSE
+    r3.isEmpty();		// FALSE
+  \endcode
+
+  \sa isNull()
 */
 
 bool QRegion::isEmpty() const
 {
-    return XEmptyRegion( data->rgn );
+    return data->bop.isNull() || XEmptyRegion( data->rgn );
 }
 
 
