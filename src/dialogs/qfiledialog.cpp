@@ -89,6 +89,7 @@
 #include "qcleanuphandler.h"
 #include "qstyle.h"
 #include "qcursor.h"
+#include "qguardedptr.h"
 #include "qlibrary.h"
 
 #ifdef Q_WS_WIN
@@ -6257,13 +6258,18 @@ void QFileDialog::doMimeTypeLookup()
 	    item->hasMimePixmap = TRUE;
 
 	    // evil hack to avoid much too much repaints!
+	    QGuardedPtr<QFileDialog> that( this ); // this may be deleted by an event handler
 	    qApp->processEvents();
+	    if ( that.isNull() )
+		return;
 	    files->setUpdatesEnabled( FALSE );
 	    files->viewport()->setUpdatesEnabled( FALSE );
 	    if ( item != d->pendingItems.first() )
 		return;
 	    item->setPixmap( 0, *p );
 	    qApp->processEvents();
+	    if ( that.isNull() )
+		return;
 	    files->setUpdatesEnabled( TRUE );
 	    files->viewport()->setUpdatesEnabled( TRUE );
 
