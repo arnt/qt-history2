@@ -6,6 +6,7 @@
 #include <qfont.h>
 #include <qvbox.h>
 #include <qlabel.h>
+#include <qstringlist.h>
 #ifdef _WS_QWS_
 #include <qmemorymanager_qws.h>
 #endif

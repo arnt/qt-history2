@@ -145,7 +145,7 @@ public:
 	png_write_chunk(png_ptr, (png_byte*)"MEND", 0, 0);
     }
 
-    void writeDEFI( const QPoint& offset, const QSize& size )
+    void writeDEFI( const QPoint& offset, const QSize& /*size*/ )
     {
 	struct {
 	    ushort o;

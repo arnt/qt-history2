@@ -1,5 +1,6 @@
 #include <qmainwindow.h>
 #include <qmap.h>
+#include <qstringlist.h>
 
 class ChoiceItem;
 class QListViewItem;

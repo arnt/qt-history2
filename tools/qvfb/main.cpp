@@ -18,6 +18,7 @@
 *****************************************************************************/
 
 #include <qapplication.h>
+#include <qregexp.h>
 #include <stdlib.h>
 #include <stdio.h>
 
