@@ -366,6 +366,7 @@ void P4Interface::connectTo( QUnknownInterface *ai )
 	appInterface->onFormChange( this, SLOT( formChanged() ) );
 
 	P4Init* init = new P4Init;
+	connect( init, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
 	init->execute();
     }
 }
@@ -653,6 +654,7 @@ void P4Interface::p4Info( const QString &filename, P4Info *p4i )
     */
 
     QWidget *form = 0;
+    DesignerFormWindow *fwIface = 0;
     
     QList<DesignerProject> projects = appInterface->projectList();
     QListIterator<DesignerProject> pit( projects );
@@ -663,7 +665,7 @@ void P4Interface::p4Info( const QString &filename, P4Info *p4i )
 	QList<DesignerFormWindow> forms = pIface->formList();
 	QListIterator<DesignerFormWindow> fit( forms );
 	while ( fit.current() ) {
-	    DesignerFormWindow *fwIface = fit.current();
+	    fwIface = fit.current();
 	    ++fit;
 	    if ( fwIface->fileName() == filename ) {
 		form = fwIface->form();
@@ -741,14 +743,15 @@ void P4Interface::p4Info( const QString &filename, P4Info *p4i )
 
     flIface->setPixmap( fwIface, 0, pix );
 */
-    if ( form )
-	form->setProperty( "icon", pix );
+    if ( fwIface )
+	fwIface->setListViewIcon( pix );
 }
 
 void P4Interface::statusMessage( const QString &text )
 {
-    QString txt = text.left( text.length() - 2 );
-    appInterface->showStatusMessage( txt );
+    QString txt = text.left( text.length() );
+    if ( !text.contains( '\n' ) )
+	appInterface->showStatusMessage( txt );
     outputView->append( txt );
 }
 
