@@ -202,7 +202,7 @@ private:
   \brief The QDateTimeEditBase class provides common functionality for
   date/time editors.
 
-  \module ???
+  \module sql
 
   The QDateTimeEditBase class provides some common functionality for
   date/time editors.  For date/time editing widgets, see QDateEdit,
@@ -723,12 +723,16 @@ public:
     dateedit->setAutoAdvance( TRUE );
     \endcode
 
-    Here we've created a new QDateEdit object initialised with today's
-    date and restricted the valid date range to today plus or minus 365
-    days. We've set the order to month, day, year. If the auto advance
-    property is TRUE (as we've set it here) when the user completes a
-    section of the date, e.g. enters two digits for the month, they are
-    automatically taken to the next section.
+  Here we've created a new QDateEdit object initialised with today's
+  date and restricted the valid date range to today plus or minus 365
+  days. We've set the order to month, day, year. If the auto advance
+  property is TRUE (as we've set it here) when the user completes a
+  section of the date, e.g. enters two digits for the month, they are
+  automatically taken to the next section.
+
+  The maximum and minimum values for a date value in the date editor
+  default to the maximum and minimum values for a QDate.  You can
+  change this by calling setMinValue(), setMaxValue() or setRange().
 
   Terminology: A QDateEdit widget comprises three 'sections', one each
   for the year, month and day.
@@ -759,7 +763,7 @@ QDateEdit::QDateEdit( QWidget * parent, const char * name )
     init();
 }
 
-/*!  
+/*!
     \overload
 
 Constructs a date editor with the initial value \a date, parent \a
@@ -798,6 +802,8 @@ void QDateEdit::init()
     d->adv = FALSE;
     d->timerId = 0;
     d->typing = FALSE;
+    d->min = QDate( 1752, 9, 14 );
+    d->max = QDate( 8000, 12, 31 );
     d->changed = FALSE;
 }
 
@@ -816,8 +822,7 @@ QDateEdit::~QDateEdit()
   QDateEdit::setRange( d, maxValue() );
 */
 
-/*! Returns the minimum date value for the editor, or an invalid date
-  if there is none.
+/*! Returns the minimum date value for the editor.
 
 */
 
@@ -832,8 +837,7 @@ QDate QDateEdit::minValue() const
   QDateEdit::setRange( minValue(), d );
 */
 
-/*! Returns the maximum date value for the editor, or an invalid date
-  if there is none.
+/*! Returns the maximum date value for the editor.
 
 */
 
@@ -851,8 +855,10 @@ QDate QDateEdit::maxValue() const
 
 void QDateEdit::setRange( const QDate& min, const QDate& max )
 {
-    d->min = min;
-    d->max = max;
+    if ( min.isValid() )
+	d->min = min;
+    if ( max.isValid() )
+	d->max = max;
 }
 
 
@@ -984,7 +990,7 @@ int QDateEdit::sectionOffsetEnd( int sec )
 }
 
 
-/*! 
+/*!
 
     Sets the display order of the numbered section of the date editor to
     \a order.
@@ -1147,9 +1153,13 @@ void QDateEdit::setDay( int day )
 }
 
 
-/*!  Sets the date to \a date.  If \a date is not valid, the editor
-  displays all zeroes and QDateEdit::date() will return an invalid
-  date.
+/*! Sets the date to \a date, if possible.
+
+  If \a date is not valid, the editor displays all zeroes and
+  QDateEdit::date() will return an invalid date.
+
+  If \a date is less than minDate(), or \a date is greater than
+  maxDate() nothing happens.
 
 */
 
@@ -1161,8 +1171,7 @@ void QDateEdit::setDate( const QDate& date )
 	d->d = 0;
 	return;
     }
-    if ( (maxValue().isValid() && date > maxValue()) ||
-	 (minValue().isValid() && date < minValue()) )
+    if ( date > maxValue() || date < minValue() )
 	return;
     d->y = date.year();
     d->m =  date.month();
@@ -1186,20 +1195,21 @@ QDate QDateEdit::date() const
     return QDate();
 }
 
-/*!  Returns TRUE if \a y, \a m, \a d is out of range, otherwise 
-    returns FALSE.
+/*!  \internal
+
+  Returns TRUE if \a y, \a m, \a d is out of range, otherwise returns
+  FALSE.
 
   \sa setRange()
 
 */
 
-/*! \internal */
 bool QDateEdit::outOfRange( int y, int m, int d ) const
 {
     if ( QDate::isValid( y, m, d ) ) {
 	QDate currentDate( y, m, d );
-	if ( ( maxValue().isValid() && currentDate > maxValue() ) ||
-	     ( minValue().isValid() && currentDate < minValue() ) ) {
+	if ( currentDate > maxValue() ||
+	     currentDate < minValue() ) {
 	    //## outOfRange should set overwrite?
 	    return TRUE;
 	}
@@ -1226,8 +1236,16 @@ void QDateEdit::addNumber( int sec, int num )
 	    d->y = num;
 	} else {
 	    txt += QString::number( num );
-	    if ( txt.length() == 4 && outOfRange( txt.toInt(), d->m, d->d ) ) {
-		txt = QString::number( d->y );
+	    if ( txt.length() == 4  ) {
+		int val = txt.toInt();
+		if ( val < 1792 )
+		    d->y = 1792;
+		else if ( val > 8000 )
+		    d->y = 8000;
+		else if ( outOfRange( val, d->m, d->d ) )
+		    txt = QString::number( d->y );
+		else
+		    d->y = val;
 	    } else {
 		d->y = txt.toInt();
 	    }
@@ -1475,9 +1493,13 @@ public:
     timeedit->setRange( timeNow, timeNow.addSecs( 60 * 60 ) );
     \endcode
 
-    Here we've created a QTimeEdit widget set to the current time. We've
-    also set the minimum value to the current time and the maximum time
-    to one hour from now.
+  Here we've created a QTimeEdit widget set to the current time. We've
+  also set the minimum value to the current time and the maximum time
+  to one hour from now.
+
+  The maximum and minimum values for a time value in the time editor
+  default to the maximum and minimum values for a QTime.  You can
+  change this by calling setMinValue(), setMaxValue() or setRange().
 
   Terminology: A QTimeWidget consists of three sections, one each for the
   hour, minute and second.
@@ -1498,11 +1520,11 @@ QTimeEdit::QTimeEdit( QWidget * parent, const char * name )
     init();
 }
 
-/*!  
+/*!
     \overload
-    
-    Constructs a time edit with the initial value \a time, parent \a
-    parent and name \a name.
+
+  Constructs a time edit with the initial value \a time, parent \a
+  parent and name \a name.
 
   The time edit is initialized with \a time.
 */
@@ -1532,6 +1554,8 @@ void QTimeEdit::init()
     d->overwrite = FALSE;
     d->timerId = 0;
     d->typing = FALSE;
+    d->min = QTime( 0, 0, 0 );
+    d->max = QTime( 23, 59, 59 );
     d->changed = FALSE;
 }
 
@@ -1550,8 +1574,7 @@ QTimeEdit::~QTimeEdit()
   QTimeEdit::setRange( d, maxValue() );
 */
 
-/*! Returns the minimum time value for the editor, or an invalid time
-  if there is none.
+/*! Returns the minimum time value for the editor.
 
   \sa setMinValue()
 
@@ -1568,8 +1591,7 @@ QTime QTimeEdit::minValue() const
   QTimeEdit::setRange( minValue(), d );
 */
 
-/*! Returns the maximum time value for the editor, or an invalid time
-  if there is none.
+/*! Returns the maximum time value for the editor.
 
     \sa setMaxValue()
 */
@@ -1588,15 +1610,17 @@ QTime QTimeEdit::maxValue() const
 
 void QTimeEdit::setRange( const QTime& min, const QTime& max )
 {
-    d->min = min;
-    d->max = max;
+    if ( min.isValid() )
+	d->min = min;
+    if ( max.isValid() )
+	d->max = max;
 }
 
 
 
 /*!  Sets the time to \a time.  If \a time is not valid, the editor
-  displays all zeroes and QTimeEdit::time() will return an invalid
-  time.
+  displays all zeroes, however QTimeEdit::time() will still return a
+  valid time.
 
 */
 
@@ -1851,16 +1875,16 @@ QString QTimeEdit::sectionText( int sec )
     return txt;
 }
 
-/*! Returns TRUE if \a h, \a m, \a s is out of range.
- */
 
-/*! \internal */
+/*! \internal
+ Returns TRUE if \a h, \a m, \a s is out of range.
+ */
 bool QTimeEdit::outOfRange( int h, int m, int s ) const
 {
-    if ( QTime::isValid( h, m, s ) ) {
+     if ( QTime::isValid( h, m, s ) ) {
 	QTime currentTime( h, m, s );
-	if ( ( maxValue().isValid() && currentTime > maxValue() ) ||
-	     ( minValue().isValid() && currentTime < minValue() ) )
+	if ( currentTime > maxValue() ||
+	     currentTime < minValue() )
 	    return TRUE;
 	else
 	    return FALSE;
