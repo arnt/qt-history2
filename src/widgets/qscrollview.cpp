@@ -1718,8 +1718,6 @@ void QScrollView::resizeContents( int w, int h )
 	    h = visibleHeight();
 	clipper()->update( 0, contentsY()+oh, visibleWidth(), h-oh);
     }
-
-    updateGeometry();
 }
 
 /*!
