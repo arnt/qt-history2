@@ -432,11 +432,11 @@ int QPixmap::defaultDepth()
 
     The \a optimization setting affects pixmap operations, in
     particular drawing of transparent pixmaps (bitBlt() a pixmap with
-    a mask set) and pixmap transformations (the xForm() function).
+    a mask set) and pixmap transformations (the transform() function).
 
     Pixmap optimization involves keeping intermediate results in a
     cache buffer and using the cache to speed up
-    QPainter::drawPixmap() and xForm().  The cost is more memory
+    QPainter::drawPixmap() and transform().  The cost is more memory
     consumption, up to twice as much as an unoptimized pixmap.
 
     Use the setDefaultOptimization() to change the default
@@ -1577,7 +1577,7 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
     The original pixmap is not changed.
 
     The transformation \a matrix is internally adjusted to compensate
-    for unwanted translation, i.e. xForm() returns the smallest image
+    for unwanted translation, i.e. transform() returns the smallest image
     that contains all the transformed points of the original image.
 
     This function is slow because it involves transformation to a
