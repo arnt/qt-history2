@@ -224,8 +224,8 @@ void QAbstractItemViewPrivate::init()
     \value DraggingState  The user is dragging items.
     \value DragSelectingState The user is selecting items.
     \value EditingState   The user is editing an item in a widget editor.
-    \value OpeningState   The user is opening a branch of items.
-    \value ClosingState   The user is closing a branch of items.
+    \value ExpandingState   The user is opening a branch of items.
+    \value CollapsingState   The user is closing a branch of items.
 */
 
 /*!
@@ -928,7 +928,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     QPoint topLeft;
     QPoint bottomRight = e->pos();
 
-    if (state() == OpeningState || state() == ClosingState)
+    if (state() == ExpandingState || state() == CollapsingState)
         return;
     if (state() == DraggingState) {
         topLeft = d->pressedPosition - QPoint(horizontalOffset(), verticalOffset());

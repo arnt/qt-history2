@@ -204,8 +204,8 @@ protected:
         DraggingState,
         DragSelectingState,
         EditingState,
-        OpeningState,
-        ClosingState
+        ExpandingState,
+        CollapsingState
     };
 
     State state() const;

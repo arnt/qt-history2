@@ -1827,38 +1827,26 @@ void QTreeWidget::setItemHidden(const QTreeWidgetItem *item, bool hide)
   Returns true if the given \a item is open; otherwise returns false.
 */
 
-bool QTreeWidget::isItemOpen(const QTreeWidgetItem *item) const
+bool QTreeWidget::isItemExpanded(const QTreeWidgetItem *item) const
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
-    return isOpen(index);
+    return isExpanded(index);
 }
 
 /*!
     Sets the item referred to by \a index to either closed or opened,
   depending on the value of \a open.
 
-  \sa openItem, closeItem
+  \sa expandItem, collapseItem
 */
 
-void QTreeWidget::setItemOpen(const QTreeWidgetItem *item, bool open)
+void QTreeWidget::setItemExpanded(const QTreeWidgetItem *item, bool expand)
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
     Q_ASSERT(index.isValid());
-    setOpen(index, open);
-}
-
-/*!
-  Returns true if the \a item is in the viewport; otherwise returns false.
-*/
-
-bool QTreeWidget::isItemVisible(const QTreeWidgetItem *item) const
-{
-    Q_ASSERT(item);
-    QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
-    QRect rect = viewportRectForIndex(index);
-    return rect.isValid() && d->viewport->rect().contains(rect);
+    setExpanded(index, expand);
 }
 
 /*!
@@ -1874,15 +1862,15 @@ void QTreeWidget::ensureItemIsVisible(const QTreeWidgetItem *item)
 }
 
 /*!
-    Opens the \a item. This causes the tree containing the item's children
+    Expands the \a item. This causes the tree containing the item's children
     to be expanded.
 */
 
-void QTreeWidget::openItem(const QTreeWidgetItem *item)
+void QTreeWidget::expandItem(const QTreeWidgetItem *item)
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
-    open(index);
+    expand(index);
 }
 
 /*!
@@ -1890,11 +1878,11 @@ void QTreeWidget::openItem(const QTreeWidgetItem *item)
     to be collapsed.
 */
 
-void QTreeWidget::closeItem(const QTreeWidgetItem *item)
+void QTreeWidget::collapseItem(const QTreeWidgetItem *item)
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
-    close(index);
+    collapse(index);
 }
 
 /*!

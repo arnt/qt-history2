@@ -66,7 +66,7 @@
     Headers in a tree view are constructed using the QHeaderView class.
 
     \omit
-    Describe the opening/closing concept if not covered elsewhere.
+    Describe the expanding/collapsing concept if not covered elsewhere.
     \endomit
 
     \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel QAbstractItemView
@@ -138,7 +138,7 @@ void QTreeView::setModel(QAbstractItemModel *model)
                    d->model, SLOT(submit()));
 
     d->viewItems.clear();
-    d->openedIndexes.clear();
+    d->expandedIndexes.clear();
     d->hiddenIndexes.clear();
     d->header->setModel(model);
     QAbstractItemView::setModel(model);
@@ -213,10 +213,10 @@ void QTreeView::setIndentation(int i)
 
 /*!
   \property QTreeView::rootIsDecorated
-  \brief whether to show controls for opening and closing items
+  \brief whether to show controls for expanding and collapsing items
 
-  This property holds whether root items are displayed with controls for opening and
-  closing them.
+  This property holds whether root items are displayed with controls for expandinging and
+  collapsing them.
 */
 bool QTreeView::rootIsDecorated() const
 {
@@ -361,71 +361,71 @@ void QTreeView::showColumn(int column)
 }
 
 /*!
-  \fn void QTreeView::open(const QModelIndex &index)
+  \fn void QTreeView::expand(const QModelIndex &index)
 
-  Opens the model item specified by the \a index.
+  Expands the model item specified by the \a index.
 */
-void QTreeView::open(const QModelIndex &index)
+void QTreeView::expand(const QModelIndex &index)
 {
     if (!index.isValid())
         return;
     int idx = d->viewIndex(index);
     if (idx > -1) { // is visible
-        d->open(idx);
+        d->expand(idx);
         updateGeometries();
         viewport()->update();
     } else {
-        d->openedIndexes.append(index);
+        d->expandedIndexes.append(index);
     }
 }
 
 /*!
-  \fn void QTreeView::close(const QModelIndex &index)
+  \fn void QTreeView::collapse(const QModelIndex &index)
 
-  Closes the model item specified by the \a index.
+  Collapses the model item specified by the \a index.
 */
-void QTreeView::close(const QModelIndex &index)
+void QTreeView::collapse(const QModelIndex &index)
 {
     if (!index.isValid())
         return;
     int i = d->viewIndex(index);
     if (i > -1) { // is visible
-        d->close(i);
+        d->collapse(i);
         updateGeometries();
         viewport()->update();
     } else {
-        i = d->openedIndexes.indexOf(index);
+        i = d->expandedIndexes.indexOf(index);
         if (i > -1)
-            d->openedIndexes.remove(i);
+            d->expandedIndexes.remove(i);
     }
 }
 
 /*!
-  \fn bool QTreeView::isOpen(const QModelIndex &index) const
+  \fn bool QTreeView::isExpanded(const QModelIndex &index) const
 
-  Returns true if the model item \a index is open; otherwise returns
+  Returns true if the model item \a index is expanded; otherwise returns
   false.
 */
-bool QTreeView::isOpen(const QModelIndex &index) const
+bool QTreeView::isExpanded(const QModelIndex &index) const
 {
     int i = d->viewIndex(index);
     if (i > -1) // is visible - FIXME: this is a workaround for a bug!
-        return d->viewItems.at(i).open;
-    return d->openedIndexes.contains(index);
+        return d->viewItems.at(i).expanded;
+    return d->expandedIndexes.contains(index);
 }
 
 /*!
-  Sets the item referred to by \a index to either closed or opened,
-  depending on the value of \a open.
+  Sets the item referred to by \a index to either collapse or expanded,
+  depending on the value of \a expanded.
 
-  \sa open, close
+  \sa expanded, collapsed
 */
-void QTreeView::setOpen(const QModelIndex &index, bool open)
+void QTreeView::setExpanded(const QModelIndex &index, bool expand)
 {
-    if (open)
-        this->open(index);
+    if (expand)
+        this->expand(index);
     else
-        this->close(index);
+        this->collapse(index);
 }
 
 /*!
@@ -557,7 +557,7 @@ void QTreeView::paintEvent(QPaintEvent *e)
         int h = d->height(i); // actual height
         if (y + h >= t) { // we are in the update area
             option.rect.setRect(0, y, 0, h);
-            option.state = state | (viewItems.at(i).open ? QStyle::State_Open : QStyle::State_None);
+            option.state = state | (viewItems.at(i).expanded ? QStyle::State_Open : QStyle::State_None);
             if (alternate)
                 option.palette.setColor(QPalette::Base, i & 1 ? oddColor : evenColor);
             d->current = i;
@@ -670,15 +670,15 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         primitive.moveLeft(reverse ? primitive.left() : primitive.left() - indent);
         opt.rect = primitive;
 
-        const bool open = d->viewItems.at(item).open;
-        const bool children = (open // already layed out
+        const bool expanded = d->viewItems.at(item).expanded;
+        const bool children = (expanded // already layed out
                                ? d->viewItems.at(item).total // this also covers the hidden items
                                : d->model->hasChildren(index)); // not layed out yet, so we don't know
         opt.state = QStyle::State_Item | extraFlags
                     | (d->model->rowCount(parent) - 1 > index.row()
                       ? QStyle::State_Sibling : QStyle::State_None)
                     | (children ? QStyle::State_Children : QStyle::State_None)
-                    | (open ? QStyle::State_Open : QStyle::State_None);
+                    | (expanded ? QStyle::State_Open : QStyle::State_None);
         style()->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
     }
     // then go out level by level
@@ -703,12 +703,12 @@ void QTreeView::mousePressEvent(QMouseEvent *e)
     if (i == -1) {
         QAbstractItemView::mousePressEvent(e);
     } else {
-        if (d->viewItems.at(i).open) {
-            setState(QAbstractItemView::OpeningState);
-            d->close(i);
+        if (d->viewItems.at(i).expanded) {
+            setState(QAbstractItemView::ExpandingState);
+            d->collapse(i);
         } else {
-            setState(QAbstractItemView::ClosingState);
-            d->open(i);
+            setState(QAbstractItemView::CollapsingState);
+            d->expand(i);
         }
         updateGeometries();
         viewport()->update();
@@ -770,7 +770,7 @@ void QTreeView::doItemsLayout()
         QModelIndex index = model()->index(0, 0, parent);
         d->itemHeight = itemDelegate()->sizeHint(option, index).height();
         d->layout(-1);
-        d->reopenChildren(parent);
+        d->reexpandChildren(parent);
     }
     QAbstractItemView::doItemsLayout();
 }
@@ -780,7 +780,7 @@ void QTreeView::doItemsLayout()
 */
 void QTreeView::reset()
 {
-    d->openedIndexes.clear();
+    d->expandedIndexes.clear();
     d->hiddenIndexes.clear();
     d->viewItems.clear();
     QAbstractItemView::reset();
@@ -831,14 +831,14 @@ QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction,
     case MoveUp:
         return d->modelIndex(d->above(vi));
     case MoveLeft:
-        if (d->viewItems.at(vi).open)
-            d->close(vi);
+        if (d->viewItems.at(vi).expanded)
+            d->collapse(vi);
         updateGeometries();
         viewport()->update();
         break;
     case MoveRight:
-        if (!d->viewItems.at(vi).open)
-            d->open(vi);
+        if (!d->viewItems.at(vi).expanded)
+            d->expand(vi);
         updateGeometries();
         viewport()->update();
         break;
@@ -987,12 +987,12 @@ void QTreeView::columnMoved()
 /*!
   \internal
 */
-void QTreeView::reopen()
+void QTreeView::reexpand()
 {
-    if (d->reopen == -1)
+    if (d->reexpand == -1)
         return;
-    d->open(d->reopen);
-    d->reopen = -1;
+    d->expand(d->reexpand);
+    d->reexpand = -1;
     viewport()->update();
 }
 
@@ -1015,17 +1015,17 @@ void QTreeView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
     if (d->viewItems.isEmpty())
         return;
 
-    // close all children
+    // collapse all children
     for (int i = start; i <= end; ++i)
-        close(model()->index(i, 0, parent));
+        collapse(model()->index(i, 0, parent));
 
-    // close parent
+    // collapse parent
     int p = d->viewIndex(parent);
     if (p > 0) {
-        d->close(p);
-        // reopen parent using a delayed function call
-        d->reopen = p; // p is safe because all the changes happens after this one
-        int slot = metaObject()->indexOfSlot("reopen()");
+        d->collapse(p);
+        // reexpamd parent using a delayed function call
+        d->reexpand = p; // p is safe because all the changes happens after this one
+        int slot = metaObject()->indexOfSlot("rexpand()");
         QApplication::postEvent(this, new QMetaCallEvent(slot));
     } else {
         d->viewItems.clear();
@@ -1209,34 +1209,34 @@ bool QTreeView::isIndexHidden(const QModelIndex &index) const
 /*
   private implementation
 */
-void QTreeViewPrivate::open(int i)
+void QTreeViewPrivate::expand(int i)
 {
     QModelIndex index = viewItems.at(i).index;
 
-    if (!model->hasChildren(index) || viewItems.at(i).open)
+    if (!model->hasChildren(index) || viewItems.at(i).expanded)
         return;
 
-    openedIndexes.append(index);
+    expandedIndexes.append(index);
 
-    viewItems[i].open = true;
+    viewItems[i].expanded = true;
     layout(i);
 
-    // make sure we open children that are already open
-    reopenChildren(index);
+    // make sure we expand children that are already expanded
+    reexpandChildren(index);
 
     emit q->expanded(index);
 }
 
-void QTreeViewPrivate::close(int i)
+void QTreeViewPrivate::collapse(int i)
 {
-    if (i < 0 || openedIndexes.isEmpty())
+    if (i < 0 || expandedIndexes.isEmpty())
         return;
     int total = viewItems.at(i).total;
     QModelIndex index = viewItems.at(i).index;
-    int idx = openedIndexes.indexOf(index);
+    int idx = expandedIndexes.indexOf(index);
     if (idx >= 0)
-        openedIndexes.remove(idx);
-    viewItems[i].open = false;
+        expandedIndexes.remove(idx);
+    viewItems[i].expanded = false;
 
     idx = i;
     QModelIndex tmp = index;
@@ -1409,9 +1409,9 @@ void QTreeViewPrivate::relayout(const QModelIndex &parent)
     // do a local relayout of the items
     if (parent.isValid()) {
         int parentViewIndex = viewIndex(parent);
-        if (parentViewIndex > -1 && viewItems.at(parentViewIndex).open) {
-            close(parentViewIndex);
-            open(parentViewIndex);
+        if (parentViewIndex > -1 && viewItems.at(parentViewIndex).expanded) {
+            collapse(parentViewIndex);
+            expand(parentViewIndex);
             q->updateGeometries();
             viewport->update();
         }
@@ -1421,19 +1421,19 @@ void QTreeViewPrivate::relayout(const QModelIndex &parent)
     }
 }
 
-void QTreeViewPrivate::reopenChildren(const QModelIndex &parent)
+void QTreeViewPrivate::reexpandChildren(const QModelIndex &parent)
 {
     // FIXME: this is slow: optimize
-    QVector<QPersistentModelIndex> o = openedIndexes;
+    QVector<QPersistentModelIndex> o = expandedIndexes;
     for (int j = 0; j < o.count(); ++j) {
         QModelIndex index = o.at(j);
         if (index.parent() == parent) {
             int v = viewIndex(index);
             if (v < 0)
                 continue;
-            int k = openedIndexes.indexOf(index);
-            openedIndexes.remove(k);
-            open(v);
+            int k = expandedIndexes.indexOf(index);
+            expandedIndexes.remove(k);
+            expand(v);
         }
     }
 }

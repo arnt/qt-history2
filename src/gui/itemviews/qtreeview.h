@@ -55,8 +55,8 @@ public:
     bool isRowHidden(int row, const QModelIndex &parent) const;
     void setRowHidden(int row, const QModelIndex &parent, bool hide);
 
-    bool isOpen(const QModelIndex &index) const;
-    void setOpen(const QModelIndex &index, bool open);
+    bool isExpanded(const QModelIndex &index) const;
+    void setExpanded(const QModelIndex &index, bool expand);
 
     QRect viewportRectForIndex(const QModelIndex &index) const;
     void ensureVisible(const QModelIndex &index);
@@ -75,8 +75,8 @@ public slots:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void hideColumn(int column);
     void showColumn(int column);
-    void open(const QModelIndex &index);
-    void close(const QModelIndex &index);
+    void expand(const QModelIndex &index);
+    void collapse(const QModelIndex &index);
     void resizeColumnToContents(int column);
     void sortByColumn(int column);
     void selectAll();
@@ -85,7 +85,7 @@ protected slots:
     void columnResized(int column, int oldSize, int newSize);
     void columnCountChanged(int oldCount, int newCount);
     void columnMoved();
-    void reopen();
+    void reexpand();
 
 protected:
     QTreeView(QTreeViewPrivate &dd, QWidget *parent = 0);

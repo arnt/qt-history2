@@ -29,9 +29,9 @@
 
 struct QTreeViewItem
 {
-    QTreeViewItem() : open(false), total(0), level(0), height(0) {}
+    QTreeViewItem() : expanded(false), total(0), level(0), height(0) {}
     QModelIndex index; // we remove items whenever the indexes are invalidated (make persistent ?)
-    uint open : 1;
+    uint expanded : 1;
     uint total : 30; // total number of children visible (+ hidden children)
     uint level : 16; // indentation
     uint height : 16; // row height
@@ -45,12 +45,12 @@ public:
     QTreeViewPrivate()
         : QAbstractItemViewPrivate(),
           header(0), indent(20), itemHeight(-1),
-          uniformRowHeights(false), rootDecoration(true), reopen(-1) { }
+          uniformRowHeights(false), rootDecoration(true), reexpand(-1) { }
 
     ~QTreeViewPrivate() {}
 
-    void open(int item);
-    void close(int item);
+    void expand(int item);
+    void collapse(int item);
     void layout(int item);
 
     int pageUp(int item) const;
@@ -80,7 +80,7 @@ public:
     int columnAt(int x) const;
 
     void relayout(const QModelIndex &parent);
-    void reopenChildren(const QModelIndex &parent);
+    void reexpandChildren(const QModelIndex &parent);
 
     void updateVerticalScrollbar();
     void updateHorizontalScrollbar();
@@ -102,9 +102,9 @@ public:
     int right;
     int current;
 
-    // used when opening and closing items
-    QVector<QPersistentModelIndex> openedIndexes;
-    int reopen;
+    // used when expanding and closing items
+    QVector<QPersistentModelIndex> expandedIndexes;
+    int reexpand;
 
     // used when hiding and showing items
     QVector<QPersistentModelIndex> hiddenIndexes;

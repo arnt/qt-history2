@@ -175,15 +175,13 @@ public:
     bool isItemHidden(const QTreeWidgetItem *item) const;
     void setItemHidden(const QTreeWidgetItem *item, bool hide);
 
-    bool isItemOpen(const QTreeWidgetItem *item) const;
-    void setItemOpen(const QTreeWidgetItem *item, bool open);
-
-    bool isItemVisible(const QTreeWidgetItem *item) const;
+    bool isItemExpanded(const QTreeWidgetItem *item) const;
+    void setItemExpanded(const QTreeWidgetItem *item, bool expand);
 
 public slots:
     void ensureItemIsVisible(const QTreeWidgetItem *item);
-    void openItem(const QTreeWidgetItem *item);
-    void closeItem(const QTreeWidgetItem *item);
+    void expandItem(const QTreeWidgetItem *item);
+    void collapseItem(const QTreeWidgetItem *item);
     void clear();
 
 signals:
