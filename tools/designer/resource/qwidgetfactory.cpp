@@ -296,7 +296,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 			QString funcs = (*fit)->functions;
 			funcs += "\n";
 			for ( QStringList::Iterator vit = widgetFactory->variables.begin(); vit != widgetFactory->variables.end(); ++vit )
-			    funcs += *vit + "\n";
+			    funcs += interpreterInterface->createVariableDeclaration( *vit ) + "\n";
 			funcs += "init();\n";
 			if ( qwf_execute_code )
 			    interpreterInterface->exec( widgetFactory->toplevel, funcs );
