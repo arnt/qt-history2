@@ -629,18 +629,20 @@ function compile(platform, edition, platformName)
 	execute(["ssh", login, "cp", "-r", platformName + "/plugins", platformName+"clean/."]);
 	// copy generated qconfig.h/.cpp
 	execute(["ssh", login, "cp",
-		 platformName + "/include/Qt/qconfig.h",
-		 platformName + "clean/include/Qt/qconfig.h"])
+		 platformName + "/src/core/global/qconfig.h",
+		 platformName + "clean/include/Qt/qconfig.h"]);
 	execute(["ssh", login, "cp",
-		 platformName + "/include/QtCore/qconfig.h",
+		 platformName + "/src/core/global/qconfig.h",
 		 platformName + "clean/include/QtCore/qconfig.h"]);
-	// copy generated arch
-	execute(["ssh", login, "cp", "-r",
-		 platformName + "/include/Qt/arch",
-		 platformName + "clean/include/Qt/."]);
-	execute(["ssh", login, "cp", "-r",
-		 platformName + "/include/QtCore/arch",
-		 platformName + "clean/include/QtCore/."]);
+	// copy arch/qatomic.h
+	execute(["ssh", login, "mkdir", "-p", platformName + "clean/include/Qt/arch"]);
+	execute(["ssh", login, "mkdir", "-p", platformName + "clean/include/QtCore/arch"]);
+	execute(["ssh", login, "cp",
+		 platformName + "/src/core/arch/windows/arch/qatomic.h",
+		 platformName + "clean/include/Qt/arch/."]);
+	execute(["ssh", login, "cp",
+		 platformName + "/src/core/arch/windows/arch/qatomic.h",
+		 platformName + "clean/include/QtCore/arch/."]);
 	// copy qatomic.h
 	execute(["ssh", login, "cp",
 		 platformName + "/src/core/thread/qatomic.h",
