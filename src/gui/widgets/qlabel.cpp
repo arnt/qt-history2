@@ -23,10 +23,11 @@
 #include "qbitmap.h"
 #include "qpicture.h"
 #include "qapplication.h"
-#include "qsimplerichtext.h"
+#include "qtextdocument.h"
 #include "qstylesheet.h"
 #include "qstyle.h"
 #include "qframe_p.h"
+#include "../text/qtextdocumentlayout_p.h"
 
 class QLabelPrivate : public QFramePrivate
 {
@@ -63,7 +64,7 @@ public:
     uint        scaledcontents :1;
     QLabel::TextFormat textformat;
 #ifndef QT_NO_RICHTEXT
-    QSimpleRichText* doc;
+    QTextDocument* doc;
 #endif
 #ifndef QT_NO_ACCEL
     QAccel *        accel;
@@ -353,7 +354,9 @@ void QLabel::setText(const QString &text)
             t.prepend("<div d->align=\"center\">");
         if ((d->align & WordBreak) == 0 )
             t.prepend("<nobr>");
-        d->doc = new QSimpleRichText(t, font());
+        d->doc = new QTextDocument();
+        d->doc->enableUndoRedo(false);
+        d->doc->setHtml(text);
     }
 #endif
 
@@ -615,15 +618,17 @@ QSize QLabelPrivate::sizeForWidth(int w) const
 #endif
 #ifndef QT_NO_RICHTEXT
     else if (doc) {
-        int oldW = doc->width();
+        QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(doc->documentLayout());
+        Q_ASSERT(layout);
+        int oldW = layout->pageSize().width();
         if (d->align & WordBreak) {
             if (w < 0)
-                doc->adjustSize();
+                layout->adjustSize();
             else
-                doc->setWidth(w-hextra);
+                layout->setPageSize(QSize(w-hextra, INT_MAX));
         }
-        br = QRect(0, 0, doc->widthUsed(), doc->height());
-        doc->setWidth(oldW);
+        br = QRect(0, 0, layout->widthUsed(), layout->totalHeight());
+        layout->setPageSize(QSize(oldW, INT_MAX));
     }
 #endif
     else {
@@ -636,7 +641,7 @@ QSize QLabelPrivate::sizeForWidth(int w) const
         QString text = q->text();
         br = fm.boundingRect(0, 0, w ,2000, align, text);
         if (tryWidth && br.height() < 4*fm.lineSpacing() && br.width() > w/2)
-                br = fm.boundingRect(0, 0, w/2, 2000, align, text);
+            br = fm.boundingRect(0, 0, w/2, 2000, align, text);
         if (tryWidth && br.height() < 2*fm.lineSpacing() && br.width() > w/4)
             br = fm.boundingRect(0, 0, w/4, 2000, align, text);
     }
@@ -762,28 +767,43 @@ void QLabel::paintEvent(QPaintEvent *)
 #endif
 #ifndef QT_NO_RICHTEXT
     if (d->doc) {
-        d->doc->setWidth(&paint, cr.width());
-        int rh = d->doc->height();
+        QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(d->doc->documentLayout());
+        Q_ASSERT(layout);
+        layout->setPageSize(QSize(cr.width(), INT_MAX));
+        int rh = layout->totalHeight();
         int yo = 0;
         if (d->align & AlignVCenter)
             yo = (cr.height()-rh)/2;
         else if (d->align & AlignBottom)
             yo = cr.height()-rh;
-        if (! isEnabled() &&
-            style().styleHint(QStyle::SH_EtchDisabledText, this)) {
-            QPalette pal = palette();
-            pal.setColor(QPalette::Text, pal.light());
-            d->doc->draw(&paint, cr.x()+1, cr.y()+yo+1, cr, pal, 0);
+        QAbstractTextDocumentLayout::PaintContext context;
+        context.textColorFromPalette = true;
+        if (!isEnabled() && style().styleHint(QStyle::SH_EtchDisabledText, this)) {
+            context.palette = palette();
+            context.palette.setColor(QPalette::Text, context.palette.light());
+            QRect r = cr;
+            r.moveBy(-cr.x()-1, -cr.y()-yo-1);
+            paint.save();
+            paint.translate(cr.x()+1, cr.y()+yo+1);
+            paint.setClipRect(r);
+            layout->draw(&paint, context);
+            paint.restore();
         }
 
         // QSimpleRichText always draws with QPalette::Text as with
         // background mode PaletteBase. QLabel typically has
         // background mode PaletteBackground, so we create a temporary
         // color group with the text color adjusted.
-        QPalette pal = palette();
+        context.palette = palette();
         if (foregroundRole() != QPalette::Text && isEnabled())
-            pal.setColor(QPalette::Foreground, pal.color(foregroundRole()));
-        d->doc->draw(&paint, cr.x(), cr.y()+yo, cr, pal, 0);
+            context.palette.setColor(QPalette::Foreground, context.palette.color(foregroundRole()));
+        QRect r = cr;
+        r.moveBy(-cr.x(), -cr.y()-yo);
+        paint.save();
+        paint.translate(cr.x(), cr.y()+yo);
+        paint.setClipRect(r);
+        layout->draw(&paint, context);
+        paint.restore();
     } else
 #endif
 #ifndef QT_NO_PICTURE
@@ -1100,8 +1120,9 @@ void QLabel::changeEvent(QEvent *ev)
     if(ev->type() == QEvent::FontChange) {
         if (!d->ltext.isEmpty()) {
 #ifndef QT_NO_RICHTEXT
-            if (d->doc)
-                d->doc->setDefaultFont(font());
+            // #########################
+//             if (d->doc)
+//                 d->doc->setDefaultFont(font());
 #endif
             d->updateLabel();
         }
