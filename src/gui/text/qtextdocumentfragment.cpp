@@ -420,7 +420,10 @@ void QTextHTMLImporter::import()
                 hasBlock = false;
         }
 
-        if (node->isListStart) {
+        if (node->tag == QLatin1String("style")) {
+            // ignore the body of style tags
+            continue;
+        } else if (node->isListStart) {
 
             QTextListFormat::Style style = node->listStyle;
 
