@@ -196,7 +196,7 @@ bool QFile::open( int m, FILE *f )
     if ( (st.st_mode & QT_STAT_MASK) != QT_STAT_REG ) {
 	// non-seekable
 	setType( IO_Sequential );
-	length = INT_MAX;
+	length = LLONG_MAX;
     } else {
 	length = (int)st.st_size;
     }
@@ -225,7 +225,7 @@ bool QFile::open( int m, int f )
     if ( (st.st_mode & QT_STAT_MASK) != QT_STAT_REG ) {
 	// non-seekable
 	setType( IO_Sequential );
-	length = INT_MAX;
+	length = LLONG_MAX;
     } else {
 	length = (int)st.st_size;
     }
