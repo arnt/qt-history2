@@ -157,8 +157,8 @@ class SpreadSheet : public QMainWindow
 {
     Q_OBJECT
 public:
-    static const int numRows = 10;
-    static const int numColumns = 5;
+    static const int numRows = 20;
+    static const int numColumns = 10;
 
     SpreadSheet(QWidget *parent = 0) : QMainWindow(parent) {
         table = new SpreadSheetTable(numRows, numColumns, this);
@@ -171,11 +171,12 @@ public:
                 table->setItem(r, c, new SpreadSheetItem(table));
             }
         }
-        table->verticalHeader()->setResizeMode(QHeaderView::Stretch);
-        table->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+        //table->verticalHeader()->setResizeMode(QHeaderView::Stretch);
+        //table->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
         // column 0
-        table->horizontalHeader()->setResizeMode(QHeaderView::Custom, 0);
+        //table->horizontalHeader()->setResizeMode(QHeaderView::Custom, 0);
         table->item(0,0)->setText("Item");
+        table->item(0,0)->setBackgroundColor(Qt::yellow);
         table->item(1,0)->setText("AirportBus");
         table->item(2,0)->setText("Flight (Munich)");
         table->item(3,0)->setText("Lunch");
@@ -187,6 +188,7 @@ public:
         table->item(9,0)->setText("Total:");
         // column 1
         table->item(0,1)->setText("Price");
+        table->item(0,1)->setBackgroundColor(Qt::yellow);
         table->item(1,1)->setText("150");
         table->item(2,1)->setText("2350");
         table->item(3,1)->setText("-14");
@@ -197,6 +199,7 @@ public:
         table->item(8,1)->setText("1240");
         // column 2
         table->item(0,2)->setText("Currency");
+        table->item(0,2)->setBackgroundColor(Qt::yellow);
         table->item(1,2)->setText("NOK");
         table->item(2,2)->setText("NOK");
         table->item(3,2)->setText("EUR");
@@ -207,6 +210,7 @@ public:
         table->item(8,2)->setText("USD");
         // column 3
         table->item(0,3)->setText("Ex.Rate");
+        table->item(0,3)->setBackgroundColor(Qt::yellow);
         table->item(1,3)->setText("1");
         table->item(2,3)->setText("1");
         table->item(3,3)->setText("8");
@@ -217,6 +221,7 @@ public:
         table->item(8,3)->setText("7");
         // column 4
         table->item(0,4)->setText("NOK");
+        table->item(0,4)->setBackgroundColor(Qt::yellow);
         table->item(1,4)->setText("* B2 D2");
         table->item(2,4)->setText("* B3 D3");
         table->item(3,4)->setText("* B4 D4");
