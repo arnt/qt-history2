@@ -166,7 +166,6 @@ signals:
     void itemChanged(QListWidgetItem *item);
 
 protected:
-    void removeItem(QListWidgetItem *item);
     void setModel(QAbstractItemModel *model);
     void setup();
 

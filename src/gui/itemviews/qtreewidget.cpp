@@ -822,7 +822,7 @@ QTreeWidgetItem::QTreeWidgetItem()
 /*!
     \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
 
-    Constructs a tree widget item and inserts it into the given tree
+    Constructs a tree widget item and appends it into the given tree
     \a view.
 */
 
@@ -861,7 +861,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
 }
 
 /*!
-    Constructs a tree widget item with the given \a parent.
+    Constructs a tree widget item and append it to the given \a parent.
 */
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
@@ -1145,7 +1145,7 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 
   The QTreeWidget class is a convenience class that provides a standard
   tree widget with a classic item-based interface similar to that used by
-  the \c QListView class in Qt 3. 
+  the \c QListView class in Qt 3.
   This class is based on Qt's Model/View architecture and uses a default
   model to hold items, each of which is a QTreeWidgetItem.
 
@@ -1307,6 +1307,12 @@ void QTreeWidget::insertTopLevelItem(int index, QTreeWidgetItem *item)
 void QTreeWidget::appendTopLevelItem(QTreeWidgetItem *item)
 {
     d->model()->tree.append(item);
+}
+
+QTreeWidgetItem *QTreeWidget::takeTopLevelItem(int index)
+{
+    d->model()->emitRowsRemoved(topLevelItem(index));
+    return d->model()->tree.takeAt(index);
 }
 
 /*!
@@ -1576,23 +1582,6 @@ void QTreeWidget::clear()
     d->model()->clear();
 }
 
-/*!
-  Appends an \a item to the tree widget.
-*/
-
-void QTreeWidget::appendItem(QTreeWidgetItem *item)
-{
-    d->model()->append(item);
-}
-
-/*!
-  Removes an \a item from the tree widget.
-*/
-
-void QTreeWidget::removeItem(QTreeWidgetItem *item)
-{
-    d->model()->remove(item);
-}
 
 /*!
   \reimp

@@ -92,7 +92,7 @@ public:
     inline int childCount() const { return children.count(); }
     inline int columnCount() const { return values.count(); }
     inline int indexOfChild(QTreeWidgetItem *child) const { return children.indexOf(child); }
- 
+
     void appendChild(QTreeWidgetItem *child);
     void insertChild(int index, QTreeWidgetItem *child);
     QTreeWidgetItem *takeChild(int index);
@@ -145,6 +145,7 @@ public:
     int topLevelItemCount() const;
     void insertTopLevelItem(int index, QTreeWidgetItem *item);
     void appendTopLevelItem(QTreeWidgetItem *item);
+    QTreeWidgetItem *takeTopLevelItem(int index);
     int indexOfTopLevelItem(QTreeWidgetItem *item);
 
     QTreeWidgetItem *headerItem();
@@ -160,7 +161,7 @@ public:
 
     void openPersistentEditor(QTreeWidgetItem *item, int column = 0);
     void closePersistentEditor(QTreeWidgetItem *item, int column = 0);
-    
+
     bool isSelected(const QTreeWidgetItem *item) const;
     void setSelected(const QTreeWidgetItem *item, bool select);
     QList<QTreeWidgetItem*> selectedItems() const;
@@ -194,8 +195,6 @@ signals:
     void itemChanged(QTreeWidgetItem *item, int column);
 
 protected:
-    void appendItem(QTreeWidgetItem *item);
-    void removeItem(QTreeWidgetItem *item);
     void setModel(QAbstractItemModel *model);
 
 private:

@@ -1012,16 +1012,6 @@ void QListWidget::clear()
 }
 
 /*!
-  Removes the given \a item from the list.
-*/
-
-void QListWidget::removeItem(QListWidgetItem *item)
-{
-    Q_ASSERT(item);
-    d->model()->remove(item);
-}
-
-/*!
   \internal
 */
 void QListWidget::setModel(QAbstractItemModel *model)
