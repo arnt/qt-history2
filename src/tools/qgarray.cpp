@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#7 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#8 $
 **
 ** Implementation of QGArray class
 **
@@ -28,11 +28,11 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#8 $";
 #endif
 
 
-#if !defined(TRACE_FS)
+#if !defined(CHECK_MEMORY)
 #define USE_MALLOC				// comment to use new/delete
 #endif
 

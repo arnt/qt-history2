@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#6 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#7 $
 **
 ** Implementation of QGVector class
 **
@@ -31,11 +31,11 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgvector.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgvector.cpp#7 $";
 #endif
 
 
-#if !defined(TRACE_FS)
+#if !defined(CHECK_MEMORY)
 #define USE_MALLOC				// comment to use new/delete
 #endif
 
