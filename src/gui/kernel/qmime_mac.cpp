@@ -577,6 +577,20 @@ QList<QByteArray> QMacMimeImage::convertFromMime(QByteArray data, const char* mi
             return ret;
         px = img;
     }
+#if 1
+    OpenCPicParams pic_params;
+    pic_params.version = -2; // Version field is always -2
+    SetRect(&pic_params.srcRect, 0, 0, px.width(), px.height());    
+    pic_params.hRes = pic_params.vRes = 0x00480000; // 72 dpi
+    PicHandle pic = OpenCPicture(&pic_params);
+    {
+	GWorldPtr world;
+	GetGWorld(&world, 0);
+        ClipRect(&pic_params.srcRect);
+	CopyBits(GetPortBitMapForCopyBits((GWorldPtr)px.handle()), GetPortBitMapForCopyBits((GWorldPtr)world), 
+                 &pic_params.srcRect, &pic_params.srcRect, srcCopy, 0);
+    }
+#else
     Rect r; SetRect(&r, 0, 0, px.width(), px.height());
     PicHandle pic = OpenPicture(&r);
     {
@@ -586,6 +600,7 @@ QList<QByteArray> QMacMimeImage::convertFromMime(QByteArray data, const char* mi
         CopyBits(GetPortBitMapForCopyBits((GWorldPtr)px.handle()),
                  GetPortBitMapForCopyBits((GWorldPtr)world), &r, &r, srcCopy, 0);
     }
+#endif
     ClosePicture();
     int size = GetHandleSize((Handle)pic);
     HLock((Handle)pic);
