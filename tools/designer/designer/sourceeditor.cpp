@@ -76,7 +76,7 @@ void SourceEditor::setObject( QObject *fw, Project *p )
     iFace->setText( sourceOfObject( formWindow, lang, iFace, lIface ) );
     if ( pro && fw->inherits( "FormWindow" ) )
 	iFace->setContext( pro->formList(), ( (FormWindow*)fw ) ->mainContainer() );
-    if ( changed )
+    if ( changed || fw->inherits( "SourceFile" ) ) // #### ?
 	iFace->setBreakPoints( MetaDataBase::breakPoints( fw ) );
 }
 
