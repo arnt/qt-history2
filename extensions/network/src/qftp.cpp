@@ -414,8 +414,8 @@ void QFtp::okGoOn( int code, const QCString &data )
 			  QDateTime(), TRUE, FALSE, FALSE, TRUE, TRUE, TRUE );
 	    emit newChild( inf, operationInProgress() );
 	    emit createdDirectory( inf, operationInProgress() );
-	    emit finished( operationInProgress() );
 	    reinitCommandSocket();
+	    emit finished( operationInProgress() );
 	}
     } break;
     }
@@ -550,7 +550,6 @@ void QFtp::dataClosed()
     commandSocket->writeBlock( "TYPE A\r\n", 8 );
 
     passiveMode = FALSE;
-    emit finished( operationInProgress() );
 
     disconnect( dataSocket, SIGNAL( hostFound() ),
 		this, SLOT( dataHostFound() ) );
@@ -571,6 +570,8 @@ void QFtp::dataClosed()
     connect( dataSocket, SIGNAL( readyRead() ),
 	     this, SLOT( dataReadyRead() ) );
     reinitCommandSocket();
+
+    emit finished( operationInProgress() );
 }
 
 void QFtp::dataReadyRead()
