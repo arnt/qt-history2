@@ -301,7 +301,7 @@
     using the system's default 8-bit encoding (for example, Latin-1;
     see QTextCodec::codecForLocale() for details).
 
-    Since the call to QTextStream::read() might take some time, we
+    Since the call to QTextStream::readAll() might take some time, we
     set the cursor to be Qt::WaitCursor for the entire application
     while it goes on.
 
