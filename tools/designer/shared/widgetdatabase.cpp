@@ -243,7 +243,7 @@ void WidgetDatabase::setupDataBase()
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "lineedit.xpm";
+    r->iconSet = "dateedit.xpm";
     r->name = "QDateEdit";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Date Edit";
@@ -252,7 +252,7 @@ void WidgetDatabase::setupDataBase()
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "lineedit.xpm";
+    r->iconSet = "timeedit.xpm";
     r->name = "QTimeEdit";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Time Edit";
@@ -261,7 +261,7 @@ void WidgetDatabase::setupDataBase()
     append( r );
 
 	r = new WidgetDatabaseRecord;
-    r->iconSet = "lineedit.xpm";
+    r->iconSet = "datetimeedit.xpm";
     r->name = "QDateTimeEdit";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Date-Time Edit";
