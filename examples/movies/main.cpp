@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include <qapplication.h>
-#include <q3filedialog.h>
+#include <qfiledialog.h>
 #include <qpushbutton.h>
 #include <qlabel.h>
 #include <qpainter.h>
@@ -221,36 +221,38 @@ public:
 };
 
 
-// A Q3FileDialog that chooses movies.
+// A QFileDialog that chooses movies.
 //
-class MovieStarter: public Q3FileDialog {
+class MovieStarter: public QFileDialog {
     Q_OBJECT
 public:
-    MovieStarter(const char *dir);
+    MovieStarter( const QString &dir );
 
 public slots:
-    void startMovie(const QString& filename);
+    void startMovie( const QStringList &files );
     // QDialog's method - normally closes the file dialog.
     // We want it left open, and we want Cancel to quit everything.
     void done( int r );
 };
 
 
-MovieStarter::MovieStarter(const char *dir)
-    : Q3FileDialog(dir, "*.gif *.mng")
+MovieStarter::MovieStarter( const QString &dir )
+    : QFileDialog()
 {
+    setDirectory( dir );
+    setFilter( "*.gif *.mng" );
     //behave as in getOpenFilename
     setMode( ExistingFile );
     // When a file is selected, show it as a movie.
-    connect(this, SIGNAL(fileSelected(const QString&)),
-	    this, SLOT(startMovie(const QString&)));
+    connect(this, SIGNAL(filesSelected(const QStringList&)),
+	    this, SLOT(startMovie(const QStringList&)));
 }
 
 
-void MovieStarter::startMovie(const QString& filename)
+void MovieStarter::startMovie(const QStringList& files)
 {
-    if ( !filename.isEmpty() ) // Start a new movie - have it delete when closed.
-	(new MoviePlayer( filename, QMovie(filename), 0, 0,
+    if ( !files.isEmpty() ) // Start a new movie - have it delete when closed.
+	(new MoviePlayer( files.first(), QMovie(files.first()), 0, 0,
 			       WDestructiveClose))->show();
 }
 
