@@ -459,12 +459,12 @@ void QDockWidget::updateGui()
 	if ( isResizeEnabled() ) {
 	    if ( orientation() == Horizontal ) {
 		hHandle->setGeometry( 0, height() - hHandle->sizeHint().height(), width(), hHandle->sizeHint().height() );
-		vHandle->setGeometry( width() - vHandle->sizeHint().width(), 0, vHandle->sizeHint().width(), 
-				      height() - hHandle->height() );
-	    } else {
-		hHandle->setGeometry( 0, height() - hHandle->sizeHint().height(), width() - vHandle->sizeHint().width(),
-				      hHandle->sizeHint().height() );
 		vHandle->setGeometry( width() - vHandle->sizeHint().width(), 0, vHandle->sizeHint().width(), height() );
+		hHandle->raise();
+	    } else {
+		hHandle->setGeometry( 0, height() - hHandle->sizeHint().height(), width(), hHandle->sizeHint().height() );
+		vHandle->setGeometry( width() - vHandle->sizeHint().width(), 0, vHandle->sizeHint().width(), height() );
+		vHandle->raise();
 	    }
 	    addX += vHandle->width();
 	    dw = vHandle->width();
