@@ -513,12 +513,10 @@ void Resource::paste( const QString &cb, QWidget *parent )
     mainContainerSet = TRUE;
 
     pasting = TRUE;
-    QBuffer buf( QCString( cb.utf8() ) );
-    buf.open( IO_ReadOnly );
     QDomDocument doc;
     QString errMsg;
     int errLine;
-    if ( !doc.setContent( &buf, &errMsg, &errLine ) ) {
+    if ( !doc.setContent( cb, &errMsg, &errLine ) ) {
 	qDebug( QString("Parse error: ") + errMsg + QString(" in line %d"), errLine );
     }
 
@@ -576,7 +574,6 @@ void Resource::paste( const QString &cb, QWidget *parent )
     }
     formwindow->setPropertyShowingBlocked( FALSE );
     formwindow->emitShowProperties();
-    buf.close();
 
     PasteCommand *cmd = new PasteCommand( FormWindow::tr( "Paste" ), formwindow, widgets );
     formwindow->commandHistory()->addCommand( cmd );
