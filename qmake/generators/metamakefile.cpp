@@ -77,7 +77,7 @@ bool
 MetaMakefileGenerator::write(const QString &oldpwd)
 {
     Build *glue = 0;
-    if(!makefiles.first()->name.isNull()) {
+    if(!makefiles.isEmpty() && !makefiles.first()->name.isNull()) {
         glue = new Build;
         project->variables()["CONFIG"] += "no_fileio";
         glue->makefile = createMakefileGenerator(project);
@@ -219,7 +219,8 @@ MetaMakefileGenerator::createMakefileGenerator(QMakeProject *proj)
     } else {
         fprintf(stderr, "Unknown generator specified: %s\n", gen.latin1());
     }
-    mkfile->setProjectFile(proj);
+    if (mkfile)
+        mkfile->setProjectFile(proj);
     return mkfile;
 }
 
