@@ -14,6 +14,9 @@
 InvoiceItemCursor::InvoiceItemCursor() : 
     QSqlCursor( "invoiceitem" )
 {
+    setDisplayLabel( "pricesid", "PriceID" );
+    setDisplayLabel( "paiddate", "Paid" );
+    setDisplayLabel( "quantity", "Quantity" );
     setAlignment( "quantity", Qt::AlignRight );
 }
 
@@ -29,9 +32,9 @@ int main( int argc, char *argv[] )
 
 	app.setMainWidget( invoiceItemTable );
 
-	invoiceItemTable->addColumn( "pricesid", "PriceID" );
-	invoiceItemTable->addColumn( "quantity", "Quantity" );
-	invoiceItemTable->addColumn( "paiddate", "Paid" );
+	invoiceItemTable->addColumn( "pricesid" );
+	invoiceItemTable->addColumn( "quantity" );
+	invoiceItemTable->addColumn( "paiddate" );
 
 	invoiceItemTable->refresh();
 	invoiceItemTable->show();
