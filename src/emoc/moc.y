@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/emoc/moc.y#9 $
+** $Id: //depot/qt/main/src/emoc/moc.y#10 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1240,6 +1240,7 @@ void init()					// initialize
     propTypes.append( "QBrush" );
     propTypes.append( "QImage" );
     propTypes.append( "QPixmap" );
+    propTypes.append( "QIconSet" );
     propTypes.append( "QMovie" );
     propTypes.append( "QString" );
     propTypes.append( "QStringList" );
@@ -1894,7 +1895,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 1.9 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 1.10 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2485,8 +2486,7 @@ void addMember( char m )
     tmpFunc->accessPerm = tmpAccessPerm;
     tmpFunc->args	= tmpArgList;
     tmpFunc->lineNo	= lineNo;
-    tmpArgList		= new ArgList;
-    CHECK_PTR( tmpArgList );
+
     switch( m ) {
 	case 's': signals.append( tmpFunc ); break;
 	case 't': slots.  append( tmpFunc ); break;
@@ -2498,4 +2498,6 @@ void addMember( char m )
     skipFunc = FALSE;
     tmpFunc  = new Function;
     CHECK_PTR( tmpFunc );
+    tmpArgList = new ArgList;
+    CHECK_PTR( tmpArgList );
 }

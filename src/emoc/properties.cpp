@@ -67,6 +67,8 @@ static const char* TorbensHack[] = {
   "void", "setFrameShadow", "", "Shadow", ")",
   "Shadow", "frameShadow", "const", ")",
 
+  "+", "QMenuBar", "", "", "",
+  
   "+", "QGridLayout", "A grid layout", "", "",
   "+", "QVBoxLayout", "", "", "",
   "+", "QHBoxLayout", "", "", "",
