@@ -37,14 +37,13 @@ DONE
 12. Initial size of the spreadsheet, and resize policy support, able to
 specify which column or row to resize. Column and row size by pixel and
 char or content size.
-
+DONE
 
 13. Suspend repaint for update efficiency.
 DONE (using postEvent, transparent for the user)
 
 14. Programmatically hide row/column.
 DONE
-
 
 15. Resize column/row by drag the mouse
 DONE

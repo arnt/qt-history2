@@ -255,6 +255,27 @@ QString QTableItem::key() const
     return text();
 }
 
+/*!  Returns the size which the cell needs to have to show the whole
+  contents. If you subclass and implement a custom item width custom
+  data, you should reimplement this function too.
+*/
+
+QSize QTableItem::sizeHint() const
+{
+    if ( edType == Always && lastEditor )
+	return lastEditor->sizeHint();
+    
+    QSize s;
+    if ( !pix.isNull() ) {
+	s = pix.size();
+	s.setWidth( s.width() + 2 );
+    }
+    
+    s.setWidth( s.width() + table()->fontMetrics().width( text() ) + 10 );
+    return s;
+}
+
+
 
 /*!
   \class QTable qtable.h
@@ -1992,7 +2013,102 @@ void QTable::showColumn( int col )
     columnWidthChanged( col );
 }
 
+/*! Resizes the column to \a w pixel wide.
+ */
 
+void QTable::setColumnWidth( int col, int w )
+{
+    topHeader->resizeSection( col, w );
+    columnWidthChanged( col );
+}
+
+/*! Resizes the row to be \a h pixel height.
+ */
+
+void QTable::setRowHeight( int row, int h )
+{
+    leftHeader->resizeSection( row, h );
+    rowHeightChanged( row );
+}
+
+/*!  Resizes the column \a col to be exactly wide enough so that the
+  whole contents is visible.
+*/
+
+void QTable::adjustColumn( int col )
+{
+    int w = 20;
+    w = QMAX( w, topHeader->fontMetrics().width( topHeader->label( col ) ) + 10 );
+    for ( int i = 0; i < rows(); ++i ) {
+	QTableItem *item = cellContent( i, col );
+	if ( !item )
+	    continue;
+	w = QMAX( w, item->sizeHint().width() );
+    }
+    setColumnWidth( col, w );
+}
+
+/*!  Resizes the row \a row to be exactly hight enough so that the
+  whole contents is visible.
+*/
+
+void QTable::adjustRow( int row )
+{
+    int h = 20;
+    h = QMAX( h, leftHeader->fontMetrics().height() );
+    for ( int i = 0; i < cols(); ++i ) {
+	QTableItem *item = cellContent( row, i );
+	if ( !item )
+	    continue;
+	h = QMAX( h, item->sizeHint().height() );
+    }
+    setRowHeight( row, h );
+}
+
+/*!  Sets the column \a col to stretchable if \a stretch is TRUE, else
+  to non-stretchable. So, if the table widgets gets wider than its
+  contents, stretchable columns are stretched so that the contents
+  fits exactly into to widget.
+*/
+
+void QTable::setColumnStretchable( int col, bool stretch )
+{
+    topHeader->setSectionStretchable( col, stretch );
+}
+
+/*!  Sets the row \a row to stretchable if \a stretch is TRUE, else to
+  non-stretchable. So, if the table widgets gets higher than its
+  contents, stretchable rows are stretched so that the contents fits
+  exactly into to widget.
+*/
+
+void QTable::setRowStretchable( int row, bool stretch )
+{
+    leftHeader->setSectionStretchable( row, stretch );
+}
+
+/*! Returns wheather the column \a col is stretchable or not.
+  
+  \sa setColumnStretchable()
+*/
+
+bool QTable::isColumnStretchable( int col ) const
+{
+    return topHeader->isSectionStretchable( col );
+}
+
+/*! Returns wheather the row \a row is stretchable or not.
+  
+  \sa setRowStretchable()
+*/
+
+bool QTable::isRowStretchable( int row ) const
+{
+    return leftHeader->isSectionStretchable( row );
+}
+
+/*!  \internal
+*/
 
 void QTable::editTypeChanged( QTableItem *i, QTableItem::EditType old )
 {
@@ -2060,10 +2176,12 @@ bool QTable::SelectionRange::operator==( const SelectionRange &s ) const
 
 
 QTableHeader::QTableHeader( int i, QTable *t, QWidget *parent, const char *name )
-    : QHeader( i, parent, name ), table( t )
+    : QHeader( i, parent, name ), table( t ), caching( FALSE ), numStretchs( 0 )
 {
     states.resize( i );
+    stretchable.resize( i );
     states.fill( Normal, -1 );
+    stretchable.fill( FALSE, -1 );
     mousePressed = FALSE;
     autoScrollTimer = new QTimer( this );
     connect( autoScrollTimer, SIGNAL( timeout() ),
@@ -2085,6 +2203,8 @@ void QTableHeader::addLabel( const QString &s )
 {
     states.resize( states.count() + 1 );
     states[ (int)states.count() - 1 ] = Normal;
+    stretchable.resize( stretchable.count() + 1 );
+    stretchable[ (int)stretchable.count() - 1 ] = FALSE;
     QHeader::addLabel( s );
 }
 
@@ -2166,6 +2286,7 @@ void QTableHeader::mousePressEvent( QMouseEvent *e )
     startPos = -1;
     setCaching( TRUE );
     resizedSection = -1;
+    isResizing = cursor().shape() != ArrowCursor;
 }
 
 void QTableHeader::mouseMoveEvent( QMouseEvent *e )
@@ -2221,6 +2342,50 @@ void QTableHeader::mouseReleaseEvent( QMouseEvent *e )
     if ( hasCached ) {
 	table->repaintContents( table->contentsX(), table->contentsY(), table->visibleWidth(), table->visibleHeight(), FALSE );
 	emit sectionSizeChanged( resizedSection );
+    }
+}
+
+void QTableHeader::mouseDoubleClickEvent( QMouseEvent *e )
+{
+    if ( isResizing ) {
+	int p = real_pos( e->pos(), orientation() ) + offset();
+	int section = sectionAt( p ) - 1;
+	if ( orientation() == Horizontal )
+	    table->adjustColumn( section );
+	else
+	    table->adjustRow( section );
+    }
+}
+
+void QTableHeader::resizeEvent( QResizeEvent *e )
+{
+    QHeader::resizeEvent( e );
+    if ( numStretchs == 0 )
+	return;
+    if ( orientation() == Horizontal ) {
+	if ( sectionPos( count() - 1 ) + sectionSize( count() - 1 ) == width() )
+	    return;
+	int pw = width() - ( sectionPos( count() - 1 ) + sectionSize( count() - 1 ) ) - 1;
+	pw /= numStretchs;
+	for ( int i = 0; i < (int)stretchable.count(); ++i ) {
+	    if ( !stretchable[ i ] )
+		continue;
+	    int nw = sectionSize( i ) + pw;
+	    if ( nw >= 20 )
+		table->setColumnWidth( i, nw );
+	}
+    } else {
+	if ( sectionPos( count() - 1 ) + sectionSize( count() - 1 ) == height() )
+	    return;
+	int ph = height() - ( sectionPos( count() - 1 ) + sectionSize( count() - 1 ) ) - 1;
+	ph /= numStretchs;
+	for ( int i = 0; i < (int)stretchable.count(); ++i ) {
+	    if ( !stretchable[ i ] )
+		continue;
+	    int nh = sectionSize( i ) + ph;
+	    if ( nh >= 20 )
+		table->setRowHeight( i, nh );
+	}
     }
 }
 
@@ -2337,4 +2502,20 @@ void QTableHeader::setCaching( bool b )
 	    sectionPoses[ i ] = QHeader::sectionPos( i );
 	}
     }
+}
+
+void QTableHeader::setSectionStretchable( int s, bool b )
+{
+    if ( stretchable[ s ] == b )
+	return;
+    stretchable[ s ] = b;
+    if ( b )
+	numStretchs++;
+    else
+	numStretchs--;
+}
+
+bool QTableHeader::isSectionStretchable( int s ) const
+{
+    return stretchable[ s ];
 }

@@ -38,6 +38,7 @@ class QValidator;
 class QTable;
 class QPaintEvent;
 class QTimer;
+class QResizeEvent;
 
 class QTableItem : public Qt
 {
@@ -68,7 +69,8 @@ public:
     bool isTypeChangeAllowed() const;
 
     virtual QString key() const;
-
+    virtual QSize sizeHint() const;
+    
 protected:
     virtual void paint( QPainter *p, const QColorGroup &cg, const QRect &cr, bool selected );
 
@@ -164,6 +166,17 @@ public:
     virtual void showRow( int row );
     virtual void showColumn( int col );
 
+    virtual void setColumnWidth( int col, int w );
+    virtual void setRowHeight( int row, int h );
+    
+    virtual void adjustColumn( int col );
+    virtual void adjustRow( int row );
+
+    virtual void setColumnStretchable( int col, bool stretch );
+    virtual void setRowStretchable( int row, bool stretch );
+    bool isColumnStretchable( int col ) const;
+    bool isRowStretchable( int row ) const;
+    
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     void contentsMousePressEvent( QMouseEvent* );
@@ -257,6 +270,9 @@ public:
     int sectionSize( int section ) const;
     int sectionPos( int section ) const;
     int sectionAt( int section ) const;
+
+    void setSectionStretchable( int s, bool b );
+    bool isSectionStretchable( int s ) const;
     
 signals:
     void sectionSizeChanged( int s );
@@ -267,7 +283,9 @@ protected:
     void mousePressEvent( QMouseEvent *e );
     void mouseMoveEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
-
+    void mouseDoubleClickEvent( QMouseEvent *e );
+    void resizeEvent( QResizeEvent *e );
+    
 private slots:
     void doAutoScroll();
     void sectionWidthChanged( int col, int os, int ns );
@@ -279,6 +297,7 @@ private:
 
 private:
     QArray<SectionState> states, oldStates;
+    QArray<bool> stretchable;
     QArray<int> sectionSizes, sectionPoses;
     bool mousePressed;
     int pressPos, startPos, endPos;
@@ -287,7 +306,9 @@ private:
     QWidget *line1, *line2;
     bool caching;
     int resizedSection;
-
+    bool isResizing;
+    int numStretchs;
+    
 };
 
 #endif // TABLE_H
