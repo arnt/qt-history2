@@ -1521,8 +1521,10 @@ Q4MenuBar::Q4MenuBar(QWidget *parent) : QWidget(*new Q4MenuBarPrivate, parent, 0
 #ifdef Q_WS_MAC
     d->macCreateMenuBar(parent);
 #endif
-    topLevelWidget()->installEventFilter(this); //grab accels
+    setBackgroundRole(QPalette::Button);
+    topLevelWidget()->installEventFilter(this); //grab accels & handle resizes
     setMouseTracking(style().styleHint(QStyle::SH_MenuBar_MouseTracking));
+    setGeometry(QRect(QPoint(0, 0), sizeHint()));
 }
 
 Q4MenuBar::~Q4MenuBar()
@@ -1837,6 +1839,17 @@ Q4MenuBar::event(QEvent *e)
 bool
 Q4MenuBar::eventFilter(QObject *object, QEvent *event)
 {
+    if (object == parent() && object
+#ifndef QT_NO_TOOLBAR
+         && !qt_cast<QToolBar*>(object)
+#endif
+         && event->type() == QEvent::Resize) {
+        QResizeEvent *e = (QResizeEvent *)event;
+        int w = e->size().width();
+        setGeometry(0, y(), w, heightForWidth(w));
+        return false;
+    }
+
     if(!isVisible() || !object->isWidgetType())
         return false;
 
@@ -1945,7 +1958,9 @@ QSize Q4MenuBar::sizeHint() const
 }
 
 QSize Q4MenuBar::minimumSizeHint() const
-{ return sizeHint(); }
+{ 
+    return sizeHint(); 
+}
 
 int Q4MenuBar::heightForWidth(int max_width) const
 {
