@@ -1140,7 +1140,8 @@ bool QDir::isReadable() const
 
     if(!d->data->fileEngine)
         return false;
-    const QFileEngine::FileFlags info = d->data->fileEngine->fileFlags(QFileEngine::PermsMask);
+    const QFileEngine::FileFlags info = d->data->fileEngine->fileFlags(QFileEngine::DirectoryType
+                                                                       |QFileEngine::PermsMask);
     if(!(info & QFileEngine::DirectoryType))
         return false;
     return info & QFileEngine::ReadUserPerm;
@@ -1162,7 +1163,8 @@ bool QDir::exists() const
 
     if(!d->data->fileEngine)
         return false;
-    const QFileEngine::FileFlags info = d->data->fileEngine->fileFlags(QFileEngine::PermsMask);
+    const QFileEngine::FileFlags info = d->data->fileEngine->fileFlags(QFileEngine::DirectoryType
+                                                                       |QFileEngine::ExistsFlag);
     if(!(info & QFileEngine::DirectoryType))
         return false;
     return info & QFileEngine::ExistsFlag;
