@@ -188,6 +188,7 @@ kernel:HEADERS += $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qpoint.h \
 		  $$KERNEL_H/qpolygonscanner.h \
 		  $$KERNEL_H/qprinter.h \
+		  $$KERNEL_H/qprocess.h \
 		  $$KERNEL_H/qrect.h \
 		  $$KERNEL_H/qregion.h \
 		  $$KERNEL_H/qsemimodal.h \
@@ -336,6 +337,7 @@ kernel:WINSOURCES += kernel/qapplication_win.cpp \
 		  kernel/qmime_win.cpp \
 		  kernel/qpixmap_win.cpp \
 		  kernel/qprinter_win.cpp \
+		  kernel/qprocess_win.cpp \
 		  kernel/qpaintdevice_win.cpp \
 		  kernel/qpainter_win.cpp \
 		  kernel/qregion_win.cpp \
@@ -403,6 +405,7 @@ kernel:X11SOURCES += kernel/qapplication_x11.cpp \
 widgets:QWSSOURCES += $$WIDGETS_H/qcompactstyle.cpp
 
 kernel:UNIXSOURCES += kernel/qpsprinter.cpp \
+		    kernel/qprocess_unix.cpp \
 		    kernel/qthread_unix.cpp
 
 dialogs:UNIXSOURCES += dialogs/qprintdialog.cpp
@@ -489,6 +492,7 @@ kernel:SOURCES += kernel/qabstractlayout.cpp \
 		  kernel/qpoint.cpp \
 		  kernel/qpolygonscanner.cpp \
 		  kernel/qprinter.cpp \
+		  kernel/qprocess.cpp \
 		  kernel/qrect.cpp \
 		  kernel/qregion.cpp \
 		  kernel/qrichtext.cpp \
