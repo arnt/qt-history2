@@ -65,9 +65,12 @@ QKernelApplication::QKernelApplication(QKernelApplicationPrivate *p, QEventLoop 
 }
 
 /*!
-  Constructs a Qt kernel application. Kernel applications are
-  applications without graphical user interface, used for example in
-  server processes.
+    Constructs a Qt kernel application. Kernel applications are
+    applications without a graphical user interface. These type of
+    applications are used at the console or as server processes.
+
+    The \a argc and \a argv arguments are available from argc() and
+    argv().
 */
 QKernelApplication::QKernelApplication( int &argc, char **argv )
     : QObject(new QKernelApplicationPrivate(argc, argv), 0, 0)

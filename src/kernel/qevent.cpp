@@ -1734,7 +1734,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
     composition up to that point (which may be an empty string).
 */
 
-/*!
+/*
     \fn  QIMEvent::QIMEvent( Type type, const QString &text, int cursorPosition )
 
     Constructs a new QIMEvent with the accept flag set to FALSE. \a
