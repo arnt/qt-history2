@@ -261,7 +261,7 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     d->toolPopup->setItemChecked( 7, TRUE );
     d->toolPopup->setCheckable( TRUE );
     d->toolPopup->insertSeparator();
-    d->toolPopup->insertItem(QIconSet(style().stylePixmap(QStyle::SP_TitleBarShadeButton)), tr("&Roll up"), 6);
+    d->toolPopup->insertItem(QIconSet(style().stylePixmap(QStyle::SP_TitleBarShadeButton)), tr("Sh&ade"), 6);
     d->toolPopup->insertItem(QIconSet(style().stylePixmap(QStyle::SP_TitleBarCloseButton)),
 				      tr("&Close")+"\t"+QAccel::keyToString( CTRL+Key_F4),
 		  this, SLOT( closeActiveWindow() ) );
@@ -747,7 +747,7 @@ void QWorkspace::maximizeWindow( QWidget* w)
 	showMaximizeControls();
 	inCaptionChange = TRUE;
 	if ( !!d->topCaption )
-	    topLevelWidget()->setCaption( QString("%1 - [%2]")
+	    topLevelWidget()->setCaption( tr("%1 - [%2]")
 		.arg(d->topCaption).arg(c->caption()) );
 	inCaptionChange = FALSE;
 	setUpdatesEnabled( TRUE );
@@ -874,7 +874,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 	    d->topCaption = ((QWidget*)o)->caption();
 
 	if ( d->maxWindow && !!d->topCaption )
-	    topLevelWidget()->setCaption( QString("%1 - [%2]")
+	    topLevelWidget()->setCaption( tr("%1 - [%2]")
 		.arg(d->topCaption).arg(d->maxWindow->caption()));
 	inCaptionChange = FALSE;
 
@@ -1098,13 +1098,13 @@ void QWorkspace::toolMenuAboutToShow()
     if ( !d->active )
 	return;
 
-
+    // ### Why aren't we using QStyle::SP_TitleBarUnshadeButton?
     if ( d->active->shademode )
 	d->toolPopup->changeItem( 6,
 				  QIconSet(style().stylePixmap(QStyle::SP_TitleBarShadeButton).xForm(
-				      QWMatrix().rotate( -180 ))), "&Roll down" );
+				      QWMatrix().rotate( -180 ))), tr("&Unshade") );
     else
-	d->toolPopup->changeItem( 6, QIconSet(style().stylePixmap(QStyle::SP_TitleBarShadeButton)), "&Roll up" );
+	d->toolPopup->changeItem( 6, QIconSet(style().stylePixmap(QStyle::SP_TitleBarShadeButton)), tr("Sh&ade") );
 
     QWorkspace* w = (QWorkspace*)d->active->windowWidget();
     if ( !w )
@@ -1534,7 +1534,7 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	    break;
 	if (( (QShowEvent*)e)->spontaneous() )
 	    break;
-	// FALL THROUGH
+	// fall through
     case QEvent::ShowToParent:
 	if ( windowWidget() && windowWidget()->testWFlags( WStyle_StaysOnTop ) ) {
 	    internalRaise();
@@ -1734,7 +1734,7 @@ void QWorkspaceChild::setActive( bool b )
 		// this is a bug if lastfocusw has been deleted, a new
 		// widget has been created, and the new one is a child
 		// of the same window as the old one.  but even though
-		// it's a bug the behaviour is reasonable :)
+		// it's a bug the behaviour is reasonable
 		lastfocusw->setFocus();
 	    } else if ( childWidget->focusPolicy() != NoFocus ) {
 		childWidget->setFocus();
