@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include <qserversocket.h>
 #include <qapplication.h>
 #include <qmainwindow.h>

@@ -18,7 +18,7 @@
 #include <qhbox.h>
 #include <qvalidator.h>
 
-Composer::Composer( QWidget *parent = 0 )
+Composer::Composer( QWidget *parent )
     : QVBox( parent )
 {
     // Setup the GUI of the composer

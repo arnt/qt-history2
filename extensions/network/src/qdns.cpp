@@ -168,13 +168,13 @@ private:
     QDnsQuery * q;
 
     Q_UINT8 * answer;
-    int size;
-    int pp;
+    uint size;
+    uint pp;
 
     QList<QDnsRR> * rrs;
 
     // convenience
-    int next;
+    uint next;
     int ttl;
     QString label;
     QDnsRR * rr;
@@ -241,7 +241,7 @@ QDnsAnswer::~QDnsAnswer()
 
 QString QDnsAnswer::readString()
 {
-    int p = pp;
+    uint p = pp;
     QString r = QString::null;
     Q_UINT8 b;
     while( TRUE ) {
@@ -266,7 +266,7 @@ QString QDnsAnswer::readString()
 	    ok = FALSE;
 	    return QString::null;
 	case 3:
-	    int q = ( (answer[p] & 0x3f) << 8 ) + answer[p+1];
+	    uint q = ( (answer[p] & 0x3f) << 8 ) + answer[p+1];
 	    if ( q >= pp || q >= p ) {
 		ok = FALSE;
 		return QString::null;
@@ -813,7 +813,7 @@ void QDnsManager::retransmit()
     const QObject * o = sender();
     if ( o == 0 || globalManager == 0 || this != globalManager )
 	return;
-    int q = 0;
+    uint q = 0;
     while( q < queries.size() && queries[q] != o )
 	q++;
     if ( q < queries.size() )
@@ -836,7 +836,7 @@ void QDnsManager::answer()
     a.resize( r );
 
     int id = (a[0] << 8) + a[1];
-    int i = 0;
+    uint i = 0;
     while( i < queries.size() &&
 	   !( queries[i] && queries[i]->id == id ) )
 	i++;
@@ -870,7 +870,7 @@ void QDnsManager::answer()
 
 void QDnsManager::transmitQuery( QDnsQuery * query )
 {
-    int i = 0;
+    uint i = 0;
     while( i < queries.size() && queries[i] != 0 )
 	i++;
     if ( i == queries.size() )
@@ -882,7 +882,7 @@ void QDnsManager::transmitQuery( QDnsQuery * query )
 
 void QDnsManager::transmitQuery( int i )
 {
-    if ( i < 0 || i >= queries.size() )
+    if ( i < 0 || i >= (int)queries.size() )
 	return;
     QDnsQuery * q = queries[i];
 
@@ -906,7 +906,7 @@ void QDnsManager::transmitQuery( int i )
     // written by itself... so we write...
     // oh, and we assume that there's no funky characters in there.
     int pp = 12;
-    int lp = 0;
+    uint lp = 0;
     while( lp < q->l.length() ) {
 	int le = q->l.find( '.', lp );
 	if ( le < 0 )
@@ -914,7 +914,7 @@ void QDnsManager::transmitQuery( int i )
 	QString component = q->l.mid( lp, le-lp );
 	p[pp++] = component.length();
 	int cp;
-	for( cp=0; cp < component.length(); cp++ )
+	for( cp=0; cp < (int)component.length(); cp++ )
 	    p[pp++] = component[cp].latin1();
 	lp = le + 1;
     }
@@ -945,7 +945,7 @@ void QDnsManager::transmitQuery( int i )
 	p[pp++] = 16;
 	break;
     default:
-	p[pp++] = 255; // any
+	p[pp++] = (char)255; // any
 	break;
     }
     // query class (always internet)
@@ -1101,7 +1101,7 @@ QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 	if ( !nxdomain ) {
 	    // if we didn't, and not a negative result either, perhaps
 	    // we need to transmit a query.
-	    int q = 0;
+	    uint q = 0;
 	    while ( q < m->queries.size() &&
 		    ( m->queries[q] == 0 ||
 		      m->queries[q]->t != r->recordType() ||
@@ -1267,7 +1267,7 @@ QDns::QDns( const QString & label, RecordType rr )
 
 QDns::~QDns()
 {
-    int q = 0;
+    uint q = 0;
     QDnsQuery * query;
     QDnsManager * m = QDnsManager::manager();
     while( q < m->queries.size() && (query=m->queries[q]) != 0 ) {
@@ -1610,7 +1610,7 @@ static void doResInit()
     RegCloseKey( k );
 
     nameServer = nameServer.simplifyWhiteSpace();
-    int first, last;
+    uint first, last;
     first = 0;
     do {
 	last = nameServer.find( ' ', first );

@@ -133,7 +133,7 @@ void QSocketDevice::init()
   \sa blocking()
 */
 
-QSocketDevice::QSocketDevice( Type type )
+QSocketDevice::QSocketDevice( Type type, bool )
     : fd( -1 ), t( Stream ), p( 0 ), pp( 0 ), e( NoError ), d( 0 )
 {
 #if defined(QSOCKETDEVICE_DEBUG)
@@ -367,6 +367,12 @@ bool QSocketDevice::connect( const QHostAddress &addr, uint port )
     return TRUE;
 }
 
+bool QSocketDevice::connect( const QString & )
+{
+    //######## implementation?
+    return FALSE;
+}
+
 
 /*!
   Assigns a name to an unnamed socket.  If the operation succeeds,
@@ -422,6 +428,11 @@ bool QSocketDevice::bind( const QHostAddress &address, uint port )
     return TRUE;
 }
 
+bool QSocketDevice::bind( const QString& )
+{
+    //######## you should do a implementation here
+    return FALSE;
+}
 
 /*!
   Specifies how many pending connections a server socket can have.
@@ -538,7 +549,7 @@ int QSocketDevice::bytesAvailable() const
 */
 int QSocketDevice::waitForMore( int msecs )
 {
-#warning "QSocketDevice::waitForMore() not implemented for windows"
+//#warning "QSocketDevice::waitForMore() not implemented for windows"
     qWarning( "QSocketDevice::waitForMore() not implemented for windows" );
     return -1;
 }
