@@ -98,7 +98,7 @@ ApplicationWindow::ApplicationWindow()
     id = file->insertItem( saveIcon, "&Save",
 			   this, SLOT(save()), CTRL+Key_S );
     file->setWhatsThis( id, fileSaveText );
-    id = file->insertItem( "Save &as...", this, SLOT(saveAs()) );
+    id = file->insertItem( "Save &As...", this, SLOT(saveAs()) );
     file->setWhatsThis( id, fileSaveText );
 #ifndef QT_NO_PRINTER
     file->insertSeparator();
