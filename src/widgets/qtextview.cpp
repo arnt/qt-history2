@@ -431,6 +431,7 @@ void QTextView::moveCursor( int direction, bool shift, bool control )
 	    drawCursor( TRUE );
 	}
 	ensureCursorVisible();
+	emit selectionChanged();
     } else {
 	bool redraw = doc->removeSelection( QTextDocument::Standard );
 	moveCursor( direction, control );
@@ -443,6 +444,8 @@ void QTextView::moveCursor( int direction, bool shift, bool control )
 	    ensureCursorVisible();
 	    drawCursor( TRUE );
 	}
+	if ( redraw )
+	    emit selectionChanged();
     }
 
     drawCursor( TRUE );
@@ -583,6 +586,7 @@ void QTextView::contentsMousePressEvent( QMouseEvent *e )
 
 	bool redraw = FALSE;
 	if ( doc->hasSelection( QTextDocument::Standard ) ) {
+	    emit selectionChanged();
 	    if ( !( e->state() & ShiftButton ) ) {
 		redraw = doc->removeSelection( QTextDocument::Standard );
 		doc->setSelectionStart( QTextDocument::Standard, cursor );
@@ -667,6 +671,7 @@ void QTextView::contentsMouseReleaseEvent( QMouseEvent * )
 	if ( !doc->selectedText( QTextDocument::Standard ).isEmpty() )
 	    doc->copySelectedText( QTextDocument::Standard );
 	mousePressed = FALSE;
+	emit selectionChanged();
     }
     emit cursorPositionChanged( cursor );
     updateCurrentFormat();

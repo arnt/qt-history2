@@ -188,7 +188,8 @@ signals:
     void highlighted( const QString& );
     void linkClicked( const QString& );
     void cursorPositionChanged( QTextCursor *c );
-
+    void selectionChanged();
+    
 protected:
     void setFormat( QTextFormat *f, int flags );
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
