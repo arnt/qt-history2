@@ -4121,7 +4121,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     // fixed in QFont somewhere (under Windows you get ugly boxes
     // otherwise)
     QChar* uc = (QChar*) qstr.unicode();
-    for ( int i = 0; i < qstr.length(); i++ ) {
+    for ( i = 0; i < qstr.length(); i++ ) {
 	if ( uc[i]== '\n' )
 	    uc[i] = 0x20;
     }
