@@ -205,10 +205,21 @@
 #endif
 
 #if defined(Q_OS_UNIX)
+#  if defined(Q_OS_IRIX) && !defined(_SGI_SOURCE)
+// Irix specifies the more recent system interfaces by default.
+// No need to specify anything.  Actually asking for an X/Open
+// specification breaks havoc.  Some non-X/Open extensions we are
+// using such as the DNS are not available or are only partly
+// imported.
+// See <standards.h> for more details. 
+#    define _SGI_SOURCE
+#  endif
+#else
 #  define _XOPEN_SOURCE 500          // import SUSv2/XPG5
 #  define _XOPEN_SOURCE_EXTENDED 1   // fall back on SUS/XPG4v2
 #  define _POSIX_C_SOURCE 199506L    // IEEE Std 1003.1c (1995) / POSIX.1c
 /* ### implement 3.0
+#endif
 #  define _FILE_OFFSET_BITS 64       // X/Open Large File Support (draft 8)
 */
 #endif
