@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#1 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#2 $
 **
 **  Geometry Management
 **
@@ -31,7 +31,7 @@ public:
 
     void  setMenuBar( QWidget *w );
 
-    QWidget *parentWidget();
+    QWidget *mainWidget();
     
     const char *name() const { return objName; }
 

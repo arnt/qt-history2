@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#2 $
 **
 **  Geometry Management
 **
@@ -10,7 +10,7 @@
 *****************************************************************************/
 #include "qlayout.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#2 $");
 
 /*!
   \class QLayout qgeom.h
@@ -73,7 +73,7 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
   a sublayout which is not yet inserted.
 */
 
-QWidget * QLayout::parentWidget()
+QWidget * QLayout::mainWidget()
 {
     return bm ? bm->mainWidget() : 0;
 }
