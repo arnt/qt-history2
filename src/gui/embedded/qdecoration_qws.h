@@ -53,7 +53,7 @@ public:
     */
 
     enum DecorationRegion {
-        None        = 0x0000000000, All      = 0xffffffff,
+        None        = 0x0000000000, All      = 0x7fffffff,
         TopLeft     = 0x0000000001, Top      = 0x0000000002, TopRight    = 0x0000000004,
         Left        = 0x0000000008,                          Right       = 0x0000000010,
         BottomLeft  = 0x0000000020, Bottom   = 0x0000000040, BottomRight = 0x0000000080,
