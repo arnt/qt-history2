@@ -39,11 +39,14 @@ private:
     uint select : 1;
 };
 
+class QListModelPrivate;
+
 class Q_GUI_EXPORT QListModel : public QGenericItemModel
 {
     friend class QListModelItem;
 
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QListModel);
 
 public:
     QListModel(QObject *parent = 0);
@@ -54,6 +57,7 @@ public:
     QString text(int row) const;
     QIconSet iconSet(int row) const;
 
+private:
     const QListModelItem *item(const QModelIndex &index) const;
 
     QModelIndex index(QListModelItem *item) const;
@@ -71,11 +75,7 @@ public:
     bool isSelectable(const QModelIndex &index) const;
     bool isEditable(const QModelIndex &index) const;
 
-protected:
     void append(QListModelItem *item);
-
-private:
-    QList<QListModelItem*> lst;
 };
 
 #endif // QLISTMODEL_H
