@@ -1917,39 +1917,39 @@ void QApplication::x11_initialize_style()
     int format;
     unsigned long length, after;
     uchar *data;
-    if (!app_style &&
+    if (!QApplicationPrivate::app_style &&
          XGetWindowProperty(X11->display, QX11Info::appRootWindow(), ATOM(KWIN_RUNNING),
                              0, 1, False, AnyPropertyType, &type, &format, &length,
                              &after, &data) == Success && length) {
         if (data) XFree((char *)data);
         // kwin is there. check if KDE's styles are available,
         // otherwise use windows style
-        app_style = QStyleFactory::create("windows");
+        QApplicationPrivate::app_style = QStyleFactory::create("windows");
     }
-    if (!app_style &&
+    if (!QApplicationPrivate::app_style &&
          XGetWindowProperty(X11->display, QX11Info::appRootWindow(), ATOM(KWM_RUNNING),
                              0, 1, False, AnyPropertyType, &type, &format, &length,
                              &after, &data) == Success && length) {
         if (data) XFree((char *)data);
-        app_style = QStyleFactory::create("windows");
+        QApplicationPrivate::app_style = QStyleFactory::create("windows");
     }
-    if (!app_style &&
+    if (!QApplicationPrivate::app_style &&
          XGetWindowProperty(X11->display, QX11Info::appRootWindow(), ATOM(DTWM_IS_RUNNING),
                              0, 1, False, AnyPropertyType, &type, &format, &length,
                              &after, &data) == Success && length) {
         // DTWM is running, meaning most likely CDE is running...
         if (data) XFree((char *) data);
-        app_style = QStyleFactory::create("cde");
+        QApplicationPrivate::app_style = QStyleFactory::create("cde");
     }
     // maybe another desktop?
-    if (!app_style &&
+    if (!QApplicationPrivate::app_style &&
          XGetWindowProperty(X11->display, QX11Info::appRootWindow(),
                              ATOM(GNOME_BACKGROUND_PROPERTIES), 0, 1, False, AnyPropertyType,
                              &type, &format, &length, &after, &data) == Success &&
          length) {
         if (data) XFree((char *)data);
         // default to MotifPlus with hovering
-        app_style = QStyleFactory::create("motifplus");
+        QApplicationPrivate::app_style = QStyleFactory::create("motifplus");
     }
 }
 #endif
@@ -2227,27 +2227,29 @@ void QApplication::setMainWidget(QWidget *mainWidget)
                   "has a parent!",
                   mainWidget->metaObject()->className(), mainWidget->objectName().local8Bit());
 #endif
-    main_widget = mainWidget;
-    if (main_widget) {                        // give WM command line
-        if (windowIcon().isNull() && main_widget->testAttribute(Qt::WA_SetWindowIcon))
-            setWindowIcon(main_widget->windowIcon());
-        XSetWMProperties(X11->display, main_widget->winId(), 0, 0, d->argv, d->argc, 0, 0, 0);
+    QApplicationPrivate::main_widget = mainWidget;
+    if (QApplicationPrivate::main_widget) {                        // give WM command line
+        if (windowIcon().isNull()
+	    && QApplicationPrivate::main_widget->testAttribute(Qt::WA_SetWindowIcon)) {
+            setWindowIcon(QApplicationPrivate::main_widget->windowIcon());
+	}
+        XSetWMProperties(X11->display, QApplicationPrivate::main_widget->winId(), 0, 0, d->argv, d->argc, 0, 0, 0);
         if (mwTitle)
-            XStoreName(X11->display, main_widget->winId(), (char*)mwTitle);
+            XStoreName(X11->display, QApplicationPrivate::main_widget->winId(), (char*)mwTitle);
         if (mwGeometry) {                        // parse geometry
             int x, y;
             int w, h;
             int m = XParseGeometry((char*)mwGeometry, &x, &y, (uint*)&w, (uint*)&h);
-            QSize minSize = main_widget->minimumSize();
-            QSize maxSize = main_widget->maximumSize();
+            QSize minSize = QApplicationPrivate::main_widget->minimumSize();
+            QSize maxSize = QApplicationPrivate::main_widget->maximumSize();
             if ((m & XValue) == 0)
-                x = main_widget->geometry().x();
+                x = QApplicationPrivate::main_widget->geometry().x();
             if ((m & YValue) == 0)
-                y = main_widget->geometry().y();
+                y = QApplicationPrivate::main_widget->geometry().y();
             if ((m & WidthValue) == 0)
-                w = main_widget->width();
+                w = QApplicationPrivate::main_widget->width();
             if ((m & HeightValue) == 0)
-                h = main_widget->height();
+                h = QApplicationPrivate::main_widget->height();
             w = qMin(w,maxSize.width());
             h = qMin(h,maxSize.height());
             w = qMax(w,minSize.width());
@@ -2260,7 +2262,7 @@ void QApplication::setMainWidget(QWidget *mainWidget)
                 y = desktop()->height() + y - h;
                 qt_widget_tlw_gravity = (m & XNegative) ? SouthEastGravity : SouthWestGravity;
             }
-            main_widget->setGeometry(x, y, w, h);
+            QApplicationPrivate::main_widget->setGeometry(x, y, w, h);
         }
     }
 }
@@ -2652,8 +2654,8 @@ int QApplication::x11ProcessEvent(XEvent* event)
         if (keywidget) {
             grabbed = true;
         } else {
-            if (focus_widget)
-                keywidget = (QETWidget*)focus_widget;
+            if (QApplicationPrivate::focus_widget)
+                keywidget = (QETWidget*)QApplicationPrivate::focus_widget;
             if (!keywidget) {
                 if (inPopupMode()) // no focus widget, see if we have a popup
                     keywidget = (QETWidget*) activePopupWidget();
@@ -2683,8 +2685,8 @@ int QApplication::x11ProcessEvent(XEvent* event)
             if (keywidget) {
                 grabbed = true;
             } else {
-                if (focus_widget)
-                    keywidget = (QETWidget*)focus_widget;
+                if (QApplicationPrivate::focus_widget)
+                    keywidget = (QETWidget*)QApplicationPrivate::focus_widget;
                 if (!keywidget) {
                     if (inPopupMode()) // no focus widget, see if we have a popup
                         keywidget = (QETWidget*) activePopupWidget();
@@ -2753,7 +2755,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
             } else if (event->xproperty.atom == ATOM(_QT_SELECTION_SENTINEL)) {
                 if (qt_check_selection_sentinel())
                     emit clipboard()->selectionChanged();
-            } else if (obey_desktop_settings) {
+            } else if (QApplicationPrivate::obey_desktop_settings) {
                 if (event->xproperty.atom == ATOM(RESOURCE_MANAGER))
                     qt_set_x11_resources();
                 else if (event->xproperty.atom == ATOM(_QT_SETTINGS_TIMESTAMP))
@@ -2960,7 +2962,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
              event->xfocus.detail != NotifyNonlinearVirtual &&
              event->xfocus.detail != NotifyNonlinear)
             break;
-        if (!inPopupMode() && widget == active_window)
+        if (!inPopupMode() && widget == QApplicationPrivate::active_window)
             setActiveWindow(0);
         break;
 
@@ -3025,7 +3027,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
         }
 
         if ((! enter || enter->isDesktop()) &&
-             event->xcrossing.focus && widget == active_window &&
+             event->xcrossing.focus && widget == QApplicationPrivate::active_window &&
              X11->focus_model == QX11Data::FM_PointerRoot // PointerRoot mode
             ) {
             setActiveWindow(0);
@@ -3292,12 +3294,12 @@ static int openPopupCount = 0;
 void QApplication::openPopup(QWidget *popup)
 {
     openPopupCount++;
-    if (!popupWidgets) {                        // create list
-        popupWidgets = new QWidgetList;
+    if (!QApplicationPrivate::popupWidgets) {                        // create list
+        QApplicationPrivate::popupWidgets = new QWidgetList;
     }
-    popupWidgets->append(popup);                // add to end of list
+    QApplicationPrivate::popupWidgets->append(popup);                // add to end of list
     Display *dpy = popup->x11Info().display();
-    if (popupWidgets->count() == 1 && !qt_nograb()){ // grab mouse/keyboard
+    if (QApplicationPrivate::popupWidgets->count() == 1 && !qt_nograb()){ // grab mouse/keyboard
         int r = XGrabKeyboard(dpy, popup->winId(), false,
                               GrabModeAsync, GrabModeAsync, X11->time);
         if ((popupGrabOk = (r == GrabSuccess))) {
@@ -3323,16 +3325,16 @@ void QApplication::openPopup(QWidget *popup)
 
 void QApplication::closePopup(QWidget *popup)
 {
-    if (!popupWidgets)
+    if (!QApplicationPrivate::popupWidgets)
         return;
-    popupWidgets->removeAll(popup);
+    QApplicationPrivate::popupWidgets->removeAll(popup);
     if (popup == qt_popup_down) {
         qt_button_down = 0;
         qt_popup_down = 0;
     }
-    if (popupWidgets->count() == 0) {                // this was the last popup
-        delete popupWidgets;
-        popupWidgets = 0;
+    if (QApplicationPrivate::popupWidgets->count() == 0) {                // this was the last popup
+        delete QApplicationPrivate::popupWidgets;
+        QApplicationPrivate::popupWidgets = 0;
         if (!qt_nograb() && popupGrabOk) {        // grabbing not disabled
             Display *dpy = popup->x11Info().display();
             if (mouseButtonState != 0
@@ -3348,12 +3350,12 @@ void QApplication::closePopup(QWidget *popup)
             XUngrabKeyboard(dpy, X11->time);
             XFlush(dpy);
         }
-        if (active_window) {
+        if (QApplicationPrivate::active_window) {
             QFocusEvent::setReason(QFocusEvent::Popup);
-            if (active_window->focusWidget())
-                active_window->focusWidget()->setFocus();
+            if (QApplicationPrivate::active_window->focusWidget())
+                QApplicationPrivate::active_window->focusWidget()->setFocus();
             else
-                active_window->setFocus();
+                QApplicationPrivate::active_window->setFocus();
             QFocusEvent::resetReason();
         }
     } else {
@@ -3362,7 +3364,7 @@ void QApplication::closePopup(QWidget *popup)
         // manually: A popup was closed, so the previous popup gets
         // the focus.
         QFocusEvent::setReason(QFocusEvent::Popup);
-        QWidget* aw = popupWidgets->last();
+        QWidget* aw = QApplicationPrivate::popupWidgets->last();
         if (aw->focusWidget())
             aw->focusWidget()->setFocus();
         else
@@ -3370,7 +3372,7 @@ void QApplication::closePopup(QWidget *popup)
         QFocusEvent::resetReason();
 
         // regrab the keyboard and mouse in case 'popup' lost the grab
-        if (popupWidgets->count() == 1 && !qt_nograb()){ // grab mouse/keyboard
+        if (QApplicationPrivate::popupWidgets->count() == 1 && !qt_nograb()){ // grab mouse/keyboard
             Display *dpy = aw->x11Info().display();
             int r = XGrabKeyboard(dpy, aw->winId(), false,
                                   GrabModeAsync, GrabModeAsync, X11->time);
@@ -5099,7 +5101,7 @@ bool QETWidget::translateCloseEvent(const XEvent *)
 */
 void  QApplication::setCursorFlashTime(int msecs)
 {
-    cursor_flash_time = msecs;
+    QApplicationPrivate::cursor_flash_time = msecs;
 }
 
 
@@ -5118,7 +5120,7 @@ void  QApplication::setCursorFlashTime(int msecs)
 */
 int QApplication::cursorFlashTime()
 {
-    return cursor_flash_time;
+    return QApplicationPrivate::cursor_flash_time;
 }
 
 /*!
@@ -5133,7 +5135,7 @@ int QApplication::cursorFlashTime()
 
 void QApplication::setDoubleClickInterval(int ms)
 {
-    mouse_double_click_time = ms;
+    QApplicationPrivate::mouse_double_click_time = ms;
 }
 
 /*!
@@ -5147,7 +5149,7 @@ void QApplication::setDoubleClickInterval(int ms)
 
 int QApplication::doubleClickInterval()
 {
-    return mouse_double_click_time;
+    return QApplicationPrivate::mouse_double_click_time;
 }
 
 
@@ -5163,7 +5165,7 @@ int QApplication::doubleClickInterval()
 */
 void QApplication::setWheelScrollLines(int n)
 {
-    wheel_scroll_lines = n;
+    QApplicationPrivate::wheel_scroll_lines = n;
 }
 
 /*!
@@ -5174,7 +5176,7 @@ void QApplication::setWheelScrollLines(int n)
 */
 int QApplication::wheelScrollLines()
 {
-    return wheel_scroll_lines;
+    return QApplicationPrivate::wheel_scroll_lines;
 }
 
 /*!
@@ -5190,31 +5192,31 @@ void QApplication::setEffectEnabled(Qt::UIEffect effect, bool enable)
 {
     switch (effect) {
     case Qt::UI_AnimateMenu:
-        if (enable) fade_menu = false;
-        animate_menu = enable;
+        if (enable) QApplicationPrivate::fade_menu = false;
+        QApplicationPrivate::animate_menu = enable;
         break;
     case Qt::UI_FadeMenu:
         if (enable)
-            animate_menu = true;
-        fade_menu = enable;
+            QApplicationPrivate::animate_menu = true;
+        QApplicationPrivate::fade_menu = enable;
         break;
     case Qt::UI_AnimateCombo:
-        animate_combo = enable;
+        QApplicationPrivate::animate_combo = enable;
         break;
     case Qt::UI_AnimateTooltip:
-        if (enable) fade_tooltip = false;
-        animate_tooltip = enable;
+        if (enable) QApplicationPrivate::fade_tooltip = false;
+        QApplicationPrivate::animate_tooltip = enable;
         break;
     case Qt::UI_FadeTooltip:
         if (enable)
-            animate_tooltip = true;
-        fade_tooltip = enable;
+            QApplicationPrivate::animate_tooltip = true;
+        QApplicationPrivate::fade_tooltip = enable;
         break;
     case Qt::UI_AnimateToolBox:
-        animate_toolbox = enable;
+        QApplicationPrivate::animate_toolbox = enable;
         break;
     default:
-        animate_ui = enable;
+        QApplicationPrivate::animate_ui = enable;
         break;
     }
 }
@@ -5232,24 +5234,24 @@ void QApplication::setEffectEnabled(Qt::UIEffect effect, bool enable)
 */
 bool QApplication::isEffectEnabled(Qt::UIEffect effect)
 {
-    if (QColormap::instance().depth() < 16 || !animate_ui)
+    if (QColormap::instance().depth() < 16 || !QApplicationPrivate::animate_ui)
         return false;
 
     switch(effect) {
     case Qt::UI_AnimateMenu:
-        return animate_menu;
+        return QApplicationPrivate::animate_menu;
     case Qt::UI_FadeMenu:
-        return fade_menu;
+        return QApplicationPrivate::fade_menu;
     case Qt::UI_AnimateCombo:
-        return animate_combo;
+        return QApplicationPrivate::animate_combo;
     case Qt::UI_AnimateTooltip:
-        return animate_tooltip;
+        return QApplicationPrivate::animate_tooltip;
     case Qt::UI_FadeTooltip:
-        return fade_tooltip;
+        return QApplicationPrivate::fade_tooltip;
     case Qt::UI_AnimateToolBox:
-        return animate_toolbox;
+        return QApplicationPrivate::animate_toolbox;
     default:
-        return animate_ui;
+        return QApplicationPrivate::animate_ui;
     }
 }
 
