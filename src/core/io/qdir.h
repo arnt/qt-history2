@@ -72,15 +72,12 @@ public:
                     Reversed    = 0x08,
                     IgnoreCase  = 0x10,
                     DirsLast    = 0x20,
-                    NoSort = -1 
+                    NoSort = -1
 #ifdef QT_COMPAT
                   ,DefaultSort = NoSort
 #endif
     };
     Q_DECLARE_FLAGS(SortFlags, SortFlag)
-#ifdef QT_COMPAT
-    typedef SortFlags SortSpec;
-#endif
 
     QDir(const QDir &);
     QDir(const QString &path = QString());
@@ -94,9 +91,6 @@ public:
     void setPath(const QString &path);
     QString path() const;
     QString absolutePath() const;
-#ifdef QT_COMPAT
-    inline QT_COMPAT QString absPath() const { return absolutePath(); }
-#endif
     QString canonicalPath() const;
 
     QString dirName() const;
@@ -104,11 +98,6 @@ public:
                      bool acceptAbsPath = true) const;
     QString absoluteFilePath(const QString &fileName,
                              bool acceptAbsPath = true) const;
-#ifdef QT_COMPAT
-    inline QT_COMPAT QString absFilePath(const QString &fileName,
-                                         bool acceptAbsPath = true) const
-       { return absoluteFilePath(fileName, acceptAbsPath); }
-#endif
 
     static QString convertSeparators(const QString &pathName);
 
@@ -123,18 +112,6 @@ public:
     SortFlags sorting() const;
     void setSorting(SortFlags sort);
 
-#ifdef QT_COMPAT
-    inline bool QT_COMPAT matchAllDirs() const
-        { return filter() & AllDirs; }
-    inline void QT_COMPAT setMatchAllDirs(bool on)
-    { 
-        if(on)
-            setFilter(filter() | AllDirs);
-        else
-            setFilter(filter() & ~(int)AllDirs);
-    }
-#endif
-
     uint count() const;
     QString operator[](int) const;
 
@@ -143,36 +120,14 @@ public:
     QStringList entryList(Filters filters = NoFilter, SortFlags sort = NoSort) const;
     QStringList entryList(const QStringList &nameFilters, Filters filters = NoFilter,
                           SortFlags sort = NoSort) const;
-#ifdef QT_COMPAT
-    inline QT_COMPAT QStringList entryList(const QString &nameFilter, Filters filters = NoFilter,
-                                           SortFlags sort = NoSort) const
-    { return entryList(nameFiltersFromString(nameFilter), filters, sort); }
-#endif
 
     QFileInfoList entryInfoList(Filters filters = NoFilter, SortFlags sort = NoSort) const;
     QFileInfoList entryInfoList(const QStringList &nameFilters, Filters filters = NoFilter,
                                 SortFlags sort = NoSort) const;
-#ifdef QT_COMPAT
-    inline QT_COMPAT QFileInfoList entryInfoList(const QString &nameFilter, 
-                                                 Filters filters = NoFilter,
-                                                 SortFlags sort = NoSort) const
-    { return entryInfoList(nameFiltersFromString(nameFilter), filters, sort); }
-#endif
-
-#ifdef QT_COMPAT
-    QT_COMPAT QString nameFilter() const;
-    QT_COMPAT void setNameFilter(const QString &nameFilter);
-#endif
 
     enum Recursion { Recursive = 0, NonRecursive = 1 };
     bool mkdir(const QString &dirName, Recursion recurse=NonRecursive, bool acceptAbsPath=true) const;
     bool rmdir(const QString &dirName, Recursion recurse=NonRecursive, bool acceptAbsPath=true) const;
-#ifdef QT_COMPAT
-    inline QT_COMPAT bool mkdir(const QString &dirName, bool acceptAbsPath) const
-        { return mkdir(dirName, NonRecursive, acceptAbsPath); }
-    inline QT_COMPAT bool rmdir(const QString &dirName, bool acceptAbsPath) const
-        { return rmdir(dirName, NonRecursive, acceptAbsPath); }
-#endif
 
     bool isReadable() const;
     bool exists() const;
@@ -183,9 +138,6 @@ public:
     bool isRelative() const;
     inline bool isAbsolute() const { return !isRelative(); }
     bool makeAbsolute();
-#ifdef QT_COMPAT
-    inline QT_COMPAT void convertToAbs() { makeAbsolute(); }
-#endif
 
     bool operator==(const QDir &dir) const;
     inline bool operator!=(const QDir &dir) const {  return !operator==(dir); }
@@ -201,9 +153,6 @@ public:
     static bool setCurrent(const QString &path);
     static inline QDir current() { return QDir(currentPath()); }
     static QString currentPath();
-#ifdef QT_COMPAT
-    inline QT_COMPAT static QString currentDirPath() { return currentPath(); }
-#endif
 
     static inline QDir home() { return QDir(homePath()); }
     static QString homePath();
@@ -211,20 +160,50 @@ public:
     static QString rootPath();
     static inline QDir temp() { return QDir(tempPath()); }
     static QString tempPath();
-#ifdef QT_COMPAT
-    inline QT_COMPAT static QString homeDirPath() { return homePath(); }
-    inline QT_COMPAT static QString rootDirPath() { return rootPath(); }
-#endif
 
 #ifndef QT_NO_REGEXP
     bool match(const QStringList &filters, const QString &fileName);
     bool match(const QString &filter, const QString &fileName);
 #endif
     static QString cleanPath(const QString &path);
+    void refresh() const;
+
 #ifdef QT_COMPAT
+    typedef SortFlags SortSpec;
+    inline QT_COMPAT QString absPath() const { return absolutePath(); }
+    inline QT_COMPAT QString absFilePath(const QString &fileName, bool acceptAbsPath = true) const
+       { return absoluteFilePath(fileName, acceptAbsPath); }
+    inline QT_COMPAT bool matchAllDirs() const
+        { return filter() & AllDirs; }
+    inline QT_COMPAT void setMatchAllDirs(bool on)
+    {
+        if(on)
+            setFilter(filter() | AllDirs);
+        else
+            setFilter(filter() & ~(int)AllDirs);
+    }
+    inline QT_COMPAT QStringList entryList(const QString &nameFilter, Filters filters = NoFilter,
+                                           SortFlags sort = NoSort) const
+    { return entryList(nameFiltersFromString(nameFilter), filters, sort); }
+    inline QT_COMPAT QFileInfoList entryInfoList(const QString &nameFilter,
+                                                 Filters filters = NoFilter,
+                                                 SortFlags sort = NoSort) const
+    { return entryInfoList(nameFiltersFromString(nameFilter), filters, sort); }
+
+    QT_COMPAT QString nameFilter() const;
+    QT_COMPAT void setNameFilter(const QString &nameFilter);
+
+    inline QT_COMPAT bool mkdir(const QString &dirName, bool acceptAbsPath) const
+        { return mkdir(dirName, NonRecursive, acceptAbsPath); }
+    inline QT_COMPAT bool rmdir(const QString &dirName, bool acceptAbsPath) const
+        { return rmdir(dirName, NonRecursive, acceptAbsPath); }
+
+    inline QT_COMPAT void convertToAbs() { makeAbsolute(); }
+    inline QT_COMPAT static QString currentDirPath() { return currentPath(); }
+    inline QT_COMPAT static QString homeDirPath() { return homePath(); }
+    inline QT_COMPAT static QString rootDirPath() { return rootPath(); }
     inline QT_COMPAT static QString cleanDirPath(const QString &name) { return cleanPath(name); }
 #endif
-    void refresh() const;
 };
 
 #endif // QDIR_H

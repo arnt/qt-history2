@@ -2070,7 +2070,7 @@ int QTextStream::flags() const
 
 
 /*!
-    Sets the stream flags to \a f. Returns the previous stream flags.
+    Sets the stream flags to \a f.
 
     \sa setf(), unsetf(), flags()
 */

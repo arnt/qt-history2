@@ -22,21 +22,7 @@ class QFileInfoPrivate;
 
 class Q_CORE_EXPORT QFileInfo
 {
-protected:
-    QFileInfoPrivate *d_ptr;
-private:
-    Q_DECLARE_PRIVATE(QFileInfo)
 public:
-#ifdef QT_COMPAT
-    enum Permission {
-        ReadOwner = QFile::ReadOwner, WriteOwner = QFile::WriteOwner, ExeOwner = QFile::ExeOwner,
-        ReadUser  = QFile::ReadUser,  WriteUser  = QFile::WriteUser,  ExeUser  = QFile::ExeUser,
-        ReadGroup = QFile::ReadGroup, WriteGroup = QFile::WriteGroup, ExeGroup = QFile::ExeGroup,
-        ReadOther = QFile::ReadOther, WriteOther = QFile::WriteOther, ExeOther = QFile::ExeOther
-    };
-    Q_DECLARE_FLAGS(PermissionSpec, Permission)
-#endif
-
     QFileInfo();
     QFileInfo(const QString &file);
     QFileInfo(const QFile &file);
@@ -66,19 +52,6 @@ public:
     QString completeBaseName() const;
     QString suffix() const;
     QString completeSuffix() const;
-#ifdef QT_COMPAT
-    inline QT_COMPAT QString baseName(bool complete) {
-        if(complete)
-            return completeBaseName();
-        return baseName();
-    }
-    inline QT_COMPAT QString extension(bool complete = true) const {
-        if(complete)
-            return completeSuffix();
-        return suffix();
-    }
-    inline QT_COMPAT QString absFilePath() const { return absoluteFilePath(); }
-#endif
 
     QString path() const;
     QString absolutePath() const;
@@ -86,14 +59,6 @@ public:
 #ifndef QT_NO_DIR
     QDir dir() const;
     QDir absoluteDir() const;
-#endif
-#ifdef QT_COMPAT
-    inline QT_COMPAT QString dirPath(bool absPath = false) const {
-        if(absPath)
-            return absolutePath();
-        return path();
-    }
-    QT_COMPAT QDir dir(bool absPath) const;
 #endif
 
     bool isReadable() const;
@@ -104,9 +69,6 @@ public:
     bool isRelative() const;
     inline bool isAbsolute() const { return !isRelative(); }
     bool makeAbsolute();
-#ifdef QT_COMPAT
-    inline QT_COMPAT bool convertToAbs() { return makeAbsolute(); }
-#endif
 
     bool isFile() const;
     bool isDir() const;
@@ -121,10 +83,6 @@ public:
     uint groupId() const;
 
     bool permission(QFile::Permissions permissions) const;
-#ifdef QT_COMPAT
-    inline QT_COMPAT bool permission(PermissionSpec permissions) const
-    { return permission(QFile::Permissions((int)permissions)); }
-#endif
     QFile::Permissions permissions() const;
 
     Q_LONGLONG size() const;
@@ -137,6 +95,43 @@ public:
 
     bool caching() const;
     void setCaching(bool on);
+
+#ifdef QT_COMPAT
+    enum Permission {
+        ReadOwner = QFile::ReadOwner, WriteOwner = QFile::WriteOwner, ExeOwner = QFile::ExeOwner,
+        ReadUser  = QFile::ReadUser,  WriteUser  = QFile::WriteUser,  ExeUser  = QFile::ExeUser,
+        ReadGroup = QFile::ReadGroup, WriteGroup = QFile::WriteGroup, ExeGroup = QFile::ExeGroup,
+        ReadOther = QFile::ReadOther, WriteOther = QFile::WriteOther, ExeOther = QFile::ExeOther
+    };
+    Q_DECLARE_FLAGS(PermissionSpec, Permission)
+
+    inline QT_COMPAT QString baseName(bool complete) {
+        if(complete)
+            return completeBaseName();
+        return baseName();
+    }
+    inline QT_COMPAT QString extension(bool complete = true) const {
+        if(complete)
+            return completeSuffix();
+        return suffix();
+    }
+    inline QT_COMPAT QString absFilePath() const { return absoluteFilePath(); }
+
+    inline QT_COMPAT QString dirPath(bool absPath = false) const {
+        if(absPath)
+            return absolutePath();
+        return path();
+    }
+    QT_COMPAT QDir dir(bool absPath) const;
+    inline QT_COMPAT bool convertToAbs() { return makeAbsolute(); }
+    inline QT_COMPAT bool permission(PermissionSpec permissions) const
+    { return permission(QFile::Permissions((int)permissions)); }
+#endif
+
+protected:
+    QFileInfoPrivate *d_ptr;
+private:
+    Q_DECLARE_PRIVATE(QFileInfo)
 };
 
 #ifdef QT_COMPAT

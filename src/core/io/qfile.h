@@ -51,13 +51,9 @@ public:
         PermissionsError = 13,
         CopyError = 14
 #ifdef QT_COMPAT
-        ,
-        ConnectError = 30
+        , ConnectError = 30
 #endif
     };
-#ifdef QT_COMPAT
-    typedef Error Status;
-#endif
 
     enum Permission {
         ReadOwner = 0x4000, WriteOwner = 0x2000, ExeOwner = 0x1000,
@@ -66,9 +62,6 @@ public:
         ReadOther = 0x0004, WriteOther = 0x0002, ExeOther = 0x0001
     };
     Q_DECLARE_FLAGS(Permissions, Permission)
-#ifdef QT_COMPAT
-    typedef Permission PermissionSpec;
-#endif
 
     QFile();
     QFile(const QString &name);
@@ -80,17 +73,9 @@ public:
 
     Error error() const;
     void unsetError();
-#ifdef QT_COMPAT
-    inline QT_COMPAT Status status() const { return error(); }
-    inline QT_COMPAT void resetStatus() { unsetError(); }
-#endif
 
     QString fileName() const;
     void setFileName(const QString &name);
-#ifdef QT_COMPAT
-    inline QT_COMPAT QString name() const { return fileName(); }
-    inline QT_COMPAT void setName(const QString &name) { setFileName(name); }
-#endif
 
     typedef QByteArray (*EncoderFn)(const QString &fileName);
     typedef QString (*DecoderFn)(const QByteArray &localfileName);
@@ -144,6 +129,15 @@ public:
     bool isOpen() const;
 
     virtual QFileEngine *fileEngine() const;
+
+#ifdef QT_COMPAT
+    typedef Error Status;
+    typedef Permission PermissionSpec;
+    inline QT_COMPAT Status status() const { return error(); }
+    inline QT_COMPAT void resetStatus() { unsetError(); }
+    inline QT_COMPAT QString name() const { return fileName(); }
+    inline QT_COMPAT void setName(const QString &name) { setFileName(name); }
+#endif
 
 protected:
 #ifdef QT_NO_QOBJECT

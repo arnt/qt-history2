@@ -68,12 +68,12 @@ public:
         return *this;
     }
 
-    inline QDebug &operator<<(QTSFUNC f) {
+    inline QDebug &operator<<(QTextStreamFunction f) {
         stream->ts << f;
         return *this;
     }
 
-    inline QDebug &operator<<(QTSManip m)
+    inline QDebug &operator<<(QTextStreamManipulator m)
         { stream->ts << m; return *this; }
 };
 inline Q_CORE_EXPORT QDebug qDebug() { return QDebug(); }
@@ -88,8 +88,8 @@ public:
     inline ~QNoDebug(){}
     template <typename T> inline QNoDebug &operator<<(const T &) { return *this; }
 #if !defined( QT_NO_TEXTSTREAM )
-    inline QNoDebug &operator<<(QTSFUNC) { return *this; }
-    inline QNoDebug &operator<<(QTSManip) { return *this; }
+    inline QNoDebug &operator<<(QTextStreamFunction) { return *this; }
+    inline QNoDebug &operator<<(QTextStreamManipulator) { return *this; }
 #endif
     inline QNoDebug &space() { return *this; }
     inline QNoDebug &nospace() { return *this; }

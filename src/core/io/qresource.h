@@ -23,10 +23,6 @@ class QResourcePrivate;
 void qInitResourceIO();
 
 class Q_CORE_EXPORT QResource {
-private:
-    QResourcePrivate *d_ptr;
-    Q_DECLARE_PRIVATE(QResource)
-
 public:
     QString name() const;
 
@@ -46,6 +42,10 @@ private:
     friend class QMetaResourcePrivate;
     QResource();
     ~QResource();
+
+    QResourcePrivate *d_ptr;
+    Q_DECLARE_PRIVATE(QResource)
+
 };
 
 /* Don't use this */

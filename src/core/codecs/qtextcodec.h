@@ -82,7 +82,7 @@ public:
 
 
 #ifdef QT_COMPAT
-    static QT_COMPAT QTextCodec* codecForContent(const char* chars, int len) { return 0; }
+    static QT_COMPAT QTextCodec* codecForContent(const char*, int) { return 0; }
     static const char* locale();
     static QTextCodec* codecForName(const char* hint, int = 0) { return codecForName(QByteArray(hint)); }
 #endif

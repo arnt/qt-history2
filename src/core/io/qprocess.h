@@ -86,8 +86,6 @@ signals:
     void readyReadStandardError();
 
 protected:
-    QProcess(QProcessPrivate &dd, QObject *parent);
-
     void setProcessState(QProcess::ProcessState state);
 
     // QIODevice

@@ -16,8 +16,8 @@
 
 #include "qdatastream.h"
 
-#ifdef Bool // ### we seem to pick up a macro Bool --> int somewhere
-#undef Bool
+#ifdef Bool
+#error qmetatype.h must be included before any header file that define Bool
 #endif
 
 class Q_CORE_EXPORT QMetaType {

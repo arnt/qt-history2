@@ -175,13 +175,14 @@ public:
     inline void ignore() { m_accept = false; }
 
 protected:
-    ushort t;
     QEventPrivate *d;
+    ushort t;
 
 private:
     ushort posted : 1;
     ushort spont : 1;
     ushort m_accept : 1;
+    ushort reserved : 13;
 
     friend class QCoreApplication;
     friend class QCoreApplicationPrivate;

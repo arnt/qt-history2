@@ -53,7 +53,9 @@ public:
     void unsetDevice();
 
     bool         atEnd() const;
-    inline bool eof() const { return atEnd(); }
+#ifdef QT_COMPAT
+    inline QT_COMPAT bool eof() const { return atEnd(); }
+#endif
 
     QTextStream &operator>>(QChar &);
     QTextStream &operator>>(char &);
@@ -172,13 +174,13 @@ private:
   QTextStream manipulators
  *****************************************************************************/
 
-typedef QTextStream & (*QTSFUNC)(QTextStream &);// manipulator function
+typedef QTextStream & (*QTextStreamFunction)(QTextStream &);// manipulator function
 typedef void (QTextStream::*QTSMFI)(int);        // manipulator w/int argument
 
-class Q_CORE_EXPORT QTSManip
+class Q_CORE_EXPORT QTextStreamManipulator
 {
 public:
-    QTSManip(QTSMFI m, int a) { mf = m; arg = a; }
+    QTextStreamManipulator(QTSMFI m, int a) { mf = m; arg = a; }
     void exec(QTextStream &s) { (s.*mf)(arg); }
 
 private:
@@ -186,13 +188,13 @@ private:
     int arg;                                          // member function argument
 };
 
-inline QTextStream &operator>>(QTextStream &s, QTSFUNC f)
+inline QTextStream &operator>>(QTextStream &s, QTextStreamFunction f)
 { return (*f)(s); }
 
-inline QTextStream &operator<<(QTextStream &s, QTSFUNC f)
+inline QTextStream &operator<<(QTextStream &s, QTextStreamFunction f)
 { return (*f)(s); }
 
-inline QTextStream &operator<<(QTextStream &s, QTSManip m)
+inline QTextStream &operator<<(QTextStream &s, QTextStreamManipulator m)
 { m.exec(s); return s; }
 
 Q_CORE_EXPORT QTextStream &bin(QTextStream &s);        // set bin notation
@@ -204,22 +206,22 @@ Q_CORE_EXPORT QTextStream &flush(QTextStream &s);        // flush output
 Q_CORE_EXPORT QTextStream &ws(QTextStream &s);        // eat whitespace on input
 Q_CORE_EXPORT QTextStream &reset(QTextStream &s);        // set default flags
 
-inline QTSManip qSetW(int w)
+inline QTextStreamManipulator qSetW(int w)
 {
     QTSMFI func = &QTextStream::setWidth;
-    return QTSManip(func,w);
+    return QTextStreamManipulator(func,w);
 }
 
-inline QTSManip qSetFill(int f)
+inline QTextStreamManipulator qSetFill(int f)
 {
     QTSMFI func = &QTextStream::setFill;
-    return QTSManip(func,f);
+    return QTextStreamManipulator(func,f);
 }
 
-inline QTSManip qSetPrecision(int p)
+inline QTextStreamManipulator qSetPrecision(int p)
 {
     QTSMFI func = &QTextStream::setPrecision;
-    return QTSManip(func,p);
+    return QTextStreamManipulator(func,p);
 }
 
 #endif // QT_NO_TEXTSTREAM

@@ -33,7 +33,7 @@ public:
     inline Type type() const { return sntype; }
 
     inline bool isEnabled() const { return snenabled; }
-    virtual void setEnabled(bool);
+    void setEnabled(bool);
 
 signals:
     void activated(int socket);
@@ -59,7 +59,7 @@ class Q_CORE_EXPORT QWinEventNotifier : public QObject
 {
     Q_OBJECT
 public:
-    
+
     QWinEventNotifier(QObject *parent = 0);
     QWinEventNotifier(long hEvent, QObject *parent = 0);
     ~QWinEventNotifier();
@@ -82,7 +82,7 @@ private:
     long handleToEvent;
     bool enabled;
 };
- 
+
 #endif
 
 #endif // QSOCKETNOTIFIER_H

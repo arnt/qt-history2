@@ -112,10 +112,6 @@ QBuffer::QBuffer(QByteArray *a)
     Q_D(QBuffer);
     d->buf = a;
 }
-QBuffer::QBuffer(QIODevicePrivate &dd)
-    : QIODevice(dd)
-{
-}
 #else
 QBuffer::QBuffer()
     : QIODevice(*new QBufferPrivate, 0)
@@ -140,10 +136,6 @@ QBuffer::QBuffer(QByteArray *a, QObject *parent)
 {
     Q_D(QBuffer);
     d->buf = a;
-}
-QBuffer::QBuffer(QIODevicePrivate &dd, QObject *parent)
-    : QIODevice(dd, parent)
-{
 }
 #endif
 

@@ -36,7 +36,7 @@ public:
     void setInterval(int msec);
     int interval() const { return inter; }
 
-    void setSingleShot(bool singleShot) { single = singleShot; }
+    inline void setSingleShot(bool singleShot) { single = singleShot; }
     inline bool isSingleShot() const { return single; }
 
     static void singleShot(int msec, QObject *receiver, const char *member);

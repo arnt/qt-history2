@@ -23,12 +23,7 @@
 class QFileEnginePrivate;
 class Q_CORE_EXPORT QFileEngine
 {
-protected:
-    QFileEnginePrivate *d_ptr;
-private:
-    Q_DECLARE_PRIVATE(QFileEngine)
 public:
-
     virtual ~QFileEngine();
 
     static QFileEngine *createFileEngine(const QString &file);
@@ -120,6 +115,10 @@ public:
 protected:
     QFileEngine();
     QFileEngine(QFileEnginePrivate &);
+
+    QFileEnginePrivate *d_ptr;
+private:
+    Q_DECLARE_PRIVATE(QFileEngine)
 };
 
 class QFileEngineHandler
@@ -138,8 +137,6 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QFileEngine::FileFlags)
 class QFSFileEnginePrivate;
 class QFSFileEngine : public QFileEngine
 {
-private:
-    Q_DECLARE_PRIVATE(QFSFileEngine)
 public:
     QFSFileEngine(const QString &file);
     QFSFileEngine();
@@ -199,6 +196,8 @@ public:
     static QString rootPath();
     static QString tempPath();
     static QFileInfoList drives();
+private:
+    Q_DECLARE_PRIVATE(QFSFileEngine)
 };
 
 #endif // QFILEENGINE_H

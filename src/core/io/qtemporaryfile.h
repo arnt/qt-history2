@@ -55,12 +55,6 @@ public:
     virtual QFileEngine *fileEngine() const;
 
 protected:
-#ifdef QT_NO_QOBJECT
-    QTemporaryFile(QFilePrivate &dd);
-#else
-    QTemporaryFile(QFilePrivate &dd, QObject *parent);
-#endif
-
     bool open(OpenMode flags);
 
 private:

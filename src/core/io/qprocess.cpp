@@ -223,11 +223,6 @@ QProcess::QProcess(QObject *parent)
 {
 }
 
-QProcess::QProcess(QProcessPrivate &dd, QObject *parent)
-    : QIODevice(dd, parent)
-{
-}
-
 QProcess::~QProcess()
 {
     Q_D(QProcess);

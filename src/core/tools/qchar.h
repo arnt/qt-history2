@@ -155,7 +155,7 @@ public:
     };
 
     enum UnicodeVersion {
-        Unassigned,
+        Unicode_Unassigned,
         Unicode_1_1,
         Unicode_2_0,
         Unicode_2_1_2,
@@ -224,6 +224,8 @@ private:
     ushort ucs;
 } Q_PACKED;
 
+Q_DECLARE_TYPEINFO(QChar, Q_MOVABLE_TYPE);
+
 inline QChar::QChar() : ucs(0) {}
 
 inline const char QChar::latin1() const { return ucs > 0xff ? 0 : char(ucs); }
@@ -242,8 +244,6 @@ inline bool operator<=(QChar c1, QChar c2) { return c1.unicode() <= c2.unicode()
 inline bool operator>=(QChar c1, QChar c2) { return c1.unicode() >= c2.unicode(); }
 inline bool operator<(QChar c1, QChar c2) { return c1.unicode() < c2.unicode(); }
 inline bool operator>(QChar c1, QChar c2) { return c1.unicode() > c2.unicode(); }
-
-Q_DECLARE_TYPEINFO(QChar, Q_MOVABLE_TYPE);
 
 #ifndef QT_NO_DATASTREAM
 Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QChar &);

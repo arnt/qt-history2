@@ -50,12 +50,6 @@ public:
     bool atEnd() const;
 
 protected:
-#ifdef QT_NO_QOBJECT
-    QBuffer(QIODevicePrivate &dd);
-#else
-    QBuffer(QIODevicePrivate &dd, QObject *parent);
-#endif
-
     Q_LONGLONG readData(char *data, Q_LONGLONG maxlen);
     Q_LONGLONG writeData(const char *data, Q_LONGLONG len);
 

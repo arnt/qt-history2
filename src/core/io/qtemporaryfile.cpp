@@ -147,15 +147,6 @@ QTemporaryFile::QTemporaryFile(const QString &templateName)
     d->templateName = templateName;
 }
 
-/*! \internal
-*/
-QTemporaryFile::QTemporaryFile(QFilePrivate &dd)
-    : QFile(dd)
-{
-    Q_D(QTemporaryFile);
-    d->templateName = QDir::tempPath() + QLatin1String("qt_temp.XXXXXX");
-}
-
 #else
 /*!
     Constructs a QTemporaryFile with no name.
@@ -207,15 +198,6 @@ QTemporaryFile::QTemporaryFile(const QString &templateName, QObject *parent)
 {
     Q_D(QTemporaryFile);
     d->templateName = templateName;
-}
-
-/*! \internal
-*/
-QTemporaryFile::QTemporaryFile(QFilePrivate &dd, QObject *parent)
-    : QFile(dd, parent)
-{
-    Q_D(QTemporaryFile);
-    d->templateName = QDir::tempPath() + QLatin1String("qt_temp.XXXXXX");
 }
 #endif
 

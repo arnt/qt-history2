@@ -46,8 +46,8 @@ public:
     };
 
     enum ByteOrder {
-        BigEndian,
-        LittleEndian
+        BigEndian = QSysInfo::BigEndian,
+        LittleEndian = QSysInfo::LittleEndian
     };
 
 #ifdef Status
