@@ -640,6 +640,17 @@
     \sa fromList(), QList::fromSet(), qSort()
 */
 
+/*! \fn QList<T> QSet<T>::values() const
+
+    Returns a QList object with the data contained in this QSet. The
+    order of the elements in the QList is undefined.
+
+    This is the same as toList().
+
+    \sa fromList(), QList::fromSet(), qSort()
+*/
+
+
 /*! \fn QSet<T> QSet<T>::fromList(const QList<T> &list)
 
     Returns a QSet object with the data contained in \a list.

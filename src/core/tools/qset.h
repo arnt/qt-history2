@@ -114,6 +114,7 @@ public:
         { QSet<T> result = *this; result -= other; return result; }
 
     QList<T> toList() const;
+    inline QList<T> values() const { return toList(); }
 
     static QSet<T> fromList(const QList<T> &list);
 
