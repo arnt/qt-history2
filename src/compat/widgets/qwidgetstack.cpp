@@ -110,7 +110,7 @@ QWidgetStack::~QWidgetStack()
     If you pass an id \>= 0 this ID is used. If you pass an \a id of
     -1 (the default), the widgets will be numbered automatically. If
     you pass -2 a unique negative integer will be generated. No widget
-    has an ID of -1. Returns the ID or -1 on failure (e.g. \w is 0).
+    has an ID of -1. Returns the ID or -1 on failure (e.g. \a w is 0).
 
     If you pass an id that is already used, then a unique negative
     integer will be generated to prevent two widgets having the same
