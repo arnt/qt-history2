@@ -2406,7 +2406,7 @@ void QListView::setColumnWidth( int column, int w )
 {
     if ( column < d->h->count() && d->h->cellSize( column ) != w ) {
 	d->h->resizeSection( column, w );
-	viewport()->repaint( FALSE );
+	viewport()->update();
     }
 }
 
