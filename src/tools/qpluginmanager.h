@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qpluginmanager.h#8 $
+** $Id: //depot/qt/main/src/tools/qpluginmanager.h#9 $
 **
 ** Definition of QPluginManager class
 **
@@ -63,8 +63,8 @@ public:
 	if ( file.isEmpty() )
 	    return 0;
 
-	QLibrary *plugin = 0;
-	if ( ( plugin = libDict[file] ) )
+	QLibrary *plugin = libDict[file];
+	if ( plugin )
 	    return plugin;
 
 	// Create a library object, and try to get the desired interface
