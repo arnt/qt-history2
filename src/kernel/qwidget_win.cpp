@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#112 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#113 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -338,7 +338,6 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
     }
     bool     enable = isEnabled();		// remember status
     QSize    s	    = size();
-    QPixmap *bgp    = (QPixmap *)backgroundPixmap();
     QColor   bgc    = bg_col;			// save colors
     const char* capt= caption();
     flags = f;
