@@ -2891,7 +2891,7 @@ bool Q3TextEdit::eventFilter(QObject *o, QEvent *e)
 #else
     if (o == this || o == viewport()) {
 #endif
-        if (e->type() == QEvent::FocusIn) {
+        if (d->cursorBlinkActive && e->type() == QEvent::FocusIn) {
             if (QApplication::cursorFlashTime() > 0)
                 blinkTimer->start(QApplication::cursorFlashTime() / 2);
             drawCursor(true);
@@ -5659,6 +5659,7 @@ void Q3TextEdit::setReadOnly(bool b)
     if (readonly == b)
         return;
     readonly = b;
+    d->cursorBlinkActive = !b;
 #ifndef QT_NO_CURSOR
     if (readonly)
         viewport()->setCursor(ArrowCursor);
