@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#64 $
 **
 ** Implementation of QApplication class
 **
@@ -16,7 +16,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#63 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#64 $")
 
 
 /*----------------------------------------------------------------------------
@@ -147,7 +147,6 @@ static void destroy_palettes()
   </ul>
 
   \sa QPaintDevice
-
  ----------------------------------------------------------------------------*/
 
 QApplication::QApplication( int &argc, char **argv )
@@ -444,12 +443,14 @@ void QApplication::quitApp()			// quit application
 }
 
 
-/*! \fn bool QApplication::sendEvent( QObject *receiver, QEvent *event )
+/*----------------------------------------------------------------------------
+  \fn bool QApplication::sendEvent( QObject *receiver, QEvent *event )
 
   Sends an event directly to a receiver, using the notify() function.
   Returns the value that was returned from the event handler.
 
-  \sa postEvent() notify() */
+  \sa postEvent(), notify()
+ ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn void QApplication::postEvent( QObject *receiver, QEvent *event )
@@ -464,7 +465,7 @@ void QApplication::quitApp()			// quit application
 
 /*----------------------------------------------------------------------------
   Sends \e event to \e receiver: <code>receiver->event( event );</code>
-  Returns the value that was returned from the event handler.
+  Returns the value that is returned from the receiver's event handler.
 
   All Qt events are sent using the notify function. Since this function
   is virtual, you can make a subclass of QApplication and reimplement

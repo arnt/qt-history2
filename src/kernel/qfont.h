@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#27 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#28 $
 **
 ** Definition of QFont class
 **
@@ -44,10 +44,10 @@ public:
     void	setFamily( const char * );
     int		pointSize()	const;
     void	setPointSize( int );
-    bool	italic()	const;
-    void	setItalic( bool );
     int		weight()	const;
     void	setWeight( int );
+    bool	italic()	const;
+    void	setItalic( bool );
     bool	underline()	const;
     void	setUnderline( bool );
     bool	strikeOut()	const;
