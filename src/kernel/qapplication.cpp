@@ -1559,7 +1559,7 @@ QString QApplication::applicationDirPath()
 QString QApplication::applicationFilePath()
 {
 #ifdef Q_WS_WIN
-    return QFile::decodeName( qAppFileName() );
+    return QDir::cleanDirPath( QFile::decodeName( qAppFileName() ) );
 #else
     QString argv0 = QFile::decodeName( argv()[0] );
     QString absPath;
