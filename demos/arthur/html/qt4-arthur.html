@@ -2,7 +2,7 @@
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<!-- d:\depot\qt\main/doc/src/qt4-arthur.qdoc -->
+<!-- qt4-arthur.qdoc -->
 <head>
     <title>Qt 4: The Arthur Paint Subsystem</title>
     <style>h3.fn,span.fn { margin-left: 1cm; text-indent: -1cm; }
@@ -16,7 +16,8 @@ body { background: #ffffff; color: black; }</style>
 <ul><li><a href="#sec.1">Architecture</a></li>
 <ul><li><a href="#sec.1.1">A Look Back at Qt 3</a></li>
 <li><a href="#sec.1.2">How Painting is Done in Qt 4</a></li>
-<li><a href="#sec.1.3">Enabling Use of GDI+ on Windows</a></li>
+<li><a href="#sec.1.3">What's Changed Since Qt 4 Technology Preview 1?</a></li>
+<li><a href="#sec.1.4">Enabling Use of GDI+ on Windows</a></li>
 </ul>
 <li><a href="#sec.2">New Features in the Qt 4 Paint Subsystem</a></li>
 <ul><li><a href="#sec.2.1">Linear Gradient Brushes</a></li>
@@ -32,7 +33,7 @@ body { background: #ffffff; color: black; }</style>
 </ul>
 <a name="sec.1"></a>
 <h2>Architecture</h2>
-<p>The Qt 4 Paint Subsystem is primarly based on the classes <b>QPainter</b>, <b>QPaintDevice</b>&nbsp;and <b>QPaintEngine</b>. <b>QPainter</b>&nbsp;is the class used to perform drawing operations, for example, <tt>drawLine()</tt>&nbsp;and <b>drawRect</b>(). <b>QPaintDevice</b>&nbsp;is an object that can be painted on using a <b>QPainter</b>. Both <b>QWidget</b>&nbsp;and <b>QPixmap</b>&nbsp;are QPaintDevices. <b>QPaintEngine</b>&nbsp;is the painter's means of drawing to a specific device type.</p>
+<p>The Qt 4 Paint Subsystem is primarly based on the classes QPainter, QPaintDevice&nbsp;and QPaintEngine. QPainter&nbsp;is the class used to perform drawing operations, for example, drawLine()&nbsp;and drawRect(). QPaintDevice&nbsp;is an object that can be painted on using a QPainter. Both QWidget&nbsp;and QPixmap&nbsp;are QPaintDevices. QPaintEngine&nbsp;is the painter's means of drawing to a specific device type.</p>
 <a name="sec.1.1"></a>
 <h3>A Look Back at Qt 3</h3>
 <p>In Qt 3, QPainter&nbsp;could be used to draw on widgets and pixmaps. (It could also be used to draw to printers on Windows and Mac OS X). When other paint devices needed to be supported, such as QPrinter&nbsp;on X11, this was done by deriving from QPaintDevice&nbsp;and reimplementing the virtual function QPaintDevice::cmd(). A reimplemented paint device was treated as an external device.</p>
@@ -40,7 +41,7 @@ body { background: #ffffff; color: black; }</style>
 <p>This has led us to devise a more convenient and intuitive API for Qt 4.</p>
 <a name="sec.1.2"></a>
 <h3>How Painting is Done in Qt 4</h3>
-<p>In Qt 4 we have introduced the abstract class <b>QPaintEngine</b>. Implementations of this class provide the concrete functionallity needed to draw to a specific device type. The class QPaintEngine&nbsp;is only used internally by QPainter&nbsp;and QPaintDevice&nbsp;and is hidden from application programmers, unless they reimplement their own device type in their own QPaintEngine&nbsp;subclass. Qt currently provides paint engines for the following platforms and API's:</p>
+<p>In Qt 4 we have introduced the abstract class QPaintEngine. Implementations of this class provide the concrete functionallity needed to draw to a specific device type. The class QPaintEngine&nbsp;is only used internally by QPainter&nbsp;and QPaintDevice&nbsp;and is hidden from application programmers, unless they reimplement their own device type in their own QPaintEngine&nbsp;subclass. Qt currently provides paint engines for the following platforms and API's:</p>
 <ul>
 <li>GDI and GDI+ on Windows</li>
 <li>OpenGL&nbsp;on all platforms</li>
@@ -49,9 +50,23 @@ body { background: #ffffff; color: black; }</style>
 <li>X11&nbsp;and the X Render Extension on Linux and Unix systems</li>
 <li>QVFb, VNC and LinuxFb&nbsp;on Qt/Embedded</li>
 </ul>
-<p>To implement support for a new backend, you must derive from QPaintEngine&nbsp;and reimplement its virtual functions. You also need to derive from QPaintDevice&nbsp;and reimplement the virtual function <b>QPaintDevice::paintEngine</b>()&nbsp;to tell QPainter&nbsp;which paint engine should be used to draw on this particular device.</p>
+<p>To implement support for a new backend, you must derive from QPaintEngine&nbsp;and reimplement its virtual functions. You also need to derive from QPaintDevice&nbsp;and reimplement the virtual function QPaintDevice::paintEngine()&nbsp;to tell QPainter&nbsp;which paint engine should be used to draw on this particular device.</p>
 <p>The main benefit of this approach is that all painting follows the same painting pipeline which means that adding support for new features and providing default implementations for unsupported ones has become much simpler.</p>
 <a name="sec.1.3"></a>
+<h3>What's Changed Since Qt 4 Technology Preview 1?</h3>
+<p>As a result of user feedback and internal discussion, we have made some improvements to the Qt 4 Paint Subsystem:</p>
+<ul>
+<li>The paint engine (<tt>QPaintEngine</tt>) and painter path (<tt>QPainterPath</tt>) now provide floating point accuracy for coordinates. As a result, many painting operations are now more accurate than before, allowing certain types of rendering to be achieved that were not previously possible.</li>
+<li>The integer-based API has been maintained for compatibility with existing classes.</li>
+<li>On X11: Various improvements to rendering quality and performance have been achieved with the XRender&nbsp;extension.</li>
+</ul>
+<p>A number of classes have been introduced to provide support for floating point coordinates:</p>
+<ul>
+<li><tt>QPointF</tt>, <tt>QRectF</tt>, and <tt>QSizeF</tt>&nbsp;are floating point equivalents of <tt>QPoint</tt>, <tt>QRect</tt>, and <tt>QSize</tt>.</li>
+<li><tt>QPolygon</tt>&nbsp;provides a point array class that is similar to <tt>QPointArray</tt>, but which uses <tt>QPointF</tt>&nbsp;to store the coordinates of each point. Additionally, the contents of a <tt>QPainterPath</tt>&nbsp;object can be flattened to produce a <tt>QPolygon</tt>.</li>
+<li><tt>QLineF</tt>&nbsp;provides a description of a vector in two-dimensional space.</li>
+</ul>
+<a name="sec.1.4"></a>
 <h3>Enabling Use of GDI+ on Windows</h3>
 <p>GDI+ is installed by default on Windows XP, and is available as a downloadable redistributable binary for 98/ME/NT/2000. In order for Qt to take advantage of the features in GDI+ the gdiplus.dll library must be in the PATH.</p>
 <a name="sec.2"></a>
@@ -59,14 +74,14 @@ body { background: #ffffff; color: black; }</style>
 <a name="sec.2.1"></a>
 <h3>Linear Gradient Brushes</h3>
 <p>With Qt 4 it is possible to fill shapes using a linear gradient brush. A gradient in this case is used to describe the transition from one color at one point to another color at another point. We use the term linear gradient since the transition area follows a line.</p>
-<p>Setting a linear gradient brush is done using the <b>QBrush</b>&nbsp;constructor that takes two points and two colors, as sketched below:</p>
+<p>Setting a linear gradient brush is done using the QBrush&nbsp;constructor that takes two points and two colors, as sketched below:</p>
 <pre>&nbsp;   QBrush diagonalGradient(QPoint(0, 0), Qt::red, QPoint(width(), height()), Qt::blue);
     painter.setBrush(diagonalGradient);
     painter.drawRect(0, 0, width(), height());</pre>
 <p>The code shown above produces a pattern as show in the following pixmap:</p>
 <center><img src=":/res/diagonalGradient.png" /></center><a name="sec.2.2"></a>
 <h3>Alpha-Blended Drawing</h3>
-<p>With Qt 4 we support alpha-blended outlining and filling. The alpha channel of a color is specified through <b>QColor</b>.</p>
+<p>With Qt 4 we support alpha-blended outlining and filling. The alpha channel of a color is specified through QColor.</p>
 <pre>&nbsp;   // Specfiy semi-transparent red
     painter.setBrush(QColor(255, 0, 0, 127));
     painter.drawRect(0, 0, width()/2, height());
@@ -135,7 +150,8 @@ body { background: #ffffff; color: black; }</style>
 <p>Part of the work in progress is the finalization of the rendering pipeline for all platforms, so that all features are supported and look the same on all platforms. Among the currently unfinished features are these:</p>
 <ul>
 <li>Gradients cannot have alpha color on X11.</li>
-<li>Support for querying for supported features (such as if antialiasing is available)</li>
+<li>Support for querying for supported features (such as if antialiasing is available).</li>
+<li>Support for a floating point API in <tt>QPainter</tt>&nbsp;while maintaining compatibility with the existing integer-based functions.</li>
 </ul>
 <p><a href="qt4-intro.html">[Back to the Technology Preview page]</a></p>
 <p>See also <b>QBrush</b>.</p>
