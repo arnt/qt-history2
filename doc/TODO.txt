@@ -5,6 +5,9 @@ General clean-up
   On 64-bit platforms sizeof and size_t are 64-bit and cannot be cast to
   uint. Review code and API to get 64-bit-clean.
 
+Check > 2Gb file access is possible on 64-bit platforms
+  Offsets must be ulong, not uint, etc.
+
 const-correctness for char* (Dimitri)
   Some functions in the API return char* instead of const char*.
   Change to const char* in the API and the code. Remove some casts that
