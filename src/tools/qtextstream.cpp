@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#77 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#78 $
 **
 ** Implementation of QTextStream class
 **
@@ -174,7 +174,7 @@ void QTextStream::init()
     decoder = 0;
     doUnicodeHeader = TRUE;		//default to autodetect
     latin1 = TRUE; //### mapper = QTextCodec::local
-    swapUnicode = FALSE; //######!QChar::networkOrdered;
+    internalOrder = QChar::networkOrdered; //default to network order
 }
 
 /*!
@@ -501,7 +501,6 @@ QTextStream::~QTextStream()
 QChar QTextStream::ts_getc()
 {
     QChar r;
-    //#####default mode detecting Unicode???
     if ( doUnicodeHeader ) {
 	doUnicodeHeader = FALSE; //only at the top
 	int c1 = dev->getch();
@@ -511,11 +510,11 @@ QChar QTextStream::ts_getc()
 	if ( c1 == 0xfe && c2 == 0xff ) {
 	    mapper = 0;
 	    latin1 = FALSE;
-	    swapUnicode = FALSE;
+	    internalOrder = QChar::networkOrdered;   //network order
 	} else if ( c1 == 0xff && c2 == 0xfe ) {
 	    mapper = 0;
 	    latin1 = FALSE;
-	    swapUnicode = TRUE;
+	    internalOrder = !QChar::networkOrdered;   //reverse network order
 	} else {
 	    if ( c2 != EOF )
 		dev->ungetch( c2 );
@@ -550,10 +549,10 @@ QChar QTextStream::ts_getc()
 	if ( c1 == EOF )
 	    return QEOF;
 	int c2 = dev->getch();
-	if ( swapUnicode )
-	    r = QChar( c1, c2 ); //c1 | (c2 << 8);
+	if ( isNetworkOrder() )
+	    r = QChar( c2, c1 ); 
 	else
-	    r = QChar( c2, c1 ); //(c1 << 8) | c2;
+	    r = QChar( c1, c2 ); 
     }
     return r;
 }
@@ -578,12 +577,12 @@ void QTextStream::ts_putc( QChar c )
 	    doUnicodeHeader = FALSE;
 	    ts_putc( QChar::byteOrderMark );
 	}
-	if ( swapUnicode ) { //##### we should do "native" by default
-	    dev->putch(c.cell);
+	if ( isNetworkOrder() ) {
 	    dev->putch(c.row);
+	    dev->putch(c.cell);
 	} else {
-	    dev->putch(c.row);
 	    dev->putch(c.cell);
+	    dev->putch(c.row);
 	}
     }
 }
@@ -626,14 +625,15 @@ void QTextStream::ts_ungetc( QChar c )
     } else if ( latin1 ) {
 	dev->ungetch( c );
     } else {
-	if ( swapUnicode ) {
-	// Reverse of put
-	    dev->ungetch(c.row);
-	    dev->ungetch( c.cell );
-	} else {
+	if ( isNetworkOrder() ) {
+	    //stream is network ordered
 	// Reverse of put
 	    dev->ungetch(c.cell);
 	    dev->ungetch(c.row);
+	} else {
+	// Reverse of put
+	    dev->ungetch(c.row);
+	    dev->ungetch( c.cell );
 	}
     }
 }
@@ -678,29 +678,19 @@ QTextStream &QTextStream::writeRawBytes( const char* s, uint len )
 
 QTextStream &QTextStream::writeBlock( const char* p, uint len )
 {
-#if 0
-    switch ( cmode ) {
-      case Ascii:
-	dev->writeBlock( p, len );
-	break;
-      case UnicodeBigEndian: {
-	    QChar *u = new QChar[len];
-	    for (uint i=0; i<len; i++)
-		u[i] = p[i];
-	    dev->writeBlock( (char*)u, len*sizeof(QChar) );
-	    delete [] u;
-	}
-	break;
-      case UnicodeLittleEndian: {
-	    // ############ ...
-	}
-	break;
+    if ( doUnicodeHeader ) {
+	doUnicodeHeader = FALSE;
+	ts_putc( QChar::byteOrderMark );
     }
-#endif
-
     //All QCStrings and const char* are defined to be in Latin1
     if ( !mapper && latin1 ) {
 	dev->writeBlock( p, len );
+    } else if ( !mapper && internalOrder ) {
+	QChar *u = new QChar[len];
+	for (uint i=0; i<len; i++)
+	    u[i] = p[i];
+	dev->writeBlock( (char*)u, len*sizeof(QChar) );
+	delete [] u;
     } else {
 	for (uint i=0; i<len; i++)
 	    ts_putc( p[i] );
@@ -710,30 +700,16 @@ QTextStream &QTextStream::writeBlock( const char* p, uint len )
 
 QTextStream &QTextStream::writeBlock( const QChar* p, uint len )
 {
-    warning( "QTextStream::writeBlock" );
-#if 0
-    switch ( cmode ) {
-      case Ascii: {
-	    char *u = new char[len];
-	    for (uint i=0; i<len; i++)
-		u[i] = p[i];
-	    dev->writeBlock( (char*)u, len );
-	    delete [] u;
+    if ( !mapper && !latin1 && internalOrder ) {
+	if ( doUnicodeHeader ) {
+	    doUnicodeHeader = FALSE;
+	    ts_putc( QChar::byteOrderMark );
 	}
-	break;
-      case UnicodeBigEndian: {
-	    // ########## .......
-	}
-	break;
-      case UnicodeLittleEndian: {
-	    dev->writeBlock( (char*)p, len*sizeof(QChar) );
-	}
-	break;
-    }
-#endif
+	dev->writeBlock( (char*)p, 2*sizeof(QChar) );
+    } else {
     for (uint i=0; i<len; i++)
-	ts_putc( p[i] ); //###could be optimized for Unicode
-
+	ts_putc( p[i] );
+    }
     return *this;
 }
 
@@ -1816,12 +1792,23 @@ QTextStream &reset( QTextStream &s )
   <ul>
   <li> \c Locale Using local file format (Latin1 if locale is not set), but autodetecting Unicode
   on input.
-  <li> \c Unicode Using  Unicode for input and output.
+  <li> \c Unicode Using Unicode for input and output. Output will be written in the order 
+  most efficient for the current platform (i.e. the order used internally in QString).
   <li> \c Latin1  ISO-8859-1. Will not autodetect Unicode.
-  <li> \c UnicodeReverse Using reverse network order Unicode for input. You only need this when
+  <li> \c UnicodeNetworkOrder Using network order Unicode for input and output. Useful when
   reading Unicode data that does not start with the byte order marker.
+  <li> \c UnicodeReverse Using reverse network order Unicode for input and output. Useful when
+  reading Unicode data that does not start with the byte order marker, or writing data that should be
+  read by buggy Windows applications.
+  <li> \c RawUnicode Like Unicode, but does not write the byte order marker, nor does it 
+  autodetect the byte order. Only useful when writing to non-persistent storage 
+  used by a single process.
   </ul>
 
+  \c Locale and all Unicode encodings, except \c RawUnicode, will look
+  at the first two bytes in a input stream to determine the byte
+  order. The initial byte order marker will be stripped off before data is read.
+  
   \note This function should be called before any data is read to/written from the stream.
   \sa setCodec
 */
@@ -1833,19 +1820,25 @@ void QTextStream::setEncoding( Encoding e )
 	mapper = 0;
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
-	swapUnicode = FALSE; //###
+	internalOrder = TRUE;
+	break;
+    case UnicodeNetworkOrder:
+	mapper = 0;
+	latin1 = FALSE;
+	doUnicodeHeader = TRUE;
+	internalOrder = QChar::networkOrdered;
 	break;
     case UnicodeReverse:
 	mapper = 0;
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
-	swapUnicode = TRUE; //###
+	internalOrder = !QChar::networkOrdered;   //reverse network ordered
 	break;
     case RawUnicode:
 	mapper = 0;
 	latin1 = FALSE;
 	doUnicodeHeader = FALSE;
-	swapUnicode = !QChar::networkOrdered; //### FALSE
+	internalOrder = TRUE;
 	break;
     case Locale: {
 	latin1 = TRUE; //fallback to Latin 1
