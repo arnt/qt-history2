@@ -19,14 +19,14 @@
   alt="Badegakk, the official qdoc duck">
   </center>
 
-  This document is a reference for qdoc syntax and usage. It assumes
+  This manual is a reference for qdoc syntax and usage. It assumes
   that you understand the basic idea: documentation in C++ comments
   and a little more. It is not to be distributed outside Trolltech,
   as our good documentation is a big competitive advantage. A
   \link qtdoc.html companion document \endlink explains how to write
   documentation for Qt.
 
-  This document has four sections:
+  This manual has four sections:
 
   <ul>
    <li>\link #commands Giving commands to qdoc \endlink
@@ -152,16 +152,23 @@
     /*!
       Please avoid \\c <u>Qt::WindowsStyle</u>.
     *&#47;</pre>
-    This command, like \link #a \\a \endlink and \link #e \\e
-    \endlink, supports the brace syntax. However, in most cases, it
-    won't be necessary, because qdoc is smart enough to balance all
-    kinds of brackets and exclude punctuation:
+    This command, like its cousin
+    \link #code \\code ... \\endcode \endlink, expects raw code:
+    <pre>
+    /*!
+      QPainter is declared in \\c <u>&lt;qpainter.h&gt;</u>.
+    *&#47;</pre>
+    (Not "\\c \\\<qpainter.h\\\>", nor "\\c \&lt;qpainter.h\&gt;".)
+
+    Like \link #a \\a \endlink and \link #e \\e \endlink, \\c supports
+    the brace syntax. However, qdoc is smart enough to balance all
+    kinds of brackets and exclude punctuation when the braces are
+    missing:
     <pre>
     /*!
       By calling \\c <u>setStyle( Qt::MotifStyle )</u>, you get a
       good-looking widget set.
     *&#47;</pre>
-    Use it sparingly.
 
    <p><li><a name="fn"></a> <b>\\fn</b> allows documentation of an
     inline function by naming it explicitly. The naming convention is
@@ -676,7 +683,8 @@
     as argument. Thus,
     <pre>
     /*! <u>\\include</u> hello/main.cpp *&#47;</pre>
-    expands to the code found in hello/main.cpp.
+    expands to the code found in hello/main.cpp, or rather to an
+    equivalent HTML version.
 
     Do not confuse this command with \link #header \\header \endlink.
 
@@ -691,7 +699,7 @@
     <b>\\printline</b> expands to the next non-blank source code line
     of the current \link #walkthrough \\walkthrough \endlink file.
 
-    To ensure the documentation is always in synch with the example
+    To ensure the documentation is always in sync with the example
     source code, a substring of the code line should always be
     specified, like this:
     <pre>
@@ -897,17 +905,18 @@
       This signal is emitted whenever a toggle button
       changes status. The \a state is 2 if the button is on,
       1 if it's in the \\link <u>QCheckBox::setTriState()</u>
-      <u>"no change" state</u> \\endlink or 0 if the button is
+      <u>'no change' state</u> \\endlink or 0 if the button is
       off.
     *&#47;</pre>
     The first argument is the symbol to link to. The rest (up to
     \\endlink) is the displayed text. Here, we would get "... 1 if
-    it's in the \link #fnord "no change" state \endlink or 0 if ...".
+    it's in the \link #fnord 'no change' state \endlink or 0 if ...".
 
-    This is to avoid most of the time. In the hypertext version,
-    readers have to click to see what setTriState() is called. In the
-    manpage and paper versions, they cannot see it at all. Instead,
-    it is best to fit setTriState() into the sentence.
+    Avoid this most of the time. In the hypertext version, readers
+    have to click to see what setTriState() is called. In the manpage
+    and paper versions, they cannot see it at all. Instead, it is
+    best to fit setTriState() (or triState()) into the sentence: "1 if
+    the triState() is 'no change'".
 
     In the old days, there was no \link #l \\l&nbsp;(ell) \endlink
     command. Change horrors like
@@ -980,7 +989,7 @@
 
   <h3>Boring variables</h3>
 
-  Most projects require setting up the following variables first.
+  All projects require setting up most of the following variables.
 
   <ul>
    <p><li><a name="SOURCEDIRS"></a>
@@ -1100,25 +1109,32 @@
 
     For example,
     <pre>
-    DEFINE = GNOMOVISION SUPPORT_.*</pre>
-    will consider GNOMOVISION and any symbol starting with SUPPORT_ as
-    defined.
-
-    qdoc is not a C++ preprocessor. It uses simple, StriNg Oriented
-    PreProcessing techniques to break complex predicates into atomic
-    predicates, and tests these. For example, whether the "then" or
-    the "else" branch is taken in the following example depends on the
-    truth value of "defined(LITTLE_ENDIAN)", "PDP" and
-    "ENDIAN == 0x1234":
+    DEFINE = LITTLE_ENDIAN FEATURE_.*</pre>
+    defines LITTLE_ENDIAN and any symbol starting with FEATURE_.
+    This makes qdoc read inside these constructs:
     <pre>
-    #if ( !(defined(LITTLE_ENDIAN) || PDP) || ENDIAN == 0x1234 )
+    #ifdef LITTLE_ENDIAN
+	...
+    #endif</pre>
+    or
+    <pre>
+    #if defined(LITTLE_ENDIAN)
+	...
+    #endif</pre>
+    Otherwise, qdoc would skip over the commented-out portions of
+    code.
+
+    qdoc uses simple, StriNg Oriented PreProcessing techniques to
+    break complex predicates into atomic predicates, and tests these.
+    For example, whether the "then" or the "else" branch is taken in
+    the following example depends on the truth value of
+    "defined(LITTLE_ENDIAN)" and "ENDIAN == 0x1234":
+    <pre>
+    #if defined(LITTLE_ENDIAN) || ENDIAN == 0x1234
     ...
     #else
     ...
-    #endif</pre>The truth value is determined using the DEFINE and
-    FALSE variables. Here's one way to take the "else" branch:
-    <pre>
-    FALSE = "ENDIAN == 0x1234"</pre>
+    #endif</pre>
 
    <p><li><a name="FALSE"></a>
     <b>FALSE</b> (cf. \link #--false --false \endlink) tells qdoc what
@@ -1142,8 +1158,8 @@
    <p><li><a name="MAXSIMILAR"></a>
     <b>MAXSIMILAR</b> (cf.
     \link #--max-similar --max-similar \endlink) sets a limit on the
-    number of similar warnings emitted, so that no overwhelming
-    amounts of "Undocumented parameter 'x'" warnings are emitted. By
+    number of similar warnings emitted, to avoid overwhelming amounts
+    of "Undocumented parameter 'x'" warnings for example. By
     default,
     <pre>
     MAXSIMILAR = 16</pre>
@@ -1184,9 +1200,9 @@
     warning level (between 0 and 4). A higher level means more
     unimportant warnings.
 
-    The default warning level is 2. Here's how to set it to 3:
+    The default warning level
     <pre>
-    WARNINGLEVEL = 3</pre>
+    WARNINGLEVEL = 2</pre>
   </ul>
 
   <a name="run"></a>
@@ -1200,17 +1216,15 @@
   current directory. The command
   <pre>
     qdoc</pre>
-  should be enough to generate the whole documentation for the
-  project.
+  should be enough to generate the documentation of the whole project.
 
   To get tighter control over qdoc, you can use command-line
   arguments. Most of these duplicate functionality found in qdoc.conf,
   because it would be annoying to modify that file too often.
 
-  <!-- ### explain the += syntax -->
-
-  Both short and long options are provided, to please both the casual
-  user and the arthritic. Let's first cover the long ones:
+  Both long and short options are provided, to please both the casual
+  user and the lazy typists. However, since the author of this manual
+  is a lazy typist, only long options are listed here:
 
   <ul>
    <p><li><a name="--auto-hrefs"></a>
@@ -1229,8 +1243,9 @@
     <b>--define</b> (cf. \link #DEFINE DEFINE \endlink) defines
     preprocessor symbols to guide qdoc. You can write
     "--define=DEBUG,GUBED" to define the preprocessor symbols DEBUG
-    and GUBED. You can use regular expression, but beware of special
-    characters of your command interpreter.
+    and GUBED. You can use regular expressions, but beware of
+    characters interpreted by your command interpreter. To ease
+    typing, the comma can be used instead of "|" to mean "or".
 
    <p><li><a name="--false"></a>
     <b>--false</b> (cf. \link #FALSE FALSE \endlink) specifies what
@@ -1263,9 +1278,9 @@
 
    <p><li><a name="--only"></a>
     <b>--only</b> is equivalent to \link #ONLY ONLY \endlink. It
-    allows you to generate only a subset of the HTML files. For
-    example, "--only=qpushbutton,tutorial" makes qdoc run much faster
-    by generating only qpushbutton.html and tutorial.html (and related
+    allows you to generate a subset of the HTML files. For example,
+    "--only=qpushbutton,tutorial" makes qdoc run much faster by
+    generating only qpushbutton.html and tutorial.html (and related
     files).
 
     For convenience, you can specify only the prefix of the names to
@@ -1293,90 +1308,24 @@
     qdoc version 1.94</pre>
     If you have version 2.53, get
     \link mailto:jasmin@trolltech.com somebody \endlink to update this
-    document.
+    manual.
 
    <p><li><a name="--warning-level"></a>
     <b>--warning-level</b> sets the warning level (between 0 and 4).
     Use "--warning-level=0" to get only errors, and
     "--warning-level=4" to get important and unimportant warnings
-    alike.
+    alike. At level 4, you still might miss some warnings, if the
+    maximum number of warnings is reached (cf.
+    \link #--max-warnings --max-warnings \endlink and
+    \link #--max-similar --max-similar \endlink.
   </ul>
 
-  Here are the short options:
-
-  <ul>
-   <p><li><a name="-a"></a>
-    <b>-a</b> (cf. \link #--auto-hrefs --auto-hrefs \endlink) enables
-    automatic links.
-
-   <p><li><a name="-A"></a>
-    <b>-A</b> disable most automatic links.
-
-   <p><li><a name="-D"></a>
-    <b>-D</b> (cf. \link #--define --define \endlink) defines
-    preprocessor symbols. For example, "-DDEBUG" defines the symbol
-    DEBUG.
-
-   <p><li><a name="-F"></a>
-    <b>-F</b> (cf. \link #--false --false \endlink) defines false
-    preprocessor predicates.
-
-    For example, "-F1" states that "1" is
-    false. This might look silly, but some people got the habit of
-    bracketing code with <nobr>"#if 1 ... #endif"</nobr> to have it
-    processed by C++ but not by qdoc. A better solution is to use
-    <nobr>"#ifdef QDOC ... #endif"</nobr> and to use
-    \link #--define --define=QDOC \endlink.
-
-   <p><li><a name="-h"></a>
-    <b>-h</b> (cf. \link #--help --help \endlink) displays the list of
-    long options and exits.
-
-   <p><li><a name="-H"></a>
-    <b>-H</b> (cf. \link #--help-short --help-short \endlink) displays
-    the list of short options and exits.
-
-   <p><li><a name="-i"></a>
-    <b>-i</b> (cf. \link #--internal --internal \endlink) produces
-    internal documentation.
-
-   <p><li><a name="-I"></a>
-    <b>-I</b> (capital i) produces public documentation.
-
-   <p><li><a name="-m"></a>
-    <b>-m</b> (cf. \link #--max-similar --max-similar \endlink) limits
-    the number of similar warnings. For example, "-m32" limits that
-    number to 32.
-
-   <p><li><a name="-M"></a>
-    <b>-M</b> (cf. \link #--max-warnings --max-warnings \endlink)
-    limits the number of warnings. For example, "-M128" prints only
-    the 128 first warnings.
-
-   <p><li><a name="-O"></a>
-    <b>-O</b> (cf. \link #--only --only \endlink) generates only
-    matching HTML files. For example, "-Oqpushbutton,tutorial"
-    generates only qpushbutton.html and tutorial.html (and related
-    files).
-
-   <p><li><a name="-s"></a>
-    <b>-s</b> (cf. \link #--supervisor --supervisor \endlink) enables
-    supervisor mode.
-
-   <p><li><a name="-S"></a>
-    <b>-S</b> disables supervisor mode.
-
-   <p><li><a name="-v"></a>
-    <b>-v</b> (cf. \link #--version --version \endlink) prints the
-    version number and exits.
-
-   <p><li><a name="-W"></a>
-    <b>-W</b> (cf. \link #--warning-level --warning-level \endlink)
-    controls the warning level: "-W0" (no warnings, only errors),
-    "-W1", ..., "-W4" (all warnings). Also, "-Wall" removes all
-    limits, and every warning is emitted, while "-Wnone" turns off
-    all warnings.
-  </ul>
+  The full list of short options can be obtained by running
+  <pre>
+    qdoc --help-short</pre>
+  or, if you \e really are a lazy typist, by running
+  <pre>
+    qdoc -H</pre>
 
   <a name="join"></a>
 
