@@ -272,7 +272,6 @@ CFG_MOUSE_OFF=
 CFG_STYLE_AVAILABLE=
 CFG_USE_GNUMAKE=no
 CFG_IM=yes
-CFG_IM_EXT=no
 CFG_DECORATION_AVAILABLE=
 CFG_DECORATION_ON=
 CFG_DECORATION_PLUGIN=
@@ -504,13 +503,6 @@ while [ "$#" -gt 0 ]; do
     inputmethod)
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
 	    CFG_IM="$VAL"
-	else
-	    UNKNOWN_OPT=yes
-	fi
-	;;
-    inputmethod-ext)
-	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
-	    CFG_IM_EXT="$VAL"
 	else
 	    UNKNOWN_OPT=yes
 	fi
@@ -1992,15 +1984,6 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
     fi
 fi # QWS
 
-# immodule extensions
-if [ "$CFG_IM" = "no" ]; then
-    CFG_IM_EXT=no
-fi
-if [ "$CFG_IM_EXT" = "yes" ]; then
-    CFG_IM=yes
-fi
-
-
 #-------------------------------------------------------------------------------
 # help - interactive parts of the script _after_ this section please
 #-------------------------------------------------------------------------------
@@ -2296,13 +2279,6 @@ if [ "$PLATFORM_X11" = "yes" ]; then
         IMY="*"
         IMN=" "
     fi
-    if [ "$CFG_IM_EXT" = "no" ]; then
-        IXY=" "
-        IXN="*"
-    else
-        IXY="*"
-        IXN=" "
-    fi
     cat << EOF
 
 Qt/X11 only:
@@ -2351,8 +2327,6 @@ Qt/X11 only:
 			 support.
  $IMY  -inputmethod ....... Compile immodule support.
 
- $IXN  -no-inputmethod-ext  Do not compile more immodule extensions support.
- $IXY  -inputmethod-ext ... Compile more immodule extensions support.
 EOF
 fi
 
@@ -3110,11 +3084,6 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     elif [ "$CFG_IM" = "no" ]; then
 	QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IM"
     fi
-    if [ "$CFG_IM_EXT" = "yes" ]; then
-        QT_CONFIG="$QT_CONFIG inputmethod-ext"
-    elif [ "$CFG_IM_EXT" = "no" ]; then
-	QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IM_EXTENSIONS"
-    fi
 elif [ "$PLATFORM_MAC" = "yes" ]; then
     if [ "$CFG_TABLET" = "yes" ]; then
 	QT_CONFIG="$QT_CONFIG tablet"
@@ -3743,7 +3712,6 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     echo "Xft support ......... $CFG_XFT"
     echo "XKB Support ......... $CFG_XKB"
     echo "immodule support .... $CFG_IM"
-    echo "immodule ext support  $CFG_IM_EXT"
 fi
 
 # complain about not being able to use plugins if we are using a static build
