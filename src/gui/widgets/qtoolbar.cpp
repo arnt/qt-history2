@@ -639,7 +639,7 @@ void QToolBar::childEvent(QChildEvent *event)
             }
             if (!found)
                 qWarning("QToolBar: child widget '%s::%s' not added, use QToolBar::addWidget()",
-                         widget->objectName().local8Bit(), widget->className());
+                         widget->objectName().local8Bit(), widget->metaObject()->className());
         } else
 #endif
         if (event->type() == QEvent::ChildRemoved) {
