@@ -288,20 +288,29 @@ QDrag::DropAction QDragManager::defaultAction(QDrag::DropActions possibleActions
     QDrag::DropAction defaultAction = QDrag::CopyAction;
 
     //### on windows these are not updated as part of the drag ... need to put a hook some where for this
-    Qt::KeyboardModifiers moderfies = QApplication::keyboardModifiers();
+    Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();
 #ifdef QDND_DEBUG
     qDebug("QDragManager::defaultAction(QDrag::DropActions possibleActions)");
-    qDebug("keyboard moderfies : %s", KeyboardModifiersToString(moderfies).latin1());
+    qDebug("keyboard modifiers : %s", KeyboardModifiersToString(modifiers).latin1());
 #endif
 
-    if (moderfies & Qt::ControlButton && moderfies & Qt::ShiftButton)
+#ifdef Q_WS_MAC
+    if (modifiers & Qt::ControlButton && modifiers & Qt::AltButton)
         defaultAction = QDrag::LinkAction;
-    else if (moderfies & Qt::ControlButton)
+    else if (modifiers & Qt::AltButton)
         defaultAction = QDrag::CopyAction;
-    else if (moderfies & Qt::ShiftButton)
+    else
         defaultAction = QDrag::MoveAction;
-    else if (moderfies & Qt::AltButton)
+#else
+    if (modifiers & Qt::ControlButton && modifiers & Qt::ShiftButton)
         defaultAction = QDrag::LinkAction;
+    else if (modifiers & Qt::ControlButton)
+        defaultAction = QDrag::CopyAction;
+    else if (modifiers & Qt::ShiftButton)
+        defaultAction = QDrag::MoveAction;
+    else if (modifiers & Qt::AltButton)
+        defaultAction = QDrag::LinkAction;
+#endif
 
     // if the object is set take the list of possibles from it
     if (object)
@@ -316,7 +325,7 @@ QDrag::DropAction QDragManager::defaultAction(QDrag::DropActions possibleActions
         defaultAction = QDrag::CopyAction;
 
 #ifdef QDND_DEBUG
-    qDebug("defualt action : %s", dragActionsToString(defaultAction).latin1());
+    qDebug("default action : %s", dragActionsToString(defaultAction).latin1());
 #endif
 
     return defaultAction;
