@@ -725,6 +725,16 @@ bool QDateTimeEditor::setFocusSection( int sec )
     QDateTimeEditor.
 */
 
+/*!
+    \fn QDateTimeEditBase::QDateTimeEditBase(QWidget *, const char*)
+    \internal
+*/
+
+/*!
+    \fn QDateTimeEditBase::setFocusSection(int)
+    \internal
+*/
+
 /*! \fn QString QDateTimeEditBase::sectionFormattedText( int sec )
     \internal
 
