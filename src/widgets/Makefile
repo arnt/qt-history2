@@ -59,8 +59,6 @@ $(TARGET): $(OBJECTS) $(OBJMETA)
 	ar q $(TARGET) $(OBJECTS) $(OBJMETA)
 	ranlib $(TARGET)
 
-rcs:: ./RCS/$$@,v
-
 showfiles:
 	@echo $(HEADERS) $(SOURCES) Makefile
 
@@ -79,19 +77,6 @@ depend: $(SRCMETA)
 clean:
 	rm -f *.o *.bak *BAK *~ *% #*
 	rm -f $(SRCMETA)
-
-# 'make checkout' updates files that MUST be old
-# 'make checkout CODATE=-d1994/12/24' recreates 1994/12/24
-# 'make checkout CODATE=-d2000/1/1 updates all files
-checkout:
-	@for rcs in RCS/*,v ; do \
-	    file=`basename $$rcs ,v` ;\
-	    [ -n "${CODATE}" ] || \
-	    [ '!' -f $$file ] || \
-	    ( [ '!' -w $$file ] && [ $$rcs -nt $$file ] ) && \
-	    co ${CODATE} $$file ;\
-	done; \
-	/bin/true	# tell make it worked
 
 #######	Meta classes
 
