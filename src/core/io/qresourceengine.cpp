@@ -34,7 +34,7 @@ class QResourceDirEngineHandler : public QDirEngineHandler
 {
 public:
     QResourceDirEngineHandler() { }
-    QResourceDirEngine *createDirEngine(const QString &path) 
+    QDirEngine *createDirEngine(const QString &path) 
     { 
         if(path.startsWith(":/")) 
             return new QResourceDirEngine(path); 
@@ -143,7 +143,7 @@ class QResourceFileEngineHandler : public QFileEngineHandler
 {
 public:
     QResourceFileEngineHandler() { }
-    QResourceFileEngine *createFileEngine(const QString &path) 
+    QFileEngine *createFileEngine(const QString &path) 
     { 
         if(path.startsWith(":/"))
             return new QResourceFileEngine(path);
@@ -287,7 +287,7 @@ class QResourceFileInfoEngineHandler : public QFileInfoEngineHandler
 {
 public:
     QResourceFileInfoEngineHandler() { }
-    QResourceFileInfoEngine *createFileInfoEngine(const QString &path) 
+    QFileInfoEngine *createFileInfoEngine(const QString &path) 
     { 
         if(path.startsWith(":/")) 
             return new QResourceFileInfoEngine(path); 
