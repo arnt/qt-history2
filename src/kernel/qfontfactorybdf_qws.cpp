@@ -73,7 +73,9 @@ public:
     {
 	df = d;
 
-	fleading = 1;
+	fleading = 0;
+	fascent = -1;
+	fdescent = -1;
 	QFile in(df->file);
 	in.open(IO_ReadOnly);
 	QTextStream s(&in);
@@ -200,11 +202,13 @@ public:
 		} else if ( tag == "FONTBOUNDINGBOX" ) {
 		    bbox = QRect(token[3].toInt(),token[4].toInt(),
 				 token[1].toInt(),token[2].toInt());
+		    fascent = bbox.bottom()+1;
+		    fdescent = -bbox.y()-1;
 		    fmaxwidth = bbox.width();
 		} else if ( tag == "FONT_ASCENT" ) {
-		    fascent = token[1].toInt();
+		    if ( fascent < 0 ) fascent = token[1].toInt();
 		} else if ( tag == "FONT_DESCENT" ) {
-		    fdescent = token[1].toInt();
+		    if ( fdescent < 0 ) fdescent = token[1].toInt();
 		} else if ( tag == "DEFAULT_CHAR" ) {
 		    default_char = token[1].toInt();
 		} else if ( tag == "CHARS" ) {
