@@ -78,7 +78,7 @@ public:
 private:
     void setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY);
     void update() const;
-    QCursor *find_cur(int);
+    static QCursorData *find_cur(int);
 
     QCursorData *d;
     static bool initialized;

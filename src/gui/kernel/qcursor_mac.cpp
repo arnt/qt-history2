@@ -21,7 +21,7 @@
 /*****************************************************************************
   Externals
  *****************************************************************************/
-extern QCursor cursorTable[Qt::LastCursor + 1];
+extern QCursorData *qt_cursorTable[Qt::LastCursor + 1];
 extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
 extern GrafPtr qt_macQDHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
 
@@ -203,9 +203,9 @@ void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, in
         initialize();
     if (bitmap.depth() != 1 || mask.depth() != 1 || bitmap.size() != mask.size()) {
         qWarning("Qt: QCursor: Cannot create bitmap cursor; invalid bitmap(s)");
-        QCursor *c = &cursorTable[0];
-        d = c->d;
-        ++d->ref;
+        QCursorData *c = qt_cursorTable[0];
+        ++c->ref;
+        d = c;
         return;
     }
     // This is silly, but this is apparently called outside the constructor, so we have

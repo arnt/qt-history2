@@ -41,7 +41,7 @@ QCursorData::~QCursorData()
   Global cursors
  *****************************************************************************/
 
-extern QCursor cursorTable[Qt::LastCursor + 1]; // qcursor.cpp
+extern QCursorData *qt_cursorTable[Qt::LastCursor + 1]; // qcursor.cpp
 
 Qt::HANDLE QCursor::handle() const
 {
@@ -55,9 +55,9 @@ void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, in
         initialize();
     if (bitmap.depth() != 1 || mask.depth() != 1 || bitmap.size() != mask.size()) {
         qWarning("QCursor: Cannot create bitmap cursor; invalid bitmap(s)");
-        QCursor *c = &cursorTable[0];
-        d = c->d;
-        ++d->ref;
+        QCursorData *c = qt_cursorTable[0];
+        ++c->ref;
+        d = c;
         return;
     }
     d = new QCursorData;

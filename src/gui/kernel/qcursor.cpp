@@ -287,7 +287,7 @@ QCursor::QCursor(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY)
     setBitmap(bitmap, mask, hotX, hotY);
 }
 
-QCursor cursorTable[Qt::LastCursor + 1];
+QCursorData *qt_cursorTable[Qt::LastCursor + 1];
 bool QCursor::initialized = false;
 
 /*! \internal */
@@ -297,8 +297,8 @@ void QCursor::cleanup()
         return;
 
     for (int shape = 0; shape <= Qt::LastCursor; ++shape) {
-        delete cursorTable[shape].d;
-        cursorTable[shape].d = 0;
+        delete qt_cursorTable[shape];
+        qt_cursorTable[shape] = 0;
     }
     initialized = false;
 }
@@ -312,14 +312,14 @@ void QCursor::initialize()
     InitCursor();
 #endif
     for (int shape = 0; shape <= Qt::LastCursor; ++shape)
-        cursorTable[shape].d = new QCursorData(shape);
+        qt_cursorTable[shape] = new QCursorData(shape);
     initialized = true;
     qAddPostRoutine(cleanup);
 }
 
-QCursor *QCursor::find_cur(int shape)
+QCursorData *QCursor::find_cur(int shape)
 {
-    return (uint)shape <= Qt::LastCursor ? &cursorTable[shape] : 0;
+    return uint(shape) <= Qt::LastCursor ? qt_cursorTable[shape] : 0;
 }
 
 /*!
@@ -334,9 +334,9 @@ QCursor::QCursor()
         }
         initialize();
     }
-    QCursor *c = &cursorTable[0];
-    d = c->d;
-    ++d->ref;
+    QCursorData *c = qt_cursorTable[0];
+    ++c->ref;
+    d = c;
 }
 
 /*!
@@ -379,17 +379,16 @@ void QCursor::setShape(int shape)
 {
     if (!initialized)
         initialize();
-    QCursor *c = find_cur(shape);
+    QCursorData *c = find_cur(shape);
     if (!c)
-        c = &cursorTable[0];
-    QCursorData *x = c->d;
-    ++x->ref;
+        c = qt_cursorTable[0];
+    ++c->ref;
     if (!d) {
-        d = x;
+        d = c;
     } else {
-        x = qAtomicSetPtr(&d, x);
-        if (!--x->ref)
-            delete x;
+        c = qAtomicSetPtr(&d, c);
+        if (!--c->ref)
+            delete c;
     }
 }
 
