@@ -1,0 +1,36 @@
+
+1 VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904e4"
+        BEGIN
+            VALUE "CompanyName", "Trolltech\0"
+            VALUE "FileDescription", "qtimage\0"
+	    VALUE "FileExtents", "png\0"
+	    VALUE "FileOpenName", "PNG (*.png)\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "qtimage\0"
+            VALUE "LegalCopyright", "Copyright © 1997 Trolltech AS\0"
+	    VALUE "MIMEType", "image/png\0"
+            VALUE "OriginalFilename", "qtimage.dll\0"
+            VALUE "ProductName", "Trolltech QtImage\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
