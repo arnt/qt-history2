@@ -207,7 +207,7 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
     QDomElement signals = e;
     while ( signals.tagName() != "signals" && !signals.isNull() )
 	signals = signals.nextSibling().toElement();
-    
+
     QDomElement slots = e;
     while ( slots.tagName() != "slots" && !slots.isNull() )
 	slots = slots.nextSibling().toElement();
@@ -361,6 +361,10 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 		if ( !MetaDataBase::hasSlot( formwindow, slot.slot, TRUE ) )
 		    MetaDataBase::addSlot( formwindow, slot.slot, slot.specifier,
 					   slot.access, slot.language, slot.returnType );
+		else
+		    MetaDataBase::changeSlotAttributes( formwindow, slot.slot,
+							slot.specifier, slot.access,
+							slot.language, slot.returnType );
 	    }
     }
     if ( !actions.isNull() )
@@ -1989,6 +1993,10 @@ void Resource::loadConnections( const QDomElement &e )
 	    if ( !MetaDataBase::hasSlot( formwindow, slot.slot, TRUE ) )
 		MetaDataBase::addSlot( formwindow, slot.slot, slot.specifier,
 				       slot.access, slot.language, slot.returnType );
+	    else
+		MetaDataBase::changeSlotAttributes( formwindow, slot.slot,
+						    slot.specifier, slot.access,
+						    slot.language, slot.returnType );
 	}
 	n = n.nextSibling().toElement();
     }

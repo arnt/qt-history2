@@ -167,6 +167,9 @@ public:
     static bool isSlotUsed( QObject *o, const QCString &slot );
     static bool hasSlot( QObject *o, const QCString &slot, bool onlyCustom = FALSE );
     static void changeSlot( QObject *o, const QCString &slot, const QCString &newName );
+    static void changeSlotAttributes( QObject *o, const QCString &slot,
+				      const QString& specifier, const QString &access,
+				      const QString &language, const QString &returnType );
     static QString languageOfSlot( QObject *o, const QCString &slot );
     static void setSlotList( QObject *o, const QValueList<Slot> &slotList );
 

@@ -626,6 +626,31 @@ void MetaDataBase::changeSlot( QObject *o, const QCString &slot, const QCString 
     }
 }
 
+void MetaDataBase::changeSlotAttributes( QObject *o, const QCString &slot,
+					 const QString& specifier, const QString &access,
+					 const QString &language, const QString &returnType )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    for ( QValueList<Slot>::Iterator it = r->slotList.begin(); it != r->slotList.end(); ++it ) {
+	Slot s = *it;
+	if ( normalizeSlot( s.slot ) == normalizeSlot( slot ) ) {
+	    qDebug( "yes" );
+	    (*it).specifier = specifier;
+	    (*it).access = access;
+	    (*it).language = language;
+	    (*it).returnType = returnType;
+	    return;
+	}
+    }
+}
+
 bool MetaDataBase::hasSlot( QObject *o, const QCString &slot, bool onlyCustom )
 {
     setupDataBase();
