@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#37 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -14,6 +14,7 @@
 #include "qpaintdc.h"
 #include "qwidget.h"
 #include "qbitmap.h"
+#include "qlist.h"
 #include <ctype.h>
 #include <malloc.h>
 #define	 GC GC_QQQ
@@ -22,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#36 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#37 $";
 #endif
 
 
@@ -259,10 +260,80 @@ inline double qcos( double a ) { return qsincos(a,TRUE); }
 
 
 // --------------------------------------------------------------------------
-// QPainter member functions
+// QPainter internal GC cache
 //
 
-#include "qlist.h"
+struct QGC {
+    GC	 gc;
+    bool in_use;
+};
+
+const 	    gc_array_size = 16;
+static QGC  gc_array[gc_array_size];
+static bool gc_array_init = FALSE;
+
+static GC alloc_painter_gc( Display *dpy, Drawable d )
+{
+    register QGC *p = gc_array;
+    int i = gc_array_size;
+    if ( !gc_array_init ) {			// initialize GC array
+	while ( i-- ) {
+	    p->gc     = 0;
+	    p->in_use = FALSE;
+	    p++;
+	}
+	gc_array_init = TRUE;
+	p = gc_array;
+	i = gc_array_size;
+    }
+    while ( i-- ) {
+	if ( !p->gc ) {
+	    p->gc = XCreateGC( dpy, d, 0, 0 );
+	    p->in_use = FALSE;
+	}
+	if ( !p->in_use ) {
+	    p->in_use = TRUE;
+	    return p->gc;
+	}
+	p++;
+    }
+#if defined(CHECK_NULL)
+    warning( "QPainter: Internal error, no available GC" );
+#endif
+}
+
+static void free_painter_gc( Display *dpy, GC gc )
+{
+    register QGC *p = gc_array;
+    int i = gc_array_size;
+    if ( gc_array_init ) {
+	while ( i-- ) {
+	    if ( p->gc == gc ) {
+		ASSERT( p->in_use );
+		p->in_use = FALSE;
+		return;
+	    }
+	    p++;
+	}
+    }
+}
+
+static void cleanup_painter_gc( Display *dpy )
+{
+    register QGC *p = gc_array;
+    int i = gc_array_size;
+    if ( gc_array_init ) {
+	while ( i-- ) {
+	    if ( p->gc )
+		XFreeGC( dpy, p->gc );
+	}
+    }
+}
+
+
+// --------------------------------------------------------------------------
+// QPainter member functions
+//
 
 typedef declare(QListM,QPainter) QPnList;
 
@@ -278,6 +349,7 @@ QPainter::QPainter()
     bg_col = white;				// default background color
     bg_mode = TransparentMode;			// default background mode
     rop = CopyROP;				// default ROP
+    xpen = 0;
     tabstops = 0;				// default tabbing
     tabarray = 0;
     tabarraylen = 0;
@@ -293,17 +365,12 @@ QPainter::~QPainter()
 #endif
 	end();
     }
+    delete xpen;
     if ( tabarray )				// delete tab array
 	delete tabarray;
     if ( ps_stack )
 	killPStack();
     list->remove( this );			// remove from painter list
-#if defined(DEBUG)
-    if ( list->isEmpty() ) {			// make sure we get no memory
-	delete list;				//   leaks!
-	list = 0;
-    }
-#endif
 }
 
 QFont &QPainter::font()
@@ -335,18 +402,6 @@ void QPainter::setBrush( const QBrush &brush )	// set current brush
     cbrush.data->dpy = dpy;			// give brush a display pointer
 }
 
-
-void QPainter::changedFont( const QFont *font, bool dirty )
-{						// a font object was changed
-    if ( !list )
-	return;
-    register QPainter *p = list->first();
-    while ( p ) {				// notify active painters
-	if ( p->isActive() && p->cfont == *font )
-	    dirty ? p->setf(DirtyFont) : p->clearf(DirtyFont);
-	p = list->next();
-    }
-}
 
 void QPainter::changedPen( const QPen *pen, bool dirty )
 {						// a pen object was changed
@@ -382,14 +437,6 @@ void QPainter::updateFont()			// update after changed font
 	pdev->cmd( PDC_SETFONT, param );
 	return;
     }
-    if ( borrowWidgetGC ) {
-/* TEST!!! Don't know if this works??? 
-	QWidget *w = (QWidget *)pdev;
-	if ( cfont.handle() == w->fontRef().handle() )
-	    return;				// can still use widget's gc
-*/
-	createOwnGC();
-    }
     XSetFont( dpy, gc, cfont.handle() );
 }
 
@@ -407,17 +454,10 @@ void QPainter::updatePen()			// update after changed pen
 	pdev->cmd( PDC_SETPEN, param );
 	return;
     }
-    if ( borrowWidgetGC ) {			// use the widget's GC
-	QWidget *w = (QWidget*)pdev;
-	if ( cpen.style() == SolidLine &&
-	     cpen.width() == 0 &&
-	     cpen.color().pixel() == w->fg_col.pixel() &&
-	     bg_col.pixel() == w->bg_col.pixel() &&
-	     bg_mode == TransparentMode &&
-	     rop == CopyROP && !testf(ClipOn) )
-	    return;				// can still use widget's gc
-	else {
-	    createOwnGC();			// calls updatePen()
+    if ( xpen ) {
+	if ( xpen->style() == cpen.style() && xpen->width() == cpen.width() ) {
+	    xpen->data->color = cpen.color();	// we only need to change color
+	    XSetForeground( dpy, gc, cpen.color().pixel() );
 	    return;
 	}
     }
@@ -453,6 +493,9 @@ void QPainter::updatePen()			// update after changed pen
 	s = bg_mode == TransparentMode ? LineOnOffDash : LineDoubleDash;
     }
     XSetLineAttributes( dpy, gc, cpen.width(), s, CapButt, JoinMiter );
+    if ( !xpen )
+	xpen = new QPen;
+    *xpen = cpen.copy();			// this will be the old pen
 }
 
 void QPainter::updateBrush()			// update after changed brush
@@ -522,7 +565,7 @@ static char *pat_tbl[] = {
 	    s = FillSolid;
     }
     if ( !gc_brush ) {				// brush not yet created
-	gc_brush = XCreateGC( dpy, hd, 0, 0 );
+	gc_brush = alloc_painter_gc( dpy, hd );
 	if ( rop != CopyROP )			// update raster op for brush
 	    setRasterOp( (RasterOp)rop );
 	if ( testf(ClipOn) )
@@ -572,7 +615,6 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	setf(ExtDev);				// this is an extended device
     dpy = pdev->dpy;				// get display variable
     hd = pdev->hd;				// get handle to drawable
-    borrowWidgetGC = FALSE;			// assume own gc
     if ( testf(ExtDev) ) {
 	gc = 0;
 	if ( !pdev->cmd( PDC_BEGIN, 0 ) ) {	// could not begin painting
@@ -593,7 +635,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	    cpen   = defaultPen;
 	    cbrush = defaultBrush;
 	}
-	gc = XCreateGC( dpy, hd, 0, 0 );	// create GC
+	gc = alloc_painter_gc( dpy, hd );	// create GC
     }
     setf( IsActive );				// painter becomes active
     pdev->devFlags |= PDF_PAINTACTIVE;		// also tell paint device
@@ -601,6 +643,8 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     bro = curPt = QPoint( 0, 0 );
     if ( reinit ) {
 	bg_col = white;				// default background color
+	delete xpen;
+	xpen = 0;
 	wxmat.reset();				// reset world xform matrix
     }
     sx = sy = tx = ty = 0;			// default view origins
@@ -615,10 +659,8 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	if ( reinit ) {
 	    cbrush = QBrush( NoBrush );
 	}
-	gc = w->getGC();
-	borrowWidgetGC = TRUE;			// optimize gc
+	gc = alloc_painter_gc( dpy, w->id() );
 	if ( w->testFlag(WPaintUnclipped) ) {	// paint direct on device
-	    createOwnGC();
 	    updateBrush();
 	    XSetSubwindowMode( w->display(), gc, IncludeInferiors );
 	    XSetSubwindowMode( w->display(), gc_brush, IncludeInferiors );
@@ -635,15 +677,9 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     }
     else
 	sw = sh = tw = th = 1;
-    if ( borrowWidgetGC ) {			// optimize
-	bg_mode = TransparentMode;
-	rop = CopyROP;
-    }
-    else {
-	setBackgroundColor( bg_col );		// default background color
-	setBackgroundMode( TransparentMode );	// default background mode
-	setRasterOp( CopyROP );			// default raster operation
-    }
+    setBackgroundColor( bg_col );		// default background color
+    setBackgroundMode( TransparentMode );	// default background mode
+    setRasterOp( CopyROP );			// default raster operation
     return TRUE;
 }
 
@@ -654,23 +690,13 @@ bool QPainter::end()				// end painting
     if ( testf(ExtDev) )
 	pdev->cmd( PDC_END, 0 );
     if ( gc_brush )
-	XFreeGC( dpy, gc_brush );
-    if ( gc && !borrowWidgetGC )
-	XFreeGC( dpy, gc );
+	free_painter_gc( dpy, gc_brush );
+    if ( gc )
+	free_painter_gc( dpy, gc );
     clearf( IsActive );
     pdev->devFlags &= ~PDF_PAINTACTIVE;
     pdev = 0;
     return TRUE;
-}
-
-
-void QPainter::createOwnGC()			// create our own GC
-{
-    borrowWidgetGC = FALSE;
-    gc = XCreateGC( dpy, hd, 0, 0 );
-    updatePen();
-    if ( cfont.dirty() || testf(DirtyFont) )
-	updateFont();
 }
 
 
@@ -685,6 +711,8 @@ void QPainter::setBackgroundColor( const QColor &c )
 	pdev->cmd( PDC_SETBKCOLOR, param );
 	return;
     }
+    delete xpen;
+    xpen = 0;
     updatePen();				// update pen setting
     if ( gc_brush )
 	updateBrush();				// update brush setting
@@ -707,6 +735,8 @@ void QPainter::setBackgroundMode( BGMode m )	// set background mode
 	pdev->cmd( PDC_SETBKMODE, param );
 	return;
     }
+    delete xpen;
+    xpen = 0;
     updatePen();				// update pen setting
     if ( gc_brush )
 	updateBrush();				// update brush setting
@@ -732,8 +762,6 @@ void QPainter::setRasterOp( RasterOp r )	// set raster operation
 	pdev->cmd( PDC_SETROP, param );
 	return;
     }
-    if ( borrowWidgetGC && rop != CopyROP )
-	createOwnGC();
     XSetFunction( dpy, gc, ropCodes[rop] );
     if ( gc_brush )
 	XSetFunction( dpy, gc_brush, ropCodes[rop] );
@@ -1043,8 +1071,6 @@ void QPainter::setClipping( bool onOff )	// set clipping on/off
 	pdev->cmd( PDC_SETCLIP, param );
 	return;
     }
-    if ( borrowWidgetGC )
-	createOwnGC();
     if ( testf(ClipOn) ) {
 	XSetRegion( dpy, gc, crgn.handle() );
 	if ( gc_brush )
@@ -1943,8 +1969,6 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    bool create_new_bm = wx_bm == 0;
 	    QWorldMatrix mat( 1, 0, 0, 1, -eff_mat.dx(), -eff_mat.dy() );
 	    mat = eff_mat * mat;
-	    if ( borrowWidgetGC )
-		createOwnGC();
 	    if ( create_new_bm ) {		// no such cached bitmap
 		QBitMap bm( w, h );		// create bitmap
 		QPainter paint;
@@ -2273,8 +2297,6 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	tf |= DontClip;				// no need to clip
 
     if ( (tf & DontClip) == 0 )	{		// clip text
-	if ( borrowWidgetGC )
-	    createOwnGC();
 	QRect r( x, y, w, h );
 	if ( testf(WxF) ) {			// world xform active
 	    QPointArray a( r );			// complex region
