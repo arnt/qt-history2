@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#477 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#478 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3775,13 +3775,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 
     {
 	XEvent otherEvent;
-	while ( XCheckTypedEvent(x11Display(),ConfigureNotify,&otherEvent) ) {
-	    if (otherEvent.type != ConfigureNotify
-		|| otherEvent.xconfigure.window != event->xconfigure.window
-		|| otherEvent.xconfigure.event != event->xconfigure.event) {
-		XPutBackEvent( x11Display(), &otherEvent );
-		break;
-	    }
+	while ( XCheckTypedWindowEvent(x11Display(),winId(),ConfigureNotify,&otherEvent) ) {
 	    if ( qApp->x11EventFilter(&otherEvent) )
 		break;
 	    newSize.setWidth( otherEvent.xconfigure.width );
