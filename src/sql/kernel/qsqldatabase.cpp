@@ -231,12 +231,29 @@ void QSqlDatabasePrivate::disable()
 
 /*!
     \class QSqlDatabase qsqldatabase.h
-    \brief The QSqlDatabase class is used to create SQL database
-    connections and to provide transaction handling.
+    \brief The QSqlDatabase class represents a connection to
+    a database.
 
     \ingroup database
     \mainclass
     \module sql
+
+    Note that QSqlDatabase is implemented as a smart pointer to
+    a database connection. It is reference counted, but not implicitely
+    shared, which means that if one copy of a QSqlDatabase object is
+    modified, it will affect all other copies.
+
+    \code
+    QSqlDatabase db1;
+    QSqlDatabase db2 = db1;
+    db2.setUserName("mark");
+    // both db1's and db2's user name is now "mark"
+    \endcode
+
+    You should always use addDatabase() or database() to aquire
+    QSqlDatabase objects and removeDatabase() to remove connections.
+    Since QSqlDatabase is reference counted, it will output a warning
+    if the connection is still in use.
 
     Note that transaction handling is not supported by every SQL
     database. You can find out whether transactions are supported
@@ -295,6 +312,27 @@ QSqlDatabase QSqlDatabase::database(const QString& connectionName, bool open)
     \warning There should be no open queries on the database
     connection when this function is called, otherwise a resource leak
     will occur.
+
+    Since QSqlDatabase is reference counted, a warning will be issued if
+    the connection is still in use.
+
+    \code
+    QSqlDatabase db = QSqlDatabase::database("sales");
+    QSqlQuery q("select * from employees", db);
+    QSqlDatabase::removeDatabase("sales"); // will output a warning
+    // "db" is now a dangling invalid database connection,
+    // "q" contains an invalid result set
+    \endcode
+
+    The correct way to do it:
+    \code
+    {
+        QSqlDatabase db = QSqlDatabase::database("sales");
+        QSqlQuery q("select * from employees", db);
+        // Both "db" and "q" run out of scope
+    }
+    QSqlDatabase::removeDatabase("sales"); // correct
+    \endcode
 */
 
 void QSqlDatabase::removeDatabase(const QString& connectionName)
@@ -734,6 +772,9 @@ bool QSqlDatabase::rollback()
     ("FIL" is the required spelling in Microsoft's API.)
 
     There is no default value.
+
+    Note that setting the database name on an already open connection will
+    have no effect until the connection is closed and opened again.
 */
 
 void QSqlDatabase::setDatabaseName(const QString& name)
@@ -746,6 +787,9 @@ void QSqlDatabase::setDatabaseName(const QString& name)
     \brief the user name connected to the database
 
     There is no default value.
+
+    Note that setting the user name on an already open connection will
+    have no effect until the connection is closed and opened again.
 */
 
 void QSqlDatabase::setUserName(const QString& name)
@@ -763,6 +807,9 @@ void QSqlDatabase::setUserName(const QString& name)
     Qt. Use the open() call that takes a password as parameter to
     avoid this behavior.
 
+    Note that setting the password on an already open connection will
+    have no effect until the connection is closed and opened again.
+
     \sa open()
 */
 
@@ -775,6 +822,9 @@ void QSqlDatabase::setPassword(const QString& password)
     \property QSqlDatabase::hostName
     \brief the host name where the database resides
 
+    Note that setting the host name on an already open connection will
+    have no effect until the connection is closed and opened again.
+
     There is no default value.
 */
 
@@ -786,6 +836,9 @@ void QSqlDatabase::setHostName(const QString& host)
 /*!
     \property QSqlDatabase::port
     \brief the port used to connect to the database
+
+    Note that setting the port on an already open connection will
+    have no effect until the connection is closed and opened again.
 
     There is no default value.
 */
@@ -1132,6 +1185,14 @@ QSqlDatabase QSqlDatabase::addDatabase(QSqlDriver* driver, const QString& connec
 
 /*!
    Returns true if the QSqlDatabase has a valid driver.
+   \code
+   QSqlDatabase db;
+   qDebug() << db.isValid(); // false, db is not valid
+   db = QSqlDatabase::database("sales");
+   qDebug() << db.isValid(); // true if "sales" connection exists
+   QSqlDatabase::removeDatabase("sales");
+   qDebug() << db.isValid(); // false since "sales" does not exist anymore
+   \endcode
  */
 bool QSqlDatabase::isValid() const
 {
