@@ -1466,13 +1466,25 @@ QNPInstance::InstanceMode QNPInstance::mode() const
 /*!
   Returns the value of the named arguments, or 0 if no argument
   with that name appears in the &ltEMBED&gt; tag of this instance.
+  If the argument appears, but has no value assigned, the empty
+  string is returned.  In summary:
+
+  <ul>
+   <li> <b>&ltEMBED ...&gt;</b> - arg("FOO") == 0
+   <li> <b>&ltEMBED FOO ...&gt;</b> - arg("FOO") == ""
+   <li> <b>&ltEMBED FOO=BAR ...&gt;</b> - arg("FOO") == "BAR"
+  </ul>
 */
 const char* QNPInstance::arg(const char* name) const
 {
     for (int i=0; i<pi->argc; i++) {
 	// SGML: names are case insensitive
-	if ( stricmp( name, pi->argn[i] ) == 0 )
-	    return pi->argv[i];
+	if ( stricmp( name, pi->argn[i] ) == 0 ) {
+	    if (pi->argv[i].isEmpty())
+		return "";
+	    else
+		return pi->argv[i];
+	}
     }
     return 0;
 }
