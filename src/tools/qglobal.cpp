@@ -537,9 +537,9 @@ void qFatal( const char *msg, ... )
 	va_end( ap );
         mac_default_handler(buf);
 #else
-	vfprintf( stderr, msg, ap );
+	vsprintf( buf, msg, ap );
 	va_end( ap );
-	fprintf( stderr, "\n" );		// add newline
+	fprintf( stderr, "%s\n", buf );		// add newline
 #endif
 #if defined(Q_OS_UNIX) && defined(QT_DEBUG)
 	abort();				// trap; generates core dump

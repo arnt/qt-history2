@@ -135,13 +135,13 @@ int main( int argc, char **argv )
 	    return 0;
 	} else if ( p == "/regserver" || p == "-regserver" ) {
 	    if ( !registerServer( input ) ) {
-		error = "Failed to register server!";
+		qFatal("Failed to register server!");
 		return 1;
 	    }
 	    return 0;
 	} else if ( p == "/unregserver" || p == "-unregserver" ) {
 	    if ( !unregisterServer( input ) ) {
-		error = "Failed to unregister server!";
+		qFatal("Failed to unregister server!");
 		return 1;
 	    }
 	    return 0;
