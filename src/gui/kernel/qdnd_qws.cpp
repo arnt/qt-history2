@@ -46,7 +46,7 @@ static const char* default_pm[] = {
 static QDrag::DropAction drag_mode;
 static QDropEvent::Action global_requested_action = QDropEvent::Copy;
 static QDropEvent::Action global_accepted_action = QDropEvent::Copy;
-static QDragPrivate *drag_object;
+static QDrag *drag_object;
 
 static Qt::ButtonState oldstate;
 
@@ -83,9 +83,9 @@ void QDragManager::updatePixmap()
         QPixmap pm;
         QPoint pm_hot(default_pm_hotx,default_pm_hoty);
         if (drag_object) {
-            pm = drag_object->pixmap;
+            pm = drag_object->pixmap();
             if (!pm.isNull())
-                pm_hot = drag_object->hotspot;
+                pm_hot = drag_object->hotSpot();
         }
         if (pm.isNull()) {
             if (!defaultPm)
@@ -145,7 +145,6 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
     if (!o->isWidgetType())
         return false;
 
-
     switch(e->type()) {
 
         case QEvent::KeyPress:
@@ -174,27 +173,27 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
 
                 // Fix for when we move mouse on to the deco widget
                 if (qt_qws_dnd_deco && cw == qt_qws_dnd_deco)
-                    cw = object->target;
+                    cw = object->target();
 
-                if (object->target != cw) {
-                    if (object->target) {
+                if (object->target() != cw) {
+                    if (object->target()) {
                         QDragLeaveEvent dle;
-                        QApplication::sendEvent(object->target, &dle);
+                        QApplication::sendEvent(object->target(), &dle);
                         willDrop = false;
                         updateCursor();
                         restoreCursor = true;
-                        object->target = 0;
+                        object->d_func()->target = 0;
                     }
                     if (cw && cw->acceptDrops()) {
-                        object->target = cw;
-                        QDragEnterEvent dee(me->pos(), QDragManager::self()->dropData);
-                        QApplication::sendEvent(object->target, &dee);
+                        object->d_func()->target = cw;
+                        QDragEnterEvent dee(me->pos(), QDrag::CopyAction/*####*/, QDragManager::self()->dropData);
+                        QApplication::sendEvent(object->target(), &dee);
                         willDrop = dee.isAccepted();
                         updateCursor();
                         restoreCursor = true;
                     }
                 } else if (cw) {
-                    QDragMoveEvent dme(me->pos(), QDragManager::self()->dropData);
+                    QDragMoveEvent dme(me->pos(), QDrag::CopyAction/*####*/, QDragManager::self()->dropData);
                     QApplication::sendEvent(cw, &dme);
                     updatePixmap();
                 }
@@ -213,11 +212,11 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
                 myRestoreOverrideCursor();
                 restoreCursor = false;
             }
-            if (object && object->target) {
+            if (object && object->target()) {
                 QMouseEvent *me = (QMouseEvent *)e;
-                QDropEvent de(me->pos(), QDragManager::self()->dropData);
-                QApplication::sendEvent(object->target, &de);
-                object->target = 0;
+                QDropEvent de(me->pos(), QDrag::CopyAction /*####*/, QDragManager::self()->dropData);
+                QApplication::sendEvent(object->target(), &de);
+                object->d_func()->target = 0;
             }
             return true; // Eat all mouse events
         }
@@ -229,23 +228,23 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
     return false;
 }
 
-QDrag::DropAction QDragManager::drag(QDragPrivate * o, QDrag::DropAction mode)
+QDrag::DropAction QDragManager::drag(QDrag *o)
 {
-    if (object == o || !o || !o->source)
-         return QDrag::NoAction;
+    if (object == o || !o || !o->source())
+         return QDrag::IgnoreAction;
     object = drag_object = o;
     qt_qws_dnd_deco = new QShapedPixmapWidget();
     oldstate = Qt::ButtonState(-1); // #### Should use state that caused the drag
-    drag_mode = mode;
+//    drag_mode = mode;
     global_accepted_action = QDropEvent::Copy; // #####
     willDrop = false;
     updateMode(0);
     updatePixmap();
     updateCursor();
     restoreCursor = true;
-    object->target = 0;
+    object->d_func()->target = 0;
     qApp->installEventFilter(this);
-    return QDrag::DefaultAction;
+    return QDrag::CopyAction;
 }
 
 void QDragManager::updateMode(Qt::KeyboardModifiers newstate)
@@ -262,7 +261,7 @@ void QDragManager::updateMode(Qt::KeyboardModifiers newstate)
         else if (drag_mode == QDrag::CopyAction)
             global_requested_action = QDropEvent::Copy;
         else {                  //
-            if (drag_mode == QDrag::DefaultAction && local) //
+            if (drag_mode == QDrag::MoveAction && local) //
                 global_requested_action = QDropEvent::Move;
             else
                 global_requested_action = QDropEvent::Copy;
@@ -277,9 +276,9 @@ void QDragManager::updateMode(Qt::KeyboardModifiers newstate)
 
 void QDragManager::cancel(bool deleteSource)
 {
-    if (object->target) {
+    if (object->target()) {
         QDragLeaveEvent dle;
-        QApplication::sendEvent(object->target, &dle);
+        QApplication::sendEvent(object->target(), &dle);
     }
 
 #ifndef QT_NO_CURSOR
@@ -302,14 +301,14 @@ void QDragManager::cancel(bool deleteSource)
 
 void QDragManager::drop()
 {
-    if (!object->target)
+    if (!object->target())
         return;
 
     delete qt_qws_dnd_deco;
     qt_qws_dnd_deco = 0;
 
-    QDropEvent de(QCursor::pos(), QDragManager::self()->dropData);
-    QApplication::sendEvent(object->target, &de);
+    QDropEvent de(QCursor::pos(), QDrag::CopyAction /*####*/, QDragManager::self()->dropData);
+    QApplication::sendEvent(object->target(), &de);
 
 #ifndef QT_NO_CURSOR
     if (restoreCursor) {
@@ -323,7 +322,7 @@ QVariant QDropData::retrieveData(const QString &mimetype, QVariant::Type type) c
 {
     if (!drag_object)
         return QVariant();
-    QByteArray data =  drag_object->data->data(mimetype);
+    QByteArray data =  drag_object->mimeData()->data(mimetype);
     if (type == QVariant::String)
         return QString::fromUtf8(data);
     return data;
@@ -337,7 +336,7 @@ bool QDropData::hasFormat(const QString &format) const
 QStringList QDropData::formats() const
 {
     if (drag_object)
-        return drag_object->data->formats();
+        return drag_object->mimeData()->formats();
 }
 
 
