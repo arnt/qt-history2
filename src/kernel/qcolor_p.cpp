@@ -724,13 +724,21 @@ static int rgb_cmp( const void *d1, const void *d2 )
 
 uint qt_get_rgb_val( const char *name )
 {
+    int len = strlen(name);
+    char *name_no_space = (char *)malloc(len);
+    for(int o=0,i=0; i <= len; i++) {
+	if(name[i] != '\t' && name[i] != ' ')
+	    name_no_space[o++] = name[i];
+    }
+
     RGBData x;
-    x.name = name;
+    x.name = name_no_space;
     // Funtion bsearch() is supposed to be
     // void *bsearch(const void *key, const void *base, ...
     // So why (char*)? Are there broken bsearch() declarations out there?
     RGBData *r = (RGBData*)bsearch((char*)&x, (char*)rgbTbl, rgbTblSize,
 				   sizeof(RGBData), rgb_cmp);
+    free(name_no_space);
     return r ? r->value : RGB_INVALID;
 }
 
