@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#53 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -289,7 +289,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    SetBkColor( dst_dc, bc );
 	    SetTextColor( dst_dc, tc );
 	    DeleteObject( SelectObject(dst_dc, b) );
-	} else if ( qt_winver == WV_95 || qt_bitblt_bsm ) {
+	} else if ( qt_winver == Qt::WV_95 || qt_bitblt_bsm ) {
 	    bool mask_tmp = mask->handle() == 0;
 	    if ( mask_tmp )
 		mask->allocMemDC();
