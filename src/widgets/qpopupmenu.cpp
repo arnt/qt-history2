@@ -537,29 +537,31 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	    off_bottom = (y+h) - (sy+sh);
 	if(y < sy)
 	    off_top = sy - y;
-	int sh = style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this);
 	if(off_bottom || off_top) {
-	    int ch = updateSize().height();
+	    int ch = updateSize().height(); //store the old height, before setting scrollable --Sam
+	    const int vextra = style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this);
+	    d->scroll.scrollable = QPopupMenuPrivate::Scroll::ScrollNone;
 	    if(off_top) {
 		move( x, y = sy );
-		d->scroll.scrollable = QPopupMenuPrivate::Scroll::ScrollUp;
-		if(off_bottom)
-		    d->scroll.scrollable = d->scroll.scrollable | QPopupMenuPrivate::Scroll::ScrollDown;
-		h = d->scroll.scrollableSize = h - off_top - off_bottom;
-	    } else {
-		d->scroll.scrollable = QPopupMenuPrivate::Scroll::ScrollDown;
-		h = d->scroll.scrollableSize = h - off_bottom - 2*sh;
-	    }
-	    if( off_top || off_bottom && (off_top != off_bottom) ) {
+		d->scroll.scrollable = d->scroll.scrollable | QPopupMenuPrivate::Scroll::ScrollUp;
+	    } 
+	    if(off_bottom) 
+		d->scroll.scrollable = d->scroll.scrollable | QPopupMenuPrivate::Scroll::ScrollDown;
+	    h = d->scroll.scrollableSize = h - off_top - off_bottom - 2*vextra;
+	    if( off_top != off_bottom && indexAtPoint >= 0 ) {
+		ch -= vextra * 2;
+		const int scrollh = style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
 		if( d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp )
-		    ch -= sh;
+		    ch -= scrollh;
 		if( d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown )
-		    ch -= sh;
+		    ch -= scrollh;
+		if(ch > sh) //no bigger than the screen!
+		    ch = sh;
 		if( ch > d->scroll.scrollableSize ) 
 		    h = d->scroll.scrollableSize = ch;
 	    }
 
-	    updateSize(TRUE);
+	    updateSize(TRUE); //now set the size using the scrollable/scrollableSize as above
 	    if(off_top && indexAtPoint >= 0) { //scroll to it
 		register QMenuItem *mi = NULL;
 		QMenuItemListIt it(*mitems);
@@ -1027,7 +1029,6 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 	
 	int dh = QApplication::desktop()->height();
 	ncols = 1;
-	height += style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this) * 2;
 	for ( QMenuItemListIt it2( *mitems ); it2.current(); ++it2 ) {
 	    mi = it2.current();
 	    if ( !mi->isVisible() )
@@ -1130,13 +1131,15 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 	if ( max_width + tab < maxWidgetWidth )
 	    max_width = maxWidgetWidth - tab;
 
+	const int fw = frameWidth();
+	int extra_width = (fw+style().pixelMetric(QStyle::PM_PopupMenuFrameHorizontalExtra, this)) * 2,
+	   extra_height = (fw+style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra,   this)) * 2;
 	if ( ncols == 1 )
-	    calcSize = QSize( qMax( minimumWidth(), max_width + tab + 2*frameWidth() ),
-			      qMax( minimumHeight() , height + 2*frameWidth() ) );
+	    calcSize = QSize( qMax( minimumWidth(), max_width + tab + extra_width ),
+			      qMax( minimumHeight() , height + extra_height ) );
 	else
-	    calcSize = QSize( qMax( minimumWidth(),
-				    (ncols*(max_width + tab)) + 2*frameWidth() ),
-			      qMax( minimumHeight(), qMin( max_height + 2*frameWidth() + 1, dh ) ) );
+	    calcSize = QSize( qMax( minimumWidth(), (ncols*(max_width + tab)) + extra_width ),
+			      qMax( minimumHeight(), qMin( max_height + extra_height + 1, dh ) ) );
 	badSize = FALSE;
     }
     if(do_resize) {
@@ -1167,8 +1170,7 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 		int itemh = itemHeight( mi );
 
 		sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
-					      QSize(0, itemh),
-					      QStyleOption(mi,maxPMWidth));
+					      QSize(0, itemh), QStyleOption(mi,maxPMWidth));
 		sz = sz.expandedTo(QSize(itemw, sz.height()));
 		itemw = sz.width();
 		itemh = sz.height();
@@ -1512,7 +1514,6 @@ void QPopupMenu::drawContents( QPainter* p )
     if ( y < contentsRect().bottom() ) {
 	QRect rect(x, y, itemw, contentsRect().bottom() - y);
 	if(!p->hasClipping() || p->clipRegion().contains(rect)) {
-	    p->fillRect(rect, blue);
 	    flags = QStyle::Style_Default;
 	    if ( isEnabled() )
 		flags |= QStyle::Style_Enabled;
