@@ -274,6 +274,7 @@ void EditSlots::currentTypeChanged( const QString &type )
 
 void EditSlots::removeSlotFromCode( const QString &slot, FormWindow *formWindow )
 {
+    formWindow->formFile()->checkTimeStamp();
     QString code = formWindow->formFile()->code();
     if ( code.isEmpty() || !formWindow->formFile()->hasFormCode() )
 	return;

@@ -498,17 +498,21 @@ void FormFile::checkTimeStamp()
     if ( timeStamp.isUpToDate() )
 	return;
     timeStamp.update();
-    if ( QMessageBox::information( 0, tr( "Qt Designer" ),
-				   tr( "The file %1 has been changed outside Qt Designer.\n"
-				       "Do you want to reload it?" ).arg( timeStamp.fileName() ),
-				   tr( "&Yes" ), tr( "&No" ) ) == 0 ) {
-	QFile f( timeStamp.fileName() );
-	if ( f.open( IO_ReadOnly ) ) {
-	    QTextStream ts( &f );
-	    editor()->editorInterface()->setText( ts.read() );
-	    editor()->save();
-	    MainWindow::self->slotsChanged();
+    if ( codeEdited ) {
+	if ( QMessageBox::information( 0, tr( "Qt Designer" ),
+				       tr( "The file %1 has been changed outside Qt Designer.\n"
+					   "Do you want to reload it?" ).arg( timeStamp.fileName() ),
+				       tr( "&Yes" ), tr( "&No" ) ) == 0 ) {
+	    QFile f( timeStamp.fileName() );
+	    if ( f.open( IO_ReadOnly ) ) {
+		QTextStream ts( &f );
+		editor()->editorInterface()->setText( ts.read() );
+		editor()->save();
+		MainWindow::self->slotsChanged();
+	    }
 	}
+    } else {
+	loadCode();
     }
 }
 
@@ -522,7 +526,7 @@ void FormFile::addSlotCode( MetaDataBase::Slot slot )
     QMap<QString, QString> functionBodies = MetaDataBase::functionBodies( formWindow() );
     QMap<QString, QString>::Iterator it = functionBodies.find( MetaDataBase::normalizeSlot( slot.slot ) );
     if ( it == functionBodies.end() ) {
-	if ( codeEdited && !timeStamp.isUpToDate() )
+	if ( !codeEdited && !timeStamp.isUpToDate() )
 	    loadCode();
 	QString body = "\n\n" + iface->createFunctionStart( formWindow()->name(),
 							    make_func_pretty( slot.slot ),
