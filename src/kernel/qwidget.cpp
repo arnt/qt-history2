@@ -1601,7 +1601,7 @@ QPoint QWidget::mapFromParent( const QPoint &pos ) const
   Returns the top-level widget for this widget, i.e. the grandparent
   widget that has a window-system frame (or at least may have one) and
   has no parent widget inside this application.
-  
+
   \sa isTopLevel()
 */
 
@@ -1974,7 +1974,7 @@ const QColorGroup &QWidget::colorGroup() const
 
 
 /*! \enum QWidget::PropagationMode
-  
+
   \obsolete
 
   This enum used to determine how fonts and palette changes are propagated to
@@ -2012,23 +2012,25 @@ void QWidget::setPalette( const QPalette &palette )
 }
 
 
-/*!  
+/*!
   Unsets the palette for this widget. The widget will use its natural
-  default palette from now on.  
-  
+  default palette from now on.
+
 \sa setPalette()
  */
 void QWidget::unsetPalette()
 {
     if ( own_palette ) {
-	setPalette( QApplication::palette( this ).isCopyOf( QApplication::palette() )?
-		 default_palette( parentWidget() ) : QApplication::palette( this ) );
+	if ( QApplication::palette( this ).isCopyOf( QApplication::palette() ) )
+	    setPalette( default_palette( parentWidget() ) );
+	else
+	    setPalette( QApplication::palette( this ) );
 	own_palette = FALSE;
     }
 }
 
 /*!\obsolete
-  
+
   Use setPalette( const QPalette& p ) instead.
 */
 
@@ -2070,7 +2072,7 @@ void QWidget::paletteChange( const QPalette & )
 */
 
 
-/*!  
+/*!
   Sets the font for the widget and informs all children about the
   change.
 
@@ -2109,7 +2111,7 @@ void QWidget::setFont( const QFont &font )
 	setFontSys();
 }
 
-/*!  
+/*!
   Unsets the font for this widget. The widget will use its natural
   default font from now on.  This is either a special font for the
   widget class, the parent's font or - if this widget is a toplevel
@@ -2120,14 +2122,16 @@ void QWidget::setFont( const QFont &font )
 void QWidget::unsetFont()
 {
     if ( own_font ) {
-	setFont( QApplication::font( this ).isCopyOf( QApplication::font() )?
-		 default_font( parentWidget() ) : QApplication::font( this ) );
+	if ( QApplication::font( this ).isCopyOf( QApplication::font() ) )
+	    setFont( default_font( parentWidget() ) );
+	else
+	    setFont( QApplication::font( this ) );
 	own_font = FALSE;
     }
 }
 
 /*!\obsolete
-  
+
   Use setFont( const QFont& font) instead.
 */
 
@@ -2584,10 +2588,10 @@ void QWidget::setKeyCompression(bool compress)
 }
 
 
-/*!  
+/*!
   Returns TRUE if this widget is in the active window, i.e. the
   window that has keyboard focus.
-  
+
   When popup windows are visible, this function returns TRUE for both
   the active window and the popup.
 
@@ -2596,7 +2600,7 @@ void QWidget::setKeyCompression(bool compress)
 
 bool QWidget::isActiveWindow() const
 {
-    return (topLevelWidget() == qApp->activeWindow() )|| 
+    return (topLevelWidget() == qApp->activeWindow() )||
 	     ( isVisible() && topLevelWidget()->isPopup() );
 }
 
@@ -3164,7 +3168,7 @@ void QWidget::hide()
 
     bool activateParent = isTopLevel() && parentWidget() &&  isActiveWindow();
     hideWindow();
-    
+
     setWState( WState_Withdrawn );
 
    if ( !testWState(WState_Visible) )
@@ -3253,7 +3257,7 @@ void QWidget::sendHideEventsToChildren( bool spontaneous )
 
   After this function, the wiget has a proper font and palette and
   QApplication::polish() has been called.
-  
+
   \sa constPolish(), QApplication::polish()
 */
 
@@ -3277,15 +3281,15 @@ void QWidget::polish()
 
 /*!
   \fn void QWidget::constPolish() const
-  
+
   Ensures that the widget is properly initialized by calling polish().
-  
+
   Call constPolish() from functions like sizeHint() that depends on
   the widget being initialized, and that may be called before show().
 
   \warning Do not call constPolish() on a widget from inside that
   widget's constructor.
-  
+
   \sa polish()
  */
 
@@ -3726,15 +3730,19 @@ bool QWidget::event( QEvent *e )
 	case QEvent::ParentFontChange:
 	case QEvent::ApplicationFontChange:
 	    if ( !own_font && !isDesktop() ) {
-		setFont( QApplication::font( this ).isCopyOf( QApplication::font() )?
-			 default_font( parentWidget() ) : QApplication::font( this ) );
+		if ( QApplication::font( this ).isCopyOf( QApplication::font() ) )
+		    setFont( default_font( parentWidget() ) );
+		else 
+		    setFont( QApplication::font( this ) );
 		own_font = FALSE;
 	    }
 	case QEvent::ParentPaletteChange:
 	case QEvent::ApplicationPaletteChange:
 	    if ( !own_palette && !isDesktop() ) {
-		setPalette( QApplication::palette( this ).isCopyOf( QApplication::palette() )?
-			 default_palette( parentWidget() ) : QApplication::palette( this ) );
+		if ( QApplication::palette( this ).isCopyOf( QApplication::palette() ) )
+		    setPalette( default_palette( parentWidget() ) );
+		else 
+		    setPalette( QApplication::palette( this ) );
 		own_palette = FALSE;
 	    }
 	    break;
@@ -4260,7 +4268,7 @@ bool QWidget::x11Event( XEvent * )
 
 
 /*!\obsolete
-  
+
   The return value is meaningless
 
   \sa setFontPropagation()
@@ -4293,7 +4301,7 @@ QWidget::PropagationMode QWidget::palettePropagation() const
 
 
 /*!  \obsolete
- 
+
   Calling this function has no effect.
 */
 void QWidget::setPalettePropagation( PropagationMode )

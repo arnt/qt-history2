@@ -54,7 +54,6 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( bool isPopup READ isPopup )
     Q_PROPERTY( bool isDesktop READ isDesktop )
     Q_PROPERTY( bool enabled READ isEnabled WRITE setEnabled )
-    Q_PROPERTY( bool enabledToTLW READ isEnabledToTLW )
     Q_PROPERTY( QRect geometry READ geometry WRITE setGeometry )
     Q_PROPERTY( QRect frameGeometry READ frameGeometry )
     Q_PROPERTY( int x READ x )
@@ -80,8 +79,8 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QColor foregroundColor READ foregroundColor )
     Q_PROPERTY( QPixmap backgroundPixmap READ backgroundPixmap WRITE setBackgroundPixmap DESIGNABLE false )
     Q_PROPERTY( QColorGroup colorGroup READ colorGroup )
-    Q_PROPERTY( QPalette palette READ palette WRITE setPalette )
-    Q_PROPERTY( QFont font READ font WRITE setFont )
+    Q_PROPERTY( QPalette palette READ palette WRITE setPalette RESET unsetPalette )
+    Q_PROPERTY( QFont font READ font WRITE setFont RESET unsetFont )
     Q_PROPERTY( QCursor cursor READ cursor WRITE setCursor RESET unsetCursor )
     Q_PROPERTY( QString caption READ caption WRITE setCaption )
     Q_PROPERTY( QPixmap icon READ icon WRITE setIcon )
@@ -100,7 +99,7 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QSize minimumSizeHint READ minimumSizeHint )
     Q_PROPERTY( QRect microFocusHint READ microFocusHint )
     Q_PROPERTY( bool acceptDrops READ acceptDrops WRITE setAcceptDrops )
-    Q_PROPERTY( bool autoMask READ autoMask WRITE setAutoMask );
+    Q_PROPERTY( bool autoMask READ autoMask WRITE setAutoMask )
     Q_PROPERTY( bool customWhatsThis READ customWhatsThis )
 
 public:
