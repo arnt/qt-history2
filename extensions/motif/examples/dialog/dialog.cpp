@@ -8,7 +8,7 @@
 CustomDialog::CustomDialog( Widget parent, const char *name, bool modal, WFlags flags )
     : QMotifDialog( parent, name, modal, flags )
 {
-    setCaption( tr("Custom Dialog") );
+    setWindowTitle(tr("Custom Dialog"));
 
     QLabel *label =
 	new QLabel( tr("<p><h3>Custom Dialog</h3></p>"
@@ -22,7 +22,7 @@ CustomDialog::CustomDialog( Widget parent, const char *name, bool modal, WFlags 
     connect( button, SIGNAL(clicked()), this, SLOT(accept()) );
 
     QGridLayout *layout = new QGridLayout( this, 2, 3, 8, 4, "custom dialog layout" );
-    layout->addMultiCellWidget( label, 0, 0, 0, 2 );
+    layout->addWidget( label, 0, 0, 0, 2 );
     layout->addWidget( button, 1, 1 );
 
     setMinimumSize( minimumSizeHint() );

@@ -26,12 +26,16 @@
 #  define EDEBUG if(false)qDebug
 #endif
 
-#include "qmotif.h"
-
 #include <qapplication.h>
+#include <qevent.h>
 #include <qhash.h>
+#include <qsocketnotifier.h>
 #include <qwidget.h>
 #include <qvector.h>
+
+#include <qgc_x11.h>
+
+#include "qmotif.h"
 
 #include <stdlib.h>
 
@@ -116,7 +120,7 @@ void QMotifPrivate::hookMeUp()
     // and Xt into Qt (QMotifEventLoop)
 
     // ### TODO extensions?
-    DispatcherArray &qt_dispatchers = dispatchers[QPaintDevice::x11AppDisplay()];
+    DispatcherArray &qt_dispatchers = dispatchers[QX11GC::x11AppDisplay()];
     DispatcherArray &qm_dispatchers = dispatchers[display];
 
     qt_dispatchers.resize( LASTEvent );
@@ -128,7 +132,7 @@ void QMotifPrivate::hookMeUp()
     int et;
     for ( et = 2; et < LASTEvent; et++ ) {
 	qt_dispatchers[et] =
-	    XtSetEventDispatcher(QPaintDevice::x11AppDisplay(), et, ::qmotif_event_dispatcher);
+	    XtSetEventDispatcher(QX11GC::x11AppDisplay(), et, ::qmotif_event_dispatcher);
 	qm_dispatchers[et] =
 	    XtSetEventDispatcher(display, et, ::qmotif_event_dispatcher);
     }
@@ -140,11 +144,11 @@ void QMotifPrivate::unhook()
     // unhook Xt from Qt? (QMotifEventLoop)
 
     // ### TODO extensions?
-    DispatcherArray &qt_dispatchers = dispatchers[QPaintDevice::x11AppDisplay()];
+    DispatcherArray &qt_dispatchers = dispatchers[QX11GC::x11AppDisplay()];
     DispatcherArray &qm_dispatchers = dispatchers[display];
 
     for (int et = 2; et < LASTEvent; ++et) {
-	(void) XtSetEventDispatcher(QPaintDevice::x11AppDisplay(), et, qt_dispatchers[et]);
+	(void) XtSetEventDispatcher(QX11GC::x11AppDisplay(), et, qt_dispatchers[et]);
 	(void) XtSetEventDispatcher(display, et, qm_dispatchers[et]);
     }
 
@@ -215,7 +219,7 @@ Boolean qmotif_event_dispatcher( XEvent *event )
     }
 
     bool delivered = FALSE;
-    if (widget || event->xany.display == QPaintDevice::x11AppDisplay()) {
+    if (widget || event->xany.display == QX11GC::x11AppDisplay()) {
 	/*
 	  If the mouse has been grabbed for a window that we don't know
 	  about, we shouldn't deliver any pointer events, since this will
@@ -383,6 +387,7 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 */
 QMotif::QMotif( const char *applicationClass, XtAppContext context,
 		XrmOptionDescRec *options , int numOptions)
+    : QGuiEventLoop()
 {
 #if defined(QT_CHECK_STATE)
     if ( static_d )
@@ -441,7 +446,7 @@ void QMotif::appStartingUp()
     Cardinal x, count;
     XtGetDisplays( d->appContext, &displays, &count );
     for ( x = 0; x < count && ! display_found; ++x ) {
-	if ( displays[x] == QPaintDevice::x11AppDisplay() )
+	if ( displays[x] == QX11GC::x11AppDisplay() )
 	    display_found = TRUE;
     }
     if ( displays )
@@ -450,9 +455,11 @@ void QMotif::appStartingUp()
     int argc;
     if ( ! display_found ) {
 	argc = qApp->argc();
+	qDebug("XtDisplayInitialize: %p %p %s",
+	       d->appContext, QX11GC::x11AppDisplay(), qApp->objectName());
 	XtDisplayInitialize( d->appContext,
-			     QPaintDevice::x11AppDisplay(),
-			     qApp->name(),
+			     QX11GC::x11AppDisplay(),
+			     qApp->objectName(),
 			     d->applicationClass,
 			     d->options,
 			     d->numOptions,
@@ -463,17 +470,17 @@ void QMotif::appStartingUp()
     // open a second connection to the X server... QMotifWidget and
     // QMotifDialog will use this connection to create their wrapper
     // shells, which will allow for Motif<->Qt clipboard operations
-    d->display = XOpenDisplay(DisplayString(QPaintDevice::x11AppDisplay()));
+    d->display = XOpenDisplay(DisplayString(QX11GC::x11AppDisplay()));
     if (!d->display) {
 	qWarning("%s: (QMotif) cannot create second connection to X server '%s'",
-		 qApp->argv()[0], DisplayString(QPaintDevice::x11AppDisplay()));
+		 qApp->argv()[0], DisplayString(QX11GC::x11AppDisplay()));
 	::exit( 1 );
     }
 
     argc = qApp->argc();
     XtDisplayInitialize(d->appContext,
 			d->display,
-			qApp->name(),
+			qApp->objectName(),
 			d->applicationClass,
 			d->options,
 			d->numOptions,
@@ -518,7 +525,7 @@ void QMotif::unregisterWidget( QWidget* w )
 {
     if ( !static_d )
 	return;
-    static_d->mapper.remove( w->winId() );
+    static_d->mapper.erase( w->winId() );
 }
 
 
@@ -571,7 +578,7 @@ void QMotif::registerSocketNotifier( QSocketNotifier *notifier )
 				 qmotif_socknot_handler, this);
     d->sock_not_mapper.insert(id, notifier);
 
-    QEventLoop::registerSocketNotifier(notifier);
+    QGuiEventLoop::registerSocketNotifier(notifier);
 }
 
 /*! \reimp
@@ -586,9 +593,9 @@ void QMotif::unregisterSocketNotifier( QSocketNotifier *notifier )
     }
 
     XtRemoveInput( it.key() );
-    d->sock_not_mapper.remove( it.key() );
+    d->sock_not_mapper.erase( it.key() );
 
-    QEventLoop::unregisterSocketNotifier( notifier );
+    QGuiEventLoop::unregisterSocketNotifier( notifier );
 }
 
 /*! \internal

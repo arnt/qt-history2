@@ -19,6 +19,8 @@
 
 #include <X11/Intrinsic.h>
 #include <Xm/Xm.h>
+#undef Bool
+#undef Int
 
 class QMotifWidget;
 class QMotifDialogPrivate;
@@ -72,10 +74,6 @@ public slots:
 
 protected:
     bool event( QEvent * );
-
-#if !defined(Q_NO_USING_KEYWORD)
-    using QObject::insertChild;
-#endif
 
 private:
     QMotifDialogPrivate *d;

@@ -1,3 +1,6 @@
+#include <qapplication.h>
+#include <qevent.h>
+
 #include "mainwindow.h"
 #include "dialog.h"
 
@@ -11,8 +14,6 @@
 #include <Xm/MessageB.h>
 #include <Xm/Form.h>
 #include <Xm/LabelG.h>
-
-#include <qapplication.h>
 
 
 static void motifDialogCallback( Widget, XtPointer client_data, XtPointer )
@@ -87,14 +88,14 @@ MainWindow::MainWindow()
  		   XmNheight, 300,
  		   NULL );
 
-    setCaption( tr("QMotif Dialog Example") );
+    setWindowTitle(tr("QMotif Dialog Example"));
 
 }
 
 void MainWindow::showMotifDialog()
 {
     QMotifDialog dialog( this, "custom dialog", TRUE );
-    dialog.setCaption( tr("Custom Motif Dialog") );
+    dialog.setWindowTitle(tr("Custom Motif Dialog"));
 
     Widget form = XmCreateForm( dialog.shell(), "custom motif dialog", NULL, 0 );
 

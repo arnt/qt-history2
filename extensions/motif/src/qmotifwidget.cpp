@@ -12,13 +12,15 @@
 **
 ****************************************************************************/
 
-#include "qmotifwidget.h"
-#include "qmotif.h"
-
 #include <qapplication.h>
 #include <qevent.h>
-
+#include <qwidget.h>
 #include <private/qwidget_p.h>
+
+#include <qgc_x11.h>
+
+#include "qmotifwidget.h"
+#include "qmotif.h"
 
 #include <X11/StringDefs.h>
 #include <X11/IntrinsicP.h>
@@ -330,14 +332,14 @@ QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
 	Cardinal nargs = argcount;
 	memcpy( realargs, args, sizeof( Arg ) * argcount );
 
-	if ( ! QPaintDevice::x11AppDefaultVisual() ) {
+	if ( ! QX11GC::x11AppDefaultVisual() ) {
 	    // make Motif use the same visual/colormap/depth as Qt (if
 	    // Qt is not using the default)
-	    XtSetArg(realargs[nargs], XtNvisual, QPaintDevice::x11AppVisual());
+	    XtSetArg(realargs[nargs], XtNvisual, QX11GC::x11AppVisual());
 	    ++nargs;
-	    XtSetArg(realargs[nargs], XtNcolormap, QPaintDevice::x11AppColormap());
+	    XtSetArg(realargs[nargs], XtNcolormap, QX11GC::x11AppColormap());
 	    ++nargs;
-	    XtSetArg(realargs[nargs], XtNdepth, QPaintDevice::x11AppDepth());
+	    XtSetArg(realargs[nargs], XtNdepth, QX11GC::x11AppDepth());
 	    ++nargs;
 	}
 
@@ -459,12 +461,12 @@ void QMotifWidget::realize( Widget w )
 	// geometry we want
 	QRect save( w->core.x, w->core.y, w->core.width, w->core.height );
 
-	// save the caption
-	QString cap;
-	if ( cap.isEmpty() ) {
- 	    char *title;
- 	    XtVaGetValues(w, XtNtitle, &title, NULL);
- 	    cap = QString::fromLocal8Bit(title);
+	// save the wi
+	QString wtitle = windowTitle();
+	if (wtitle.isEmpty()) {
+	    char *t;
+	    XtVaGetValues(w, XtNtitle, &t, NULL);
+	    wtitle = QString::fromLocal8Bit(t);
 	}
 
 	Window newid = XtWindow( w );
@@ -484,8 +486,8 @@ void QMotifWidget::realize( Widget w )
 	create( newid, TRUE, TRUE );
 
 	// restore the caption
-	if (!cap.isEmpty())
-	    setCaption( cap );
+	if (!wtitle.isEmpty())
+	    setWindowTitle(wtitle);
 
 	// restore geometry of the shell
 	XMoveResizeWindow( x11Display(), winId(),
@@ -504,26 +506,30 @@ void QMotifWidget::realize( Widget w )
 /*! \internal
     Motif callback to send a close event to a QMotifWidget
 */
-void qmotif_widget_shell_destroy(Widget widget)
+void qmotif_widget_shell_destroy(Widget w)
 {
     XtWidgetProc destroy =
 	((CoreWidgetClass)topLevelShellClassRec.core_class.
 	 superclass)->core_class.destroy;
-    (*destroy)(widget);
+    (*destroy)(w);
 
-    QMotifWidget *mw =
-	((QMotifWidgetShellWidget) widget)->qmotifwidgetshell.widget;
-    if ( ! mw )
+    QMotifWidget *widget = 0;
+    if (XtIsSubclass(w, qapplicationShellWidgetClass)) {
+	widget = ((QApplicationShellWidget) w)->qapplicationshell.widget;
+    } else {
+	Q_ASSERT(XtIsSubclass(w, qtoplevelShellWidgetClass));
+	widget = ((QTopLevelShellWidget) w)->qtoplevelshell.widget;
+    }
+    if (!widget)
 	return;
-    mw->close();
+    widget->close();
 }
 
 /*! \internal
     Motif callback to resolve a QMotifWidget and call
     QMotifWidget::realize().
 */
-void qmotif_widget_shell_realize( Widget w, XtValueMask *mask,
-				  XSetWindowAttributes *attr )
+void qmotif_widget_shell_realize( Widget w, XtValueMask *mask, XSetWindowAttributes *attr )
 {
     XtRealizeProc realize =
 	((CoreWidgetClass)topLevelShellClassRec.core_class.
@@ -573,7 +579,7 @@ void qmotif_widget_shell_change_managed( Widget w )
 	// ### the motif widget, otherwise use the size from the
 	// ### parent widget (i.e. we are in a layout)"
 	if ((! widget->isTopLevel() && widget->parentWidget() && widget->parentWidget()->layout())
-	    || widget->testWState(Qt::WState_Resized)) {
+	    || widget->testAttribute(QWidget::WA_Resized)) {
 	    // the widget is most likely resized a) by a layout or b) explicitly
 	    XtMoveWidget( w, d.x(), d.y() );
 	    XtResizeWidget( w, d.width(), d.height(), 0 );

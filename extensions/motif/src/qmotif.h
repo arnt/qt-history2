@@ -15,13 +15,15 @@
 #ifndef QMOTIF_H
 #define QMOTIF_H
 
-#include <qeventloop.h>
+#include <qguieventloop.h>
 
 #include <X11/Intrinsic.h>
+#undef Bool
+#undef Int
 
 class QMotifPrivate;
 
-class QMotif : public QEventLoop
+class QMotif : public QGuiEventLoop
 {
     Q_OBJECT
 

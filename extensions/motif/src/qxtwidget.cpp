@@ -12,10 +12,10 @@
 **
 ****************************************************************************/
 
-#include "qxtwidget.h"
-
 #include <qapplication.h>
 #include <qdesktopwidget.h>
+
+#include "qxtwidget.h"
 
 #include <X11/Xlib.h>
 #include <X11/Intrinsic.h>
@@ -227,7 +227,7 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
   XtManageChild it used to manage the child.
 */
 QXtWidget::QXtWidget(const char* name, Widget parent, bool managed)
-    : QWidget( 0, name, WResizeNoErase ), xtw( 0 )
+    : QWidget( 0, name ), xtw( 0 )
 {
     init(name, qWidgetClass, parent, 0, 0, 0, managed);
     Arg reqargs[20];
@@ -257,7 +257,7 @@ QXtWidget::QXtWidget(const char* name, Widget parent, bool managed)
 QXtWidget::QXtWidget(const char* name, WidgetClass widget_class,
 		     QWidget *parent, ArgList args, Cardinal num_args,
 		     bool managed)
-    : QWidget( parent, name, WResizeNoErase ), xtw( 0 )
+    : QWidget( parent, name ), xtw( 0 )
 {
     if ( !parent )
 	init(name, widget_class, 0, 0, args, num_args, managed);
@@ -275,7 +275,7 @@ QXtWidget::~QXtWidget()
 {
     // Delete children first, as Xt will destroy their windows
     //
-    QObjectList list = queryList("QWidget", 0, FALSE, FALSE);
+    QList<QWidget *> list = findChildren<QWidget *>(0);
     for (int i = 0; i < list.size(); ++i) {
 	QWidget *c;
         while ((c = qt_cast<QWidget*>(list.at(i))) != 0)
@@ -284,8 +284,7 @@ QXtWidget::~QXtWidget()
 
     if ( need_reroot ) {
 	hide();
-	XReparentWindow(qt_xdisplay(), winId(), qApp->desktop()->winId(),
-	    x(), y());
+	XReparentWindow(qt_xdisplay(), winId(), qApp->desktop()->winId(), x(), y());
     }
 
     XtDestroyWidget(xtw);

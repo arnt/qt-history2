@@ -12,11 +12,14 @@
 **
 ****************************************************************************/
 
+#include <qapplication.h>
+#include <qevent.h>
+
+#include <qgc_x11.h>
+
 #include "qmotif.h"
 #include "qmotifdialog.h"
 #include "qmotifwidget.h"
-
-#include <qapplication.h>
 
 #include <X11/StringDefs.h>
 #include <Xm/DialogS.h>
@@ -398,23 +401,23 @@ void QMotifDialog::init( Widget parent, ArgList args, Cardinal argcount )
 
     Arg *realargs = new Arg[ argcount + 3 ];
     memcpy( realargs, args, argcount * sizeof(Arg) );
-    if ( ! QPaintDevice::x11AppDefaultVisual() ) {
+    if ( ! QX11GC::x11AppDefaultVisual() ) {
 	// make Motif use the same visual/colormap/depth as Qt (if Qt
 	// is not using the default)
-	XtSetArg(realargs[argcount], XtNvisual, QPaintDevice::x11AppVisual());
+	XtSetArg(realargs[argcount], XtNvisual, QX11GC::x11AppVisual());
 	++argcount;
-	XtSetArg(realargs[argcount], XtNcolormap, QPaintDevice::x11AppColormap());
+	XtSetArg(realargs[argcount], XtNcolormap, QX11GC::x11AppColormap());
 	++argcount;
-	XtSetArg(realargs[argcount], XtNdepth, QPaintDevice::x11AppDepth());
+	XtSetArg(realargs[argcount], XtNdepth, QX11GC::x11AppDepth());
 	++argcount;
     }
 
     // create the dialog shell
     if ( parent ) {
-	d->shell = XtCreatePopupShell( name(), qmotifDialogWidgetClass, parent,
+	d->shell = XtCreatePopupShell( objectName(), qmotifDialogWidgetClass, parent,
 				       realargs, argcount );
     } else {
-	d->shell = XtAppCreateShell( name(), name(), qmotifDialogWidgetClass,
+	d->shell = XtAppCreateShell( objectName(), objectName(), qmotifDialogWidgetClass,
 				     QMotif::x11Display(), realargs, argcount );
     }
 
@@ -496,7 +499,6 @@ void QMotifDialog::show()
 	XSync(QMotif::x11Display(), FALSE);
     } else if ( !parentWidget() ) {
 	adjustSize();
-	QApplication::sendPostedEvents(this, QEvent::LayoutHint);
 	QApplication::sendPostedEvents(this, QEvent::Resize);
 
 	Widget p = XtParent( d->shell ), s = p;
@@ -563,11 +565,11 @@ void QMotifDialog::realize( Widget w )
 	XtSetMappedWhenManaged( d->shell, False );
 
 	// save the caption
-	QString cap = caption();
-	if ( cap.isEmpty() ) {
- 	    char *title;
- 	    XtVaGetValues(w, XtNtitle, &title, NULL);
- 	    cap = QString::fromLocal8Bit(title);
+	QString wtitle = windowTitle();
+	if (wtitle.isEmpty()) {
+ 	    char *t;
+ 	    XtVaGetValues(w, XtNtitle, &t, NULL);
+ 	    wtitle = QString::fromLocal8Bit(t);
 	}
 
 	Window newid = XtWindow(w);
@@ -584,8 +586,8 @@ void QMotifDialog::realize( Widget w )
 	create( newid, TRUE, TRUE );
 
 	// restore the caption
- 	if (!cap.isEmpty())
-	    setCaption( cap );
+ 	if (!wtitle.isEmpty())
+	    setWindowTitle(wtitle);
 
 	// if this dialog was created without a QWidget parent, then the transient
 	// for will be set to the root window, which is not acceptable.
