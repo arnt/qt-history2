@@ -1558,9 +1558,13 @@ void QComboBox::popup()
 	lb->raise();
 	bool block = lb->signalsBlocked();
 	lb->blockSignals( TRUE );
-	QListBoxItem *currentLBItem = lb->item( d->current );
-	lb->setCurrentItem( currentLBItem );
+	QListBoxItem* currentLBItem = 0;
+	if ( editable() && currentText() != text( currentItem() ) )
+	    currentLBItem = lb->findItem( currentText() );
 
+	currentLBItem = currentLBItem ? currentLBItem : lb->item( d->current );
+
+	lb->setCurrentItem( currentLBItem );
 	lb->setContentsPos( lb->contentsX(),
 			    lb->viewportToContents( lb->itemRect( currentLBItem ).topLeft() ).y() );
 
