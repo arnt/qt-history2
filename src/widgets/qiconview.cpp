@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#29 $
 **
 ** Definition of QIconView widget class
 **
@@ -209,7 +209,7 @@ QIconDragItem::QIconDragItem( const QRect &r )
 QIconDragItem::~QIconDragItem()
 {
 }
-    
+
 bool QIconDragItem::operator<( const QIconDragItem &icon )
 {
     return key_ < icon.key_;
@@ -225,7 +225,7 @@ void QIconDragItem::makeKey()
     QString k( "%1 %2 %3 %4" );
     k = k.arg( rect_.x() ).arg( rect_.y() ).arg( rect_.width() ).arg( rect_.height() );
     key_ = k;
-};    
+};
 
 QRect QIconDragItem::rect() const
 {
@@ -296,7 +296,7 @@ QByteArray QIconDrag::encodedData( const char* mime ) const
 	}
 	a.resize( c - 1 );
     }
-    
+
     return a;
 }
 
@@ -306,7 +306,7 @@ bool QIconDrag::canDecode( QMimeSource* e )
 	return TRUE;
     return FALSE;
 }
-  
+
 bool QIconDrag::decode( QMimeSource* e, QIconList &list_ )
 {
     QByteArray ba = e->encodedData( "application/x-qiconlist" );
@@ -331,7 +331,7 @@ bool QIconDrag::decode( QMimeSource* e, QIconList &list_ )
 
 	    QIconDragItem icon;
 	    QRect r;
-	    
+	
 	    r.setX( atoi( s.latin1() ) );
 	    int pos = s.find( ' ' );
 	    if ( pos == -1 )
@@ -1262,7 +1262,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->isIconDrag = FALSE;
     d->iconDragData.clear();
     d->numDragItems = 0;
-    
+
     connect ( d->adjustTimer, SIGNAL( timeout() ),
 	      this, SLOT( adjustItems() ) );
 
@@ -1846,7 +1846,7 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 		item->setSelected( TRUE, e->state() & ControlButton );
 	    else
 		item->setSelected( !item->isSelected(), e->state() & ControlButton );
-	else
+	else if ( d->selectionMode == Single || !( e->state() & ControlButton ) )
 	    selectAll( FALSE );
 
 	setCurrentItem( item );
@@ -2467,8 +2467,8 @@ QDragObject *QIconView::dragObject()
  		     QPoint( d->currentItem->iconRect().width() / 2, d->currentItem->iconRect().height() / 2 ) );
     for ( QIconViewItem *item = d->firstItem; item; item = item->next )
 	if ( item->isSelected() )
-	    drag->append( QIconDragItem( QRect( item->pos() - orig, QSize( item->width(), item->height() ) ) ) ); 
-    
+	    drag->append( QIconDragItem( QRect( item->pos() - orig, QSize( item->width(), item->height() ) ) ) );
+
     return drag;
 }
 
@@ -2701,7 +2701,7 @@ void QIconView::initDrag( QDropEvent *e )
 	d->isIconDrag = TRUE;
     } else
 	d->numDragItems = 0;
-    
+
 }
 
 void QIconView::setDragObjectIsKnown( bool b )
