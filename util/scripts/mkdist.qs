@@ -609,6 +609,26 @@ function compile(platformName, platform, edition)
 	execute(["ssh", login, "cp", platformName + "/lib/*.pdb", platformName+"clean/lib/."]);
 	// copy the plugin directory
 	execute(["ssh", login, "cp", "-r", platformName + "/plugins", platformName+"clean/."]);
+	// copy generated qconfig.h/.cpp
+	execute(["ssh", login, "cp",
+		 platformName + "/include/Qt/qconfig.h",
+		 platformName + "clean/include/Qt/qconfig.h"])
+	execute(["ssh", login, "cp",
+		 platformName + "/include/QtCore/qconfig.h",
+		 platformName + "clean/include/QtCore/qconfig.h"]);
+	execute(["ssh", login, "cp",
+		 platformName + "/src/core/global/qconfig.cpp",
+		 platformName + "clean/src/core/global/qconfig.cpp"]);
+	execute(["ssh", login, "cp",
+		 platformName + "/src/core/global/qconfig.h",
+		 platformName + "clean/src/core/global/qconfig.h"]);
+	// copy generated atomic.h
+	execute(["ssh", login, "cp", "-r",
+		 platformName + "/include/Qt/arch",
+		 platformName + "clean/include/Qt/."]);
+	execute(["ssh", login, "cp", "-r",
+		 platformName + "/include/QtCore/arch",
+		 platformName + "clean/include/QtCore/."]);
 
 	// create installer
 
