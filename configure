@@ -292,6 +292,7 @@ CFG_ACCESSIBILITY=auto
 CFG_COMPAT=yes
 CFG_ENDIAN=auto
 CFG_GETADDRINFO=auto
+CFG_FRAMEWORK=no
 D_FLAGS=
 I_FLAGS=
 L_FLAGS=
@@ -378,7 +379,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-inputmethod|-inputmethod-ext|-confirm-license|-gnumake)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-inputmethod|-inputmethod-ext|-confirm-license|-gnumake|-framework)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -617,6 +618,13 @@ while [ "$#" -gt 0 ]; do
 	    UNKNOWN_OPT=yes
         fi
 	;;
+    framework)
+        if [ "$PLATFORM_MAC" = "yes" ] && [ "$VAL" = "yes" ]; then
+	    CFG_FRAMEWORK=yes
+	else
+	    UNKNOWN_OPT=yes
+        fi
+        ;;
     profile)
 	if [ "$VAL" = "yes" ]; then
 	    CFG_PROFILE=yes
@@ -2207,6 +2215,16 @@ Third Party Image Loading Libraries:
 
 EOF
 
+if [ "$PLATFORM_MAC" = "yes" ]; then
+    cat << EOF
+
+Qt/Mac only:
+
+    -framework ......... Build Qt as a series of frameworks and 
+                         link tools against those frameworks
+EOF
+fi
+
 if [ "$PLATFORM_X11" = "yes" ]; then
     if [ "$CFG_SM" = "no" ]; then
 	SMY=" "
@@ -3514,11 +3532,16 @@ fi
 if [ "$CFG_STL" = "yes" ]; then
     QTCONFIG_CONFIG="$QTCONFIG_CONFIG stl"
 fi
+if [ "$CFG_FRAMEWORK" = "no" ]; then
+    QTCONFIG_CONFIG="$QTCONFIG_CONFIG qt_no_framework"
+else
+    QTCONFIG_CONFIG="$QT_CONFIG qt_framework"
+fi
 if [ -z "$QT_INSTALL_QTCONF" ]; then
     QT_INSTALL_QTCONFIG=$QT_INSTALL_PREFIX
 fi
 cat >>$QTCONFIG.tmp <<EOF
-CONFIG += $QTCONFIG_CONFIG qt_no_framework
+CONFIG += $QTCONFIG_CONFIG 
 QT_INSTALL_QTCONFIG = $QT_INSTALL_QTCONFIG
 QT_PRODUCT = $Products
 QT_CONFIG += $QT_CONFIG

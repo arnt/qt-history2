@@ -3,6 +3,14 @@ INCLUDEPATH *= $$QMAKE_INCDIR_QT/$$TARGET #just for today to have some compat
 TEMPLATE	= lib
 VERSION		= 4.0.0
 
+#load up the pri info
+unix {
+    HEADERS_PRI = $$QT_BUILD_TREE/include/$$TARGET/headers.pri
+    include($$HEADERS_PRI)|clear(HEADERS_PRI)
+} else {
+    HEADERS_PRI =
+}
+
 #exported symbol table (for linux only now)
 sam_version_map:shared {
    macx-g++ {
