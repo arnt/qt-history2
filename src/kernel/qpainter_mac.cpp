@@ -464,7 +464,6 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
     offx = offy = wx = wy = vx = vy = 0;                      // default view origins
 
     unclipped = unclipp;
-    initPaintDevice(TRUE);
     if ( pdev->devType() == QInternal::Widget ) {                    // device is a widget
         QWidget *w = (QWidget*)pdev;
         cfont = w->font();                      // use widget font
@@ -490,7 +489,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
         ww = vw = pm->width();                  // default view size
         wh = vh = pm->height();
     } 
-    initPaintDevice(TRUE); //second time to have unclipped take effect
+    initPaintDevice(TRUE); //force setting paint device, this does unclipped fu
 
     if ( testf(ExtDev) ) {               // external device
         ww = vw = pdev->metric( QPaintDeviceMetrics::PdmWidth ); // sanders
