@@ -49,11 +49,11 @@ void CustomTable::paintField( QPainter * p, const QSqlField* field,
     if ( !field )
 	return;
     if ( field->name() == "statusid" ) {
-	QSqlQuery q( "SELECT name FROM status WHERE id=" +
+	QSqlQuery query( "SELECT name FROM status WHERE id=" +
 		     field->value().toString() ); 
 	QString text;
-	if ( q.next() ) {
-	    text = q.value( 0 ).toString();
+	if ( query.next() ) {
+	    text = query.value( 0 ).toString();
 	}
 	p->drawText( 2,2, cr.width()-4, cr.height()-4, fieldAlignment( field ), text );
     }
