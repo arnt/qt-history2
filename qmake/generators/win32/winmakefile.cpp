@@ -47,20 +47,21 @@ Win32MakefileGenerator::findHighestVersion(const QString &d, const QString &stem
     if(!project->variables()["QMAKE_" + stem.toUpper() + "_VERSION_OVERRIDE"].isEmpty())
         return project->variables()["QMAKE_" + stem.toUpper() + "_VERSION_OVERRIDE"].first().toInt();
 
-    QDir dir(bd);
     int biggest=-1;
-    QStringList entries = dir.entryList();
-    QRegExp regx("(" + dllStem + "([0-9]*)).(lib|prl)$", Qt::CaseInsensitive);
-    for(QStringList::Iterator it = entries.begin(); it != entries.end(); ++it) {
-        if(regx.exactMatch((*it)))
-            biggest = qMax(biggest, (regx.cap(1) == dllStem ||
-                                     regx.cap(2).isEmpty()) ? -1 : regx.cap(2).toInt());
+    if(!project->isActiveConfig("no_versionlink")) {
+        QDir dir(bd);
+        QStringList entries = dir.entryList();
+        QRegExp regx("(" + dllStem + "([0-9]*)).(lib|prl)$", Qt::CaseInsensitive);
+        for(QStringList::Iterator it = entries.begin(); it != entries.end(); ++it) {
+            if(regx.exactMatch((*it)))
+                biggest = qMax(biggest, (regx.cap(1) == dllStem ||
+                                         regx.cap(2).isEmpty()) ? -1 : regx.cap(2).toInt());
+        }
     }
     if(libInfoRead
        && !libinfo.values("QMAKE_PRL_CONFIG").contains("staticlib")
        && !libinfo.isEmpty("QMAKE_PRL_VERSION"))
        biggest = qMax(biggest, libinfo.first("QMAKE_PRL_VERSION").replace(".", "").toInt());
-
     return biggest;
 }
 
