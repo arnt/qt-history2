@@ -250,19 +250,24 @@ bool QDesignerPropertySheet::hasReset(int index) const
     if (isAdditionalProperty(index))
         return m_info.value(index).reset;
 
-    QMetaProperty p = meta->property(index);
-    return m_info.value(index).reset;
+    return true;
 }
 
-void QDesignerPropertySheet::reset(int index)
+bool QDesignerPropertySheet::reset(int index)
 {
     if (isAdditionalProperty(index))
-        return;
-
+        return false;
+    else if (isFakeProperty(index)) {
+        QMetaProperty p = meta->property(index);
+        bool result = p.reset(m_object);
+        m_fakeProperties[index] = p.read(m_object);
+        return result;
+    }
+        
     // ### TODO: reset for fake properties.
 
     QMetaProperty p = meta->property(index);
-    p.reset(m_object);
+    return p.reset(m_object);
 }
 
 bool QDesignerPropertySheet::isChanged(int index) const

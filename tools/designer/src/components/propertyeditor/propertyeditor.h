@@ -23,6 +23,7 @@
 #include <QPointer>
 
 class DomProperty;
+class IPropertySheet;
 
 class QT_PROPERTYEDITOR_EXPORT PropertyEditor: public AbstractPropertyEditor
 {
@@ -43,6 +44,7 @@ public:
 
 private slots:
     void firePropertyChanged(IProperty *property);
+    void resetProperty(const QString &prop_name);
 
 private:
     IProperty *propertyByName(IProperty *p, const QString &name);
@@ -57,6 +59,7 @@ private:
     AbstractFormEditor *m_core;
     QPropertyEditor::View *m_editor;
     IPropertyGroup *m_properties;
+    IPropertySheet *m_prop_sheet;
     QPointer<QObject> m_object;
 };
 

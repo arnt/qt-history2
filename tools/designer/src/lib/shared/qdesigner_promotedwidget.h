@@ -30,7 +30,7 @@ public:
     virtual void setPropertyGroup(int index, const QString &group);
 
     virtual bool hasReset(int index) const;
-    virtual void reset(int index);
+    virtual bool reset(int index);
 
     virtual bool isVisible(int index) const;
     virtual void setVisible(int index, bool b);

@@ -50,10 +50,9 @@ public:
     virtual void setModelData(QWidget *editor,
                               QAbstractItemModel *model,
                               const QModelIndex &index) const;
-
+                              
 public slots:
     void sync();
-    void resetProperty();
 
 protected:
     virtual void drawDecoration(QPainter *painter, const QStyleOptionViewItem &option,

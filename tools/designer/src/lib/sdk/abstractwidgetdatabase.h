@@ -66,6 +66,9 @@ public:
 
     virtual QString extends() const = 0;
     virtual void setExtends(const QString &s) = 0;
+
+    virtual void setDefaultPropertyValues(const QList<QVariant> &list) = 0;
+    virtual QList<QVariant> defaultPropertyValues() const = 0;
 };
 
 class QT_SDK_EXPORT AbstractWidgetDataBase: public QObject

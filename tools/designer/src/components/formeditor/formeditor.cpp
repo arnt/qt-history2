@@ -64,9 +64,11 @@ FormEditor::FormEditor(QObject *parent)
 
     // load the plugins
     widgetDatabase->loadPlugins();
+    widgetDatabase->grabDefaultPropertyValues();
     widgetFactory->loadPlugins();
 
     setIconCache(new IconCache(this));
+
 }
 
 FormEditor::~FormEditor()

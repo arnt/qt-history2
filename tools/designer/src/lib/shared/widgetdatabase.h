@@ -69,6 +69,9 @@ public:
     QString extends() const;
     void setExtends(const QString &s);
 
+    void setDefaultPropertyValues(const QList<QVariant> &list);
+    QList<QVariant> defaultPropertyValues() const;
+
 private:
     QString m_name;
     QString m_group;
@@ -83,6 +86,7 @@ private:
     uint m_form: 1;
     uint m_custom: 1;
     uint m_promoted: 1;
+    QList<QVariant> m_defaultPropertyValues;
 };
 
 class QT_SHARED_EXPORT WidgetDataBase: public AbstractWidgetDataBase
@@ -97,10 +101,14 @@ public:
     virtual AbstractWidgetDataBaseItem *item(int index) const;
     int indexOfObject(QObject *o, bool resolveName = true) const;
 
+    void grabDefaultPropertyValues();
+        
 public slots:
     void loadPlugins();
 
 private:
+    QList<QVariant> defaultPropertyValues(const QString &name);
+
     AbstractFormEditor *m_core;
 };
 

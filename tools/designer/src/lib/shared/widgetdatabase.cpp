@@ -17,9 +17,12 @@
 
 #include <pluginmanager.h>
 #include <customwidget.h>
+#include <propertysheet.h>
+#include <qextensionmanager.h>
 
 #include <qalgorithms.h>
 #include <QtCore/qdebug.h>
+#include <QtCore/QMetaProperty>
 
 // ----------------------------------------------------------
 WidgetDataBaseItem::WidgetDataBaseItem(const QString &name, const QString &group)
@@ -163,6 +166,16 @@ void WidgetDataBaseItem::setExtends(const QString &s)
     m_extends = s;
 }
 
+void WidgetDataBaseItem::setDefaultPropertyValues(const QList<QVariant> &list)
+{
+    m_defaultPropertyValues = list;
+}
+
+QList<QVariant> WidgetDataBaseItem::defaultPropertyValues() const
+{
+    return m_defaultPropertyValues;
+}
+
 // ----------------------------------------------------------
 WidgetDataBase::WidgetDataBase(AbstractFormEditor *core, QObject *parent)
     : AbstractWidgetDataBase(parent),
@@ -266,5 +279,48 @@ void WidgetDataBase::loadPlugins()
             
             append(item);            
         }
+    }
+}
+
+QList<QVariant> WidgetDataBase::defaultPropertyValues(const QString &name)
+{
+//    qDebug() << "WidgetDataBase::defaultPropertyValues()" << name << "======================";
+
+    QList<QVariant> result;
+    
+    WidgetFactory factory(m_core);
+    QWidget *w = factory.createWidget(name, 0);
+    if (w == 0) {
+        qWarning("WidgetDataBase::defaultPropertyValues(): failed to create \"%s\"",
+                    name.toLatin1().constData());
+        return result;
+    }
+
+    IPropertySheet *sheet = qt_extension<IPropertySheet*>(m_core->extensionManager(), w);
+    if (sheet == 0) {
+        qWarning("WidgetDataBase::defaultPropertyValues(): failed to create property sheet for \"%s\"",
+                    name.toLatin1().constData());
+        delete w;
+        return result;
+    }
+
+    for (int i = 0; i < sheet->count(); ++i) {
+//        qDebug() << i << sheet->propertyName(i) << sheet->property(i);
+        result.append(sheet->property(i));
+    }
+    
+    delete w;
+        
+    return result;
+}
+
+void WidgetDataBase::grabDefaultPropertyValues()
+{
+    for (int i = 0; i < count(); ++i) {
+        AbstractWidgetDataBaseItem *item = this->item(i);
+        QList<QVariant> default_prop_values = defaultPropertyValues(item->name());
+        item->setDefaultPropertyValues(default_prop_values);
+
+//        qDebug() << "WidgetDataBase::grabDefaultPropertyValues():" << item->name() << default_prop_values;
     }
 }

@@ -50,9 +50,9 @@ bool PromotedWidgetPropertySheet::hasReset(int index) const
     return m_sheet->hasReset(index);
 }
 
-void PromotedWidgetPropertySheet::reset(int index)
+bool PromotedWidgetPropertySheet::reset(int index)
 {
-    m_sheet->reset(index);
+    return m_sheet->reset(index);
 }
 
 bool PromotedWidgetPropertySheet::isVisible(int index) const

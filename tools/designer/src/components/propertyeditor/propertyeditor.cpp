@@ -20,6 +20,7 @@
 #include <container.h>
 #include <abstracticoncache.h>
 #include <abstractformwindowmanager.h>
+#include <abstractwidgetdatabase.h>
 #include <iconloader.h>
 
 #include <QtGui/QVBoxLayout>
@@ -211,7 +212,7 @@ void GraphicsPropertyEditor::populateCombo()
         QList<QIcon> icon_list = cache->iconList();
         foreach (QIcon icon, icon_list) {
             QString qrc_path = cache->iconToQrcPath(icon);
-            if (!qrc_list.contains(qrc_path))
+            if (!qrc_path.isEmpty() && !qrc_list.contains(qrc_path))
                 continue;
             m_combo->addItem(icon, QFileInfo(cache->iconToFilePath(icon)).fileName(),
                                 QVariant(icon));
@@ -221,7 +222,7 @@ void GraphicsPropertyEditor::populateCombo()
         QList<QPixmap> pixmap_list = cache->pixmapList();
         foreach (QPixmap pixmap, pixmap_list) {
             QString qrc_path = cache->iconToQrcPath(pixmap);
-            if (!qrc_list.contains(qrc_path))
+            if (!qrc_path.isEmpty() && !qrc_list.contains(qrc_path))
                 continue;
             m_combo->addItem(QIcon(pixmap),
                                 QFileInfo(cache->pixmapToFilePath(pixmap)).fileName(),
@@ -448,14 +449,14 @@ void PixmapProperty::updateValue(QWidget *editor)
 void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *object)
 {
     QExtensionManager *m = m_core->extensionManager();
-    IPropertySheet *sheet = qobject_cast<IPropertySheet*>(m->extension(object, Q_TYPEID(IPropertySheet)));
+    m_prop_sheet = qobject_cast<IPropertySheet*>(m->extension(object, Q_TYPEID(IPropertySheet)));
     QHash<QString, PropertyCollection*> g;
-    for (int i=0; i<sheet->count(); ++i) {
-        if (!sheet->isVisible(i))
+    for (int i=0; i<m_prop_sheet->count(); ++i) {
+        if (!m_prop_sheet->isVisible(i))
             continue;
 
-        QString pname = sheet->propertyName(i);
-        QVariant value = sheet->property(i);
+        QString pname = m_prop_sheet->propertyName(i);
+        QVariant value = m_prop_sheet->property(i);
 
         IProperty *p = 0;
         if (qVariantCanConvert<FlagType>(value)) {
@@ -534,8 +535,9 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
         }
 
         if (p) {
-            p->setHasReset(sheet->hasReset(i));
-            QString group = sheet->propertyGroup(i);
+            p->setHasReset(m_prop_sheet->hasReset(i));
+            p->setBold(m_prop_sheet->isChanged(i));
+            QString group = m_prop_sheet->propertyGroup(i);
             PropertyCollection *c = group.isEmpty() ? root : g.value(group);
             if (!c) {
                 c = new PropertyCollection(group);
@@ -562,9 +564,12 @@ PropertyEditor::PropertyEditor(AbstractFormEditor *core,
     lay->setMargin(0);
     m_editor = new QPropertyEditor::View(this);
     lay->addWidget(m_editor);
+    m_prop_sheet = 0;
 
     connect(m_editor, SIGNAL(propertyChanged(IProperty*)),
         this, SLOT(firePropertyChanged(IProperty*)));
+    connect(m_editor->editorModel(), SIGNAL(resetProperty(const QString&)),
+                this, SLOT(resetProperty(const QString&)));
 }
 
 PropertyEditor::~PropertyEditor()
@@ -639,6 +644,7 @@ void PropertyEditor::setObject(QObject *object)
 
     delete m_properties;
     m_properties = 0;
+    m_prop_sheet = 0;
 
     if (m_object) {
         PropertyCollection *collection = new PropertyCollection("<root>");
@@ -648,5 +654,36 @@ void PropertyEditor::setObject(QObject *object)
 
     m_editor->setInitialInput(m_properties);
 }
+
+void PropertyEditor::resetProperty(const QString &prop_name)
+{
+    int idx = m_prop_sheet->indexOf(prop_name);
+    
+    if (idx == -1) {
+        qWarning("PropertyEditor::resetProperty(): no property \"%s\"",
+                    prop_name.toLatin1().constData());
+        return;
+    }
+
+    if (!m_prop_sheet->reset(idx)) {
+        int item_idx =  m_core->widgetDataBase()->indexOfObject(m_object);
+        if (item_idx == -1) {
+            qWarning("PropertyEditor::resetProperty(): object \"%s\" not in widget data base",
+                        m_object->metaObject()->className());
+            return;
+        }
+        AbstractWidgetDataBaseItem *item = m_core->widgetDataBase()->item(item_idx);
+        QVariant value = item->defaultPropertyValues().at(idx);
+        m_prop_sheet->setProperty(idx, value);
+    }
+    
+    m_prop_sheet->setChanged(idx, false);
+    if (IProperty *p = propertyByName(m_editor->initialInput(), prop_name)) {
+        p->setValue(m_prop_sheet->property(idx));
+        p->setBold(false);
+        m_editor->editorModel()->refresh(p);
+    }
+}
+
 
 #include "propertyeditor.moc"

@@ -50,6 +50,7 @@ public:
 
 signals:
     void propertyChanged(IProperty *property);
+    void resetProperty(const QString &name);
 
 public slots:
     void setInitialInput(IProperty *initialInput);

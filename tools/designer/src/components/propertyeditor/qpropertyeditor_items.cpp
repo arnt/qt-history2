@@ -15,6 +15,7 @@
 #include "flagbox_p.h"
 #include "keysequenceeditor.h"
 #include "defs.h"
+#include <propertysheet.h>
 
 #include <QtGui/QLineEdit>
 #include <QtGui/QListView>
@@ -609,7 +610,12 @@ QVariant MapProperty::value() const
 
 void MapProperty::setValue(const QVariant &value)
 {
-    m_value = value;
+   if (qVariantCanConvert<EnumType>(value)) {
+        EnumType e = qvariant_cast<EnumType>(value);
+        m_value = e.value;
+    } else {
+        m_value = value;
+    }
 }
 
 QString MapProperty::toString() const
