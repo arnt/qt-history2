@@ -39,6 +39,11 @@ public:
 	dump("Mv", e);
     }
 
+    void mouseDoubleClickEvent(QMouseEvent* e)
+    {
+	dump("Mv2", e);
+    }
+
     void mouseReleaseEvent(QMouseEvent* e)
     {
 	dump("M^", e);
