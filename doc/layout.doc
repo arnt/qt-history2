@@ -77,7 +77,7 @@ widgets inside each other.
 
    \img qhbox-m.png Horizontal box with five child widgets
 
-\i A \l QVBox lays out its child widgets in a vertical row, top to bottom.
+\i A \l QVBox lays out its child widgets in a vertical column, top to bottom.
 
    \img qvbox-m.png Vertical box with five child widgets
 
@@ -100,7 +100,7 @@ The grid shown above can be produced by the following code:
     new QLabel( "Five", mainGrid );
 \endcode
 
-You can adjust the layout somewhat by calling
+You can adjust the layout to some extent by calling
 QWidget::setMinimumSize() or QWidget::setFixedSize() on the child widgets.
 
 \section1 QLayout

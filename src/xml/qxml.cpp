@@ -987,7 +987,7 @@ QXmlInputSource::~QXmlInputSource()
 }
 
 /*!
-    Returns the next character of the input source. If this funciton
+    Returns the next character of the input source. If this function
     reaches the end of available data, it returns
     QXmlInputSource::EndOfData. If you call next() after that, it
     tries to fetch more data by calling fetchData(). If the

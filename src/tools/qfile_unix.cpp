@@ -106,16 +106,20 @@ bool QFile::remove( const QString &fileName )
     \row \i IO_ReadOnly
 	 \i Opens the file in read-only mode.
     \row \i IO_WriteOnly
-	 \i Opens the file in write-only mode (and truncates it if it
-	    is a buffered file).
+	 \i Opens the file in write-only mode. If this flag is used
+	    with another flag, e.g. \c IO_ReadOnly or \c IO_Raw or \c
+	    IO_Append, the file is \e not truncated; but if used on
+	    its own (or with \c IO_Truncate), the file is truncated.
     \row \i IO_ReadWrite
 	 \i Opens the file in read/write mode, equivalent to \c
 	    (IO_ReadOnly | IO_WriteOnly).
     \row \i IO_Append
-	 \i Opens the file in append mode. This mode is very useful
-	    when you want to write something to a log file. The file
-	    index is set to the end of the file. Note that the result
-	    is undefined if you position the file index manually using
+	 \i Opens the file in append mode. (You must actually use \c
+	    (IO_WriteOnly | IO_Append) to make the file writable and
+	    to go into append mode.) This mode is very useful when you
+	    want to write something to a log file. The file index is
+	    set to the end of the file. Note that the result is
+	    undefined if you position the file index manually using
 	    at() in append mode.
     \row \i IO_Truncate
 	 \i Truncates the file.
@@ -144,9 +148,13 @@ bool QFile::remove( const QString &fileName )
     Example:
     \code
 	QFile f1( "/tmp/data.bin" );
+	f1.open( IO_Raw | IO_ReadWrite );
+
 	QFile f2( "readme.txt" );
-	f1.open( IO_Raw | IO_ReadWrite | IO_Append );
 	f2.open( IO_ReadOnly | IO_Translate );
+
+	QFile f3( "audit.log" );
+	f3.open( IO_WriteOnly | IO_Append );
     \endcode
 
     \sa name(), close(), isOpen(), flush()

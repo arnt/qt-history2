@@ -4110,7 +4110,7 @@ QCanvasSpline::~QCanvasSpline()
   as the last point, and the number of control points must be a
   multiple of 3. If \a close is FALSE, one additional control point
   is required, and the number of control points must be one of (4, 7,
-  11, ...).
+  10, 13, ...).
 
   If the number of control points doesn't meet the above conditions,
   the number of points will be truncated to the largest number of points
