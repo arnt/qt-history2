@@ -492,8 +492,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
     if (mode == Qt::SmoothTransformation) {
         // ###### do this efficiently!
         QImage image = toImage();
-        image.transform(matrix, mode);
-        return QPixmap(image);
+        return QPixmap(image.transform(matrix, mode));
     }
 
     int           w, h;                                // size of target pixmap
@@ -730,7 +729,7 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
                 //make the image
                 QImage im;
                 im = in_pix->toImage();
-                im = im.scale(images[i].width, images[i].height, 
+                im = im.scale(images[i].width, images[i].height,
                               Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
                      .convertDepth(images[i].depth);
                 //set handle bits
