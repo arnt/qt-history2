@@ -3096,7 +3096,16 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
             map( x, y, &x, &y );
     }
 
-    QTextLayout layout( str, this );
+    // we can't take the complete string here as we would otherwise
+    // get quadratic behaviour when drawing long strings in parts.
+    // we do however need some chars around the part we paint to get arabic shaping correct.
+    // ### maybe possible to remove after cursor restrictions work in QRT
+    int start = QMAX( 0,  pos - 8 );
+    int end = QMIN( str.length(), pos + len + 8 );
+    QConstString cstr( str.unicode() + start, end - start );
+    pos -= start;
+
+    QTextLayout layout( cstr.string(), this );
     layout.beginLayout();
 
     layout.setBoundary( pos );
@@ -3105,12 +3114,12 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     QTextEngine *engine = layout.d;
 
     // small hack to force skipping of unneeded items
-    int start = 0;
+    start = 0;
     while ( engine->items[start].position < pos )
 	++start;
     engine->currentItem = start;
     layout.beginLine( 0xfffffff );
-    int end = start;
+    end = start;
     while ( !layout.atEnd() && layout.currentItem().from() < pos + len ) {
 	layout.addCurrentItem();
 	end++;
