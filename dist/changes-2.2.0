@@ -161,7 +161,7 @@ QTabWidget: 	- new functions currentPageIndex(), setCurrentPage(), new
 		  signal currentChanged(). Similar extensions to QTabBar
 		  and QTabDialog
 
-QTranslator:	- new algorithmen for faster lookup. No more risk of 
+QTranslator:	- new algorithmen for faster lookup. No more risk of
 		"hash collisions" when many translators are loaded.
 
 QVariant: 	- new subtype QSizePolicy. Necessary for QWidget's
@@ -212,7 +212,7 @@ QSemaphore:	- A robust integer semaphore.  Another way of thread
 
 QThread 	- Baseclass for platform-independent threads.
 
-QCondition 	- Provides signalling of the occurrence of events between
+QWaitCondition 	- Provides signalling of the occurrence of events between
 		  threads ("condition variables")
 
 QCanvas 	- [Canvas Module] a highly optimized 2D graphic area.

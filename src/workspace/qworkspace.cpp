@@ -595,8 +595,8 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     d->px = 0;
     d->py = 0;
     d->becomeActive = 0;
-    d->popup = new QPopupMenu;
-    d->toolPopup = new QPopupMenu;
+    d->popup = new QPopupMenu( this, "qt_internal_mdi_popup" );
+    d->toolPopup = new QPopupMenu( this, "qt_internal_mdi_popup" );
 
     d->menuId = -1;
     d->controlId = -1;

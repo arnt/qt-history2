@@ -96,7 +96,8 @@ public:
 		     KSC_5601,
 		     GB_2312,
 		     Big5,
-		     TSCII
+		     TSCII,
+		     KOI8U
     };
     enum StyleHint { Helvetica, Times, Courier, OldEnglish,  System, AnyStyle,
 		     SansSerif	= Helvetica,

@@ -197,7 +197,9 @@
   <li> \c QFont::ISO_8859_10..15, other ISO 8859 characters sets
   <li> \c QFont::KOI8R - KOI8-R, Cyrillic, defined in
        <a href="ftp://ftp.nordu.net/rfc/rfc1489.txt">RFC 1489.</a>
-  <li> \c QFont::AnyCharSet - whatever is handiest.
+   <li> \c QFont::KOI8U - KOI8-U, Cyrillic/Ukrainian, defined in
+       <a href="ftp://ftp.nordu.net/rfc/rfc2319.txt">RFC 2319.</a>
+   <li> \c QFont::AnyCharSet - whatever is handiest.
   <li> \c QFont::Set_Ja, Japanese
   <li> \c QFont::Set_Ko, Korean
   <li> \c QFont::Set_Th_TH
@@ -1015,6 +1017,9 @@ QString QFont::encodingName( CharSet cs )
         break;
     case QFont::KOI8R:
         result = "KOI8-R";
+        break;
+    case QFont::KOI8U:
+        result = "KOI8-U";
         break;
     case QFont::Set_Ja:
         result = "Set_Ja";

@@ -49,6 +49,10 @@
 #include "qt_x11.h"
 #include "qapplication_p.h"
 
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h> 
+
 // REVISED: arnt
 
 /* #####
@@ -212,13 +216,25 @@ bool qt_xclb_wait_for_event( Display *dpy, Window win, int type, XEvent *event,
 {
     QTime started = QTime::currentTime();
     QTime now = started;
+    bool flushed = false;
     do {
 	if ( XCheckTypedWindowEvent(dpy,win,type,event) )
 	    return TRUE;
 	now = QTime::currentTime();
 	if ( started > now )			// crossed midnight
 	    started = now;
-	XSync( dpy, FALSE );			// toss a ball while we wait
+	// XSync is evil, and causes a *very* high load on the server and client if called
+	// like this very often. Things also
+	//XSync( dpy, FALSE );			// toss a ball while we wait
+	if(!flushed) {
+	    XFlush( dpy );
+	    flushed = true;
+	}
+	// sleep a bit, so we don't use up CPU cycles all the time.
+	struct timeval _usleep_tv;
+	_usleep_tv.tv_sec = 0;
+	_usleep_tv.tv_usec = 50000;
+	select(0,0,0,0,&_usleep_tv);
     } while ( started.msecsTo(now) < timeout );
     return FALSE;
 }

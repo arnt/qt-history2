@@ -336,6 +336,7 @@ static struct {
     { "Big5", QFont::Set_Big5 },
     { "ta_TA.TSCII", QFont::TSCII },
     { "TSCII", QFont::TSCII },
+    { "KOI8-U", QFont::KOI8U },
     { 0, /* anything */ QFont::ISO_8859_1 }
 };
 
@@ -504,6 +505,9 @@ static bool fillFontDef( const QCString &xlfd, QFontDef *fd,
 	       (qstrcmp( tokens[CharsetEncoding], "r" ) == 0 ||
 		qstrcmp( tokens[CharsetEncoding], "1" ) == 0) ) {
 	fd->charSet = QFont::KOI8R;
+    } else if( strcmp( tokens[CharsetRegistry], "koi8" ) == 0 &&
+	       strcmp( tokens[CharsetEncoding], "u" ) == 0) {
+	fd->charSet = QFont::KOI8U;
     } else if( qstrcmp( tokens[CharsetRegistry], "tscii" ) == 0 &&
 	       qstrcmp( tokens[CharsetEncoding], "0" ) == 0 ) {
 	fd->charSet = QFont::TSCII;
@@ -1288,6 +1292,12 @@ int QFont_Private::fontMatchScore( const char *fontName, QCString &buffer,
 	if ( qstrcmp( tokens[CharsetRegistry], "koi8" ) == 0 &&
 	     ( qstrcmp( tokens[CharsetEncoding], "r" ) == 0 ||
 	       qstrcmp( tokens[CharsetEncoding], "1" ) == 0) )
+	       score |= CharSetScore;
+       else
+	       exactMatch = FALSE;
+    } else if ( charSet() == KOI8U ) {
+       if ( strcmp( tokens[CharsetRegistry], "koi8" ) == 0 &&
+	    strcmp( tokens[CharsetEncoding], "u" ) == 0 )
 	    score |= CharSetScore;
 	else
 	    exactMatch = FALSE;

@@ -69,7 +69,7 @@ class QAlphaWidget: public QWidget, private QEffects
 {
     Q_OBJECT
 public:
-    QAlphaWidget( QWidget* w, QWidget* parent = 0, const char* name = 0, WFlags f = 0);
+    QAlphaWidget( QWidget* w, WFlags f = 0 );
 
     void run( int time );
 
@@ -91,6 +91,7 @@ private:
     QImage mixed;
     QAccessWidget* widget;
     int duration;
+    int elapsed;
     bool showWidget;
     QTimer anim;
     QTime checkTime;
@@ -101,10 +102,10 @@ static QAlphaWidget* blend = 0;
 /*
   Constructs a QAlphaWidget.
 */
-QAlphaWidget::QAlphaWidget( QWidget* w, QWidget* parent, const char* name, WFlags f )
-    : QWidget( parent, name,
-	       f | WStyle_Customize | WType_Popup | WResizeNoErase | WRepaintNoErase )
+QAlphaWidget::QAlphaWidget( QWidget* w, WFlags f )
+    : QWidget( 0, 0, f )
 {
+    pm.setOptimization( QPixmap::BestOptim );
     setBackgroundMode( NoBackground );
     widget = (QAccessWidget*)w;
     alpha = 0;
@@ -129,6 +130,7 @@ void QAlphaWidget::run( int time )
     if ( duration < 0 )
 	duration = 200;
 
+    elapsed = 0;
     checkTime.start();
 
     if ( !widget )
@@ -158,7 +160,7 @@ void QAlphaWidget::run( int time )
 	raise();
 
 	connect( &anim, SIGNAL(timeout()), this, SLOT(render()));
-	anim.start( 10 );
+	anim.start( 0 );
     } else {
         widget->clearWState( WState_Visible );
 	widget->setWState( WState_ForceHide );
@@ -171,20 +173,19 @@ void QAlphaWidget::run( int time )
 */
 bool QAlphaWidget::eventFilter( QObject* o, QEvent* e )
 {
-    switch ( e->type() )
-	{
-	case QEvent::Move:
-	    move( widget->geometry().x(),widget->geometry().y() );
-	    update();
-	    break;
-	case QEvent::Hide:
-	case QEvent::Close:
-	    showWidget = FALSE;
-	    render();
-	    break;
-	default:
-	    break;
-	}
+    switch ( e->type() ) {
+    case QEvent::Move:
+	move( widget->geometry().x(),widget->geometry().y() );
+	update();
+	break;
+    case QEvent::Hide:
+    case QEvent::Close:
+	showWidget = FALSE;
+	render();
+	break;
+    default:
+	break;
+    }
     return QWidget::eventFilter( o, e );
 }
 
@@ -208,7 +209,13 @@ void QAlphaWidget::closeEvent( QCloseEvent* )
 */
 void QAlphaWidget::render()
 {
-    alpha = double(checkTime.elapsed()) / duration;
+    int tempel = checkTime.elapsed();
+    if ( elapsed >= tempel )
+        elapsed++;
+    else
+        elapsed = tempel;
+
+    alpha = double(tempel) / duration;
     if ( alpha >= 1 || !showWidget) {
 	anim.stop();
 	widget->removeEventFilter( this );
@@ -216,6 +223,7 @@ void QAlphaWidget::render()
 	widget->setWState( WState_ForceHide );
 	
 	BackgroundMode bgm = widget->backgroundMode();
+	
 	if ( showWidget ) {
 	    widget->setBackgroundMode( NoBackground );
 	    widget->show();
@@ -280,7 +288,7 @@ class QRollEffect : public QWidget, private QEffects
 {
     Q_OBJECT
 public:
-    QRollEffect( QWidget* w, DirFlags orient );
+    QRollEffect( QWidget* w, WFlags f, DirFlags orient );
 
     void run( int time );
 
@@ -302,6 +310,7 @@ private:
     int totalWidth;
 
     int duration;
+    int elapsed;
     bool done;
     bool showWidget;
     int orientation;
@@ -317,9 +326,8 @@ static QRollEffect* roll = 0;
 /*
   Construct a QRollEffect widget.
 */
-QRollEffect::QRollEffect( QWidget* w, DirFlags orient )
-    : QWidget(0, 0,
-    WStyle_Customize | WType_Popup | WResizeNoErase | WRepaintNoErase )
+QRollEffect::QRollEffect( QWidget* w, WFlags f, DirFlags orient )
+    : QWidget( 0, 0, f )
 , orientation(orient)
 {
     widget = (QAccessWidget*) w;
@@ -343,6 +351,7 @@ QRollEffect::QRollEffect( QWidget* w, DirFlags orient )
     if ( orientation & DownScroll || orientation & UpScroll )
 	currentHeight = 0;
 
+    pm.setOptimization( QPixmap::BestOptim );
     pm = QPixmap::grabWidget( widget );
 }
 
@@ -406,6 +415,7 @@ void QRollEffect::run( int time )
 	return;
 
     duration  = time;
+    elapsed = 0;
 
     if ( duration < 0 )
 	duration = QMIN( QMAX((totalWidth - currentWidth) +
@@ -425,7 +435,7 @@ void QRollEffect::run( int time )
 
     showWidget = TRUE;
     done = FALSE;
-    anim.start( 10 );
+    anim.start( 0 );
     checkTime.start();
 }
 
@@ -435,18 +445,24 @@ void QRollEffect::run( int time )
 void QRollEffect::scroll()
 {
     if ( !done ) {
+        int tempel = checkTime.elapsed();
+        if ( elapsed >= tempel )
+            elapsed++;
+        else
+            elapsed = tempel;
+
 	if ( currentWidth != totalWidth ) {
-	    currentWidth = totalWidth * checkTime.elapsed() / duration;
+	    currentWidth = double( totalWidth * elapsed ) / (double)duration;
 	    done = (currentWidth >= totalWidth);
 	}
 	if ( currentHeight != totalHeight ) {
-	    currentHeight = totalHeight * checkTime.elapsed() / duration;
+	    currentHeight = double( totalHeight * elapsed ) / (double)duration;
 	    done = (currentHeight >= totalHeight);
 	}
 	done = ( ( currentHeight >= totalHeight ) && 
 		 ( currentWidth >= totalWidth ) );
 
-	int w = totalWidth;
+        int w = totalWidth;
 	int h = totalHeight;
 	int x = widget->geometry().x();
 	int y = widget->geometry().y();
@@ -465,7 +481,7 @@ void QRollEffect::scroll()
 	    move( x, y );
 
 	resize( w, h );	
-	setUpdatesEnabled( TRUE );
+        setUpdatesEnabled( TRUE );
 	repaint( FALSE );
     }
     if ( done ) {
@@ -516,7 +532,11 @@ void qScrollEffect( QWidget* w, QEffects::DirFlags orient, int time )
     qApp->sendPostedEvents( w, QEvent::Move );
     qApp->sendPostedEvents( w, QEvent::Resize );
 
-    roll = new QRollEffect( w, orient );
+    if ( qstrcmp( w->name(), "qt_internal_mdi_popup" ) )
+	roll = new QRollEffect( w, Qt::WStyle_Customize | Qt::WStyle_Tool | Qt::WResizeNoErase | Qt::WRepaintNoErase, orient );
+    else
+	roll = new QRollEffect( w, Qt::WStyle_Customize | Qt::WType_Popup | Qt::WResizeNoErase | Qt::WRepaintNoErase, orient );
+
     roll->run( time );
 }
 
@@ -529,11 +549,15 @@ void qFadeEffect( QWidget* w, int time )
 	delete blend;
 	blend = 0;
     }
-	
+
     qApp->sendPostedEvents( w, QEvent::Move );
     qApp->sendPostedEvents( w, QEvent::Resize );
 
-    blend = new QAlphaWidget( w );
+    if ( qstrcmp( w->name(), "qt_internal_mdi_popup" ) )
+	blend = new QAlphaWidget( w, Qt::WStyle_Customize | Qt::WStyle_Tool | Qt::WResizeNoErase | Qt::WRepaintNoErase );
+    else
+	blend = new QAlphaWidget( w, Qt::WStyle_Customize | Qt::WType_Popup | Qt::WResizeNoErase | Qt::WRepaintNoErase );
+
     blend->run( time );
 }
 #endif //QT_NO_EFFECTS

@@ -89,6 +89,7 @@ public:
     QTextStream &operator>>( QString & );
     QTextStream &operator>>( QCString & );
 
+    QTextStream &operator<<( QChar );
     QTextStream &operator<<( char );
     QTextStream &operator<<( signed short );
     QTextStream &operator<<( unsigned short );

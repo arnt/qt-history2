@@ -59,7 +59,7 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
 {
     QString dev( "/dev/fb0" );
 
-    qDebug("Display spec %s",displaySpec.ascii());
+    //    qDebug("Display spec %s",displaySpec.ascii());
 
     // This doesn't seem to work?
 
@@ -78,7 +78,7 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
 	dev=getenv("QWS_FB");
     }
 
-    qDebug( "QLinuxFbScreen: using device %s", dev.latin1() );
+    //    qDebug( "QLinuxFbScreen: using device %s", dev.latin1() );
 
     fd=open( dev.latin1(), O_RDWR );
     if(fd<0) {
@@ -114,8 +114,8 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
     /* Figure out the size of the screen in bytes */
     size = h * lstep;
 
-    qDebug("Framebuffer base at %lx",finfo.smem_start);
-    qDebug("Registers base %lx",finfo.mmio_start);
+    //    qDebug("Framebuffer base at %lx",finfo.smem_start);
+    //    qDebug("Registers base %lx",finfo.mmio_start);
 
     mapsize=finfo.smem_len;
 

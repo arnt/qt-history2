@@ -1433,7 +1433,7 @@ QString QTextStream::readLine()
 	return QString::null;
 
     QString result( "" );
-    while ( c != QEOF && c != '\n' ) {
+    while ( c != QEOF && c != '\n' && c != 0x2028 ) { // U+2028 is Unicode newline
 	result += c;
 	c = ts_getc();
     }
@@ -1456,7 +1456,7 @@ QString QTextStream::read()
 {
 #if defined(CHECK_STATE)
     if ( !dev ) {
-	qWarning( "QTextStream::readLine: No device" );
+	qWarning( "QTextStream::read: No device" );
 	return QString::null;
     }
 #endif
@@ -1508,7 +1508,16 @@ QString QTextStream::read()
 /*!
   Writes a \c char to the stream and returns a reference to the stream.
 */
+QTextStream &QTextStream::operator<<( QChar c )
+{
+    CHECK_STREAM_PRECOND
+    ts_putc( c );
+    return *this;
+}
 
+/*!
+  Writes a \c char to the stream and returns a reference to the stream.
+*/
 QTextStream &QTextStream::operator<<( char c )
 {
     CHECK_STREAM_PRECOND

@@ -36,9 +36,6 @@
 **
 **********************************************************************/
 
-#ifndef QCOLOR_P_H
-#define QCOLOR_P_H
-
 #include "qcolor.h"
 
 #ifndef QT_NO_COLORNAMES
@@ -745,5 +742,3 @@ uint qt_get_rgb_val( const char * )
 }
 
 #endif // QT_NO_COLORNAMES
-
-#endif

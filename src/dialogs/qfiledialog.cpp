@@ -485,6 +485,8 @@ static void cleanup() {
     endCopyIcon = 0;
     delete goBackIcon;
     goBackIcon = 0;
+    delete lastSize;
+    lastSize = 0;
 #if defined (_WS_WIN_)
     delete fileIconProvider;
     fileIconProvider = 0;

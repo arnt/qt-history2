@@ -3,7 +3,6 @@
 #include <qpainter.h>
 #include <qapplication.h>
 #include <qdragobject.h>
-#include <qt_windows.h>
 
 
 Drop::Drop(QWidget* parent, const char* name) :

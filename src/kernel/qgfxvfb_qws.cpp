@@ -242,8 +242,12 @@ QVFbScreen::~QVFbScreen()
 {
 }
 
+
+static int QVFb_dummy;
+
 bool QVFbScreen::connect( const QString & )
 {
+    optype = &QVFb_dummy;
     key_t key = ftok( QString(QT_VFB_MOUSE_PIPE).arg(displayId).latin1(), 'b' );
 
     int shmId = shmget( key, 0, 0 );
@@ -278,8 +282,7 @@ void QVFbScreen::disconnect()
 
 bool QVFbScreen::initCard()
 {
-    static int dummy;
-    optype = &dummy;
+    optype = &QVFb_dummy;
     if(d==8) {
 	screencols=256;
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE

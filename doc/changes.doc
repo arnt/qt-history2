@@ -506,7 +506,7 @@ highlight on buttons.
 Last but not least we added support for multithreaded
 applications. The classes involved are QThread to start threads,
 QMutex and QSemaphore to serialize them, QWaitCondition to wait/wake
-threads on conditions. See the \link threads.html online Threads
+threads on conditions. See the \link threads.html Threads
 documentation\endlink for more details.
 
 In addition to improving the fundamental Qt functionality,

@@ -344,6 +344,7 @@ public:
 		      bool autoRepeat);
 
 private:
+    int backspaces( const QString &s );
     bool active;
     unsigned int maxlen;
     QMap<QString,QString> map;
@@ -393,6 +394,33 @@ static void sendString( const QString &s )
 
 
 /*
+  How many backspaces do I need to send in order to remove \a str?
+*/
+int SimpleIM::backspaces( const QString &str )
+{
+    int r = 0;
+    QString s = str;
+    while ( !s.isEmpty() ) {
+	qDebug( "testing %s", s.latin1() );
+	int n = s.length();
+	while ( n > 0 ) {
+	    QString sub = s.right( n );
+	    if ( map.contains( sub ) ) {
+		r += map[sub].length();
+		break;
+	    }
+	    n--;
+	}
+	if ( n == 0 ) {
+	    n = 1;
+	    r++;
+	}
+	s = s.left(s.length()-n);
+    }
+    
+    return r;
+}
+/*
   Watch all keypresses. Toggle active mode when shift+space is seen.
 
   In active mode: Put each key pressed into the buffer soFar. When the
@@ -400,9 +428,7 @@ static void sendString( const QString &s )
   to remove the source characters and then send the mapped string.
   
   This is just a simple example. Production code would have to handle
-  key releases as well. In some cases the backspace count will be wrong,
-  if the substitution map contains multiple overlapping characters.
-  (Eg. if "aa"->"A", "bb"->"B" and "aabb"->"XYZ".)
+  key releases as well.
  */
 bool SimpleIM::filter(int unicode, int keycode, int modifiers, bool isPress,
 		      bool /*autoRepeat*/ )
@@ -422,9 +448,11 @@ bool SimpleIM::filter(int unicode, int keycode, int modifiers, bool isPress,
 	    while ( n > 0 ) {
 		QString candidate = soFar.right( n );
 		if ( map.contains( candidate ) ) {
-		    for ( int i = 0; i < n-1; i++ )
+		    int bc = backspaces( candidate.left(n-1) );
+		    for ( int i = 0; i < bc; i++ )
 			sendKey( 0, Qt::Key_Backspace);
 		    sendString( map[candidate] );
+		    soFar=soFar.right(n);
 		    return TRUE; //filter
 		}
 		n--;
