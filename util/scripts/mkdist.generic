@@ -90,25 +90,6 @@ else
   export PATH=${TMAKEDIR}/bin:${PATH}
 fi
 
-echo "Hacking examples... VERY VERY HACKY" >&2
-cd ${DISTDIR}/qt/examples
-mv simple/buttons_groups .
-mv simple/checklists .
-mv simple/drawlines .
-mv simple/listbox_combo .
-mv simple/listviews .
-mv simple/progressbar .
-mv simple/qiconview .
-mv simple/rangecontrols .
-mv simple/themes .
-mv simple/wizard .
-rm -r simple
-rm -r qbrowser
-rm advanced/advanced.pro
-rm advanced/advanced.t
-mv advanced/* .
-rm -r advanced
-
 echo "Removing internal files..." >&2
 cd ${DISTDIR}/qt/src
 ###tmake qtinternal.pro -e "Expand('INTERNAL')" | xargs rm -fv
