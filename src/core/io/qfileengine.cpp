@@ -254,6 +254,33 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
  */
 
 /*!
+    \fn bool QFileEngine::setSize(QIODevice::Offset size)
+
+    Requests that the file be set to size \a size. If \a size is larger
+    than the current file then it is filled with 0's, if smaller it is
+    simply truncated. If the operations succceeds return true; otherwise
+    return false;
+
+    This virtual function must be reimplemented by all subclasses.
+
+    \sa size()
+*/
+
+/*!
+    \fn bool QFileEngine::chmod(uint perms)
+
+    Requests that the file's permissions be set to \a perms. The argument
+    perms will be set to the OR-ed together combination of
+    QFileEngine::FileInfo, with only the QFileEngine::PermsMask being
+    honored. If the operations succceeds return true; otherwise return
+    false;
+
+    This virtual function must be reimplemented by all subclasses.
+
+    \sa size()
+*/
+
+/*!
     \fn QStringList QFileEngine::entryList(int filterSpec, const QStringList &filters) const
 
     Requests that a list of all the files matching the \a filters list
@@ -712,3 +739,4 @@ QFSFileEngine::type() const
 {
     return QIOEngine::File;
 }
+

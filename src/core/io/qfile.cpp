@@ -157,6 +157,36 @@ QFilePrivate::openExternalFile(int flags, int fd)
 */
 
 /*!
+    \enum QFile::PermissionSpec
+
+    This enum is used by the permission() function to report the
+    permissions and ownership of a file. The values may be OR-ed
+    together to test multiple permissions and ownership values.
+
+    \value ReadOwner The file is readable by the owner of the file.
+    \value WriteOwner The file is writable by the owner of the file.
+    \value ExeOwner The file is executable by the owner of the file.
+    \value ReadUser The file is readable by the user.
+    \value WriteUser The file is writable by the user.
+    \value ExeUser The file is executable by the user.
+    \value ReadGroup The file is readable by the group.
+    \value WriteGroup The file is writable by the group.
+    \value ExeGroup The file is executable by the group.
+    \value ReadOther The file is readable by anyone.
+    \value WriteOther The file is writable by anyone.
+    \value ExeOther The file is executable by anyone.
+
+    \warning The semantics of \c ReadUser, \c WriteUser and \c ExeUser are
+    unfortunately not platform independent: on Unix, the rights of the owner of
+    the file are returned and on Windows the rights of the current user are
+    returned. This behavior might change in a future Qt version. If you want to
+    find the rights of the owner of the file, you should use the flags \c
+    ReadOwner, \c WriteOwner and \c ExeOwner. If you want to find out the
+    rights of the current user, you should use isReadable(), isWritable() and
+    isExecutable().
+*/
+
+/*!
     Constructs a QFile with no name.
 */
 QFile::QFile() : QIODevice(*new QFilePrivate)
@@ -583,4 +613,94 @@ QIOEngine
 
     Use setFileName() instead.
 */
+
+/*!
+    Sets the file size (in bytes) \a sz. Returns true if the file if the
+    resize succeeds; false otherwise. If \a sz is larger than the file
+    currently is the new bytes will be set to 0, if \a sz is smaller the
+    file is simply truncated.
+
+    \sa QFile::size()
+*/
+
+bool 
+QFile::resize(QIODevice::Offset sz)
+{
+    return d->getFileEngine()->setSize(sz);
+}
+
+/*!
+    \overload
+
+    Sets \a fileName to size (in bytes) \a sz. Returns true if the file if
+    the resize succeeds; false otherwise. If \a sz is larger than \a
+    fileName currently is the new bytes will be set to 0, if \a sz is
+    smaller the file is simply truncated.
+
+    \sa resize()
+*/
+
+bool 
+QFile::resize(const QString &fileName, QIODevice::Offset sz)
+{
+    return QFile(fileName).resize(sz);
+}
+
+/*!
+    Returns the complete OR-ed together combination of
+    QFile::PermissionSpec for the file.
+
+    \sa QFile::setPermissions, QFile::PermissionSpec
+*/
+
+uint 
+QFile::permissions() const
+{
+    return (d->getFileEngine()->fileFlags(QFileEngine::PermsMask) & QFileEngine::PermsMask);
+}
+
+/*!
+    \overload
+
+    Returns the complete OR-ed together combination of
+    QFile::PermissionSpec for \a fileName.
+
+    \sa permissions(), QFile::PermissionSpec
+*/
+
+uint 
+QFile::permissions(const QString &fileName)
+{
+    return QFile(fileName).permissions();
+}
+
+/*!
+    Sets the permissions for the file to \a permissionSpec. The
+    permissionSpec argument can be several flags of type \c
+    QFile::PermissionSpec OR-ed together to set the file to.
+
+    \sa permissions(), QFile::PermissionSpec
+*/
+
+bool 
+QFile::setPermissions(uint permissionSpec)
+{
+    return d->getFileEngine()->chmod(permissionSpec);
+}
+
+/*!
+    \overload
+
+    Sets the permissions for \a fileName file to \a permissionSpec. The
+    permissionSpec argument can be several flags of type \c
+    QFile::PermissionSpec OR-ed together to set the file to.
+
+    \sa setPermissions()
+*/
+
+bool 
+QFile::setPermissions(const QString &fileName, uint permissionSpec)
+{
+    return QFile(fileName).setPermissions(permissionSpec);
+}
 

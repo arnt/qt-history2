@@ -63,6 +63,12 @@ QResourceFileEngine::rmdir(const QString &, QDir::Recursion) const
     return false;
 }
 
+bool
+QResourceFileEngine::setSize(QIODevice::Offset) 
+{
+    return false;
+}
+
 QStringList
 QResourceFileEngine::entryList(int filterSpec, const QStringList &filters) const
 {
@@ -245,6 +251,12 @@ QResourceFileEngine::fileFlags(uint type) const
             ret |= RootFlag;
     }
     return ret;
+}
+
+bool
+QResourceFileEngine::chmod(uint perms) 
+{
+    return false;
 }
 
 QString

@@ -33,6 +33,8 @@ public:
     virtual bool mkdir(const QString &dirName, QDir::Recursion recurse) const = 0;
     virtual bool rmdir(const QString &dirName, QDir::Recursion recurse) const = 0;
 
+    virtual bool setSize(QIODevice::Offset size) = 0;
+
     virtual QStringList entryList(int filterSpec, const QStringList &filters) const = 0;
 
     virtual bool caseSensitive() const = 0;
@@ -40,7 +42,7 @@ public:
     virtual bool isRelativePath() const = 0;
 
     enum FileInfo { 
-        //perms (overlaps the QFileInfo permissions)
+        //perms (overlaps the QFile::PermissionSpec)
         ReadOwnerPerm = 0x4000, WriteOwnerPerm = 0x2000, ExeOwnerPerm = 0x1000,
         ReadUserPerm  = 0x0400, WriteUserPerm  = 0x0200, ExeUserPerm  = 0x0100,
         ReadGroupPerm = 0x0040, WriteGroupPerm = 0x0020, ExeGroupPerm = 0x0010,
@@ -64,6 +66,8 @@ public:
         FileInfoAll = FlagsMask | PermsMask | TypesMask
     };
     virtual uint fileFlags(uint type=FileInfoAll) const = 0;
+
+    virtual bool chmod(uint perms) = 0;
 
     enum FileName { DefaultName, BaseName, PathName, AbsoluteName, AbsolutePathName, LinkName, CanonicalName };
     virtual QString fileName(FileName file=DefaultName) const = 0;
@@ -124,6 +128,8 @@ public:
     virtual bool mkdir(const QString &dirName, QDir::Recursion recurse) const;
     virtual bool rmdir(const QString &dirName, QDir::Recursion recurse) const;
 
+    virtual bool setSize(QIODevice::Offset size);
+
     virtual QStringList entryList(int filterSpec, const QStringList &filters) const;
 
     virtual bool caseSensitive() const;
@@ -131,6 +137,8 @@ public:
     virtual bool isRelativePath() const;
 
     virtual uint fileFlags(uint type) const;
+
+    virtual bool chmod(uint perms);
 
     virtual QString fileName(QFileEngine::FileName file) const;
 

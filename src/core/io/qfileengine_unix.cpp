@@ -424,3 +424,46 @@ QFSFileEngine::owner(FileOwner own) const
     return QString::null;
 }
 
+bool 
+QFSFileEngine::chmod(uint perms)
+{
+    mode_t mode = 0;
+    if(perms & ReadOwnerPerm)
+        mode |= S_IRUSR;
+    if(perms & WriteOwnerPerm)
+        mode |= S_IWUSR;
+    if(perms & ExeOwnerPerm)
+        mode |= S_IXUSR;
+    if(perms & ReadUserPerm)
+        mode |= S_IRUSR;
+    if(perms & WriteUserPerm)
+        mode |= S_IWUSR;
+    if(perms & ExeUserPerm)
+        mode |= S_IXUSR;
+    if(perms & ReadGroupPerm)
+        mode |= S_IRGRP;
+    if(perms & WriteGroupPerm)
+        mode |= S_IWGRP;
+    if(perms & ExeGroupPerm)
+        mode |= S_IXGRP;
+    if(perms & ReadOtherPerm)
+        mode |= S_IROTH;
+    if(perms & WriteOtherPerm)
+        mode |= S_IWOTH;
+    if(perms & ExeOtherPerm)
+        mode |= S_IXOTH;
+    if(d->fd != -1) 
+        return !fchmod(d->fd, mode);
+    const QByteArray file = QFile::encodeName(d->file);
+    return !::chmod(file.data(), mode);
+}
+
+bool 
+QFSFileEngine::setSize(QIODevice::Offset size)
+{
+    if(d->fd != -1) 
+        return !ftruncate(d->fd, size);
+    const QByteArray file = QFile::encodeName(d->file);
+    return !::truncate(file.data(), size);
+}
+

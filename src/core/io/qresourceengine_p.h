@@ -49,11 +49,15 @@ public:
     virtual bool mkdir(const QString &dirName, QDir::Recursion recurse) const;
     virtual bool rmdir(const QString &dirName, QDir::Recursion recurse) const;
 
+    virtual bool setSize(QIODevice::Offset size);
+
     virtual QStringList entryList(int filterSpec, const QStringList &filters) const;
 
     virtual bool caseSensitive() const;
 
     virtual uint fileFlags(uint type) const;
+
+    virtual bool chmod(uint perms);
 
     virtual QString fileName(QFileEngine::FileName file) const;
 

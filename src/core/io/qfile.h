@@ -26,6 +26,13 @@ class Q_CORE_EXPORT QFile : public QIODevice
     Q_DECLARE_PRIVATE(QFile)
 
 public:
+    enum PermissionSpec {
+        ReadOwner = 0x4000, WriteOwner = 0x2000, ExeOwner = 0x1000,
+        ReadUser  = 0x0400, WriteUser  = 0x0200, ExeUser  = 0x0100,
+        ReadGroup = 0x0040, WriteGroup = 0x0020, ExeGroup = 0x0010,
+        ReadOther = 0x0004, WriteOther = 0x0002, ExeOther = 0x0001 
+    };
+
     QFile();
     QFile(const QString &name);
     ~QFile();
@@ -69,6 +76,14 @@ public:
     using QIODevice::readLine;
 #endif
     Q_LONG readLine(QString &string, Q_LONG maxlen);
+
+    bool resize(QIODevice::Offset sz);
+    static bool resize(const QString &filename, QIODevice::Offset sz);
+
+    uint permissions() const;
+    static uint permissions(const QString &filename);
+    bool setPermissions(uint permissionSpec);
+    static bool setPermissions(const QString &filename, uint permissionSpec);
 
     int handle() const;
 

@@ -201,37 +201,6 @@ QDateTime &QFileInfoPrivate::getFileTime(QFileEngine::FileTime request) const
 */
 
 /*!
-    \enum QFileInfo::PermissionSpec
-
-    This enum is used by the permission() function to report the
-    permissions and ownership of a file. The values may be OR-ed
-    together to test multiple permissions and ownership values.
-
-    \value ReadOwner The file is readable by the owner of the file.
-    \value WriteOwner The file is writable by the owner of the file.
-    \value ExeOwner The file is executable by the owner of the file.
-    \value ReadUser The file is readable by the user.
-    \value WriteUser The file is writable by the user.
-    \value ExeUser The file is executable by the user.
-    \value ReadGroup The file is readable by the group.
-    \value WriteGroup The file is writable by the group.
-    \value ExeGroup The file is executable by the group.
-    \value ReadOther The file is readable by anyone.
-    \value WriteOther The file is writable by anyone.
-    \value ExeOther The file is executable by anyone.
-
-    \warning The semantics of \c ReadUser, \c WriteUser and \c ExeUser are
-    unfortunately not platform independent: on Unix, the rights of the owner of
-    the file are returned and on Windows the rights of the current user are
-    returned. This behavior might change in a future Qt version. If you want to
-    find the rights of the owner of the file, you should use the flags \c
-    ReadOwner, \c WriteOwner and \c ExeOwner. If you want to find out the
-    rights of the current user, you should use isReadable(), isWritable() and
-    isExecutable().
-*/
-
-
-/*!
     Constructs a new empty QFileInfo.
 */
 
@@ -904,7 +873,7 @@ QFileInfo::groupId() const
 
 /*!
     Tests for file permissions. The \a permissionSpec argument can be
-    several flags of type \c PermissionSpec OR-ed together to check
+    several flags of type \c QFile::PermissionSpec OR-ed together to check
     for permission combinations.
 
     On systems where files do not have permissions this function
@@ -913,13 +882,13 @@ QFileInfo::groupId() const
     Example:
     \code
         QFileInfo fi("/tmp/archive.tar.gz");
-        if (fi.permission(QFileInfo::WriteUser | QFileInfo::ReadGroup))
+        if (fi.permission(QFile::WriteUser | QFile::ReadGroup))
             qWarning("I can change the file; my group can read the file");
-        if (fi.permission(QFileInfo::WriteGroup | QFileInfo::WriteOther))
+        if (fi.permission(QFile::WriteGroup | QFile::WriteOther))
             qWarning("The group or others can change the file");
     \endcode
 
-    \sa isReadable(), isWritable(), isExecutable()
+    \sa isReadable(), isWritable(), isExecutable(), QFile::PermissionSpec
 */
 
 bool
@@ -929,6 +898,22 @@ QFileInfo::permission(uint permissionSpec) const
         return false;
     return d->getFileInfo((QFileEngine::FileInfo)permissionSpec) == permissionSpec;
 }
+
+/*!
+    Returns the complete OR-ed together combination of
+    QFile::PermissionSpec for the file.
+
+    \sa QFileInfo::permission(), QFile::PermissionSpec
+*/
+
+uint
+QFileInfo::permissions() const
+{
+    if(!d->data->fileEngine)
+        return false;
+    return d->getFileInfo(QFileEngine::PermsMask) & QFileEngine::PermsMask;
+}
+
 
 /*!
     Returns the file size in bytes, or 0 if the file does not exist or

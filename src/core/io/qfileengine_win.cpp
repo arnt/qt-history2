@@ -1051,3 +1051,15 @@ QFSFileEngine::owner(FileOwner own) const
     return QString("");
 }
 
+bool 
+QFSFileEngine::chmod(uint perms)
+{
+    return false;
+}
+
+bool 
+QFSFileEngine::setSize(QIODevice::Offset size)
+{
+    return false;
+}
+
