@@ -1295,29 +1295,27 @@ XftPattern *QFontPrivate::findXftFont(const QChar &sample) const
     // if (match)
     return match;
 
-    /*
-      match = bestXftPattern(QString::null, QString::null);
+    match = bestXftPattern(QString::null, QString::null);
 
-      if (sample.unicode() != 0 && match) {
-      // check if the character is actually in the font - this does result in
-      // a font being loaded, but since Xft is completely client side, we can
-      // do this efficiently
-      XftFontStruct *xftfs = XftFreeTypeOpen(QPaintDevice::x11AppDisplay(),
-      match);
+    if (sample.unicode() != 0 && match) {
+	// check if the character is actually in the font - this does result in
+	// a font being loaded, but since Xft is completely client side, we can
+	// do this efficiently
+	XftFontStruct *xftfs = XftFreeTypeOpen(QPaintDevice::x11AppDisplay(),
+					       match);
 
-      if (xftfs) {
-      if (! XftFreeTypeGlyphExists(QPaintDevice::x11AppDisplay(), xftfs,
-      sample.unicode())) {
-      XftPatternDestroy(match);
-      match = 0;
-      }
+	if (xftfs) {
+	    if (! XftFreeTypeGlyphExists(QPaintDevice::x11AppDisplay(), xftfs,
+					 sample.unicode())) {
+		XftPatternDestroy(match);
+		match = 0;
+	    }
 
-      XftFreeTypeClose(QPaintDevice::x11AppDisplay(), xftfs);
-      }
-      }
+	    XftFreeTypeClose(QPaintDevice::x11AppDisplay(), xftfs);
+	}
+    }
 
-      return match;
-    */
+    return match;
 }
 
 
