@@ -811,34 +811,34 @@ void QScrollBar::action( int control )
 {
     switch( control ) {
     case QStyle::SC_ScrollBarAddLine:
-	emit nextLine();
 	addLine();
+	emit nextLine();
 	break;
     case QStyle::SC_ScrollBarSubLine:
-	emit prevLine();
 	subtractLine();
+	emit prevLine();
 	break;
     case QStyle::SC_ScrollBarAddPage:
-	emit nextPage();
 	addPage();
+	emit nextPage();
 	break;
     case QStyle::SC_ScrollBarSubPage:
-	emit prevPage();
 	subtractPage();
+	emit prevPage();
 	break;
     case QStyle::SC_ScrollBarFirst:
-	emit valueChanged( minValue() );
+	setValue( minValue() );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
-	setValue( minValue() );
+	emit valueChanged( minValue() );
 	break;
     case QStyle::SC_ScrollBarLast:
-	emit valueChanged( maxValue() );
+	setValue( maxValue() );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
-	setValue( maxValue() );
+	emit valueChanged( maxValue() );
 	break;
     default:
 	break;
