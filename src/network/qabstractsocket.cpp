@@ -273,6 +273,7 @@
 #include "qabstractsocket.h"
 #include "qabstractsocket_p.h"
 #include "qdatetime.h"
+#include "qeventloop.h"
 #include "qhostaddress.h"
 #include "qpointer.h"
 #include "qsignal.h"
@@ -433,7 +434,8 @@ bool QAbstractSocketPrivate::initSocketLayer(Qt::SocketType type,
         return false;
     }
 
-    setupSocketNotifiers();
+    if (QEventLoop::current())
+        setupSocketNotifiers();
 
 #if defined (QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocketPrivate::initSocketLayer(%s, %s) success",
@@ -1138,7 +1140,8 @@ bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, Qt::SocketState 
         return false;
     }
 
-    d->setupSocketNotifiers();
+    if (QEventLoop::current())
+        d->setupSocketNotifiers();
 
     setOpenMode(openMode);
 

@@ -49,6 +49,8 @@ public:
 
     void wakeUp();
 
+    static QEventLoop *current();
+
 public slots:
     void quit();
 };

@@ -96,7 +96,7 @@ int QEventLoop::exec(ProcessEventsFlags flags)
     Note: This function does not process events continuously; it
     returns after all available events are processed.
 
-    Note: Specifying the \c WaitForMoreEvents flag makes no sense 
+    Note: Specifying the \c WaitForMoreEvents flag makes no sense
     and will be ignored.
 */
 void QEventLoop::processEvents(ProcessEventsFlags flags, int maxTime)
@@ -139,6 +139,14 @@ void QEventLoop::wakeUp()
     QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thread());
     if (eventDispatcher)
         eventDispatcher->wakeUp();
+}
+
+QEventLoop *QEventLoop::current()
+{
+    QThreadData *data = QThreadData::current();
+    if (!data)
+        return 0;
+    return data->eventLoops.top();
 }
 
 void QEventLoop::quit()
