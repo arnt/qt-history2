@@ -83,12 +83,26 @@ where you choose to install Qt.
     supported but you have problems, see http://www.trolltech.com/platforms/
 
 
+    At this point you have binaries created in $QTDIR (eg. $QTDIR/lib/
+    contains libqt.so). If, however, you would like to have your Qt
+    installed in a non-local installation you can:
+
+        make install 
+
+    This will install Qt onto your machine, you may choose the destination
+    of the Qt binaries with switches to configure (in the configure step
+    above). Please see ./configure -help for the install option section,
+    also keep in mind you must set your LD_LIBRARY_PATH so it points to the
+    correct installation directory for the library (this can be specified
+    with the -libdir option to configure).
+
+
 5.  In very few cases you may need to run /sbin/ldconfig or something
     similar at this point if you are using shared libraries.
 
     If you have problems running the example programs, e.g. messages like
 
-	 can't load library 'libqt.so.2'
+	 can't load library 'libqt.so.3'
 
     you probably need to put a reference to the qt library in a
     configuration file and run /sbin/ldconfig as root on your system.
