@@ -1937,23 +1937,25 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
 		switch (membcode) {
 		case QSLOT_CODE:
 		    member_index = rmeta->findSlot(member);
-		    if (member_index < rmeta->slotOffset())
-			continue;
+		    if (member_index >= 0)
+			while (member_index < rmeta->slotOffset())
+			    rmeta = rmeta->superClass();
 		    break;
 		case QSIGNAL_CODE:
 		    member_index = rmeta->findSignal(member);
-		    if (member_index < rmeta->signalOffset())
-			continue;
+		    if (member_index >= 0)
+			while (member_index < rmeta->signalOffset())
+			    rmeta = rmeta->superClass();
 		    break;
 		}
 		if (member_index < 0)
-		    continue;
-		member_found = true;
+		    break;
 		res |= QMetaObject::disconnect(sender,
 					      signal_index,
 					      receiver,
 					      membcode, member_index);
-	    } while (member && (rmeta = rmeta->superClass()));
+		member_found = true;
+	    } while ((rmeta = rmeta->superClass()));
 	}
     } while (signal && (smeta = smeta->superClass()));
 
