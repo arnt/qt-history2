@@ -38,6 +38,7 @@
 
 class QWidget;
 class QMetaObject;
+class QSettings;
 
 struct QAxFactoryInterface : public QFeatureListInterface
 {
@@ -52,11 +53,8 @@ public:
     virtual QUuid typeLibID() const = 0;
     virtual QUuid appID() const = 0;
 
-    virtual bool registerFactory() const = 0;
-    virtual bool unregisterFactory() const = 0;
-
-    virtual bool registerClass( const QString &key ) const = 0;
-    virtual bool unregisterClass( const QString &key ) const = 0;
+    virtual void registerClass( const QString &key, QSettings * ) const = 0;
+    virtual void unregisterClass( const QString &key, QSettings * ) const = 0;
 
     virtual QString exposeToSuperClass( const QString &key ) const = 0;
 #endif
@@ -84,11 +82,8 @@ public:
     QUuid typeLibID() const;
     QUuid appID() const;
 
-    bool registerFactory() const;
-    bool unregisterFactory() const;
-
-    bool registerClass( const QString &key ) const;
-    bool unregisterClass( const QString &key ) const;
+    void registerClass( const QString &key, QSettings * ) const;
+    void unregisterClass( const QString &key, QSettings * ) const;
 
     QString exposeToSuperClass( const QString &key ) const;
 

@@ -121,6 +121,14 @@ public:
     // IClassFactory
     HRESULT WINAPI CreateInstance( IUnknown *pUnkOuter, REFIID iid, void **ppObject )
     {
+	// Make sure a QApplication instance is present (inprocess case)
+	if ( !qApp ) {
+	    qax_ownQApp = TRUE;
+	    int argc = 0;
+	    (void)new QApplication( argc, 0 );
+	    hhook = SetWindowsHookEx( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
+	}
+
 	// Create the ActiveX wrapper
 	QAxServerBase *activeqt = new QAxServerBase( className );
 	return activeqt->QueryInterface( iid, ppObject );
@@ -211,13 +219,6 @@ static HRESULT WINAPI CreateInstance( void *pUnkOuter, REFIID iid, void **ppUnk 
 // Create a QClassFactory object for class \a iid
 HRESULT WINAPI GetClassObject( void *pv, REFIID iid, void **ppUnk )
 {
-    if ( !qApp ) {
-	qax_ownQApp = TRUE;
-	int argc = 0;
-	(void)new QApplication( argc, 0 );
-	hhook = SetWindowsHookEx( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
-    }
-
     HRESULT nRes = E_OUTOFMEMORY;
     QClassFactory *factory = new QClassFactory( iid );
     if ( factory )
@@ -252,10 +253,98 @@ HRESULT WINAPI UpdateRegistry(BOOL bRegister)
 	settings.writeEntry( "/TypeLib/" + libId + "/1.0/HELPDIR/.", path );
 	settings.writeEntry( "/TypeLib/" + libId + "/1.0/.", module + " 1.0 Type Library" );
 
-	_Module.factory()->registerFactory();
-    } else {
-	_Module.factory()->unregisterFactory();
+	QStringList keys = _Module.factory()->featureList();
+	for ( QStringList::Iterator key = keys.begin(); key != keys.end(); ++key ) {
+	    const QString classId = _Module.factory()->classID(*key).toString().upper();
+	    const QString eventId = _Module.factory()->eventsID(*key).toString().upper();
+	    const QString ifaceId = _Module.factory()->interfaceID(*key).toString().upper();
+	    const QString className = *key;
+	    
+	    settings.writeEntry( "/" + module + "." + className + ".1/.", className + " Class" );
+	    settings.writeEntry( "/" + module + "." + className + ".1/CLSID/.", classId );
+	    settings.writeEntry( "/" + module + "." + className + ".1/Insertable/.", QString::null );
+	    
+	    settings.writeEntry( "/" + module + "." + className + "/.", className + " Class" );
+	    settings.writeEntry( "/" + module + "." + className + "/CLSID/.", classId );
+	    settings.writeEntry( "/" + module + "." + className + "/CurVer/.", module + "." + className + ".1" );
+	    
+	    settings.writeEntry( "/CLSID/" + classId + "/.", className + " Class" );
+	    settings.writeEntry( "/CLSID/" + classId + "/AppID", appId );
+	    settings.writeEntry( "/CLSID/" + classId + "/Control/.", QString::null );
+	    settings.writeEntry( "/CLSID/" + classId + "/Insertable/.", QString::null );
+	    if ( file.right( 3 ).lower() == "dll" )
+		settings.writeEntry( "/CLSID/" + classId + "/InProcServer32/.", file );
+	    else
+		settings.writeEntry( "/CLSID/" + classId + "/LocalServer32/.", file + " -activex" );
+	    settings.writeEntry( "/CLSID/" + classId + "/MiscStatus/.", "0" );
+	    settings.writeEntry( "/CLSID/" + classId + "/MiscStatus/1/.", "131473" );
+	    settings.writeEntry( "/CLSID/" + classId + "/Programmable/.", QString::null );
+	    settings.writeEntry( "/CLSID/" + classId + "/ToolboxBitmap32/.", file + ", 101" );
+	    settings.writeEntry( "/CLSID/" + classId + "/TypeLib/.", libId );
+	    settings.writeEntry( "/CLSID/" + classId + "/Version/.", "1.0" );
+	    settings.writeEntry( "/CLSID/" + classId + "/VersionIndependentProgID/.", module + "." + className );
+	    settings.writeEntry( "/CLSID/" + classId + "/ProgID/.", module + "." + className + ".1" );
+	    
+	    settings.writeEntry( "/Interface/" + ifaceId + "/.", "I" + className );
+	    settings.writeEntry( "/Interface/" + ifaceId + "/ProxyStubClsid/.", "{00020424-0000-0000-C000-000000000046}" );
+	    settings.writeEntry( "/Interface/" + ifaceId + "/ProxyStubClsid32/.", "{00020424-0000-0000-C000-000000000046}" );
+	    settings.writeEntry( "/Interface/" + ifaceId + "/TypeLib/.", libId );
+	    settings.writeEntry( "/Interface/" + ifaceId + "/TypeLib/Version", "1.0" );
+	    
+	    settings.writeEntry( "/Interface/" + eventId + "/.", "I" + className + "Events" );
+	    settings.writeEntry( "/Interface/" + eventId + "/ProxyStubClsid/.", "{00020420-0000-0000-C000-000000000046}" );
+	    settings.writeEntry( "/Interface/" + eventId + "/ProxyStubClsid32/.", "{00020420-0000-0000-C000-000000000046}" );
+	    settings.writeEntry( "/Interface/" + eventId + "/TypeLib/.", libId );
+	    settings.writeEntry( "/Interface/" + eventId + "/TypeLib/Version", "1.0" );
+	    
+	    _Module.factory()->registerClass( *key, &settings );
 
+	}
+    } else {
+	QStringList keys = _Module.factory()->featureList();
+	for ( QStringList::Iterator key = keys.begin(); key != keys.end(); ++key ) {
+	    const QString classId = _Module.factory()->classID(*key).toString().upper();
+	    const QString eventId = _Module.factory()->eventsID(*key).toString().upper();
+	    const QString ifaceId = _Module.factory()->interfaceID(*key).toString().upper();
+	    const QString className = *key;
+
+	    _Module.factory()->unregisterClass( *key, &settings );
+	    
+	    settings.removeEntry( "/" + module + "." + className + ".1/CLSID/." );
+	    settings.removeEntry( "/" + module + "." + className + ".1/Insertable/." );
+	    settings.removeEntry( "/" + module + "." + className + ".1/." );
+	    
+	    settings.removeEntry( "/" + module + "." + className + "/CLSID/." );
+	    settings.removeEntry( "/" + module + "." + className + "/CurVer/." );
+	    settings.removeEntry( "/" + module + "." + className + "/." );
+
+	    settings.removeEntry( "/CLSID/" + classId + "/AppID" );
+	    settings.removeEntry( "/CLSID/" + classId + "/Control/." );
+	    settings.removeEntry( "/CLSID/" + classId + "/Insertable/." );
+	    settings.removeEntry( "/CLSID/" + classId + "/InProcServer32/." );
+	    settings.removeEntry( "/CLSID/" + classId + "/LocalServer32/." );
+	    settings.removeEntry( "/CLSID/" + classId + "/MiscStatus/1/." );
+	    settings.removeEntry( "/CLSID/" + classId + "/MiscStatus/." );	    
+	    settings.removeEntry( "/CLSID/" + classId + "/Programmable/." );
+	    settings.removeEntry( "/CLSID/" + classId + "/ToolboxBitmap32/." );
+	    settings.removeEntry( "/CLSID/" + classId + "/TypeLib/." );
+	    settings.removeEntry( "/CLSID/" + classId + "/Version/." );
+	    settings.removeEntry( "/CLSID/" + classId + "/VersionIndependentProgID/." );
+	    settings.removeEntry( "/CLSID/" + classId + "/ProgID/." );
+	    settings.removeEntry( "/CLSID/" + classId + "/." );
+	    
+	    settings.removeEntry( "/Interface/" + ifaceId + "/ProxyStubClsid/." );
+	    settings.removeEntry( "/Interface/" + ifaceId + "/ProxyStubClsid32/." );
+	    settings.removeEntry( "/Interface/" + ifaceId + "/TypeLib/Version" );
+	    settings.removeEntry( "/Interface/" + ifaceId + "/TypeLib/." );
+	    settings.removeEntry( "/Interface/" + ifaceId + "/." );
+	    
+	    settings.removeEntry( "/Interface/" + eventId + "/ProxyStubClsid/." );
+	    settings.removeEntry( "/Interface/" + eventId + "/ProxyStubClsid32/." );
+	    settings.removeEntry( "/Interface/" + eventId + "/TypeLib/Version" );
+	    settings.removeEntry( "/Interface/" + eventId + "/TypeLib/." );
+	    settings.removeEntry( "/Interface/" + eventId + "/." );
+	}
 	settings.removeEntry( "/AppID/" + module + ".EXE/AppID" );
 	settings.removeEntry( "/AppID/" + appId + "/." );
     

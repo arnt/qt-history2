@@ -251,166 +251,37 @@ QUuid QAxFactory::appID() const
 */
 
 /*!
-    Registers the class factory in the system registry, and returns TRUE if registration
-    succeeds. Otherwise returns FALSE.
+    Registers additional values for the class \a key in the system registry using the \a settings
+    object. The standard values have already been registed by the framework, but additional values,
+    e.g. implemented categories, can be added in an implementation of this function.
 
-    This function calls registerClass for each key returned by the featureList implementation.
-*/
-bool QAxFactory::registerFactory() const
-{
-    QStringList keys = featureList();
-    for ( QStringList::Iterator key = keys.begin(); key != keys.end(); ++key ) {
-	if ( !registerClass( *key ) ) 
-	    return FALSE;
-    }
-
-    return TRUE;
-}
-
-/*!
-    Unregisters the class factory from the system registry, and returns TRUE if the
-    unregistration succeeds. Otherwise returns FALSE.
-
-    This function calls unregisterClass for each key returned by the featureList implementation.
-*/
-bool QAxFactory::unregisterFactory() const
-{
-    QStringList keys = featureList();
-    for ( QStringList::Iterator key = keys.begin(); key != keys.end(); ++key ) {
-	if ( !unregisterClass( *key ) ) 
-	    return FALSE;
-    }
-
-    return TRUE;
-}
-
-/*!
-    Registers the class \a key in the system registry, and returns TRUE if the
-    registration succeeds. Otherwise returns FALSE.
-
-    Reimplementations of this function should call this implementation first,
-    and add additional registry values afterwards.
+    \code
+    settings->writeEntry( "/CLSID/" + classID(key) + "/Implemented Categories/{00000000-0000-0000-000000000000}/.", QString::null );
+    \endcode
 
     If you reimplement this function you will also have to reimplement 
     unregisterClass to remove the additional registry values.
-*/    
-bool QAxFactory::registerClass( const QString &key ) const
+*/
+void QAxFactory::registerClass( const QString &key, QSettings *settings ) const
 {
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, "/Classes" );
-
-    const QString appId = appID().toString().upper();
-    const QString libId = typeLibID().toString().upper();
-    const QString classId = classID(key).toString().upper();
-    const QString eventId = eventsID(key).toString().upper();
-    const QString ifaceId = interfaceID(key).toString().upper();
-    const QString className = key;
-    QString module = settings.readEntry( "/AppID/" + appId + "/." );
-    QString file = settings.readEntry( "/TypeLib/" + libId + "/1.0/0/win32/." );
-
-    settings.writeEntry( "/" + module + "." + className + ".1/.", className + " Class" );
-    settings.writeEntry( "/" + module + "." + className + ".1/CLSID/.", classId );
-    settings.writeEntry( "/" + module + "." + className + ".1/Insertable/.", QString::null );
-    
-    settings.writeEntry( "/" + module + "." + className + "/.", className + " Class" );
-    settings.writeEntry( "/" + module + "." + className + "/CLSID/.", classId );
-    settings.writeEntry( "/" + module + "." + className + "/CurVer/.", module + "." + className + ".1" );
-    
-    settings.writeEntry( "/CLSID/" + classId + "/.", className + " Class" );
-    settings.writeEntry( "/CLSID/" + classId + "/AppID", appId );
-    settings.writeEntry( "/CLSID/" + classId + "/Control/.", QString::null );
-    settings.writeEntry( "/CLSID/" + classId + "/Insertable/.", QString::null );
-    if ( file.right( 3 ).lower() == "dll" )
-	settings.writeEntry( "/CLSID/" + classId + "/InProcServer32/.", file );
-    else
-	settings.writeEntry( "/CLSID/" + classId + "/LocalServer32/.", file + " -activex" );
-    settings.writeEntry( "/CLSID/" + classId + "/MiscStatus/.", "0" );
-    settings.writeEntry( "/CLSID/" + classId + "/MiscStatus/1/.", "131473" );
-    settings.writeEntry( "/CLSID/" + classId + "/Programmable/.", QString::null );
-    settings.writeEntry( "/CLSID/" + classId + "/ToolboxBitmap32/.", file + ", 101" );
-    settings.writeEntry( "/CLSID/" + classId + "/TypeLib/.", libId );
-    settings.writeEntry( "/CLSID/" + classId + "/Version/.", "1.0" );
-    settings.writeEntry( "/CLSID/" + classId + "/VersionIndependentProgID/.", module + "." + className );
-    settings.writeEntry( "/CLSID/" + classId + "/ProgID/.", module + "." + className + ".1" );
-    settings.writeEntry( "/CLSID/" + classId + "/Implemented Categories/.", QString::null );
-    //### TODO: write some list of categories
-    
-    settings.writeEntry( "/Interface/" + ifaceId + "/.", "I" + className );
-    settings.writeEntry( "/Interface/" + ifaceId + "/ProxyStubClsid/.", "{00020424-0000-0000-C000-000000000046}" );
-    settings.writeEntry( "/Interface/" + ifaceId + "/ProxyStubClsid32/.", "{00020424-0000-0000-C000-000000000046}" );
-    settings.writeEntry( "/Interface/" + ifaceId + "/TypeLib/.", libId );
-    settings.writeEntry( "/Interface/" + ifaceId + "/TypeLib/Version", "1.0" );
-    
-    settings.writeEntry( "/Interface/" + eventId + "/.", "I" + className + "Events" );
-    settings.writeEntry( "/Interface/" + eventId + "/ProxyStubClsid/.", "{00020420-0000-0000-C000-000000000046}" );
-    settings.writeEntry( "/Interface/" + eventId + "/ProxyStubClsid32/.", "{00020420-0000-0000-C000-000000000046}" );
-    settings.writeEntry( "/Interface/" + eventId + "/TypeLib/.", libId );
-    settings.writeEntry( "/Interface/" + eventId + "/TypeLib/Version", "1.0" );
-
-    return TRUE;
+    Q_UNUSED(key);
+    Q_UNUSED(settings)
 }
 
 /*!
-    Unegisters the class \a key from the system registry, and returns TRUE if the
-    unregistration succeeds. Otherwise returns FALSE.
+    Unregisters additional values for the class \a key from the system registry using the 
+    \a settings object.
 
-    Reimplementations of this function should call this implementation first,
-    and remove additional registry values afterwards.
+    \code
+    settings->removeEntry( "/CLSID/" + classID(key) + "/Implemented Categories/{00000000-0000-0000-000000000000}/." );
+    \endcode
 
     \sa registerClass()
 */
-bool QAxFactory::unregisterClass( const QString &key ) const
+void QAxFactory::unregisterClass( const QString &key, QSettings *settings ) const
 {
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, "/Classes" );
-
-    const QString appId = appID().toString().upper();
-    const QString classId = classID(key).toString().upper();
-    const QString eventId = eventsID(key).toString().upper();
-    const QString ifaceId = interfaceID(key).toString().upper();
-    const QString className = key;
-    QString module = settings.readEntry( "/AppID/" + appId + "/." );
-    if ( module.isEmpty() )
-	return TRUE;
-
-    settings.removeEntry( "/" + module + "." + className + ".1/CLSID/." );
-    settings.removeEntry( "/" + module + "." + className + ".1/Insertable/." );
-    settings.removeEntry( "/" + module + "." + className + ".1/." );
-    
-    settings.removeEntry( "/" + module + "." + className + "/CLSID/." );
-    settings.removeEntry( "/" + module + "." + className + "/CurVer/." );
-    settings.removeEntry( "/" + module + "." + className + "/." );
-    
-    settings.removeEntry( "/CLSID/" + classId + "/AppID" );
-    settings.removeEntry( "/CLSID/" + classId + "/Control/." );
-    settings.removeEntry( "/CLSID/" + classId + "/Insertable/." );
-    settings.removeEntry( "/CLSID/" + classId + "/InProcServer32/." );
-    settings.removeEntry( "/CLSID/" + classId + "/LocalServer32/." );
-    settings.removeEntry( "/CLSID/" + classId + "/MiscStatus/1/." );
-    settings.removeEntry( "/CLSID/" + classId + "/MiscStatus/." );	    
-    settings.removeEntry( "/CLSID/" + classId + "/Programmable/." );
-    settings.removeEntry( "/CLSID/" + classId + "/ToolboxBitmap32/." );
-    settings.removeEntry( "/CLSID/" + classId + "/TypeLib/." );
-    settings.removeEntry( "/CLSID/" + classId + "/Version/." );
-    settings.removeEntry( "/CLSID/" + classId + "/VersionIndependentProgID/." );
-    settings.removeEntry( "/CLSID/" + classId + "/ProgID/." );
-    //### TODO: remove some list of categories
-    settings.removeEntry( "/CLSID/" + classId + "/Implemented Categories/." );
-    settings.removeEntry( "/CLSID/" + classId + "/." );
-    
-    settings.removeEntry( "/Interface/" + ifaceId + "/ProxyStubClsid/." );
-    settings.removeEntry( "/Interface/" + ifaceId + "/ProxyStubClsid32/." );
-    settings.removeEntry( "/Interface/" + ifaceId + "/TypeLib/Version" );
-    settings.removeEntry( "/Interface/" + ifaceId + "/TypeLib/." );
-    settings.removeEntry( "/Interface/" + ifaceId + "/." );
-    
-    settings.removeEntry( "/Interface/" + eventId + "/ProxyStubClsid/." );
-    settings.removeEntry( "/Interface/" + eventId + "/ProxyStubClsid32/." );
-    settings.removeEntry( "/Interface/" + eventId + "/TypeLib/Version" );
-    settings.removeEntry( "/Interface/" + eventId + "/TypeLib/." );
-    settings.removeEntry( "/Interface/" + eventId + "/." );
-
-    return TRUE;
+    Q_UNUSED(key);
+    Q_UNUSED(settings)
 }
 
 /*!
