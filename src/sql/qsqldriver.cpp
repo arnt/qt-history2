@@ -84,26 +84,26 @@ bool QSqlDriver::isOpenError() const
 }
 
 /*! \fn bool QSqlDriver::hasTransactionSupport() const
-  
+
   Returns TRUE if the database supports transactions, FALSE otherwise.
   Note that some databases need to be open() before this can be
-  determined. 
-  
+  determined.
+
 */
 
 /*! \fn bool QSqlDriver::hasQuerySizeSupport() const
-  
+
   Returns TRUE if the database supports reporting information about
   the size of a query, FALSE otherwise.  Note that some databases do
   not support returning the size (in number of rows returned) of a
-  query, so therefore QSql::size() will return -1.  
-  
+  query, so therefore QSql::size() will return -1.
+
 */
 
 /*! \fn bool QSqlDriver::canEditBinaryFields() const
-  
+
   Returns TRUE if the database can save binary fields information to
-  the database, FALSE otherwise. 
+  the database, FALSE otherwise.
 
 */
 
@@ -257,10 +257,21 @@ QString QSqlDriver::nullText() const
 
 /*!  Returns a string representation of the \a field value for the
   database.  This is used, for example, when constructing INSERT and
-  UPDATE statements.  The default implementation returns the value
-  formatted as a string.  If \a field is character data, the value is
-  returned enclosed by single quotation marks, which is appropriate
-  for many SQL databases.
+  UPDATE statements.  
+  
+  The default implementation returns the value formatted as a string
+  according to the following rules:
+  
+  If \a field is null, nullText() is returned.
+  
+  If \a field is character data, the value is returned enclosed by
+  single quotation marks, which is appropriate for many SQL databases.
+  
+  If \a field is date/time data, the value is formatted in ISO format
+  and enclosed by single quotation marks.
+  
+  If \a field is bytearray data, and the driver can edit binary
+  fields, the value is formatted as a hexadecimal string.
 
   \sa QVariant::toString().
 
@@ -285,6 +296,20 @@ QString QSqlDriver::formatValue( const QSqlField* field ) const
 	case QVariant::CString:
 	    r = "'" + field->value().toString() + "'";
 	    break;
+	case QVariant::ByteArray : {
+	    if ( canEditBinaryFields() ) {
+		QByteArray ba = field->value().toByteArray();
+		QString res;
+		static const char hexchars[] = "0123456789abcdef";
+		for ( uint i = 0; i < ba.size(); ++i ) {
+		    uchar s = (uchar) ba[i];
+		    res += hexchars[s >> 4];
+		    res += hexchars[s & 0x0f];
+		}
+		r = "'" + res + "'";
+		break;
+	    } 
+	}
 	default:
 	    r = field->value().toString();
 	    break;

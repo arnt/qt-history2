@@ -48,7 +48,6 @@ public:
     QSqlIndex           primaryIndex( const QString& tablename ) const;
     QSqlRecord          record( const QString& tablename ) const;
     QSqlRecord          record( const QSqlQuery& query ) const;
-    QString             formatValue( const QSqlField* field ) const;    
 private:
     void		init();
     QMySQLPrivate* 	d;

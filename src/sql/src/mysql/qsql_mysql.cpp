@@ -349,21 +349,3 @@ QSqlRecord QMySQLDriver::record( const QSqlQuery& query ) const
     }
     return fil;
 }
-
-QString QMySQLDriver::formatValue( const QSqlField* field ) const
-{
-    if ( field->type() == QVariant::ByteArray ) {
-	QString r;
-	QByteArray ba = field->value().toByteArray();
-	QString res;
-	static const char hexchars[] = "0123456789abcdef";
-	for ( uint i = 0; i < ba.size(); ++i ) {
-	    uchar s = (uchar) ba[i];
-	    res += hexchars[s >> 4];
-	    res += hexchars[s & 0x0f];
-	}
-	r = "'" + res + "'";
-	return r;
-    }
-    return QSqlDriver::formatValue( field );
-}
