@@ -29,8 +29,9 @@ void HelpView::showLink( const QString &link , const QString& title )
 void HelpView::setSource( const QString &name )
 {
     QUrl u( name );
-    if ( !u.isLocalFile() ) {
-	QMessageBox::critical( this, tr( "Error" ), tr( "Can't load and display non-local files!" ) );
+    if ( !u.isLocalFile() && name[ 0 ] != '#' ) {
+	QMessageBox::critical( this, tr( "Error" ), tr( "Can't load and display non-local file\n"
+							"%1" ).arg( name ) );
 	return;
     }
 
