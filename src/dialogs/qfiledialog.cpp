@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#114 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#115 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1505,8 +1505,6 @@ bool QFileDialog::trySetSelection( const QFileInfo& info, bool updatelined )
 	okB->setEnabled( TRUE );
 	if ( d->currentFileName.isNull() && info.isDir() )
 	    okB->setText(tr("Open"));
-	else if ( mode() == ExistingFiles && info.isFile() )
-	    okB->setText(tr("Select"));
 	else
 	    okB->setText(tr("OK")); // ### Or "Save"...
     } else {
@@ -1645,7 +1643,7 @@ void QFileDialog::fileNameEditDone()
 
 void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 {
-    if ( !newItem || !newItem->isSelectable() )
+    if ( !newItem )
 	return;
 
     QFileDialogPrivate::File * i = (QFileDialogPrivate::File *)newItem;
@@ -1656,7 +1654,7 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 	    QFileInfo f ( cwd, "." );
 	    trySetSelection( f, TRUE );
 	}
-    } else if ( trySetSelection( i->info, TRUE ) ) {
+    } else if ( newItem->isSelectable() && trySetSelection( i->info, TRUE ) ) {
 	if ( mode() != Directory ) {
 	    emit fileSelected( d->currentFileName );
 	    accept();
@@ -1864,27 +1862,16 @@ void QFileDialog::keyPressEvent( QKeyEvent * ke )
 		}
 		ke->accept();
 	    } else if ( mode() == ExistingFiles ) {
-		QString tmp( nameEdit->text() );
-		if ( !tmp.isEmpty() && !tmp.contains( "/" ) ) {
-		    QFileInfo fi1( cwd, tmp );
-		    if ( fi1.isFile() ) {
-			QListViewItem * i = files->firstChild();
-			while( i ) {
-			    if ( tmp == i->text( 0 ) ) {
-				files->setSelected( i, TRUE );
-				files->ensureItemVisible( i );
-				i = i->nextSibling();
-				if ( i ) {
-				    files->setCurrentItem( i );
-				    i = 0;
-				}
-			    } else {
-				i = i->nextSibling();
-			    }
-			}
-		    }
+		QFileInfo i( cwd, nameEdit->text() );
+		if ( i.isFile() ) {
+		    QListViewItem * i = files->firstChild();
+		    while ( i && qstrcmp( nameEdit->text(), i->text( 0 ) ) )
+			i = i->nextSibling();
+		    if ( i )
+			 files->setSelected( i, TRUE );
+		    else
+			ke->accept(); // strangely, means to ignore that event
 		}
-		ke->accept();
 	    }
 	}
     }
@@ -1975,7 +1962,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
     } else if ( o == nameEdit && e->type() == Event_KeyPress ) {
 	// ### hack.  after 1.40, we need to merge the completion code
 	// ### here, in QListView and QComboBox.
-	if ( files->currentItem() && isprint(((QKeyEvent *)e)->ascii()) ) {
+	if ( isprint(((QKeyEvent *)e)->ascii()) ) {
 	    QString nt( nameEdit->text() );;
 	    nt.detach();
 	    nt.truncate( nameEdit->cursorPosition() );
@@ -2067,11 +2054,11 @@ void QFileDialog::modeButtonsDestroyed()
 
   \a parent is a widget over which the dialog should be positioned and
   \a name is the object name of the temporary QFileDialog object.
-  
+
   Note that the returned list has auto-delete turned off.  It is the
   application developer's responsibility to delete the strings in the
   list, for example using code such as:
-  
+
   \code
     QStrList s( QFileDialog::getOpenFileNames() );
     // do something with the files in s.
