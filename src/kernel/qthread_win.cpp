@@ -654,7 +654,7 @@ bool QThread::wait( unsigned long time )
 #endif
 	return FALSE;
     }
-    if ( d->finished )
+    if ( d->finished || !d->running )
 	return TRUE;
     switch ( WaitForSingleObject( d->handle, time ) ) {
     case WAIT_TIMEOUT:

@@ -470,6 +470,7 @@ void QThread::start()
   <li> The thread associated with this QThread object has finished
        execution (i.e. when it returns from run() ).  This
        function will return TRUE if the thread has finished.
+       It also returns TRUE if the thread has not been started yet.
   <li> \a time milliseconds has elapsed.  If \a time is ULONG_MAX (default
        argument), then the wait will never timeout (the thread must
        return from run() ).  This function will return FALSE
