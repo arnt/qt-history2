@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of the QSvgDevice class
 **
@@ -59,11 +59,17 @@ const char systemId[] = "http://www.w3.org/TR/2000/CR-SVG-20001102/DTD/svg-20001
 struct QM_EXPORT_SVG ImgElement {
     QDomElement element;
     QImage image;
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+    bool operator==( const ImgElement& ) const;
+#endif
 };
 
 struct QM_EXPORT_SVG PixElement {
     QDomElement element;
     QPixmap pixmap;
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+    bool operator==( const PixElement& ) const;
+#endif
 };
 
 typedef QValueList<ImgElement> ImageList;
