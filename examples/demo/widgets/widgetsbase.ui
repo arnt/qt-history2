@@ -991,9 +991,6 @@
                             <property name="name">
                                 <cstring>timeEdit</cstring>
                             </property>
-                            <property name="frame">
-                                <bool>true</bool>
-                            </property>
                             <property name="time">
                                 <time>
                                     <hour>0</hour>
@@ -1330,8 +1327,8 @@
     <function name="updateDateTimeString()" >{
 	QDateTime dt;
     	dt.setDate( dateEdit-&gt;date() );
-    	dt.setTime( timeEdit-&gt;time() ); 
-    	dateTimeLabel-&gt;setText( dt.toString() ); 
+    	dt.setTime( timeEdit-&gt;time() );
+    	dateTimeLabel-&gt;setText( dt.toString() );
 }</function>
 </functions>
 </UI>
