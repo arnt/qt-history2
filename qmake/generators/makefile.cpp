@@ -1459,6 +1459,9 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
 bool
 MakefileGenerator::verifyExtraCompiler(const QString &comp, const QString &file)
 {
+    if(noIO())
+        return false;
+
     if(project->values(comp + ".CONFIG").indexOf("moc_verify") != -1) {
         if(!file.isNull()) {
             QMakeSourceFileInfo::addSourceFile(file, QMakeSourceFileInfo::SEEK_MOCS);
