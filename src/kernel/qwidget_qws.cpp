@@ -142,7 +142,7 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	return;
     setWState( WState_Created );			// set created flag
 
-    if ( !parentWidget() )
+    if ( !parentWidget() || parentWidget()->isDesktop() )
 	setWFlags( WType_TopLevel );		// top-level widget
 
     alloc_region_index = -1;
