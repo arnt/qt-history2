@@ -28,6 +28,7 @@
 struct Config;
 class ParenMatcher;
 class EditorCompletion;
+class EditorBrowser;
 
 class EDITOR_EXPORT Editor : public QTextEdit
 {
@@ -47,6 +48,7 @@ public:
     QTextCursor *textCursor() const { return QTextEdit::textCursor(); }
 
     virtual EditorCompletion *completionManager() { return 0; }
+    virtual EditorBrowser *browserManager() { return 0; }
     virtual void configChanged();
 
     Config *config() { return cfg; }

@@ -20,7 +20,6 @@
 
 #include "editor.h"
 #include "parenmatcher.h"
-#include "completion.h"
 #include <qfile.h>
 #include <qrichtext_p.h>
 #include "conf.h"
