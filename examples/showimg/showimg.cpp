@@ -55,12 +55,12 @@ ImageViewer::ImageViewer( QWidget *parent, const char *name, int wFlags )
 
     file = new QPopupMenu();
     menubar->insertItem( "&File", file );
-    file->insertItem( "New window", this,  SLOT(newWindow()), CTRL+Key_N );
-    file->insertItem( "Open...", this,  SLOT(openFile()), CTRL+Key_O );
+    file->insertItem( "&New window", this,  SLOT(newWindow()), CTRL+Key_N );
+    file->insertItem( "&Open...", this,  SLOT(openFile()), CTRL+Key_O );
     si = file->insertItem( "Save image", saveimage );
     sp = file->insertItem( "Save pixmap", savepixmap );
     file->insertSeparator();
-    file->insertItem( "Quit", qApp,  SLOT(quit()), CTRL+Key_Q );
+    file->insertItem( "&Quit", qApp,  SLOT(quit()), CTRL+Key_Q );
 
     edit =  new QPopupMenu();
     menubar->insertItem( "&Edit", edit );
@@ -537,24 +537,16 @@ void ImageViewer::paintEvent( QPaintEvent *e )
 void ImageViewer::giveHelp()
 {
     if (!helpmsg) {
-	QString helptext = "Usage: showimg [-m] [filename]\n\n   -m  - use ManyColor color spec";
-	QStrList support = QImage::inputFormats();
-	helptext += "\n\nSupported input formats:\n";
-	int lastnl = helptext.length();
-	helptext += "  ";
-	const char* f = support.first();
-	helptext += f;
-	f = support.next();
-	for (; f; f = support.next()) {
-	    helptext += ',';
-	    if ( helptext.length() - lastnl > 40 ) {
-		helptext += "\n  ";
-		lastnl = helptext.length() - 2;
-	    } else {
-		helptext += ' ';
-	    }
-	    helptext += f;
-	}
+	QString helptext =
+	    "<b>Usage:</b> <tt>showimg [-m] <i>filename ...</i></tt>"
+	    "<blockquote>"
+		"<tt>-m</tt> - use <i>ManyColor</i> color spec"
+	    "</blockquote>"
+	    "<p>Supported input formats:"
+	    "<blockquote>";
+	helptext += QImage::inputFormatList().join(", ");
+	helptext += "</blockquote>";
+
 	helpmsg = new QMessageBox( "Help", helptext,
 	    QMessageBox::Information, QMessageBox::Ok, 0, 0, 0, 0, FALSE );
     }
