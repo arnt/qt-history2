@@ -1326,10 +1326,17 @@ void QWidget::update(const QRegion &rgn)
         HIViewSetNeedsDisplayInRegion((HIViewRef)winId(), rgn.handle(true), true);
 }
 
+
+
+
 void QWidget::repaint(const QRegion &rgn)
 {
     HIViewSetNeedsDisplayInRegion((HIViewRef)winId(), rgn.handle(true), true);
-    HIViewRender((HIViewRef)topLevelWidget()->winId()); //yes the top level!!
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)    
+    OSStatus (*HIViewRender_ptr)(HIViewRef); // workaround for gcc warning
+    if(HIViewRender_ptr)
+        (*HIViewRender_ptr)((HIViewRef)topLevelWidget()->winId()); //yes the top level!!
+#endif
 }
 
 void QWidget::show_sys()
