@@ -225,6 +225,9 @@ bool QSqlQuery::isNull( int field ) const
     After the query is executed, the query is positioned on an invalid
     record, and must be navigated to a valid record before data values
     can be retrieved.
+    
+    Note that the last error for this query is reset when exec() is
+    called.
 
     \sa isActive() isValid() next() prev() first() last() seek()
 
@@ -235,6 +238,7 @@ bool QSqlQuery::exec ( const QString& query )
     if ( !d->sqlResult )
 	return FALSE;
     d->sqlResult->setActive( FALSE );
+    d->sqlResult->setLastError( QSqlError() );
     d->sqlResult->setAt( QSql::BeforeFirst );
     if ( !driver() ) {
 #ifdef QT_CHECK_RANGE
