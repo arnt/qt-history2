@@ -1846,12 +1846,11 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
 	{
 	    const QTitleBar *titlebar = (QTitleBar*)widget;
 	    QRect r;
-	    uint ctrl = SC_TitleBarSysMenu;
+	    uint ctrl = SC_TitleBarLabel;
 
 	    // we can do this because subcontrols were designed to be masks as well...
 	    while (ret == SC_None && ctrl <= SC_TitleBarUnshadeButton) {
-		r = querySubControlMetrics(control, widget,
-					   (QStyle::SubControl) ctrl, data);
+		r = querySubControlMetrics( control, widget, (QStyle::SubControl) ctrl, data );
 		if (r.isValid() && r.contains(pos))
 		    ret = (QStyle::SubControl) ctrl;
 
