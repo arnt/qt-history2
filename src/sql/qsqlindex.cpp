@@ -43,7 +43,7 @@
 
 /*!
     \class QSqlIndex qsqlindex.h
-    \brief Manipulate and describe QSqlCursor and QSqlDatabase indexes. 
+    \brief Manipulate and describe QSqlCursor and QSqlDatabase indexes.
 
     \module sql
 
@@ -225,7 +225,7 @@ QString QSqlIndex::createField( int i, const QString& prefix, bool verbose ) con
   cursor \a cursor.  The field descriptions should be in the same format
   that toStringList() produces, for example, a surname field in the
   people table might be in one of these forms: "surname", "surname
-  DESC", "people.surname ASC". 
+  DESC", "people.surname ASC".
 
   \sa toStringList()
 
@@ -243,6 +243,9 @@ QSqlIndex QSqlIndex::fromStringList( const QStringList& l, const QSqlCursor* cur
 	    desc = TRUE;
 	    f = f.mid( 0, f.length()-4 );
 	}
+	int dot = f.findRev( '.' );
+	if ( dot != -1 )
+	    f = f.mid( dot+1 );
 	const QSqlField* field = cursor->field( f.simplifyWhiteSpace() );
 	if ( field )
 	    newSort.append( *field, desc );
