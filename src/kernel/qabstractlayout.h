@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#31 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#32 $
 **
 ** Definition of the abstract layout base class
 **
@@ -59,9 +59,9 @@ public:
     ~QLayoutIterator() { if ( it && it->deref() ) delete it; }
     QLayoutIterator &operator=( const QLayoutIterator &i )
     {
+	if ( i.it ) i.it->ref();
 	if ( it && it->deref() ) delete it;
 	it = i.it;
-	if ( it ) it->ref();
 	return *this;
     }
     QLayoutItem *operator++() { return it ? it->next() : 0; }

@@ -65,6 +65,12 @@ QRegion &QRegion::operator=( const QRegion &r )
 {
   printf("QRegion::= %s %d\n",__FILE__,__LINE__);
   r.data->ref();
+  if ( data->deref() ) {
+    if ( data->rgn ) {
+      DisposeRgn((RgnHandle)data->rgn );
+    }
+    delete data;
+  }
   data=r.data;
   return *this;
 }

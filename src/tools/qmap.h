@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#25 $
+** $Id: //depot/qt/main/src/tools/qmap.h#26 $
 **
 ** Definition of QMap class
 **
@@ -504,7 +504,7 @@ public:
     ~QMap() { if ( sh->deref() ) delete sh; }
 
     QMap<Key,T>& operator= ( const QMap<Key,T>& m )
-      { if ( sh->deref() ) delete sh; sh = m.sh; sh->ref(); return *this; }
+      { m.sh->ref(); if ( sh->deref() ) delete sh; sh = m.sh; return *this; }
 
     Iterator begin() { detach(); return sh->begin(); }
     Iterator end() { detach(); return sh->end(); }

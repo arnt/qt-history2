@@ -173,9 +173,9 @@ QDomImplementation::QDomImplementation( QDOM_ImplementationPrivate* p )
 */
 QDomImplementation& QDomImplementation::operator= ( const QDomImplementation& x )
 {
+  if ( x.impl ) x.impl->ref();		//avoid x=x
   if ( impl && impl->deref() ) delete impl;
   impl = x.impl;
-  if ( impl ) impl->ref();
 
   return *this;
 }
@@ -315,10 +315,10 @@ QDomNodeList::QDomNodeList( const QDomNodeList& n )
 */
 QDomNodeList& QDomNodeList::operator= ( const QDomNodeList& n )
 {
+  if ( n.impl )
+    n.impl->ref();
   if ( impl && impl->deref() ) delete impl;
   impl = n.impl;
-  if ( impl )
-    impl->ref();
 
   return *this;
 }
@@ -1000,9 +1000,9 @@ QDomNode::QDomNode( QDOM_NodePrivate* n )
 */
 QDomNode& QDomNode::operator= ( const QDomNode& n )
 {
+  if ( n.impl ) n.impl->ref();
   if ( impl && impl->deref() ) delete impl;
   impl = n.impl;
-  if ( impl ) impl->ref();
 
   return *this;
 }
