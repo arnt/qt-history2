@@ -4,6 +4,9 @@
 #include <qwidget.h>
 #include <qlayout.h>
 #include <qptrdict.h>
+#include <qptrlist.h>
+
+class QCategoryButton;
 
 class QCategoryWidget : public QWidget
 {
@@ -18,9 +21,14 @@ private slots:
     void buttonClicked();
 
 private:
+    void updateTabs();
+
+private:
     QPtrDict<QWidget> pages;
+    QPtrList<QWidget> buttons;
     QVBoxLayout *layout;
     QWidget *currentPage;
+    QCategoryButton *lastTab;
 
 };
 

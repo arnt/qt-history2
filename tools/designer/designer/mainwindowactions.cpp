@@ -367,7 +367,9 @@ void MainWindow::setupLayoutActions()
 
     actionInsertSpacer->addTo( commonWidgetsToolBar );
     commonWidgetsPage.append( actionInsertSpacer );
-    commonWidgetsToolBar->setStretchableWidget( new QWidget( commonWidgetsToolBar ) );
+    QWidget *w;
+    commonWidgetsToolBar->setStretchableWidget( ( w = new QWidget( commonWidgetsToolBar ) ) );
+    w->setBackgroundMode( commonWidgetsToolBar->backgroundMode() );
     QWhatsThis::add( layoutToolBar, tr( "<b>The Layout toolbar</b>%1" ).arg(tr(toolbarHelp).arg("")) );
     actionEditAdjustSize->addTo( layoutToolBar );
     layoutToolBar->addSeparator();
@@ -541,7 +543,9 @@ void MainWindow::setupToolActions()
 		commonWidgetsPage.append( a );
 	    }
 	}
-	tb2->setStretchableWidget( new QWidget( tb2 ) );
+	QWidget *w;
+	tb2->setStretchableWidget( ( w = new QWidget( tb2 ) ) );
+	w->setBackgroundMode( tb2->backgroundMode() );
     }
 
     if ( !customWidgetToolBar ) {

@@ -2408,7 +2408,9 @@ void MainWindow::rebuildCustomWidgetGUI()
 	a->addTo( customWidgetMenu );
 	count++;
     }
-    customWidgetToolBar2->setStretchableWidget( new QWidget( customWidgetToolBar2 ) );
+    QWidget *w;
+    customWidgetToolBar2->setStretchableWidget( ( w = new QWidget( customWidgetToolBar2 ) ) );
+    w->setBackgroundMode( customWidgetToolBar2->backgroundMode() );
 
     if ( count == 0 )
 	customWidgetToolBar->hide();
@@ -2423,7 +2425,9 @@ void MainWindow::rebuildCommonWidgetsToolBoxPage()
     commonWidgetsToolBar->clear();
     for ( QAction *a = commonWidgetsPage.first(); a; a = commonWidgetsPage.next() )
 	a->addTo( commonWidgetsToolBar );
-    commonWidgetsToolBar->setStretchableWidget( new QWidget( commonWidgetsToolBar ) );
+    QWidget *w;
+    commonWidgetsToolBar->setStretchableWidget( ( w = new QWidget( commonWidgetsToolBar ) ) );
+    w->setBackgroundMode( commonWidgetsToolBar->backgroundMode() );
     toolBox->setUpdatesEnabled( TRUE );
     commonWidgetsToolBar->setUpdatesEnabled( TRUE );
 }

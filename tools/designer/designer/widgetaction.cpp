@@ -29,6 +29,7 @@ void WidgetAction::addedTo( QWidget *w, QWidget *container )
 	 container->parent()->parent()->inherits( "QScrollView" ) ) {
 	( (QToolButton*)w )->setUsesTextLabel( TRUE );
 	( (QToolButton*)w )->setTextPosition( QToolButton::Right );
+	( (QToolButton*)w )->setBackgroundMode( container->backgroundMode() );
     }
 }
 
