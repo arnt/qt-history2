@@ -182,7 +182,8 @@ void QPointArray::translate( int dx, int dy )
 
 
 /*!
-  Returns the point at position \a index in the array in \a *x and \a *y.
+  Reads the coordinates of the point at position \a index within the array
+  and writes them into \a *x and \a *y.
 */
 
 void QPointArray::point( uint index, int *x, int *y ) const
@@ -193,7 +194,7 @@ void QPointArray::point( uint index, int *x, int *y ) const
 }
 
 /*!
-  Returns the point at position \a index in the array.
+  Returns the point at position \a index within the array.
 */
 
 QPoint QPointArray::point( uint index ) const
