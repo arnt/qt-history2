@@ -356,7 +356,7 @@ void QAbstractButtonPrivate::fixFocusPolicy()
 {
     Q_Q(QAbstractButton);
 
-    QList<QAbstractButton *> buttonList = queryButtonList();;
+    QList<QAbstractButton *> buttonList = queryButtonList();
     for (int i = 0; i < buttonList.count(); ++i) {
         QAbstractButton *b = buttonList.at(i);
         if (!b->isCheckable())
