@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#98 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#99 $
 **
 ** Definition of QIconView widget class
 **
@@ -1693,17 +1693,21 @@ void QIconView::slotUpdate()
     // #### remove that ASA insertInGrid uses cached values and is efficient
     int y = d->spacing;
     QIconViewItem *item = d->firstItem;
+    int w = 0, h = 0;
     while ( item ) {
 	item = makeRowLayout( item, y );
 
 	if ( !item || !item->next )
 	    break;
 
+	w = QMAX( w, item->x() + item->width() );
+	h = QMAX( h, item->y() + item->height() );
+	
 	item = item->next;
     }
 
-    int w = QMAX( d->cachedW, d->lastItem->x() + d->lastItem->width() );
-    int h = QMAX( d->cachedH, d->lastItem->y() + d->lastItem->height() );
+    w = QMAX( QMAX( d->cachedW, w ), d->lastItem->x() + d->lastItem->width() );
+    h = QMAX( QMAX( d->cachedH, h ), d->lastItem->y() + d->lastItem->height() );
 
     resizeContents( QMAX( contentsWidth(), w ),
 		    QMAX( contentsHeight(), h ) );
@@ -2539,7 +2543,7 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 	d->rubber = 0;
     } else if ( !d->startDrag ) {
 	QIconViewItem *item = findItem( e->pos() );
-	if ( item ) {
+	if ( item && !item->renameBox ) {
 	    selectAll( FALSE );
 	    item->setSelected( TRUE, TRUE );
 	    emit doubleClicked( item );
@@ -2561,29 +2565,35 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 void QIconView::contentsMouseMoveEvent( QMouseEvent *e )
 {
     if ( d->singleClickMode ) {
-	QIconViewItem *item = findItem( e->pos() );
-	if ( item ) {
-	    if ( item != d->highlightedItem ) {
+	if ( ( d->currentItem && d->currentItem->renameBox ) ||
+	     d->rubber ) {
+	    if ( d->singleClickSelectTimer->isActive() )
+		d->singleClickSelectTimer->stop();
+	} else {
+	    QIconViewItem *item = findItem( e->pos() );
+	    if ( item ) {
+		if ( item != d->highlightedItem ) {
+		    if ( d->singleClickSelectTimer->isActive() )
+			d->singleClickSelectTimer->stop();
+
+		    QIconViewItem *old = d->highlightedItem;
+		    d->highlightedItem = item;
+		    if ( d->singleClickConfig.highlightedCursor )
+			viewport()->setCursor( *d->singleClickConfig.highlightedCursor );
+		    repaintItem( old );
+		    repaintItem( d->highlightedItem );
+		    if ( d->singleClickConfig.setCurrentInterval >= 0 )
+			d->singleClickSelectTimer->start( d->singleClickConfig.setCurrentInterval, TRUE );
+		}
+	    } else if ( d->highlightedItem ) {
 		if ( d->singleClickSelectTimer->isActive() )
 		    d->singleClickSelectTimer->stop();
 
+		viewport()->setCursor( d->oldCursor );
 		QIconViewItem *old = d->highlightedItem;
-		d->highlightedItem = item;
-		if ( d->singleClickConfig.highlightedCursor )
-		    viewport()->setCursor( *d->singleClickConfig.highlightedCursor );
+		d->highlightedItem = 0;
 		repaintItem( old );
-		repaintItem( d->highlightedItem );
-		if ( d->singleClickConfig.setCurrentInterval >= 0 )
-		    d->singleClickSelectTimer->start( d->singleClickConfig.setCurrentInterval, TRUE );
 	    }
-	} else if ( d->highlightedItem ) {
-	    if ( d->singleClickSelectTimer->isActive() )
-		d->singleClickSelectTimer->stop();
-
-	    viewport()->setCursor( d->oldCursor );
-	    QIconViewItem *old = d->highlightedItem;
-	    d->highlightedItem = 0;
-	    repaintItem( old );
 	}
     }
 
