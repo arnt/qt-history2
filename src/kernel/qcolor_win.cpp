@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#18 $
 **
 ** Implementation of QColor class for Windows
 **
@@ -14,7 +14,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#18 $")
 
 
 /*****************************************************************************
@@ -52,7 +52,7 @@ int QColor::numBitPlanes()
 
 void QColor::initialize()
 {
-//    return;
+  //  return;
 
     int numCols = maxColors();
     if ( numCols <= 16 || numCols > 256 )	// no need to create palette
@@ -88,8 +88,14 @@ void QColor::initialize()
 	pe->peFlags = PC_NOCOLLAPSE;
 	pe++;
     }
-    hpal = CreatePalette ( logPal) ;		// create logical palette
+    hpal = CreatePalette( logPal );		// create logical palette
     delete [] logPal;
+
+    ((QColor*)(&black))->   alloc();
+    ((QColor*)(&white))->   alloc();
+    ((QColor*)(&::red))->   alloc();
+    ((QColor*)(&::green))-> alloc();
+    ((QColor*)(&::blue))->  alloc();
 }
 
 
