@@ -2,7 +2,7 @@
 #include "private/qguieventloop_p.h"
 
 
-QGuiEventLoop::QGuiEventLoop( QObject *parent = 0, const char *name = 0 )
+QGuiEventLoop::QGuiEventLoop( QObject *parent, const char *name )
     : QEventLoop(new QGuiEventLoopPrivate, parent, name)
 {
 }
