@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#36 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -132,7 +132,8 @@ QHeader::QHeader( int n,  QWidget *parent, const char *name )
 QHeader::~QHeader()
 {
     for ( int i=0; i < count(); i++ )
-	delete [] (char *)labels[i];
+	if ( labels[i] )                      // Avoid purify complaints
+	    delete [] (char *)labels[i];
 }
 
 /*!
@@ -628,7 +629,8 @@ QRect QHeader::sRect( int i )
 void QHeader::setLabel( int i, const char *s, int size )
 {
     if ( i >= 0 && i < count() ) {
-	delete [] (char *)labels[i];
+	if ( labels[i] )                      // Avoid purify complaints
+	    delete [] (char *)labels[i];
 	labels[i] = qstrdup(s);
 	if ( size >= 0 )
 	    sizes[i] = size;

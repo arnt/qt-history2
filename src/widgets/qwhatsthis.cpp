@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#12 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -22,7 +22,7 @@
 #include "qbitmap.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#12 $");
 
 
 /*notready
@@ -96,7 +96,7 @@ QWhatsThisPrivate::Item::~Item()
 {
     if ( count )
 	fatal( "Internal error #10%d in What's This", count );
-    if ( dc )
+    if ( dc && s )
 	delete[] (char*)s;
 }
 

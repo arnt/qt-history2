@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprndlg.cpp#35 $
+** $Id: //depot/qt/main/src/dialogs/qprndlg.cpp#36 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprndlg.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprndlg.cpp#36 $");
 
 
 struct QPrintDialogPrivate
@@ -426,7 +426,8 @@ QGroupBox * QPrintDialog::setupDestination()
     if ( d->printers->currentItem() )
 	d->printers->setSelected( d->printers->currentItem(), TRUE );
 
-    delete[] etcLpDefault;
+    if ( etcLpDefault )			// Avoid purify complaint
+	delete[] etcLpDefault;
 #endif
 
     d->printers->setMinimumSize( 404, fontMetrics().height() * 5 );

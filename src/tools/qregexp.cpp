@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#45 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#46 $
 **
 ** Implementation of QRegExp class
 **
@@ -13,7 +13,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#46 $");
 
 
 /*!
@@ -138,7 +138,8 @@ QRegExp::QRegExp( const QRegExp &r )
 
 QRegExp::~QRegExp()
 {
-    delete [] rxdata;
+    if ( rxdata )                      // Avoid purify complaints
+	delete [] rxdata;
 }
 
 /*!
