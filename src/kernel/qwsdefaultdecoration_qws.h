@@ -68,6 +68,15 @@ protected:
     virtual const char **maximizePixmap();
     virtual const char **normalizePixmap();
 #endif
+
+private:
+
+    static QPixmap * staticMenuPixmap;
+    static QPixmap * staticClosePixmap;
+    static QPixmap * staticMinimizePixmap;
+    static QPixmap * staticMaximizePixmap;
+    static QPixmap * staticNormalizePixmap;
+
 };
 
 #endif // QT_NO_QWS_MANAGER

@@ -142,6 +142,7 @@ bool qws_sw_cursor = TRUE;
 bool qws_accel = TRUE;	    // ### never set
 const char *qws_display_spec = ":0";
 int qws_display_id = 0;
+static bool qws_regionRequest = FALSE;
 #ifndef QT_NO_QWS_MANAGER
 static QWSDecoration *qws_decoration = 0;
 #endif
@@ -389,6 +390,9 @@ public:
 	delete memorymanager; memorymanager = 0;
 	qt_screen->disconnect();
 	delete qt_screen; qt_screen = 0;
+#ifndef QT_NO_QWS_CURSOR
+	delete qt_screencursor; qt_screencursor = 0;
+#endif
 #ifndef QT_NO_QWS_MULTIPROCESS
 	shm.detach();
 	if ( !csocket && ramid != -1 ) {
@@ -542,9 +546,11 @@ void QWSDisplay::Data::init()
 	csocket->connectToLocalFile(pipe);
 	QWSIdentifyCommand cmd;
 	cmd.setId(appName);
+#ifndef QT_NO_QWS_MULTIPROCESS
 	if  ( csocket )
 	    cmd.write( csocket );
 	else
+#endif
 	    qt_server_enqueue( &cmd );
 
 	// wait for connect confirmation
@@ -770,7 +776,7 @@ void QWSDisplay::Data::waitForConnection()
 #ifndef QT_NO_QWS_MULTIPROCESS
     for ( int i = 0; i < 5; i++ ) {
 	if ( csocket )
-	    csocket->waitForMore(1000);
+	    csocket->waitForMore(2000);
 	fillQueue();
 	if ( connected_event )
 	    return;
@@ -1009,6 +1015,7 @@ void QWSDisplay::nameRegion(int winId, const QString& n, const QString &c)
 
 void QWSDisplay::requestRegion(int winId, QRegion r)
 {
+    qws_regionRequest = TRUE;
     if ( d->directServerConnection() ) {
 	qwsServer->request_region( winId, r );
     } else {
@@ -1337,6 +1344,9 @@ static void init_display()
     qws_decoration = QWSManager::newDefaultDecoration();
 #endif
 
+    incoming.setAutoDelete(true);
+    outgoing.setAutoDelete(true);
+
     qApp->setName( appName );
 
     QFont f;
@@ -1482,7 +1492,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 #endif
 
 
-#ifndef QT_NO_NETWORK
+#ifndef QT_NO_NETWORKPROTOCOL
     qInitNetworkProtocols();
 #endif
 
@@ -1525,6 +1535,10 @@ void qt_cleanup()
 	delete qt_fbdpy;
     }
     qt_fbdpy = 0;
+
+#ifndef QT_NO_QWS_MANAGER
+    delete qws_decoration;
+#endif
 
     delete activeBeforePopup;
     activeBeforePopup = 0;
@@ -2336,8 +2350,18 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 #ifndef QT_NO_CURSOR
 	    if ( !gw || gw == w ) {
 		QCursor *curs = app_cursor;
-		if (!curs && w->extraData())
+		if (!curs && w->extraData()) {
 		    curs = w->extraData()->curs;
+		}
+		QWidget *pw = w;
+		// If this widget has no cursor set, try parent.
+		while (!curs) {
+		    pw = pw->parentWidget();
+		    if (!pw)
+			break;
+		    if (pw->extraData())
+			curs = pw->extraData()->curs;
+		}
 		if (curs) {
 		    QPaintDevice::qwsDisplay()->selectCursor(widget, (int)curs->handle());
 		}
@@ -3412,9 +3436,11 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 	    qFatal( "Cannot find region for window %ld", winId() );
 	}
     }
+
 #ifndef QT_NO_QWS_MANAGER
     QRegion extraExposed;
 #endif
+
     QWSDisplay::grab();
     int revision = *rgnMan->revision( alloc_region_index );
     if ( revision != alloc_region_revision ) {
@@ -3423,9 +3449,13 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 	QWSDisplay::ungrab();
 #ifndef QT_NO_QWS_MANAGER
 	if ( testWFlags(WType_TopLevel) && topData()->qwsManager ) {
-	    extraExposed = topData()->decor_allocated_region;
-	    QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
-	    extraExposed = qt_screen->mapFromDevice( extraExposed, s );
+
+	    if ( event->simpleData.nrectangles && qws_regionRequest ) {
+		extraExposed = topData()->decor_allocated_region;
+		QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
+		extraExposed = qt_screen->mapFromDevice( extraExposed, s );
+		extraExposed &= geometry();
+	    }
 
 	    QRegion mr(topData()->qwsManager->region());
 	    mr = qt_screen->mapToDevice( mr, QSize(qt_screen->width(), qt_screen->height()) );
@@ -3459,21 +3489,24 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 	exposed.setRects( event->rectangles, event->simpleData.nrectangles );
 	QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
 	exposed = qt_screen->mapFromDevice( exposed, s );
-	/*
+/*
 	for ( int i = 0; i < event->simpleData.nrectangles; i++ )
-	    qDebug( "exposed: %d, %d %dx%d",
+	    qDebug( "exposed: %d, %d %d x %d",
 		event->rectangles[i].x(),
 		event->rectangles[i].y(),
 		event->rectangles[i].width(),
 		event->rectangles[i].height() );
-	*/
+*/
+	updateActivePainter();
 	repaintDecoration( exposed );
+
 #ifndef QT_NO_QWS_MANAGER
 	exposed |= extraExposed;
 #endif
+
 	repaintHierarchy( exposed );
     }
-
+    qws_regionRequest = FALSE;
     return TRUE;
 }
 

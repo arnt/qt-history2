@@ -83,16 +83,20 @@ typedef struct {
        long pressure;
        long long millisecs;
 } TS_EVENT;
-#endif
-
-#define QT_QWS_TP_SAMPLE_SIZE 5
+#define QT_QWS_TP_SAMPLE_SIZE 10
+#define QT_QWS_TP_MINIMUM_SAMPLES 4
 #define QT_QWS_TP_PRESSURE_THRESHOLD 500
 #define QT_QWS_TP_MOVE_LIMIT 50
-
+#define QT_QWS_TP_JITTER_LIMIT 2
+#endif
 #endif
 
 #ifndef QT_QWS_TP_SAMPLE_SIZE
 #define QT_QWS_TP_SAMPLE_SIZE 5
+#endif
+
+#ifndef QT_QWS_TP_MINIMUM_SAMPLES
+#define QT_QWS_TP_MINIMUM_SAMPLES 5
 #endif
 
 #ifndef QT_QWS_TP_PRESSURE_THRESHOLD
@@ -103,16 +107,8 @@ typedef struct {
 #define QT_QWS_TP_MOVE_LIMIT 100
 #endif
 
-#ifndef QT_QWS_TP_SAMPLE_SIZE
-#define QT_QWS_TP_SAMPLE_SIZE 5
-#endif
-
-#ifndef QT_QWS_TP_PRESSURE_THRESHOLD
-#define QT_QWS_TP_PRESSURE_THRESHOLD 1
-#endif
-
-#ifndef QT_QWS_TP_MOVE_LIMIT
-#define QT_QWS_TP_MOVE_LIMIT 100
+#ifndef QT_QWS_TP_JITTER_LIMIT
+#define QT_QWS_TP_JITTER_LIMIT 2
 #endif
 
 /*!
@@ -1158,7 +1154,8 @@ void QVrTPanelHandlerPrivate::readMouseData()
 #if defined(QT_QWS_IPAQ) || defined(QT_QWS_EBX)
 
 QTPanelHandlerPrivate::QTPanelHandlerPrivate( MouseProtocol, QString )
-    : samples(QT_QWS_TP_SAMPLE_SIZE), currSample(0), numSamples(0)
+    : samples(QT_QWS_TP_SAMPLE_SIZE), currSample(0), lastSample(0),
+    numSamples(0), skipCount(0)
 {
 #if defined(QT_QWS_IPAQ)
 # ifdef QT_QWS_IPAQ_RAW
@@ -1198,6 +1195,7 @@ QTPanelHandlerPrivate::~QTPanelHandlerPrivate()
 	close(mouseFD);
 }
 
+
 void QTPanelHandlerPrivate::readMouseData()
 {
     if(!qt_screen)
@@ -1212,6 +1210,8 @@ void QTPanelHandlerPrivate::readMouseData()
 
     TS_EVENT *data;
     int idx = 0;
+
+    // perhaps we shouldn't be reading EVERY SAMPLE.
     while ( mouseIdx-idx >= (int)sizeof( TS_EVENT ) ) {
 	uchar *mb = mouseBuf+idx;
 	data = (TS_EVENT *) mb;
@@ -1221,56 +1221,68 @@ void QTPanelHandlerPrivate::readMouseData()
 #else
 	    samples[currSample] = QPoint( data->x, data->y );
 #endif
+
 	    numSamples++;
-	    if ( numSamples >= samples.count() ) {
-		int maxd = 0;
-		unsigned int ignore = 0;
-		// throw away the "worst" sample
-		for ( unsigned int i = 0; i < samples.count(); i++ ) {
-		    int d = ( mousePos - samples[i] ).manhattanLength();
-		    if ( d > maxd ) {
-			maxd = d;
-			ignore = i;
-		    }
-		}
-		bool first = TRUE;
+	    if ( numSamples >= QT_QWS_TP_MINIMUM_SAMPLES ) {
+		int sampleCount = QMIN(numSamples + 1,samples.count());
+
 		// average the rest
-		for ( unsigned int i = 0; i < samples.count(); i++ ) {
-		    if ( ignore != i ) {
-			if ( first ) {
-			    mousePos = samples[i];
-			    first = FALSE;
-			} else {
-			    mousePos += samples[i];
-			}
-		    }
-		}
-		mousePos /= (int)(samples.count() - 1);
+		mousePos = QPoint( 0, 0 );
+		QPoint totalMousePos = oldTotalMousePos;
+		totalMousePos += samples[currSample];
+		if(numSamples >= samples.count()) 
+		    totalMousePos -= samples[lastSample];
+
+		mousePos = totalMousePos / (sampleCount - 1);
+
 # if defined(QT_QWS_IPAQ_RAW) || defined(QT_QWS_EBX_RAW)
 		mousePos = transform( mousePos );
 # endif
-		if ( waspressed ) {
-		    if ( QABS(mousePos.x()-oldmouse.x()) < QT_QWS_TP_MOVE_LIMIT &&
-			 QABS(mousePos.y()-oldmouse.y()) < QT_QWS_TP_MOVE_LIMIT ) {
-			if ( oldmouse != mousePos ) {
-			    mouseChanged(mousePos,Qt::LeftButton);
-			    oldmouse=mousePos;
+		if(!waspressed)
+		    oldmouse = mousePos;
+		QPoint dp = mousePos - oldmouse;
+		int dxSqr = dp.x() * dp.x();
+		int dySqr = dp.y() * dp.y();
+		if ( dxSqr + dySqr < (QT_QWS_TP_MOVE_LIMIT * QT_QWS_TP_MOVE_LIMIT) ) {
+		    if ( waspressed ) {
+			if ( (dxSqr + dySqr > (QT_QWS_TP_JITTER_LIMIT * QT_QWS_TP_JITTER_LIMIT) ) || skipCount > 2) {
+			    emit mouseChanged(mousePos,Qt::LeftButton);
+			    oldmouse = mousePos;
+			    skipCount = 0;
+			} else {
+			    skipCount++;
 			}
+		    } else {
+			emit mouseChanged(mousePos,Qt::LeftButton);
+			oldmouse=mousePos;
+			waspressed=true;
 		    }
+
+		    // save recuring information
+		    currSample++;
+		    if (numSamples >= samples.count()) 
+			lastSample++;
+		    oldTotalMousePos = totalMousePos;
 		} else {
-		    mouseChanged(mousePos,Qt::LeftButton);
-		    oldmouse=mousePos;
-		    waspressed=true;
+		    numSamples--; // don't use this sample, it was bad.
 		}
+	    } else {
+		// build up the average
+		oldTotalMousePos += samples[currSample];
+		currSample++;
 	    }
-	    currSample++;
 	    if ( currSample >= samples.count() )
 		currSample = 0;
+	    if ( lastSample >= samples.count() )
+		lastSample = 0;
 	} else {
+	    currSample = 0;
+	    lastSample = 0;
+	    numSamples = 0;
+	    skipCount = 0;
+	    oldTotalMousePos = QPoint(0,0);
 	    if ( waspressed ) {
-		currSample = 0;
-		numSamples = 0;
-		mouseChanged(oldmouse,0);
+		emit mouseChanged(oldmouse,0);
 		oldmouse = QPoint( -100, -100 );
 		waspressed=false;
 	    }
@@ -1284,8 +1296,7 @@ void QTPanelHandlerPrivate::readMouseData()
     mouseIdx = surplus;
 }
 
-#endif //QT_QWS_IPAQ
-
+#endif
 
 #ifdef QT_QWS_YOPY
 

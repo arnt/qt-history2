@@ -679,6 +679,8 @@ QMemoryManager::PixmapID QMemoryManager::newPixmap(int w, int h, int d,
 	next_pixmap_id += 2; // stay even
     }
 
+    memset((void *)data,0,siz);
+
     QMemoryManagerPixmap mmp;
     mmp.data = data;
     mmp.xoffset = xoffset;
@@ -738,15 +740,24 @@ static QString fontKey(const QFontDef& font)
 
 static QFontDef fontFilenameDef( const QString& key )
 {
+    // font name has the form of
+    // (/w)+_(\d)+_(\d)+(i|) the rest of it we don't care about.
     QFontDef result;
     int u0 = key.find('_');
     int u1 = key.find('_',u0+1);
-    int u2 = key.find('_',u1+1);
+
+    // next field will be deleminted by either a _, . or i.
+    // find the first non-diget
+    int u2 = u1+1;
+    while(key[u2].isDigit())
+	u2++;
+
     result.family = key.left(u0);
     result.pointSize = key.mid(u0+1,u1-u0-1).toInt();
     result.weight = key.mid(u1+1,u2-u1-1).toInt();
-    result.italic = key.mid(u2-1,1) == "i";
+    result.italic = key[u2] == 'i';
     // #### ignores _t and _I fields
+
     return result;
 }
 
@@ -783,41 +794,41 @@ QMemoryManager::FontID QMemoryManager::refFont(const QFontDef& font)
 #ifndef QT_NO_DIR
 	    // QPF close-font matching
 	    if ( qdf )
-		bestmatch = QFontManager::cmpFontDef(font, qdf->fontDef());
+	        bestmatch = QFontManager::cmpFontDef(font, qdf->fontDef());
 	    QDir dir(fontDir(),"*.qpf");
-            for (int i=0; i<(int)dir.count(); i++) {
-                QFontDef d = fontFilenameDef(dir[i]);
-                int match = QFontManager::cmpFontDef(font,d);
-                if ( match >= bestmatch ) {
+	    for (int i=0; i<(int)dir.count(); i++) {
+	        QFontDef d = fontFilenameDef(dir[i]);
+	        int match = QFontManager::cmpFontDef(font,d);
+	        if ( match >= bestmatch ) {
 		    QString ff = fontFilename(d);
 		    if ( QFile::exists(ff) ) {
-			 filename = ff;
-			 bestmatch = match;
+		        filename = ff;
+		        bestmatch = match;
 		    }
-                }
+	        }
 	    }
 #endif
 	    if ( filename.isNull() ) {
-		if ( qdf ) {
+	        if ( qdf ) {
 		    mmf->renderer = qdf->load(font);
-		} else {
+	        } else {
 		    // last-ditch attempt to find a font...
 		    QFontDef d = font;
 		    d.family = "helvetica";
 		    filename = fontFilename(d);
 		    if ( !QFile::exists(filename) ) {
-			d.pointSize = 120;
-			filename = fontFilename(d);
-			if ( !QFile::exists(filename) ) {
-			    d.italic = FALSE;
-			    filename = fontFilename(d);
-			    if ( !QFile::exists(filename) ) {
-				d.weight = 50;
-				filename = fontFilename(d);
-			    }
-			}
+		        d.pointSize = 120;
+		        filename = fontFilename(d);
+		        if ( !QFile::exists(filename) ) {
+		            d.italic = FALSE;
+		            filename = fontFilename(d);
+		            if ( !QFile::exists(filename) ) {
+		                d.weight = 50;
+		                filename = fontFilename(d);
+		            }
+		        }
 		    }
-		}
+	        }
 	    }
 	}
 	if ( !mmf->renderer && QFile::exists(filename) ) {

@@ -653,11 +653,6 @@ and screen blanking.
 
 void QLinuxFbScreen::shutdownDevice()
 {
-    // Set back the original mode
-#ifndef QT_NO_QWS_CURSOR
-    qt_screencursor->hide();
-#endif
-
     // Causing crashes. Not needed.
     //setMode(startupw,startuph,startupd);
 /*

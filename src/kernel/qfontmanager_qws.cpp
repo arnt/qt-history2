@@ -212,6 +212,7 @@ QFontManager::QFontManager()
 {
     factories.setAutoDelete(true);
     diskfonts.setAutoDelete(true);
+    diskfonts.setAutoDelete(true);
     cachedfonts.setAutoDelete(true);
 
 #ifndef QT_NO_FREETYPE

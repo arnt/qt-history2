@@ -241,7 +241,7 @@ void QScreenCursor::init(SWCursorData *da, bool init)
 {
     // initialise our gfx
     gfx = (QGfxRasterBase*)qt_screen->screenGfx();
-    gfx->setClipRect( 0, 0, gfx->pixelWidth(), gfx->pixelHeight() );
+    gfx->setClipRect( 0, 0, qt_screen->width(), qt_screen->height() );
 
     data = da;
     save_under = FALSE;
@@ -446,9 +446,12 @@ bool QScreenCursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
 	if ( depth < 8 ) {
 	    if ( data->width && data->height ) {
 		gfx->gfx_swcursor = FALSE;   // prevent recursive call from blt
+		QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
+		QRect r( x,y,data->width,data->height );
+		r = qt_screen->mapFromDevice( r, s );
 		gfx->setSource( imgunder );
 		gfx->setAlphaType(QGfx::IgnoreAlpha);
-		gfx->blt(x,y,data->width,data->height,0,0);
+		gfx->blt(r.x(), r.y(), r.width(), r.height(),0,0);
 		gfx->gfx_swcursor = TRUE;
 	    }
 	} else {
@@ -508,11 +511,14 @@ void QScreenCursor::saveUnder()
 	gfxunder->srcbits = gfx->buffer;
 	gfxunder->srctype = QGfx::SourceImage;
 	gfxunder->srcpixeltype = QGfx::NormalPixel;
-	gfxunder->srcwidth = gfx->width;
-	gfxunder->srcheight = gfx->height;
+	gfxunder->srcwidth = qt_screen->width();
+	gfxunder->srcheight = qt_screen->height();
 	gfxunder->setSourceWidgetOffset( 0, 0 );
 	gfxunder->src_normal_palette = TRUE;
-	gfxunder->blt(0,0,data->width,data->height,x,y);
+	QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
+	QRect r( x, y, data->width, data->height );
+	r = qt_screen->mapFromDevice( r, s );
+	gfxunder->blt(0,0,data->width,data->height,r.x(), r.y());
 	gfxunder->gfx_swcursor = TRUE;
     } else {
 	// This is faster than the above - at least until blt is
@@ -859,7 +865,7 @@ void QScreenCursor::drawCursor()
 */
 
 QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
-    buffer(b)
+    buffer(b),backcolor(Qt::black),cpen(Qt::black), cbrush(Qt::black)
 {
     // Buffers should always be aligned
     if(((unsigned long)b) & 0x3) {
@@ -882,17 +888,27 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     myfont=0;
     xoffs=0;
     yoffs=0;
-    regionClip=FALSE;
+
     srctype=SourcePen;
-    setPen(QColor(255,0,0));
-    cbrushpixmap=0;
     dashedLines = FALSE;
     dashes = 0;
     numDashes = 0;
-    widgetrgn=QRegion(0,0,w,h);
-    widgetrgn = qt_screen->mapToDevice( widgetrgn, QSize( w, h) );
-    cliprect = new QRect[1]; // Will be freed in update_clip()
-    ncliprect = 0;
+
+    patternedbrush=FALSE;
+    srccol=cbrush.color().pixel();
+    cbrushpixmap=0;
+
+    regionClip=FALSE;
+    QRect wr(0,0,w,h);
+    wr = qt_screen->mapToDevice( wr, QSize( w, h) );
+    widgetrgn = wr;
+    cliprect = new QRect[1];
+    cliprect[0] = wr;
+    ncliprect = 1;
+    clipbounds = wr;
+    clipcursor = 0;
+    clipDirty = FALSE;
+
     alphatype=IgnoreAlpha;
     alphabuf = 0;
     ismasking=FALSE;
@@ -901,13 +917,11 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     lstep=0;
     calpha=255;
     opaque=FALSE;
-    backcolor=QColor(0,0,0);
     globalRegionRevision = 0;
     src_normal_palette=FALSE;
     clutcols = 0;
     gfx_lastop=lastop;
     gfx_optype=optype;
-    update_clip();
     myrop=CopyROP;
     stitchedges=QPolygonScanner::Edge(QPolygonScanner::Left+QPolygonScanner::Top);
 
@@ -1090,6 +1104,8 @@ void QGfxRasterBase::setClipping(bool b)
     if(regionClip!=b) {
 	regionClip=b;
 	update_clip();
+    } else if ( clipDirty ) {
+	update_clip();
     }
 }
 
@@ -1134,14 +1150,14 @@ void QGfxRasterBase::setWidgetRect( int x,int y, int w, int h )
 void QGfxRasterBase::setWidgetRegion( const QRegion & r )
 {
     widgetrgn = qt_screen->mapToDevice( r, QSize( width, height ) );
-    update_clip();
+    clipDirty = TRUE;
     hsync(r.boundingRect().bottom());
 }
 
 void QGfxRasterBase::setWidgetDeviceRegion( const QRegion & r )
 {
     widgetrgn = r;
-    update_clip();
+    clipDirty = TRUE;
     hsync(r.boundingRect().bottom());
 }
 
@@ -1239,6 +1255,9 @@ void QGfxRasterBase::update_clip()
 	    ncliprect = 1;
 	}
     } else {
+#ifdef QWS_EXTRA_DEBUG
+	qDebug( "QGfxRasterBase::update_clip" );
+#endif
 	QRegion setrgn;
 	if(regionClip) {
 	    setrgn=widgetrgn.intersect(cliprgn);
@@ -1251,25 +1270,15 @@ void QGfxRasterBase::update_clip()
 	clipbounds = sr.intersect(setrgn.boundingRect());
 
 	// Convert to simple array for speed
-	QMemArray<QRect> a = setrgn.rects();
+	_XRegion* cr = (_XRegion*) setrgn.handle();
+	const QArray<QRect> &a = cr->rects;
 	delete [] cliprect;
-	cliprect = new QRect[a.size()];
-#ifdef QWS_EXTRA_DEBUG
-	qDebug( "QGfxRasterBase::update_clip" );
-#endif
-/*
-	for (int i=0; i<(int)a.size(); i++) {
-	    cliprect[i]=a[i];
-#ifdef QWS_EXTRA_DEBUG
-	    qDebug( "   cliprect[%d] %d,%d %dx%d", i, a[i].x(), a[i].y(),
-		    a[i].width(), a[i].height() );
-#endif
-	}
-*/
-	memcpy( cliprect, a.data(), a.size()*sizeof(QRect) );
-	ncliprect = a.size();
+	cliprect = new QRect[cr->numRects];
+	memcpy( cliprect, a.data(), cr->numRects*sizeof(QRect) );
+	ncliprect = cr->numRects;
     }
     clipcursor = 0;
+    clipDirty = FALSE;
 }
 
 /*!
@@ -1698,7 +1707,11 @@ bool QGfxRasterBase::inClip(int x, int y, QRect* cr, bool known_to_be_outside)
 	    cr->setCoords( x-4000,y-4000,tcr.left()-1,tcr.bottom() );
 	} else {
 	    const QRect &prev_tcr = *(cursorRect-1);
-	    if ( prev_tcr.bottom() < y && tcr.left() > x) {
+	    if ( prev_tcr.bottom() < y && tcr.top() > y) {
+		// found a new place
+//qDebug("PLACE new");
+		cr->setCoords( x-4000,prev_tcr.bottom()+1, x+4000,tcr.top()-1 );
+	    } else if ( prev_tcr.bottom() < y && tcr.left() > x) {
 		// PLACE 3
 //qDebug("PLACE 3");
 		cr->setCoords( x-4000,tcr.top(), tcr.left()-1,tcr.bottom() );
@@ -2308,8 +2321,6 @@ QGfxRaster<depth,type>::QGfxRaster(unsigned char * b,int w,int h)
     if ( depth == 1 ) {
 	setPen( color1 );
 	setBrush( color0 );
-    } else {
-	setBrush(QColor(0,0,0));
     }
 }
 
@@ -2491,9 +2502,9 @@ void QGfxRaster<depth,type>::setSource(const QPaintDevice * p)
     } else if ( p->devType() == QInternal::Pixmap ) {
 	//still a bit ugly
 	QPixmap *pix = (QPixmap*)p;
-	setSourceWidgetOffset( 0, 0 );
 	srcwidth=pix->width();
 	srcheight=pix->height();
+	setSourceWidgetOffset( 0, 0 );
 	if ( srcdepth == 1 ) {
 	    buildSourceClut(0, 0);
 	} else if(srcdepth <= 8) {
@@ -2529,10 +2540,10 @@ void QGfxRaster<depth,type>::setSource(const QImage * i)
 	abort();
     srcbits=i->scanLine(0);
     src_little_endian=(i->bitOrder()==QImage::LittleEndian);
-    setSourceWidgetOffset( 0, 0 );
     QSize s = gfx_screen->mapToDevice( QSize(i->width(), i->height()) );
     srcwidth=s.width();
     srcheight=s.height();
+    setSourceWidgetOffset( 0, 0 );
     src_normal_palette=FALSE;
     if ( srcdepth == 1 )
 	buildSourceClut( 0, 0 );
@@ -2799,25 +2810,37 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 
 #ifdef QWS_EXPERIMENTAL_FASTPATH
     // Fast path
-    if (y1 == y2 && !dashedLines && ncliprect == 1) {
-	if ( x1 > cliprect[0].right() || x2 < cliprect[0].left()
-	     || y1 < cliprect[0].top() || y1 > cliprect[0].bottom() ) {
+    if ( !dashedLines ) {
+	if ( y1 == y2 ) {
+	    if ( ncliprect == 1) {
+		if ( x1 > cliprect[0].right() || x2 < cliprect[0].left()
+			|| y1 < cliprect[0].top() || y1 > cliprect[0].bottom() ) {
+		    GFX_END
+		    return;
+		}
+		x1 = x1 > cliprect[0].left() ? x1 : cliprect[0].left();
+		x2 = x2 > cliprect[0].right() ? cliprect[0].right() : x2;
+		unsigned char *l = scanLine(y1);
+		hlineUnclipped(x1,x2,l);
+	    } else {
+		hline( x1, x2, y1 );
+	    }
 	    GFX_END
 	    return;
 	}
-	x1 = x1 > cliprect[0].left() ? x1 : cliprect[0].left();
-	x2 = x2 > cliprect[0].right() ? cliprect[0].right() : x2;
-	unsigned char *l = scanLine(y1);
-	hlineUnclipped(x1,x2,l);
-	GFX_END
-	return;
+# if !defined(_OS_QNX6_)
+	else if ( x1 == x2 ) {
+	    vline( x1, y1, y2 );
+	    GFX_END
+	    return;
+	}
+# endif
     }
 #endif
     // Bresenham algorithm from Graphics Gems
 
     int ax=QABS(dx)*2;
     int ay=QABS(dy)*2;
-    int sx=dx>0 ? 1 : -1;
     int sy=dy>0 ? 1 : -1;
     int x=x1;
     int y=y1;
@@ -2832,11 +2855,8 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 	int px=x;
 	#define FLUSH(nx) \
 		if ( inside ) \
-		    if ( sx < 1 ) \
-			hlineUnclipped(nx,px,l); \
-		    else \
-			hlineUnclipped(px,nx,l); \
-		px = nx+sx;
+		    hlineUnclipped(px,nx,l); \
+		px = nx+1;
 	for(;;) {
 	    if(x==x2) {
 		FLUSH(x);
@@ -2848,13 +2868,13 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 		y+=sy;
 		d-=ax;
 		l = scanLine(y);
-		if ( !cr.contains(x+sx,y) )
-		    inside = inClip(x+sx,y, &cr);
-	    } else if ( !cr.contains(x+sx,y) ) {
+		if ( !cr.contains(x+1,y) )
+		    inside = inClip(x+1,y, &cr);
+	    } else if ( !cr.contains(x+1,y) ) {
 		FLUSH(x);
-		inside = inClip(x+sx,y, &cr);
+		inside = inClip(x+1,y, &cr);
 	    }
-	    x+=sx;
+	    x++;
 	    d+=ay;
 	}
     } else if (ax > ay) {
@@ -2881,7 +2901,7 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 		y+=sy;
 		d-=ax;
 	    }
-	    x+=sx;
+	    x++;
 	    d+=ay;
 	}
     } else {
@@ -2904,7 +2924,7 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 		dc = dashes[di];
 	    }
 	    if(d>=0) {
-		x+=sx;
+		x++;
 		d-=ay;
 	    }
 	    y+=sy;
@@ -2912,6 +2932,58 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 	}
     }
     GFX_END
+}
+
+/*!
+\fn void QGfxRaster<depth,type>::vline( int x,int y1,int y2 )
+Draw a line at coordinate x from y1 to y2.
+Performs clipping.
+*/
+
+//screen coordinates, clipped
+template <const int depth, const int type>
+GFX_INLINE void QGfxRaster<depth,type>::vline( int x,int y1,int y2 )
+{
+    if ( y1 > y2 ) {
+	int ty = y2;
+	y2 = y1;
+	y1 = ty;
+    }
+    /*
+    qDebug( "x %d, y1 %d, y2 %d, cliprects %d", x, y1, y2, ncliprect );
+    for ( int i = 0; i < ncliprect; i++ ) {
+	QRect r = cliprect[i];
+	qDebug( "clip: %d, %d, %d, %d", r.left(), r.top(), r.right(), r.bottom() );
+    }
+    */
+    QRect cr;
+    bool plot=inClip(x,y1,&cr);
+    int y=y1;
+    for (;;) {
+	int yb = cr.bottom();
+	if ( yb >= y2 ) {
+	    if (plot) {
+		unsigned char *sl = scanLine(y);
+		for ( int r = y; r <= y2; r++ ) {
+		    drawPointUnclipped( x, sl );
+		    sl += lstep;
+		}
+	    }
+	    break;
+	} else {
+//	    qDebug( "Y = %d, cl %d, cr %d, ct %d, cb %d, clipcursor %d", y, cr.left(), cr.right(), cr.top(), cr.bottom(), clipcursor );
+	    if (plot) {
+		unsigned char *sl = scanLine(y);
+		for ( int r = y; r <= yb; r++ ) {
+		    drawPointUnclipped( x, sl );
+		    sl += lstep;
+		}
+	    }
+	    y=yb+1;
+	    plot=inClip(x,y,&cr,plot);
+	}
+    }
+//    qDebug( "Done" );
 }
 
 const double Q_PI   = 3.14159265358979323846;   // pi
@@ -4453,7 +4525,10 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 	sync();
     (*gfx_optype)=0;
     setAlphaType(IgnoreAlpha);
-    if ( w <= 0 || h <= 0 ) return;
+    if ( w <= 0 || h <= 0 ) {
+	GFX_END
+	return;
+    }
 
 #ifdef QWS_EXPERIMENTAL_FASTPATH
     // ### fix for 8bpp
@@ -4609,8 +4684,9 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 	    PackType put;
 	    unsigned int * sp=(unsigned int *)&put;
 	    *sp=pixel;
+# ifndef QWS_PACKING_4BYTE
 	    *(sp+1)=pixel;
-
+# endif
 	    int add=linestep()/4;
 	    add-=(frontadd+(count * 2)+backadd);
 
@@ -5131,9 +5207,14 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
     rx += xoffs;
     ry += yoffs;
 
+    QRect cursRect(rx, ry, w+1, h+1);
+    GFX_START(cursRect&clipbounds);
+
     // Very gross clip
-    if ( !clipbounds.intersects(QRect(rx,ry,w,h)) )
+    if ( !clipbounds.intersects(QRect(rx,ry,w,h)) ) {
+	GFX_END
 	return;
+    }
 
     //slightly tighter clip
     int leftd = clipbounds.x() - rx;
@@ -5155,9 +5236,9 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
     if ( botd > 0 )
 	h -= botd;
 
-    QRect cursRect(rx, ry, w+1, h+1);
+    // have we already clipped away everything necessary
+    bool mustclip = ncliprect != 1;
 
-    GFX_START(cursRect);
     if((*gfx_optype)!=0)
 	sync();
     (*gfx_optype)=0;
@@ -5186,20 +5267,20 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 
     bool xrev = (srcbits == buffer && srcoffs.x() < rx);
 
-    QRect cr;
+    QRect cr( rx, ry, w, h );
 
     unsigned char *l = scanLine(ry);
     unsigned char *srcline = srcScanLine(j+srcoffs.y());
+    int right = rx+w-1;
 
     // Fast path for 8/16/32 bit same-depth opaque blit. (ie. the common case)
     if ( srcdepth == depth && alphatype == IgnoreAlpha &&
 	 pixeltype == srcpixeltype &&
 	 (depth > 8 || (depth == 8 && src_normal_palette)) ) {
 	int bytesPerPixel = depth/8;
-	int right = rx+w-1;
 	if ( xrev ) {
 	    for (; j!=tj; j+=dj,ry+=dry,l+=dl,srcline+=sl) {
-		bool plot=inClip(right,ry,&cr);
+		bool plot = mustclip ? inClip(right,ry,&cr) : TRUE;
 		int x2=right;
 		for (;;) {
 		    int x = cr.left();
@@ -5219,25 +5300,33 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 		}
 	    }
 	} else {
-	    for (; j!=tj; j+=dj,ry+=dry,l+=dl,srcline+=sl) {
-		bool plot=inClip(rx,ry,&cr);
-		int x=rx;
-		for (;;) {
-		    int x2 = cr.right();
-		    if ( x2 > right ) {
-			x2 = right;
-			if ( x2 < x ) break;
+	    if ( mustclip ) {
+		for (; j!=tj; j+=dj,ry+=dry,l+=dl,srcline+=sl) {
+		    bool plot = inClip(rx,ry,&cr);
+		    int x=rx;
+		    for (;;) {
+			int x2 = cr.right();
+			if ( x2 > right ) {
+			    x2 = right;
+			    if ( x2 < x ) break;
+			}
+			if (plot) {
+			    unsigned char *srcptr=srcline+(x-rx+srcoffs.x())*bytesPerPixel;
+			    unsigned char *destptr = l + x*bytesPerPixel;
+			    memmove(destptr, srcptr, (x2-x+1) * bytesPerPixel );
+			}
+			x=x2+1;
+			if ( x > right )
+			    break;
+			plot=inClip(x,ry,&cr,plot);
 		    }
-		    if (plot) {
-			unsigned char *srcptr=srcline+(x-rx+srcoffs.x())*bytesPerPixel;
-			unsigned char *destptr = l + x*bytesPerPixel;
-			memmove(destptr, srcptr, (x2-x+1) * bytesPerPixel );
-		    }
-		    if ( x >= right )
-			break;
-		    x=x2+1;
-		    plot=inClip(x,ry,&cr,plot);
 		}
+	    } else {
+		unsigned char *srcptr = srcline + srcoffs.x()*bytesPerPixel;
+		unsigned char *destptr = l + rx*bytesPerPixel;
+		int bytes = w * bytesPerPixel;
+		for (; j!=tj; j+=dj,destptr+=dl,srcptr+=sl)
+		    memmove( destptr, srcptr, bytes );
 	    }
 	}
     } else {
@@ -5262,12 +5351,12 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 
 	unsigned char *srcptr = 0;
 	for (; j!=tj; j+=dj,ry+=dry,l+=dl,srcline+=sl) {
-	    bool plot=inClip(rx,ry,&cr);
+	    bool plot = mustclip ? inClip(rx,ry,&cr) : TRUE;
 	    int x=rx;
 	    for (;;) {
 		int x2 = cr.right();
-		if ( x2 > rx+w-1 ) {
-		    x2 = rx+w-1;
+		if ( x2 > right ) {
+		    x2 = right;
 		    if ( x2 < x ) break;
 		}
 		if (plot) {
@@ -5309,10 +5398,11 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 			hAlphaLineUnclipped(x,x2,l,srcptr,alphap);
 		    }
 		}
-		if ( x >= rx+w-1 )
-		    break;
 		x=x2+1;
-		plot=inClip(x,ry,&cr,plot);
+		if ( x > right )
+		    break;
+		if ( mustclip )
+		    plot=inClip(x,ry,&cr,plot);
 	    }
 	}
 	if ( alphabuf ) {

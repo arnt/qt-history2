@@ -218,6 +218,11 @@ QFontFactoryFT::QFontFactoryFT()
 
 QFontFactoryFT::~QFontFactoryFT()
 {
+    FT_Error err;
+    err=FT_Done_FreeType(library);
+    if(err) {
+	qFatal("Couldn't uninitialise Freetype library");
+    }   
 }
 
 QString QFontFactoryFT::name()
@@ -244,5 +249,10 @@ void QFontFactoryFT::load(QDiskFont * qdf) const
     qdf->loaded=true;
 }
 
+void QFontFactoryFT::unload(QDiskFont * qdf)
+{
+    QDiskFontFT *f = (QDiskFontFT *) qdf->p;
+    delete f;
+}
 
 #endif // QT_NO_FREETYPE

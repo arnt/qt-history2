@@ -197,10 +197,13 @@ private:
     static const int mouseBufSize = 2048;
     int mouseFD;
     QPoint oldmouse;
+    QPoint oldTotalMousePos;
     bool waspressed;
     QPointArray samples;
     unsigned int currSample;
+    unsigned int lastSample;
     unsigned int numSamples;
+    int skipCount;
     int mouseIdx;
     uchar mouseBuf[mouseBufSize];
     

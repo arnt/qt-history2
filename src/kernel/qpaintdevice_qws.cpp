@@ -261,6 +261,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	return;
 
     QGfx * mygfx = dst->graphicsContext();
+    if ( dst->devType() == QInternal::Widget )
+	mygfx->setClipRegion( ((QWidget *)dst)->rect() );
     QBitmap * mymask=0;
     if(!ignoreMask) {
 	if(src->devType()==QInternal::Pixmap) {

@@ -960,6 +960,7 @@ QVoodooCursor::QVoodooCursor()
 
 QVoodooCursor::~QVoodooCursor()
 {
+    hide();
 }
 
 void QVoodooCursor::init(SWCursorData *,bool)

@@ -46,8 +46,9 @@
 #include <errno.h>
 
 
-#ifndef _OS_QNX6_
+#ifndef Q_OS_QNX6_
 #define QT_TRANS_SCREEN_BASE	QLinuxFbScreen
+//#define QT_TRANS_SCREEN_BASE	QVFbScreen
 #include "qgfxlinuxfb_qws.h"
 #else
 #define QT_TRANS_SCREEN_BASE	QQnxScreen
@@ -56,6 +57,8 @@
 
 #define QT_TRANS_CURSOR_BASE	QScreenCursor
 #define QT_TRANS_GFX_BASE	QGfxRaster
+//#define QT_TRANS_CURSOR_BASE	QVFbScreenCursor
+//#define QT_TRANS_GFX_BASE	QGfxVFb
 
 
 class QTransformedScreen : public QT_TRANS_SCREEN_BASE
@@ -554,6 +557,42 @@ QRegion QTransformedScreen::mapFromDevice( const QRegion &rgn, const QSize &s ) 
 /*
     QRegion trgn;
     QArray<QRect> a = rgn.rects();
+    const QRect *r = a.data();
+    QRect tr;
+
+    int w = s.width();
+    int h = s.height();
+    int size = a.size();
+
+    switch ( trans ) {
+	case Rot270:
+	    for ( int i = 0; i < size; i++, r++ ) {
+		tr.setCoords( r->y(), w - r->x() - 1,
+			      r->bottom(), w - r->right() - 1 );
+		trgn |= tr.normalize();
+	    }
+	    break;
+	case Rot90:
+	    for ( int i = 0; i < size; i++, r++ ) {
+		tr.setCoords( h - r->y() - 1, r->x(),
+			      h - r->bottom() - 1, r->right() );
+		trgn |= tr.normalize();
+	    }
+	    break;
+	case Rot180:
+	    for ( int i = 0; i < size; i++, r++ ) {
+		tr.setCoords( w - r->x() - 1, h - r->y() - 1,
+			      w - r->right() - 1, h - r->bottom() - 1 );
+		trgn |= tr.normalize();
+	    }
+	    break;
+	default:
+	    break;
+    }
+
+/*
+    QRegion trgn;
+    QArray<QRect> a = rgn.rects();
     for ( int i = 0; i < (int)a.size(); i++ ) {
 	const QRect &r = a[i];
 	QRect tr;
@@ -605,7 +644,6 @@ void QTransformedScreenCursor::init( SWCursorData *da, bool init )
     QSize s = qt_trans_screen->mapFromDevice( QSize(clipWidth, clipHeight) );
     clipWidth = s.width();
     clipHeight = s.height();
-    gfx->setClipRect( 0, 0, clipWidth, clipHeight );
 }
 
 void QTransformedScreenCursor::set( const QImage &image, int hotx, int hoty )

@@ -115,7 +115,7 @@ public:
     {
 	dev = d;
 	max = out = sound_buffer_size;
-	wavedata_remaining = 0;
+	wavedata_remaining = -1;
 	samples_due = 0;
     }
     ~QWSSoundServerBucket()
@@ -139,84 +139,82 @@ public:
     }
     bool finished() const
     {
-	return wavedata_remaining < 0 || !max;
+	return !max;
     }
 private:
     void getSample(int& l, int& r)
     {
 	l = r = 0;
-	if ( wavedata_remaining < 0 || !max )
-	    return; // in error state, return silence
-	for ( ;; ) {
-	    if ( wavedata_remaining > 0 ) {
-		if ( out >= max ) {
-		    max = dev->readBlock((char*)data,
-			(uint)QMIN(sound_buffer_size,wavedata_remaining));
-		    wavedata_remaining -= max;
-		    out = 0;
-		    if ( max <= 0 ) {
-			max = 0;
-			return;
-		    }
-		}
-		if ( chunkdata.wBitsPerSample == 8 ) {
-		    l = (data[out++] - 128) * 128;
-		} else {
-		    l = ((short*)data)[out/2];
-		    out += 2;
-		}
-		if ( sound_stereo ) {
-		    if ( chunkdata.channels == 1 ) {
-			r = l;
-		    } else {
-			if ( chunkdata.wBitsPerSample == 8 ) {
-			    r = (data[out++] - 128) * 128;
-			} else {
-			    r = ((short*)data)[out/2];
-			    out += 2;
-			}
-		    }
-		} else {
-		    if ( chunkdata.channels == 2 ) {
-			if ( chunkdata.wBitsPerSample == 8 ) {
-			    r = (data[out++] - 128) * 128;
-			} else {
-			    r = ((short*)data)[out/2];
-			    out += 2;
-			}
-			l = l + r;
-		    }
-		}
+	while ( wavedata_remaining < 0 ) {
+	    max = 0;
+	    wavedata_remaining = -1;
+	    // Keep reading chunks...
+	    const int n = sizeof(chunk)-sizeof(chunk.data);
+	    if ( dev->readBlock((char*)&chunk,n) != n )
 		return;
-	    } else {
-		wavedata_remaining = -1;
-		// Keep reading chunks...
-		const int n = sizeof(chunk)-sizeof(chunk.data);
-		if ( dev->readBlock((char*)&chunk,n) != n )
+	    if ( qstrncmp(chunk.id,"data",4) == 0 ) {
+		wavedata_remaining = chunk.size;
+		out = max = sound_buffer_size;
+	    } else if ( qstrncmp(chunk.id,"RIFF",4) == 0 ) {
+		char d[4];
+		if ( dev->readBlock(d,4) != 4 )
 		    return;
-		if ( qstrncmp(chunk.id,"data",4) == 0 ) {
-		    wavedata_remaining = chunk.size;
-		} else if ( qstrncmp(chunk.id,"RIFF",4) == 0 ) {
-		    char d[4];
-		    if ( dev->readBlock(d,4) != 4 )
+		if ( qstrncmp(d,"WAVE",4) != 0 ) {
+		    // skip
+		    if ( chunk.size > 1000000000 || !dev->at(dev->at()+chunk.size-4) )
 			return;
-		    if ( qstrncmp(d,"WAVE",4) != 0 ) {
-			// skip
-			if ( chunk.size > 1000000000 || !dev->at(dev->at()+chunk.size-4) )
-			    return;
-		    }
-		} else if ( qstrncmp(chunk.id,"fmt ",4) == 0 ) {
-		    if ( dev->readBlock((char*)&chunkdata,sizeof(chunkdata)) != sizeof(chunkdata) )
-			return;
+		}
+	    } else if ( qstrncmp(chunk.id,"fmt ",4) == 0 ) {
+		if ( dev->readBlock((char*)&chunkdata,sizeof(chunkdata)) != sizeof(chunkdata) )
+		    return;
 #define WAVE_FORMAT_PCM 1
-		    if ( chunkdata.formatTag != WAVE_FORMAT_PCM ) {
-			//qDebug("WAV file: UNSUPPORTED FORMAT %d",chunkdata.formatTag);
-			return;
-		    }
+		if ( chunkdata.formatTag != WAVE_FORMAT_PCM ) {
+		    //qDebug("WAV file: UNSUPPORTED FORMAT %d",chunkdata.formatTag);
+		    return;
+		}
+	    } else {
+		// ignored chunk
+		if ( chunk.size > 1000000000 || !dev->at(dev->at()+chunk.size) )
+		    return;
+	    }
+	}
+	if ( wavedata_remaining >= 0 ) {
+	    if ( out >= max ) {
+		max = dev->readBlock((char*)data,
+		    (uint)QMIN(sound_buffer_size,wavedata_remaining));
+		wavedata_remaining -= max;
+		out = 0;
+		if ( max <= 0 ) {
+		    max = 0;
+		    return;
+		}
+	    }
+	    if ( chunkdata.wBitsPerSample == 8 ) {
+		l = (data[out++] - 128) * 128;
+	    } else {
+		l = ((short*)data)[out/2];
+		out += 2;
+	    }
+	    if ( sound_stereo ) {
+		if ( chunkdata.channels == 1 ) {
+		    r = l;
 		} else {
-		    // ignored chunk
-		    if ( chunk.size > 1000000000 || !dev->at(dev->at()+chunk.size) )
-			return;
+		    if ( chunkdata.wBitsPerSample == 8 ) {
+			r = (data[out++] - 128) * 128;
+		    } else {
+			r = ((short*)data)[out/2];
+			out += 2;
+		    }
+		}
+	    } else {
+		if ( chunkdata.channels == 2 ) {
+		    if ( chunkdata.wBitsPerSample == 8 ) {
+			r = (data[out++] - 128) * 128;
+		    } else {
+			r = ((short*)data)[out/2];
+			out += 2;
+		    }
+		    l = l + r;
 		}
 	    }
 	}

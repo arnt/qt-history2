@@ -68,11 +68,13 @@ class QRenderedFontBDF : public QRenderedFont {
     QChar default_qchar;
 
 public:
+
     QRenderedFontBDF(QDiskFont* d, const QFontDef &fd) :
 	QRenderedFont(d,fd)
     {
 	df = d;
 
+	glyph = 0;
 	fleading = 0;
 	fascent = -1;
 	fdescent = -1;

@@ -392,6 +392,9 @@ QWSClient::QWSClient( QObject* parent, int socket )
 
 QWSClient::~QWSClient()
 {
+    while(cursors.begin()!=cursors.end()) {
+        cursors.remove(cursors.begin());
+    }
 }
 
 void QWSClient::setIdentity(const QString& i)
@@ -892,6 +895,7 @@ QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
     d = new QWSServerData;
     Q_ASSERT( !qwsServer );
     qwsServer = this;
+    windows.setAutoDelete( TRUE );
 
 #ifndef QT_NO_QWS_MULTIPROCESS
     QString pipe = qws_qtePipeFilename();
@@ -973,6 +977,7 @@ QWSServer::~QWSServer()
     // destroy all clients
     for (ClientIterator it = client.begin(); it != client.end(); ++it )
 	delete *it;
+
     delete bgColor;
     bgColor = 0;
     closeDisplay();
@@ -1406,8 +1411,12 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
     event.simpleData.state=state | qws_keyModifiers;
     event.simpleData.time=qwsServer->timer.elapsed();
 
-    for (ClientIterator it = qwsServer->client.begin(); it != qwsServer->client.end(); ++it )
-	(*it)->sendEvent( &event );
+
+    QWSClient *serverClient = qwsServer->client[-1];
+    if ( serverClient )
+       serverClient->sendEvent( &event );
+    if ( win && win->client() && win->client() != serverClient )
+       win->client()->sendEvent( &event );
 
     if ( !state && !qwsServer->mouseGrabbing )
 	qwsServer->releaseMouse(qwsServer->mouseGrabber);
@@ -2198,6 +2207,9 @@ void QWSServer::moveWindowRegion( QWSWindow *changingw, int dx, int dy )
   clients, and waits for all required acknowledgements.
 
   If \a changingw is 0, the server's reserved region is changed.
+  If \a onlyAllocate is TRUE, the requested region is not changed, only
+  the allocated region. Be careful using this option, it is only really
+  useful if the windows list changes.
 
   returns the exposed region.
 */
@@ -2420,7 +2432,6 @@ void QWSServer::request_focus( const QWSRequestFocusCommand *cmd )
 
 void QWSServer::request_region( int wid, QRegion region )
 {
-    //QWSClient *serverClient = client[-1];
     QWSWindow* changingw = findWindow( wid, 0 );
     if ( !region.isEmpty() )
 	changingw->setNeedAck( TRUE );
@@ -2461,6 +2472,7 @@ void QWSServer::openDisplay()
 
 void QWSServer::closeDisplay()
 {
+    delete gfx;
     qt_screen->shutdownDevice();
 }
 
@@ -2624,6 +2636,8 @@ void QWSServer::setKeyboardFilter( KeyboardFilter *f )
 */
 void QWSServer::setScreenSaverIntervals(int* ms)
 {
+    if ( !qwsServer )
+	return;
     delete [] qwsServer->d->screensaverintervals;
     if ( ms ) {
 	int* t=ms;
@@ -2694,10 +2708,6 @@ void QWSServer::screenSaverSleep()
     qt_disable_lowpriority_timers=TRUE;
 }
 
-/*!
-    Replaces the existing screensave with the screensaver specified in
-    \a ss.
-*/
 void QWSServer::setScreenSaver(QWSScreenSaver* ss)
 {
     delete qwsServer->d->saver;

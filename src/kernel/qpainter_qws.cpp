@@ -491,7 +491,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	    //gfx->setWidgetRegion( w->rect() );
 	    gfx->setWidgetRegion( QRect( 0, 0, qt_screen->width(), qt_screen->height() ) );
 	}
-
+	w->setActivePainter( this );
     } else if ( dt == QInternal::Pixmap ) {		// device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
 	if ( pm->isNull() ) {
@@ -536,6 +536,8 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 
     if ( paintEventDevice == device() )
 	gfx->setClipRegion( *paintEventClipRegion );
+    else
+	gfx->setClipping( FALSE );
 
     return TRUE;
 }
@@ -559,6 +561,11 @@ bool QPainter::end()				// end painting
 
     if ( paintEventSaveRegion )
 	*paintEventSaveRegion = QRegion();
+
+    if ( pdev->devType() == QInternal::Widget ) {
+	QWidget *w = (QWidget*)pdev;
+	w->clearActivePainter();
+    }
 
     delete gfx;
     gfx = 0;
@@ -910,6 +917,8 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
     if ( cpen.style() != NoPen && gfx ) {
 	gfx->drawLine(x1,y1,x2,y2);
     }
+    if ( gfx )
+	gfx->moveTo(x2,y2);
 }
 
 void QPainter::drawRect( int x, int y, int w, int h )

@@ -126,6 +126,61 @@ public:
 
 protected:
 
+#ifdef DEBUG_POINTERS
+    void checkSource(unsigned char * c,int i) {
+      if(i<0) {
+	qFatal("Negative source coordinate");
+      }
+      if(i>=srcheight) {
+	qFatal("Source pointer height overrun");
+      }
+      unsigned char * tmp1=srcbits+(i*srclinestep);
+      unsigned char * tmp2=tmp1+srclinestep;
+      if(c<tmp1) {
+	qFatal("Source pointer underrun");
+      }
+      if(c>=tmp2) {
+	qFatal("Source pointer overrun");
+      }
+    }
+
+    void checkMask(unsigned char * c,int i) {
+      unsigned char * tmp1=alphabits+(i*alphalinestep);
+      unsigned char * tmp2=tmp1+alphalinestep;
+      if(i<0) {
+	qFatal("Negative mask coordinate");
+      }
+      if(i>=srcheight) {
+	qFatal("Mask height overrun");
+      }
+      if(c<tmp1) {
+	qFatal("Alpha pointer underrun");
+      }
+      if(c>=tmp2) {
+	qFatal("Alpha pointer overrun");
+      }      
+    }
+
+    void checkDest(unsigned char * c,int i) {
+      if(i<0) {
+	qFatal("Negative dest coordinate");
+      }
+      if(i>=height) {
+	qFatal("Destination height overrun");
+      } 
+      unsigned char * tmp1=buffer+(i*lstep);
+      unsigned char * tmp2=tmp1+lstep;
+      if(c<tmp1) {
+	qFatal("Destination pointer underrun");
+      }
+      if(c>=tmp2) {
+	qFatal("Destination pointer overrun");
+      }      
+    }
+
+#endif
+
+
     void* beginTransaction( const QRect& );
     void endTransaction(void*);
 
@@ -209,6 +264,7 @@ protected:
     QBrush savebrush;
 
     bool regionClip;
+    bool clipDirty;
     QRegion widgetrgn;
     QRegion cliprgn;
     QRect clipbounds;
@@ -301,6 +357,9 @@ protected:
 
     void buildSourceClut(QRgb *,int);
     void processSpans( int n, QPoint* point, int* width );
+
+    // Optimised vertical line drawing
+    void vline(int,int,int );
 
     // Optimised horizontal line drawing
     void hline(int,int,int );

@@ -1790,6 +1790,7 @@ QMachCursor::QMachCursor()
 
 QMachCursor::~QMachCursor()
 {
+    hide();
 }
 
 void QMachCursor::init(SWCursorData *,bool)

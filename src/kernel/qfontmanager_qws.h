@@ -62,9 +62,10 @@ public:
 
 class QGlyph {
 public:
-    QGlyph() { }
+    QGlyph() { metrics=0; data=0; }
     QGlyph(QGlyphMetrics* m, uchar* d) :
 	metrics(m), data(d) { }
+    ~QGlyph() {}
 
     QGlyphMetrics* metrics;
     uchar* data;
@@ -91,6 +92,8 @@ public:
     QRenderedFont(QDiskFont *,const QFontDef&);
     virtual ~QRenderedFont();
 
+    QFontDef fontDef() const;
+
     int refcount;
 
     int ptsize;
@@ -99,7 +102,7 @@ public:
     unsigned int weight;
 
     void ref() { refcount++; }
-    bool deref() { refcount--; return (refcount<1); }
+    bool deref() { refcount--; return refcount==0; }
 
     bool match(const QFontDef &);
 
@@ -196,7 +199,6 @@ public:
     ~QFontManager();
 
     // Font definition, type and color
-
     QDiskFont * get(const QFontDef &);
 
     static int cmpFontDef(const QFontDef & goal, const QFontDef & choice);
@@ -225,6 +227,7 @@ public:
 
     virtual QRenderedFont * get(const QFontDef &,QDiskFont *)=0;
     virtual void load(QDiskFont *) const=0;
+    virtual void unload(QDiskFont *) {}
     virtual QString name()=0;
 };
 

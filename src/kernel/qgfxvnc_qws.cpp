@@ -377,6 +377,19 @@ QVNCServer::QVNCServer()
     connect( timer, SIGNAL(timeout()), this, SLOT(checkUpdate()) );
 }
 
+QVNCServer::QVNCServer( int id )
+    : QServerSocket( 5900 + id, 0, 0 )
+{
+    qDebug( "QVNCServer created" );
+    handleMsg = FALSE;
+    client = 0;
+    encodingsPending = 0;
+    cutTextPending = 0;
+    keymod = 0;
+    timer = new QTimer( this );
+    connect( timer, SIGNAL(timeout()), this, SLOT(checkUpdate()) );
+}
+
 QVNCServer::~QVNCServer()
 {
     discardClient();

@@ -341,11 +341,6 @@ bool QVFbScreen::initDevice()
 
 void QVFbScreen::shutdownDevice()
 {
-    // Set back the original mode
-#ifndef QT_NO_QWS_CURSOR
-    if ( qt_sw_cursor )
-	qt_screencursor->hide();
-#endif
 }
 
 int QVFbScreen::initCursor(void* e, bool init)

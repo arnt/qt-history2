@@ -188,12 +188,12 @@ void QWSDecoration::maximize( QWidget *widget )
 #endif
 */
     {
-        QRect dummy;
+        QRect dummy( 0, 0, 1, 1);
         QRegion r = region(widget, dummy);
         QRect rect = r.boundingRect();
         nr = QRect(desk.x()-rect.x(), desk.y()-rect.y(),
-	    desk.width() - rect.width(),
-	    desk.height() - rect.height());
+	    desk.width() - rect.width() + 1,
+	    desk.height() - rect.height() + 1);
     }
     widget->setGeometry(nr);
 }

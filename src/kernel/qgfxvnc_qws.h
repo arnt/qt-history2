@@ -148,6 +148,7 @@ class QVNCServer : public QServerSocket
     Q_OBJECT
 public:
     QVNCServer();
+    QVNCServer( int id );
     ~QVNCServer();
 
     virtual void newConnection( int socket );

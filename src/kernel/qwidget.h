@@ -636,10 +636,17 @@ private:
 
     void updateOverlappingChildren() const;
     void setChildrenAllocatedDirty();
+    void setChildrenAllocatedDirty( const QRegion &r, const QWidget *dirty=0 );
     bool isAllocatedRegionDirty() const;
+    void updateRequestedRegion( const QPoint &gpos );
     QRegion requestedRegion() const;
     QRegion allocatedRegion() const;
     QRegion paintableRegion() const;
+
+    void setActivePainter( QPainter *painter ) const;
+    void clearActivePainter() const;
+    void updateActivePainter() const;
+    void updateGraphicsContext( QGfx *qgfx_qws, bool clip_children ) const;
 
     // used to accumulate dirty region when children moved/resized.
     QRegion dirtyChildren;

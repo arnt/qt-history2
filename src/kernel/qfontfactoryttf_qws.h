@@ -56,6 +56,7 @@ public:
 
     QRenderedFont * get(const QFontDef &,QDiskFont *);
     virtual void load(QDiskFont *) const;
+    virtual void unload(QDiskFont *);
     virtual QString name();
 
 private:

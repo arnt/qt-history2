@@ -39,6 +39,12 @@
 
 #ifndef QT_NO_IMAGEIO_XPM
 
+QPixmap * QWSDefaultDecoration::staticMenuPixmap=0;
+QPixmap * QWSDefaultDecoration::staticClosePixmap=0;
+QPixmap * QWSDefaultDecoration::staticMinimizePixmap=0;
+QPixmap * QWSDefaultDecoration::staticMaximizePixmap=0;
+QPixmap * QWSDefaultDecoration::staticNormalizePixmap=0;
+
 /* XPM */
 static const char * const default_menu_xpm[] = {
 /* width height ncolors chars_per_pixel */
@@ -171,6 +177,18 @@ QWSDefaultDecoration::QWSDefaultDecoration()
 
 QWSDefaultDecoration::~QWSDefaultDecoration()
 {
+    delete staticMenuPixmap;
+    delete staticClosePixmap;
+    delete staticMinimizePixmap;
+    delete staticMaximizePixmap;
+    delete staticNormalizePixmap;
+
+    // This makes it safe to delete and then create a QWSDefaultDecoration
+    staticMenuPixmap = 0;
+    staticClosePixmap = 0;
+    staticMinimizePixmap = 0;
+    staticMaximizePixmap = 0;
+    staticNormalizePixmap = 0;
 }
 
 #ifndef QT_NO_IMAGEIO_XPM
@@ -204,17 +222,12 @@ const char **QWSDefaultDecoration::normalizePixmap()
 const QPixmap* QWSDefaultDecoration::pixmapFor(const QWidget* w, QWSDecoration::Region type, bool on, int& xoff, int& /*yoff*/)
 {
 #ifndef QT_NO_IMAGEIO_XPM
-    static QPixmap *staticMenuPixmap = 0;
-    static QPixmap *staticClosePixmap = 0;
-    static QPixmap *staticMinimizePixmap = 0;
-    static QPixmap *staticMaximizePixmap = 0;
-    static QPixmap *staticNormalizePixmap = 0;
 
-    static const char** staticMenuPixmapXPM = 0;
-    static const char** staticClosePixmapXPM = 0;
-    static const char** staticMinimizePixmapXPM = 0;
-    static const char** staticMaximizePixmapXPM = 0;
-    static const char** staticNormalizePixmapXPM = 0;
+    static const char** staticMenuPixmapXPM=0;
+    static const char** staticClosePixmapXPM=0;
+    static const char** staticMinimizePixmapXPM=0;
+    static const char** staticMaximizePixmapXPM=0;
+    static const char** staticNormalizePixmapXPM=0;
 
     const char** xpm;
 
@@ -284,9 +297,6 @@ int QWSDefaultDecoration::getTitleHeight(const QWidget *)
     return 20;
 }
 
-/*
-    If rect is empty, no frame is added. (a hack, really)
-*/
 QRegion QWSDefaultDecoration::region(const QWidget *widget, const QRect &rect, QWSDecoration::Region type)
 {
 //    int titleWidth = getTitleWidth(widget);
@@ -294,16 +304,22 @@ QRegion QWSDefaultDecoration::region(const QWidget *widget, const QRect &rect, Q
 
     QRegion region;
 
-    int bw = rect.isEmpty() ? 0 : BORDER_WIDTH;
+    int bw = BORDER_WIDTH;
 
     switch (type) {
 	case All: {
+		if ( widget->isMaximized() ) {
+		    QRect r(rect.left(), rect.top() - titleHeight,
+			    rect.width(), rect.height() + titleHeight);
+		    region = r;
+		} else {
 		    QRect r(rect.left() - bw,
 			    rect.top() - titleHeight - bw,
 			    rect.width() + 2 * bw,
 			    rect.height() + titleHeight + 2 * bw);
 		    region = r;
-		    region -= rect;
+		}
+		region -= rect;
 	    }
 	    break;
 

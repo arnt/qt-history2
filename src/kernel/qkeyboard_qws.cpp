@@ -45,6 +45,9 @@
 #include <ctype.h>
 
 #include <unistd.h>
+#ifdef _OS_LINUX_
+#include <linux/kd.h>
+#endif
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -765,6 +768,13 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 #endif
     } else if ( keyCode == Qt::Key_CapsLock && release ) {
 	caps = !caps;
+#if defined(_OS_LINUX_) && !defined(QT_QWS_CUSTOM)
+	char leds;
+	ioctl(0, KDGETLED, &leds);
+	leds = leds & ~LED_CAP;
+	if ( caps ) leds |= LED_CAP;
+	ioctl(0, KDSETLED, leds);
+#endif
     }
     if (keyCode != Qt::Key_unknown) {
 	bool bAlt = alt;
@@ -773,8 +783,11 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 	int unicode = 0;
 	if (code < keyMSize) {
 	    if (!extended) {
+#if !defined(QT_QWS_CUSTOM)
+                bool bCaps = shift ||
+		    (caps ? QChar(QWSServer::keyMap()[code].unicode).isLetter() : FALSE);
+#else
                 bool bCaps = caps ^ shift;
-#if defined(QT_QWS_CUSTOM)
 		if (fn) {
 		    if ( shift ) {
 			bCaps = bShift = FALSE;

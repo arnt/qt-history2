@@ -46,6 +46,7 @@
 #include "qlayout.h"
 #include "qtextcodec.h"
 #include "qcursor.h"
+#include "qptrdict.h"
 
 #include "qwsdisplay_qws.h"
 #include "qgfx_qws.h"
@@ -64,6 +65,8 @@ extern bool qt_xdnd_enable( QWidget* w, bool on );
 
 extern void qt_deferred_map_add( QWidget* ); // defined in qapplication_x11.const
 extern void qt_deferred_map_take( QWidget* );// defined in qapplication_x11.const
+
+extern QRect qt_maxWindowRect;
 
 extern QRect qt_maxWindowRect;
 
@@ -105,6 +108,30 @@ static void paint_children(QWidget * p,const QRegion& r, bool post)
     }
 }
 
+// Paint the widget and its children
+
+static void paint_heirarchy(QWidget *w, bool post)
+{
+    if ( w && w->testWState(Qt::WState_Visible) ) {
+	if ( post )
+	    QApplication::postEvent(w,new QPaintEvent(w->rect(),
+			!w->testWFlags(QWidget::WRepaintNoErase) ) );
+	else
+	    w->repaint(w->rect(),
+		    !w->testWFlags(QWidget::WRepaintNoErase));
+
+	QObjectList *childObjects=(QObjectList*)w->children();
+	if ( childObjects ) {
+	    QObject * o;
+	    for(o=childObjects->first();o!=0;o=childObjects->next()) {
+		if( o->isWidgetType() ) {
+		    paint_heirarchy((QWidget *)o,post);
+		}
+	    }
+	}
+    }
+}
+
 /*****************************************************************************
   QWidget member functions
  *****************************************************************************/
@@ -117,8 +144,6 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 
     if ( !parentWidget() || parentWidget()->isDesktop() )
 	setWFlags( WType_TopLevel );		// top-level widget
-    else if ( parentWidget()->isVisible() )
-	parentWidget()->setChildrenAllocatedDirty();
 
     alloc_region_index = -1;
     alloc_region_revision = -1;
@@ -207,6 +232,9 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	}
     }
 
+    alloc_region_dirty=FALSE;
+    paintable_region_dirty=FALSE;
+
     if ( !initializeWindow ) {
 	// do no initialization
     } else if ( popup ) {			// popup widget
@@ -278,6 +306,8 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	    req_region = crect;
 	}
 	req_region = qt_screen->mapToDevice( req_region, QSize(qt_screen->width(), qt_screen->height()) );
+    } else {
+	updateRequestedRegion( mapToGlobal(QPoint(0,0)) );
     }
     //### frame rect is not handled in Qt/Embedded
 }
@@ -674,7 +704,7 @@ void QWidget::repaint( const QRegion& reg, bool erase )
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible && isVisible() ) {
 	if ( erase )
 	    this->erase(reg);
-	QPaintEvent e( reg );
+	QPaintEvent e( reg, erase );
 	qt_set_paintevent_clipping( this, reg );
 	QApplication::sendEvent( this, &e );
 	qt_clear_paintevent_clipping();
@@ -684,6 +714,7 @@ void QWidget::repaint( const QRegion& reg, bool erase )
 void QWidget::showWindow()
 {
     if ( testWFlags(WType_TopLevel) ) {
+	updateRequestedRegion( mapToGlobal(QPoint(0,0)) );
 	QRegion r( req_region );
 #ifndef QT_NO_QWS_MANAGER
 	if ( extra && extra->topextra && extra->topextra->qwsManager ) {
@@ -701,11 +732,12 @@ void QWidget::showWindow()
 		testWFlags(WStyle_StaysOnTop) ? 1 : 0, TRUE );
 
     } else if ( !topLevelWidget()->in_show ) {
+	updateRequestedRegion( mapToGlobal(QPoint(0,0)) );
 	QWidget *p = parentWidget();
-	p->setChildrenAllocatedDirty();
+	p->setChildrenAllocatedDirty( geometry(), this );
 	p->paintable_region_dirty = TRUE;
 	p->overlapping_children = -1;
-	update();
+	paint_heirarchy( this, TRUE );
     }
 }
 
@@ -720,7 +752,7 @@ void QWidget::hideWindow()
 	qwsDisplay()->requestFocus(winId(),FALSE);
     } else {
 	QWidget *p = parentWidget();
-	p->setChildrenAllocatedDirty();
+	p->setChildrenAllocatedDirty( geometry(), this );
 	p->paintable_region_dirty = TRUE;
 	if ( p->overlapping_children )
 	    p->overlapping_children = -1;
@@ -729,6 +761,7 @@ void QWidget::hideWindow()
 	    paint_children( p,geometry(),TRUE );
 	}
     }
+    updateRequestedRegion( mapToGlobal(QPoint(0,0)) );
 }
 
 void QWidget::showMinimized()
@@ -759,7 +792,15 @@ void QWidget::showMaximized()
 	createTLExtra();
 #ifndef QT_NO_QWS_MANAGER
 	if ( extra && extra->topextra && extra->topextra->qwsManager ) {
+	    bool resetState = FALSE;
+	    if ( !testWState(WState_Maximized) ) {
+		// The window decoration needs to know if the widget is maximized
+		setWState(WState_Maximized);
+		resetState = TRUE;
+	    }
 	    extra->topextra->qwsManager->maximize();
+	    if ( resetState )
+		clearWState(WState_Maximized);
 	} else
 #endif
 	{
@@ -802,8 +843,8 @@ void QWidget::raise()
 	    setActiveWindow();
 	qwsDisplay()->setAltitude( winId(), 0 );
     } else if ( p ) {
-	p->setChildrenAllocatedDirty();
-	paint_children( p,geometry(),TRUE );
+	p->setChildrenAllocatedDirty( geometry(), this );
+	paint_heirarchy( this, TRUE );
     }
 }
 
@@ -815,7 +856,7 @@ void QWidget::lower()
     if ( isTopLevel() )
 	qwsDisplay()->setAltitude( winId(), -1 );
     else if ( p ) {
-	p->setChildrenAllocatedDirty();
+	p->setChildrenAllocatedDirty( geometry() );
 	paint_children( p,geometry(),TRUE );
     }
 }
@@ -916,6 +957,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	if ( isVisible() ) {
 	    if ( isMove && !isResize && alloc_region_index >= 0 ) {
 		qwsDisplay()->moveRegion(winId(), x - oldp.x(), y - oldp.y());
+		setChildrenAllocatedDirty();
 	    } else {
 		QRegion rgn( req_region );
 #ifndef QT_NO_QWS_MANAGER
@@ -957,18 +999,18 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 */
 	}
 
+	updateRequestedRegion( mapToGlobal(QPoint(0,0)) );
+
 	QWidget *p = parentWidget();
 	if ( !isTopLevel() || isResize ) {
 	    if ( p && !isTopLevel() ) {
 		p->paintable_region_dirty = TRUE;
 		QRegion oldr( QRect(oldp, olds) );
-		QRegion upd( ( QRegion(r) | oldr ) & p->rect() );
+		dirtyChildren.translate( x, y );
 		if ( p->isSettingGeometry ) {
-		    dirtyChildren.translate( x, y );
 		    if ( oldp != r.topLeft() ) {
+			QRegion upd( ( QRegion(r) | oldr ) & p->rect() );
 			dirtyChildren |= upd;
-			QApplication::postEvent( this, new QPaintEvent(rect(),
-			    !testWFlags(QWidget::WRepaintNoErase)) );
 		    } else {
 			dirtyChildren |= QRegion(r) - oldr;
 			QApplication::postEvent( this, new QPaintEvent(rect(),
@@ -976,6 +1018,9 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    }
 		    p->dirtyChildren |= dirtyChildren;
 		} else {
+		    QRegion upd( ( QRegion(r) | oldr ) & p->rect() );
+		    dirtyChildren |= upd;
+		    QRegion paintRegion = dirtyChildren;
 #define FAST_WIDGET_MOVE
 #ifdef FAST_WIDGET_MOVE
 		    if ( isMove && ( w==olds.width() && h==olds.height() ) ) {
@@ -999,25 +1044,31 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 			    scrollRegion = qt_screen->mapFromDevice( scrollRegion, ds );
 			    QPoint gp = p->mapToGlobal( QPoint(0,0) );
 			    scrollRegion.translate( -gp.x(), -gp.y() );
-			    upd -= scrollRegion;
+			    paintRegion -= scrollRegion;
 			}
 		    }
 #endif
-		    if ( !upd.isEmpty() )
-			QApplication::postEvent( p, new QPaintEvent(upd, TRUE) );
-		    dirtyChildren.translate( x, y );
-		    dirtyChildren |= upd;
-		    p->setChildrenAllocatedDirty();
-		    paint_children( p, dirtyChildren & p->rect(), FALSE );
+		    if ( !oldr.isEmpty() )
+			QApplication::postEvent( p, new QPaintEvent(oldr, TRUE) );
+		    p->setChildrenAllocatedDirty( dirtyChildren, this );
+		    updateActivePainter();
+		    paint_children( p, paintRegion, FALSE );
 		}
 		p->overlapping_children = -1;
 	    } else {
-		QApplication::postEvent( this, new QPaintEvent(rect(),
-		    !testWFlags(QWidget::WRepaintNoErase)) );
-		if ( oldp != r.topLeft() )
-		    dirtyChildren |= rect();
-		paint_children( this, dirtyChildren, TRUE );
+		if ( oldp != r.topLeft() ) {
+		    updateActivePainter();
+		    paint_heirarchy( this, TRUE );
+		} else {
+		    setChildrenAllocatedDirty( dirtyChildren );
+		    updateActivePainter();
+		    QApplication::postEvent( this, new QPaintEvent(rect(),
+			!testWFlags(QWidget::WResizeNoErase)) );
+		    paint_children( this, dirtyChildren, TRUE );
+		}
 	    }
+	} else {
+	    updateActivePainter();
 	}
 #ifndef QT_NO_QWS_MANAGER
 	if (isResize && extra && extra->topextra && extra->topextra->qwsManager) {
@@ -1209,6 +1260,8 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 
     paintable_region_dirty = TRUE;
 
+    QPoint gpos = mapToGlobal( QPoint() );
+
     if ( !valid_rect && children() ) {	// scroll children
 	setChildrenAllocatedDirty();
 	QPoint pd( dx, dy );
@@ -1221,6 +1274,7 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 		QPoint oldp = w->pos();
 		QRect  r( w->pos() + pd, w->size() );
 		w->crect = r;
+		w->updateRequestedRegion( gpos + w->pos() );
 		QMoveEvent e( r.topLeft(), oldp );
 		QApplication::sendEvent( w, &e );
 	    }
@@ -1228,11 +1282,9 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 	}
     }
 
-    QPoint p = mapToGlobal( QPoint() );
-
     QSize ds( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
     scrollRegion = qt_screen->mapFromDevice( scrollRegion, ds );
-    scrollRegion.translate( -p.x(), -p.y() );
+    scrollRegion.translate( -gpos.x(), -gpos.y() );
 
     QRegion update( sr );
     update -= scrollRegion;
@@ -1333,38 +1385,53 @@ void QWidget::updateOverlappingChildren() const
 	    ++it;
 	    if ( ch->isWidgetType() && !((QWidget*)ch)->isTopLevel() ) {
 		QWidget *w = (QWidget *)ch;
-		QRegion rr( w->requestedRegion() );
-		QRegion ir = r & rr;
-		if ( !ir.isEmpty() ) {
-		    overlapping_children = 1;
-		    return;
+		if ( w->isVisible() ) {
+		    QRegion rr( w->req_region );
+		    QRegion ir = r & rr;
+		    if ( !ir.isEmpty() ) {
+			overlapping_children = 1;
+			return;
+		    }
+		    r |= rr;
 		}
-		r |= rr;
 	    }
 	}
     }
     overlapping_children = 0;
 }
 
-QRegion QWidget::requestedRegion() const
+void QWidget::updateRequestedRegion( const QPoint &gpos )
 {
-    if ( isTopLevel() ) {
-	return req_region;
-    } else {
-	if ( testWState( WState_Visible ) ) {
-	    QPoint gpos( mapToGlobal(QPoint(0,0)) );
-	    QRegion r( QRect(gpos,crect.size()) );
+    if ( !isTopLevel() ) {
+	if ( !testWState( WState_Visible ) || testWState(WState_ForceHide) ) {
+	    req_region = QRegion();
+	} else {
+	    req_region = QRect(gpos,crect.size());
 	    if ( extra && !extra->mask.isNull() ) {
 		QRegion maskr = extra->mask;
 		maskr.translate( gpos.x(), gpos.y() );
-		r &= maskr;
+		req_region &= maskr;
 	    }
-	    r = qt_screen->mapToDevice( r, QSize(qt_screen->width(), qt_screen->height()) );
-	    return r;
-	} else {
-	    return QRegion();
+	    req_region = qt_screen->mapToDevice( req_region, QSize(qt_screen->width(), qt_screen->height()) );
 	}
     }
+    const QObjectList *c = children();
+    if ( c ) {
+	QObjectListIt it(*c);
+	QObject* ch;
+	while ((ch=it.current())) {
+	    ++it;
+	    if ( ch->isWidgetType() && !((QWidget*)ch)->isTopLevel() ) {
+		QWidget *w = (QWidget *)ch;
+		w->updateRequestedRegion( gpos + w->pos() );
+	    }
+	}
+    }
+}
+
+QRegion QWidget::requestedRegion() const
+{
+    return req_region;
 }
 
 void QWidget::setChildrenAllocatedDirty()
@@ -1377,6 +1444,25 @@ void QWidget::setChildrenAllocatedDirty()
 	    ++it;
 	    if ( ch->isWidgetType() ) {
 		((QWidget *)ch)->alloc_region_dirty = TRUE;
+	    }
+	}
+    }
+}
+
+void QWidget::setChildrenAllocatedDirty( const QRegion &r, const QWidget *dirty )
+{
+    const QObjectList *c = children();
+    if ( c ) {
+	QObjectListIt it(*c);
+	QObject* ch;
+	while ((ch=it.current())) {
+	    ++it;
+	    if ( ch->isWidgetType() ) {
+		QWidget *w = (QWidget *)ch;
+		if ( r.boundingRect().intersects( w->geometry() ) )
+		    w->alloc_region_dirty = TRUE;
+		if ( w == dirty )
+		    break;
 	    }
 	}
     }
@@ -1408,7 +1494,7 @@ QRegion QWidget::allocatedRegion() const
 	} else {
 	    if ( isAllocatedRegionDirty() ) {
 		const QObjectList *c;
-		QRegion r( requestedRegion() );
+		QRegion r( req_region );
 		r &= parentWidget()->allocatedRegion();
 		parentWidget()->updateOverlappingChildren();
 		if ( parentWidget()->overlapping_children ) {
@@ -1420,11 +1506,12 @@ QRegion QWidget::allocatedRegion() const
 			while ((ch=it.current())) {
 			    ++it;
 			    if ( ch->isWidgetType() ) {
-				if ( ((QWidget*)ch) == this )
+				QWidget *w = (QWidget*)ch;
+				if ( w == this )
 				    clip=TRUE;
-				else if ( clip && !((QWidget*)ch)->isTopLevel()) {
-				    if ( ((QWidget*)ch)->geometry().intersects( geometry() ) )
-					r -= ((QWidget*)ch)->requestedRegion();
+				else if ( clip && !w->isTopLevel() && w->isVisible() ) {
+				    if ( w->geometry().intersects( geometry() ) )
+					r -= w->req_region;
 				}
 			    }
 			}
@@ -1466,8 +1553,8 @@ QRegion QWidget::paintableRegion() const
 		QObject* ch;
 		while ((ch=it.current())) {
 		    ++it;
-		    if ( ch->isWidgetType() && !((QWidget*)ch)->isTopLevel() ) {
-			paintable_region -= ((QWidget*)ch)->requestedRegion();
+		    if ( ch->isWidgetType() && !((QWidget*)ch)->isTopLevel() && ((QWidget*)ch)->isVisible() ) {
+			paintable_region -= ((QWidget*)ch)->req_region;
 		    }
 		}
 	    }
@@ -1488,6 +1575,46 @@ QRegion QWidget::paintableRegion() const
     return QRegion();
 }
 
+static QPtrDict<QPainter> *painterDict = 0;
+
+void QWidget::setActivePainter( QPainter *painter ) const
+{
+    if ( !painterDict )
+	painterDict = new QPtrDict<QPainter>;
+    painterDict->insert( (void *)this, painter );
+}
+
+void QWidget::clearActivePainter() const
+{
+    if ( painterDict )
+	painterDict->remove( (void *)this );
+}
+
+void QWidget::updateActivePainter() const
+{
+    if ( painterDict && painterDict->count() ) {
+	const QObjectList *c = children();
+	if ( c ) {
+	    QObjectListIt it(*c);
+	    QObject* ch;
+	    while ((ch=it.current())) {
+		++it;
+		if ( ch->isWidgetType() ) {
+		    QWidget *w = (QWidget *)ch;
+		    w->updateActivePainter();
+		}
+	    }
+	}
+	QPainter *painter = painterDict->find( (void *)this );
+	if ( painter ) {
+	    updateGraphicsContext( painter->internalGfx(), TRUE );
+	    if ( painter->hasClipping() )
+		painter->internalGfx()->setClipRegion( painter->clipRegion() );
+	    else
+		painter->internalGfx()->setClipping( FALSE );
+	}
+    }
+}
 
 void QWidget::setMask( const QRegion& region )
 {
@@ -1521,6 +1648,7 @@ void QWidget::setMask( const QRegion& region )
 #endif
 	    qwsDisplay()->requestRegion(winId(), rgn);
 	} else {
+	    updateRequestedRegion( mapToGlobal(QPoint(0,0)) );
 	    parentWidget()->paintable_region_dirty = TRUE;
 	    parentWidget()->repaint(geometry());
 	    paint_children( parentWidget(),geometry(),TRUE );
@@ -1550,6 +1678,13 @@ QGfx * QWidget::graphicsContext(bool clip_children) const
 {
     QGfx * qgfx_qws;
     qgfx_qws=qwsDisplay()->screenGfx();
+    updateGraphicsContext( qgfx_qws, clip_children );
+
+    return qgfx_qws;
+}
+
+void QWidget::updateGraphicsContext( QGfx *qgfx_qws, bool clip_children ) const
+{
     QPoint offset=mapToGlobal(QPoint(0,0));
     QRegion r; // empty if not visible
     if ( isVisible() && topLevelWidget()->isVisible() ) {
@@ -1584,8 +1719,6 @@ QGfx * QWidget::graphicsContext(bool clip_children) const
     if ( extra && extra->topextra && extra->topextra->qwsManager )
 	qgfx_qws->setClipRegion(rect());
 #endif
-
-    return qgfx_qws;
 }
 
 unsigned char * QWidget::scanLine(int i) const
