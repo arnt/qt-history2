@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#74 $
 **
 ** Implementation of QPointArray class
 **
@@ -42,10 +42,10 @@ const double Q_PI   = 3.14159265358979323846;   // pi
 
   \inherit QArray
 
-  The QPointArray is an array of QPoint objects. In addition to the functions
+  The QPointArray is an array of QPoint objects. In addition to the functions 
   provided by QArray, QPointArray provides some handy methods:
 
-  For convenient reading and writing of the point data: setPoints(),
+  For convenient reading and writing of the point data: setPoints(), 
   putPoints(), point(), and setPoint().
 
   For geometry operations: boundingRect() and translate(). As for the latter,
@@ -478,11 +478,11 @@ qtr_elips(QPointArray& a, int& offset, double dxP, double dyP, double dxQ, doubl
 
     int n = offset;
     for (i = (PIV2 << m) >> 16; i >= 0; --i) {
-	a[n++] = QPoint((xJ + vx) >> 16, (yJ + vy) >> 16);
-	ux -= vx >> m;
-	vx += ux >> m;
-	uy -= vy >> m;
-	vy += uy >> m;
+        a[n++] = QPoint((xJ + vx) >> 16, (yJ + vy) >> 16);
+        ux -= vx >> m;
+        vx += ux >> m;
+        uy -= vy >> m;
+        vy += uy >> m;
     }
     offset = n;
 
@@ -717,7 +717,7 @@ void split(const double *p, double *l, double *r)
 //   by Alan Paeth
 //   from "Graphics Gems", Academic Press, 1990
 static
-int pnt_on_line( const double* p, const double* q, const double* t )
+int pnt_on_line( const int* p, const int* q, const int* t )
 {
 /*
  * given a line through P:(px,py) Q:(qx,qy) and T:(tx,ty)
@@ -751,8 +751,13 @@ int pnt_on_line( const double* p, const double* q, const double* t )
  * into a larger, spanning vectors within the Lemming editor.
  */
 
+	// if all points are coincident, return condition 2 (on line)
+	if(q[0]==p[0] && q[1]==p[1] && q[0]==t[0] && q[1]==t[1]) {
+		return 2;
+	}
+
     if ( QABS((q[1]-p[1])*(t[0]-p[0])-(t[1]-p[1])*(q[0]-p[0])) >=
-	(QMAX(QABS(q[0]-p[0]), QABS(q[1]-p[1])))) return 0;
+        (QMAX(QABS(q[0]-p[0]), QABS(q[1]-p[1])))) return 0;
 
     if (((q[0]<p[0])&&(p[0]<t[0])) || ((q[1]<p[1])&&(p[1]<t[1])))
 	return 1 ;
@@ -776,7 +781,7 @@ void polygonizeQBezier( double* acc, int& accsize, const double ctrl[],
 	if ( accsize >= maxsize-4 )
 	    return;
 	// Running out of space - approximate by a line.
-	acc[accsize++] = ctrl[0];
+        acc[accsize++] = ctrl[0];
 	acc[accsize++] = ctrl[1];
 	acc[accsize++] = ctrl[6];
 	acc[accsize++] = ctrl[7];
@@ -788,16 +793,20 @@ void polygonizeQBezier( double* acc, int& accsize, const double ctrl[],
     double r[8];
     split( ctrl, l, r);
 
-    if ( pnt_on_line( &ctrl[0], &ctrl[6], &ctrl[2] ) == 2
-      && pnt_on_line( &ctrl[0], &ctrl[6], &ctrl[4] ) == 2 )
+	// convert to integers for line condition check
+	int c0[2]; c0[0] = int(ctrl[0]); c0[1] = int(ctrl[1]);
+	int c1[2]; c1[0] = int(ctrl[2]); c1[1] = int(ctrl[3]);
+	int c2[2]; c2[0] = int(ctrl[4]); c2[1] = int(ctrl[5]);
+	int c3[2]; c3[0] = int(ctrl[6]); c3[1] = int(ctrl[7]);
+
+    if ( pnt_on_line( c0, c3, c1 ) == 2
+      && pnt_on_line( c0, c3, c2 ) == 2 )
     {
-	// Approximate by 2 lines.
+	// Approximate by one line.
+	// Dont need to write last pt as it is the same as first pt
+	// on the next segment
 	acc[accsize++] = l[0];
 	acc[accsize++] = l[1];
-	acc[accsize++] = l[6];
-	acc[accsize++] = l[7];
-	acc[accsize++] = r[6];
-	acc[accsize++] = r[7];
 	return;
     }
 
@@ -886,7 +895,7 @@ QPointArray QPointArray::quadBezier() const
 	}
 	int len=0;
 	polygonizeQBezier( p, len, ctrl, m );
-	QPointArray pa(len/2);
+	QPointArray pa((len/2)+1); // one extra point for last point on line
 	int j=0;
 	for (i=0; j<len; i++) {
 	    // Don't round - it looks terrible
@@ -894,6 +903,8 @@ QPointArray QPointArray::quadBezier() const
 	    int y = int(p[j++]);
 	    pa[i] = QPoint(x,y);
 	}
+	// add last pt on the line, which will be at the last control pt
+	pa[pa.size()-1] = at(3);
 	delete[] p;
 	delete[] ctrl;
 
