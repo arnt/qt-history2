@@ -220,6 +220,14 @@ QString qws_qtePipeFilename()
     return (qws_dataDir() + QString(QTE_PIPE).arg(qws_display_id));
 }
 
+extern void qt_setMaxWindowRect(const QRect&);
+static void setMaxWindowRect(const QRect& r)
+{
+    QRect tr = qt_screen->mapFromDevice(r,
+        qt_screen->mapToDevice(QSize(qt_screen->width(),qt_screen->height())));
+    qt_setMaxWindowRect(tr);
+}
+
 
 /*****************************************************************************
   Internal variables and functions
@@ -593,7 +601,7 @@ void QWSDisplay::Data::init()
 	QScreen *s = qt_get_screen( qws_display_id, qws_display_spec );
 	s->initDevice();
     }
-    qt_setMaxWindowRect(QRect(0,0,qt_screen->width(),qt_screen->height()));
+    setMaxWindowRect(QRect(0,0,qt_screen->width(),qt_screen->height()));
     int mouseoffset = 0;
 
 #ifndef QT_NO_QWS_CURSOR
@@ -721,9 +729,7 @@ void QWSDisplay::Data::fillQueue()
 	} else if ( e->type==QWSEvent::MaxWindowRect && !servermaxrect ) {
 	    // Process this ASAP, in case new widgets are created (startup)
 	    servermaxrect=TRUE;
-	    QRect r = ((QWSMaxWindowRectEvent*)e)->simpleData.rect;
-	    extern void qt_setMaxWindowRect(const QRect& r);
-	    qt_setMaxWindowRect(r);
+	    setMaxWindowRect(((QWSMaxWindowRectEvent*)e)->simpleData.rect);
 	    delete e;
 #ifndef QT_NO_COP
 	} else if ( e->type == QWSEvent::QCopMessage ) {
@@ -2220,8 +2226,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	}
     } else if ( event->type==QWSEvent::MaxWindowRect ) {
 	QRect r = ((QWSMaxWindowRectEvent*)event)->simpleData.rect;
-	extern void qt_setMaxWindowRect(const QRect& r);
-	qt_setMaxWindowRect(r);
+	setMaxWindowRect(r);
 	return 0;
     } else if ( widget && event->type==QWSEvent::Mouse ) {
 	// The mouse event is to one of my top-level widgets

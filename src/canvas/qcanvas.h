@@ -262,7 +262,9 @@ public:
     virtual void addView(QCanvasView*);
     virtual void removeView(QCanvasView*);
     void drawCanvasArea(const QRect&, QPainter* p=0, bool double_buffer=TRUE);
+#ifndef QT_NO_TRANSFORMATIONS
     void drawViewArea( QCanvasView* view, QPainter* p, const QRect& r, bool dbuf );
+#endif
 
     // These are for QCanvasItem to call
     virtual void addItem(QCanvasItem*);

@@ -42,8 +42,6 @@
 #include "qstring.h"
 #endif // QT_H
 
-#ifndef QT_NO_PROPERTIES
-
 class QString;
 class QCString;
 class QFont;
@@ -334,7 +332,5 @@ Q_EXPORT QDataStream& operator>> ( QDataStream& s, QVariant& p );
 Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QVariant& p );
 Q_EXPORT QDataStream& operator>> ( QDataStream& s, QVariant::Type& p );
 Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QVariant::Type p );
-
-#endif // QT_NO_PROPERTIES
 
 #endif // QVARIANT_H

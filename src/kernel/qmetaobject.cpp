@@ -200,15 +200,17 @@ QMetaObject::QMetaObject( const char *class_name, QMetaObject *super_class,
 #ifndef QT_NO_PROPERTIES
     d->propData = prop_data;
     d->numPropData = n_props;
+#endif
     d->enumData = enum_data;
     d->numEnumData = n_enums;
-#endif
     d->classInfo = class_info;
     d->numClassInfo = n_info;
 
     signaloffset = superclass ? ( superclass->signalOffset() + superclass->numSignals() ) : 0;
     slotoffset = superclass ? ( superclass->slotOffset() + superclass->numSlots() ) : 0;
+#ifndef QT_NO_PROPERTIES
     propertyoffset = superclass ? ( superclass->propertyOffset() + superclass->numProperties() ) : 0;
+#endif
 }
 
 /*!\internal
@@ -366,16 +368,16 @@ QMetaObject *QMetaObject::new_metaobject( const char *classname,
 					  const QMetaData *signal_data,int n_signals,
 #ifndef QT_NO_PROPERTIES
 					  const QMetaProperty *prop_data, int n_props,
-					  const QMetaEnum *enum_data, int n_enums,
 #endif
+					  const QMetaEnum *enum_data, int n_enums,
 					  const QClassInfo * class_info, int n_info )
 {
     return new QMetaObject( classname, superclassobject, slot_data, n_slots,
 			    signal_data, n_signals,
 #ifndef QT_NO_PROPERTIES
 			    prop_data, n_props,
-			    enum_data, n_enums,
 #endif
+			    enum_data, n_enums,
 			    class_info, n_info );
 }
 
@@ -511,8 +513,6 @@ QStrList QMetaObject::propertyNames( bool super ) const
     return l;
 }
 
-#endif // QT_NO_PROPERTIES
-
 /*!
   Returns a list with the names of all signals for this class.
 
@@ -557,6 +557,9 @@ const QMetaEnum* QMetaObject::enumerator( const char* name, bool super ) const
 	return 0;
     return superclass->enumerator( name, super );
 }
+
+#endif // QT_NO_PROPERTIES
+
 
 /*!
   Returns TRUE if this class inherits \e clname within the meta

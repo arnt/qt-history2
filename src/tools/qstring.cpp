@@ -13111,7 +13111,7 @@ QString &QString::sprintf( const char* cformat, ... )
             }
 
             if ( format[pos + len] == 's' ) {
-#ifndef QT_NO_CODECS
+#ifndef QT_NO_TEXTCODEC
                 QString s = QString::fromUtf8( va_arg(ap, char*) );
 #else
                 QString s = fromLatin1( va_arg(ap, char*) );
@@ -14845,7 +14845,7 @@ const char* QString::latin1() const
   This function simply calls latin1() and returns the result.
 */
 
-#ifndef QT_NO_CODECS
+#ifndef QT_NO_TEXTCODEC
 /*!
   Returns the string encoded in UTF8 format.
 
@@ -14879,7 +14879,7 @@ QString QString::fromUtf8( const char* utf8, int len )
     if ( len < 0 ) len = qstrlen( utf8 );
     return codec ? codec->toUnicode( utf8, len ) : fromLatin1( utf8, len );
 }
-#endif // QT_NO_CODECS
+#endif // QT_NO_TEXTCODEC
 /*!
   
   Returns the unicode string decoded from the first \a len characters of 
@@ -14929,7 +14929,7 @@ QString QString::fromLatin1( const char* chars, int len )
 
 QCString QString::local8Bit() const
 {
-#ifdef QT_NO_CODECS
+#ifdef QT_NO_TEXTCODEC
     return latin1();
 #else
 #ifdef Q_WS_X11
@@ -14971,7 +14971,7 @@ QCString QString::local8Bit() const
 */
 QString QString::fromLocal8Bit(const char* local8Bit, int len)
 {
-#ifdef QT_NO_CODECS
+#ifdef QT_NO_TEXTCODEC
     return fromLatin1( local8Bit, len );
 #else
 
@@ -15002,7 +15002,7 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 #ifdef Q_WS_QWS
     return fromUtf8(local8Bit,len);
 #endif
-#endif // QT_NO_CODECS
+#endif // QT_NO_TEXTCODEC
 }
 
 /*!
@@ -15992,7 +15992,7 @@ QCString qt_winQString2MB( const QString& s, int uclen )
                                 0, 0, 0, &used_def));
                 // and try again...
         } else {
-#ifndef QT_NO_CODECS
+#ifndef QT_NO_TEXTCODEC
 #ifndef QT_NO_DEBUG
             // Fail.
             qWarning("WideCharToMultiByte cannot convert multibyte text (error %d): %s (UTF8)",

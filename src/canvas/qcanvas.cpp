@@ -57,8 +57,10 @@ public:
 
 class QCanvasView::Data {
 public:
+#ifndef QT_NO_TRANSFORMATIONS
     QWMatrix xform;
     QWMatrix ixform;
+#endif
 };
 
 // clusterizer
@@ -879,6 +881,7 @@ void QCanvas::advance()
     update();
 }
 
+#ifndef QT_NO_TRANSFORMATIONS
 // Don't call this unless you know what you're doing.
 void QCanvas::drawViewArea( QCanvasView* view, QPainter* p, const QRect& vr, bool dbuf )
 {
@@ -926,6 +929,7 @@ void QCanvas::drawViewArea( QCanvasView* view, QPainter* p, const QRect& vr, boo
 	drawCanvasArea(ivr,p,FALSE);
     }
 }
+#endif
 
 /*!  Refreshes all changes to all views of the canvas.
 
@@ -934,18 +938,21 @@ void QCanvas::drawViewArea( QCanvasView* view, QPainter* p, const QRect& vr, boo
 void QCanvas::update()
 {
     QCanvasClusterizer clusterizer(d->viewList.count());
+#ifndef QT_NO_TRANSFORMATIONS
     QList<QRect> doneareas;
     doneareas.setAutoDelete(TRUE);
+#endif
 
     QCanvasView* view;
     for ( view=d->viewList.first(); view != 0; view=d->viewList.next() ) {
+#ifndef QT_NO_TRANSFORMATIONS
 	QWMatrix wm = view->worldMatrix();
+#endif
 	QRect area(view->contentsX(),view->contentsY(),
 		   view->visibleWidth(),view->visibleHeight());
 	if (area.width()>0 && area.height()>0) {
-	    if ( wm.isIdentity() ) {
-		clusterizer.add(area);
-	    } else {
+#ifndef QT_NO_TRANSFORMATIONS
+	    if ( !wm.isIdentity() ) {
 		// r = Visible area of the canvas where there are changes
 		QRect r = changeBounds(view->inverseWorldMatrix().map(area));
 		if ( !r.isEmpty() ) {
@@ -953,6 +960,10 @@ void QCanvas::update()
 		    drawViewArea( view, &p, wm.map(r), dblbuf );
 		    doneareas.append(new QRect(r));
 		}
+	    } else
+#endif
+	    {
+		clusterizer.add(area);
 	    }
 	}
     }
@@ -960,8 +971,10 @@ void QCanvas::update()
     for (int i=0; i<clusterizer.clusters(); i++)
 	drawChanges(clusterizer[i]);
 
+#ifndef QT_NO_TRANSFORMATIONS
     for ( QRect* r=doneareas.first(); r != 0; r=doneareas.next() )
 	setUnchanged(*r);
+#endif
 }
 
 
@@ -1212,8 +1225,10 @@ void QCanvas::drawCanvasArea(const QRect& inarea, QPainter* p, bool double_buffe
     trtr -= area.topLeft();
 
     for (QCanvasView* view=d->viewList.first(); view; view=d->viewList.next()) {
+#ifndef QT_NO_TRANSFORMATIONS
 	if ( !view->worldMatrix().isIdentity() )
 	    continue; // Cannot paint those here (see callers).
+#endif
 	QPainter painter(view->viewport());
 	QPoint tr = view->contentsToViewport(area.topLeft());
 	QPoint nrtr = view->contentsToViewport(QPoint(0,0)); // new translation
@@ -2931,6 +2946,7 @@ void QCanvasView::setCanvas(QCanvas* canvas)
     updateContentsSize();
 }
 
+#ifndef QT_NO_TRANSFORMATIONS
 /*!
   Returns the current transformation matrix.
 
@@ -2966,12 +2982,17 @@ void QCanvasView::setWorldMatrix( const QWMatrix & wm )
     updateContentsSize();
     viewport()->update();
 }
+#endif
 
 void QCanvasView::updateContentsSize()
 {
     if ( viewing ) {
+#ifndef QT_NO_TRANSFORMATIONS
 	QRect br = d->xform.map(QRect(0,0,viewing->width(),viewing->height()));
 	resizeContents(br.width(),br.height());
+#else
+	resizeContents(viewing->width(),viewing->height());
+#endif
     } else {
 	resizeContents(1,1);
     }
@@ -2996,9 +3017,12 @@ void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 {
     QRect r(cx,cy,cw,ch);
     if (viewing) {
+#ifndef QT_NO_TRANSFORMATIONS
 	if ( !d->xform.isIdentity() ) {
 	    viewing->drawViewArea(this,p,r,FALSE);
-	} else {
+	} else
+#endif
+	{
 	    viewing->drawCanvasArea(r,p,!repaint_from_moving);
 	}
 	repaint_from_moving = FALSE;

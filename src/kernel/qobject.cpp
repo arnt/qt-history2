@@ -1949,10 +1949,10 @@ QMetaObject* QObject::staticMetaObject()
     metaObj = new QMetaObject( "QObject", 0,
 	slot_tbl, 1,
 	signal_tbl, 1,
-	props_tbl, 1,
 #ifndef QT_NO_PROPERTIES
-        enum_tbl, 4,
+	props_tbl, 1,
 #endif
+        enum_tbl, 4,
         0, 0 );
 
     cleanUp_QObject.setMetaObject( metaObj );
@@ -2251,6 +2251,8 @@ bool QObject::qt_emit( int _id, UObject * )
     return TRUE;
 }
 
+#ifndef QT_NO_PROPERTIES
+
 /*!\internal
  */
 bool QObject::qt_property( const QMetaProperty* _p, int _f, QVariant* _v)
@@ -2267,3 +2269,5 @@ bool QObject::qt_property( const QMetaProperty* _p, int _f, QVariant* _v)
     }
     return TRUE;
 }
+
+#endif

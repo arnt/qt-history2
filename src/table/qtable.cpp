@@ -1519,7 +1519,9 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
 
 void QTable::init( int rows, int cols )
 {
+#ifndef QT_NO_DRAGANDDROP
     setDragAutoScroll( FALSE );
+#endif
     d = 0;
     shouldClearSelection = FALSE;
     dEnabled = FALSE;
@@ -2803,6 +2805,7 @@ void QTable::contentsMouseMoveEvent( QMouseEvent *e )
     fixRow( tmpRow, e->pos().y() );
     fixCol( tmpCol, e->pos().x() );
 
+#ifndef QT_NO_DRAGANDDROP
     if ( dragEnabled() && startDragRow != -1 && startDragCol != -1 ) {
 	if ( QPoint( dragStartPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
 	    mousePressed = FALSE;
@@ -2810,6 +2813,7 @@ void QTable::contentsMouseMoveEvent( QMouseEvent *e )
 	}
 	return;
     }
+#endif
 
     if ( shouldClearSelection ) {
 	clearSelection();
@@ -4509,8 +4513,6 @@ bool QTable::dragEnabled() const
     return dEnabled;
 }
 
-#ifndef QT_NO_DRAGANDDROP
-
 /*! Inserts \a count empty rows at the index \a row.
 
   \sa insertColumns() removeRow()
@@ -4649,7 +4651,7 @@ void QTable::editCell( int row, int col, bool replace )
     }
 }
 
-
+#ifndef QT_NO_DRAGANDDROP
 
 /*! This event handler is called whenever a QTable object receives a
   \l QDragEnterEvent \a e, i.e. when the user pressed the mouse

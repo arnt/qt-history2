@@ -310,7 +310,9 @@ private: // these are functions which actually do editing stuff, but
     void paste();
     void del();
     void clear();
+#ifndef QT_NO_CLIPBOARD
     void pasteSubType( const QCString &subtype );
+#endif
     void indent();
     void setItalic( bool b );
     void setBold( bool b );

@@ -323,8 +323,8 @@ public:
     enum Commands { Invalid, Insert, Delete, Format, Alignment, ParagType };
 
     QTextCommand( QTextDocument *d ) : doc( d ), cursor( d ) {}
-    virtual ~QTextCommand() {}
-    virtual Commands type() const { return Invalid; };
+    virtual ~QTextCommand();
+    virtual Commands type() const;
 
     virtual QTextCursor *execute( QTextCursor *c ) = 0;
     virtual QTextCursor *unexecute( QTextCursor *c ) = 0;
@@ -373,48 +373,36 @@ public:
     QTextCustomItem( QTextDocument *p )
 	:  xpos(0), ypos(-1), width(-1), height(0), parent( p )
     {}
-    virtual ~QTextCustomItem() {}
+    virtual ~QTextCustomItem();
     virtual void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg ) = 0;
 
-    virtual void adjustToPainter( QPainter* ) { width = 0; }
+    virtual void adjustToPainter( QPainter* );
 
     enum Placement { PlaceInline = 0, PlaceLeft, PlaceRight };
-    virtual Placement placement() const { return PlaceInline; }
+    virtual Placement placement() const;
     bool placeInline() { return placement() == PlaceInline; }
 
-    virtual bool ownLine() const { return FALSE; }
-    virtual void resize( QPainter*, int nwidth ){ width = nwidth; };
-    virtual void invalidate() {};
+    virtual bool ownLine() const;
+    virtual void resize( QPainter*, int nwidth );
+    virtual void invalidate();
 
-    virtual bool isNested() const { return FALSE; }
-    virtual int minimumWidth() const { return 0; }
-    virtual int widthHint() const { return 0; }
+    virtual bool isNested() const;
+    virtual int minimumWidth() const;
+    virtual int widthHint() const;
 
-    virtual QString richText() const { return QString::null; }
+    virtual QString richText() const;
 
     int xpos; // used for floating items
     int ypos; // used for floating items
     int width;
     int height;
 
-    virtual void enter( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, bool atEnd = FALSE ) {
-	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy; Q_UNUSED( atEnd )
-    }
-    virtual void enterAt( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, const QPoint & ) {
-	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
-    }
-    virtual void next( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy ) {
-	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
-    }
-    virtual void prev( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy ) {
-	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
-    }
-    virtual void down( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy ) {
-	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
-    }
-    virtual void up( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy ) {
-	doc = doc; parag = parag; idx = idx; ox = ox; oy = oy;
-    }
+    virtual void enter( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, bool atEnd = FALSE );
+    virtual void enterAt( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, const QPoint & );
+    virtual void next( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
+    virtual void prev( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
+    virtual void down( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
+    virtual void up( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
 
     QTextDocument *parent;
 };
@@ -483,7 +471,7 @@ public:
     virtual ~QTextFlow();
 
     virtual void setWidth( int w );
-    virtual void setPageSize( int ps ) { pagesize = ps; }
+    virtual void setPageSize( int ps );
     int pageSize() const { return pagesize; }
 
     virtual int adjustLMargin( int yp, int margin, int space );
@@ -494,11 +482,11 @@ public:
     virtual void drawFloatingItems(QPainter* p, int cx, int cy, int cw, int ch, const QColorGroup& cg );
     virtual void adjustFlow( int  &yp, int w, int h, bool pages = TRUE );
 
-    virtual bool isEmpty() { return leftItems.isEmpty() && rightItems.isEmpty(); }
+    virtual bool isEmpty();
     virtual void updateHeight( QTextCustomItem *i );
 
-    virtual void draw( QPainter *, int , int , int , int ) {}
-    virtual void eraseAfter( QTextParag *, QPainter * ) {}
+    virtual void draw( QPainter *, int , int , int , int );
+    virtual void eraseAfter( QTextParag *, QPainter * );
 
     void clear();
 
@@ -554,7 +542,7 @@ public:
     void draw( int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg );
 
     QBrush *backGround() const { return background; }
-    virtual void invalidate() { cached_width = -1; cached_sizehint = -1; }
+    virtual void invalidate();
 
 private:
     QPainter* painter() const;
@@ -600,7 +588,7 @@ public:
     Placement placement() const { return place; }
     bool isNested() const { return TRUE; }
     void resize( QPainter*, int nwidth );
-    virtual void invalidate() { cachewidth = -1; };
+    virtual void invalidate();
     QString anchorAt( QPainter* p, int x, int y );
 
     virtual void enter( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, bool atEnd = FALSE );
@@ -1032,8 +1020,8 @@ class Q_EXPORT QTextParagData
 {
 public:
     QTextParagData() {}
-    virtual ~QTextParagData() {}
-    virtual void join( QTextParagData * ) {}
+    virtual ~QTextParagData();
+    virtual void join( QTextParagData * );
 };
 
 class Q_EXPORT QTextParag
@@ -1230,13 +1218,13 @@ class Q_EXPORT QTextFormatter
 {
 public:
     QTextFormatter();
-    virtual ~QTextFormatter() {}
+    virtual ~QTextFormatter();
     virtual int format( QTextDocument *doc, QTextParag *parag, int start, const QMap<int, QTextParagLineStart*> &oldLineStarts ) = 0;
 
     bool isWrapEnabled() const { return wrapEnabled;}
     int wrapAtColumn() const { return wrapColumn;}
-    virtual void setWrapEnabled( bool b ) { wrapEnabled = b; }
-    virtual void setWrapAtColumn( int c ) { wrapColumn = c; }
+    virtual void setWrapEnabled( bool b );
+    virtual void setWrapAtColumn( int c );
 
 protected:
     virtual QTextParagLineStart *formatLine( QTextParag *parag, QTextString *string, QTextParagLineStart *line, QTextStringChar *start,
@@ -1482,22 +1470,6 @@ inline void QTextCursor::checkIndex()
 	idx = string->length() - 1;
 }
 
-inline int QTextCursor::x() const
-{
-    QTextStringChar *c = string->at( idx );
-    int curx = c->x;
-    if ( c->rightToLeft )
-	curx += string->string()->width( idx );
-    return curx;
-}
-
-inline int QTextCursor::y() const
-{
-    int dummy, line;
-    string->lineStartOfChar( idx, &dummy, &line );
-    return string->lineY( line );
-}
-
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 inline int QTextDocument::x() const
@@ -1610,31 +1582,6 @@ inline void QTextDocument::setInvertSelectionText( int id, bool b )
     selectionText[ id ] = b;
 }
 
-inline bool QTextDocument::hasSelection( int id ) const
-{
-    return selections.find( id ) != selections.end();
-}
-
-inline void QTextDocument::setSelectionStart( int id, QTextCursor *cursor )
-{
-    QTextDocumentSelection sel;
-    sel.startCursor = *cursor;
-    sel.endCursor = *cursor;
-    sel.swapped = FALSE;
-    selections[ id ] = sel;
-}
-
-inline QTextParag *QTextDocument::paragAt( int i ) const
-{
-    QTextParag *s = fParag;
-    while ( s ) {
-	if ( s->paragId() == i )
-	    return s;
-	s = s->next();
-    }
-    return 0;
-}
-
 inline QTextFormatCollection *QTextDocument::formatCollection() const
 {
     return fCollection;
@@ -1684,132 +1631,6 @@ inline void QTextDocument::setFlow( QTextFlow *f )
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-inline QTextFormat::QTextFormat()
-    : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdPointSize( qApp->font().pointSize() ),
-      painter( 0 ), different( NoFlags )
-{
-    ref = 0;
-    missp = FALSE;
-    ha = AlignNormal;
-    collection = 0;
-}
-
-inline QTextFormat::QTextFormat( const QStyleSheetItem *style )
-    : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdPointSize( qApp->font().pointSize() ),
-      painter( 0 ), different( NoFlags )
-{
-    ref = 0;
-    this->style = style->name();
-    missp = FALSE;
-    ha = AlignNormal;
-    collection = 0;
-    fn = QFont( style->fontFamily(),
-		style->fontSize(),
-		style->fontWeight(),
-		style->fontItalic() );
-    fn.setUnderline( style->fontUnderline() );
-    col = style->color();
-    fm = QFontMetrics( fn );
-    leftBearing = fm.minLeftBearing();
-    rightBearing = fm.minRightBearing();
-    hei = fm.height();
-    asc = fm.ascent();
-    dsc = fm.descent();
-    missp = FALSE;
-    ha = AlignNormal;
-    memset( widths, 0, 256 );
-    generateKey();
-    addRef();
-    updateStyleFlags();
-}
-
-inline QTextFormat::QTextFormat( const QFont &f, const QColor &c )
-    : fn( f ), col( c ), fm( QFontMetrics( f ) ), linkColor( TRUE ),
-      logicalFontSize( 3 ), stdPointSize( f.pointSize() ), painter( 0 ),
-      different( NoFlags )
-{
-    ref = 0;
-    collection = 0;
-    leftBearing = fm.minLeftBearing();
-    rightBearing = fm.minRightBearing();
-    hei = fm.height();
-    asc = fm.ascent();
-    dsc = fm.descent();
-    missp = FALSE;
-    ha = AlignNormal;
-    memset( widths, 0, 256 );
-    generateKey();
-    addRef();
-    updateStyleFlags();
-}
-
-inline QTextFormat::QTextFormat( const QTextFormat &f )
-    : fm( f.fm )
-{
-    ref = 0;
-    collection = 0;
-    fn = f.fn;
-    col = f.col;
-    painter = f.painter;
-    leftBearing = f.leftBearing;
-    rightBearing = f.rightBearing;
-    memset( widths, 0, 256 );
-    hei = f.hei;
-    asc = f.asc;
-    dsc = f.dsc;
-    stdPointSize = f.stdPointSize;
-    logicalFontSize = f.logicalFontSize;
-    missp = f.missp;
-    ha = f.ha;
-    k = f.k;
-    anchor_name = f.anchor_name;
-    anchor_href = f.anchor_href;
-    linkColor = f.linkColor;
-    style = f.style;
-    different = f.different;
-    addRef();
-}
-
-inline QTextFormat& QTextFormat::operator=( const QTextFormat &f )
-{
-    ref = 0;
-    collection = f.collection;
-    fn = f.fn;
-    col = f.col;
-    fm = f.fm;
-    leftBearing = f.leftBearing;
-    rightBearing = f.rightBearing;
-    memset( widths, 0, 256 );
-    hei = f.hei;
-    asc = f.asc;
-    dsc = f.dsc;
-    stdPointSize = f.stdPointSize;
-    logicalFontSize = f.logicalFontSize;
-    missp = f.missp;
-    ha = f.ha;
-    k = f.k;
-    anchor_name = f.anchor_name;
-    anchor_href = f.anchor_href;
-    linkColor = f.linkColor;
-    style = f.style;
-    different = f.different;
-    addRef();
-    return *this;
-}
-
-inline void QTextFormat::update()
-{
-    fm = QFontMetrics( fn );
-    leftBearing = fm.minLeftBearing();
-    rightBearing = fm.minRightBearing();
-    hei = fm.height();
-    asc = fm.ascent();
-    dsc = fm.descent();
-    memset( widths, 0, 256 );
-    generateKey();
-    updateStyleFlags();
-}
-
 inline QColor QTextFormat::color() const
 {
     return col;
@@ -1828,46 +1649,6 @@ inline bool QTextFormat::isMisspelled() const
 inline QTextFormat::VerticalAlignment QTextFormat::vAlign() const
 {
     return ha;
-}
-
-inline int QTextFormat::minLeftBearing() const
-{
-    if ( !painter || !painter->isActive() )
-	return leftBearing;
-    painter->setFont( fn );
-    return painter->fontMetrics().minLeftBearing();
-}
-
-inline int QTextFormat::minRightBearing() const
-{
-    if ( !painter || !painter->isActive() )
-	return rightBearing;
-    painter->setFont( fn );
-    return painter->fontMetrics().minRightBearing();
-}
-
-inline int QTextFormat::height() const
-{
-    if ( !painter || !painter->isActive() )
-	return hei;
-    painter->setFont( fn );
-    return painter->fontMetrics().height();
-}
-
-inline int QTextFormat::ascent() const
-{
-    if ( !painter || !painter->isActive() )
-	return asc;
-    painter->setFont( fn );
-    return painter->fontMetrics().ascent();
-}
-
-inline int QTextFormat::descent() const
-{
-    if ( !painter || !painter->isActive() )
-	return dsc;
-    painter->setFont( fn );
-    return painter->fontMetrics().descent();
 }
 
 inline bool QTextFormat::operator==( const QTextFormat &f ) const
@@ -1905,41 +1686,6 @@ inline QString QTextFormat::key() const
     return k;
 }
 
-inline void QTextFormat::generateKey()
-{
-    QTextOStream ts( &k );
-    ts << fn.pointSize()
-       << fn.weight()
-       << (int)fn.underline()
-       << (int)fn.strikeOut()
-       << (int)fn.italic()
-       << col.pixel()
-       << fn.family()
-       << (int)isMisspelled()
-       << anchor_href
-       << anchor_name
-       << (int)vAlign();
-}
-
-inline QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool misspelled,
-				    const QString &lhref, const QString &lnm, VerticalAlignment a )
-{
-    QString k;
-    QTextOStream ts( &k );
-    ts << fn.pointSize()
-       << fn.weight()
-       << (int)fn.underline()
-       << (int)fn.strikeOut()
-       << (int)fn.italic()
-       << col.pixel()
-       << fn.family()
-       << (int)misspelled
-       << lhref
-       << lnm
-       << (int)a;
-    return k;
-}
-
 inline QString QTextFormat::anchorHref() const
 {
     return anchor_href;
@@ -1966,52 +1712,6 @@ inline void QTextFormat::setStyle( const QString &s )
     updateStyleFlags();
 }
 
-inline void QTextFormat::updateStyle()
-{
-    if ( !collection || !collection->styleSheet() )
-	return;
-    QStyleSheetItem *item = collection->styleSheet()->item( style );
-    if ( !item )
-	return;
-    if ( !( different & Color ) && item->color().isValid() )
-	col = item->color();
-    if ( !( different & Size ) && item->fontSize() != -1 )
-	fn.setPointSize( item->fontSize() );
-    if ( !( different & Family ) && !item->fontFamily().isEmpty() )
-	fn.setFamily( item->fontFamily() );
-    if ( !( different & Bold ) && item->fontWeight() != -1 )
-	fn.setWeight( item->fontWeight() );
-    if ( !( different & Italic ) && item->definesFontItalic() )
-	fn.setItalic( item->fontItalic() );
-    if ( !( different & Underline ) && item->definesFontUnderline() )
-	fn.setUnderline( item->fontUnderline() );
-    generateKey();
-    update();
-
-}
-
-inline void QTextFormat::updateStyleFlags()
-{
-    different = NoFlags;
-    if ( !collection || !collection->styleSheet() )
-	return;
-    QStyleSheetItem *item = collection->styleSheet()->item( style );
-    if ( !item )
-	return;
-    if ( item->color() != col )
-	different |= Color;
-    if ( item->fontSize() != fn.pointSize() )
-	different |= Size;
-    if ( item->fontFamily() != fn.family() )
-	different |= Family;
-    if ( item->fontItalic() != fn.italic() )
-	different |= Italic;
-    if ( item->fontUnderline() != fn.underline() )
-	different |= Underline;
-    if ( item->fontWeight() != fn.weight() )
-	different |= Bold;
-}
-
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 inline QTextStringChar &QTextString::at( int i ) const
@@ -2019,41 +1719,9 @@ inline QTextStringChar &QTextString::at( int i ) const
     return data[ i ];
 }
 
-inline QString QTextString::toString( const QArray<QTextStringChar> &data )
-{
-    QString s;
-    int l = data.size();
-    s.setUnicode( 0, l );
-    QTextStringChar *c = data.data();
-    QChar *uc = (QChar *)s.unicode();
-    while ( l-- ) {
-	*uc = c->c;
-	uc++;
-	c++;
-    }
-	
-    return s;
-}
-
 inline QString QTextString::toString() const
 {
     return toString( data );
-}
-
-inline QString QTextString::toReverseString() const
-{
-    QString s;
-    int l = length();
-    s.setUnicode(0, l);
-    QTextStringChar *c = data.data() + (l-1);
-    QChar *uc = (QChar *)s.unicode();
-    while ( l-- ) {
-	*uc = c->c;
-	uc++;
-	c--;
-    }
-	
-    return s;
 }
 
 inline int QTextString::length() const
@@ -2115,64 +1783,9 @@ inline QTextParag *QTextParag::next() const
     return n;
 }
 
-inline void QTextParag::setSelection( int id, int start, int end )
-{
-    QMap<int, QTextParagSelection>::ConstIterator it = selections.find( id );
-    if ( it != selections.end() ) {
-	if ( start == ( *it ).start && end == ( *it ).end )
-	    return;
-    }
-
-    QTextParagSelection sel;
-    sel.start = start;
-    sel.end = end;
-    selections[ id ] = sel;
-    setChanged( TRUE, TRUE );
-}
-
-inline void QTextParag::removeSelection( int id )
-{
-    if ( !hasSelection( id ) )
-	return;
-    selections.remove( id );
-    setChanged( TRUE, TRUE );
-}
-
-inline int QTextParag::selectionStart( int id ) const
-{
-    QMap<int, QTextParagSelection>::ConstIterator it = selections.find( id );
-    if ( it == selections.end() )
-	return -1;
-    return ( *it ).start;
-}
-
-inline int QTextParag::selectionEnd( int id ) const
-{
-    QMap<int, QTextParagSelection>::ConstIterator it = selections.find( id );
-    if ( it == selections.end() )
-	return -1;
-    return ( *it ).end;
-}
-
-inline bool QTextParag::hasSelection( int id ) const
-{
-    QMap<int, QTextParagSelection>::ConstIterator it = selections.find( id );
-    if ( it == selections.end() )
-	return FALSE;
-    return ( *it ).start != ( *it ).end || length() == 1;
-}
-
 inline bool QTextParag::hasAnySelection() const
 {
     return !selections.isEmpty();
-}
-
-inline bool QTextParag::fullSelected( int id ) const
-{
-    QMap<int, QTextParagSelection>::ConstIterator it = selections.find( id );
-    if ( it == selections.end() )
-	return FALSE;
-    return ( *it ).start == 0 && ( *it ).end == str->length() - 1;
 }
 
 inline void QTextParag::setEndState( int s )
@@ -2214,76 +1827,6 @@ inline QMap<int, QTextParagLineStart*> &QTextParag::lineStartList()
     return lineStarts;
 }
 
-inline int QTextParag::lineY( int l ) const
-{
-    if ( l > (int)lineStarts.count() - 1 ) {
-	qWarning( "QTextParag::lineY: line %d out of range!", l );
-	return 0;
-    }
-
-    if ( !isValid() )
-	( (QTextParag*)this )->format();
-
-    QMap<int, QTextParagLineStart*>::ConstIterator it = lineStarts.begin();
-    while ( l-- > 0 )
-	++it;
-    return ( *it )->y;
-}
-
-inline int QTextParag::lineBaseLine( int l ) const
-{
-    if ( l > (int)lineStarts.count() - 1 ) {
-	qWarning( "QTextParag::lineBaseLine: line %d out of range!", l );
-	return 10;
-    }
-
-    if ( !isValid() )
-	( (QTextParag*)this )->format();
-
-    QMap<int, QTextParagLineStart*>::ConstIterator it = lineStarts.begin();
-    while ( l-- > 0 )
-	++it;
-    return ( *it )->baseLine;
-}
-
-inline int QTextParag::lineHeight( int l ) const
-{
-    if ( l > (int)lineStarts.count() - 1 ) {
-	qWarning( "QTextParag::lineHeight: line %d out of range!", l );
-	return 15;
-    }
-
-    if ( !isValid() )
-	( (QTextParag*)this )->format();
-
-    QMap<int, QTextParagLineStart*>::ConstIterator it = lineStarts.begin();
-    while ( l-- > 0 )
-	++it;
-    return ( *it )->h;
-}
-
-inline void QTextParag::lineInfo( int l, int &y, int &h, int &bl ) const
-{
-    if ( l > (int)lineStarts.count() - 1 ) {
-	qWarning( "QTextParag::lineInfo: line %d out of range!", l );
-	qDebug( "%d %d", lineStarts.count() - 1, l );
-	y = 0;
-	h = 15;
-	bl = 10;
-	return;
-    }
-
-    if ( !isValid() )
-	( (QTextParag*)this )->format();
-
-    QMap<int, QTextParagLineStart*>::ConstIterator it = lineStarts.begin();
-    while ( l-- > 0 )
-	++it;
-    y = ( *it )->y;
-    h = ( *it )->h;
-    bl = ( *it )->baseLine;
-}
-
 inline QTextString *QTextParag::string() const
 {
     return str;
@@ -2302,51 +1845,6 @@ inline void QTextParag::setAlignment( int a )
     invalidate( 0 );
 }
 
-inline int QTextParag::alignment() const
-{
-    if ( align != -1 )
-	return align;
-    QStyleSheetItem *item = style();
-    if ( !item )
-	return Qt::AlignAuto;
-    for ( int i = 0; i < (int)styleSheetItemsVec.size(); ++i ) {
-	item = styleSheetItemsVec[ i ];
-	if ( item->alignment() != QStyleSheetItem::Undefined )
-	    return item->alignment();
-    }
-    return Qt::AlignAuto;
-}
-
-inline QVector<QStyleSheetItem> QTextParag::styleSheetItems() const
-{
-    QVector<QStyleSheetItem> vec;
-    vec.resize( styleSheetItemsVec.size() );
-    for ( int i = 0; i < (int)vec.size(); ++i )
-	vec.insert( i, styleSheetItemsVec[ i ] );
-    return vec;
-}
-
-inline QStyleSheetItem *QTextParag::style() const
-{
-    if ( styleSheetItemsVec.size() == 0 )
-	return 0;
-    return styleSheetItemsVec[ styleSheetItemsVec.size() - 1 ];
-}
-
-inline int QTextParag::numberOfSubParagraph() const
-{
-    if ( numSubParag != -1 )
- 	return numSubParag;
-    int n = 0;
-    QTextParag *p = (QTextParag*)this;
-    while ( p && style() == p->style() && listStyle() == p->listStyle() ) {
-	++n;
-	p = p->prev();
-    }
-    ( (QTextParag*)this )->numSubParag = n;
-    return n;
-}
-
 inline void QTextParag::setListStyle( QStyleSheetItem::ListStyle ls )
 {
     listS = ls;
@@ -2356,18 +1854,6 @@ inline void QTextParag::setListStyle( QStyleSheetItem::ListStyle ls )
 inline QStyleSheetItem::ListStyle QTextParag::listStyle() const
 {
     return listS;
-}
-
-inline void QTextParag::setFormat( QTextFormat *fm )
-{
-    bool doUpdate = (bool)defFormat && defFormat != formatCollection()->defaultFormat();
-    defFormat = formatCollection()->format( fm );
-    if ( !doUpdate )
-	return;
-    for ( int i = 0; i < length(); ++i ) {
-	if ( at( i )->format()->styleName() == defFormat->styleName() )
-	    at( i )->format()->updateStyle();
-    }
 }
 
 inline QTextFormat *QTextParag::paragFormat() const
@@ -2431,43 +1917,6 @@ inline int QTextParag::documentY() const
     return doc ? doc->y() : docRect.y();
 }
 
-inline QTextFormatter *QTextParag::formatter() const
-{
-    if ( doc )
-	return doc->formatter();
-    if ( pFormatter )
-	return pFormatter;
-    return ( ( (QTextParag*)this )->pFormatter = new QTextFormatterBreakWords );
-}
-
-inline void QTextParag::setFormatter( QTextFormatter *f )
-{
-    if ( doc ) return;
-    if ( pFormatter ) delete pFormatter;
-    pFormatter = f;
-}
-
-inline int QTextParag::minimumWidth() const
-{
-    return doc ? doc->minimumWidth() : 0;
-}
-
-inline void QTextParag::setTabArray( int *a )
-{
-    if ( doc )
-	doc->setTabArray( a );
-    else
-	tabArray = a;
-}
-
-inline void QTextParag::setTabStops( int tw )
-{
-    if ( doc )
-	doc->setTabStops( tw );
-    else
-	tabStopWidth = tw;
-}
-
 inline void QTextParag::setExtraData( QTextParagData *data )
 {
     eData = data;
@@ -2501,22 +1950,6 @@ inline QTextFormat *QTextFormatCollection::defaultFormat() const
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-inline QTextStringChar::~QTextStringChar()
-{
-    if ( format() )
-	format()->removeRef();
-    switch ( type ) {
-	case Custom:
-	    delete d.custom; break;
-	case Mark:
-	    delete d.mark; break;
-	case Shaped:
-	    delete d.shaped; break;
-	default:
-	    break;
-    }
-}
 
 inline QTextFormat *QTextStringChar::format() const
 {

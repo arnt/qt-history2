@@ -8,7 +8,6 @@
 #endif // QT_H
 
 
-
 // {44C2A547-01E7-4e56-8559-35AF9D2F42B7}
 extern const UUid TID_UType_QString;
 
@@ -32,6 +31,7 @@ extern Q_EXPORT UType_QString * pUType_QString;
 
 // 6dc75d58-a1d9-4417-b591-d45c63a3a4ea
 extern const UUid TID_UType_QString;
+
 
 struct Q_EXPORT UType_QVariant : public UType
 {

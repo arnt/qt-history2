@@ -36,9 +36,6 @@
 **********************************************************************/
 
 #include "qvariant.h"
-
-#ifndef QT_NO_PROPERTIES
-
 #include "qstring.h"
 #include "qcstring.h"
 #include "qfont.h"
@@ -2396,4 +2393,3 @@ bool QVariant::operator!=( const QVariant &v ) const
     return !( v == *this );
 }
 
-#endif // QT_NO_PROPERTIES

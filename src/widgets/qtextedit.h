@@ -78,7 +78,9 @@ public slots:
     virtual void redo();
     virtual void cut();
     virtual void paste();
+#ifndef QT_NO_CLIPBOARD
     virtual void pasteSubType( const QCString &subtype );
+#endif
     virtual void clear();
     virtual void del();
     virtual void indent();
@@ -244,10 +246,12 @@ inline void QTextEdit::paste()
     QTextView::paste();
 }
 
+#ifndef QT_NO_CLIPBOARD
 inline void QTextEdit::pasteSubType( const QCString &subtype )
 {
     QTextView::pasteSubType( subtype );
 }
+#endif
 
 inline void QTextEdit::clear()
 {

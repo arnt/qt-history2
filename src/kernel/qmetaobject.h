@@ -74,6 +74,7 @@ struct QMetaEnum				// enumerator meta data
 };
 
 #ifndef QT_NO_PROPERTIES
+
 class Q_EXPORT QMetaProperty			// property meta data
 {
 public:
@@ -186,11 +187,13 @@ public:
 					const QMetaData *, int,
 #ifndef QT_NO_PROPERTIES
 					const QMetaProperty *prop_data, int n_props,
-					const QMetaEnum *enum_data, int n_enums,
 #endif
+					const QMetaEnum *enum_data, int n_enums,
 					const QClassInfo * class_info, int n_info );
 
+#ifndef QT_NO_PROPERTIES
     const QMetaEnum		*enumerator( const char* name, bool super = FALSE ) const;
+#endif
 
 private:
     QMemberDict		*init( const QMetaData *, int );
@@ -207,7 +210,9 @@ private:
     QMemberDict	*signalDict;			// signal dictionary
     int signaloffset;
     int slotoffset;
+#ifndef QT_NO_PROPERTIES
     int propertyoffset;
+#endif
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -222,10 +227,10 @@ inline int QMetaObject::slotOffset() const
 inline int QMetaObject::signalOffset() const
 { return signaloffset; }
 
+#ifndef QT_NO_PROPERTIES
 inline int QMetaObject::propertyOffset() const
 { return propertyoffset; }
 
-#ifndef QT_NO_PROPERTIES
 inline bool QMetaProperty::testFlags( uint f ) const
 { return (flags & (uint)f) != (uint)0; }
 inline bool QMetaProperty::writable() const

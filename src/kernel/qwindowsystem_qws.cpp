@@ -954,8 +954,10 @@ void QWSServer::refresh()
 */
 void QWSServer::setMaxWindowRect(const QRect& r)
 {
-    if ( maxwindow_rect != r ) {
-	maxwindow_rect = r;
+    QRect tr = qt_screen->mapToDevice(r,
+        QSize(qt_screen->width(),qt_screen->height()));
+    if ( maxwindow_rect != tr ) {
+	maxwindow_rect = tr;
 	sendMaxWindowRectEvents();
     }
 }

@@ -1165,6 +1165,7 @@ void QTextView::contentsMousePressEvent( QMouseEvent *e )
 	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
 #endif
 	}
+#ifndef QT_NO_CLIPBOARD
     } else if ( e->button() == MidButton ) {
 	if (QApplication::clipboard()->supportsSelection()) {
 	    // only do middle-click pasting on systems that have selections (ie. X11)
@@ -1172,6 +1173,7 @@ void QTextView::contentsMousePressEvent( QMouseEvent *e )
 	    paste();
 	    QApplication::clipboard()->setSelectionMode(FALSE);
 	}
+#endif
     }
 
     if ( *cursor != oldCursor )
@@ -1245,6 +1247,7 @@ void QTextView::contentsMouseReleaseEvent( QMouseEvent * )
 #endif
     if ( mousePressed ) {
 	mousePressed = FALSE;
+#ifndef QT_NO_CLIPBOARD
 	if (QApplication::clipboard()->supportsSelection()) {
 	    QApplication::clipboard()->setSelectionMode(TRUE);
 	    // only do middle-click selection on systems that support it (ie. X11)
@@ -1255,6 +1258,7 @@ void QTextView::contentsMouseReleaseEvent( QMouseEvent * )
 	    emit copyAvailable( doc->hasSelection( QTextDocument::Standard ) );
 	    emit selectionChanged();
 	}
+#endif
     }
     emitCursorPositionChanged( cursor );
     if ( oldCursor != *cursor )

@@ -772,8 +772,8 @@ void QLineEdit::focusOutEvent( QFocusEvent * e )
 
 void QLineEdit::drawContents( QPainter *painter )
 {
-    painter->saveWorldMatrix();
-    painter->translate( frameWidth() + margin() + 1, 0 );
+    int marg = frameWidth() + margin() + 1;
+    painter->translate( marg, 0 );
     updateOffset();
     const QColorGroup & g = colorGroup();
     QPainter p( d->pm );
@@ -818,7 +818,7 @@ void QLineEdit::drawContents( QPainter *painter )
 	delete parag;
 	delete cursor;
     }
-    painter->restoreWorldMatrix();
+    painter->translate( -marg, 0 );
 }
 
 

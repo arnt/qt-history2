@@ -42,9 +42,6 @@
     ...
 */
 
-// Qt ships with a number of pre-defined configurations. If none suit
-// your needs, define QCONFIG_LOCAL and create a "qconfig-local.h" file.
-//
 // Note that disabling some features will produce a libqt that is not
 // compatible with other libqt builds. Such modifications are only
 // supported on Qt/Embedded where reducing the library size is important
@@ -84,7 +81,7 @@
 #ifndef QT_MODULE_XML
 # define QT_NO_XML
 #endif
-#ifndef QT_MODULE_SQL
+#if !defined(QT_MODULE_SQL) || defined(QT_NO_PROPERTIES)
 # define QT_NO_SQL
 #endif
 
@@ -276,7 +273,7 @@
 /*!
   XML
 */
-#if defined(QT_NO_STRINGLIST) || defined(QT_NO_TEXTSTREAM) || defined(QT_NO_CODECS)
+#if defined(QT_NO_STRINGLIST) || defined(QT_NO_TEXTSTREAM) || defined(QT_NO_TEXTCODEC)
 # ifndef QT_NO_XML
 #  define QT_NO_XML
 # endif
@@ -356,7 +353,7 @@
 # define QT_NO_QWS_MULTIPROCESS
 #endif
 
-#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_NO_DATASTREAM)
+#if defined(QT_NO_DATASTREAM)
     /*!
       Palmtop Communication Protocol
     */
@@ -395,10 +392,6 @@
     Virtual frame buffer
 */
 //#define QT_NO_QWS_VFB
-/*!
-    Experimental
-*/
-//#define QT_NO_QWS_E_PROJ
 /*!
     Transformed frame buffer
 */
@@ -912,6 +905,13 @@
 	Motif style
     */
 # define QT_NO_STYLE_MOTIF
+#endif
+
+#if defined(QT_NO_STYLE_MOTIF)
+    /*!
+	Interlace-friendly style
+    */
+# define QT_NO_STYLE_INTERLACE
 #endif
 
 #if defined(QT_NO_STYLE_WINDOWS)

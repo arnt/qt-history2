@@ -416,7 +416,13 @@ void QStatusBar::paintEvent( QPaintEvent * )
 
     QPainter p( this );
     QStatusBarPrivate::SBItem* item = d->items.first();
+
+#ifndef QT_NO_SIZEGRIP
     int psx = d->resizer ? d->resizer->x() : width()-12;
+#else
+    int psx = width()-12;
+#endif
+
     while ( item ) {
 	if ( !haveMessage || item->p )
 	    if ( item->w->isVisible() ) {

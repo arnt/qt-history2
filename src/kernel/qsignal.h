@@ -55,15 +55,15 @@ public:
     bool	connect( const QObject *receiver, const char *member );
     bool	disconnect( const QObject *receiver, const char *member=0 );
 
+    void	activate();
+
 #ifndef QT_NO_COMPAT
     bool	isBlocked()	 const		{ return QObject::signalsBlocked(); }
     void	block( bool b )		{ QObject::blockSignals( b ); }
 
-    void	setParameter( int value ) { val = value; }
-    int		parameter() const { return val.toInt(); }
+    void	setParameter( int value );
+    int		parameter() const;
 #endif
-
-    void	activate();
 
     void	setValue( const QVariant &value );
     QVariant	value() const;

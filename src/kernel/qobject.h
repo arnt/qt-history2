@@ -67,7 +67,9 @@ public:
 
     virtual bool qt_invoke( int, UObject* );
     virtual bool qt_emit( int, UObject* );
+#ifndef QT_NO_PROPERTIES
     virtual bool qt_property( const QMetaProperty*, int, QVariant* );
+#endif
 
     static QString tr( const char * );
     static QString tr( const char *, const char * );

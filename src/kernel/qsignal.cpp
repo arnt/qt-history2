@@ -211,3 +211,14 @@ QVariant QSignal::value() const
 {
     return val;
 }
+
+
+void QSignal::setParameter( int value )
+{
+    val = value;
+}
+
+int QSignal::parameter() const
+{
+    return val.toInt();
+}

@@ -226,6 +226,7 @@ kernel {
 		  $$KERNEL_CPP/qwmatrix.cpp \
 		  $$KERNEL_CPP/qvariant.cpp \
 		  $$KERNEL_CPP/qrichtext.cpp \
+		  $$KERNEL_CPP/qrichtext_p.cpp \
 		  $$KERNEL_CPP/qsimplerichtext.cpp
 
 	unix:HEADERS   += $$KERNEL_P/qpsprinter_p.h \

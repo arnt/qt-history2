@@ -161,7 +161,7 @@ public:
 				bool autoRepeat);
 
     typedef struct KeyMap {
-	int  key_code;
+	ushort key_code;
 	ushort unicode;
 	ushort shift_unicode;
 	ushort ctrl_unicode;
