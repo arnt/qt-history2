@@ -535,6 +535,7 @@ typedef unsigned long	   Q_ULONG;
 #endif
 
 #if !defined(QT_CLEAN_NAMESPACE)
+// mininum size of 64 bits is not guaranteed
 #define Q_INT64	    Q_LONG
 #define Q_UINT64	    Q_ULONG
 #endif
