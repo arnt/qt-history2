@@ -23,7 +23,7 @@
 #include "qsqldriver.h"
 #include "qsqldatabase.h"
 #include "qsql.h"
-#include "qsqlnulldriver_p.h"
+#include "private/qsqlnulldriver_p.h"
 #include "qvector.h"
 #include "qmap.h"
 
@@ -48,8 +48,8 @@ QSqlQueryPrivate* QSqlQueryPrivate::shared_null()
 
 QSqlResult *QSqlQueryPrivate::nullResult()
 {
-    static QNullDriver nDriver;
-    static QNullResult nResult(&nDriver);
+    static QSqlNullDriver nDriver;
+    static QSqlNullResult nResult(&nDriver);
     return &nResult;
 }
 

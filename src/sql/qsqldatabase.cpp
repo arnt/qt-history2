@@ -52,6 +52,7 @@
 #include "qsqldriver.h"
 #include "qsqldriverinterface_p.h"
 #include "private/qpluginmanager_p.h"
+#include "private/qsqlnulldriver_p.h"
 #include "qobject.h"
 #include "private/qobject_p.h"
 #include "qpointer.h"
@@ -59,41 +60,6 @@
 #include <stdlib.h>
 
 const char *QSqlDatabase::defaultConnection = "qt_sql_default_connection";
-
-class QNullResult : public QSqlResult
-{
-public:
-    QNullResult(const QSqlDriver* d): QSqlResult(d){}
-    ~QNullResult(){}
-protected:
-    QCoreVariant    data(int) { return QCoreVariant(); }
-    bool        reset (const QString& /*sqlquery*/) { return false; }
-    bool        fetch(int /*i*/) { return false; }
-    bool        fetchFirst() { return false; }
-    bool        fetchLast() { return false; }
-    bool        isNull(int) {return false; }
-    QSqlRecord         record() {return QSqlRecord();}
-    int         size()  {return 0;}
-    int         numRowsAffected() {return 0;}
-};
-
-class QNullDriver : public QSqlDriver
-{
-public:
-    QNullDriver(): QSqlDriver(){}
-    ~QNullDriver(){}
-    bool    hasFeature(DriverFeature /* f */) const { return false; } ;
-    bool    open(const QString & ,
-                  const QString & ,
-                  const QString & ,
-                  const QString &,
-                  int,
-                  const QString&) {
-        return false;
-    }
-    void    close() {}
-    QSqlQuery createQuery() const { return QSqlQuery(new QNullResult(this)); }
-};
 
 typedef QHash<QString, QSqlDriverCreatorBase*> QDriverDict;
 
@@ -636,7 +602,7 @@ void QSqlDatabasePrivate::init(const QString& type, const QString&)
 
         qWarning("QSqlDatabase: %s driver not loaded", type.latin1());
         qWarning("QSqlDatabase: available drivers: %s", QSqlDatabase::drivers().join(" ").latin1());
-        driver = new QNullDriver();
+        driver = new QSqlNullDriver();
     }
 }
 

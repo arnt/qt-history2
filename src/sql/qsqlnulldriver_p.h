@@ -32,10 +32,10 @@
 #include <qsqldriver.h>
 #include <qsqlresult.h>
 
-class Q_SQL_EXPORT QNullResult : public QSqlResult
+class QSqlNullResult : public QSqlResult
 {
 public:
-    inline QNullResult(const QSqlDriver* d): QSqlResult(d)
+    inline QSqlNullResult(const QSqlDriver* d): QSqlResult(d)
     { QSqlResult::setLastError(QSqlError("Driver not loaded", "Driver not loaded")); }
 protected:
     inline QCoreVariant data(int) { return QCoreVariant(); }
@@ -61,17 +61,17 @@ protected:
     inline void bindValue(const QString&, const QCoreVariant&, QSql::ParamType) {}
 };
 
-class Q_SQL_EXPORT QNullDriver : public QSqlDriver
+class QSqlNullDriver : public QSqlDriver
 {
 public:
-    inline QNullDriver(): QSqlDriver()
+    inline QSqlNullDriver(): QSqlDriver()
     { QSqlDriver::setLastError(QSqlError("Driver not loaded", "Driver not loaded")); }
     inline bool hasFeature(DriverFeature) const { return false; }
     inline bool open(const QString &, const QString & , const QString & ,
               const QString &, int, const QString&)
     { return false; }
     inline void close() {}
-    inline QSqlQuery createQuery() const { return QSqlQuery(new QNullResult(this)); }
+    inline QSqlQuery createQuery() const { return QSqlQuery(new QSqlNullResult(this)); }
 
 protected:
     inline void setOpen(bool) {}
