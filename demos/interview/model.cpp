@@ -16,9 +16,9 @@
 #include <qpixmap.h>
 #include <private/qabstractitemmodel_p.h>
 
-Model::Model(int rows, int columns, int depth, QObject *parent)
+Model::Model(int rows, int columns, QObject *parent)
     : QAbstractItemModel(parent),
-      rc(rows), cc(columns), d(depth),
+      rc(rows), cc(columns),
       tree(new QVector<Node>(rows, Node(0)))
 {
 
@@ -33,8 +33,6 @@ QModelIndex Model::index(int row, int column, const QModelIndex &parent) const
 {
     if (row < rc && row >= 0 && column < cc && column >= 0) {
         Node *p = static_cast<Node*>(parent.data());
-        if (p && p->depth >= d)
-            return QModelIndex::Null;
         Node *n = node(row, p);
 	if (n)
 	    return createIndex(row, column, n);
@@ -55,17 +53,13 @@ QModelIndex Model::parent(const QModelIndex &child) const
 
 int Model::rowCount(const QModelIndex &parent) const
 {
-    Node *p = static_cast<Node*>(parent.data());
-    if (p && p->depth >= d)
-        return 0;
+    Q_UNUSED(parent);
     return rc;
 }
 
 int Model::columnCount(const QModelIndex &parent) const
 {
-    Node *p = static_cast<Node*>(parent.data());
-    if (p && p->depth >= d)
-        return 0;
+    Q_UNUSED(parent);
     return cc;
 }
 
@@ -82,8 +76,8 @@ QVariant Model::data(const QModelIndex &index, int role) const
 
 QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
 {
+    Q_UNUSED(orientation);
     static QIcon service(QPixmap("services.png"));
-
     if (role == DisplayRole)
         return QString::number(section);
     if (role == DecorationRole)
@@ -93,9 +87,6 @@ QVariant Model::headerData(int section, Qt::Orientation orientation, int role) c
 
 bool Model::hasChildren(const QModelIndex &parent) const
 {
-    Node *p = static_cast<Node*>(parent.data());
-    if (p && p->depth >= d && parent.column() == 0)
-        return false;
     return rc > 0 && cc > 0;
 }
 
