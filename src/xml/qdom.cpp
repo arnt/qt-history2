@@ -3580,6 +3580,9 @@ void QDomAttrPrivate::setNodeValue( const QString& v )
     QDomTextPrivate *t = new QDomTextPrivate( 0, this, v );
     // keep the refcount balanced: appendChild() does a ref() anyway.
     t->deref();
+    if ( first ) {
+	delete removeChild( first );
+    }
     appendChild( t );
 }
 
