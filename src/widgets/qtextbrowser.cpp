@@ -37,7 +37,7 @@
 
 #include "qtextbrowser.h"
 #ifndef QT_NO_TEXTBROWSER
-#include "qrichtext_p.h"
+#include "../kernel/qrichtext_p.h"
 
 #include "qapplication.h"
 #include "qlayout.h"
@@ -205,7 +205,7 @@ void QTextBrowser::setSource(const QString& name)
  		return;
  	    }
  	}
-	
+
 	d->curmain = url;
 	dosettext = TRUE;
     }

@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qtextview.h"
-#include "qrichtext_p.h"
+#include "../kernel/qrichtext_p.h"
 
 #include <qpainter.h>
 #include <qpen.h>
@@ -260,7 +260,7 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 
 	doKeyboardAction( ActionDelete );
 	clearUndoRedoInfo = FALSE;
-	
+
 	break;
     case Key_Backspace:
 	if ( doc->hasSelection( QTextDocument::Standard ) ) {
@@ -271,10 +271,10 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 	if ( !cursor->parag()->prev() &&
 	     cursor->atParagStart() )
 	    break;
-	
+
 	doKeyboardAction( ActionBackspace );
 	clearUndoRedoInfo = FALSE;
-	
+
 	break;
     default: {
 	    if ( e->text().length() && !( e->state() & AltButton ) &&
@@ -347,7 +347,7 @@ void QTextView::doKeyboardAction( int action )
 
     lastFormatted = cursor->parag();
     drawCursor( FALSE );
-	
+
     switch ( action ) {
     case ActionDelete:
 	checkUndoRedoInfo( UndoRedoInfo::Delete );
@@ -530,7 +530,7 @@ void QTextView::resizeEvent( QResizeEvent *e )
 #endif
 	    doResize();
     }
-	
+
     firstResize = FALSE;
 }
 
@@ -595,7 +595,7 @@ void QTextView::contentsMousePressEvent( QMouseEvent *e )
 	    return;
 	}
 #endif
-	
+
 	bool redraw = FALSE;
 	if ( doc->hasSelection( QTextDocument::Standard ) ) {
 	    if ( !( e->state() & ShiftButton ) ) {
@@ -768,23 +768,23 @@ void QTextView::doAutoScroll()
 	cl.gotoWordLeft();
 	QTextCursor cr = *cursor;
 	cr.gotoWordRight();
-	
+
 	int diff = QABS( oldCursor.parag()->at( oldCursor.index() )->x - mousePos.x() );
 	int ldiff = QABS( cl.parag()->at( cl.index() )->x - mousePos.x() );
 	int rdiff = QABS( cr.parag()->at( cr.index() )->x - mousePos.x() );
-	
-	
+
+
 	if ( cursor->parag()->lineStartOfChar( cursor->index() ) !=
 	     oldCursor.parag()->lineStartOfChar( oldCursor.index() ) )
 	    diff = 0xFFFFFF;
-	
+
 	if ( rdiff < diff && rdiff < ldiff )
 	    *cursor = cr;
 	else if ( ldiff < diff && ldiff < rdiff )
 	    *cursor = cl;
 	else
 	    *cursor = oldCursor;
-	
+
     }
     ensureCursorVisible();
 
@@ -852,7 +852,7 @@ void QTextView::formatMore()
 }
 
 void QTextView::doResize()
-{	
+{
     resizeContents( width() - verticalScrollBar()->width(), contentsHeight() );
     doc->setWidth( visibleWidth() );
     doc->invalidate();
@@ -866,7 +866,7 @@ void QTextView::doChangeInterval()
 {
     if ( cursor->checkParens() )
 	repaintChanged();
-	
+
     interval = 0;
 }
 
@@ -960,7 +960,7 @@ bool QTextView::eventFilter( QObject *o, QEvent *e )
 	    return TRUE;
 	}
     }
-		
+
 
     return QScrollView::eventFilter( o, e );
 }
@@ -996,7 +996,7 @@ void QTextView::insert( const QString &text, bool indent, bool checkNewLine )
     cursor->insert( txt, checkNewLine );
     if ( doc->useFormatCollection() )
 	cursor->parag()->setFormat( idx, txt.length(), currentFormat, TRUE );
-		
+
     if ( indent && ( txt == "{" || txt == "}" ) )
 	cursor->indent();
     formatMore();
