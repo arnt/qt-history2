@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#38 $
 **
 ** Implementation of validator classes.
 **
@@ -92,7 +92,7 @@
 /*! \enum QValidator::State
 
   This enum type defines the states in which a validated string can
-  be.  There are currently three states:
+  be.  There are currently three states: <ul>
 
   <li> \c Invalid - the string is \e clearly invalid.
 
