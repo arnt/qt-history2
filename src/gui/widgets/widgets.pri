@@ -21,9 +21,9 @@ HEADERS += \
         widgets/qdockwindowseparator_p.h \
         widgets/qframe.h \
         widgets/qframe_p.h \
-        widgets/qgrid.h \
+        widgets/qgridwidget.h \
         widgets/qgroupbox.h \
-        widgets/qhbox.h \
+        widgets/qhboxwidget.h \
         widgets/qlabel.h \
         widgets/qlcdnumber.h \
         widgets/qlineedit.h \
@@ -58,7 +58,7 @@ HEADERS += \
         widgets/qtoolbox.h \
         widgets/qtoolbutton.h \
         widgets/qvalidator.h \
-        widgets/qvbox.h \
+        widgets/qvboxwidget.h \
         widgets/qviewport.h \
         widgets/qviewport_p.h \
         widgets/qwidgetplugin.h \
@@ -82,9 +82,9 @@ SOURCES += \
         widgets/qdockwindowseparator.cpp \
         widgets/qeffects.cpp \
         widgets/qframe.cpp \
-        widgets/qgrid.cpp \
+        widgets/qgridwidget.cpp \
         widgets/qgroupbox.cpp \
-        widgets/qhbox.cpp \
+        widgets/qhboxwidget.cpp \
         widgets/qlabel.cpp \
         widgets/qlcdnumber.cpp \
         widgets/qlineedit.cpp \
@@ -117,7 +117,7 @@ SOURCES += \
         widgets/qtoolbox.cpp \
         widgets/qtoolbutton.cpp \
         widgets/qvalidator.cpp \
-        widgets/qvbox.cpp \
+        widgets/qvboxwidget.cpp \
         widgets/qviewport.cpp \
         widgets/qwidgetplugin.cpp \
         widgets/qwidgetresizehandler.cpp \

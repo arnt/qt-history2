@@ -11,29 +11,29 @@
 **
 ****************************************************************************/
 
-#ifndef QGRID_H
-#define QGRID_H
+#ifndef QGRIDWIDGET_H
+#define QGRIDWIDGET_H
 
 #ifndef QT_H
 #include "qframe.h"
 #endif // QT_H
 
-#ifndef QT_NO_GRID
+#ifndef QT_NO_GRIDWIDGET
 
 class QGridLayout;
 
-class Q_GUI_EXPORT QGrid : public QFrame
+class Q_GUI_EXPORT QGridWidget : public QFrame
 {
     Q_OBJECT
 public:
-    QGrid(int n, QWidget* parent=0, Qt::WFlags f = 0);
-    QGrid(int n, Qt::Orientation orient, QWidget* parent=0, Qt::WFlags f = 0);
+    QGridWidget(int n, QWidget* parent=0, Qt::WFlags f = 0);
+    QGridWidget(int n, Qt::Orientation orient, QWidget* parent=0, Qt::WFlags f = 0);
 
     void setSpacing(int);
 
 #ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QGrid(int n, QWidget* parent, const char* name, Qt::WFlags f);
-    QT_COMPAT_CONSTRUCTOR QGrid(int n, Qt::Orientation orient, QWidget* parent, const char* name, Qt::WFlags f);
+    QT_COMPAT_CONSTRUCTOR QGridWidget(int n, QWidget* parent, const char* name, Qt::WFlags f);
+    QT_COMPAT_CONSTRUCTOR QGridWidget(int n, Qt::Orientation orient, QWidget* parent, const char* name, Qt::WFlags f);
     typedef Qt::Orientation Direction;
 #endif
 
@@ -43,11 +43,11 @@ private:
     QGridLayout *lay;
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QGrid(const QGrid &);
-    QGrid& operator=(const QGrid &);
+    QGridWidget(const QGridWidget &);
+    QGridWidget& operator=(const QGridWidget &);
 #endif
 };
 
-#endif // QT_NO_GRID
+#endif // QT_NO_GRIDWIDGET
 
-#endif // QGRID_H
+#endif // QGRIDWIDGET_H

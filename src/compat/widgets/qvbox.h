@@ -14,28 +14,14 @@
 #ifndef QVBOX_H
 #define QVBOX_H
 
-#ifndef QT_H
-#include "qhbox.h"
-#endif // QT_H
+#include <qvboxwidget.h>
 
-#ifndef QT_NO_VBOX
-
-class Q_GUI_EXPORT QVBox : public QHBox
+class Q_COMPAT_EXPORT QVBox : public QVBoxWidget
 {
     Q_OBJECT
 public:
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QVBox(QWidget* parent, const char* name, Qt::WFlags f=0);
-#endif
-    QVBox(QWidget* parent=0, Qt::WFlags f=0);
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QVBox(const QVBox &);
-    QVBox& operator=(const QVBox &);
-#endif
+    QVBox(QWidget* parent=0, const char* name=0, Qt::WFlags f=0)
+        : QVBoxWidget(parent,name,f) {}
 };
 
-#endif // QT_NO_VBOX
-
-#endif // QVBOX_H
+#endif

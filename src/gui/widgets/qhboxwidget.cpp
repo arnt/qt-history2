@@ -11,16 +11,16 @@
 **
 ****************************************************************************/
 
-#include "qhbox.h"
-#ifndef QT_NO_HBOX
+#include "qhboxwidget.h"
+#ifndef QT_NO_HBOXWIDGET
 #include "qlayout.h"
 #include "qapplication.h"
 #include "qevent.h"
 #include "qmenubar.h"
 
 /*!
-    \class QHBox qhbox.h
-    \brief The QHBox widget provides horizontal geometry management
+    \class QHBoxWidget qhboxwidget.h
+    \brief The QHBoxWidget class provides horizontal geometry management
     for its child widgets.
 
     \ingroup organizers
@@ -38,9 +38,9 @@
 
     If you just need a layout (not a widget) use QHBoxLayout instead.
 
-    \img qhbox-m.png QHBox
+    \img qhbox-m.png QHBoxWidget
 
-    \sa QVBox QGrid
+    \sa QVBoxWidget QGridWidget
 */
 
 
@@ -50,7 +50,7 @@
     The parent, name and widget flags, \a f, are passed to the QFrame
     constructor.
 */
-QHBox::QHBox(QWidget *parent, const char *name, Qt::WFlags f)
+QHBoxWidget::QHBoxWidget(QWidget *parent, const char *name, Qt::WFlags f)
     :QFrame(parent, f)
 {
     QString nm(name);
@@ -67,7 +67,7 @@ QHBox::QHBox(QWidget *parent, const char *name, Qt::WFlags f)
     The parent and widget flags, \a f, are passed to the QFrame
     constructor.
 */
-QHBox::QHBox(QWidget *parent, Qt::WFlags f)
+QHBoxWidget::QHBoxWidget(QWidget *parent, Qt::WFlags f)
     :QFrame(parent, f)
 {
     lay = new QHBoxLayout(this);
@@ -87,7 +87,7 @@ QHBox::QHBox(QWidget *parent, Qt::WFlags f)
     QFrame constructor.
 */
 
-QHBox::QHBox(Qt::Orientation orientation, QWidget *parent , Qt::WFlags f)
+QHBoxWidget::QHBoxWidget(Qt::Orientation orientation, QWidget *parent , Qt::WFlags f)
     :QFrame(parent, f)
 {
     lay = new QBoxLayout(orientation == Qt::Horizontal
@@ -99,7 +99,7 @@ QHBox::QHBox(Qt::Orientation orientation, QWidget *parent , Qt::WFlags f)
 
 /*! \reimp
  */
-void QHBox::childEvent(QChildEvent *e)
+void QHBoxWidget::childEvent(QChildEvent *e)
 {
     QWidget *child = qt_cast<QWidget*>(e->child());
     if (!child || child->isTopLevel())
@@ -120,7 +120,7 @@ void QHBox::childEvent(QChildEvent *e)
     Set the width of the outside border \a margin
 */
 
-void QHBox::setMargin(int margin)
+void QHBoxWidget::setMargin(int margin)
 {
     if (layout()) // ### why not use this->lay?
         layout()->setMargin(margin);
@@ -130,7 +130,7 @@ void QHBox::setMargin(int margin)
     Sets the spacing between the child widgets to \a space.
 */
 
-void QHBox::setSpacing(int space)
+void QHBoxWidget::setSpacing(int space)
 {
     if (layout()) // ### why not use this->lay?
         layout()->setSpacing(space);
@@ -141,7 +141,7 @@ void QHBox::setSpacing(int space)
   \reimp
 */
 
-QSize QHBox::sizeHint() const
+QSize QHBoxWidget::sizeHint() const
 {
 #ifdef QT_COMPAT
     QWidget *mThis = (QWidget*)this;
@@ -156,7 +156,7 @@ QSize QHBox::sizeHint() const
 
     \sa QBoxLayout::setStretchFactor() \link layout.html Layouts\endlink
 */
-bool QHBox::setStretchFactor(QWidget* w, int stretch)
+bool QHBoxWidget::setStretchFactor(QWidget* w, int stretch)
 {
 #ifdef QT_COMPAT
     QWidget *mThis = (QWidget*)this;

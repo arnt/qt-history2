@@ -12,13 +12,13 @@
 ****************************************************************************/
 
 
-#include "qvbox.h"
+#include "qvboxwidget.h"
 #include "qlayout.h"
-#ifndef QT_NO_VBOX
+#ifndef QT_NO_VBOXWIDGET
 
 /*!
-    \class QVBox qvbox.h
-    \brief The QVBox widget provides vertical geometry management of
+    \class QVBoxWidget qvboxwidget.h
+    \brief The QVBoxWidget widget provides vertical geometry management of
     its child widgets.
 
     \ingroup geomanagement
@@ -29,9 +29,9 @@
     according to their sizeHint()s. If you just need a layout (not a
     widget) use QVBoxLayout instead.
 
-    \img qvbox-m.png QVBox
+    \img qvbox-m.png QVBoxWidget
 
-    \sa QHBox QGrid
+    \sa QHBoxWidget QGridWidget
 */
 
 
@@ -40,8 +40,8 @@
     Constructs a vbox widget called \a name with parent \a parent and
     widget flags \a f.
  */
-QVBox::QVBox(QWidget *parent, const char *name, Qt::WFlags f)
-    :QHBox(Qt::Vertical, parent, f)
+QVBoxWidget::QVBoxWidget(QWidget *parent, const char *name, Qt::WFlags f)
+    :QHBoxWidget(Qt::Vertical, parent, f)
 {
     QString nm(name);
     setObjectName(nm);
@@ -53,8 +53,8 @@ QVBox::QVBox(QWidget *parent, const char *name, Qt::WFlags f)
     Constructs a vbox widget with parent \a parent and
     widget flags \a f.
  */
-QVBox::QVBox(QWidget *parent, Qt::WFlags f)
-    :QHBox(Qt::Vertical, parent, f)
+QVBoxWidget::QVBoxWidget(QWidget *parent, Qt::WFlags f)
+    :QHBoxWidget(Qt::Vertical, parent, f)
 {
 }
 

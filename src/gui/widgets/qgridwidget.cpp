@@ -12,15 +12,15 @@
 ****************************************************************************/
 
 
-#include "qgrid.h"
-#ifndef QT_NO_GRID
+#include "qgridwidget.h"
+#ifndef QT_NO_GRIDWIDGET
 #include "qlayout.h"
 #include "qapplication.h"
 #include "qevent.h"
 #include "qmenubar.h"
 /*!
-    \class QGrid qgrid.h
-    \brief The QGrid widget provides simple geometry management of its children.
+    \class QGridWidget qgridwidget.h
+    \brief The QGridWidget class provides simple geometry management of its children.
 
     \ingroup geomanagement
     \ingroup appearance
@@ -37,9 +37,9 @@
 
     If you just need a layout (not a widget) use QGridLayout instead.
 
-    \img qgrid-m.png QGrid
+    \img qgrid-m.png QGridWidget
 
-    \sa QVBox QHBox
+    \sa QVBoxWidget QHBoxWidget
 */
 
 /*!
@@ -48,7 +48,7 @@
     columns. If \a orient is \c Qt::Vertical, \a n specifies the number of
     rows. The widget flags \a f are passed to the QFrame constructor.
 */
-QGrid::QGrid(int n, Qt::Orientation orient, QWidget *parent, Qt::WFlags f)
+QGridWidget::QGridWidget(int n, Qt::Orientation orient, QWidget *parent, Qt::WFlags f)
     : QFrame(parent, f)
 {
     int nCols, nRows;
@@ -70,7 +70,7 @@ QGrid::QGrid(int n, Qt::Orientation orient, QWidget *parent, Qt::WFlags f)
     \a n specifies the number of columns. The widget flags \a f are
     passed to the QFrame constructor.
  */
-QGrid::QGrid(int n, QWidget *parent, Qt::WFlags f)
+QGridWidget::QGridWidget(int n, QWidget *parent, Qt::WFlags f)
     : QFrame(parent, f)
 {
     lay = new QGridLayout(this);
@@ -83,7 +83,7 @@ QGrid::QGrid(int n, QWidget *parent, Qt::WFlags f)
     Use one of the constructors that doesn't take the \a name
     argument and then use setObjectName() instead.
 */
-QGrid::QGrid(int n, Qt::Orientation orient, QWidget *parent, const char *name, Qt::WFlags f)
+QGridWidget::QGridWidget(int n, Qt::Orientation orient, QWidget *parent, const char *name, Qt::WFlags f)
     : QFrame(parent, f)
 {
     setObjectName(name);
@@ -96,7 +96,7 @@ QGrid::QGrid(int n, Qt::Orientation orient, QWidget *parent, const char *name, Q
     Use one of the constructors that doesn't take the \a name
     argument and then use setObjectName() instead.
 */
-QGrid::QGrid(int n, QWidget *parent, const char *name, Qt::WFlags f)
+QGridWidget::QGridWidget(int n, QWidget *parent, const char *name, Qt::WFlags f)
     : QFrame(parent, f)
 {
     setObjectName(name);
@@ -109,7 +109,7 @@ QGrid::QGrid(int n, QWidget *parent, const char *name, Qt::WFlags f)
 /*!
     \internal
 */
-void QGrid::childEvent(QChildEvent *e)
+void QGridWidget::childEvent(QChildEvent *e)
 {
     QWidget *child = qt_cast<QWidget*>(e->child());
     if (!child || child->isTopLevel())
@@ -129,7 +129,7 @@ void QGrid::childEvent(QChildEvent *e)
     Sets the spacing between the child widgets to \a space.
 */
 
-void QGrid::setSpacing(int space)
+void QGridWidget::setSpacing(int space)
 {
     if (layout())
         layout()->setSpacing(space);

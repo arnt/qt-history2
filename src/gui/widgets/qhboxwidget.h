@@ -12,26 +12,26 @@
 ****************************************************************************/
 
 
-#ifndef QHBOX_H
-#define QHBOX_H
+#ifndef QHBOXWIDGET_H
+#define QHBOXWIDGET_H
 
 #ifndef QT_H
 #include "qwidget.h"
 #include "qframe.h"
 #endif // QT_H
 
-#ifndef QT_NO_HBOX
+#ifndef QT_NO_HBOXWIDGET
 
 
 class QBoxLayout;
 
-class Q_GUI_EXPORT QHBox : public QFrame
+class Q_GUI_EXPORT QHBoxWidget : public QFrame
 {
     Q_OBJECT
 public:
-    QHBox(QWidget* parent=0, Qt::WFlags f=0);
+    QHBoxWidget(QWidget* parent=0, Qt::WFlags f=0);
 #ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QHBox(QWidget* parent, const char* name, Qt::WFlags f=0);
+    QT_COMPAT_CONSTRUCTOR QHBoxWidget(QWidget* parent, const char* name, Qt::WFlags f=0);
 #endif
 
     void setMargin(int);
@@ -40,15 +40,15 @@ public:
     QSize sizeHint() const;
 
 protected:
-    QHBox(Qt::Orientation orientation, QWidget* parent, Qt::WFlags f);
+    QHBoxWidget(Qt::Orientation orientation, QWidget* parent, Qt::WFlags f);
     void childEvent(QChildEvent *);
 
 private:
     QBoxLayout *lay;
 
 #if defined(Q_DISABLE_COPY)
-    QHBox(const QHBox &);
-    QHBox &operator=(const QHBox &);
+    QHBoxWidget(const QHBoxWidget &);
+    QHBoxWidget &operator=(const QHBoxWidget &);
 #endif
 };
 

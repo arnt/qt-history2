@@ -16,6 +16,9 @@ HEADERS += \
     widgets/q3toolbar.h \
     widgets/q3frame.h \
     widgets/q3whatsthis.h \
+    widgets/qgrid.h \
+    widgets/qhbox.h \
+    widgets/qvbox.h \
     widgets/qgridview.h \
     widgets/qpopupmenu.h \
     widgets/qrangecontrol.h \

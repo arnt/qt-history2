@@ -34,7 +34,7 @@
 #include "qstyleoption.h"
 #include "qtoolbutton.h"
 #include "qtooltip.h"
-#include "qvbox.h"
+#include "qvboxwidget.h"
 #include <private/qtitlebar_p.h>
 #include <private/qwidget_p.h>
 #include <private/qwidgetresizehandler_p.h>
@@ -2093,7 +2093,7 @@ void QWorkspaceChild::changeEvent(QEvent *ev)
     if(ev->type() == QEvent::StyleChange) {
         resizeEvent(0);
         if (iconw) {
-            QVBox *vbox = qt_cast<QVBox*>(iconw->parentWidget());
+            QVBoxWidget *vbox = qt_cast<QVBoxWidget*>(iconw->parentWidget());
             Q_ASSERT(vbox);
             if (!style().styleHint(QStyle::SH_TitleBar_NoBorder)) {
                 vbox->setFrameStyle(QFrame::WinPanel | QFrame::Raised);
@@ -2177,7 +2177,7 @@ QWidget* QWorkspaceChild::iconWidget() const
     if (!iconw) {
         QWorkspaceChild* that = (QWorkspaceChild*) this;
 
-        QVBox* vbox = new QVBox(that, Qt::WType_TopLevel);
+        QVBoxWidget* vbox = new QVBoxWidget(that, Qt::WType_TopLevel);
         vbox->setObjectName("qt_vbox");
         QTitleBar *tb = new QTitleBar(windowWidget(), vbox);
         tb->setObjectName("_workspacechild_icon_");
