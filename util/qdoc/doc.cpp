@@ -463,19 +463,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    setKind( Doc::Base64, command );
 		}
 		break;
-	    case hash( 'b', 7 ):
-		consume( "base256" );
-		fileName = getWord( yyIn, yyPos );
-		skipRestOfLine( yyIn, yyPos );
-
-		if ( fileName.isEmpty() ) {
-		    warning( 2, location(),
-			     "Expected file name after '\\base256'" );
-		} else {
-		    yyOut = yyIn.mid( yyPos );
-		    setKind( Doc::Base256, command );
-		}
-		break;
 	    case hash( 'c', 1 ):
 		consume( "c" );
 		arg = htmlProtect( getArgument(yyIn, yyPos) );
@@ -750,8 +737,24 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		startPreOutput();
 		break;
 	    case hash( 'p', 9 ):
-		check( "printline" );
-		startPreOutput();
+		if ( command.length() != 9 )
+		    break;
+		if ( command[1] == QChar('l') ) {
+		    consume( "plainpage" );
+		    fileName = getWord( yyIn, yyPos );
+		    skipRestOfLine( yyIn, yyPos );
+
+		    if ( fileName.isEmpty() ) {
+			warning( 2, location(),
+				 "Expected file name after '\\plainpage'" );
+		    } else {
+			yyOut = yyIn.mid( yyPos );
+			setKind( Doc::Plainpage, command );
+		    }
+		} else {
+		    check( "printline" );
+		    startPreOutput();
+		}
 		break;
 	    case hash( 'p', 10 ):
 		check( "printuntil" );
@@ -905,9 +908,9 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	sanitize( fileName );
 	doc = new Base64Doc( loc, yyOut, fileName );
 	break;
-    case Doc::Base256:
+    case Doc::Plainpage:
 	sanitize( fileName );
-	doc = new Base256Doc( loc, yyOut, fileName );
+	doc = new PlainpageDoc( loc, yyOut, fileName );
 	break;
     case Doc::Defgroup:
 	sanitize( groupName );
@@ -1472,8 +1475,10 @@ QString Doc::htmlExtensionList()
     return html;
 }
 
-Doc::Doc( Kind kind, const Location& loc, const QString& htmlText )
-    : ki( kind ), lo( loc ), html( htmlText ), inter( FALSE ), obs( FALSE )
+Doc::Doc( Kind kind, const Location& loc, const QString& htmlText,
+	  const QString& name, const QString& whatsThis )
+    : ki( kind ), lo( loc ), html( htmlText ), nam( name ), whats( whatsThis ),
+      inter( FALSE ), obs( FALSE )
 {
 }
 
@@ -1884,7 +1889,7 @@ ClassDoc::ClassDoc( const Location& loc, const QString& html,
 		    const QString& className, const QString& brief,
 		    const QString& module, const QString& extension,
 		    const StringSet& headers, const QStringList& important )
-    : Doc( Class, loc, html ), cname( className ), bf( brief ), mod( module ),
+    : Doc( Class, loc, html, className ), bf( brief ), mod( module ),
       ext( extension ), h( headers ), imp( important )
 {
     if ( !ext.isEmpty() ) {
@@ -1900,6 +1905,7 @@ ClassDoc::ClassDoc( const Location& loc, const QString& html,
       Unfortunately, when this code was written, Qt 3.0 QRegExp was not yet
       available.
     */
+    QString whats;
     bool standardWording = TRUE;
     bool finalStop = ( bf.right(1) == QChar('.') );
     if ( !finalStop )
@@ -1952,17 +1958,19 @@ ClassDoc::ClassDoc( const Location& loc, const QString& html,
     else if ( !finalStop )
 	warning( 3, location(), "Final stop missing in '\\brief' text for '%s'",
 		 className.latin1() );
+    setWhatsThis( whats );
 }
 
 EnumDoc::EnumDoc( const Location& loc, const QString& html,
 		  const QString& enumName )
-    : Doc( Enum, loc, html ), ename( enumName )
+    : Doc( Enum, loc, html, enumName )
 {
 }
 
 PageLikeDoc::PageLikeDoc( Kind kind, const Location& loc, const QString& html,
-			  const QString& title, const QString& heading )
-    : Doc( kind, loc, html ), ttl( title ), hding( heading )
+			  const QString& fileName, const QString& title,
+			  const QString& heading )
+    : Doc( kind, loc, html ), fname( fileName ), ttl( title ), hding( heading )
 {
 }
 
@@ -1992,13 +2000,14 @@ QString PageLikeDoc::heading() const
 PageDoc::PageDoc( const Location& loc, const QString& html,
 		  const QString& fileName, const QString& title,
 		  const QString& heading )
-    : PageLikeDoc( Page, loc, html, title, heading ), fname( fileName )
+    : PageLikeDoc( Page, loc, html, fileName, title, heading )
 {
+    setName( title );
 }
 
 Base64Doc::Base64Doc( const Location& loc, const QString& html,
 		      const QString& fileName )
-    : Doc( Base64, loc, html ), fname( fileName )
+    : PageLikeDoc( Base64, loc, html, fileName )
 {
 }
 
@@ -2007,28 +2016,29 @@ void Base64Doc::print( BinaryWriter& out )
     out.putsBase64( htmlData().latin1() );
 }
 
-Base256Doc::Base256Doc( const Location& loc, const QString& html,
-			const QString& fileName )
-    : Doc( Base256, loc, html ), fname( fileName )
+PlainpageDoc::PlainpageDoc( const Location& loc, const QString& html,
+			    const QString& fileName )
+    : PageLikeDoc( Plainpage, loc, html, fileName )
 {
 }
 
-void Base256Doc::print( BinaryWriter& out )
+void PlainpageDoc::print( BinaryWriter& out )
 {
-    out.putsBase256( htmlData().latin1() );
+    out.puts( htmlData().latin1() );
 }
 
 DefgroupDoc::DefgroupDoc( const Location& loc, const QString& html,
 			  const QString& groupName, const QString& title,
 			  const QString& heading )
-    : PageLikeDoc( Defgroup, loc, html, title, heading ),
-      gname( groupName )
+    : PageLikeDoc( Defgroup, loc, html, config->defgroupHref(groupName), title,
+		   heading )
 {
+    setName( groupName );
 }
 
 ExampleDoc::ExampleDoc( const Location& loc, const QString& html,
 			const QString& fileName, const QString& title,
 			const QString& heading )
-    : PageLikeDoc( Example, loc, html, title, heading ), fname( fileName )
+    : PageLikeDoc( Example, loc, html, fileName, title, heading )
 {
 }

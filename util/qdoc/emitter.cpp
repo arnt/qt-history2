@@ -1,5 +1,5 @@
 /*
-  steering.cpp
+  emitter.cpp
 */
 
 #include <qfile.h>
@@ -10,15 +10,15 @@
 #include "config.h"
 #include "declresolver.h"
 #include "doc.h"
+#include "emitter.h"
 #include "htmlwriter.h"
 #include "messages.h"
-#include "steering.h"
 #include "stringset.h"
 
 static QString protect( const QString& str, QChar metaCh )
 {
     /*
-      Suppose metaCh is '|' and str is '\ is not |'.  The result should be
+      Suppose metaCh is '|' and str is '\ is not |'. The result should be
       '\\ is not \|' or, in C++ notation, "\\\\ is not \\|".
     */
     QString t = str;
@@ -54,47 +54,51 @@ static void emitHtmlHeaderFile( const QString& headerFilePath,
     out.putsMeta( "</pre>\n" );
 }
 
-void Steering::addGroup( DefgroupDoc *doc )
+void Emitter::addGroup( DefgroupDoc *doc )
 {
-    groupdefs.insert( doc->groupName(), doc );
-    addHtmlFile( config->defgroupHref(doc->groupName()) );
+    groupdefs.insert( doc->name(), doc );
+    addHtmlFile( doc->fileName() );
 }
 
-void Steering::addClassToGroup( ClassDecl *classDecl, const QString& group )
+void Emitter::addGroupie( Doc *groupie )
 {
-    groupclasses[group].insert( classDecl->name(), classDecl );
+    StringSet::ConstIterator group = groupie->groups().begin();
+    while ( group != groupie->groups().end() ) {
+	groupiemap[*group].insert( groupie->name(), groupie );
+	++group;
+    }
 }
 
-void Steering::addPage( PageDoc *doc )
+void Emitter::addPage( PageDoc *doc )
 {
     pages.append( doc );
     addHtmlFile( doc->fileName() );
 }
 
-void Steering::addExample( ExampleDoc *doc )
+void Emitter::addExample( ExampleDoc *doc )
 {
     examples.append( doc );
     addHtmlFile( config->verbatimHref(doc->fileName()) );
     eglist.insert( doc->fileName() );
 }
 
-void Steering::addHtmlChunk( const QString& link, const HtmlChunk& chk )
+void Emitter::addHtmlChunk( const QString& link, const HtmlChunk& chk )
 {
     chkmap.insert( link, chk );
 }
 
-void Steering::addLink( const QString& link, const QString& text )
+void Emitter::addLink( const QString& link, const QString& text )
 {
     lmap[text].insert( link );
 }
 
-void Steering::nailDownDecls()
+void Emitter::nailDownDecls()
 {
     root.buildMangledSymbolTables();
     root.fillInDecls();
 }
 
-void Steering::nailDownDocs()
+void Emitter::nailDownDocs()
 {
     root.destructMangledSymbolTables();
     root.buildPlainSymbolTables();
@@ -178,7 +182,7 @@ void Steering::nailDownDocs()
     }
 }
 
-void Steering::emitHtml() const
+void Emitter::emitHtml() const
 {
     QString htmlFileName;
 
@@ -256,39 +260,39 @@ void Steering::emitHtml() const
     resolver.setCurrentClass( (ClassDecl *) 0 );
 
     QMap<QString, DefgroupDoc *>::ConstIterator def = groupdefs.begin();
-    QMap<QString, QMap<QString, ClassDecl *> >::ConstIterator classes =
-	    groupclasses.begin();
-    QMap<QString, ClassDecl *>::ConstIterator c;
+    QMap<QString, QMap<QString, Doc *> >::ConstIterator groupies =
+	    groupiemap.begin();
+    QMap<QString, Doc *>::ConstIterator c; // ### rename
 
     /*
-      A COBOL programmer wrote this clever loop.  If it weren't for C, he would
+      A COBOL programmer wrote this clever loop. If it weren't for C, he would
       be programming in OBOL.
     */
-    while ( def != groupdefs.end() || classes != groupclasses.end() ) {
+    while ( def != groupdefs.end() || groupies != groupiemap.end() ) {
 	if ( def != groupdefs.end() ) {
-	    if ( classes == groupclasses.end() || def.key() < classes.key() ) {
+	    if ( groupies == groupiemap.end() || def.key() < groupies.key() ) {
 		warning( 2, (*def)->location(), "Empty group '%s'",
 			 def.key().latin1() );
 		++def;
 	    }
 	}
-	if ( classes != groupclasses.end() ) {
-	    if ( def == groupdefs.end() || classes.key() < def.key() ) {
-		c = (*classes).begin();
-		while ( c != (*classes).end() ) {
-		    if ( (*c)->doc() != 0 )
-			warning( 3, (*c)->doc()->location(),
+	if ( groupies != groupiemap.end() ) {
+	    if ( def == groupdefs.end() || groupies.key() < def.key() ) {
+		c = (*groupies).begin();
+		while ( c != (*groupies).end() ) {
+		    if ( *c != 0 )
+			warning( 3, (*c)->location(),
 				 "Undefined group '%s'",
-				 classes.key().latin1() );
+				 groupies.key().latin1() );
 		    ++c;
 		}
-		++classes;
-	    } else if ( classes.key() == def.key() ) {
+		++groupies;
+	    } else if ( groupies.key() == def.key() ) {
 		/*
-		  Bingo!  At this point *def is the doc and *classes is a QMap
-		  with class-name keys and ClassDecl * values.
+		  Bingo! At this point *def is the doc and *groupies is a QMap
+		  with class- or page-name keys and Doc * values.
 		*/
-		htmlFileName = config->defgroupHref( (*def)->groupName() );
+		htmlFileName = config->defgroupHref( (*def)->name() );
 
 		if ( config->generateHtmlFile(htmlFileName) ) {
 		    HtmlWriter out( htmlFileName );
@@ -298,8 +302,8 @@ void Steering::emitHtml() const
 		    out.enterFooter();
 		    out.putsMeta( "<p>Classes:\n<ul>\n" );
 
-		    c = (*classes).begin();
-		    while ( c != (*classes).end() ) {
+		    c = (*groupies).begin();
+		    while ( c != (*groupies).end() ) {
 			QString link = config->classRefHref( (*c)->name() );
 			out.printfMeta( "<li><a href=\"%s\">%s</a>\n",
 					link.latin1(), (*c)->name().latin1() );
@@ -311,7 +315,7 @@ void Steering::emitHtml() const
 		    out.putsMeta( "</ul>\n" );
 		}
 		++def;
-		++classes;
+		++groupies;
 	    }
 	}
     }
@@ -338,10 +342,10 @@ void Steering::emitHtml() const
     while ( x != lmap.end() ) {
 	StringSet::ConstIterator s = (*x).begin();
 	while ( s != (*x).end() ) {
-	    index.putsBase256( QString("\"%1\" %2\n")
-			       .arg(protect(x.key(), QChar('"')))
-			       .arg(*s)
-			       .latin1() );
+	    index.puts( QString("\"%1\" %2\n")
+				.arg(protect(x.key(), QChar('"')))
+				.arg(*s)
+				.latin1() );
 	    ++s;
 	}
 	++x;
@@ -350,8 +354,9 @@ void Steering::emitHtml() const
     BinaryWriter propertyindex( QString("propertyindex") );
     QMap<QString, QString>::ConstIterator p = pmap.begin();
     while ( p != pmap.end() ) {
-	propertyindex.putsBase256( QString("\"%1\" %2\n").arg(p.key()).arg(*p)
-				   .latin1() );
+	propertyindex.puts( QString("\"%1\" %2\n")
+				    .arg(p.key()).arg(*p)
+				    .latin1() );
 	++p;
     }
 
@@ -360,10 +365,10 @@ void Steering::emitHtml() const
     while ( t != HtmlWriter::titleMap().end() ) {
 	StringSet::ConstIterator s = (*t).begin();
 	while ( s != (*t).end() ) {
-	    titleindex.putsBase256( QString("%1 | %2\n")
-				    .arg(protect(t.key(), QChar('|')))
-				    .arg(*s)
-				    .latin1() );
+	    titleindex.puts( QString("%1 | %2\n")
+				     .arg(protect(t.key(), QChar('|')))
+				     .arg(*s)
+				     .latin1() );
 	    ++s;
 	}
 	++t;
@@ -374,17 +379,17 @@ void Steering::emitHtml() const
     while ( w != wmap.end() ) {
 	StringSet::ConstIterator s = (*w).begin();
 	while ( s != (*w).end() ) {
-	    whatsthis.putsBase256( QString("%1. | %2\n")
-				   .arg(protect(w.key(), QChar('|')))
-				   .arg(*s)
-				   .latin1() );
+	    whatsthis.puts( QString("%1. | %2\n")
+				    .arg(protect(w.key(), QChar('|')))
+				    .arg(*s)
+				    .latin1() );
 	    ++s;
 	}
 	++w;
     }
 }
 
-void Steering::addHtmlFile( const QString& fileName )
+void Emitter::addHtmlFile( const QString& fileName )
 {
     if ( htmllist.contains(fileName) )
 	warning( 1, "HTML file '%s' overwritten", fileName.latin1() );

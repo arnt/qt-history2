@@ -1,9 +1,9 @@
 /*
-  steering.h
+  emitter.h
 */
 
-#ifndef STEERING_H
-#define STEERING_H
+#ifndef EMITTER_H
+#define EMITTER_H
 
 #include <qmap.h>
 #include <qstring.h>
@@ -16,10 +16,10 @@ class DefgroupDoc;
 class ExampleDoc;
 class PageDoc;
 
-class Steering
+class Emitter
 {
 public:
-    Steering() { }
+    Emitter() { }
 
     RootDecl *rootDecl() { return &root; }
     // ### needed?
@@ -28,7 +28,7 @@ public:
     Decl *resolvePlain( const QString& fullName ) const
     { return root.resolvePlain( fullName ); }
     void addGroup( DefgroupDoc *doc );
-    void addClassToGroup( ClassDecl *classDecl, const QString& group );
+    void addGroupie( Doc *groupie );
     void addPage( PageDoc *doc );
     void addExample( ExampleDoc *doc );
     void addHtmlChunk( const QString& link, const HtmlChunk& chk );
@@ -40,15 +40,15 @@ public:
 
 private:
 #if defined(Q_DISABLE_COPY)
-    Steering( const Steering& );
-    Steering& operator=( const Steering& );
+    Emitter( const Emitter& );
+    Emitter& operator=( const Emitter& );
 #endif
 
     void addHtmlFile( const QString& fileName );
 
     RootDecl root;
     QMap<QString, DefgroupDoc *> groupdefs;
-    QMap<QString, QMap<QString, ClassDecl *> > groupclasses;
+    QMap<QString, QMap<QString, Doc *> > groupiemap;
     QValueList<PageDoc *> pages;
     QValueList<ExampleDoc *> examples;
     QMap<QString, HtmlChunk> chkmap;

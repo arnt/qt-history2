@@ -13,42 +13,42 @@
 #include "config.h"
 #include "decl.h"
 #include "doc.h"
+#include "emitter.h"
 #include "messages.h"
-#include "steering.h"
 #include "stringset.h"
 #include "tokenizer.h"
 
 /* tmake ignore Q_OBJECT */
 
 /*
-  What is parsing?  Even though source files and header files are
-  written in the same language (C++), qdoc distinguishes them.  It
+  What is parsing? Even though source files and header files are
+  written in the same language (C++), qdoc distinguishes them. It
   first reads the header files using a parser that looks for
-  declarations and class definitions.  Then it reads the source files
-  using another parser that looks for slashasterbang comments.  Both
-  parsers have much in common, but they are also quite different.  For
+  declarations and class definitions. Then it reads the source files
+  using another parser that looks for slashasterbang comments. Both
+  parsers have much in common, but they are also quite different. For
   that reason, they are tangled here in one file.
 
-  The two parsers are quite peculiar.  They look like typical
+  The two parsers are quite peculiar. They look like typical
   recursive-descent parsers (supposedly one of the least maintainable
-  and most hard to read parsing techniques).  However, these beasts
-  have very little to do with Standard C++.  They parse something that
-  could be called Intuitive C++, or ad hoc C++.  They are quite gross
-  in the details.  The header parser will try to parse anything that
+  and most hard to read parsing techniques). However, these beasts
+  have very little to do with Standard C++. They parse something that
+  could be called Intuitive C++, or ad hoc C++. They are quite gross
+  in the details. The header parser will try to parse anything that
   starts with 'class' as a class definition, until it meets something
-  that doesn't fit.  What does it do then?  If your answer is
-  backtrack, you're wrong.  It just looks for something to hold on and
-  goes on, without ever emitting a warning about syntax.
+  that doesn't fit. What does it do then? The answer is not backtrack.
+  It just looks for something to hold on and goes on, without ever
+  emitting a warning about syntax.
 */
 
 /*
-  Sets the address of a Doc.  That information is used by the steering
+  Sets the address of a Doc. That information is used by the emitter
   to emit some index file, and by the Doc itself to know who it is.
 */
-static void setLink( Steering *steering, Doc *doc, const QString& link,
+static void setLink( Emitter *emitter, Doc *doc, const QString& link,
 		     const QString& text )
 {
-    steering->addLink( link, text );
+    emitter->addLink( link, text );
     doc->setLink( link, text );
 }
 
@@ -102,8 +102,8 @@ static bool matchTemplateHeader()
 }
 
 /*
-  Tries to match a data type and possibly a variable name.  The variable name
-  belongs here because of cases such as 'char *xpm[]' and 'int (*f)(int)'.  The
+  Tries to match a data type and possibly a variable name. The variable name
+  belongs here because of cases such as 'char *xpm[]' and 'int (*f)(int)'. The
   inventors of C are to blame for these inside-out declarations.
 */
 static bool matchDataType( CodeChunk *type, QString *var = 0 )
@@ -111,7 +111,7 @@ static bool matchDataType( CodeChunk *type, QString *var = 0 )
     static QRegExp varComment( QString("/\\*\\s([a-zA-Z_0-9]+)\\s\\*/") );
 
     /*
-      This code is really hard to follow... sorry.  The loop is there to match
+      This code is really hard to follow... sorry. The loop is there to match
       Alpha::Beta::Gamma::...::Omega.
     */
     while ( TRUE ) {
@@ -120,7 +120,7 @@ static bool matchDataType( CodeChunk *type, QString *var = 0 )
 	if ( yyTok != Tok_Ident ) {
 	    /*
 	      There is special processing for 'Foo::operator int()' and such
-	      elsewhere.  This is the only case where we return something with a
+	      elsewhere. This is the only case where we return something with a
 	      trailing gulbrandsen ('Foo::').
 	    */
 	    if ( yyTok == Tok_operator )
@@ -172,9 +172,9 @@ static bool matchDataType( CodeChunk *type, QString *var = 0 )
 
     if ( match(Tok_LeftParenAster) ) {
 	/*
-	  A function pointer.  This would be rather hard to handle without a
+	  A function pointer. This would be rather hard to handle without a
 	  tokenizer hack, because a type can be followed with a left parenthesis
-	  in some cases (e.g., 'operator int()').  The tokenizer recognizes '(*'
+	  in some cases (e.g., 'operator int()'). The tokenizer recognizes '(*'
 	  as a single token.
 	*/
 	type->append( yyTokenizer->previousLexeme() );
@@ -194,8 +194,8 @@ static bool matchDataType( CodeChunk *type, QString *var = 0 )
 	    type->append( yyTokenizer->previousLexeme() );
     } else {
 	/*
-	  The common case:  Look for an optional identifier, then for some
-	  array brackets.
+	  The common case: Look for an optional identifier, then for some array
+	  brackets.
 	*/
 	type->appendHotspot();
 
@@ -204,9 +204,9 @@ static bool matchDataType( CodeChunk *type, QString *var = 0 )
 		*var = yyTokenizer->previousLexeme();
 	    } else if ( match(Tok_Comment) ) {
 		/*
-		  A neat hack:  Commented-out parameter names are recognized by
-		  qdoc.  It's impossible to illustrate here inside a C comment,
-		  because it requires an asterslash.  It's also impossible to
+		  A neat hack: Commented-out parameter names are recognized by
+		  qdoc. It's impossible to illustrate here inside a C comment,
+		  because it requires an asterslash. It's also impossible to
 		  illustrate inside a C++ comment, because the explanation does
 		  not fit on one line.
 		*/
@@ -400,7 +400,7 @@ static bool matchClassDecl( Decl *context )
 	return FALSE;
 
     /*
-      So far, so good.  We have 'class Foo {' or 'class Foo :'.  This is enough
+      So far, so good. We have 'class Foo {' or 'class Foo :'. This is enough
       to recognize a class definition.
     */
     ClassDecl *classDecl = new ClassDecl( yyTokenizer->location(),
@@ -602,7 +602,7 @@ static bool matchDeclList( Decl *context )
     return TRUE;
 }
 
-void parseCppHeaderFile( Steering *steering, const QString& filePath )
+void parseCppHeaderFile( Emitter *emitter, const QString& filePath )
 {
     Location loc( filePath );
     FILE *in = fopen( QFile::encodeName(filePath), "r" );
@@ -618,7 +618,7 @@ void parseCppHeaderFile( Steering *steering, const QString& filePath )
     yyLastDecl = 0;
     yyState = State_Normal;
 
-    matchDeclList( steering->rootDecl() );
+    matchDeclList( emitter->rootDecl() );
 
     yyTokenizer = 0;
     tokenizer.stop();
@@ -629,7 +629,7 @@ void parseCppHeaderFile( Steering *steering, const QString& filePath )
   The third part of the file constitutes the C++ source file parser proper.
 */
 
-static void matchDocsAndStuff( Steering *steering )
+static void matchDocsAndStuff( Emitter *emitter )
 {
     while ( yyTok != Tok_Eoi ) {
 	if ( yyTok == Tok_Doc ) {
@@ -645,17 +645,17 @@ static void matchDocsAndStuff( Steering *steering )
 	    /*
 	      Have you read tokenizer.h? If so, you must have noticed the two
 	      concrete subclasses of Tokenizer, namely FileTokenizer and
-	      StringTokenizer.  A FileTokenizer is obviously useful for parsing
-	      source files.  If you don't understand the need for a
+	      StringTokenizer. A FileTokenizer is obviously useful for parsing
+	      source files. If you don't understand the need for a
 	      StringTokenizer yet, consider docs containing a function
 	      prototype, like
 
 		  \fn int QWidget::width() const
 
-	      The comment is first slurped by a FileTokenizer.  Then
+	      The comment is first slurped by a FileTokenizer. Then
 	      Doc::create() discovers the '\fn' line and makes it available
-	      throught FnDoc::prototype().  Finally the C++ source file parser
-	      is tweaked to use a StringTokenizer instead of the usual
+	      throught FnDoc::prototype(). Finally the C++ source file parser is
+	      tweaked to use a StringTokenizer instead of the usual
 	      FileTokenizer.
 	    */
 
@@ -677,7 +677,7 @@ static void matchDocsAndStuff( Steering *steering )
 		Decl *root = 0;
 
 		if ( !fn->relates().isEmpty() ) {
-		    relates = steering->resolveMangled( fn->relates() );
+		    relates = emitter->resolveMangled( fn->relates() );
 		    if ( relates != 0 && relates->kind() == Decl::Class ) {
 			root = relates->rootContext();
 		    } else {
@@ -691,7 +691,7 @@ static void matchDocsAndStuff( Steering *steering )
 		if ( matchFunctionDecl(root) ) {
 		    Decl *decl;
 		    if ( root == 0 ) {
-			decl = steering->resolveMangled(
+			decl = emitter->resolveMangled(
 				yyLastDecl->mangledName() );
 			if ( decl != 0 && decl->kind() != Decl::Function )
 			    decl = 0;
@@ -702,7 +702,7 @@ static void matchDocsAndStuff( Steering *steering )
 
 		    if ( decl != 0 ) {
 			decl->setDoc( fn );
-			setLink( steering, fn,
+			setLink( emitter, fn,
 				 config->classRefHref(
 					 decl->relatesContext()->name()) +
 					 QChar('#') + decl->anchor(),
@@ -713,7 +713,7 @@ static void matchDocsAndStuff( Steering *steering )
 			    ((FunctionDecl *) yyLastDecl)->parameterBegin() );
 
 			/*
-			  Check unexisting parameters now.  Check undocumented
+			  Check unexisting parameters now. Check undocumented
 			  parameters elsewhere, when we know who overloads who.
 			*/
 			StringSet diff;
@@ -750,24 +750,24 @@ static void matchDocsAndStuff( Steering *steering )
 		}
 	    } else if ( doc->kind() == Doc::Class ) {
 		ClassDoc *cl = (ClassDoc *) doc;
-		Decl *decl = steering->resolveMangled( cl->className() );
+		Decl *decl = emitter->resolveMangled( cl->name() );
 		if ( decl != 0 && decl->kind() == Decl::Class ) {
 		    decl->setDoc( doc );
-		    setLink( steering, cl, config->classRefHref(decl->name()),
+		    setLink( emitter, cl, config->classRefHref(decl->name()),
 			     decl->name() );
 		    deleteDoc = FALSE;
 		} else {
 		    warning( 1, doc->location(),
 			     "Class '%s' specified with '\\class' not found",
-			     cl->className().latin1() );
+			     cl->name().latin1() );
 		}
 	    } else if ( doc->kind() == Doc::Enum ) {
 		EnumDoc *en = (EnumDoc *) doc;
-		Decl *decl = steering->resolveMangled( en->enumName() );
+		Decl *decl = emitter->resolveMangled( en->name() );
 		if ( decl != 0 && (decl->kind() == Decl::Enum ||
 				   decl->kind() == Decl::Typedef) ) {
 		    decl->setDoc( en );
-		    setLink( steering, en,
+		    setLink( emitter, en,
 			     config->classRefHref(decl->context()->name()) +
 				     QChar('#') + decl->mangledName(),
 			     decl->fullName() );
@@ -776,45 +776,39 @@ static void matchDocsAndStuff( Steering *steering )
 		    warning( 1, doc->location(),
 			     "Enum or typedef '%s' specified with '\\enum' not"
 			     " found",
-			     en->enumName().latin1() );
+			     en->name().latin1() );
 		}
 	    } else if ( doc->kind() == Doc::Page ) {
 		PageDoc *pa = (PageDoc *) doc;
-		setLink( steering, pa, pa->fileName(), pa->title() );
-		steering->addPage( pa );
+		setLink( emitter, pa, pa->fileName(), pa->title() );
+		emitter->addPage( pa );
 		deleteDoc = FALSE;
 	    } else if ( doc->kind() == Doc::Base64 ) {
 		Base64Doc *ba = (Base64Doc *) doc;
 		BinaryWriter out( ba->fileName() );
 		ba->print( out );
-	    } else if ( doc->kind() == Doc::Base256 ) {
-		Base256Doc *ba = (Base256Doc *) doc;
+	    } else if ( doc->kind() == Doc::Plainpage ) {
+		PlainpageDoc *ba = (PlainpageDoc *) doc;
 		BinaryWriter out( ba->fileName() );
 		ba->print( out );
 	    } else if ( doc->kind() == Doc::Defgroup ) {
 		DefgroupDoc *df = (DefgroupDoc *) doc;
-		steering->addGroup( df );
-		setLink( steering, df, config->defgroupHref(df->groupName()),
-			 df->groupName() );
+		emitter->addGroup( df );
+		setLink( emitter, df, df->fileName(), df->name() );
 		deleteDoc = FALSE;
 	    } else if ( doc->kind() == Doc::Example ) {
-		steering->addExample( (ExampleDoc *) doc );
+		emitter->addExample( (ExampleDoc *) doc );
 		deleteDoc = FALSE;
 	    }
 
-	    if ( deleteDoc ) {
+	    if ( deleteDoc )
 		delete doc;
-	    } else {
-		StringSet::ConstIterator g = cl->groups().begin();
-		while ( g != cl->groups().end() ) {
-		    steering->addGroupie( (ClassDecl *) decl, *g );
-		    ++g;
-		}
-	    }
+	    else
+		emitter->addGroupie( doc );
 	} else {
-	    if ( matchFunctionDecl(0) ) {
-		Decl *decl;
-		decl = steering->resolveMangled( yyLastDecl->mangledName() );
+	    if ( matchFunctionDecl((FunctionDecl *) 0) ) {
+		Decl *decl =
+			emitter->resolveMangled( yyLastDecl->mangledName() );
 		// signals are defined in MOC files
 		if ( decl != 0 && decl->kind() == Decl::Function &&
 		     !((FunctionDecl *) decl)->isSignal() )
@@ -829,7 +823,7 @@ static void matchDocsAndStuff( Steering *steering )
     }
 }
 
-void parseCppSourceFile( Steering *steering, const QString& filePath )
+void parseCppSourceFile( Emitter *emitter, const QString& filePath )
 {
     Location loc( filePath );
     FILE *in = fopen( QFile::encodeName(filePath), "r" );
@@ -845,7 +839,7 @@ void parseCppSourceFile( Steering *steering, const QString& filePath )
     yyLastDecl = 0;
     yyState = State_Normal;
 
-    matchDocsAndStuff( steering );
+    matchDocsAndStuff( emitter );
 
     yyTokenizer = 0;
     tokenizer.stop();

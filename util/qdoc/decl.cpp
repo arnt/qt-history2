@@ -576,7 +576,7 @@ void ClassDecl::buildPlainSymbolTables()
     }
 }
 
-QString ClassDecl::whatsThis() const
+QString ClassDecl::whatsThis() const // ### needed?
 {
     if ( classDoc() == 0 )
 	return QString( "" );

@@ -21,7 +21,7 @@ class Resolver;
 class Doc
 {
 public:
-    enum Kind { Null, Fn, Class, Enum, Page, Base64, Base256, Defgroup,
+    enum Kind { Null, Fn, Class, Enum, Page, Base64, Plainpage, Defgroup,
 		Example };
 
     static Doc *create( const Location& loc, const QString& text );
@@ -44,9 +44,13 @@ public:
     static QString htmlClassHierarchy();
     static QString htmlExtensionList();
 
-    Doc( Kind kind, const Location& loc, const QString& htmlText );
+    Doc( Kind kind, const Location& loc, const QString& htmlText,
+	 const QString& name = QString::null,
+	 const QString& whatsThis = QString::null );
     virtual ~Doc() { }
 
+    void setName( const QString& name ) { nam = name; }
+    void setWhatsThis( const QString& whatsThis ) { whats = whatsThis; }
     void setInternal( bool internal ) { inter = internal; }
     void setObsolete( bool obsolete ) { obs = obsolete; }
     void setSeeAlso( const QStringList& seeAlso ) { sa = seeAlso; }
@@ -57,6 +61,8 @@ public:
 
     Kind kind() const { return ki; }
     const Location& location() const { return lo; }
+    const QString& name() const { return nam; }
+    const QString& whatsThis() const { return whats; }
     bool internal() const { return inter; }
     bool obsolete() const { return obs; }
     bool changedSinceLastRun() const;
@@ -79,6 +85,8 @@ private:
     Kind ki;
     Location lo;
     QString html;
+    QString nam;
+    QString whats;
     QStringList sa;
     bool inter;
     bool obs;
@@ -95,7 +103,8 @@ private:
     static QMap<QString, QString> clist;
     static QMap<QString, StringSet> findex;
     static QMap<QString, StringSet> chierarchy;
-protected:
+
+protected: // ### evil
     static StringSet extlist;
     static QMap<QString, QString> classext;
 };
@@ -129,18 +138,14 @@ public:
 	      const QString& module, const QString& extension,
 	      const StringSet& headers, const QStringList& important );
 
-    const QString& className() const { return cname; }
     const QString& brief() const { return bf; }
-    const QString& whatsThis() const { return whats; }
     const QString& module() const { return mod; }
     const QString& extension() const { return ext; }
     const StringSet& headers() const { return h; }
     const QStringList& important() const { return imp; }
 
 private:
-    QString cname;
     QString bf;
-    QString whats;
     QString mod;
     QString ext;
     StringSet h;
@@ -150,25 +155,22 @@ private:
 class EnumDoc : public Doc
 {
 public:
-    EnumDoc( const Location& loc, const QString& html,
-	     const QString& enumName );
-
-    const QString& enumName() const { return ename; }
-
-private:
-    QString ename;
+    EnumDoc( const Location& loc, const QString& html, const QString& name );
 };
 
 class PageLikeDoc : public Doc
 {
 public:
     PageLikeDoc( Kind kind, const Location& loc, const QString& html,
-		 const QString& title, const QString& heading );
+		 const QString& fileName, const QString& title = QString::null,
+		 const QString& heading = QString::null );
 
+    const QString& fileName() const { return fname; }
     const QString& title() const { return ttl; }
     QString heading() const;
 
 private:
+    QString fname;
     QString ttl;
     QString hding;
 };
@@ -176,36 +178,25 @@ private:
 class PageDoc : public PageLikeDoc
 {
 public:
-    PageDoc( const Location& loc, const QString& html, const QString& fileName,
-	     const QString& title, const QString& heading );
-
-    const QString& fileName() const { return fname; }
-
-private:
-    QString fname;
+    PageDoc( const Location& loc, const QString& html,
+	     const QString& fileName, const QString& title,
+	     const QString& heading );
 };
 
-class Base64Doc : public Doc
+class Base64Doc : public PageLikeDoc
 {
 public:
     Base64Doc( const Location& loc, const QString& html,
 	       const QString& fileName );
 
-    const QString& fileName() const { return fname; }
-
     void print( BinaryWriter& out );
-
-private:
-    QString fname;
 };
 
-class Base256Doc : public Doc
+class PlainpageDoc : public PageLikeDoc
 {
 public:
-    Base256Doc( const Location& loc, const QString& html,
-		const QString& fileName );
-
-    const QString& fileName() const { return fname; }
+    PlainpageDoc( const Location& loc, const QString& html,
+		  const QString& fileName );
 
     void print( BinaryWriter& out );
 
@@ -219,11 +210,6 @@ public:
     DefgroupDoc( const Location& loc, const QString& html,
 		 const QString& groupName, const QString& title,
 		 const QString& heading );
-
-    const QString& groupName() const { return gname; }
-
-private:
-    QString gname;
 };
 
 class ExampleDoc : public PageLikeDoc
@@ -232,11 +218,6 @@ public:
     ExampleDoc( const Location& loc, const QString& html,
 		const QString& fileName, const QString& title,
 		const QString& heading );
-
-    const QString& fileName() const { return fname; }
-
-private:
-    QString fname;
 };
 
 #endif

@@ -28,6 +28,15 @@ BinaryWriter::~BinaryWriter()
 	fclose( out );
 }
 
+void BinaryWriter::puts( const char *str )
+{
+    if ( out == 0 )
+	return;
+
+    fputs( str, out );
+}
+
+
 void BinaryWriter::putsBase64( const char *str )
 {
     if ( out == 0 )
@@ -48,18 +57,10 @@ void BinaryWriter::putsBase64( const char *str )
     }
 }
 
-void BinaryWriter::putsBase256( const char *str )
-{
-    if ( out == 0 )
-	return;
-
-    fputs( str, out );
-}
-
 int BinaryWriter::toBase64Digit( int ch )
 {
     /*
-      This is slow and ugly, but sufficient for qdoc.
+      This is slow but sufficient for qdoc.
     */
     if ( ch >= 'A' && ch <= 'Z' )
 	return ch - 'A';

@@ -182,7 +182,7 @@ Config::Config( int argc, char **argv )
 	    styl = val.join( QChar(' ') );
 	} else if ( key == QString("SUPERVISOR") ) {
 	    super = isYes( key, val );
-	} else if ( key == QString("VERSION") ) {
+	} else if ( key == QString("VERSIONSTR") ) {
 	    vers = val.join( QChar(' ') );
 	} else if ( key == QString("VERSIONSYM") ) {
 	    verssym = singleton( key, val );

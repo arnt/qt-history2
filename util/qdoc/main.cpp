@@ -8,15 +8,15 @@
 #include <stdlib.h>
 
 #include "config.h"
+#include "emitter.h"
 #include "messages.h"
-#include "steering.h"
 
 // defined in cppparser.cpp
-extern void parseCppHeaderFile( Steering *steering, const QString& fileName );
-extern void parseCppSourceFile( Steering *steering, const QString& fileName );
+extern void parseCppHeaderFile( Emitter *emitter, const QString& fileName );
+extern void parseCppSourceFile( Emitter *emitter, const QString& fileName );
 
 // defined in htmlparser.cpp
-extern void parseHtmlFile( Steering *steering, const QString& fileName );
+extern void parseHtmlFile( Emitter *emitter, const QString& fileName );
 
 static int compareByMtime( const void *n1, const void *n2 )
 {
@@ -65,7 +65,7 @@ static QStringList find( const QString & rootDir, const QString & nameFilter )
 int main( int argc, char **argv )
 {
     config = new Config( argc, argv );
-    Steering steering;
+    Emitter emitter;
 
     if ( config->outputDir().isEmpty() ) {
 	warning( 1, "No output directory specified (OUTPUTDIR)" );
@@ -91,11 +91,11 @@ int main( int argc, char **argv )
     }
     s = headerFiles.begin();
     while( s != headerFiles.end() ) {
-	parseCppHeaderFile( &steering, *s );
+	parseCppHeaderFile( &emitter, *s );
 	++s;
     }
 
-    steering.nailDownDecls();
+    emitter.nailDownDecls();
 
     // then read the .cpp and .doc files, sorted strictly by
     // modification time, most recent first.
@@ -123,7 +123,7 @@ int main( int argc, char **argv )
     qsort( files, n, sizeof(QString), compareByMtime );
     i = n;
     while( i-- > 0 )
-	parseCppSourceFile( &steering, files[i] );
+	parseCppSourceFile( &emitter, files[i] );
     delete[] files;
     files = 0;
 
@@ -133,13 +133,13 @@ int main( int argc, char **argv )
 	outputFiles = find( config->outputDir(), QString("*.html") );
 	s = outputFiles.begin();
 	while ( s != outputFiles.end() ) {
-	    parseHtmlFile( &steering, *s );
+	    parseHtmlFile( &emitter, *s );
 	    ++s;
 	}
     }
 
-    steering.nailDownDocs();
-    steering.emitHtml();
+    emitter.nailDownDocs();
+    emitter.emitHtml();
 
     warnAboutOmitted();
 
