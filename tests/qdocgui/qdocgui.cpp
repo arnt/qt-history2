@@ -91,7 +91,7 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
 
 void QDocMainWindow::editorFinished()
 {
-    QMessageBox::information( this, "Finished editing!", "You can now submit the files into P4!" );
+//    QMessageBox::information( this, "Finished editing!", "You can now submit the files into P4!" );
 }
 
 
@@ -150,7 +150,7 @@ int main( int argc, char** argv )
     QApplication a( argc, argv );
     
     QDocMainWindow qdmw;
-    qdmw.setGeometry( 100, 100, 300, 300 );
+    qdmw.setGeometry( 0, 0, 350, 500 );
     a.setMainWidget( &qdmw );
     qdmw.show();
     return a.exec();
