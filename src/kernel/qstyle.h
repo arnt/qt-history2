@@ -450,6 +450,11 @@ public:
 	vf = pixelMetric( PM_TabBarTabVSpace, t );
 	ov = pixelMetric( PM_TabBarBaseOverlap, t );
     }
+    QSize scrollBarExtent() const
+    {
+	return QSize(pixelMetric(PM_ScrollBarExtent),
+		    pixelMetric(PM_ScrollBarExtent));
+    }
 #endif
 
     GUIStyle guiStyle() const { return gs; }
