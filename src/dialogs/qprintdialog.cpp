@@ -16,8 +16,9 @@
 
 #ifndef QT_NO_PRINTDIALOG
 
-#warning "For some reason qprintdialog.cpp including qfiledialog.h is bad, no idea why (but apparently should be fixed for 4.0)..."
+#if 0
 #include "qfiledialog.h"
+#endif
 #include "qdir.h"
 #include "qdesktopwidget.h"
 #include "qfile.h"
@@ -1427,10 +1428,12 @@ void QPrintDialog::setNumCopies( int copies )
 
 void QPrintDialog::browseClicked()
 {
-#ifndef QT_NO_FILEDIALOG && 0 // ### Fix before 4.0
+#if 0 // ### Fix before 4.0
+#ifndef QT_NO_FILEDIALOG
     QString fn = QFileDialog::getSaveFileName( d->fileName->text(), tr( "PostScript Files (*.ps);;All Files (*)" ), this );
     if ( !fn.isNull() )
 	d->fileName->setText( fn );
+#endif
 #endif
 }
 
