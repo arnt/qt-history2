@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#412 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#413 $
 **
 ** Implementation of QWidget class
 **
@@ -2269,14 +2269,25 @@ bool QWidget::focusNextPrevChild( bool next )
     QWidget *startingPoint = f->it.current();
     QWidget *candidate = 0;
     QWidget *w = next ? f->focusWidgets.last() : f->focusWidgets.first();
-
+    bool wrapped = FALSE;
     do {
 	if ( w && w != startingPoint &&
 	     (w->focusPolicy() == TabFocus || w->focusPolicy() == StrongFocus)
 	     && !w->focusProxy() && w->isVisibleToTLW() && w->isEnabledToTLW())
 	    candidate = w;
+	if  (w == startingPoint )
+	    wrapped = TRUE;
 	w = next ? f->focusWidgets.prev() : f->focusWidgets.next();
     } while( w && !(candidate && w==startingPoint) );
+
+#if defined(_WS_X11_)
+    extern qt_xembed_tab_focus( QWidget*, bool ); // defined in qapplication_x11.cpp
+    if (!candidate || wrapped ) {
+	qt_xembed_tab_focus( this, next );
+    }
+#endif
+
+
 
     if ( !candidate )
 	return FALSE;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#93 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#94 $
 **
 ** Implementation of event classes
 **
@@ -285,6 +285,19 @@ Qt::ButtonState QMouseEvent::stateAfter() const
   Constructs a wheel event object.
 
 */
+QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
+    : QEvent(Wheel), p(pos), d(delta), s((ushort)state),
+      accpt(TRUE)
+{
+    g = QCursor::pos();
+}
+
+/*!
+  \fn QWheelEvent::QWheelEvent( const QPoint &pos, const QPoint&globalPos, int delta, int state )
+
+  Constructs a wheel event object.
+
+*/
 
 /*!
   \fn int QWheelEvent::delta() const
@@ -322,6 +335,32 @@ Qt::ButtonState QMouseEvent::stateAfter() const
   received the event.
   \sa x(), pos()
 */
+
+
+/*!
+  \fn const QPoint &QWheelEvent::globalPos() const
+
+  Returns the global position of the mouse pointer \e at \e the \e
+  time of the event. This is important on asynchronous window systems
+  like X11: Whenever you move your widgets around in response to mouse
+  evens, globalPos() can differ a lot from the current pointer
+  position QCursor::pos().
+
+  \sa globalX(), globalY()
+*/
+
+/*!
+  \fn int QWheelEvent::globalX() const
+  Returns the global X position of the mouse pointer at the time of the event
+  \sa globalY(), globalPos()
+*/
+
+/*!
+  \fn int QWheelEvent::globalY() const
+  Returns the global Y position of the mouse pointer at the time of the event
+  \sa globalX(), globalPos()
+*/
+
 
 /*!
   \fn ButtonState QWheelEvent::state() const

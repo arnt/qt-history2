@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#51 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -1265,7 +1265,7 @@ Sets the hasHeightForWidth() flag to \a b.
  */
 
 
-/*! 
+/*!
   Destroys the iterator
 */
 
@@ -1324,8 +1324,8 @@ QGLayoutIterator::~QGLayoutIterator()
 
 
 /*! \fn QLayoutIterator::QLayoutIterator( QGLayoutIterator *gi )
-  Constructs an iterator based on \a gi. The constructed iterator takes 
-  ownership of \a gi, and will delete it.  
+  Constructs an iterator based on \a gi. The constructed iterator takes
+  ownership of \a gi, and will delete it.
 
   This constructor is provided for layout implementors. Application
   programmers should use QLayoutItem::iterator() to create an iterator

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.h#3 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.h#4 $
 **
 ** Definition of the QStyleSheet class
 **
@@ -63,8 +63,8 @@ public:
 
     int fontSizeRelative() const;
     void setFontSizeRelative(int s);
-    
-    
+
+
     QString fontFamily() const;
     void setFontFamily( const QString& );
 

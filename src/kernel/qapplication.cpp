@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#233 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#234 $
 **
 ** Implementation of QApplication class
 **
@@ -543,6 +543,8 @@ QApplication::~QApplication()
     app_palettes = 0;
     delete app_fonts;
     app_fonts = 0;
+    delete app_style;
+    app_style = 0;
     delete app_cursor;
     app_cursor = 0;
     qt_cleanup();
@@ -2222,19 +2224,19 @@ void MyApplication::commitData( QSessionManager& sm ) {
 /*! \fn     void QSessionManager::setProperty( const QString& name, const QString& value )
 
   Low-level write access to the application's identification and state
-  record kept in the session manager. 
-  
+  record kept in the session manager.
+
  */
 
 /*! \fn     void QSessionManager::setProperty( const QString& name, const QStringList& value )
 
   Low-level write access to the application's identification and state
-  record kept in the session manager. 
+  record kept in the session manager.
 
  */
 
 /*! \fn     bool QSessionManager::isPhase2()
-  
+
   Returns whether the session manager is currently performing a second
   session management phase.
 
@@ -2242,7 +2244,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
  */
 
 /*! \fn     void QSessionManager::requestPhase2()
-  
+
   Requests a second session management phase for the application. The
   application may then simply return from the
   QApplication::commitData() or QApplication::saveState()
@@ -2254,7 +2256,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
   that need to store informations about other application's windows
   and therefore have to wait until these applications finished their
   respective session management tasks.
-  
+
   \sa isPhase2()
  */
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#80 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#81 $
 **
 ** Definition of event classes
 **
@@ -137,19 +137,24 @@ protected:
 class Q_EXPORT QWheelEvent : public QEvent
 {
 public:
-    QWheelEvent( const QPoint &pos, int delta, int state )
-	: QEvent(Wheel), p(pos), d(delta), s((ushort)state),
+    QWheelEvent( const QPoint &pos, int delta, int state );
+    QWheelEvent( const QPoint &pos, const QPoint& globalPos, int delta, int state )
+	: QEvent(Wheel), p(pos), g(globalPos), d(delta), s((ushort)state),
 	  accpt(TRUE) {}
     int	   delta()	const	{ return d; }
     const QPoint &pos() const	{ return p; }
+    const QPoint &globalPos() const	{ return g; }
     int	   x()		const	{ return p.x(); }
     int	   y()		const	{ return p.y(); }
+    int	   globalX()	const	{ return g.x(); }
+    int	   globalY()	const	{ return g.y(); }
     ButtonState state()	const	{ return ButtonState(s); }
     bool   isAccepted() const	{ return accpt; }
     void   accept()		{ accpt = TRUE; }
     void   ignore()		{ accpt = FALSE; }
 protected:
     QPoint p;
+    QPoint g;
     int d;
     ushort s;
     bool   accpt;
