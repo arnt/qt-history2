@@ -909,6 +909,11 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	      script, scriptName( script ).latin1(),
 	      request.weight, request.italic, request.stretch, request.pixelSize, pitch );
 
+#if !defined(QT_NO_DEBUG)
+    if (request.family == QLatin1String("__Qt__Box__Engine__"))
+	return new QFontEngineBox(request.pixelSize);
+#endif
+
 #if defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
     if (family_name.isEmpty()
 	|| family_name == "Sans Serif"
