@@ -29,8 +29,8 @@ styles {
 			message( mac requires windows )
 			styles += windows
 		}
-	}
-	!contains( styles, mac ):DEFINES += QT_NO_STYLE_MAC
+        }
+	else:DEFINES += QT_NO_STYLE_MAC
 
 	contains( styles, aqua ) {
 		HEADERS +=$$STYLES_H/qaquastyle.h $$STYLES_CPP/qaquastyle_p.h
@@ -41,7 +41,7 @@ styles {
 			styles += windows
 		}
 	}
-	!contains( styles, aqua):DEFINES += QT_NO_STYLE_AQUA
+	else:DEFINES += QT_NO_STYLE_AQUA
 
 	contains( styles, cde ) {
 		HEADERS +=$$STYLES_H/qcdestyle.h
@@ -52,7 +52,7 @@ styles {
 			styles += motif
 		}
 	}
-	!contains( styles, cde ):DEFINES += QT_NO_STYLE_CDE
+	else:DEFINES += QT_NO_STYLE_CDE
 
 	contains( styles, motifplus ) {
 		HEADERS +=$$STYLES_H/qmotifplusstyle.h
@@ -62,7 +62,7 @@ styles {
 			styles += motif
 		}
 	}
-	!contains( styles, motifplus ):DEFINES += QT_NO_STYLE_MOTIFPLUS
+	else:DEFINES += QT_NO_STYLE_MOTIFPLUS
 
 	contains( styles, interlace ) {
 		HEADERS +=$$STYLES_H/qinterlacestyle.h
@@ -72,7 +72,7 @@ styles {
 			styles += windows
 		}
 	}
-	!contains( styles, interlace ):DEFINES += QT_NO_STYLE_INTERLACE
+	else:DEFINES += QT_NO_STYLE_INTERLACE
 
 	contains( styles, platinum ) {
 		HEADERS +=$$STYLES_H/qplatinumstyle.h
@@ -82,7 +82,7 @@ styles {
 			styles += windows
 		}
 	}
-	!contains( styles, platinum ):DEFINES += QT_NO_STYLE_PLATINUM
+	else:DEFINES += QT_NO_STYLE_PLATINUM
 
 	contains( styles, sgi ) {
 		HEADERS +=$$STYLES_H/qsgistyle.h
@@ -92,7 +92,7 @@ styles {
 			styles += motif
 		}
 	}
-	!contains( styles, sgi ):DEFINES += QT_NO_STYLE_SGI
+	else:DEFINES += QT_NO_STYLE_SGI
 
 	contains( styles, compact ) {
 		HEADERS +=$$STYLES_H/qcompactstyle.h
@@ -102,17 +102,17 @@ styles {
 			styles += windows
 		}
 	}
-	!contains( styles, compact ):DEFINES += QT_NO_STYLE_COMPACT
+	else:DEFINES += QT_NO_STYLE_COMPACT
 
 	contains( styles, windows ) {
 		HEADERS +=$$STYLES_H/qwindowsstyle.h
 		SOURCES +=$$STYLES_CPP/qwindowsstyle.cpp
 	}
-	!contains( styles, windows ):DEFINES += QT_NO_STYLE_WINDOWS
+	else:DEFINES += QT_NO_STYLE_WINDOWS
 
 	contains( styles, motif ) {
 		HEADERS +=$$STYLES_H/qmotifstyle.h
 		SOURCES +=$$STYLES_CPP/qmotifstyle.cpp
 	}
-	!contains( styles, motif ):DEFINES += QT_NO_STYLE_MOTIF
+	else:DEFINES += QT_NO_STYLE_MOTIF
 }

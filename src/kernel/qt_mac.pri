@@ -1,8 +1,5 @@
 mac {
-   macx {
-	LIBS += -framework Carbon -framework QuickTime
-	macx-*: QMAKE_LFLAGS_SHLIB += -prebind -seg1addr 0x90000000
-   }
+   macx:LIBS += -framework Carbon -framework QuickTime -prebind -seg1addr 0x90000000
    *-mwerks:INCLUDEPATH += compat
    mac9 {
      LIBS       += "MSL C++.PPC.Lib" "MSL SIOUX.Carbon.Lib" "CarbonLib" \

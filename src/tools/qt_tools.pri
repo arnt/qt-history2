@@ -76,16 +76,15 @@ tools {
 		  $$TOOLS_CPP/qfile_mac.cpp \
 		  $$TOOLS_CPP/qfileinfo_mac.cpp \
 		  $$TOOLS_CPP/qlibrary_mac.cpp 
-
-	!offmac:unix:SOURCES += $$TOOLS_CPP/qdir_unix.cpp \
+	else:unix:SOURCES += $$TOOLS_CPP/qdir_unix.cpp \
 		  $$TOOLS_CPP/qfile_unix.cpp \
 		  $$TOOLS_CPP/qfileinfo_unix.cpp \
 		  $$TOOLS_CPP/qmutex_unix.cpp \
 		  $$TOOLS_CPP/qsemaphore_unix.cpp \
 		  $$TOOLS_CPP/qwaitcondition_unix.cpp
 
-	!mac:unix:SOURCES += $$TOOLS_CPP/qlibrary_unix.cpp $$TOOLS_CPP/qsettings_unix.cpp
 	mac:SOURCES += $$TOOLS_CPP/qlibrary_mac.cpp $$TOOLS_CPP/qsettings_mac.cpp
+	else:unix:SOURCES += $$TOOLS_CPP/qlibrary_unix.cpp $$TOOLS_CPP/qsettings_unix.cpp
 
 	SOURCES += $$TOOLS_CPP/qbitarray.cpp \
 		  $$TOOLS_CPP/qbuffer.cpp \
