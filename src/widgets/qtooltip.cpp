@@ -513,7 +513,7 @@ void QTipManager::showTip()
 void QTipManager::hideTip()
 {
     if ( !preventAnimation )
-	preventAnimation = new QTimer( this );
+	preventAnimation = new QTimer( qApp );
     preventAnimation->stop();
     preventAnimation->singleShot( 250, this, SLOT(allowAnimation()) );
 
