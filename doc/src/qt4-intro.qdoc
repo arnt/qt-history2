@@ -2,13 +2,10 @@
     \page qt4-intro.html
     \title What's New in Qt 4
 
-    We are pleased to present our second beta release for Qt 4. We
-    are releasing this code to our users because we want you to have
-    the opportunity to give us your feedback before the Qt 4.0 API is
-    completely frozen. The feedback we receive will help us to ensure
-    that the final Qt 4.0 release provides as much value and
-    productivity as possible. We expect to release the final Qt 4.0
-    in late Q2, 2005.
+    We are pleased to present our second beta release for Qt 4. The
+    feedback we receive will help us to ensure that the final Qt 4.0
+    release provides as much value and productivity as possible. We
+    expect to release the final Qt 4.0 in late Q2, 2005.
 
     This beta release is not meant to be used in production code, and
     we strongly advise against doing so. However, you can start using
@@ -81,13 +78,13 @@
     libraries.
 
     \list
-    \o \bold{QtCore}: core non-GUI functionality
-    \o \bold{QtGui}: core GUI functionality
-    \o \bold{QtNetwork}: network module
-    \o \bold{QtOpenGL}: OpenGL module
-    \o \bold{QtSql}: SQL module
-    \o \bold{QtXml}: XML module
-    \o \bold{Qt3Support}: Qt 3 support classes (see \l{Qt 3 Support Layer} below)
+    \o \l{QtCore}: core non-GUI functionality
+    \o \l{QtGui}: core GUI functionality
+    \o \l{QtNetwork}: network module
+    \o \l{QtOpenGL}: OpenGL module
+    \o \l{QtSql}: SQL module
+    \o \l{QtXml}: XML module
+    \o \l{Qt3Support}: Qt 3 support classes (see \l{Qt 3 Support Layer} below)
     \endlist
 
     QtCore contains tool classes like QString, QList, and QFile, as
@@ -180,8 +177,8 @@
     \endcode
 
     at the top of your source files, after your \c #include
-    directives. If you use the "using namespace" syntax you don't
-    need the prefix (e.g., yellow is sufficient).
+    directives. If you use the \c{using namespace} syntax you don't
+    need the prefix (e.g., \c yellow is sufficient).
 
     When porting Qt 3 applications, you may run into some source
     compatibility problems with some of these symbols. For example,
@@ -203,15 +200,15 @@
     QObject::setObjectName() after construction. The object name is
     now a QString.
 
-    QWidget's WFlags data type has been split in two: Qt::WFlags
-    specifies low-level window flags (the type of window and the
-    frame style), whereas Qt::WidgetAttribute specifies various
-    higher-level attributes about the widget (e.g.,
+    QWidget's \c WFlags data type has been split in two:
+    Qt::WindowFlags specifies low-level window flags (the type of
+    window and the frame style), whereas Qt::WidgetAttribute
+    specifies various higher-level attributes about the widget (e.g.,
     WA_StaticContents). Widget attributes can be set at any time
     using QWidget::setAttribute(); low-level window flags can be
     passed to the QWidget constructor or set later using
     QWidget::setParent(). As a consequence, the constructors of most
-    QWidget subclasses don't need to provide a WFlags parameter.
+    QWidget subclasses don't need to provide a \c WFlags parameter.
 
     The \e parent parameter of all QObject classes in Qt defaults to a
     null pointer, as it used to do in Qt 1. This enables a style of
@@ -339,7 +336,7 @@
 
     For this beta release, we have tested the entire range of
     platforms targeted by the final Qt 4.0 release, with three
-    exceptions: Windows with Borland C++, HP-UX i, and HP-UX with aCC
+    exceptions: Windows with Borland C++, HP-UXi, and HP-UX with aCC
     1.x.
 
     While testing, we found out that we needed to install patches on

@@ -15,28 +15,27 @@
     internal developers. The aim of this redesign is to provide a more
     consistent and efficient framework for main window management.
 
-    Tool bar and dock window functionality is provided by two independent
-    classes: QToolBar and QDockWidget. Tool bars and dock windows
-    reside in \e separate areas, with tool bars outside the dock window
+    Toolbar and dock window functionality is provided by two independent
+    classes: QToolBar and QDockWidget. Toolbars and dock widgets
+    reside in separate areas, with toolbars outside the dock widget
     area. This behavior differs from the standard Qt 3 behavior, where
     QToolBar inherited functionality from QDockWidget, and both types of
     component shared the same areas. The result is a more consistent
-    and predictable experience for users. Tool bars and dock windows
+    and predictable experience for users. Toolbars and dock widgets
     provide feedback while being dragged into their new positions.
 
     \image mainwindow-docks.png
 
     The diagram above shows the layout of a main window that contains both
-    tool bars and dock windows. Each corner area can be used by either
-    of the adjacent dock window areas, allowing dock window behavior and
+    toolbars and dock widgets. Each corner area can be used by either
+    of the adjacent dock widget areas, allowing dock widget behavior and
     main window layout to be specified precisely.
 
-    Tool bars and dock windows are child widgets of the main window. They
+    Toolbars and dock widgets are child widgets of the main window. They
     are no longer reparented into a dock area widget by the main window.
-    Instead, layouts are used to manage the placement of tool bars and dock
-    windows. One consequence is that the old QDockArea class is no
+    Instead, layouts are used to manage the placement of toolbars and dock
+    widgets. One consequence is that the old QDockArea class is no
     longer required in Qt 4.
-
 
     \section1 The Current State of the Main Window Classes
 
@@ -50,39 +49,31 @@
        companion classes, QDockWidget and QToolBar.
 
     \o QDockWidget provides a widget that can be used to create
-       detachable tool palettes or helper windows. Dock windows keep track
+       detachable tool palettes or helper windows. Dock widgets keep track
        of their own properties -- they can be moved, closed, and floated as
        external windows.
 
-    \o QToolBar provides a generic tool bar widget that can hold a
+    \o QToolBar provides a generic toolbar widget that can hold a
        number of different action-related widgets, such as buttons,
        drop-down menus, comboboxes, and spin boxes. The emphasis on a
-       unified action model in Qt 4 means that tool bars cooperate well
+       unified action model in Qt 4 means that toolbars cooperate well
        with menus and keyboard shortcuts.
     \endlist
 
-    \section1 What's Changed Since Qt 4 Technology Preview 2?
+    \section1 What's Changed Since Qt 4 Beta 1?
 
     \list
-    \o The tool bar and dock window context menu has been added.
+    \o QMainWindow and QToolBar have an \c iconSize property that
+       specifies the size of the QToolButton icons. The default size
+       is chosen based on the style.
 
-    \o Saving and restoring of dock window and tool bar states is now
-       implemented.
-
-    \o Support for large pixmaps and text labels in tool bar buttons has been
-       added.
-
-    \o Support for arbitrary widgets in the tool bar is now present.
-
-    \o The previously private button class \c QToolBarButton that was
-       used by \c addAction() and \c insertAction() has been merged
-       with QToolButton.
+    \o The behavior of QDockWidget has been improved significantly.
     \endlist
 
     \section1 Example Code
 
     Using QMainWindow is straightforward. Generally, we subclass
-    QMainWindow and set up menus, tool bars, and dock windows inside
+    QMainWindow and set up menus, toolbars, and dock widgets inside
     the QMainWindow constructor.
 
     To add a menu bar to the main window, we simply create the menus, and
@@ -128,7 +119,7 @@
     provides this function, making it easy to reuse actions in different
     parts of the main window. This avoids unnecessary duplication of work.
 
-    We create a tool bar as a child of the main window, and add the desired
+    We create a toolbar as a child of the main window, and add the desired
     actions to it:
 
     \code
@@ -146,15 +137,15 @@
         toolbar->setArea(Qt::TopToolBarArea);
     \endcode
 
-    In this example, the tool bar is restricted to the top and bottom tool
-    bar areas of the main window, and is initially placed in the top tool
-    bar area. We can see that the actions specified by \c openAction and
-    \c saveAction will be displayed both on the tool bar and in the file
-    menu.
+    In this example, the toolbar is restricted to the top and bottom
+    toolbar areas of the main window, and is initially placed in the
+    top tool bar area. We can see that the actions specified by \c
+    openAction and \c saveAction will be displayed both on the
+    toolbar and in the file menu.
 
     QDockWidget is used in a similar way to QToolBar. We create a
-    dock window as a child of the main window, and add widgets as children
-    of the dock window:
+    dock widget as a child of the main window, and add widgets as children
+    of the dock widget:
 
     \code
         QDockWidget *dockWidget = new QDockWidget(mainWindow);
@@ -166,11 +157,11 @@
         mainWindow->addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
     \endcode
 
-    In this example, the dock window can only be placed in the left and
+    In this example, the dock widget can only be placed in the left and
     right dock areas, and it is initially placed in the left dock area.
 
     The QMainWindow API allows the programmer to customize which dock
-    window areas occupy the four corners of the dock window area. If
+    widget areas occupy the four corners of the dock widget area. If
     required, the default can be changed with the
     QMainWindow::setCorner() function:
 
@@ -182,7 +173,7 @@
     \endcode
 
     The following diagram shows the configuration produced by the above code.
-    Note that the left and right dock windows will occupy the top and bottom
+    Note that the left and right dock widgets will occupy the top and bottom
     corners of the main window in this layout.
 
     \image mainwindow-docks-example.png
@@ -200,13 +191,13 @@
 
     \section1 What's Changed since Qt 3?
 
-    Although the QMainWindow class in Qt 3 provided support for tool
-    bars, dock windows, and other standard user interface components, its
-    design meant that these items were managed through a large number of
-    QMainWindow member functions. In Qt 4, the QMainWindow class
-    delegates many of the management tasks to QDockWidget and
-    QToolBar. As a result, these classes are used in a slightly different
-    way in Qt 4.
+    Although the QMainWindow class in Qt 3 provided support for
+    toolbars, dock widgets, and other standard user interface
+    components, its design meant that these items were managed
+    through a large number of QMainWindow member functions. In Qt 4,
+    the QMainWindow class delegates many of the management tasks to
+    QDockWidget and QToolBar. As a result, these classes are used in
+    a slightly different way in Qt 4.
 
     QMainWindow retains the menuBar() function, but menus are always
     constructed using QAction objects. All kinds of menus are
@@ -215,40 +206,40 @@
     Qt 3:
     \code
         QPopupMenu *fileMenu = new QPopupMenu(this);
-        ...
         openAction->addTo(fileMenu);
+        saveAction->addTo(fileMenu);
         ...
         menuBar()->insertItem(tr("&File"), fileMenu);
     \endcode
     Qt 4:
     \code
-        QMenu *fileMenu = new QMenu(this);
-        ...
+        QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
         fileMenu->addAction(openAction);
+        fileMenu->addAction(saveAction);
         ...
-        menuBar()->addMenu(tr("&File"), fileMenu);
     \endcode
 
-    Tool bars follow the same pattern as menus, with the new, more
+    Toolbars follow the same pattern as menus, with the new, more
     consistent behavior:
 
     Qt 3:
     \code
-        QToolBar *fileTools = new QToolBar(this, "file tool bar");
-        ...
+        QToolBar *fileTools = new QToolBar(this, "file toolbar");
         openAction->addTo(fileTools);
+        saveAction->addTo(fileTools);
+        ...
     \endcode
     Qt 4:
     \code
-        QToolBar *fileTools = new QToolBar(this);
-        fileTools->setWindowTitle(tr("File Tool Bar"));
-        ...
+        QToolBar *fileTools = addToolBar(tr("File Tool Bar"));
         fileTools->addAction(openAction);
+        fileTools->addAction(saveAction);
+        ...
     \endcode
 
-    The behavior of dock windows is now configured through the member
+    The behavior of dock widgets is now configured through the member
     functions of QDockWidget. For example, compare the old and new ways
-    of creating a dock window in the dock area on the left hand side of the
+    of creating a dock widget in the dock area on the left hand side of the
     main window.
 
     In Qt 3:
@@ -277,10 +268,10 @@
     \list
 
     \o Dragging/dropping behavior may change such that dropped dock
-       windows will always split a single dock window.
-       (The current behavior when placing a dock window between two other
-       dock windows is to take equal space from each to make room for the
-       newly placed dock window.)
+       widgets will always split a single dock widget.
+       (The current behavior when placing a dock widget between two other
+       dock widgets is to take equal space from each to make room for the
+       newly placed dock widget.)
 
     \endlist
 

@@ -21,14 +21,14 @@
        STL-style iterators are still available as a lightweight,
        STL-compatible alternative.)
 
-    \o They have been optimized for minimal code expansion.
+    \o The containers have been optimized for minimal code expansion.
 
     \o An empty container performs no memory allocation, and only
        requires the same space as a pointer.
 
     \o Even though they are implicitly shared, they can safely be copied
-        across different threads without formality: there's no need to use
-        QDeepCopy.
+       across different threads without formality. There's no need to use
+       QDeepCopy.
     \endlist
 
     Tulip provides the following sequential containers: QList,
@@ -41,10 +41,10 @@
     LIFO semantics.
 
     Tulip also provides these associative containers: QMap,
-    QMultiMap, QHash, and QMultiHash. The "Multi" containers
-    conveniently support multiple values associated with a single key. The
-    "Hash" containers provide faster lookup by using a hash function
-    instead of a binary search on a sorted set.
+    QMultiMap, QHash, QMultiHash, and QSet. The "Multi" containers
+    conveniently support multiple values associated with a single
+    key. The "Hash" containers provide faster lookup by using a hash
+    function instead of a binary search on a sorted set.
 
     The Tulip containers support the foreach keyword, a Qt-specific
     addition to the C++ language that is implemented using the standard
@@ -73,10 +73,10 @@
             cout << str.ascii() << endl;
     \endcode
 
-    Just like standard for loops, foreach supports braces, break,
-    continue, and nested loops. Qt makes a copy of the container when it
-    enters the loop. If you modify the container as you are iterating, that
-    won't affect the loop.
+    Just like standard \c for loops, foreach supports braces, \c
+    break, \c continue, and nested loops. Qt makes a copy of the
+    container when it enters the loop. If you modify the container as
+    you are iterating, that won't affect the loop.
 
     For details about the new containers, see the
     \l{Generic Containers} and \l{Generic Algorithms} overview documents.
@@ -89,11 +89,10 @@
     the end). This solves all the typical problems that occurred in Qt 3
     with conversions between QByteArray and QCString.
 
-    To avoid crashes, QByteArray::data() and QString::ascii() never
-    return a null pointer. Furthermore, the distinction between null and
-    empty strings has been watered down so that \c{QByteArray() ==
+    To avoid crashes, QByteArray::data() never returns a null
+    pointer. Furthermore, the distinction between null and empty
+    strings has been watered down so that \c{QByteArray() ==
     QByteArray("")} and \c{QString() == QString("")}.
-
 
     \section1 Examples
 
