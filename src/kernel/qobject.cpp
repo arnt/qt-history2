@@ -1820,7 +1820,37 @@ QString QObject::tr( const char *text, const char * comment )
 
 #endif
 
+#ifndef QT_NO_PROPERTIES
+static const QMetaEnum::Item enum_QObject0[10] = {
+    { "AlignLeft",  (int) Qt::AlignLeft },
+    { "AlignRight",  (int) Qt::AlignRight },
+    { "AlignHCenter",  (int) Qt::AlignHCenter },
+    { "AlignTop",  (int) Qt::AlignTop },
+    { "AlignBottom",  (int) Qt::AlignBottom },
+    { "AlignVCenter",  (int) Qt::AlignTop },
+    { "AlignCenter", (int) Qt::AlignCenter },
+    { "AlignAuto", (int) Qt::AlignAuto },
+    { "AlignJustify", (int) Qt::AlignJustify },
+    { "WordBreak", (int) Qt::WordBreak }
+};
 
+static const QMetaEnum::Item enum_QObject1[2] = {
+    { "Horizontal", (int) Qt::Horizontal },
+    { "Vertical", (int) Qt::Vertical }
+};
+
+static const QMetaEnum::Item enum_QObject2[3] = {
+    { "PlainText", (int) Qt::PlainText },
+    { "RichText", (int) Qt::RichText },
+    { "AutoText", (int) Qt::AutoText }
+};
+
+static const QMetaEnum enum_tbl_QObject[3] = {
+    { "Alignment", 10, enum_QObject0, FALSE },
+    { "Orientation", 2, enum_QObject1, FALSE },
+    { "TextFormat", 3, enum_QObject2, FALSE }
+};
+#endif // QT_NO_PROPERTIES
 /*!
   Initializes the \link metaObject() meta object\endlink of this
   object. This method is automatically executed on demand.
@@ -1849,65 +1879,21 @@ QMetaObject* QObject::staticMetaObject()
     typedef void(QObject::*m3_t1)(const char*);
     m3_t0 v3_0 = &QObject::name;
     m3_t1 v3_1 = &QObject::setName;
+    props_tbl[0].t = "QCString";
     props_tbl[0].n = "name";
     props_tbl[0].get = (QMember)v3_0;
     props_tbl[0].set = (QMember)v3_1;
-    props_tbl[0].t = "QCString";
-    props_tbl[0].enumData = 0;
+    props_tbl[0].reset = 0;
     props_tbl[0].gspec = QMetaProperty::ConstCharStar;
     props_tbl[0].sspec = QMetaProperty::ConstCharStar;
     props_tbl[0].setFlags(QMetaProperty::StdSet);
-    QMetaEnum* enum_tbl = new QMetaEnum[3];
-    enum_tbl[0].name = "Alignment";
-    enum_tbl[0].count = 10;
-    enum_tbl[0].set = TRUE;
-    QMetaEnum::Item* item;
-    enum_tbl[0].items = (item = new QMetaEnum::Item[10]);
-    item[0].key = "AlignLeft";
-    item[0].value = (int) Qt::AlignLeft;
-    item[1].key = "AlignRight";
-    item[1].value = (int) Qt::AlignRight;
-    item[2].key = "AlignHCenter";
-    item[2].value = (int) Qt::AlignHCenter;
-    item[3].key = "AlignTop";
-    item[3].value = (int) Qt::AlignTop;
-    item[4].key = "AlignBottom";
-    item[4].value = (int) Qt::AlignBottom;
-    item[5].key = "AlignVCenter";
-    item[5].value = (int) Qt::AlignVCenter;
-    item[6].key = "AlignCenter";
-    item[6].value = (int) Qt::AlignCenter;
-    item[7].key = "AlignAuto";
-    item[7].value = (int) Qt::AlignAuto;
-    item[8].key = "AlignJustify";
-    item[8].value = (int) Qt::AlignJustify;
-    item[9].key = "WordBreak";
-    item[9].value = (int) Qt::WordBreak;
-    enum_tbl[1].name = "Orientation";
-    enum_tbl[1].count = 2;
-    enum_tbl[1].set = FALSE;
-    enum_tbl[1].items = (item = new QMetaEnum::Item[10]);
-    item[0].key = "Horizontal";
-    item[0].value = (int) Qt::Horizontal;
-    item[1].key = "Vertical";
-    item[1].value = (int) Qt::Vertical;
-    enum_tbl[2].name = "TextFormat";
-    enum_tbl[2].count = 3;
-    enum_tbl[2].set = FALSE;
-    enum_tbl[2].items = (item = new QMetaEnum::Item[3]);
-    item[0].key = "PlainText";
-    item[0].value = (int) Qt::PlainText;
-    item[1].key = "RichText";
-    item[1].value = (int) Qt::RichText;
-    item[2].key = "AutoText";
-    item[2].value = (int) Qt::AutoText;
 #endif
     metaObj = new QMetaObject( "QObject", 0,
 	slot_tbl, 1,
 	signal_tbl, 1,
 #ifndef QT_NO_PROPERTIES
 	props_tbl, 1,
-	enum_tbl, 3,
+        enum_tbl_QObject, 3,
 #endif
         0, 0 );
 
