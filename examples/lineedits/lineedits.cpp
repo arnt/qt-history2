@@ -241,7 +241,9 @@ void LineEdits::slotInputMaskChanged( int i )
 	lined4->setInputMask( "+99 99 99 99 99;_" );
 	break;
     case 2:
-	lined4->setInputMask( "0000-90-90;0" );
+	lined4->setInputMask( "0000-00-00" );
+	lined4->setText( "00000000" );
+	lined4->setCursorPosition( 0 );
 	break;
     case 3:
 	lined4->setInputMask( ">AAAAA-AAAAA-AAAAA-AAAAA-AAAAA;#" );

@@ -1098,13 +1098,14 @@ bool QLineEdit::hasAcceptableInput() const
 
     The mask consists of a string of mask characters and separators,
     optionally followed by a semi-colon and the character used for
-    blanks. The default blank character is space.
+    blanks - the blank characters are always removed from the end
+    text. The default blank character is space, and regardless
 
     Examples:
     \table
     \header \i Mask \i Notes
-    \row \i \c 990.990.990.990;_ \i IP address; blanks are \c _
-    \row \i \c 0000-90-90;0 \i ISO Date; blanks are \c 0
+    \row \i \c 000.000.000.000;_ \i IP address; blanks are \c _
+    \row \i \c 0000-00-00 \i ISO Date; blanks are \c space
     \row \i \c >AAAAA-AAAAA-AAAAA-AAAAA-AAAAA;# \i License number;
     blanks are \c - and all (alphabetic) characters are converted to
     uppercase.
