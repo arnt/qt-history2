@@ -892,7 +892,7 @@ void QHeaderView::resizeSections()
         if (mode == Interactive) {
             secSize = sectionSize(secs.at(i).logical);
         } else {// mode == QHeaderView::Custom
-            // FIXME: get the size of the section from the contents;  this is just a temprary solution
+            // FIXME: this is a bit hacky; see if we can find a cleaner solution
             QAbstractItemView *par = ::qt_cast<QAbstractItemView*>(parent());
             if (orientation() == Qt::Horizontal) {
                 if (par)

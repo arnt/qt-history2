@@ -160,7 +160,7 @@ public:
     inline QIcon rootIcon() const { return iconProvider->computerIcon(); }
     inline QFileInfoList entryInfoList(const QString &path) const
         {
-            QDir dir(path);
+            const QDir dir(path); // FIXME
             QFileInfoList fil = dir.entryInfoList(nameFilters, filters, sort);
             for (int i = 0; i < fil.count(); ++i) {
                 QString fn = fil.at(i).fileName();
@@ -371,8 +371,14 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
         }
     }
 
-    if (role == DecorationRole && index.column() == 0)
-        return d->iconProvider->icon(node->info);
+    if (index.column() == 0) {
+        if (role == FileIconRole)
+            return fileIcon(index);
+        if (role == FilePathRole)
+            return filePath(index);
+        if (role == FileNameRole)
+            return fileName(index);
+    }
     return QVariant();
 }
 
@@ -459,7 +465,7 @@ QAbstractItemModel::ItemFlags QDirModel::flags(const QModelIndex &index) const
     Q_ASSERT(node);
     if ((index.column() == 0) && node->info.isWritable()) {
         flags |= QAbstractItemModel::ItemIsEditable;
-        if (isDir(index)) // is directory and is editable
+        if (fileInfo(index).isDir()) // is directory and is editable
             flags |= QAbstractItemModel::ItemIsDropEnabled;
     }
     return flags;
@@ -524,7 +530,7 @@ QMimeData *QDirModel::mimeData(const QModelIndexList &indexes) const
     QList<QModelIndex>::const_iterator it = indexes.begin();
     for (; it != indexes.end(); ++it)
         if ((*it).column() == 0)
-            urls << QUrl::fromLocalFile(path(*it));
+            urls << QUrl::fromLocalFile(filePath(*it));
     QMimeData *data = new QMimeData();
     data->setUrls(urls);
     return data;
@@ -552,7 +558,7 @@ bool QDirModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
     d->savePersistentIndexes();
     emit rowsAboutToBeRemoved(parent, 0, rowCount(parent) - 1);
     bool success = true;
-    QString to = path(parent) + QDir::separator();
+    QString to = filePath(parent) + QDir::separator();
     QList<QUrl>::const_iterator it = urls.begin();
 
     switch (action) {
@@ -802,76 +808,13 @@ QModelIndex QDirModel::index(const QString &path, int column) const
         int r = entries.indexOf(entry);
         idx = index(r, column, idx); // will check row and lazily populate
         if (!idx.isValid()) {
-            qWarning(QString("index: the path '%1' could not be found\n").arg(path).latin1());
+            QString warn = QString("index: the path '%1' could not be found\n").arg(path);
+            qWarning(warn.toLatin1().constData());
             return QModelIndex();
         }
     }
 
     return idx;
-}
-
-/*!
-  Returns the path of the item stored in the model under the
-  \a index given.
-
-*/
-
-QString QDirModel::path(const QModelIndex &index) const
-{
-    if (index.isValid()) {
-        QFileInfo fi = fileInfo(index);
-        if (d->resolveSymlinks && fi.isSymLink()) {
-            QString link = fi.readLink();
-            if (link.at(link.size() - 1) == QDir::separator())
-                link.chop(1);
-            return QDir::cleanPath(link);
-        }
-        return QDir::cleanPath(fi.absoluteFilePath());
-    }
-    return QString(); // root path
-}
-
-/*!
-  Returns the name of the item stored in the model under the
-  \a index given.
-
-*/
-
-QString QDirModel::name(const QModelIndex &index) const
-{
-    if (!index.isValid())
-        return QObject::tr("My Computer");
-    QFileInfo info = fileInfo(index);
-    if (info.isRoot())
-        return info.absoluteFilePath();
-    return info.fileName();
-}
-
-/*!
-  Returns the icons for the item stored in the model under the given
-  \a index.
-*/
-
-QIcon QDirModel::icon(const QModelIndex &index) const
-{
-    if (!index.isValid())
-        return d->rootIcon();
-    return d->iconProvider->icon(fileInfo(index));
-}
-
-/*!
-  Returns the file information for the model item \a index.
-
-*/
-
-QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
-{
-    Q_ASSERT(index.isValid());
-
-    QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
-    Q_ASSERT(node);
-
-    return node->info;
 }
 
 /*!
@@ -991,6 +934,70 @@ bool QDirModel::remove(const QModelIndex &index)
     return true;
 }
 
+/*!
+  Returns the path of the item stored in the model under the
+  \a index given.
+
+*/
+
+QString QDirModel::filePath(const QModelIndex &index) const
+{
+    if (index.isValid()) {
+        QFileInfo fi = fileInfo(index);
+        if (d->resolveSymlinks && fi.isSymLink()) {
+            QString link = fi.readLink();
+            if (link.at(link.size() - 1) == QDir::separator())
+                link.chop(1);
+            return QDir::cleanPath(link);
+        }
+        return QDir::cleanPath(fi.absoluteFilePath());
+    }
+    return QString(); // root path
+}
+
+/*!
+  Returns the name of the item stored in the model under the
+  \a index given.
+
+*/
+
+QString QDirModel::fileName(const QModelIndex &index) const
+{
+    if (!index.isValid())
+        return QObject::tr("My Computer");
+    QFileInfo info = fileInfo(index);
+    if (info.isRoot())
+        return info.absoluteFilePath();
+    return info.fileName();
+}
+
+/*!
+  Returns the icons for the item stored in the model under the given
+  \a index.
+*/
+
+QIcon QDirModel::fileIcon(const QModelIndex &index) const
+{
+    if (!index.isValid())
+        return d->rootIcon();
+    return d->iconProvider->icon(fileInfo(index));
+}
+
+/*!
+  Returns the file information for the model item \a index.
+
+*/
+
+QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
+{
+    Q_ASSERT(index.isValid());
+
+    QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
+    Q_ASSERT(node);
+
+    return node->info;
+}
+
 /*
   The root node is never seen outside the model.
 */
@@ -999,7 +1006,7 @@ void QDirModelPrivate::init()
 {
     filters = QDir::All;
     sort = QDir::Name;
-    nameFilters << "*.*";
+    nameFilters << "*";
     root.parent = 0;
     root.info = QFileInfo();
     root.children = children(0);
@@ -1100,7 +1107,7 @@ void QDirModelPrivate::savePersistentIndexes()
     saved.clear();
     for (int i = 0; i < persistentIndexes.count(); ++i) {
         QModelIndex idx = persistentIndexes.at(i)->index;
-        saved.append(qMakePair(q->path(idx), idx.column()));
+        saved.append(qMakePair(q->filePath(idx), idx.column()));
         ++persistentIndexes.at(i)->ref; // save
         persistentIndexes[i]->index = QModelIndex(); // invalidated
     }

@@ -144,7 +144,7 @@ public:
 
     // inlined stuff
     inline QString tr(const char *text) const { return QObject::tr(text); }
-    inline QString toNative(const QString  &path) const
+    inline QString toNative(const QString &path) const
         { return QDir::convertSeparators(path); }
     inline QString toInternal(const QString &path) const
         {
@@ -487,8 +487,7 @@ void QFileDialog::setDirectory(const QString &directory)
 
 QDir QFileDialog::directory() const
 {
-    QFileInfo info = d->model->fileInfo(d->root());
-    QDir dir = info.dir();
+    QDir dir(d->model->filePath(d->root()));
     dir.setNameFilters(d->model->nameFilters());
     dir.setSorting(d->model->sorting());
     dir.setFilter(d->model->filter());
@@ -505,7 +504,7 @@ void QFileDialog::selectFile(const QString &filename)
     QString text = filename;
     if (QFileInfo(filename).isAbsolute()) {
         index = d->model->index(filename);
-        QString current = d->model->path(d->root());
+        QString current = d->model->filePath(d->root());
         text.remove(current);
     } else { // faster than asking for model()->index(currentPath + filename)
         QStringList entries = directory().entryList(d->model->filter(), d->model->sorting());
@@ -550,7 +549,7 @@ QStringList QFileDialog::selectedFiles() const
     for (int i = 0; i < indexes.count(); ++i) {
         QModelIndex index = indexes.at(i);
         if (index.row() != r && index.column() == 0) {
-            files.append(d->model->path(index));
+            files.append(d->model->filePath(index));
             r = index.row();
         }
     }
@@ -1167,7 +1166,7 @@ void QFileDialogPrivate::lookInChanged(const QString &text)
     QModelIndex result = matchDir(name, model->index(0, 0, parent));
     // did we find a valid autocompletion ?
     if (result.isValid()) {
-        QString completed = toNative(d->model->path(result));
+        QString completed = toNative(d->model->filePath(result));
         int start = completed.length();
         int length = text.length() - start; // negative length
         bool block = lookInEdit->blockSignals(true);
@@ -1397,23 +1396,23 @@ void QFileDialogPrivate::setup(const QString &directory,
     setupWidgets(grid);
 
     // Insert paths in the "lookin" combobox
-    lookIn->insertItem(model->icon(QModelIndex()), model->name(QModelIndex())); // root
+    lookIn->insertItem(model->fileIcon(QModelIndex()), model->fileName(QModelIndex())); // root
     for (int r = 0; r < model->rowCount(QModelIndex()); ++r) { // drives
         QModelIndex index = model->index(r, 0, QModelIndex());
-        QString path = model->path(index);
-        QIcon icons = model->icon(index);
+        QString path = model->filePath(index);
+        QIcon icons = model->fileIcon(index);
         lookIn->insertItem(icons, toNative(path));
     }
 
     // insert the home path
     QModelIndex home = model->index(QDir::homePath()); // home
-    lookIn->insertItem(model->icon(home), toNative(QDir::homePath()));
+    lookIn->insertItem(model->fileIcon(home), toNative(QDir::homePath()));
 
     // if it is not already in the list, insert the current directory
-    QString currentPath = toNative(model->path(current));
+    QString currentPath = toNative(model->filePath(current));
     int item = lookIn->findItem(currentPath, QAbstractItemModel::MatchExactly);
     if (item < 0) {
-        lookIn->insertItem(model->icon(current), currentPath);
+        lookIn->insertItem(model->fileIcon(current), currentPath);
         item = lookIn->findItem(currentPath, QAbstractItemModel::MatchExactly);
     }
     lookIn->setCurrentItem(item);
@@ -1643,8 +1642,8 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
     toParent->setEnabled(index.isValid());
     back->setEnabled(history.count() > 0);
     newFolder->setEnabled(!model->isReadOnly());
-    QString pth = toNative(d->model->path(index));
-    QIcon icn = d->model->icon(index);
+    QString pth = toNative(d->model->filePath(index));
+    QIcon icn = d->model->fileIcon(index);
     int i = lookIn->findItem(pth, QAbstractItemModel::MatchExactly);
     bool block = lookIn->blockSignals(true);
     if (i > -1) {

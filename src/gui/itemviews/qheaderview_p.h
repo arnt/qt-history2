@@ -45,7 +45,7 @@ public:
           target(-1),
           pressed(-1),
           movableSections(false),
-          clickableSections(true),
+          clickableSections(false),
           highlightSelected(false),
           stretchLastSection(false),
           stretchSections(0),

@@ -43,6 +43,8 @@ class Q_GUI_EXPORT QDirModel : public QAbstractItemModel
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
 
 public:
+    enum Roles { FileIconRole = DecorationRole, FilePathRole = UserRole + 1, FileNameRole };
+
     QDirModel(const QStringList &nameFilters,
               QDir::Filters filters,
               QDir::SortFlags sort,
@@ -93,17 +95,17 @@ public:
     bool isReadOnly() const;
 
     void refresh(const QModelIndex &parent = QModelIndex());
-
     QModelIndex index(const QString &path, int column = 0) const;
-    QString path(const QModelIndex &index) const;
-    QString name(const QModelIndex &index) const;
-    QIcon icon(const QModelIndex &index) const;
-    QFileInfo fileInfo(const QModelIndex &index) const;
 
     bool isDir(const QModelIndex &index) const;
     QModelIndex mkdir(const QModelIndex &parent, const QString &name);
     bool rmdir(const QModelIndex &index);
     bool remove(const QModelIndex &index);
+
+    QString filePath(const QModelIndex &index) const;
+    QString fileName(const QModelIndex &index) const;
+    QIcon fileIcon(const QModelIndex &index) const;
+    QFileInfo fileInfo(const QModelIndex &index) const;
 
 protected:
     QDirModel(QDirModelPrivate &, QObject *parent = 0);
