@@ -214,7 +214,7 @@ void DemoViewer::itemSelected()
 
     Q_ASSERT(demoWidget);
 
-    DemoWidget *oldDemoWidget = reinterpret_cast<DemoWidget*>(widgets->currentWidget());
+    DemoWidget *oldDemoWidget = qt_cast<DemoWidget*>(widgets->currentWidget());
     oldDemoWidget->stopAnimation();
 
     widgets->setCurrentIndex(widgets->indexOf(demoWidget));
@@ -247,6 +247,6 @@ void DemoViewer::showEvent(QShowEvent *)
 
 void DemoViewer::hideEvent(QHideEvent *)
 {
-    DemoWidget *demoWidget = reinterpret_cast<DemoWidget*>(widgets->currentWidget());
+    DemoWidget *demoWidget = qt_cast<DemoWidget*>(widgets->currentWidget());
     demoWidget->stopAnimation();
 }

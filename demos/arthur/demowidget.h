@@ -21,6 +21,7 @@
 
 class DemoWidget : public QWidget
 {
+    Q_OBJECT
 public:
     DemoWidget(QWidget *w=0);
 
