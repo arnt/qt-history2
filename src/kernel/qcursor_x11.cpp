@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#13 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -12,7 +12,7 @@
 
 /*! \class QCursor qcursor.h
 
-  \brief This class provides a mouse cursor with arbitrary shape and colour.
+  \brief This class provides a mouse cursor with arbitrary shape and color.
 
   The QCursor class represents the window system's mouse curor.  There
   are a number of <a name=cursors>predefined cursor shapes</a>:
@@ -46,7 +46,7 @@
 #include <X11/cursorfont.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#13 $";
 #endif
 
 
