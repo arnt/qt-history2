@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#48 $
 **
 ** Implementation of QObject class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#47 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#48 $";
 #endif
 
 
@@ -1293,14 +1293,14 @@ model railway, turn it on and leave it running.
 <p>
 
 A <code>protected slots:</code> section contains slots that this class
-and its subclasses may connect signals too.  This is intended for
+and its subclasses may connect signals to.  This is intended for
 slots that are part of the class' implementation rather than its
 interface towards the rest of the world.
 
 <p>
 
 A <code>private slots:</code> section contains slots that only the
-class itself may connect signals too.  This is intended for very
+class itself may connect signals to.  This is intended for very
 tightly connected classes, where even subclasses aren't trusted to get
 the connections right.
 
