@@ -42,6 +42,7 @@ with each Edition.
     \i \link qaxcontainer.html QAxContainer Module\endlink
     \endlist
 \i \link motif-extension.html QMotif Extension\endlink
+\i \link netscape-plugin.html Netscape Plugin Extension\endlink
 \endlist
 
 */
