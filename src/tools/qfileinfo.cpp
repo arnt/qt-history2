@@ -566,7 +566,7 @@ QString QFileInfo::absFilePath() const
     QString tmp;
     if ( QDir::isRelativePath(d->fileName())
 #if defined(Q_OS_WIN32)
-	 && d->fileName.at(1) != ':'
+	 && d->fileName().at(1) != ':'
 #endif
 	 ) {
 	tmp = QDir::currentDirPath();

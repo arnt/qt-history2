@@ -56,9 +56,7 @@ private:
 public:
     mutable bool	cache : 1;
     mutable bool        could_stat : 1;
-#if defined(Q_OS_UNIX)
     mutable bool        symLink : 1;
-#endif
 #if defined(Q_WS_WIN)
     mutable QT_STATBUF st;
 #else

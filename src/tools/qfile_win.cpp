@@ -15,6 +15,7 @@
 #include "qplatformdefs.h"
 
 #include "qfile.h"
+#include "qfiledefs_p.h"
 #include <limits.h>
 
 #ifndef LLONG_MAX

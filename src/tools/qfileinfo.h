@@ -22,7 +22,7 @@
 
 
 class QDir;
-struct QFileInfoPrivate;
+class QFileInfoPrivate;
 
 class Q_CORE_EXPORT QFileInfo
 {

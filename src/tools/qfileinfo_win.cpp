@@ -155,7 +155,7 @@ static QString currentDirOfDrive( char ch )
 }
 
 
-void QFileInfo::slashify( QString &s )
+void QFileInfoPrivate::slashify( QString &s )
 {
     if ( !s.length() )
 	return;
@@ -168,7 +168,7 @@ void QFileInfo::slashify( QString &s )
 	s.remove( (int)s.length() - 1, 1 );
 }
 
-void QFileInfo::makeAbs( QString &s )
+void QFileInfoPrivate::makeAbs( QString &s )
 {
     if ( s[ 1 ] != ':' && s[ 1 ] != '/' ) {
 	s.prepend( ":" );
@@ -185,21 +185,30 @@ extern QByteArray qt_win95Name(const QString s);
 
 bool QFileInfo::isFile() const
 {
-    if ( !fic || !cache )
-	doStat();
-    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_REG : FALSE;
+    if(!d)
+	return false;
+
+    if ( !d->cache )
+	d->doStat();
+    return d->could_stat ? (d->st.st_mode & QT_STAT_MASK) == QT_STAT_REG : FALSE;
 }
 
 bool QFileInfo::isDir() const
 {
-    if ( !fic || !cache )
-	doStat();
-    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_DIR : FALSE;
+    if(!d)
+	return false;
+
+    if ( !d->cache )
+	d->doStat();
+    return d->could_stat ? (d->st.st_mode & QT_STAT_MASK) == QT_STAT_DIR : FALSE;
 }
 
 bool QFileInfo::isSymLink() const
 {
-    if ( fn.right( 4 ) == ".lnk" )
+    if(!d)
+	return false;
+
+    if ( d->fileName().right( 4 ) == ".lnk" )
         return TRUE;
     else
         return FALSE;
@@ -224,13 +233,13 @@ QString QFileInfo::readLink() const
 	    IPersistFile *ppf;
 	    hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
 	    if (SUCCEEDED(hres))  {
-		hres = ppf->Load( (LPOLESTR)fn.ucs2(), STGM_READ);
+		hres = ppf->Load( (LPOLESTR)d->fileName().ucs2(), STGM_READ);
 		if (SUCCEEDED(hres)) {        // Resolve the link.
 
 		    hres = psl->Resolve(0, SLR_ANY_MATCH);
 
 		    if (SUCCEEDED(hres)) {
-			memcpy( szGotPath, (TCHAR*)fn.ucs2(), (fn.length()+1)*sizeof(QChar) );
+			memcpy( szGotPath, (TCHAR*)d->fileName().ucs2(), (d->fileName().length()+1)*sizeof(QChar) );
 			hres = psl->GetPath( szGotPath, MAX_PATH, &wfd, SLGP_SHORTPATH );
 			fileLinked = QString::fromUcs2( (ushort*)szGotPath );
 		    }
@@ -254,13 +263,13 @@ QString QFileInfo::readLink() const
 	    IPersistFile *ppf;
 	    hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
 	    if (SUCCEEDED(hres))  {
-		hres = ppf->Load( (LPOLESTR)fn.ucs2(), STGM_READ);
+		hres = ppf->Load( (LPOLESTR)d->fileName().ucs2(), STGM_READ);
 		if (SUCCEEDED(hres)) {        // Resolve the link.
 
 		    hres = psl->Resolve(0, SLR_ANY_MATCH);
 
 		    if (SUCCEEDED(hres)) {
-			QByteArray lfn = fn.toLocal8Bit();
+			QByteArray lfn = d->fileName().toLocal8Bit();
 			memcpy( szGotPath, lfn.data(), (lfn.length()+1)*sizeof(char) );
 			hres = psl->GetPath((char*)szGotPath, MAX_PATH, &wfd, SLGP_SHORTPATH);
 			fileLinked = QString::fromLocal8Bit(szGotPath);
@@ -289,7 +298,7 @@ QString QFileInfo::owner() const
 	QString name;
 	resolveLibs();
 	if ( ptrGetNamedSecurityInfoW && ptrLookupAccountSidW ) {
-	    if ( ptrGetNamedSecurityInfoW( (wchar_t*)fn.ucs2(), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, &pOwner, NULL, NULL, NULL, &pSD ) == ERROR_SUCCESS ) {
+	    if ( ptrGetNamedSecurityInfoW( (wchar_t*)d->fileName().ucs2(), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, &pOwner, NULL, NULL, NULL, &pSD ) == ERROR_SUCCESS ) {
 		DWORD lowner = 0, ldomain = 0;
 		SID_NAME_USE use;
 		// First call, to determine size of the strings (with '\0').
@@ -326,7 +335,7 @@ QString QFileInfo::group() const
 	resolveLibs();
 
 	if ( ptrGetNamedSecurityInfoW && ptrLookupAccountSidW ) {
-	    if ( ptrGetNamedSecurityInfoW( (wchar_t*)fn.ucs2(), SE_FILE_OBJECT, GROUP_SECURITY_INFORMATION, NULL, &pGroup, NULL, NULL, &pSD ) == ERROR_SUCCESS ) {
+	    if ( ptrGetNamedSecurityInfoW( (wchar_t*)d->fileName().ucs2(), SE_FILE_OBJECT, GROUP_SECURITY_INFORMATION, NULL, &pGroup, NULL, NULL, &pSD ) == ERROR_SUCCESS ) {
 		DWORD lgroup = 0, ldomain = 0;
 		SID_NAME_USE use;
 		// First call, to determine size of the strings (with '\0').
@@ -365,7 +374,7 @@ bool QFileInfo::permission( int p ) const
 	resolveLibs();
 
 	if ( ptrGetNamedSecurityInfoW && ptrAllocateAndInitializeSid && ptrBuildTrusteeWithSidW && ptrGetEffectiveRightsFromAclW && ptrFreeSid ) {
-	    DWORD res = ptrGetNamedSecurityInfoW( (wchar_t*)fn.ucs2(), SE_FILE_OBJECT,
+	    DWORD res = ptrGetNamedSecurityInfoW( (wchar_t*)d->fileName().ucs2(), SE_FILE_OBJECT,
 		OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
 		&pOwner, &pGroup, &pDacl, 0, &pSD );
 
@@ -428,13 +437,13 @@ bool QFileInfo::permission( int p ) const
 
     QT_WA( {
 	if ( p & ( WriteOwner | WriteUser | WriteGroup | WriteOther ) ) {
-	    DWORD attr = GetFileAttributes( (TCHAR*)fn.ucs2() );
+	    DWORD attr = GetFileAttributes( (TCHAR*)d->fileName().ucs2() );
 	    if ( attr & FILE_ATTRIBUTE_READONLY )
 		return FALSE;
 	}
     } , {
 	if ( p & ( WriteOwner | WriteUser | WriteGroup | WriteOther ) ) {
-	    DWORD attr = GetFileAttributesA( fn.local8Bit() );
+	    DWORD attr = GetFileAttributesA( d->fileName().local8Bit() );
 	    if ( attr & FILE_ATTRIBUTE_READONLY )
 		return FALSE;
 	}
@@ -443,22 +452,24 @@ bool QFileInfo::permission( int p ) const
     return TRUE;
 }
 
-void QFileInfo::doStat() const
+void QFileInfoPrivate::doStat() const
 {
+    if(cache)
+	return;
+    cache = true;
+    could_stat = true;
+    symLink = false;
+
     if ( fn.isEmpty() )
 	return;
 
     UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
-    QFileInfo *that = ((QFileInfo*)this);	// mutable function
-    if ( !that->fic )
-	that->fic = new QFileInfoCache;
-    QT_STATBUF *b = &that->fic->st;
 
     int r;
     QT_WA( {
-	r = QT_TSTAT((TCHAR*)fn.ucs2(), (QT_STATBUF4TSTAT*)b);
+	r = QT_TSTAT((TCHAR*)fn.ucs2(), (QT_STATBUF4TSTAT*)&st);
     } , {
-	r = QT_STAT(qt_win95Name(fn), b);
+	r = QT_STAT(qt_win95Name(fn), &st);
     } );
     if ( r!=0 ) {
 	bool is_dir=FALSE;
@@ -489,17 +500,15 @@ void QFileInfo::doStat() const
 	}
 	if ( is_dir ) {
 	    // looks like a UNC dir, is a dir.
-	    memset(b,0,sizeof(*b));
-	    b->st_mode = QT_STAT_DIR;
-	    b->st_nlink = 1;
+	    memset(&st,0,sizeof(st));
+	    st.st_mode = QT_STAT_DIR;
+	    st.st_nlink = 1;
 	    r = 0;
 	}
     }
 
-    if ( r != 0 ) {
-	delete that->fic;
-	that->fic = 0;
-    }
+    if ( r != 0 )
+	could_stat = false;
 
     SetErrorMode(oldmode);
 }
@@ -510,7 +519,7 @@ QString QFileInfo::dirPath( bool absPath ) const
     if ( absPath )
 	s = absFilePath();
     else
-	s = fn;
+	s = d->fileName();
     int pos = s.lastIndexOf( '/' );
     if ( pos == -1 ) {
 	if ( s[ 2 ] == '/' )
@@ -532,6 +541,10 @@ QString QFileInfo::dirPath( bool absPath ) const
 
 QString QFileInfo::fileName() const
 {
+    if(!d)
+	return QString();
+
+    QString fn = d->fileName();
     int p = fn.lastIndexOf( '/' );
     if ( p == -1 ) {
 	int p = fn.lastIndexOf( ':' );
@@ -553,8 +566,8 @@ QString QFileInfo::fileName() const
 bool QFileInfo::isHidden() const
 {
     QT_WA( {
-	return GetFileAttributesW( (TCHAR*)fn.ucs2() ) & FILE_ATTRIBUTE_HIDDEN;
+	return GetFileAttributesW( (TCHAR*)d->fileName().ucs2() ) & FILE_ATTRIBUTE_HIDDEN;
     } , {
-    return GetFileAttributesA( fn.local8Bit() ) & FILE_ATTRIBUTE_HIDDEN;
+	return GetFileAttributesA( d->fileName().local8Bit() ) & FILE_ATTRIBUTE_HIDDEN;
     } );
 }
