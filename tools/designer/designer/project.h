@@ -191,13 +191,14 @@ public:
     QString templte() const;
 
     bool isModified() const { return !isDummy() && modified; }
-    void setModified( bool b ) { modified = b; }
+    void setModified( bool b );
 
-    
+
 signals:
+    void projectModified();
     void sourceFileAdded( SourceFile* );
     void sourceFileRemoved( SourceFile* );
-    
+
 private:
     void parse();
     void clear();

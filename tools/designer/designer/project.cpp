@@ -213,6 +213,12 @@ Project::~Project()
     delete pixCollection;
 }
 
+void Project::setModified( bool b )
+{
+    modified = b;
+    emit projectModified();
+}
+
 #ifndef QT_NO_SQL
 DatabaseConnection *Project::databaseConnection( const QString &name )
 {
@@ -610,8 +616,6 @@ void Project::save()
     if ( isDummy()  || filename.isEmpty() )
 	return;
 
-    modified = FALSE;
-
     QFile f( filename );
     QString contents;
     if ( f.open( IO_ReadOnly ) ) {
@@ -716,6 +720,8 @@ void Project::save()
     f.close();
 
     saveConnections();
+
+    setModified( FALSE );
 }
 
 #ifndef QT_NO_SQL

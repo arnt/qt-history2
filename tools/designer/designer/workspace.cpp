@@ -131,7 +131,7 @@ void WorkspaceItem::paintCell( QPainter *p, const QColorGroup &cg, int column, i
 	QFont f = p->font();
 	f.setBold( TRUE );
 	p->setFont( f );
-    } 
+    }
 
     QListViewItem::paintCell( p, g, column, width, align );
     p->setPen( QPen( cg.dark(), 1 ) );
@@ -166,7 +166,7 @@ QString WorkspaceItem::text( int column ) const
     case SourceFileType:
 	return sourceFile->fileName();
     }
-    
+
     return QString::null; // shut up compiler
 }
 
@@ -186,7 +186,7 @@ void WorkspaceItem::fillCompletionList( QStringList& completion )
     }
 }
 
-bool WorkspaceItem::isModified() const 
+bool WorkspaceItem::isModified() const
 {
     switch( t ) {
     case ProjectType:
@@ -284,11 +284,13 @@ void Workspace::setCurrentProject( Project *pro )
     if ( project ) {
 	disconnect( project, SIGNAL( sourceFileAdded(SourceFile*) ), this, SLOT( sourceFileAdded(SourceFile*) ) );
 	disconnect( project, SIGNAL( sourceFileRemoved(SourceFile*) ), this, SLOT( sourceFileRemoved(SourceFile*) ) );
+	disconnect( project, SIGNAL( projectModified() ), this, SLOT( update() ) );
     }
     project = pro;
     connect( project, SIGNAL( sourceFileAdded(SourceFile*) ), this, SLOT( sourceFileAdded(SourceFile*) ) );
     connect( project, SIGNAL( sourceFileRemoved(SourceFile*) ), this, SLOT( sourceFileRemoved(SourceFile*) ) );
-    connect( project, SIGNAL( destroyed(QObject*) ), this, SLOT( projectDestroyed(QObject*) ) ); 
+    connect( project, SIGNAL( destroyed(QObject*) ), this, SLOT( projectDestroyed(QObject*) ) );
+    connect( project, SIGNAL( projectModified() ), this, SLOT( update() ) );
     clear();
     qDebug("Workspace::setCurrentProject %s", pro->projectName().latin1() );
 
@@ -299,12 +301,12 @@ void Workspace::setCurrentProject( Project *pro )
     QString extension = "xx";
     if ( iface )
 	extension = iface->formCodeExtension();
-    
+
     projectItem = new WorkspaceItem( this, project );
-    
-    
-    
-    projectItem->setOpen( TRUE ); 
+
+
+
+    projectItem->setOpen( TRUE );
 
     for ( QPtrListIterator<SourceFile> sources = project->sourceFiles();
 	  sources.current(); ++sources ) {
@@ -313,9 +315,9 @@ void Workspace::setCurrentProject( Project *pro )
     }
 
     completionDirty = TRUE;
-    
-    
-    /*    
+
+
+    /*
    if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
 	sourceParent = new WorkspaceItem( this );
 	sourceParent->setType( WorkspaceItem::Parent );
@@ -646,7 +648,7 @@ void Workspace::itemClicked( int button, QListViewItem *i )
 	mainWindow->editSource( ( (WorkspaceItem*)i )->sourceFile() );
     }
     */
-    
+
     WorkspaceItem* wi = (WorkspaceItem*)i;
     if ( wi->type() == WorkspaceItem::SourceFileType )
 	mainWindow->editSource( wi->sourceFile );
@@ -727,13 +729,13 @@ void Workspace::rmbClicked( QListViewItem *i )
 	int id = menu.exec( QCursor::pos() );
 	if ( id == -1 )
 	    return;
-	if ( id == REMOVE_SOURCE ) { 
+	if ( id == REMOVE_SOURCE ) {
 	    project->removeSourceFile( wi->sourceFile );
 	} else if ( id == OPEN_SOURCE ) {
 	    itemClicked( LeftButton, i );
 	}
     }
-    
+
 
 //     if ( i->rtti() == WorkspaceItem::Form || i->text( 0 ) == tr( "Forms" ) ) {
 // 	QPopupMenu menu( this );
