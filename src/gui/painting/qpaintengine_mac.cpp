@@ -1212,31 +1212,30 @@ QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
 {
     CGMutablePathRef path = CGPathCreateMutable();
     // Drawing the subpaths
-    const QPainterPathPrivate *pd = p.d;
-    for (int i=0; i<pd->subpaths.size(); ++i) {
-        const QPainterSubpath &sub = pd->subpaths.at(i);
-        if (sub.elements.isEmpty())
-            continue;
-        CGPathMoveToPoint(path, 0, sub.startPoint.x(), sub.startPoint.y());
-        for (int j=0; j<sub.elements.size(); ++j) {
-            const QPainterPathElement &elm = sub.elements.at(j);
-            switch (elm.type) {
-            case QPainterPathElement::Line: {
-                CGPathAddLineToPoint(path, 0, elm.lineData.x, elm.lineData.y);
-                break;
-            }
-            case QPainterPathElement::Curve: {
-                CGPathAddCurveToPoint(path, 0,
-                                      elm.curveData.c1x, elm.curveData.c1y,
-                                      elm.curveData.c2x, elm.curveData.c2y,
-                                      elm.curveData.ex, elm.curveData.ey);
-                break;
-            }
-            default:
-                qFatal("QCoreGraphicsPaintEngine::drawPath(), unhandled subpath type: %d", elm.type);
-            }
+
+    for (int i=0; i<p.elementCount(); ++i) {
+        const QPainterPath::Elements &elm = p.elementAt(i);
+        switch (elm.type) {
+        case QPainterPath::MoveToElement:
+            // ### Strickly speaking this would imply connecting the last point
+            // but this is just a copy of the previous code so I'll keep it for now.
+            if (i != 0)
+                CGPathCloseSubpath(path);
+            CGPathMoveToPoint(path, 0, elm.x, elm.y);
+            break;
+        case QPainterPath::LineToElement:
+            CGPathAddLineToPoint(path, 0, elm.x, elm.y);
+            break;
+        case QPainterPath::CurveToElement:
+            Q_ASSERT(p.elementAt(i+1).type == QPainterPath::CurveToDataElement);
+            Q_ASSERT(p.elementAt(i+2).type == QPainterPath::CurveToDataElement);
+            CGPathAddCurveToPoint(path, 0,
+                                  elm.x, elm.y,
+                                  p.elementAt(i+1).x, p.elementAt(i+1),
+                                  p.elementAt(i+2).y, p.elementAt(i+2));
+            i+=2;
+            break;
         }
-        CGPathCloseSubpath(path);
     }
     uchar ops = QCoreGraphicsPaintEnginePrivate::CGStroke;
     if(p.fillMode() == QPainterPath::Winding)

@@ -19,12 +19,30 @@
 
 class QPolygon;
 class QPainterPathPrivate;
+class QPainterPathStrokerPrivate;
 
 class Q_GUI_EXPORT QPainterPath
 {
     Q_DECLARE_PRIVATE(QPainterPath)
 public:
     enum FillMode { OddEven, Winding };
+
+    enum ElementType {
+        MoveToElement,
+        LineToElement,
+        CurveToElement,
+        CurveToDataElement
+    };
+
+    class Element {
+    public:
+        float x;
+        float y;
+        ElementType type;
+
+        bool operator==(const Element &e) { return x == e.x && y == e.y && type == e.type; }
+    };
+
 
     QPainterPath();
     QPainterPath(const QPointF &startPoint);
@@ -58,28 +76,49 @@ public:
     void addText(const QPointF &point, const QFont &f, const QString &text);
     inline void addText(float x, float y, const QFont &f, const QString &text);
 
-    QPainterPath createPathOutline(int width,
-                                   Qt::PenStyle penStyle = Qt::SolidLine,
-                                   Qt::PenCapStyle capStyle = Qt::FlatCap,
-                                   Qt::PenJoinStyle joinStyle = Qt::BevelJoin);
-
     QRectF boundingRect() const;
 
     FillMode fillMode() const;
     void setFillMode(FillMode fillMode);
 
-    bool isEmpty() const;
+    inline bool isEmpty() const;
 
-    QPolygon toPolygon() const;
+    QList<QPolygon> toSubpathPolygons() const;
+    QPolygon toFillPolygon() const;
+
+    int elementCount() const { return elements.size(); }
+    const QPainterPath::Element &elementAt(int i) const { return elements.at(i); }
+
 
 private:
     QPainterPathPrivate *d_ptr;
+    QVector<Element> elements;
 
-    friend class QPainter;
-    friend class QWin32PaintEngine;
-    friend class QCoreGraphicsPaintEngine;
-    friend class QGdiplusPaintEngine;
-    friend class QPSPrintEngine;
+    friend class QPainterPathStroker;
+};
+
+class Q_GUI_EXPORT QPainterPathStroker
+{
+    Q_DECLARE_PRIVATE(QPainterPathStroker)
+public:
+    QPainterPathStroker(const QPainterPath *path);
+
+    void setPenWidth(float width);
+    float penWidth() const;
+
+    void setPenStyle(Qt::PenStyle style);
+    Qt::PenStyle penStyle() const;
+
+    void setCapStyle(Qt::PenCapStyle style);
+    Qt::PenCapStyle capStyle() const;
+
+    void setJoinStyle(Qt::PenJoinStyle style);
+    Qt::PenJoinStyle joinStyle() const;
+
+    QPainterPath createStroke() const;
+
+private:
+    QPainterPathStrokerPrivate *d_ptr;
 };
 
 inline void QPainterPath::moveTo(float x, float y)
@@ -119,4 +158,10 @@ inline void QPainterPath::addText(float x, float y, const QFont &f, const QStrin
     addText(QPointF(x, y), f, text);
 }
 
+inline bool QPainterPath::isEmpty() const
+{
+    return elements.size() == 1 && elements.first().type == MoveToElement;
+}
+
 #endif // QPAINTERPATH_H
+

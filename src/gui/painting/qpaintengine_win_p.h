@@ -184,7 +184,7 @@ public:
     /*!
       Composes the path on the current device context
     */
-    void composeGdiPath(const QPainterPathPrivate *pd);
+    void composeGdiPath(const QPainterPath &p);
 
     uint gdiplusInUse : 1;
     QGdiplusPaintEngine *gdiplusEngine;

@@ -47,7 +47,11 @@
 // with the radius of the circle.
 #define KAPPA 0.5522847498
 
-// #define QPP_DEBUG
+#define QPP_DEBUG
+#define QPP_STROKE_DEBUG
+
+#define d d_func()
+#define q q_func()
 
 void qt_find_ellipse_coords(const QRectF &r, float angle, float length,
                             QPointF* startPoint, QPointF *endPoint)
@@ -66,115 +70,24 @@ void qt_find_ellipse_coords(const QRectF &r, float angle, float length,
     }
 }
 
-void QPainterSubpath::close()
+static void qt_debug_path(const QPainterPath &path)
 {
-    Q_ASSERT(!elements.isEmpty());
-    if (currentPoint != startPoint)
-        lineTo(startPoint);
-}
+    const char *names[] = {
+        "MoveTo     ",
+        "LineTo     ",
+        "CurveTo    ",
+        "CurveToData"
+    };
 
-void QPainterSubpath::lineTo(const QPointF &p)
-{
-// #ifdef QPP_DEBUG
-//     printf("   -> lineTo: (%.2f,%.2f), current=(%.2f, %.2f)\n",
-//            p.x(), p.y(), currentPoint.x(), currentPoint.y());
-// #endif
-
-    elements.append(QPainterPathElement::line(p.x(), p.y()));
-    currentPoint = p;
-
-}
-
-void QPainterSubpath::curveTo(const QPointF &c1, const QPointF &c2, const QPointF &end)
-{
-// #ifdef QPP_DEBUG
-//     printf("   -> curveTo: end=(%.2f,%.2f), c1=(%.2f,%.2f), c2=(%.2f,%.2f)\n",
-//            end.x(), end.y(), c1.x(), c1.y(), c2.x(), c2.y());
-// #endif
-    elements.append(QPainterPathElement::curve(c1.x(), c1.y(), c2.x(), c2.y(),
-                                               end.x(), end.y()));
-    currentPoint = end;
-}
-
-void QPainterSubpath::arcTo(const QRectF &rect, float startAngle, float sweepLength)
-{
-// #ifdef QPP_DEBUG
-//     printf("   -> arcTo: rect=(%.1f,%.1f,%.1f,%.1f), angle=%.1f, len=%.1f\n",
-//            rect.x(), rect.y(), rect.width(), rect.height(),
-//            startAngle, sweepLength);
-// #endif
-
-#define ANGLE(t) ((t) * 2 * M_PI / 360.0)
-#define SIGN(t) (t > 0 ? 1 : -1)
-    float a = rect.width() / 2.0;
-    float b = rect.height() / 2.0;
-
-    float absSweepLength = (sweepLength < 0 ? -sweepLength : sweepLength);
-    int iterations = int((absSweepLength + 89) / 90);
-    float clength = sweepLength / iterations;
-    float cosangle1, sinangle1, cosangle2, sinangle2;
-    for (int i=0; i<iterations; ++i) {
-        float cangle = startAngle + i * clength;
-
-        cosangle1 = cos(ANGLE(cangle));
-        sinangle1 = sin(ANGLE(cangle));
-        cosangle2 = cos(ANGLE(cangle + clength));
-        sinangle2 = sin(ANGLE(cangle + clength));
-
-        // Find the start and end point of the curve.
-        QPointF startPoint = rect.center() + QPointF(a * cosangle1, -b * sinangle1);
-        QPointF endPoint = rect.center() + QPointF(a * cosangle2, -b * sinangle2);
-
-        // The derived at the start and end point.
-        float sdx = -a * sinangle1;
-        float sdy = -b * cosangle1;
-        float edx = -a * sinangle2;
-        float edy = -b * cosangle2;
-
-        // Creating the tangent lines. We need to reverse their direction if the
-        // sweep is negative (clockwise)
-        QLineF controlLine1(startPoint, startPoint + SIGN(sweepLength) * QPointF(sdx, sdy));
-        QLineF controlLine2(endPoint, endPoint - SIGN(sweepLength) * QPointF(edx, edy));
-
-        // Adjust their length to fit the magic KAPPA length.
-        controlLine1.setLength(controlLine1.length() * KAPPA);
-        controlLine2.setLength(controlLine2.length() * KAPPA);
-
-        if (startPoint != currentPoint)
-            lineTo(startPoint);
-        curveTo(controlLine1.end(), controlLine2.end(), endPoint);
+    printf("\nQPainterPath: elementCount=%d\n", path.elementCount());
+    for (int i=0; i<path.elementCount(); ++i) {
+        const QPainterPath::Element &e = path.elementAt(i);
+        Q_ASSERT(e.type >= 0 && e.type <= QPainterPath::CurveToElement);
+        printf(" - %s, (%.2f, %.2f)\n", names[e.type], e.x, e.y);
     }
 }
 
-
-QPolygon QPainterSubpath::toPolygon(const QMatrix &matrix) const
-{
-    if (elements.isEmpty())
-        return QPolygon();
-    QPolygon p;
-    fflush(stdout);
-    p << startPoint * matrix;
-    for (int i=0; i<elements.size(); ++i) {
-        const QPainterPathElement &elm = elements.at(i);
-        switch (elm.type) {
-        case QPainterPathElement::Line:
-            p << (QPointF(elm.lineData.x, elm.lineData.y) * matrix);
-            break;
-        case QPainterPathElement::Curve: {
-            p += QBezier((p.isEmpty() ? (startPoint * matrix) : p.last()),
-                         QPointF(elm.curveData.c1x, elm.curveData.c1y) * matrix,
-                         QPointF(elm.curveData.c2x, elm.curveData.c2y) * matrix,
-                         QPointF(elm.curveData.ex, elm.curveData.ey) * matrix).toPolygon();
-            break;
-        }
-        default:
-            qFatal("QPainterSubpath::toPolygon() unhandled case...: %d", elements.at(i).type);
-        }
-    }
-    return p;
-}
-
-
+#if 0
 void QPainterSubpath::removeBrokenSegments()
 {
     if (brokenSegments.isEmpty())
@@ -254,469 +167,7 @@ void QPainterSubpath::removeBrokenSegments()
 
     brokenSegments.clear();
 }
-
-
-/*!
-  \internal
-
-  Converts all the curves in the path to linear polylines.
-*/
-QList<QPolygon> QPainterPathPrivate::flatten(const QMatrix &matrix, FlattenInclusion incl) const
-{
-    QList<QPolygon> flatCurves;
-    if (!flatCurves.isEmpty() || subpaths.isEmpty())
-        return flatCurves;
-
-    bool includeUnclosed = incl & UnclosedSubpaths;
-    for (int i=0; i<subpaths.size(); ++i)
-        if (!subpaths.at(i).elements.isEmpty()
-            && (includeUnclosed || subpaths.at(i).isClosed()))
-            flatCurves.append(subpaths.at(i).toPolygon(matrix));
-
-    return flatCurves;
-}
-
-/*!
-    \internal
-
-    Converts the flattened path to a polygon that can be used for filling
-*/
-
-QPolygon QPainterPathPrivate::toFillPolygon(const QMatrix &matrix) const
-{
-    QPolygon fillPoly;
-    QList<QPolygon> polygons = flatten(matrix, AllSubpaths);
-    for (int i=0; i<polygons.size(); ++i) {
-        if (polygons.at(i).isEmpty())
-            continue;
-        fillPoly += polygons.at(i);
-        if (polygons.at(i).first() != polygons.at(i).last())
-            fillPoly += polygons.at(i).first();
-        if (!polygons.at(0).isEmpty())
-            fillPoly += polygons.at(0).at(0);
-    }
-    return fillPoly;
-}
-
-#define MAX_INTERSECTIONS 256
-
-/*!
-  \internal
-
-  Convenience function used by scanToBitmap to set bits in a scanline...
-*/
-
-static inline void qt_painterpath_setbits(int from, int to, uchar *scanLine, uint fgPixel)
-{
-    if (to < from)
-        return;
-
-    int entryByte = from / 8;
-    int exitByte = to / 8;
-
-    // special case for ranges less than a byte.
-    if (exitByte == entryByte) {
-        uint entryPart = ((0xff << (from%8))&0xff);
-        uint exitPart = (0xff >> (8-(to%8)));
-        *(scanLine + entryByte) |= entryPart & exitPart & 0xff;
-    } else {
-        // First byte in this scan segment...
-        *(scanLine + entryByte) |= ((0xff << (from%8))&0xff);
-
-        // Fill areas between entry and exit bytes.
-        if (exitByte > entryByte + 1)
-            memset(scanLine+entryByte+1,  fgPixel, exitByte-entryByte-1);
-
-        // Last byte in this scan segment...
-        *(scanLine + exitByte) |= (0xff >> (8-(to%8)));
-    }
-
-}
-
-#if 0
-/*!
-  \internal
-
-  Scans the path to a bitmap that can be used to define filling. The insides
-  of the bitmap will be filled with foreground color and the outsides
-  will be filled with background color.
-
-  The cliprectangle \a clip is used to clip the scan area down to the part that
-  is currently visible. The clip is specified in painter coordinates. The
-  matrix \a xform defines the world matrix.
-
-  The algorithm for this works by first flattening the path to linear
-  segments stored in point arrays (flatCurves). We then intersect the
-  bounding rect of all flat curves with the supplied clip rect to determine
-  the area to scan convert.
-
-  For each scan line we check for intersection with the lines (note to
-  self, we could probably reduce the number of line intersection
-  checks by sorting the lines top->bottom and only checking the ones
-  we know might intersect). We register the xcoord of each
-  intersection in the isects array. At the end we sort the
-  intersections from left to right, and fill in based on current
-  fill rule..
-*/
-QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
-                                          const QMatrix &xform,
-                                          QRect *boundingRect)
-{
-    QList<QPolygon> flatCurves = flatten(xform, ClosedSubpaths);
-
-    QRect pathBounds;
-    for (int fc=0; fc<flatCurves.size(); ++fc)
-        pathBounds |= flatCurves.at(fc).boundingRect();
-
-    QRegion scanRegion(pathBounds);
-    if (clipRect.isValid())
-        scanRegion &= xform.mapToRegion(clipRect);
-    QRect scanRect = scanRegion.boundingRect();
-    if (boundingRect)
-        *boundingRect = scanRect;
-    if (!scanRect.isValid())
-        return QBitmap();
-
-    const uint bgPixel = QColor(Qt::color1).rgb();
-    const uint fgPixel = QColor(Qt::color0).rgb();
-
-    QImage image(scanRect.width(), scanRect.height(), 1, 2, QImage::LittleEndian);
-    image.fill(bgPixel);
-    int isects[MAX_INTERSECTIONS];
-    QVarLengthArray<int, 1024> windingNumbers(scanRect.width());
-    int numISects;
-    for (int y=0; y<scanRect.height(); ++y) {
-        int scanLineY = y + scanRect.y();
-        numISects = 0;
-        for (int c=0; c<flatCurves.size(); ++c) {
-            QPolygon curve = flatCurves.at(c);
-            if (!scanRect.intersects(curve.boundingRect()))
-                continue;
-            Q_ASSERT(curve.size()>=2);
-            QPointF p1 = curve.at(curve.size()-1);
-            for (int i=0; i<curve.size(); ++i) {
-                QPointF p2 = curve.at(i);
-
-                // Does the line cross the scan line?
-                if ((p1.y() <= scanLineY && p2.y() > scanLineY)
-                    || (p1.y() > scanLineY && p2.y() <= scanLineY)) {
-                    Q_ASSERT(numISects<MAX_INTERSECTIONS);
-
-                    // Find intersection and add to set of intersetions for this scanline
-                    // Horizontal lines are skipped since their end points are covered
-                    // by other lines, and adding them would inverse the results
-                    if (p1.y() != p2.y()) {
-                        double idelta = (p2.x()-p1.x()) / double(p2.y()-p1.y());
-                        isects[numISects] =
-                            qRound((scanLineY - p1.y()) * idelta + p1.x()) - scanRect.x();
-                        windingNumbers[isects[numISects]] = ((p2.y() > p1.y()) ? 1 : -1);
-                        ++numISects;
-                    }
-                }
-                p1 = p2;
-            }
-        }
-
-        if (numISects <= 0)
-            continue;
-
-        // There is always an even number of intersections in closed curves.
-        Q_ASSERT(numISects%2 == 0);
-
-        // Sort the intersection entries...
-        qHeapSort(&isects[0], &isects[numISects]);
-
-        uchar *scanLine = image.scanLine(y);
-
-        if (fillMode == QPainterPath::OddEven) {
-            for (int i=0; i<numISects; i+=2) {
-                int from = qMax(0, isects[i]);
-                int to = qMin(scanRect.width(), isects[i+1]);
-                qt_painterpath_setbits(from, to, scanLine, fgPixel);
-            }
-        } else { // Winding fill rule
-            for (int i=0; i<numISects; ) {
-                int windingNumber = 0;
-                int from = qMax(0, isects[i]);
-                int to = 0;
-                windingNumber += windingNumbers[isects[i]];
-                for (++i; i<numISects && windingNumber != 0; ++i) {
-                    windingNumber += windingNumbers[isects[i]];
-                    to = qMin(scanRect.width(), isects[i]);
-                }
-                qt_painterpath_setbits(from, to, scanLine, fgPixel);
-            }
-        }
-    }
-    QBitmap bm;
-    bm.convertFromImage(image);
-    return bm;
-}
 #endif
-
-#ifdef QPP_DEBUG
-static void qt_path_debug_subpath(const QPainterSubpath &sp)
-{
-    printf("SUBPATH: start=(%.2f,%.2f), current=(%.2f,%.2f)\n",
-           sp.startPoint.x(), sp.startPoint.y(),
-           sp.currentPoint.x(), sp.currentPoint.y());
-
-    for (int i=0; i<sp.elements.size(); ++i) {
-        const QPainterPathElement &elm = sp.elements.at(i);
-        switch (elm.type) {
-        case QPainterPathElement::Line:
-            printf(" ---> LINE: (%.2f, %.2f)\n", elm.lineData.x, elm.lineData.y);
-            break;
-        case QPainterPathElement::Curve:
-            printf(" ---> CURVE: cp1=(%.2f, %.2f), cp2=(%.2f, %.2f), end=(%.2f, %.2f)\n",
-                   elm.curveData.c1x, elm.curveData.c1y,
-                   elm.curveData.c2x, elm.curveData.c2y,
-                   elm.curveData.ex, elm.curveData.ey);
-            break;
-        }
-    }
-}
-#endif
-
-#define QT_PATH_NO_JOIN Qt::PenJoinStyle(0xffff)
-
-static QLineF::IntersectType qt_path_stroke_join(QPainterSubpath *sp,
-                                QPainterPathElement *prev,
-                                const QLineF &ml,
-                                Qt::PenJoinStyle joinStyle)
-{
-    // Check for overlap
-    QLineF pline(sp->lastCurrent(), QPointF(prev->lineData.x, prev->lineData.y));
-    QLineF bevelLine(prev->lineData.x, prev->lineData.y, ml.startX(), ml.startY());
-
-    QPointF isect;
-    QLineF::IntersectType type = pline.intersect(ml, &isect);
-    if (type == QLineF::BoundedIntersection) {
-        Q_ASSERT(prev->type == QPainterPathElement::Line);
-        prev->lineData.x = isect.x();
-        prev->lineData.y = isect.y();
-        sp->currentPoint = isect;
-    } else {
-        if (pline.angle(bevelLine) > 90) {
-            sp->brokenSegments.append(sp->elements.size());
-            joinStyle = Qt::BevelJoin;
-        }
-        switch (joinStyle) {
-        case Qt::MiterJoin:
-            Q_ASSERT(prev->type == QPainterPathElement::Line);
-            prev->lineData.x = isect.x();
-            prev->lineData.y = isect.y();
-            sp->currentPoint = isect;
-            break;
-        case Qt::BevelJoin:
-            sp->lineTo(ml.start());
-            break;
-        case Qt::RoundJoin: {
-            QLineF cp1Line(pline.end(), isect);
-            cp1Line.setLength(cp1Line.length() * KAPPA);
-            QLineF cp2Line(ml.start(), isect);
-            cp2Line.setLength(cp2Line.length() * KAPPA);
-            sp->curveTo(cp1Line.end(), cp2Line.end(), ml.start());
-            break;
-        }
-        default:
-            break;
-        }
-    }
-    return type;
-}
-
-static void qt_path_stroke_line(const QPointF &toPoint,
-                                QPainterSubpath *sp,
-                                const QPointF &lastPoint,
-                                float penWidth,
-                                Qt::PenJoinStyle joinStyle)
-{
-#ifdef QPP_DEBUG
-    printf(" -> stroking line from (%.2f, %.2f) -> (%.2f, %.2f), subpath.isEmpty=%d\n",
-           lastPoint.x(), lastPoint.y(), toPoint.x(), toPoint.y(), sp->elements.isEmpty());
-#endif
-    QLineF line(lastPoint, toPoint);
-    if (line.isNull())
-        return;
-    QLineF normal = line.normalVector();
-    if (normal.isNull())
-        return;
-    normal.setLength(penWidth);
-    QLineF ml(line);
-    ml.moveBy(normal);
-
-    if (!sp->elements.isEmpty()) {
-        QPainterPathElement &prev = sp->elements.last();
-        if (sp->currentPoint != ml.start()) {
-            qt_path_stroke_join(sp, &prev, ml, joinStyle);
-        }
-    } else {
-        sp->currentPoint = sp->startPoint = ml.start();
-    }
-    sp->lineTo(ml.end());
-}
-
-static QPointF qt_path_stroke_to_element(const QPainterPathElement &elm,
-                                         QPainterSubpath *subpath,
-                                         const QPointF &lastPoint,
-                                         float penWidth,
-                                         Qt::PenJoinStyle joinStyle)
-{
-    switch (elm.type) {
-    case QPainterPathElement::Line: {
-        qt_path_stroke_line(elm.end(), subpath, lastPoint, penWidth, joinStyle);
-        return QPointF(elm.lineData.x, elm.lineData.y);
-    }
-    case QPainterPathElement::Curve: {
-#ifdef QPP_DEBUG
-        printf(" ---> stroke to curve: cp1=(%.2f, %.2f), cp2=(%.2f, %.2f), end=(%.2f, %.2f)\n",
-               elm.curveData.c1x, elm.curveData.c1y,
-               elm.curveData.c2x, elm.curveData.c2y,
-               elm.curveData.ex, elm.curveData.ey);
-#endif
-        QPolygon curve =  QBezier(lastPoint,
-                                  QPointF(elm.curveData.c1x, elm.curveData.c1y),
-                                  QPointF(elm.curveData.c2x, elm.curveData.c2y),
-                                  QPointF(elm.curveData.ex, elm.curveData.ey)).toPolygon();
-
-        qt_path_stroke_line(curve.at(1), subpath, lastPoint, penWidth, joinStyle);
-        for (int i=2; i<curve.size(); ++i)
-            qt_path_stroke_line(curve.at(i), subpath, curve.at(i-1), penWidth,
-                                QT_PATH_NO_JOIN);
-        return elm.end();
-    }
-    default:
-        // Nothing...
-        break;
-    }
-    return QPointF();
-}
-
-QPainterSubpath qt_path_reverse_subpath(const QPainterSubpath &subpath)
-{
-    QPainterSubpath rev;
-    rev.startPoint = subpath.elements.last().end();
-    QPointF rEndPoint;
-
-    for (int i=subpath.elements.size() - 1; i>=0; --i) {
-        const QPainterPathElement &elm = subpath.elements.at(i);
-
-        rEndPoint = i == 0 ? subpath.startPoint : subpath.elements.at(i-1).end();
-
-        switch (elm.type) {
-        case QPainterPathElement::Line:
-            rev.elements.append(QPainterPathElement::line(rEndPoint.x(), rEndPoint.y()));
-            break;
-        case QPainterPathElement::Curve:
-            rev.elements.append(QPainterPathElement::curve(elm.curveData.c2x, elm.curveData.c2y,
-                                                           elm.curveData.c1x, elm.curveData.c1y,
-                                                           rEndPoint.x(), rEndPoint.y()));
-            break;
-        }
-    }
-    return rev;
-}
-
-/*!
-    \internal
-*/
-
-QPainterPath QPainterPathPrivate::createStroke(int width,
-                                               Qt::PenStyle penStyle,
-                                               Qt::PenCapStyle capStyle,
-                                               Qt::PenJoinStyle joinStyle)
-{
-    Q_UNUSED(penStyle);
-    Q_UNUSED(capStyle);
-#ifdef QPP_DEBUG
-    printf("QPainterPathPrivate::createStroke()\n");
-#endif
-
-    PM_INIT;
-
-    QPainterPath stroke;
-
-    float penWidth = width / 2.0;
-
-    for (int spi=0; spi<subpaths.size(); ++spi) {
-        const QPainterSubpath &subpath = subpaths.at(spi);
-
-//         printf(" *** new subpath, elmCount=%d\n", subpath.elements.size());
-
-        if (subpath.elements.isEmpty())
-            continue;
-
-        QPainterSubpath reverse = qt_path_reverse_subpath(subpath);
-
-        QPainterSubpath usegs; // "up" segments, positive offset
-        QPainterSubpath dsegs;
-
-        QPointF uLastPt = subpath.startPoint;
-        QPointF dLastPt = reverse.startPoint;
-
-        PM_MEASURE("starting up");
-        for (int elmi=0; elmi<subpath.elements.size(); ++elmi) {
-            uLastPt = qt_path_stroke_to_element(subpath.elements.at(elmi),
-                                                &usegs, uLastPt, penWidth, joinStyle);
-            dLastPt = qt_path_stroke_to_element(reverse.elements.at(elmi),
-                                                &dsegs, dLastPt, penWidth, joinStyle);
-        }
-        PM_MEASURE("iteration");
-
-//         usegs.removeBrokenSegments();
-//         dsegs.removeBrokenSegments();
-
-        PM_MEASURE("removal");
-
-        if (!subpath.isClosed()) {
-            usegs.lineTo(dsegs.startPoint);
-            dsegs.lineTo(usegs.startPoint);
-            usegs.elements += dsegs.elements;
-            stroke.d_func()->subpaths.append(usegs);
-#ifdef QPP_DEBUG
-        qt_path_debug_subpath(usegs);
-#endif
-        } else {
-            if (!usegs.isClosed()) {
-                QLineF::IntersectType type = qt_path_stroke_join(&usegs, &usegs.elements.last(),
-                                                                 QLineF(usegs.startPoint,
-                                                                        usegs.elements.first().end()),
-                                                                 joinStyle);
-                if (type == QLineF::BoundedIntersection)
-                    usegs.startPoint = usegs.elements.last().end();
-                if (!usegs.isClosed())
-                    usegs.close();
-            }
-
-            if (!dsegs.isClosed()) {
-                QLineF::IntersectType type = qt_path_stroke_join(&dsegs, &dsegs.elements.last(),
-                                                                 QLineF(dsegs.startPoint,
-                                                                        dsegs.elements.first().end()),
-                                                                 joinStyle);
-                if (type == QLineF::BoundedIntersection)
-                    dsegs.startPoint = dsegs.elements.last().end();
-                if (!dsegs.isClosed())
-                    dsegs.close();
-            }
-
-#ifdef QPP_DEBUG
-        qt_path_debug_subpath(usegs);
-        qt_path_debug_subpath(dsegs);
-#endif
-            stroke.d_func()->subpaths.append(usegs);
-            stroke.d_func()->subpaths.append(dsegs);
-        }
-    }
-    PM_MEASURE("all done");
-
-    PM_DISPLAY;
-    stroke.setFillMode(QPainterPath::Winding);
-    return stroke;
-}
-
-#define d d_func()
-#define q q_func()
 
 /*!
     \class QPainterPath
@@ -782,9 +233,10 @@ QPainterPath QPainterPathPrivate::createStroke(int width,
  Constructs a new empty QPainterPath.
  */
 QPainterPath::QPainterPath()
-    : d_ptr(new QPainterPathPrivate)
+    : d_ptr(new QPainterPathPrivate(this))
 {
-    d->subpaths.append(QPainterSubpath());
+    Element e = { 0, 0, MoveToElement };
+    elements << e;
 }
 
 /*!
@@ -792,8 +244,10 @@ QPainterPath::QPainterPath()
     path.
 */
 QPainterPath::QPainterPath(const QPainterPath &other)
-    : d_ptr(new QPainterPathPrivate(*other.d_ptr))
+    : d_ptr(new QPainterPathPrivate(*other.d_ptr)), elements(other.elements)
 {
+    Q_ASSERT(!elements.isEmpty());
+    d_ptr->q_ptr = this;
 }
 
 /*!
@@ -801,9 +255,10 @@ QPainterPath::QPainterPath(const QPainterPath &other)
 */
 
 QPainterPath::QPainterPath(const QPointF &startPoint)
-    : d_ptr(new QPainterPathPrivate())
+    : d_ptr(new QPainterPathPrivate(this))
 {
-    d->subpaths.append(QPainterSubpath(startPoint));
+    Element e = { startPoint.x(), startPoint.y(), MoveToElement };
+    elements << e;
 }
 
 /*!
@@ -811,7 +266,9 @@ QPainterPath::QPainterPath(const QPointF &startPoint)
 */
 QPainterPath &QPainterPath::operator=(const QPainterPath &other)
 {
+    Q_ASSERT(!other.elements.isEmpty());
     *d_ptr = *other.d_ptr;
+    elements = other.elements;
     return *this;
 }
 
@@ -831,10 +288,12 @@ QPainterPath::~QPainterPath()
  */
 void QPainterPath::closeSubpath()
 {
-    if (d->subpaths.last().elements.isEmpty())
-        return;
-    d->subpaths.last().close();
-    d->subpaths.append(QPainterSubpath());
+#ifdef QPP_DEBUG
+    printf("QPainterPath::closeSubpath()\n");
+#endif
+
+    d->close();
+    moveTo(QPointF(0, 0));
 }
 
 /*!
@@ -859,15 +318,16 @@ void QPainterPath::moveTo(const QPointF &p)
 #ifdef QPP_DEBUG
     printf("QPainterPath::moveTo() (%.2f,%.2f)\n", p.x(), p.y());
 #endif
-    if (d->subpaths.last().elements.isEmpty()) {
-#ifdef QPP_DEBUG
-        printf(" -> modify current\n", p.x(), p.y());
-#endif
-        d->subpaths.last().startPoint = p;
-        d->subpaths.last().currentPoint = p;
-        return;
+
+    Q_ASSERT(!elements.isEmpty());
+    if (elements.last().type == MoveToElement) {
+        elements.last().x = p.x();
+        elements.last().y = p.y();
+    } else {
+        Element elm = { p.x(), p.y(), MoveToElement };
+        elements.append(elm);
     }
-    d->subpaths.append(QPainterSubpath(p));
+    d->cStart = elements.size() - 1;
 }
 
 /*!
@@ -889,7 +349,12 @@ void QPainterPath::moveTo(const QPointF &p)
  */
 void QPainterPath::lineTo(const QPointF &p)
 {
-    d->subpaths.last().lineTo(p);
+#ifdef QPP_DEBUG
+    printf("QPainterPath::lineTo() (%.2f,%.2f)\n", p.x(), p.y());
+#endif
+    Q_ASSERT(!elements.isEmpty());
+    Element elm = { p.x(), p.y(), LineToElement };
+    elements.append(elm);
 }
 
 /*!
@@ -914,7 +379,15 @@ void QPainterPath::lineTo(const QPointF &p)
 */
 void QPainterPath::curveTo(const QPointF &c1, const QPointF &c2, const QPointF &e)
 {
-    d->subpaths.last().curveTo(c1, c2, e);
+#ifdef QPP_DEBUG
+    printf("QPainterPath::curveTo() (%.2f,%.2f), (%.2f,%.2f), (%.2f,%.2f)\n",
+           c1.x(), c1.y(), c2.x(), c2.y(), e.x(), e.y());
+#endif
+    Q_ASSERT(!elements.isEmpty());
+    Element ce1 = { c1.x(), c1.y(), CurveToElement };
+    Element ce2 = { c2.x(), c2.y(), CurveToDataElement };
+    Element ee = { e.x(), e.y(), CurveToDataElement };
+    elements << ce1 << ce2 << ee;
 }
 
 /*!
@@ -944,7 +417,54 @@ void QPainterPath::curveTo(const QPointF &c1, const QPointF &c2, const QPointF &
 */
 void QPainterPath::arcTo(const QRectF &rect, float startAngle, float sweepLength)
 {
-    d->subpaths.last().arcTo(rect, startAngle, sweepLength);
+#ifdef QPP_DEBUG
+    printf("QPainterPath::arcTo() (%.2f, %.2f, %.2f, %.2f, angle=%.2f, sweep=%.2f\n",
+           rect.x(), rect.y(), rect.width(), rect.height(), startAngle, sweepLength);
+#endif
+    Q_ASSERT(!elements.isEmpty());
+//     printf("   -> arcTo: rect=(%.1f,%.1f,%.1f,%.1f), angle=%.1f, len=%.1f\n",
+//            rect.x(), rect.y(), rect.width(), rect.height(),
+//            startAngle, sweepLength);
+#define ANGLE(t) ((t) * 2 * M_PI / 360.0)
+#define SIGN(t) (t > 0 ? 1 : -1)
+    float a = rect.width() / 2.0;
+    float b = rect.height() / 2.0;
+
+    float absSweepLength = (sweepLength < 0 ? -sweepLength : sweepLength);
+    int iterations = int((absSweepLength + 89) / 90);
+    float clength = sweepLength / iterations;
+    float cosangle1, sinangle1, cosangle2, sinangle2;
+    for (int i=0; i<iterations; ++i) {
+        float cangle = startAngle + i * clength;
+
+        cosangle1 = cos(ANGLE(cangle));
+        sinangle1 = sin(ANGLE(cangle));
+        cosangle2 = cos(ANGLE(cangle + clength));
+        sinangle2 = sin(ANGLE(cangle + clength));
+
+        // Find the start and end point of the curve.
+        QPointF startPoint = rect.center() + QPointF(a * cosangle1, -b * sinangle1);
+        QPointF endPoint = rect.center() + QPointF(a * cosangle2, -b * sinangle2);
+
+        // The derived at the start and end point.
+        float sdx = -a * sinangle1;
+        float sdy = -b * cosangle1;
+        float edx = -a * sinangle2;
+        float edy = -b * cosangle2;
+
+        // Creating the tangent lines. We need to reverse their direction if the
+        // sweep is negative (clockwise)
+        QLineF controlLine1(startPoint, startPoint + SIGN(sweepLength) * QPointF(sdx, sdy));
+        QLineF controlLine2(endPoint, endPoint - SIGN(sweepLength) * QPointF(edx, edy));
+
+        // Adjust their length to fit the magic KAPPA length.
+        controlLine1.setLength(controlLine1.length() * KAPPA);
+        controlLine2.setLength(controlLine2.length() * KAPPA);
+
+        if (startPoint != QPointF(elements.last().x, elements.last().y))
+            lineTo(startPoint);
+        curveTo(controlLine1.end(), controlLine2.end(), endPoint);
+    }
 }
 
 /*!
@@ -963,41 +483,55 @@ void QPainterPath::arcTo(const QRectF &rect, float startAngle, float sweepLength
 
     Adds the \a rectangle to this path as a closed subpath. The rectangle
     is added as a clockwise set of lines. An empty subpath with current
-    position at (0, 0) is in use after this function returns.
+    position at (0, 0) is in use after this function returns. The rectangle
+    is oriented clockwise starting at topleft.
 */
 void QPainterPath::addRect(const QRectF &r)
 {
-    moveTo(r.topLeft());
-    QPainterSubpath &sp = d->subpaths.last();
-    sp.lineTo(r.topRight());
-    sp.lineTo(r.bottomRight());
-    sp.lineTo(r.bottomLeft());
-    closeSubpath();
+    if (d->isClosed())
+        moveTo(r.topLeft());
+    else
+        lineTo(r.topLeft());
+    lineTo(r.topRight());
+    lineTo(r.bottomRight());
+    lineTo(r.bottomLeft());
+    lineTo(r.topLeft());
 }
 
 /*!
-    Adds the \a polygon to path as a new subpath.
+    Adds the \a polygon to path as a new subpath. If the current
+    subpath is closed, a new subpath is started at the polygons first
+    point.
 */
 void QPainterPath::addPolygon(const QPolygon &polygon)
 {
     if (polygon.isEmpty())
         return;
-    moveTo(polygon.first());
-    QPainterSubpath &sp = d->subpaths.last();
-    for (int i=1; i<polygon.size(); ++i)
-        sp.lineTo(polygon.at(i));
+
+    if (d->isClosed())
+        moveTo(polygon.first());
+    else
+        lineTo(polygon.first());
+
+    for (int i=1; i<polygon.size(); ++i) {
+        Element elm = { polygon.at(i).x(), polygon.at(i).y(), LineToElement };
+        elements << elm;
+    }
 }
 
 /*!
     Adds the ellipse defined by the bounding rectangle \a rect to the
-    path as a new subpath.
-
+    path as a new subpath. If the current subpath is closed, a new
+    subpath is started. The ellipse is clockwise starting and starting
+    zero degrees.
 */
 void QPainterPath::addEllipse(const QRectF &boundingRect)
 {
-    moveTo(boundingRect.x() + boundingRect.width(),
-           boundingRect.y() + boundingRect.height() / 2);
-    d->subpaths.last().arcTo(boundingRect, 0, 360);
+    if (d->isClosed())
+        moveTo(boundingRect.x() + boundingRect.width(), boundingRect.y() + boundingRect.height() / 2);
+    else
+        lineTo(boundingRect.x() + boundingRect.width(), boundingRect.y() + boundingRect.height() / 2);
+    arcTo(boundingRect, 0, -360);
 }
 
 #undef d
@@ -1063,39 +597,6 @@ void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &
 
 #define d d_func()
 
-#if 0
-void QPainterPath::transform(const QMatrix &matrix)
-{
-    for (int i=0; i<d->subpaths.size(); ++i) {
-        QPainterSubpath &sp = d->subpaths[i];
-        sp.startPoint = sp.startPoint * matrix;
-        for (int j=0; j<sp.elements.size(); j++) {
-            QPainterPathElement &elm = sp.elements[j];
-            switch (elm.type) {
-            case QPainterPathElement::Line: {
-                QPointF np = QPointF(elm.lineData.x, elm.lineData.y) * matrix;
-                elm.lineData.x = np.x();
-                elm.lineData.y = np.y();
-            }
-            case QPainterPathElement::Curve: {
-                QPointF p = QPointF(elm.curveData.c1x. elm.curveData.c1y) * matrix;
-                elm.curveData.c1x = p.x();
-                elm.curveData.c1y = p.y();
-
-                p = QPointF(elm.curveData.c2x. elm.curveData.c2y) * matrix;
-                elm.curveData.c2x = p.x();
-                elm.curveData.c2y = p.y();
-
-                p = QPointF(elm.curveData.ex. elm.curveData.ey) * matrix;
-                elm.curveData.ex = p.x();
-                elm.curveData.ey = p.y();
-            }
-
-        }
-    }
-}
-#endif
-
 /*!
     Returns the fill mode of the painter path. The default fill mode
     is OddEven.
@@ -1125,42 +626,348 @@ void QPainterPath::setFillMode(QPainterPath::FillMode fillMode)
 */
 QRectF QPainterPath::boundingRect() const
 {
-    if (d->subpaths.isEmpty())
-        return QRectF();
-    QRectF rect;
-    for (int j=0; j<d->subpaths.size(); ++j) {
-        QPolygon pa = d->subpaths.at(j).toPolygon(QMatrix());
-        rect |= pa.boundingRect();
-    }
-    return rect;
+    return toFillPolygon().boundingRect();
 }
 
 /*!
+  \fn bool QPainterPath::isEmpty() const
+
     Returns true if there are no elements in this path.
 */
-bool QPainterPath::isEmpty() const
-{
-    return d->subpaths.isEmpty();
-}
 
+#if 0
 /*!
-  \internal
-
-    Create an outline for the path with the given \a width.
+    Creates a reversed copy of this path and returns it
 */
-QPainterPath QPainterPath::createPathOutline(int width,
-                                             Qt::PenStyle penStyle,
-                                             Qt::PenCapStyle capStyle,
-                                             Qt::PenJoinStyle joinStyle)
+QPainterPath QPainterPath::createReversed() const;
 {
-    return d->createStroke(width, penStyle, capStyle, joinStyle);
-}
+    if (isEmpty())
+        return *this;
 
+    QPainterPath rev;
+    QPainterPath::iterator it = end();
+
+    --it;
+    rev.moveTo(it.point());
+
+    for (; !it.atStart(); --it) {
+        switch (it.type) {
+        case QPainterPath::LineToElement:
+            rev.lineTo(ip.prevPoint());
+            break;
+        case QPainterPath::CurveToDataElement: {
+            --it;
+            Q_ASSERT(it.type == QPainterPath::CurveToDataElement);
+            QPointF cp2 = it.point();
+            --it;
+            Q_ASSERT(it.type == QPainterPath::CurveToElement);
+            QPointF cp1 = it.point();
+            QPointF sp = it.prevPoint();
+            rev.curveTo(cp2, cp1, sp);
+            break;
+        }
+        case QPainterPath::MoveToElement:
+            if (!it.atStart())
+                rev.moveTo(ip.prevPoint());
+            break;
+        case QPainterPath::CurveToElement:
+            qFatal("qt_path_reverse, CurveToElement out of place");
+            break;
+        }
+    }
+
+    return rev;
+}
+#endif
+
+
+QList<QPolygon> QPainterPath::toSubpathPolygons() const
+{
+    QList<QPolygon> flatCurves;
+    if (q->elements.isEmpty())
+        return flatCurves;
+
+    QPolygon current;
+    for (int i=0; i<elementCount(); ++i) {
+        const QPainterPath::Element &e = elements.at(i);
+        switch (e.type) {
+        case QPainterPath::MoveToElement:
+            if (!current.isEmpty())
+                flatCurves += current;
+            current.clear();
+            current += QPointF(e.x, e.y);
+            break;
+        case QPainterPath::LineToElement:
+            current += QPointF(e.x, e.y);
+            break;
+        case QPainterPath::CurveToElement:
+            Q_ASSERT(elements.at(i+1).type == QPainterPath::CurveToDataElement);
+            Q_ASSERT(elements.at(i+2).type == QPainterPath::CurveToDataElement);
+            current += QBezier(elements.at(i-1).x, elements.at(i-1).y,
+                               e.x, e.y,
+                               elements.at(i+1).x, elements.at(i+1).y,
+                               elements.at(i+2).x, elements.at(i+2).y).toPolygon();
+            i+=2;
+            break;
+        case QPainterPath::CurveToDataElement:
+            Q_ASSERT(!"QPainterPath::toSubpathPolygons(), bad element type");
+            break;
+        }
+    }
+
+    if (!current.isEmpty())
+        flatCurves += current;
+
+    return flatCurves;
+}
 
 /*!
   Creates a polygon from the path.
 */
-QPolygon QPainterPath::toPolygon() const
+QPolygon QPainterPath::toFillPolygon() const
 {
-    return d->toFillPolygon(QMatrix());
+    QPolygon fillPoly;
+    QList<QPolygon> subpaths = toSubpathPolygons();
+
+    for (int i=0; i<subpaths.size(); ++i) {
+        fillPoly += subpaths.at(i);
+        if (i != 0)
+            fillPoly += subpaths.at(0).first();
+    }
+
+    return fillPoly;
+}
+
+/*******************************************************************************
+ * class QPainterPathStroker
+ */
+#define QT_PATH_NO_JOIN Qt::PenJoinStyle(0xffff)
+
+class QPainterPathStrokerPrivate
+{
+    Q_DECLARE_PUBLIC(QPainterPathStroker)
+public:
+    QPainterPathStrokerPrivate(const QPainterPath *p) :
+        path(p),
+        penWidth(1),
+        penStyle(Qt::SolidLine),
+        joinStyle(Qt::BevelJoin),
+        capStyle(Qt::FlatCap)
+    {
+    }
+
+    void strokeLine(int elmi, const QPolygon &polygon, QPainterPath *path) const;
+    void joinPoints(const QLineF &nextLine, QPainterPath *path) const;
+
+    const QPainterPath *path;
+    float penWidth;
+    float width;
+    Qt::PenStyle penStyle;
+    Qt::PenJoinStyle joinStyle;
+    Qt::PenCapStyle capStyle;
+    QPainterPathStroker *q_ptr;
+};
+
+void QPainterPathStrokerPrivate::joinPoints(const QLineF &l, QPainterPath *path) const
+{
+#ifdef QPP_STROKE_DEBUG
+    printf(" -----> joinPoints: (%.2f, %.2f) (%.2f, %.2f)\n",
+           l.startX(), l.startY(), l.endX(), l.endY());
+#endif
+    path->lineTo(l.start());
+#if 0
+    // Check for overlap
+    QLineF pline(sp->lastCurrent(), QPointF(prev->lineData.x, prev->lineData.y));
+    QLineF bevelLine(prev->lineData.x, prev->lineData.y, ml.startX(), ml.startY());
+
+    QPointF isect;
+    QLineF::IntersectType type = pline.intersect(ml, &isect);
+    if (type == QLineF::BoundedIntersection) {
+        Q_ASSERT(prev->type == QPainterPathElement::Line);
+        prev->lineData.x = isect.x();
+        prev->lineData.y = isect.y();
+        sp->currentPoint = isect;
+    } else {
+        if (pline.angle(bevelLine) > 90) {
+            sp->brokenSegments.append(sp->elements.size());
+            joinStyle = Qt::BevelJoin;
+        }
+        switch (joinStyle) {
+        case Qt::MiterJoin:
+            Q_ASSERT(prev->type == QPainterPathElement::Line);
+            prev->lineData.x = isect.x();
+            prev->lineData.y = isect.y();
+            sp->currentPoint = isect;
+            break;
+        case Qt::BevelJoin:
+            sp->lineTo(ml.start());
+            break;
+        case Qt::RoundJoin: {
+            QLineF cp1Line(pline.end(), isect);
+            cp1Line.setLength(cp1Line.length() * KAPPA);
+            QLineF cp2Line(ml.start(), isect);
+            cp2Line.setLength(cp2Line.length() * KAPPA);
+            sp->curveTo(cp1Line.end(), cp2Line.end(), ml.start());
+            break;
+        }
+        default:
+            break;
+        }
+    }
+    return type;
+#endif
+}
+
+void QPainterPathStrokerPrivate::strokeLine(int elmi, const QPolygon &polygon, QPainterPath *path) const
+{
+#ifdef QPP_STROKE_DEBUG
+    printf(" ---> strokeLine: %d, (%.2f, %.2f) (%.2f, %.2f)\n",
+           elmi,
+           polygon.at(elmi-1).x(), polygon.at(elmi-1).y(),
+           polygon.at(elmi).x(), polygon.at(elmi).y());
+#endif
+    Q_ASSERT(elmi > 0);
+    QLineF line(polygon.at(elmi-1), polygon.at(elmi));
+    if (line.isNull())
+        return;
+    QLineF normal = line.normalVector();
+    if (normal.isNull())
+        return;
+    normal.setLength(width);
+    QLineF ml(line);
+    ml.moveBy(normal);
+
+    if (!path->isEmpty()) {
+        joinPoints(ml, path);
+    } else {
+        path->moveTo(ml.start());
+    }
+    path->lineTo(ml.end());
+}
+
+QPainterPathStroker::QPainterPathStroker(const QPainterPath *path)
+    : d_ptr(new QPainterPathStrokerPrivate(path))
+{
+
+}
+
+QPolygon qt_reversed_polygon(const QPolygon &p)
+{
+    QPolygon rev;
+    rev.reserve(p.size());
+    for (int i=p.size()-1; i>=0; --i)
+        rev << p.at(i);
+    return rev;
+}
+
+QPainterPath QPainterPathStroker::createStroke() const
+{
+    Q_UNUSED(penStyle);
+    Q_UNUSED(capStyle);
+#ifdef QPP_STROKE_DEBUG
+    printf("QPainterPathPrivate::createStroke()\n");
+#endif
+
+    PM_INIT;
+
+    QPainterPath stroke;
+
+    QList<QPolygon> flatCurves = d->path->toSubpathPolygons();
+    printf(" -> subpaths: %d, totalElements: %d\n", flatCurves.size(), d->path->elementCount());
+
+    for (int spi=0; spi<flatCurves.size(); ++spi) {
+        QPolygon poly = flatCurves.at(spi);
+
+#ifdef QPP_STROKE_DEBUG
+        printf(" -> polygon has size: %d\n", poly.size());
+#endif
+
+        if (poly.isEmpty())
+            continue;
+
+        QPainterPath usegs;
+        QPainterPath dsegs;
+        QPolygon reverse = qt_reversed_polygon(poly);
+
+        for (int elmi=1; elmi<poly.size(); ++elmi) {
+            d->strokeLine(elmi, poly, &usegs);
+            d->strokeLine(elmi, reverse, &dsegs);
+        }
+
+        qt_debug_path(dsegs);
+        qt_debug_path(usegs);
+
+        PM_MEASURE("iteration");
+
+//         usegs.removeBrokenSegments();
+//         dsegs.removeBrokenSegments();
+
+        PM_MEASURE("removal");
+
+        if (!poly.isClosed()) {
+            // Cap styles...
+            usegs.lineTo(QPointF(dsegs.elements.first().x, dsegs.elements.first().y));
+            dsegs.lineTo(QPointF(usegs.elements.first().x, usegs.elements.first().y));
+            stroke.elements += usegs.elements;
+            stroke.elements += dsegs.elements;
+        } else {
+            if (!usegs.d_ptr->isClosed()) {
+                usegs.lineTo(QPointF(usegs.elements.first().x, usegs.elements.first().y));
+            }
+            if (!dsegs.d_ptr->isClosed()) {
+                dsegs.lineTo(QPointF(dsegs.elements.first().x, dsegs.elements.first().y));
+            }
+            stroke.elements += usegs.elements;
+            stroke.elements += dsegs.elements;
+        }
+    }
+    PM_MEASURE("all done");
+
+    PM_DISPLAY;
+    stroke.setFillMode(QPainterPath::Winding);
+
+    qt_debug_path(stroke);
+
+    return stroke;
+}
+
+void QPainterPathStroker::setPenWidth(float width)
+{
+    d->penWidth = width;
+    d->width = width / 2;
+}
+
+float QPainterPathStroker::penWidth() const
+{
+    return d->penWidth;
+}
+
+void QPainterPathStroker::setPenStyle(Qt::PenStyle style)
+{
+    d->penStyle = style;
+}
+
+Qt::PenStyle QPainterPathStroker::penStyle() const
+{
+    return d->penStyle;
+}
+
+void QPainterPathStroker::setCapStyle(Qt::PenCapStyle style)
+{
+    d->capStyle = style;
+}
+
+Qt::PenCapStyle QPainterPathStroker::capStyle() const
+{
+    return d->capStyle;
+}
+
+void QPainterPathStroker::setJoinStyle(Qt::PenJoinStyle style)
+{
+    d->joinStyle = style;
+}
+
+Qt::PenJoinStyle QPainterPathStroker::joinStyle() const
+{
+    return d->joinStyle;
 }

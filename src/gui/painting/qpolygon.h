@@ -37,6 +37,8 @@ public:
     QPointArray toPointArray() const;
     static QPolygon fromPointArray(const QPointArray &a);
 
+    bool isClosed() const { return !isEmpty() && first() == last(); }
+
     QRectF boundingRect() const;
 };
 

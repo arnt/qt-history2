@@ -5583,44 +5583,39 @@ void QPSPrintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, con
 
 }
 
+#define QT_PATH_ELEMENT(elm) elm.x << ' ' << elm.y << ' '
+
 void QPSPrintEngine::drawPath(const QPainterPath &p)
 {
-    const QPainterPathPrivate *pd = p.d;
-
     bool winding = (p.fillMode() == QPainterPath::Winding);
 
     if (winding)
         d->pageStream << "/WFi true d\n";
     d->pageStream << "NP\n";
 
-    // Drawing the subpaths
-    for (int i=0; i<pd->subpaths.size(); ++i) {
-        const QPainterSubpath &sub = pd->subpaths.at(i);
-        if (sub.elements.isEmpty())
-            continue;
-        d->pageStream << POINT(sub.startPoint) << "MT\n";
-
-        for (int j=0; j<sub.elements.size(); ++j) {
-            const QPainterPathElement &elm = sub.elements.at(j);
-            switch (elm.type) {
-            case QPainterPathElement::Line: {
-                d->pageStream << elm.lineData.x << ' ' << elm.lineData.y << " LT\n";
-                break;
-            }
-            case QPainterPathElement::Curve: {
-                d->pageStream << elm.curveData.c1x << ' ' << elm.curveData.c1y << ' '
-                              << elm.curveData.c2x << ' ' << elm.curveData.c2y << ' '
-                              << elm.curveData.ex << ' ' << elm.curveData.ey
-                              << " curveto\n";
-                break;
-            }
-            default:
-                qFatal("QPSPrintEngine::drawPath(), unhandled subpath type: %d", elm.type);
-            }
+    for (int i=0; i<p.elementCount(); ++i) {
+        const QPainterPath::Element &elm = p.elementAt(i);
+        switch (elm.type) {
+        case QPainterPath::MoveToElement:
+            d->pageStream << QT_PATH_ELEMENT(elm) << "MT\n";
+            break;
+        case QPainterPath::LineToElement:
+            d->pageStream << QT_PATH_ELEMENT(elm) << "LT\n";
+            break;
+        case QPainterPath::CurveToElement:
+            Q_ASSERT(p.elementAt(i+1).type == QPainterPath::CurveToDataElement);
+            Q_ASSERT(p.elementAt(i+2).type == QPainterPath::CurveToDataElement);
+            d->pageStream << QT_PATH_ELEMENT(elm)
+                          << QT_PATH_ELEMENT(p.elementAt(i+1))
+                          << QT_PATH_ELEMENT(p.elementAt(i+2))
+                          << "curveto\n";
+            i += 2;
+            break;
+        default:
+            qFatal("QGdiplusPaintEngine::drawPath(), unhandled type: %d", elm.type);
         }
-        if (sub.isClosed())
-            d->pageStream << "CP\n";
     }
+
     d->pageStream << "BF QS\n";
 
     if (winding)

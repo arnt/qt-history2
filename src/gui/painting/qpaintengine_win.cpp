@@ -698,9 +698,7 @@ void QWin32PaintEngine::drawPath(const QPainterPath &p)
         return;
     }
 
-    const QPainterPathPrivate *pd = p.d;
-
-    d->composeGdiPath(pd);
+    d->composeGdiPath(p);
 
     if (p.fillMode() == QPainterPath::Winding)
         SetPolyFillMode(d->hdc, WINDING);
@@ -728,7 +726,7 @@ void QWin32PaintEngine::drawPath(const QPainterPath &p)
             DeleteObject(oldRegion);
         }
         if (pen)
-            d->composeGdiPath(pd);
+            d->composeGdiPath(p);
     }
 
     if (pen && brush)
@@ -1260,7 +1258,7 @@ void QWin32PaintEngine::updateClipPath(const QPainterPath &path, bool clipEnable
 #endif
 
     if (clipEnabled && !path.isEmpty()) {
-        d->composeGdiPath(path.d_ptr);
+        d->composeGdiPath(path);
         SelectClipPath(d->hdc, RGN_AND);
     } else {
         updateClipRegion(QRegion(), false);
@@ -1493,7 +1491,7 @@ void QWin32PaintEnginePrivate::fillAlpha(const QRect &r, const QColor &color)
     DeleteDC(memdc);
 }
 
-void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPathPrivate *pd)
+void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPath &path)
 {
 #ifdef QT_NO_NATIVE_PATH
     Q_ASSERT(!"QWin32PaintEnginePrivate::composeGdiPath()\n");
@@ -1502,33 +1500,29 @@ void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPathPrivate *pd)
         qSystemWarning("QWin32PaintEngine::drawPath(), begin path failed.");
 
     // Drawing the subpaths
-    for (int i=0; i<pd->subpaths.size(); ++i) {
-        const QPainterSubpath &sub = pd->subpaths.at(i);
-        if (sub.elements.isEmpty())
-            continue;
-        MoveToEx(hdc, sub.startPoint.x(), sub.startPoint.y(), 0);
-        for (int j=0; j<sub.elements.size(); ++j) {
-            const QPainterPathElement &elm = sub.elements.at(j);
-            switch (elm.type) {
-            case QPainterPathElement::Line: {
-                LineTo(hdc, elm.lineData.x, elm.lineData.y);
-                break;
-            }
-            case QPainterPathElement::Curve: {
-                POINT pts[3] = {
-                    { elm.curveData.c1x, elm.curveData.c1y },
-                    { elm.curveData.c2x, elm.curveData.c2y },
-                    { elm.curveData.ex, elm.curveData.ey }
-                };
-                PolyBezierTo(hdc, pts, 3);
-                break;
-            }
-            default:
-                qFatal("QWin32PaintEngine::drawPath(), unhandled subpath type: %d", elm.type);
-            }
+    for (int i=0; i<path.elementCount(); ++i) {
+        const QPainterPath::Element &elm = path.elementAt(i);
+        switch (elm.type) {
+        case QPainterPath::MoveToElement:
+//             CloseFigure(hdc);
+            MoveToEx(hdc, qRound(elm.x), qRound(elm.y), 0);
+            break;
+        case QPainterPath::LineToElement:
+            LineTo(hdc, elm.x, elm.y);
+            break;
+        case QPainterPath::CurveToElement: {
+            POINT pts[3] = {
+                { elm.x, elm.y },
+                { path.elementAt(i+1).x, path.elementAt(i+1).y },
+                { path.elementAt(i+2).x, path.elementAt(i+2).y }
+            };
+            i+=2;
+            PolyBezierTo(hdc, pts, 3);
+            break;
         }
-        if (sub.isClosed())
-            CloseFigure(hdc);
+        default:
+            qFatal("QWin32PaintEngine::drawPath(), unhandled type: %d", elm.type);
+        }
     }
 
     if (!EndPath(hdc))
@@ -2175,40 +2169,36 @@ void QGdiplusPaintEngine::drawPath(const QPainterPath &p)
     QtGpPath *path = 0;
     GdipCreatePath(0, &path);
 
-    const QPainterPathPrivate *pd = p.d;
+    QPointF prev;
 
     // Drawing the subpaths
-    for (int i=0; i<pd->subpaths.size(); ++i) {
-        const QPainterSubpath &sub = pd->subpaths.at(i);
-        if (sub.elements.isEmpty())
-            continue;
-        GdipStartPathFigure(path);
-        QPointF current = sub.startPoint;
-        for (int j=0; j<sub.elements.size(); ++j) {
-            const QPainterPathElement &elm = sub.elements.at(j);
-            switch (elm.type) {
-            case QPainterPathElement::Line: {
-                GdipAddPathLine(path,
-                                current.x(), current.y(),
-                                elm.lineData.x, elm.lineData.y);
-                current = QPointF(elm.lineData.x, elm.lineData.y);
-                break;
-            }
-            case QPainterPathElement::Curve: {
-                GdipAddPathBezier(path,
-                                  current.x(), current.y(),
-                                  elm.curveData.c1x, elm.curveData.c1y,
-                                  elm.curveData.c2x, elm.curveData.c2y,
-                                  elm.curveData.ex, elm.curveData.ey);
-                current = QPointF(elm.curveData.ex, elm.curveData.ey);
-                break;
-            }
-            default:
-                qFatal("QWin32PaintEngine::drawPath(), unhandled subpath type: %d", elm.type);
-            }
+    for (int i=0; i<p.elementCount(); ++i) {
+        const QPainterPath::Element &elm = p.elementAt(i);
+        switch (elm.type) {
+        case QPainterPath::MoveToElement:
+            GdipStartPathFigure(path);
+            prev = QPointF(elm.x, elm.y);
+            break;
+        case QPainterPath::LineToElement:
+            GdipAddPathLine(path,
+                            prev.x(), prev.y(),
+                            elm.x, elm.y);
+            prev = QPointF(elm.x, elm.y);
+            break;
+        case QPainterPath::CurveToElement:
+            Q_ASSERT(p.elementAt(i+1).type == QPainterPath::CurveToDataElement);
+            Q_ASSERT(p.elementAt(i+2).type == QPainterPath::CurveToDataElement);
+            GdipAddPathBezier(path,
+                              prev.x(), prev.y(),
+                              elm.x, elm.y,
+                              p.elementAt(i+1).x, p.elementAt(i+1).y,
+                              p.elementAt(i+2).x, p.elementAt(i+2).y);
+            i += 2;
+            prev = QPointF(p.elementAt(i).x, p.elementAt(i).y);
+            break;
+        default:
+            qFatal("QGdiplusPaintEngine::drawPath(), unhandled type: %d", elm.type);
         }
-        if (sub.isClosed())
-            GdipClosePathFigure(path);
     }
 
     GdipSetPathFillMode(path, p.fillMode() == QPainterPath::Winding ? 1 : 0);

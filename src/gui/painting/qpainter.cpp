@@ -49,12 +49,12 @@ QPolygon QPainterPrivate::draw_helper_xpolygon(const void *data, QPainter::Shape
     case QPainter::EllipseShape: {
         QPainterPath path;
         path.addEllipse(*reinterpret_cast<const QRectF*>(data));
-        return path.toPolygon() * state->matrix;
+        return path.toFillPolygon() * state->matrix;
     }
     case QPainter::RectangleShape:
         return (*reinterpret_cast<const QRectF*>(data)) * state->matrix;
     case QPainter::PathShape:
-        return reinterpret_cast<const QPainterPath*>(data)->toPolygon() * state->matrix;
+        return reinterpret_cast<const QPainterPath*>(data)->toFillPolygon() * state->matrix;
     default:
         return (*reinterpret_cast<const QPolygon*>(data)) * state->matrix;
     }
@@ -1031,7 +1031,7 @@ void QPainter::setClipPath(const QPainterPath &path)
         return;
 
     if (!d->engine->hasFeature(QPaintEngine::PainterPaths)) {
-        QPolygon p = path.toPolygon();
+        QPolygon p = path.toFillPolygon();
 
         if (d->state->txop > TxNone && !d->engine->hasFeature(QPaintEngine::ClipTransform)) {
             p = p * d->state->matrix;
@@ -1139,7 +1139,7 @@ void QPainter::draw_helper(const void *data, bool winding, ShapeType shape, Draw
                 if (d->engine->hasFeature(QPaintEngine::PainterPaths))
                     d->engine->drawPath(*path);
                 else
-                    d->engine->drawPolygon(path->toPolygon(), winding
+                    d->engine->drawPolygon(path->toFillPolygon(), winding
                                            ? QPaintEngine::WindingMode
                                            : QPaintEngine::OddEvenMode);
                 break;
@@ -1179,11 +1179,12 @@ void QPainter::draw_helper(const void *data, bool winding, ShapeType shape, Draw
                 path.addPolygon(*reinterpret_cast<const QPolygon*>(data));
                 break;
             }
-            QPainterPath outline = path.createPathOutline(d->state->pen.width(),
-                                                          d->state->pen.style(),
-                                                          d->state->pen.capStyle(),
-                                                          d->state->pen.joinStyle());
-            fillPath(outline, QBrush(d->state->pen.color()));
+            QPainterPathStroker stroker(&path);
+            stroker.setPenWidth(d->state->pen.width());
+            stroker.setPenStyle(d->state->pen.style());
+            stroker.setCapStyle(d->state->pen.capStyle());
+            stroker.setJoinStyle(d->state->pen.joinStyle());
+            fillPath(stroker.createStroke(), QBrush(d->state->pen.color()));
         }
     } // end of stroking
 }
@@ -1250,9 +1251,7 @@ void QPainter::drawPath(const QPainterPath &path)
         return;
     }
 
-    QPainterPathPrivate *pd = path.d_ptr;
-    QList<QPolygon> polygons = pd->flatten(d->state->matrix);
-
+    QList<QPolygon> polygons = path.toSubpathPolygons();
     if (polygons.isEmpty())
         return;
 
@@ -1260,12 +1259,9 @@ void QPainter::drawPath(const QPainterPath &path)
 
     save();
 
-    // All path operations are transformed as they are...
-    resetMatrix();
-
     // Fill the path...
     if (d->state->brush.style() != Qt::NoBrush) {
-	QPolygon fillPoly = pd->toFillPolygon(worldMatrix);
+	QPolygon fillPoly = path.toFillPolygon();
         QPen oldPen = d->state->pen;
         setPen(Qt::NoPen);
 	d->engine->updateState(d->state);

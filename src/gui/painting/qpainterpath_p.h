@@ -19,160 +19,39 @@
 
 class QPolygon;
 
-/*!
- * Describes an element in a subpath
- */
-struct QPainterPathElement
-{
-    enum ElementType { Line, Curve };
-
-    ElementType type;
-
-    union {
-	struct { float x, y; } lineData;
-        struct { float c1x, c1y, c2x, c2y, ex, ey; } curveData;
-    };
-
-    inline QPointF end() const;
-
-    /*! Some factory functions */
-    static inline QPainterPathElement line(float x, float y);
-    static inline QPainterPathElement curve(float c1x, float c1y, float c2x, float c2y,
-                                            float ex, float ey);
-};
-
-/*!
- * Describes a subpath composed of multiple elements.
- */
-struct QPainterSubpath
-{
-    QPainterSubpath(const QPointF &p = QPoint(0, 0))
-    {
-        startPoint = p;
-    };
-
-    /*! Makes a straight line connection to the last point if \a p differs from
-     * lastPoint. The addLine recursion is safe since we connect to lastPoint
-     * so next call to connectLast will just do nothing..
-     */
-    void connectLast(const QPointF &p);
-
-    /*! Closes the current path by connecting the last point
-     * in the subpath path to the first one if they are different.
-     */
-    void close();
-
-    /*! Returns true if the first and last point in the subpath are the
-     * same
-     */
-    bool isClosed() const {
-	return elements.size() > 0 && currentPoint == startPoint;
-    }
-
-    /*! Converts the path to a polygon */
-    QPolygon toPolygon(const QMatrix &matrix) const;
-
-    void removeBrokenSegments();
-
-    void lineTo(const QPointF &p);
-    void curveTo(const QPointF &p2, const QPointF &p3, const QPointF &p4);
-    void arcTo(const QRectF &rect, float startAngle, float arcLength);
-
-    inline QPointF lastCurrent() const;
-
-    QList<QPainterPathElement> elements;
-    QPointF currentPoint;
-    QPointF startPoint;
-    QList<int> brokenSegments;
-};
-
 class QPainterPathPrivate
 {
+    Q_DECLARE_PUBLIC(QPainterPath);
 public:
-    enum FlattenInclusion { ClosedSubpaths   = 0x0001,
-                            UnclosedSubpaths = 0x0002,
-                            AllSubpaths      = 0x0003
-    };
-
-    QPainterPathPrivate() :
-        fillMode(QPainterPath::OddEven)
+    QPainterPathPrivate(QPainterPath *path) :
+        q_ptr(path), fillMode(QPainterPath::OddEven), cStart(0)
     {
     }
 
-    /* Flattens all the curves in the path to linear polygons */
-    QList<QPolygon> flatten(const QMatrix &matrix, FlattenInclusion include = AllSubpaths) const;
+    inline bool isClosed() const;
+    inline void close();
 
-#if 0
-    /* Scanline converts the path to a bitmap */
-    QBitmap scanToBitmap(const QRect &clip, const QMatrix &xform, QRect *boundingRect);
-#endif
-
-    QPolygon toFillPolygon(const QMatrix &xform) const;
-
-    /* Creates a path containing the outline of this path of width \a penwidth */
-    QPainterPath createStroke(int width,
-                              Qt::PenStyle penStyle,
-                              Qt::PenCapStyle capStyle,
-                              Qt::PenJoinStyle joinStyle);
-
-    QList<QPainterSubpath> subpaths;
+    QPainterPath *q_ptr;
+    int cStart;
     QPainterPath::FillMode fillMode;
 };
 
 void qt_find_ellipse_coords(const QRectF &r, float angle, float length,
                             QPointF* startPoint, QPointF *endPoint);
 
-inline QPointF QPainterPathElement::end() const
+inline bool QPainterPathPrivate::isClosed() const
 {
-    switch (type) {
-    case Line:
-        return QPointF(lineData.x, lineData.y);
-    case Curve:
-        return QPointF(curveData.ex, curveData.ey);
-    }
-    Q_ASSERT(!"unhandled case");
-    return QPoint();
+    const QPainterPath::Element &first = q_func()->elements.at(cStart);
+    const QPainterPath::Element &last = q_func()->elements.last();
+    return first.x == last.x && first.y == last.y;
 }
 
-inline QPainterPathElement QPainterPathElement::line(float x, float y)
+inline void QPainterPathPrivate::close()
 {
-    QPainterPathElement e;
-    e.type = Line;
-    e.lineData.x = x;
-    e.lineData.y = y;
-    return e;
+    const QPainterPath::Element &first = q_func()->elements.at(cStart);
+    const QPainterPath::Element &last = q_func()->elements.last();
+    if (first.x != last.x || first.y != last.y)
+        q_func()->lineTo(QPointF(first.x, first.y));
 }
-
-inline QPainterPathElement QPainterPathElement::curve(float c1x, float c1y,
-                                                      float c2x, float c2y,
-                                                      float ex, float ey)
-{
-    QPainterPathElement e;
-    e.type = QPainterPathElement::Curve;
-    e.curveData.c1x = c1x;
-    e.curveData.c1y = c1y;
-    e.curveData.c2x = c2x;
-    e.curveData.c2y = c2y;
-    e.curveData.ex = ex;
-    e.curveData.ey = ey;
-    return e;
-}
-
-inline QPointF QPainterSubpath::lastCurrent() const
-{
-    if (elements.isEmpty() || elements.size() == 1)
-        return startPoint;
-    const QPainterPathElement &elm = elements.at(elements.size()-2);
-    switch (elm.type) {
-    case QPainterPathElement::Line:
-        return QPointF(elm.lineData.x, elm.lineData.y);
-    case QPainterPathElement::Curve:
-        return QPointF(elm.curveData.ex, elm.curveData.ey);
-    default:
-        Q_ASSERT(!"unhandled case");
-    }
-    return QPointF();
-}
-
 
 #endif //QPAINTERPATH_P_H
