@@ -1794,7 +1794,8 @@ void Resource::loadConnections( const QDomElement &e )
 		if ( conn.receiver == formwindow )
 		    conn.receiver = formwindow->mainContainer();
 	    }
-	    MetaDataBase::addConnection( formwindow ? formwindow : toplevel, conn.sender, conn.signal, conn.receiver, conn.slot );
+	    if ( conn.sender && conn.receiver )
+		MetaDataBase::addConnection( formwindow ? formwindow : toplevel, conn.sender, conn.signal, conn.receiver, conn.slot );
 	} else if ( n.tagName() == "slot" ) {
 	    MetaDataBase::Slot slot;
 	    slot.access = n.attribute( "access", "public" );
