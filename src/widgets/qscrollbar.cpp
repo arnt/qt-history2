@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#85 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#86 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#85 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#86 $");
 
 
 /*!
@@ -508,13 +508,13 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	PRIV->sliderMinMax( &sliderMin, &sliderMax );
 	QRect r = rect();
 	if ( orientation() == Horizontal )
-	    r.setRect( r.x() - 20, r.y() - 30, r.width() + 40, r.height() + 60 );
+	    r.setRect( r.x() - 20, r.y() - 40, r.width() + 40, r.height() + 80 );
 	else
-	    r.setRect( r.x() - 30, r.y() - 20, r.width() + 60, r.height() + 40 );
+	    r.setRect( r.x() - 40, r.y() - 20, r.width() + 80, r.height() + 40 );
 	if ( style() == WindowsStyle && !r.contains( e->pos() ) )
 	    newSliderPos = sliderStartPos;
         else
-	    newSliderPos = (HORIZONTAL ? e->pos().x() : 
+	    newSliderPos = (HORIZONTAL ? e->pos().x() :
 			                 e->pos().y()) -clickOffset;
 	if ( newSliderPos < sliderMin )
 	    newSliderPos = sliderMin;
@@ -781,7 +781,7 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 	// ### perhaps this should not be able to accept focus if maxedOut?
 	if ( hasFocus() && (controls & SLIDER) )
 	    p->drawWinFocusRect( sliderR.x()+2, sliderR.y()+2,
-				 sliderR.width()-5, sliderR.height()-5, 
+				 sliderR.width()-5, sliderR.height()-5,
 				 backgroundColor() );
     } else {
 	if ( controls & ADD_LINE )
