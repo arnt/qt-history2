@@ -1943,18 +1943,19 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	    if ( event_type == 0 || event_type == pe->event->type() ) {
 		// and it's even the right type!
 		pe->event->posted = FALSE;
+		QEvent * e = pe->event;
+		pe->event = 0;
 		postedEventReceivers->replace( pe->receiver, pe->receiver );
-		if ( pe->event->type() == QEvent::Paint &&
+		if ( e->type() == QEvent::Paint &&
 		     pe->receiver->isWidgetType() ) {
 		    QWidget * w = (QWidget*)(pe->receiver);
-		    QPaintEvent * p = (QPaintEvent*)(pe->event);
+		    QPaintEvent * p = (QPaintEvent*)e;
 		    if ( w->isVisible() )
 			w->repaint( p->reg, p->erase );
 		} else {
-		    QApplication::sendEvent( pe->receiver, pe->event );
+		    QApplication::sendEvent( pe->receiver, e );
 		}
-		delete pe->event;
-		pe->event = 0;
+		delete e;
 	    } else if ( receiver ) {
 		// not the right type, so we know there are still
 		// events pending for the receiver we're looking at
@@ -2064,8 +2065,8 @@ void QApplication::removePostedEvent( QEvent *  event )
 
     if ( !postedEvents ) {
 #if defined(DEBUG)
-	debug( "QApplication::removePostedEvent: %p %d is, impossibly, posted",
-	       event, event->type() );
+	qDebug( "QApplication::removePostedEvent: %p %d is posted: impossible",
+		event, event->type() );
 	return;
 #endif
     }
