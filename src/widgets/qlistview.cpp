@@ -3288,8 +3288,14 @@ void QListView::setColumnText( int column, const QIconSet& iconset, const QStrin
 */
 void QListView::setColumnWidth( int column, int w )
 {
-    if ( column < d->h->count() && d->h->sectionSize( column ) != w ) {
-	d->h->resizeSection( column, w );
+    int oldw = d->h->sectionSize( column );
+    if ( column < d->h->count() && oldw != w ) {
+ 	d->h->resizeSection( column, w );
+	disconnect( d->h, SIGNAL(sizeChange(int,int,int)),
+		 this, SLOT(handleSizeChange(int,int,int)) );
+	emit d->h->sizeChange( column, oldw, w);
+	connect( d->h, SIGNAL(sizeChange(int,int,int)),
+		 this, SLOT(handleSizeChange(int,int,int)) );
 	viewport()->update();
     }
 }
