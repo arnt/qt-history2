@@ -24,6 +24,7 @@ private:
 public:
     int tabSize, indentSize;
     bool autoIndent, keepTabs;
+    QTextDocument *lastDoc;
 
 };
 

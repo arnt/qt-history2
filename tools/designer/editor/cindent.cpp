@@ -7,7 +7,7 @@ extern void setIndentSize( int s );
 
 CIndent::CIndent()
     : QTextIndent(), tabSize( 8 ), indentSize( 4 ),
-      autoIndent( TRUE ), keepTabs( TRUE )
+      autoIndent( TRUE ), keepTabs( TRUE ), lastDoc( 0 )
 {
 }
 
@@ -86,6 +86,7 @@ void CIndent::indentLine( QTextParag *p, int &oldIndent, int &newIndent )
 
 void CIndent::indent( QTextDocument *doc, QTextParag *p, int *oldIndent, int *newIndent )
 {
+    lastDoc = doc;
     int oi = indentation( p->string()->toString() );
     QStringList code;
     QTextParag *parag = doc->firstParag();
@@ -107,7 +108,14 @@ void CIndent::indent( QTextDocument *doc, QTextParag *p, int *oldIndent, int *ne
 
 void CIndent::reindent()
 {
-    // #### TODO
+    if ( !lastDoc )
+	return;
+    // #### this is sloooooooow (O(n^2))
+    QTextParag *parag = lastDoc->firstParag();
+    while ( parag ) {
+	indent( lastDoc, parag, 0, 0 );
+	parag = parag->next();
+    }
 }
 
 void CIndent::setTabSize( int ts )
