@@ -481,7 +481,7 @@ int QTextFormatCollection::indexToReference(int idx) const
     if (idx >= -1)
 	return -1;
 
-    idx = -idx - 2;
+    idx = -(idx + 2);
     if (idx >= formatReferences.count())
 	return -1;
 
