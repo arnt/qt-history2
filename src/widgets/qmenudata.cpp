@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#34 $
 **
 ** Implementation of QMenuData class
 **
@@ -15,7 +15,7 @@
 #include "qpopmenu.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#33 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#34 $")
 
 
 /*----------------------------------------------------------------------------
@@ -29,6 +29,8 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#33 $")
   a highlighted() signal when it receives the user input focus.
 
   Menu items can be accessed through identifiers.
+
+  \sa QAccel
  ----------------------------------------------------------------------------*/
 
 
@@ -245,7 +247,7 @@ void QMenuData::setAllDirty( bool dirty )
     fileMenu->insert( "Open", myView, SLOT(open()),    CTRL+Key_O );
   \endcode
 
-  \sa removeItem(), changeItem(), setAccel(), connectItem()
+  \sa removeItem(), changeItem(), setAccel(), connectItem() QAccel qkeycode.h
  ----------------------------------------------------------------------------*/
 
 int QMenuData::insertItem( const char *string,
@@ -265,7 +267,7 @@ int QMenuData::insertItem( const char *string,
 
   Returns a unique menu item identifier (negative integer <= -2).
 
-  \sa removeItem(), changeItem(), setAccel(), connectItem()
+  \sa removeItem(), changeItem(), setAccel(), connectItem() QAccel qkeycode.h
  ----------------------------------------------------------------------------*/
 
 int QMenuData::insertItem( const QPixmap &pixmap,
@@ -430,10 +432,12 @@ void QMenuData::clear()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the accelerator key that has been defined for the menu item \e id,
   or 0 if there is no accelerator key.
- ----------------------------------------------------------------------------*/
+
+  \sa setAccel() QAccel qkeycode.h
+  */
 
 long QMenuData::accel( int id ) const
 {
@@ -446,7 +450,7 @@ long QMenuData::accel( int id ) const
 
   An accelerator key consists of a key code and a combination of the modifiers
   \c SHIFT, \c CTRL and \c ALT (OR'ed or added).
-  The header file qkeycode.h has a list of key codes.
+  The header file qkeycode.h contains a list of key codes.
 
   Defining an accelerator key generates a string which is added to the
   menu item, for instance, \c CTRL + \c Key_O generates "Ctrl+O".  The
@@ -463,6 +467,8 @@ long QMenuData::accel( int id ) const
     fm->insertItem( "Quit", 69 );		// add "Quit" item
     fm->setAccel( CTRL + ALT + Key_Delete, 69 );
   \endcode
+
+  \sa accel() QAccel qkeycode.h
  ----------------------------------------------------------------------------*/
 
 void QMenuData::setAccel( long key, int id )
@@ -490,7 +496,7 @@ const char *QMenuData::string( int id ) const
 /*----------------------------------------------------------------------------
   Returns the pixmap that has been set for menu item \e id, or 0 if no pixmap
   has been set.
-  \sa string()
+  \sa string() setPixmap() QPixmap
  ----------------------------------------------------------------------------*/
 
 QPixmap *QMenuData::pixmap( int id ) const
@@ -499,9 +505,10 @@ QPixmap *QMenuData::pixmap( int id ) const
     return mi ? mi->pixmap() : 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Changes the string of the menu item \e id.
- ----------------------------------------------------------------------------*/
+
+  \sa pixmap() string()  */
 
 void QMenuData::changeItem( const char *string, int id )
 {
@@ -518,9 +525,7 @@ void QMenuData::changeItem( const char *string, int id )
     }
 }
 
-/*----------------------------------------------------------------------------
-  Changes the pixmap of the menu item \e id.
- ----------------------------------------------------------------------------*/
+/*! Changes the pixmap of the menu item \e id. \sa pixmap() string() QPixmap */
 
 void QMenuData::changeItem( const QPixmap &pixmap, int id )
 {
