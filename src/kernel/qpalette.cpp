@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#9 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -12,7 +12,7 @@
 #include "qpalette.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#8 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#9 $");
 
 
 /*****************************************************************************
@@ -29,11 +29,12 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#8 $");
   themselves.  Widgets should not use colors like "red" and "turqoise"
   but rather "foreground" and "base", where possible.
 
-  We have identified seven distinct color roles:
+  We have identified eight distinct color roles:
   <ol>
   <li>Foreground (graphics foreground color)
   <li>Background (general background color)
   <li>Light (lighter than background color, for shadow effects)
+  <li>Midlight (between Background and Light, for shadow effects)
   <li>Dark (darker than the background color, for shadow effects)
   <li>Medium (between background and dark, used for shadow and contrast
     effects)
@@ -44,7 +45,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#8 $");
   </ol>
 
   We have not seen any good, well-made and usable widgets that use more
-  than these seven color roles.
+  than these eight color roles.
 
   A QPalette contains 3 color groups.
 
