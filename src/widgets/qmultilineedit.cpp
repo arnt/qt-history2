@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#18 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1849,7 +1849,7 @@ void QMultiLineEdit::dragMoveEvent( QDragMoveEvent* event )
 */
 void QMultiLineEdit::dragLeaveEvent( QDragLeaveEvent* )
 {
-    
+    stopAutoScroll();
 }
 
 /*!
