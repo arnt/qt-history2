@@ -553,7 +553,7 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg,
 {
     p->fillRect( 0, 0, cr.width(), cr.height(),
 		 selected ? cg.brush( QColorGroup::Highlight )
-			  : table()->viewport()->backgroundBrush() );
+			  : cg.brush( QColorGroup::Base ) );
 
     int w = cr.width();
     int h = cr.height();
