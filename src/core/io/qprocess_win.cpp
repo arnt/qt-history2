@@ -157,20 +157,44 @@ static void qt_create_pipes(QProcessPrivate *that)
         return;
     if (!CloseHandle(tmpStdin))
         return;
-    if (!CreatePipe(&tmpStdout, &that->standardReadPipe[1], &secAtt, 0))
+    if (that->processChannelMode == QProcess::ForwardedChannels) {
+        tmpStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (tmpStdout == INVALID_HANDLE_VALUE)
+            return;
+        if (!DuplicateHandle(GetCurrentProcess(), tmpStdout, GetCurrentProcess(),
+                         &that->standardReadPipe[1], 0, TRUE, DUPLICATE_SAME_ACCESS))
         return;
-    if (!DuplicateHandle(GetCurrentProcess(), tmpStdout, GetCurrentProcess(),
+
+        tmpStderr = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (tmpStderr == INVALID_HANDLE_VALUE)
+            return;
+        if (!DuplicateHandle(GetCurrentProcess(), tmpStderr, GetCurrentProcess(),
+                         &that->errorReadPipe[1], 0, TRUE, DUPLICATE_SAME_ACCESS))
+        return;
+        
+    } else {
+        if (!CreatePipe(&tmpStdout, &that->standardReadPipe[1], &secAtt, 0))
+            return;
+        if (!DuplicateHandle(GetCurrentProcess(), tmpStdout, GetCurrentProcess(),
                          &that->standardReadPipe[0], 0, FALSE, DUPLICATE_SAME_ACCESS))
         return;
-    if (!CloseHandle(tmpStdout))
-        return;
-    if (!CreatePipe(&tmpStderr, &that->errorReadPipe[1], &secAtt, 0))
-        return;
-    if (!DuplicateHandle(GetCurrentProcess(), tmpStderr, GetCurrentProcess(),
+        if (!CloseHandle(tmpStdout))
+            return;
+
+        if (that->processChannelMode == QProcess::MergedChannels) {
+            if (!DuplicateHandle(GetCurrentProcess(), that->standardReadPipe[1], GetCurrentProcess(),
+                         &that->errorReadPipe[1], 0, TRUE, DUPLICATE_SAME_ACCESS))
+            return;
+        } else {
+            if (!CreatePipe(&tmpStderr, &that->errorReadPipe[1], &secAtt, 0))
+                return;
+            if (!DuplicateHandle(GetCurrentProcess(), tmpStderr, GetCurrentProcess(),
                          &that->errorReadPipe[0], 0, FALSE, DUPLICATE_SAME_ACCESS))
-        return;
-    if (!CloseHandle(tmpStderr))
-        return;
+                return;
+            if (!CloseHandle(tmpStderr))
+                return;
+        }
+    }
 }
 
 void QProcessPrivate::destroyPipe(Q_PIPE pipe[2])
@@ -283,7 +307,7 @@ void QProcessPrivate::startProcess()
         qDebug("   pass enviroment : %s", environment.isEmpty() ? "no" : "yes");
 #endif
         success = CreateProcessW(0, (WCHAR*)args.utf16(),
-                                 0, 0, TRUE, CREATE_UNICODE_ENVIRONMENT | CREATE_NO_WINDOW,
+                                 0, 0, TRUE, CREATE_UNICODE_ENVIRONMENT,
                                  environment.isEmpty() ? 0 : envlist.data(),
                                  workingDirectory.isEmpty() ? 0 : (WCHAR*)workingDirectory.utf16(),
                                  &startupInfo, pid);
