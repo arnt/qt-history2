@@ -15,10 +15,18 @@
 #ifndef QSQL_SQLITE_H
 #define QSQL_SQLITE_H
 
+#if (QT_VERSION-0 < 0x030000)
+#include <qtopia/sql/qsqldriver.h>
+#include <qtopia/sql/qsqlresult.h>
+#include <qtopia/sql/qsqlrecord.h>
+#include <qtopia/sql/qsqlindex.h>
+#else
+typedef QVariant QSqlVariant
 #include <qsqldriver.h>
 #include <qsqlresult.h>
 #include <qsqlrecord.h>
 #include <qsqlindex.h>
+#endif
 
 #if defined (Q_OS_WIN32)
 # include <qt_windows.h>
@@ -42,7 +50,7 @@ protected:
     bool fetchNext();
     bool fetchFirst();
     bool fetchLast();
-    QVariant data(int field);
+    QSqlVariant data(int field);
     bool isNull(int field);
     bool reset (const QString& query);
     int size();

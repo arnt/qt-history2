@@ -17,27 +17,34 @@
 #include <qdatetime.h>
 #include <qmap.h>
 #include <qregexp.h>
-#include <qptrlist.h>
-#include <qvaluevector.h>
-#include <qptrvector.h>
 
+#if (QT_VERSION-0 < 0x030000)
+#include <qlist.h>
+#include <qvector.h>
+#include <unistd.h>
+#include "../../../3rdparty/libraries/sqlite/sqlite.h"
+#else
+#include <qptrlist.h>
+#include <qptrvector.h>
 #include <unistd.h>
 #include <sqlite.h>
+#endif
+
 typedef struct sqlite_vm sqlite_vm;
 
 #define QSQLite_DRIVER_NAME "QSQLITE1"
 
-static QVariant::Type nameToType(const QString& typeName)
+static QSqlVariant::Type nameToType(const QString& typeName)
 {
     QString tName = typeName.upper();
     if (tName.startsWith("INT"))
-        return QVariant::Int;
+        return QSqlVariant::Int;
     if (tName.startsWith("FLOAT") || tName.startsWith("NUMERIC"))
-        return QVariant::Double;
+        return QSqlVariant::Double;
     if (tName.startsWith("BOOL"))
-        return QVariant::Bool;
+        return QSqlVariant::Bool;
     // SQLite is typeless - consider everything else as string
-    return QVariant::String;
+    return QSqlVariant::String;
 }
 
 class QSQLiteDriverPrivate
@@ -66,9 +73,10 @@ public:
     const char *currentTail;
     sqlite_vm *currentMachine;
 
-    typedef QValueVector<QVariant> RowCache;
-    typedef QValueVector<RowCache> RowsetCache;
+    typedef QVector<QSqlVariant> RowCache;
+    typedef QVector<RowCache> RowsetCache;
     RowsetCache rowCache;
+    uint rowCacheEnd;
     
     uint skipFetch: 1; // skip the next fetchNext()
     uint skippedStatus: 1; // the status of the fetchNext() that's skipped
@@ -78,9 +86,13 @@ public:
     QSqlRecordInfo rInf;
 };
 
+static const uint initial_cache_size = 128;
+
 QSQLiteResultPrivate::QSQLiteResultPrivate(QSQLiteResult* res) : p(res), access(0), currentTail(0),
-    currentMachine(0), skipFetch(FALSE), skippedStatus(FALSE), forwardOnly(FALSE), utf8(FALSE)
+    currentMachine(0), rowCacheEnd(0), skipFetch(FALSE), skippedStatus(FALSE), forwardOnly(FALSE), utf8(FALSE)
 {
+    rowCache.setAutoDelete(TRUE);
+    rowCache.resize(initial_cache_size);
 }
 
 /* BEWARE!! Call that only once after reset! */
@@ -119,8 +131,13 @@ void QSQLiteResultPrivate::init(const char **cnames, int numCols)
         const char* fieldName = lastDot ? lastDot + 1 : cnames[i];
         rInf.append(QSqlFieldInfo(fieldName, nameToType(cnames[i+numCols])));
     }
-    if (forwardOnly)
-        rowCache.append(RowCache(numCols));
+    if (forwardOnly) {
+	RowCache *r = new RowCache(numCols);
+	r->setAutoDelete(TRUE);
+	if (rowCacheEnd == rowCache.size())
+	    rowCache.resize(rowCache.size() << 1);
+	rowCache.insert(rowCacheEnd++, r);
+    }
 }
 
 bool QSQLiteResultPrivate::fetchNext()
@@ -153,17 +170,21 @@ bool QSQLiteResultPrivate::fetchNext()
                 // must be first call.
                 init(cnames, colNum);
             if (fvals) {
-                RowCache values(colNum);
+                RowCache *values = new RowCache(colNum);
+		values->setAutoDelete(TRUE);
                 for (i = 0; i < colNum; ++i) {
                     if (utf8)
-                        values[ i ] = QVariant(QString::fromUtf8(fvals[i]));
+                        values->insert(i, new QSqlVariant(QString::fromUtf8(fvals[i])));
                     else
-                        values[ i ] = QVariant(QString(fvals[i]));
+                        values->insert(i, new QSqlVariant(QString(fvals[i])));
                 }
                 if (forwardOnly)
-                    rowCache[0] = values;
-                else
-                    rowCache.append(values);
+                    rowCache.insert(0, values);
+                else {
+		    if (rowCacheEnd == rowCache.size())
+			rowCache.resize(rowCache.size() << 1);
+		    rowCache.insert(rowCacheEnd++, values);
+		}
                 return TRUE;
             }
             break;
@@ -200,6 +221,7 @@ void QSQLiteResult::cleanup()
 {
     d->finalize();
     d->rowCache.clear();
+    d->rowCache.resize(initial_cache_size);
     d->rInf.clear();
     d->currentTail = 0;
     d->currentMachine = 0;
@@ -291,18 +313,18 @@ bool QSQLiteResult::fetchFirst()
     return FALSE;
 }
 
-QVariant QSQLiteResult::data(int field)
+QSqlVariant QSQLiteResult::data(int field)
 {
     if (!isSelect() || !isValid())
-        return QVariant();
+        return QSqlVariant();
     
     if (!d->forwardOnly) {
-        QSQLiteResultPrivate::RowCache cache = d->rowCache.at(at());
+        QSQLiteResultPrivate::RowCache cache = *(d->rowCache.at(at()));
     }
     if (d->forwardOnly)
-        return d->rowCache.at(0).at(field);
+        return *(d->rowCache.at(0)->at(field));
     else
-        return d->rowCache.at(at()).at(field);
+        return *(d->rowCache.at(at())->at(field));
 }
 
 bool QSQLiteResult::isNull(int field)
@@ -311,9 +333,9 @@ bool QSQLiteResult::isNull(int field)
         return FALSE;
     
     if (d->forwardOnly)
-        return d->rowCache.at(0).at(field).isNull();
+        return d->rowCache.at(0)->at(field)->isNull();
     else
-        return d->rowCache.at(at()).at(field).isNull();
+        return d->rowCache.at(at())->at(field)->isNull();
 }
 
 /*
@@ -384,8 +406,10 @@ bool QSQLiteDriver::hasFeature(DriverFeature f) const
     switch (f) {
     case Transactions:
         return TRUE;
+#if (QT_VERSION-0 >= 0x030000)
     case Unicode:
         return d->utf8;
+#endif
 //   case BLOB:
     default:
         return FALSE;
@@ -489,22 +513,29 @@ QStringList QSQLiteDriver::tables(const QString &typeName) const
 
     QSqlQuery q = createQuery();
     q.setForwardOnly(TRUE);
+#if (QT_VERSION-0 >= 0x030000)
     if ((type & (int)QSql::Tables) && (type & (int)QSql::Views))
         q.exec("SELECT name FROM sqlite_master WHERE type='table' OR type='view'");
     else if (typeName.isEmpty() || (type & (int)QSql::Tables))
         q.exec("SELECT name FROM sqlite_master WHERE type='table'");
     else if (type & (int)QSql::Views)
         q.exec("SELECT name FROM sqlite_master WHERE type='view'");
+#else
+        q.exec("SELECT name FROM sqlite_master WHERE type='table' OR type='view'");
+#endif
+
 
     if (q.isActive()) {
         while(q.next())
             res.append(q.value(0).toString());
     }
 
+#if (QT_VERSION-0 >= 0x030000)
     if (type & (int)QSql::SystemTables) {
         // there are no internal tables beside this one:
         res.append("sqlite_master");
     }
+#endif
 
     return res;
 }
@@ -552,7 +583,7 @@ QSqlIndex QSQLiteDriver::primaryIndex(const QString &tblname) const
 //            qDebug("*** got IdxString: " + idxStr);
             QStringList fNames = QStringList::split(",", idxStr);
             for (QStringList::Iterator it = fNames.begin(); it != fNames.end(); ++it) {
-                QVariant::Type type = QVariant::Invalid;
+                QSqlVariant::Type type = QSqlVariant::Invalid;
                 if (rec.contains(sqlName))
                     type = rec.field(sqlName)->type();
                 index.append((*it).stripWhiteSpace(), type);
@@ -597,7 +628,7 @@ QSqlIndex QSQLiteDriver::primaryIndex(const QString &tblname) const
 //        qDebug("no primary index found");
         return index;
     }
-    QVariant::Type type = QVariant::Invalid;
+    QSqlVariant::Type type = QSqlVariant::Invalid;
     if (rec.contains(sqlName))
         type = rec.field(sqlName)->type();
     index.append(sqlName.lower(), type);
