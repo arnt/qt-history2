@@ -2052,6 +2052,10 @@ void QTextDocument::removeSelectedText( int id, QTextCursor *cursor )
 	c1 = sel.endCursor;
     }
 
+    // ### no support for editing tables yet
+    if ( c1.nestedDepth() || c2.nestedDepth() )
+	return;
+
     c2.restoreState();
     c1.restoreState();
 
