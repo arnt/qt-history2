@@ -2321,8 +2321,11 @@ void QTimeEdit::addNumber( int sec, int num )
     switch( sec ) {
     case 0:
 	txt = QString::number( d->h );
+	
 	if ( d->overwrite || txt.length() == 2 ) {
-	    if ( !outOfRange( num, d->m, d->s ) ) {
+	    if ( !(d->display & AMPM && txt.toInt() > 12) && !outOfRange( num, d->m, d->s ) ) {
+		if ( d->display & AMPM && txt.toInt() == 12 )
+		    num = 0;
 		accepted = TRUE;
 		d->h = num;
 	    }
@@ -2331,9 +2334,11 @@ void QTimeEdit::addNumber( int sec, int num )
 	    int temp = txt.toInt();
 	    if ( temp > 23 )
 		temp = num;
-	    if ( outOfRange( temp, d->m, d->s ) )
+	    if ( (d->display & AMPM && txt.toInt() > 12) || outOfRange( temp, d->m, d->s ) )
 		txt = QString::number( d->h );
 	    else {
+		if ( d->display & AMPM && txt.toInt() == 12 )
+		    temp = 0;
 		accepted = TRUE;
 		d->h = temp;
 	    }
