@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#73 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#74 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -614,7 +614,8 @@ QDomImplementationPrivate* QDomImplementationPrivate::clone()
   \module XML
 
   This class describes the features that are supported by the DOM
-  implementation. Currently only the XML subset of DOM Level 1 is supported.
+  implementation. Currently only the XML subset of DOM Level 1 and DOM Level 2
+  Core are supported.
 
   Normally you will use the function QDomDocument::implementation() to get the
   implementation object.
