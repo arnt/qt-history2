@@ -294,8 +294,7 @@ public:
 	NoFocus = 0,
 	TabFocus = 0x1,
 	ClickFocus = 0x2,
-	TextListFocus = 0x8,
-	StrongFocus = TabFocus | ClickFocus | TextListFocus,
+	StrongFocus = TabFocus | ClickFocus | 0x8,
 	WheelFocus = StrongFocus | 0x4
     };
 
