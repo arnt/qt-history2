@@ -2089,7 +2089,8 @@ void QDataTable::refresh( QDataTable::Refresh mode )
  	setCurrentSelection( -1, -1 );
     else if ( d->lastAt != currentRow() )
 	setCurrentSelection( currentRow(), currentColumn() );
-    emit currentChanged( sqlCursor() );
+    if ( cur->isValid() )
+	emit currentChanged( sqlCursor() );
 }
 
 /*!
