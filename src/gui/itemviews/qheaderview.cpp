@@ -1012,11 +1012,11 @@ void QHeaderView::initializeSections()
     if (d->orientation == Qt::Horizontal) {
         int c = model()->columnCount(rootIndex());
         if (c != count())
-            initializeSections(0, c > 0 ? c - 1 : 0);
+            initializeSections(0, c - 1);
     } else {
         int r = model()->rowCount(rootIndex());
         if (r != count())
-            initializeSections(0, r > 0 ? r - 1 : 0);
+            initializeSections(0, r - 1);
     }
 }
 
