@@ -169,7 +169,6 @@ void TextEdit::setupTextActions()
     menu->insertSeparator();
 
     QActionGroup *grp = new QActionGroup( this );
-    grp->setExclusive( TRUE );
     connect( grp, SIGNAL( selected( QAction* ) ), this, SLOT( textAlign( QAction* ) ) );
 
     actionAlignLeft = new QAction( QPixmap::fromMimeSource( "textleft.xpm" ), tr( "&Left" ), CTRL + Key_L, grp, "textLeft" );

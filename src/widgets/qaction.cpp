@@ -1315,7 +1315,7 @@ void QActionGroupPrivate::update( const QActionGroup* that )
     example, if you have a left justify action, a right justify action
     and a center action, only one of these actions should be active at
     any one time, and one simple way of achieving this is to group the
-    actions together in an action group and call setExclusive(TRUE).
+    actions together in an action group.
 
     An action group can also be added to a menu or a toolbar as a
     single unit, with all the actions within the action group
@@ -1326,8 +1326,8 @@ void QActionGroupPrivate::update( const QActionGroup* that )
     \skipto QActionGroup
     \printuntil connect
 
-    We create a new action  group and call setExclusive() to ensure
-    that only one of the actions in the group is ever active at any
+    Here we create a new action group. Since the action group is exclusive
+    by default, only one of the actions in the group is ever active at any
     one time. We then connect the group's selected() signal to our
     textAlign() slot.
 
@@ -1363,13 +1363,14 @@ void QActionGroupPrivate::update( const QActionGroup* that )
 /*!
     Constructs an action group called \a name, with parent \a parent.
 
-    Call setExclusive(TRUE) to make the action group exclusive.
+    The action group is exclusive by default. Call setExclusive(FALSE) to make
+    the action group non-exclusive.
 */
 QActionGroup::QActionGroup( QObject* parent, const char* name )
     : QAction( parent, name )
 {
     d = new QActionGroupPrivate;
-    d->exclusive = FALSE;
+    d->exclusive = TRUE;
     d->dropdown = FALSE;
     d->selected = 0;
     d->separatorAction = 0;
@@ -1383,6 +1384,8 @@ QActionGroup::QActionGroup( QObject* parent, const char* name )
 
     If \a exclusive is TRUE only one toggle action in the group will
     ever be active.
+
+    \sa exclusive
 */
 QActionGroup::QActionGroup( QObject* parent, const char* name, bool exclusive )
     : QAction( parent, name )
@@ -1552,17 +1555,14 @@ void QActionGroup::addSeparator()
 /*!
     Adds this action group to the widget \a w.
 
-    If usesDropDown() is TRUE and exclusive is TRUE (see
-    setExclusive()) the actions are presented in a combobox if \a w is
-    a toolbar and as a submenu if \a w is a menu. Otherwise (the
-    default) the actions within the group are added to the widget
-    individually. For example if the widget is a menu, the actions
-    will appear as individual menu options, and if the widget is a
-    toolbar, the actions will appear as toolbar buttons.
+    If isExclusive() is FALSE or usesDropDown() is FALSE, the actions within
+    the group are added to the widget individually. For example, if the widget
+    is a menu, the actions will appear as individual menu options, and
+    if the widget is a toolbar, the actions will appear as toolbar buttons.
 
-    It is recommended that actions in action groups, especially where
-    usesDropDown() is TRUE, have their menuText() or text() property
-    set.
+    If both isExclusive() and usesDropDown() are TRUE, the actions
+    are presented either in a combobox (if \a w is a toolbar) or in a
+    submenu (if \a w is a menu).
 
     All actions should be added to the action group \e before the
     action group is added to the widget. If actions are added to the
