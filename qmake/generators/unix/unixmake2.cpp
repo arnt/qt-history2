@@ -293,7 +293,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                         QStringList deps = findDependencies((*it)).find(QRegExp(Option::cpp_moc_ext + "$"));
                         if(!deps.isEmpty())
                             t << d_file << ": " << deps.join(" ") << endl;
-                        t << var("QMAKE_CFLAGS_USE_PRECOMPILE") << " " << d_file << endl;
+                        t << "-include " << d_file << endl;
                     }
                 }
             }
