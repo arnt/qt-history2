@@ -1985,16 +1985,10 @@ QRect QMacStyle::subRect(SubRect r, const QWidget *w) const
 	}
 	break; }
     case SR_PushButtonContents: {
-	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
 	Rect macRect, myRect;
-	QRect widgetRect = w->rect();
-	SetRect(&myRect, 0, 0, widgetRect.right(), widgetRect.bottom());
-	GetThemeButtonBackgroundBounds(&myRect, kThemePushButton, &info, &macRect);
-	myRect.left   += myRect.left - macRect.left;
-	myRect.top    += myRect.top - macRect.top;
-	myRect.right  += myRect.right - macRect.right;
-	// I don't know why +1, but otherwise we are one pixel too high.
-	myRect.bottom += myRect.bottom - macRect.bottom + 1;
+	SetRect(&myRect, 0, 0, w->width(), w->height());
+	myRect.bottom--; //unclear why we need to remove 1
+	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
 	GetThemeButtonContentBounds(&myRect, kThemePushButton, &info, &macRect);
 	ret.setCoords(macRect.left, macRect.top, macRect.right, macRect.bottom);
 	break; }
