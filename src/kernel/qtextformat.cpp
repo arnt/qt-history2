@@ -1,19 +1,126 @@
 #include "qtextformat.h"
-#include "qtextformat_p.h"
 
 #include <qstring.h>
 #include <qfontmetrics.h>
 #include <qdebug.h>
+#include "qobject_p.h"
+
+enum { UndefinedIndex = -1 };
+
+// ### use a placement new for bytearray/string
+class QTextFormatProperty
+{
+public:
+    QTextFormatProperty() : type(QTextFormat::Undefined) {}
+
+    QTextFormatProperty(bool value) : type(QTextFormat::Boolean)
+    { data.boolValue = value; }
+
+    QTextFormatProperty(int value) : type(QTextFormat::Integer)
+    { data.intValue = value; }
+
+    QTextFormatProperty(float value) : type(QTextFormat::Float)
+    { data.floatValue = value; }
+
+    QTextFormatProperty(const QString &value);
+    QTextFormatProperty(const QByteArray &value);
+
+    QTextFormatProperty(const QTextFormatProperty &rhs) : type(QTextFormat::Undefined)
+    { (*this) = rhs; }
+
+    QTextFormatProperty &operator=(const QTextFormatProperty &rhs);
+
+    ~QTextFormatProperty()
+    { free(); }
+
+    bool isValid() const { return type != QTextFormat::Undefined; }
+
+    bool operator==(const QTextFormatProperty &rhs) const;
+    bool operator!=(const QTextFormatProperty &rhs) const
+    { return !operator==(rhs); }
+
+    QTextFormat::PropertyType type;
+    union {
+	bool boolValue;
+	int intValue;
+	float floatValue;
+	void *ptr;
+    } data;
+
+    QString stringValue() const
+    { return *static_cast<QString *>(data.ptr); }
+    QByteArray binaryValue() const
+    { return *static_cast<QByteArray *>(data.ptr); }
+
+private:
+    void assign( const QTextFormatProperty &rhs);
+    void free();
+};
+
+#ifndef QT_NO_DEBUG
+QDebug &operator<<(QDebug &debug, const QTextFormatProperty &property)
+{
+    switch (property.type) {
+	case QTextFormat::Undefined: debug << "[Undefined]"; break;
+	case QTextFormat::Boolean: debug << "[" << "Boolean:" << property.data.boolValue << "]"; break;
+	case QTextFormat::Integer: debug << "[" << "Integer:" << property.data.intValue << "]"; break;
+	case QTextFormat::Float: debug << "[" << "Float:" << property.data.floatValue << "]"; break;
+	case QTextFormat::String: debug << "[" << "String:" << property.stringValue() << "]"; break;
+	case QTextFormat::Binary: debug << "[" << "Binary:" << property.binaryValue() << "]"; break;
+	default: Q_ASSERT(false);
+    }
+    return debug;
+}
+#endif
+
+typedef QMap<int, QTextFormatProperty> QTextFormatPropertyMap;
+
+class QTextFormatPrivate
+{
+public:
+    QTextFormatPrivate(int _type = -1, int _inheritedType = -1) : type(_type), inheritedType(_inheritedType) {}
+
+    int type;
+    int inheritedType;
+
+    bool isValid() const { return type != -1; }
+
+    void clearProperty(int property)
+    { properties.remove(property); }
+    void setProperty(int propertyId, const QTextFormatProperty &property)
+    { properties[propertyId] = property; }
+
+    const QTextFormatProperty property(int propertyId, QTextFormat::PropertyType propType) const;
+
+    bool operator==(const QTextFormatPrivate &rhs) const;
+
+    QTextFormatPropertyMap propertyMap() const { return properties; }
+
+private:
+    QTextFormatPropertyMap properties;
+};
+
+class QTextFormatCollectionPrivate : public QObjectPrivate
+{
+    Q_DECL_PUBLIC(QTextFormatCollection);
+public:
+    int indexToReference(int idx) const;
+    int referenceToIndex(int ref) const;
+
+    QVector<QTextFormatPrivate> formats;
+    QVector<int> formatReferences;
+};
+
 
 QTextFormatProperty::QTextFormatProperty(const QString &value)
 {
-    type = String;
+    type = QTextFormat::String;
     data.ptr = new QString(value);
 }
 
 QTextFormatProperty::QTextFormatProperty(const QByteArray &value)
 {
-    type = Binary;
+    type = QTextFormat::Binary;
     data.ptr = new QByteArray(value);
 }
 
@@ -33,8 +140,8 @@ void QTextFormatProperty::assign(const QTextFormatProperty &rhs)
     type = rhs.type;
     data = rhs.data;
     switch (type) {
-	case String: data.ptr = new QString(*static_cast<QString *>(rhs.data.ptr)); break;
-	case Binary: data.ptr = new QByteArray(*static_cast<QByteArray *>(rhs.data.ptr)); break;
+	case QTextFormat::String: data.ptr = new QString(*static_cast<QString *>(rhs.data.ptr)); break;
+	case QTextFormat::Binary: data.ptr = new QByteArray(*static_cast<QByteArray *>(rhs.data.ptr)); break;
 	default: break;
     }
 }
@@ -42,8 +149,8 @@ void QTextFormatProperty::assign(const QTextFormatProperty &rhs)
 void QTextFormatProperty::free()
 {
     switch (type) {
-	case String: delete static_cast<QString *>(data.ptr); break;
-	case Binary: delete static_cast<QByteArray *>(data.ptr); break;
+	case QTextFormat::String: delete static_cast<QString *>(data.ptr); break;
+	case QTextFormat::Binary: delete static_cast<QByteArray *>(data.ptr); break;
 	default: break;
     }
 }
@@ -54,21 +161,22 @@ bool QTextFormatProperty::operator==(const QTextFormatProperty &rhs) const
 	return false;
 
     switch (type) {
-	case Undefined: return true;
-	case Boolean: return data.boolValue == rhs.data.boolValue;
-	case Integer: return data.intValue == rhs.data.intValue;
-	case Float: return data.floatValue == rhs.data.floatValue;
-	case String: return stringValue() == rhs.stringValue();
-	case Binary: return binaryValue() == rhs.binaryValue();
+	case QTextFormat::Undefined: return true;
+	case QTextFormat::Boolean: return data.boolValue == rhs.data.boolValue;
+	case QTextFormat::FormatReference:
+	case QTextFormat::Integer: return data.intValue == rhs.data.intValue;
+	case QTextFormat::Float: return data.floatValue == rhs.data.floatValue;
+	case QTextFormat::String: return stringValue() == rhs.stringValue();
+	case QTextFormat::Binary: return binaryValue() == rhs.binaryValue();
     }
 
     return true;
 }
 
-const QTextFormatProperty QTextFormatPrivate::property(int propertyId, QTextFormatProperty::Type propType) const
+const QTextFormatProperty QTextFormatPrivate::property(int propertyId, QTextFormat::PropertyType propType) const
 {
     const QTextFormatProperty prop = properties.value(propertyId);
-    if (prop.isValid() && (prop.type == propType || propType == QTextFormatProperty::Undefined))
+    if (prop.isValid() && (prop.type == propType || propType == QTextFormat::Undefined))
 	return prop;
     return QTextFormatProperty();
 }
@@ -129,7 +237,7 @@ void QTextFormat::merge(const QTextFormat &other)
     for (int i = 0; i < allProps.count(); ++i) {
 	int propId = allProps.at(i);
 
-	const QTextFormatProperty prop = other.d->property(propId, QTextFormatProperty::Undefined);
+	const QTextFormatProperty prop = other.d->property(propId, QTextFormat::Undefined);
 	Q_ASSERT(prop.isValid());
 	d->setProperty(propId, prop);
     }
@@ -168,7 +276,7 @@ QTextListFormat QTextFormat::toListFormat() const
 
 bool QTextFormat::booleanProperty(int propertyId, bool defaultValue) const
 {
-    const QTextFormatProperty prop = d->property(propertyId, QTextFormatProperty::Boolean);
+    const QTextFormatProperty prop = d->property(propertyId, QTextFormat::Boolean);
 
     if (!prop.isValid())
 	return defaultValue;
@@ -178,7 +286,7 @@ bool QTextFormat::booleanProperty(int propertyId, bool defaultValue) const
 
 int QTextFormat::intProperty(int propertyId, int defaultValue) const
 {
-    const QTextFormatProperty prop = d->property(propertyId, QTextFormatProperty::Integer);
+    const QTextFormatProperty prop = d->property(propertyId, QTextFormat::Integer);
 
     if (!prop.isValid())
 	return defaultValue;
@@ -188,7 +296,7 @@ int QTextFormat::intProperty(int propertyId, int defaultValue) const
 
 float QTextFormat::floatProperty(int propertyId, float defaultValue) const
 {
-    const QTextFormatProperty prop = d->property(propertyId, QTextFormatProperty::Float);
+    const QTextFormatProperty prop = d->property(propertyId, QTextFormat::Float);
 
     if (!prop.isValid())
 	return defaultValue;
@@ -198,7 +306,7 @@ float QTextFormat::floatProperty(int propertyId, float defaultValue) const
 
 QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue) const
 {
-    const QTextFormatProperty prop = d->property(propertyId, QTextFormatProperty::String);
+    const QTextFormatProperty prop = d->property(propertyId, QTextFormat::String);
 
     if (!prop.isValid())
 	return defaultValue;
@@ -208,7 +316,7 @@ QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue)
 
 QByteArray QTextFormat::binaryProperty(int propertyId, QByteArray defaultValue) const
 {
-    const QTextFormatProperty prop = d->property(propertyId, QTextFormatProperty::Binary);
+    const QTextFormatProperty prop = d->property(propertyId, QTextFormat::Binary);
 
     if (!prop.isValid())
 	return defaultValue;
@@ -243,7 +351,15 @@ void QTextFormat::setProperty(int propertyId, const QByteArray &value)
 
 bool QTextFormat::hasProperty(int propertyId) const
 {
-    return d->property(propertyId, QTextFormatProperty::Undefined).isValid();
+    return d->property(propertyId, QTextFormat::Undefined).isValid();
+}
+
+QTextFormat::PropertyType QTextFormat::propertyType(int propertyId) const
+{
+    QTextFormatProperty prop = d->property(propertyId, QTextFormat::Undefined);
+    if (!prop.isValid())
+	return QTextFormat::Undefined;
+    return prop.type;
 }
 
 void QTextCharFormat::setFont(const QFont &font)
