@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#113 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#114 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1518,7 +1518,7 @@ sub printclass {
 	    $documented{$_}++;
 	    $name =~ s/^[^\#]*\#//;
 	    $header = $def{$_};
-	    $header =~ s;([^\(]*\s)\b(\S+);$1<a name=\"$name\">$2</a>;s;
+	    $header =~ s;([^\(]*\s)\b(\S+);$1<a name=\"$name\"></a>$2;s;
 	    $relatives = join ("", $relatives, "<h3>", $header,
 			       "</h3>\n<p>", $doc{$_}, "\n");
 	    $header = $def{$_};
@@ -1670,7 +1670,7 @@ sub printclass {
 		my($name);
 		$name = $1;
 		$_ = &html($_);
-		s;(\w+[^\=:\(\{]*)\b(\w+);$1<strong><a name=\"$name\">$2</a></strong>;s;
+		s;(\w+[^\=:\(\{]*)\b(\w+);$1<strong><a name=\"$name\"></a>$2</strong>;s;
 	    } elsif (/^\s*enum\s*\{/s) {
 		$_ = &html($_); # don't do anything, but it's legal
 	    } elsif (/^operator\s+([\w\s\*\&]+?)\s*\(\s*\)\s*((?:const)?)\s*$/s) {
@@ -1707,7 +1707,7 @@ sub printclass {
     }
 
     if ($brief{$url} =~ /\S/s) {
-	print O "<hr><h2><a name=\"details\">Detailed Description</a></h2>\n", $brief{$url}, "\n<p>\n", $doc{$url}, "\n";
+	print O "<hr><h2><a name=\"details\"></a>Detailed Description</h2>\n", $brief{$url}, "\n<p>\n", $doc{$url}, "\n";
     } else {
 	print O "<hr><h2>Detailed Description</h2>\n", $doc{$url}, "\n";
     }
@@ -1737,7 +1737,7 @@ sub printclass {
 	    print O $fnheader;
 	    $fnheader = "";
 	    $fntail = "\n";
-	    s;([^\(]*\s)\b(\S+);$1<a name=\"$name\">$2</a>;s;
+	    s;([^\(]*\s)\b(\S+);$1<a name=\"$name\"></a>$2;s;
 	    print O "<h3>", $_, $protection, "</h3>\n<p>", $doc{$url};
 
 	    $p = "<p>";
@@ -1748,7 +1748,7 @@ sub printclass {
 		    $class = $name;
 		    $class =~ s/::.*//;
 		    print O $p, "Reimplemented from <a href=\""
-			, $virtual{$url}, "\">", $class, ".</a>  ";
+			, $virtual{$url}, "\">", $class, ".</a>\n";
 		    $p = "";
 		}
 		if ( defined($reimplementations{$url}) ) {
@@ -2078,7 +2078,9 @@ if ( open( I, "< " . $ENV{"QTDIR"} . "/src/tools/qglobal.cpp" ) ) {
 
 ($j, $min, $hour, $mday, $mon, $year) = localtime(time);
 $address = sprintf("<hr><address>\nGenerated at %02d:%02d, %4d/%02d/%02d for Qt version %s by the <a href=\"mailto:www\@troll.no\">webmaster</a> at <a href=\"http://www.troll.no/\">Troll Tech</a>\n</address>\n</body></html>\n", $hour, $min, 1900+$year, 1+$mon, $mday, $version );
-$doctype = "<!doctype HTML public \"-//IETF//DTD HTML 2.0 Level 2//EN\">\n";
+$doctype = "<!doctype HTML public \"-//W3C//DTD HTML 3.2//EN\">\n";
+
+# <!doctype HTML public \"-//IETF//DTD HTML 2.0 Level 2//EN\">\n";
 
 if ($#ARGV > -1) {
     $hdir = ".";
