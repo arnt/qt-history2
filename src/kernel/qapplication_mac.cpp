@@ -307,6 +307,15 @@ void qt_mac_update_os_settings()
 	if(!(pal == QApplication::palette()))
 	    QApplication::setPalette(pal);
     }
+    { //setup the global font
+	Str255 f_name;
+	SInt16 f_size;
+	Style f_style;
+	GetThemeFont(kThemeApplicationFont, smSystemScript, f_name, &f_size, &f_style);
+	QApplication::setFont(QFont(p2qstring(f_name), f_size,
+				    (f_style & ::bold) ? QFont::Bold : QFont::Normal,
+				    (bool)(f_style & ::italic)));
+    }
     { //setup the fonts
 	struct {
 	    const char *qt_class;

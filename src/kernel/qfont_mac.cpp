@@ -566,15 +566,6 @@ void QFont::initialize()
     if(!QFontCache::instance)
         new QFontCache();
     Q_CHECK_PTR(QFontCache::instance);
-    if(qApp) {
-	Str255 f_name;
-	SInt16 f_size;
-	Style f_style;
-	GetThemeFont(kThemeApplicationFont, smSystemScript, f_name, &f_size, &f_style);
-	qApp->setFont(QFont(p2qstring(f_name), f_size,
-			    (f_style & ::bold) ? QFont::Bold : QFont::Normal,
-			    (bool)(f_style & ::italic)));
-    }
 }
 
 bool QFont::dirty() const
