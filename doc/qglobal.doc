@@ -1,0 +1,79 @@
+/*! \headerfile <qglobal.h>
+
+*/
+
+/*! \typedef uchar
+    \relates <qglobal.h>
+*/
+
+/*! \typedef ushort
+    \relates <qglobal.h>
+*/
+
+/*! \typedef uint
+    \relates <qglobal.h>
+*/
+
+/*! \typedef ulong
+    \relates <qglobal.h>
+*/
+
+/*! \typedef pchar
+    \relates <qglobal.h>
+*/
+
+/*! \typedef puchar
+    \relates <qglobal.h>
+*/
+
+/*! \typedef pcchar
+    \relates <qglobal.h>
+*/
+
+/*! \typedef Q_INT8
+*/
+
+/*! \typedef Q_UINT8
+*/
+
+/*! \typedef Q_INT16
+*/
+
+/*! \typedef Q_UINT16
+*/
+
+/*! \typedef Q_INT32
+*/
+
+/*! \typedef Q_UINT32
+*/
+
+/*! \typedef Q_LONG
+*/
+
+/*! \typedef Q_ULONG
+*/
+
+/*! \typedef Q_LLONG
+*/
+
+/*! \typedef Q_ULLONG
+*/
+
+/*! \macro Q_INT64_C(constant)
+*/
+
+/*! \macro Q_UINT64_C(constant)
+*/
+
+/*! \macro QABS(value)
+*/
+
+/*! \fn int qRound(double d)
+*/
+
+/*! \fn T qMin(T a, T b)
+*/
+
+/*! \fn T qMax(T a, T b)
+*/

@@ -116,29 +116,6 @@
     \sa size()
 */
 
-/*! \fn bool QCache::operator!() const
-
-    \internal
-*/
-
-/*! \fn QCache::operator QSafeBool() const
-
-    Returns true if the cache contains at least one item; otherwise
-    returns false.
-
-    Example:
-    \code
-	static QCache<QString, MyGraphData *> cache;
-        ...
-        if (cache)
-	    do_something(cache);
-    \endcode
-
-    This is the same as \c{!cache.isEmpty()}.
-
-    \sa isEmpty()
-*/
-
 /*! \fn void QCache::clear();
 
     Removes all items from the cache.
