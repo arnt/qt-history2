@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#270 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#271 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -28,6 +28,8 @@
 #ifdef QT_NO_CAST_ASCII
 #undef QT_NO_CAST_ASCII
 #endif
+
+#define QT_NO_QCHAR_INIT
 
 #include "qstring.h"
 #include "qregexp.h"
@@ -10318,14 +10320,6 @@ QString QString::visual(int index, int len)
 
 
 
-class QDummyChar
-{
-public:
-    uchar dm1;
-    uchar dm2;
-};
-
-
 /*!
   This utility function converts the 8-bit string
   \a ba to Unicode, returning the result.
@@ -10339,7 +10333,7 @@ QChar* QString::asciiToUnicode( const QByteArray& ba, uint* len )
     while ( l < (int)ba.size() && ba[l] )
 	l++;
     char* str = ba.data();
-    QChar *uc = (QChar*)new QDummyChar[ l ];
+    QChar *uc = new QChar[ l ];
     QChar *result = uc;
     if ( len )
 	*len = l;
@@ -10368,7 +10362,7 @@ QChar* QString::asciiToUnicode(const char *str, uint* len, uint maxlen )
 	    // Faster?
 	    l = strlen(str);
 	}
-	QChar *uc = (QChar*)new QDummyChar[ l ];
+	QChar *uc = new QChar[ l ];
 	result = uc;
 	uint i = l;
 	while ( i-- )
@@ -10523,7 +10517,7 @@ QString::QString( int size, bool /*dummy*/ )
 	Q2HELPER(stat_construct_int++);
 	int l = size;
 	Q2HELPER(stat_construct_int_size+=l);
-	QChar* uc = (QChar*)new QDummyChar[ l ];
+	QChar* uc = new QChar[ l ];
 	d = new QStringData( uc, 0, l );
     } else {
 	Q2HELPER(stat_construct_null++);
@@ -10554,7 +10548,7 @@ QString::QString( const QByteArray& ba )
 
 QString::QString( const QChar* unicode, uint length )
 {
-    QChar* uc = (QChar*)new QDummyChar[ length ];
+    QChar* uc = new QChar[ length ];
     memcpy(uc, unicode, length*sizeof(QChar));
     d = new QStringData(uc,length,length);
 }
@@ -10737,7 +10731,7 @@ void QString::setLength( uint newLen )
 	uint newMax = 4;
 	while ( newMax < newLen )
 	    newMax *= 2;
-	QChar* nd = (QChar*)new QDummyChar[ newMax ];
+	QChar* nd = new QChar[ newMax ];
 	uint len = QMIN( d->len, newLen );
 	if ( d->unicode )
 	    memcpy( nd, d->unicode, sizeof(QChar)*len );
@@ -11109,7 +11103,7 @@ void QString::fill( QChar c, int len )
 	*this = "";
     } else {
 	deref();
-	QChar * nd = (QChar*)new QDummyChar[ len ];
+	QChar * nd = new QChar[ len ];
 	d = new QStringData(nd,len,len);
 	while (len--) *nd++ = c;
     }
@@ -11694,7 +11688,7 @@ QString &QString::insert( uint index, const QChar* s, uint len )
     int df = d->unicode - s;
     if ( df >= 0 && (uint)df < d->maxl ) {
 	// Part of me - take a copy.
-	QChar *tmp = (QChar*)new QDummyChar[ len ];
+	QChar *tmp = new QChar[ len ];
 	memcpy(tmp,s,len*sizeof(QChar));
 	insert(index,tmp,len);
 	delete[] tmp;
@@ -11831,7 +11825,7 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
 	int df = d->unicode - s;
 	if ( df >= 0 && (uint)df < d->maxl ) {
 	    // Part of me - take a copy.
-	    QChar *tmp = (QChar*)new QDummyChar[ slen ];
+	    QChar *tmp = new QChar[ slen ];
 	    memcpy(tmp,s,slen*sizeof(QChar));
 	    replace(index,len,tmp,slen);
 	    delete[] tmp;
@@ -12771,7 +12765,7 @@ QString& QString::setUnicode( const QChar *unicode, uint len )
 	uint newMax = 4;
 	while ( newMax < len )
 	    newMax *= 2;
-	QChar* nd = (QChar*)new QDummyChar[ newMax ];
+	QChar* nd = new QChar[ newMax ];
 	if ( unicode )
 	    memcpy( nd, unicode, sizeof(QChar)*len );
 	deref();
@@ -13188,7 +13182,7 @@ QConstString::QConstString( QChar* unicode, uint length ) :
 QConstString::~QConstString()
 {
     if ( d->count > 1 ) {
-	QChar* cp = (QChar*)new QDummyChar[ d->len ];
+	QChar* cp = new QChar[ d->len ];
 	memcpy( cp, d->unicode, d->len*sizeof(QChar) );
 	d->unicode = cp;
     } else {

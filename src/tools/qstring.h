@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#136 $
+** $Id: //depot/qt/main/src/tools/qstring.h#137 $
 **
 ** Definition of the QString class, and related Unicode
 ** functions.
@@ -42,9 +42,16 @@ class QCharRef;
 
 class Q_EXPORT QChar {
 public:
+
+#if defined(QT_NO_QCHAR_INIT)
+    QChar() { }				// Used internally for efficiency.
+#endif
+
     // The alternatives just avoid order-of-construction warnings.
 #if defined(_WS_X11_) || defined(_OS_WIN32_BYTESWAP_)
+#ifndef QT_NO_QCHAR_INIT
     QChar() : rw(0), cl(0) { }
+#endif
     QChar( char c ) : rw(0), cl(c) { }
     QChar( uchar c ) : rw(0), cl(c) { }
     QChar( uchar c, uchar r ) : rw(r), cl(c) { }
@@ -54,7 +61,9 @@ public:
     QChar( uint rc ) : rw((rc>>8)&0xff), cl(rc&0xff) { }
     QChar( int rc ) : rw((rc>>8)&0xff), cl(rc&0xff) { }
 #else
+#ifndef QT_NO_QCHAR_INIT
     QChar() : cl(0), rw(0) { }
+#endif
     QChar( char c ) : cl(c), rw(0) { }
     QChar( uchar c ) : cl(c), rw(0) { }
     QChar( uchar c, uchar r ) : cl(c), rw(r) { }
