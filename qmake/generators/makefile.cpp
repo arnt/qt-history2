@@ -57,42 +57,6 @@
 
 MakefileGenerator::MakefileGenerator(QMakeProject *p) : init_already(FALSE), moc_aware(FALSE), project(p)
 {
-    QMap<QString, QStringList> &v = project->variables();
-
-    QString &asp = v["QMAKE_ABSOLUTE_SOURCE_PATH"].first();
-    asp = Option::fixPathToTargetOS(asp);
-    if(!asp.isEmpty() && asp == Option::output_dir) //if they're the same, why bother?
-	    v["QMAKE_ABSOLUTE_SOURCE_PATH"].clear();
-
-    QString currentDir = QDir::currentDirPath();
-    QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("DESTDIR"), QString::null };
-    for(int x = 0; dirs[x] != QString::null; x++) {
-	QString &path = v[dirs[x]].first();
-	path = Option::fixPathToTargetOS(path);
-	if (!path.isEmpty() ) {
-	    if(path.right(Option::dir_sep.length()) != Option::dir_sep)
-		path += Option::dir_sep;
-
-	    QDir d;
-
-	    if ( !QDir::isRelativePath( path ) )
-		d.cd( path.left( 2 ) );
-	    else if(!v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty())
-		path = v["QMAKE_ABSOLUTE_SOURCE_PATH"].first() + Option::dir_sep + path;
-	    if(path.left(1) == Option::dir_sep) 
-	      d.cd(Option::dir_sep);
-
-	    QStringList subs = QStringList::split(Option::dir_sep, path);
-	    for(QStringList::Iterator subit = subs.begin(); subit != subs.end(); ++subit) {
-		if(!d.cd(*subit)) {
-		    d.mkdir((*subit));
-		    d.cd((*subit));
-		}
-	    }
-	}
-    }
-
-    QDir::current().cd( currentDir );
 }
 
 #ifndef NO_USE_GROSS_BIG_BUFFER_THING
@@ -484,6 +448,43 @@ MakefileGenerator::init()
     init_already = TRUE;
 
     QMap<QString, QStringList> &v = project->variables();
+
+    { //paths
+	QString &asp = v["QMAKE_ABSOLUTE_SOURCE_PATH"].first();
+	asp = Option::fixPathToTargetOS(asp);
+	qDebug("%s %s", asp.latin1(), Option::output_dir.latin1());
+	if(!asp.isEmpty() && asp == Option::output_dir) //if they're the same, why bother?
+	    v["QMAKE_ABSOLUTE_SOURCE_PATH"].clear();
+
+	QString currentDir = QDir::currentDirPath();
+	QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("DESTDIR"), QString::null };
+	for(int x = 0; dirs[x] != QString::null; x++) {
+	    QString &path = v[dirs[x]].first();
+	    path = Option::fixPathToTargetOS(path);
+	    if (!path.isEmpty() ) {
+		if(path.right(Option::dir_sep.length()) != Option::dir_sep)
+		    path += Option::dir_sep;
+
+		QDir d;
+
+		if ( !QDir::isRelativePath( path ) )
+		    d.cd( path.left( 2 ) );
+		else if(!v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty())
+		    path = v["QMAKE_ABSOLUTE_SOURCE_PATH"].first() + Option::dir_sep + path;
+		if(path.left(1) == Option::dir_sep) 
+		    d.cd(Option::dir_sep);
+
+		QStringList subs = QStringList::split(Option::dir_sep, path);
+		for(QStringList::Iterator subit = subs.begin(); subit != subs.end(); ++subit) {
+		    if(!d.cd(*subit)) {
+			d.mkdir((*subit));
+			d.cd((*subit));
+		    }
+		}
+	    }
+	}
+	QDir::current().cd( currentDir );
+    }
 
     QString paths[] = { QString("SOURCES"), QString("INTERFACES"), QString("YACCSOURCES"), QString("INCLUDEPATH"),
 			    QString("HEADERS"),
