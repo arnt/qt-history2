@@ -50,7 +50,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     }
 
     //FIXME@!!!!!!@$!@$!@#
-    init( img.width(), img.height(), img.depth(), FALSE, DefaultOptim);
+    init( img.width(), img.height(), img.depth(), isQBitmap(), DefaultOptim);
     if(!hd)
 	return FALSE;
 
@@ -177,6 +177,7 @@ QImage QPixmap::convertToImage() const
     int d = depth();
     int ncols = 2;
 
+#if 0
     if ( d > 1 && d <= 8 ) {                    // set to nearest valid depth
         d = 8;                                  //   2..7 ==> 8
         ncols = 256;
@@ -184,6 +185,13 @@ QImage QPixmap::convertToImage() const
         d = 32;                                 //   > 8  ==> 32
         ncols = 0;
     }
+#else
+    //do we want to FIXME??? Might want to support indexed color modes?
+    if( depth() != 1 ) {
+	d = 32;
+	ncols = 0;
+    }
+#endif
 
     QImage * image=new QImage( w, h, d, ncols, QImage::BigEndian );
 
@@ -193,6 +201,8 @@ QImage QPixmap::convertToImage() const
 	image->setNumColors( 2 );
 	image->setColor( 0, qRgba(255,255,255, 0) );
 	image->setColor( 1, qRgba(0,0,0, 0) );
+    } else if(d == 8) {
+	//figure out how to copy clut into image FIXME???
     }
 
     //setup destination gworld
@@ -228,7 +238,7 @@ QImage QPixmap::convertToImage() const
     }
     bool ale = alpha.bitOrder() == QImage::LittleEndian;
 
-    //now restore the old settings
+   //now restore the old settings
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
     SetGWorld(savedworld,savedhandle);
     return *image;
@@ -584,7 +594,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
   }
   if(w==0 && h==0) {
     data->w=data->h=0;
-    data->d=0;
+//    data->d=0;
     return;
   }
   data->w=0;
