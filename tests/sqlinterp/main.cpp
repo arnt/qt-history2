@@ -147,7 +147,7 @@ int main( int /*argc*/, char** /*argv*/ )
     field.append( value );
     env.program().append( new Push( field ) );
     env.program().append( new PushList( 2 ) );
-    env.program().append( new CreateResult() );
+    env.program().append( new CreateResult( 0 ) );
     env.program().append( new Open( 0, FILENAME ) );
     env.program().append( new Next( 0, 14 ) );
     env.program().append( new PushField( 0, 0 ) );
@@ -207,7 +207,7 @@ int main( int /*argc*/, char** /*argv*/ )
     field.append( value );
     env.program().append( new Push( field ) );
     env.program().append( new PushList( 2 ) );
-    env.program().append( new CreateResult() );
+    env.program().append( new CreateResult( 0 ) );
     env.program().append( new Open( 0, FILENAME ) );
     name = "name";
     value = QString("trolltech");
@@ -242,7 +242,7 @@ int main( int /*argc*/, char** /*argv*/ )
     field.append( value );
     env.program().append( new Push( field ) );
     env.program().append( new PushList( 2 ) );
-    env.program().append( new CreateResult() ); // ## perhaps give the result an id??
+    env.program().append( new CreateResult( 0 ) );
     env.program().append( new Open( 0, FILENAME ) );
     env.program().append( new Next( 0 , 11 ) );
     env.program().append( new PushField( 0, 0 ) );
@@ -263,7 +263,7 @@ int main( int /*argc*/, char** /*argv*/ )
     field.append( value );
     env.program().append( new Push( field ) );
     env.program().append( new PushList( 2 ) );
-    env.program().append( new Sort( 0 ) ); //## to be used here.
+    env.program().append( new Sort( 0 ) );
     env.program().append( new Close( 0 ) );
 
 #if 0

@@ -3,6 +3,7 @@
 
 #include <qvariant.h>
 #include <qvaluestack.h>
+#include <qtextstream.h>
 #include <qsqlrecord.h>
 #include <qsqlindex.h>
 
@@ -86,11 +87,12 @@ namespace Interpreter {
 	virtual QValueStack<QVariant>& stack() = 0;
 	virtual Program& program() = 0;
 	virtual void addDriver( int id, const QString& fileName ) = 0;
+	virtual void addResult( int id ) = 0;
 	virtual FileDriver& fileDriver( int id ) = 0;
-	virtual ResultSet& resultSet() = 0;
+	virtual ResultSet& resultSet( int id ) = 0;
 	virtual bool save( QIODevice *dev ) = 0;
 	virtual bool save( const QString& filename ) = 0;
-	virtual bool saveListing( QIODevice *dev ) = 0;
+	virtual bool saveListing( QTextStream& stream ) = 0;
 	virtual bool saveListing( const QString& filename ) = 0;
     };
 

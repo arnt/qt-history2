@@ -60,13 +60,15 @@ private:
 class ResultSet : public Interpreter::ResultSet
 {
 public:
-    ResultSet( Interpreter::Environment* environment );
+    ResultSet( Interpreter::Environment* environment = 0 );
     virtual ~ResultSet();
+    ResultSet( const ResultSet& other );
+    ResultSet& operator=( const ResultSet& other );
 
     bool setHeader( const QSqlRecord& record );
     QSqlRecord& header() { return head; }
     bool append( QValueList<QVariant>& buf );
-    void clear() { data.clear(); }
+    void clear() { data.clear(); sortKey.clear(); head.clear(); }
     bool sort( const QSqlIndex* index );
     bool first();
     bool last();
@@ -122,20 +124,21 @@ public:
     int execute();
     void reset();
     void addDriver( int id, const QString& fileName );
+    void addResult( int id );
     FileDriver& fileDriver( int id );
     QValueStack<QVariant>& stack();
     Program& program();
-    ResultSet& resultSet();
+    ResultSet& resultSet( int id );
     bool save( QIODevice *dev );
     bool save( const QString& filename );
-    bool saveListing( QIODevice *dev );
+    bool saveListing( QTextStream& stream );
     bool saveListing( const QString& filename );
 
 private:
     QMap<int,FileDriver> drivers;
+    QMap<int,ResultSet> results;
     QValueStack<QVariant> stck;
     Program pgm;
-    ResultSet result;
 
 };
 
@@ -864,24 +867,26 @@ public:
 	    env->program().setLastError("SaveResult: no values!");
 	    return 0;
 	}
-	return env->resultSet().append( list );
+	return env->resultSet( p1.toInt() ).append( list );
     }
 };
 
 /*  Pops the top of the stack (which must be a 'list', see PushList)
-and creates a 'result set'.  The result set is an internal memory area
-which can be added to (see SaveResult) and later retrieved (see
-Environment::result()).  The 'result set' forms the fundamental
-mechanism for selecting data from a file.  The list must be of the
-form which identifies fields (see the docs for Create), since both a
-field name and type are required to define a 'result set'.
+and creates a 'result set'.  The result set will be identified by
+'id'. The result set is an internal memory area which can be added to
+(see SaveResult) and later retrieved (see Environment::result()).  The
+'result set' forms the fundamental mechanism for selecting data from a
+file.  The list must be of the form which identifies fields (see the
+docs for Create), since both a field name and type are required to
+define a 'result set'.
 */
 
 class CreateResult : public Label
 {
 public:
-    CreateResult( const QString& label = QString::null )
-	: Label( label ) {}
+    CreateResult( const QVariant& id,
+		  const QString& label = QString::null )
+	: Label( id, label ) {}
     QString name() const { return "CreateResult"; }
     int exec( Interpreter::Environment* env )
     {
@@ -902,7 +907,8 @@ public:
 	    QSqlField field( name, type );
 	    rec.append( field );
 	}
-	return env->resultSet().setHeader( rec );
+	env->addResult( p1.toInt() );
+	return env->resultSet( p1.toInt() ).setHeader( rec );
     }
 };
 
@@ -1126,8 +1132,9 @@ public:
 };
 
 /* Pop the top of the stack (which must be a list, see PushList) and
-use it as a list of fields (see Create) with which to sort the current
-'result set' (see CreateResult).
+use it as a list of fields (see Create) with which to sort the 'result
+set' which is identified by 'id' (see CreateResult).
+
 //## more: we should allow ASC/DESC sorting somehow
 */
 
@@ -1163,7 +1170,7 @@ public:
 	    env->program().setLastError("Sort: file not open!" );
 	    return 0;
 	}
-	bool b = env->resultSet().sort( &idx );
+	bool b = env->resultSet( p1.toInt() ).sort( &idx );
 	if ( !b )
 	    env->program().setLastError( drv.lastError() );
 	return b;

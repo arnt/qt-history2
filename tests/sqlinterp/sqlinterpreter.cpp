@@ -132,9 +132,7 @@ Interpreter::Op* Program::next()
 */
 
 Environment::Environment()
-    : result( this )
 {
-
 }
 
 
@@ -144,12 +142,17 @@ Environment::Environment()
 
 Environment::~Environment()
 {
-
+    reset();
 }
 
 void Environment::addDriver( int id, const QString& fileName )
 {
     drivers[id] = FileDriver( fileName );
+}
+
+void Environment::addResult( int id )
+{
+    results[id] = ResultSet( this );
 }
 
 
@@ -195,27 +198,11 @@ int Environment::execute()
     pgm.resetCounter();
 #ifdef DEBUG_SQLINTERP
     qDebug("Program listing...");
-    int i = 0;
-    while( (op = pgm.next() ) ) {
-	qDebug( QString::number(i).rightJustify(4) +
-		op->name().rightJustify(15) +
-		op->P(0).toString().rightJustify(10) +
-		op->P(1).toString().rightJustify(10) +
-		op->P(2).toString().rightJustify(10) );
-	++i;
-    }
-    pgm.resetCounter();
+    QTextStream cout( stdout, IO_WriteOnly );
+    saveListing( cout );
     qDebug("\nExecuting...");
 #endif
     while( (op = pgm.next() ) ) {
-	//#ifdef DEBUG_SQLINTERP
-#if 0
-	qDebug( QString::number(pgm.counter()).rightJustify(4) +
-		op->name().rightJustify(15) +
-		op->P(0).toString().rightJustify(10) +
-		op->P(1).toString().rightJustify(10) +
-		op->P(2).toString().rightJustify(10) );
-#endif
 	if ( !op->exec( this ) ) {
 	    qWarning("[Line " + QString::number(pgm.counter()) + "] " + pgm.lastError() );
 	    break;
@@ -233,16 +220,20 @@ void Environment::reset()
 {
     stck.clear();
     pgm.clear();
-    result.clear();
+    uint i = 0;
+    for( i = 0; i < drivers.count(); ++i )
+	drivers[i].close();
+    drivers.clear();
+    results.clear();
 }
 
 /*!
 
 */
 
-ResultSet& Environment::resultSet()
+ResultSet& Environment::resultSet( int id )
 {
-    return result;
+    return results[id];
 }
 
 bool Environment::save( QIODevice *dev )
@@ -297,13 +288,10 @@ static QString asListing( QVariant& v )
     return s;
 }
 
-bool Environment::saveListing( QIODevice *dev )
+bool Environment::saveListing( QTextStream& stream )
 {
-    if ( !dev || !dev->isOpen() )
-	return FALSE;
     pgm.resetCounter();
     int i = 0;
-    QTextStream stream( dev );
     Interpreter::Op* op = 0;
     while( (op = pgm.next() ) ) {
 	stream << QString::number( i ).rightJustify(4) << op->name().rightJustify(15);
@@ -323,7 +311,8 @@ bool Environment::saveListing( const QString& filename )
     QFile f( filename );
     if ( !f.open( IO_WriteOnly ) )
 	return FALSE;
-    saveListing( &f );
+    QTextStream stream( &f );
+    saveListing( stream );
     f.close();
     return TRUE;
 }
@@ -344,9 +333,26 @@ Label::~Label()
 ResultSet::ResultSet( Interpreter::Environment* environment )
     : env( environment )
 {
-
 }
 
+ResultSet::ResultSet( const ResultSet& other )
+    : Interpreter::ResultSet()
+{
+    *this = other;
+}
+
+ResultSet& ResultSet::operator=( const ResultSet& other )
+{
+    env = other.env;
+    head = other.head;
+    data = other.data;
+    env = other.env;
+    sortKey = other.sortKey;
+    keyit = other.keyit;
+    datait = other.datait;
+    j = other.j;
+    return *this;
+}
 
 /*! Destroys the object and frees any allocated resources.
 
@@ -373,6 +379,10 @@ bool ResultSet::setHeader( const QSqlRecord& record )
 
 bool ResultSet::append( QValueList<QVariant>& buf )
 {
+    if ( !env ) {
+	qWarning( "ResultSet: no environment" );
+	return FALSE;
+    }
     if ( !head.count() ) {
 	env->program().setLastError( "ResultSet: no header" );
 	return FALSE;
@@ -496,6 +506,10 @@ Record& ResultSet::currentRecord()
 
 bool ResultSet::sort( const QSqlIndex* index )
 {
+    if ( !env ) {
+	env->program().setLastError( "ResultSet: no environment" );
+	return FALSE;
+    }
     if ( !head.count() ) {
 	env->program().setLastError( "ResultSet: no header" );
 	return FALSE;
