@@ -2172,17 +2172,29 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	return FALSE;
 
     if ( p->isEnumType() ) {
-	if ( v.type() == QVariant::String || v.type() == QVariant::CString ) {
+	if ( v.type() == QVariant::String || v.type() == QVariant::CString ||
+	     v.type() == QVariant::Int || v.type() == QVariant::UInt ) {
 	    if ( p->isSetType() ) {
-		QString s = value.toString();
-		// QStrList does not support split, use QStringList for that.
-		QStringList l = QStringList::split( '|', s );
-		QStrList keys;
-		for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it )
-		    keys.append( (*it).stripWhiteSpace().latin1() );
-		v = QVariant( p->keysToValue( keys ) );
+		int val = 0;
+		if ( v.type() == QVariant::String || v.type() == QVariant::CString ) {
+		    QString s = value.toString();
+		    // QStrList does not support split, use QStringList for that.
+		    QStringList l = QStringList::split( '|', s );
+		    QStrList keys;
+		    for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it )
+			keys.append( (*it).stripWhiteSpace().latin1() );
+		    val = p->keysToValue( keys );
+		} else {
+		    val = v.toInt();
+		}
+		v = QVariant( val );
 	    } else {
-		v = QVariant( p->keyToValue( value.toCString().data() ) );
+		int val = 0;
+		if ( v.type() == QVariant::String || v.type() == QVariant::CString )
+		    val = p->keyToValue( value.toCString().data() );
+		else
+		    val = value.toInt();
+		v = QVariant( val );
 	    }
 	} else {
 	    return FALSE;
