@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/opengl/glwidget.cpp#5 $
+** $Id: //depot/qt/main/etc/opengl/glwidget.cpp#6 $
 **
 ** Implementation of GLWidget class for X11.
 **
@@ -49,6 +49,7 @@ bool GLWidget::dblBuf = TRUE;
 static bool	  glx_init = FALSE;
 static GLXContext glx_context;
 static Colormap   glx_cmap;
+static XVisualInfo *glx_vi = 0;
 
 
 /*----------------------------------------------------------------------------
@@ -60,6 +61,16 @@ GLWidget::GLWidget( QWidget *parent, const char *name )
 {
     if ( !glx_init )
 	initialize();
+    XSetWindowAttributes a;
+    a.colormap = glx_cmap;
+    a.background_pixel = backgroundColor().pixel();
+    a.border_pixel = black.pixel();
+    Window w = XCreateWindow( dpy, parent ? parent->winId() : 0,
+			      x(), y(), width(), height(),
+			      0, glx_vi->depth, InputOutput,
+			      glx_vi->visual,
+			      CWBackPixel|CWBorderPixel|CWColormap, &a );
+    create( w );
 }
 
 /*----------------------------------------------------------------------------
@@ -94,7 +105,7 @@ void GLWidget::initialize()
 	fatal( "GLWidget::initialize: Cannot create a GLX context" );
     glx_cmap = XCreateColormap( dpy, RootWindow(dpy,vi->screen),
 				vi->visual, AllocNone );
-
+    glx_vi = vi;
 }
 
 
