@@ -218,7 +218,7 @@ fi
 
 if [ "${platform}" = "x11" ]; then
   cd ${DISTDIR}/qt
-  rm bin/*.bat
+  rm -f bin/*.bat
   find . -name 'qtwin.*' | xargs rm -vf
   echo 'Building top-level make files...' >&2
 
