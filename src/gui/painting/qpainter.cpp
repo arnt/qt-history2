@@ -3509,6 +3509,12 @@ void qt_format_text(const QFont& font, const QRect &_r,
 // #define QT_GRAD_NO_POLY
 // #define QT_GRAD_NO_LINE
 
+#if !defined Q_WS_WIN
+#define qt_gradient_fill_color(c) c
+#else
+#define qt_gradient_fill_color(c)  QColor(c.red(), c.green(), c.blue())
+#endif
+
 void qt_fill_linear_gradient(const QRect &rect, QPainter *p, const QBrush &brush)
 {
     Q_ASSERT(brush.style() == Qt::LinearGradientPattern);
@@ -3571,7 +3577,7 @@ void qt_fill_linear_gradient(const QRect &rect, QPainter *p, const QBrush &brush
 		 << QPoint(xbot1+1, rh);
         if (xbot1 > 0)
             leftFill << QPoint(0, rh);
-        p->setBrush(gcol1);
+        p->setBrush(qt_gradient_fill_color(gcol1));
         p->drawPolygon(leftFill);
 
         // Fill the area to the right of the gradient
@@ -3582,7 +3588,7 @@ void qt_fill_linear_gradient(const QRect &rect, QPainter *p, const QBrush &brush
 	if (xbot2 < rw)
 	    rightFill << QPoint(rw, rh);
 	rightFill << QPoint(xbot2-1, rh);
-        p->setBrush(gcol2);
+        p->setBrush(qt_gradient_fill_color(gcol2));
         p->drawPolygon(rightFill);
 #endif // QT_GRAD_NO_POLY
 
@@ -3638,7 +3644,7 @@ void qt_fill_linear_gradient(const QRect &rect, QPainter *p, const QBrush &brush
 	if (yright1 > 0)
 	    topFill << QPoint(rw, 0);
 	topFill << QPoint(rw, yright1+1);
-        p->setBrush(gcol1);
+        p->setBrush(qt_gradient_fill_color(gcol1));
         p->drawPolygon(topFill);
 
         QPointArray bottomFill;
@@ -3648,7 +3654,7 @@ void qt_fill_linear_gradient(const QRect &rect, QPainter *p, const QBrush &brush
 	if (yright2 < rh)
 	    bottomFill << QPoint(rw, rh);
 	bottomFill << QPoint(rw, yright2-1);
-        p->setBrush(gcol2);
+        p->setBrush(qt_gradient_fill_color(gcol2));
         p->drawPolygon(bottomFill);
 #endif // QT_GRAD_NO_POLY
 
