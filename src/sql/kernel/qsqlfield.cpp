@@ -21,7 +21,7 @@ public:
     QSqlFieldPrivate(const QString &name,
               QCoreVariant::Type type) :
         nm(name), ro(false), type(type), req(QSqlField::Unknown),
-        len(-1), prec(-1), tp(-1), gen(QSqlField::Unknown)
+        len(-1), prec(-1), tp(-1), gen(false)
     {
         ref = 1;
     }
