@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#82 $
 **
 ** Implementation of QAccel class
 **
@@ -665,11 +665,15 @@ QString QAccel::whatsThis( int id ) const
     return item? item->whatsthis : QString::null;
 }
 
+/*!\internal
+ */
 void QAccel::setIgnoreWhatsThis( bool b)
 {
     d->ignorewhatsthis = b;
 }
 
+/*!\internal
+ */
 bool QAccel::ignoreWhatsThis() const
 {
     return d->ignorewhatsthis;
