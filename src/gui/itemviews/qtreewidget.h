@@ -133,6 +133,7 @@ class Q_GUI_EXPORT QTreeWidget : public QTreeView
 
 public:
     QTreeWidget(QWidget *parent = 0);
+    ~QTreeWidget();
 
     int columnCount() const;
     void setColumnCount(int columns);

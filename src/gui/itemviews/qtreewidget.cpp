@@ -1202,6 +1202,14 @@ QTreeWidget::QTreeWidget(QWidget *parent)
 }
 
 /*!
+    Destroys the tree widget and all its items.
+*/
+
+QTreeWidget::~QTreeWidget()
+{
+}
+
+/*!
   Retuns the number of header columns in the view.
 */
 

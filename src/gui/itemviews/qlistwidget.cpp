@@ -264,7 +264,7 @@ QListWidgetItem::~QListWidgetItem()
 
 /*!
   This function sets \a value for a given \a role (see
-  {QAbstractItemModel::Role}). Reimplemnt this function if you need
+  {QAbstractItemModel::Role}). Reimplement this function if you need
   extra roles or special behavior for certain roles.
 */
 void QListWidgetItem::setData(int role, const QVariant &value)
