@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QTOOLBAR_H
-#define QTOOLBAR_H
+#ifndef Q3TOOLBAR_H
+#define Q3TOOLBAR_H
 
 #ifndef QT_H
 #include "q3dockwindow.h"
@@ -87,4 +87,4 @@ private:        // Disabled copy constructor and operator=
 
 #endif // QT_NO_TOOLBAR
 
-#endif // QTOOLBAR_H
+#endif // Q3TOOLBAR_H
