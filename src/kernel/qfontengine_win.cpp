@@ -34,9 +34,10 @@
 
 // defined in qtextengine_win.cpp
 typedef void *SCRIPT_CACHE;
+#if 0 // ##### Uniscribe is disabled for now
 typedef HRESULT (WINAPI *fScriptFreeCache)( SCRIPT_CACHE *);
 extern fScriptFreeCache ScriptFreeCache;
-
+#endif
 
 static unsigned char *getCMap( HDC hdc, bool & );
 static Q_UINT16 getGlyphIndex( unsigned char *table, unsigned short unicode );
@@ -81,9 +82,11 @@ QFontEngine::~QFontEngine()
     } );
     delete [] cmap;
 
+#if 0
     // for Uniscribe
     if ( ScriptFreeCache )
 	ScriptFreeCache( &script_cache );
+#endif
 }
 
 // ##### get these from windows
