@@ -486,14 +486,6 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 #endif
 
 //
-// Avoid dead code
-//
-
-#if defined(_CC_EDG_) || defined(_CC_WAT_)
-#  define Q_NO_DEAD_CODE
-#endif
-
-//
 // Use to avoid "unused parameter" warnings
 //
 
