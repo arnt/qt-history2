@@ -1816,7 +1816,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
                 }
                 QWidget *fw = qApp->focusWidget();
                 if (fw) {
-                    QPoint pos = fw->inputMethodQuery(Qt::ImMicroFocus).center();
+                    QPoint pos = fw->inputMethodQuery(Qt::ImMicroFocus).toRect().center();
                     QContextMenuEvent e(QContextMenuEvent::Keyboard, pos, fw->mapToGlobal(pos));
                     result = qt_sendSpontaneousEvent(fw, &e);
                 }

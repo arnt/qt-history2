@@ -493,7 +493,7 @@ bool QInputContext::startComposition()
 
     QWidget *fw = qApp->focusWidget();
     if (fw) {
-        QInputMethodEvent e(QEvent::IMStart, QString::null, -1);
+        QInputMethodEvent e(QEvent::InputMethodStart, QString::null, -1);
         result = qt_sendSpontaneousEvent(fw, &e);
         imePosition = 0;
     }
