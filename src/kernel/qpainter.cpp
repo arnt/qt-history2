@@ -2552,8 +2552,7 @@ void QPainter::eraseRect( int x, int y, int w, int h )
 
 /*!
     \fn void QPainter::drawText( int x, int y, int w, int h, int flags,
-			         const QString&, int len = -1, QRect *br=0,
-			         QTextParag **internal=0 )
+			         const QString&, int len = -1, QRect *br=0 )
 
     \overload
 
@@ -2668,8 +2667,7 @@ void QPainter::fix_neg_rect( int *x, int *y, int *w, int *h )
 */
 
 void QPainter::drawText( const QRect &r, int tf,
-			 const QString& str, int len, QRect *brect,
-			 QTextParag **internal )
+			 const QString& str, int len, QRect *brect )
 {
     if ( !isActive() )
 	return;
@@ -2712,7 +2710,7 @@ void QPainter::drawText( const QRect &r, int tf,
     }
 
     qt_format_text(font(), r, tf, str, len, brect,
-		   tabstops, tabarray, tabarraylen, internal, this);
+		   tabstops, tabarray, tabarraylen, this);
 }
 
 //#define QT_FORMAT_TEXT_DEBUG
@@ -2722,7 +2720,7 @@ void QPainter::drawText( const QRect &r, int tf,
 void qt_format_text( const QFont& font, const QRect &_r,
 		     int tf, const QString& str, int len, QRect *brect,
 		     int tabstops, int* tabarray, int tabarraylen,
-		     QTextParag **, QPainter* painter )
+		     QPainter* painter )
 {
     // we need to copy r here to protect against the case (&r == brect).
     QRect r( _r );
@@ -2984,18 +2982,18 @@ void qt_format_text( const QFont& font, const QRect &_r,
 */
 
 QRect QPainter::boundingRect( const QRect &r, int flags,
-			      const QString& str, int len, QTextParag **internal )
+			      const QString& str, int len )
 {
     QRect brect;
     if ( str.isEmpty() )
 	brect.setRect( r.x(),r.y(), 0,0 );
     else
-	drawText( r, flags | DontPrint, str, len, &brect, internal );
+	drawText( r, flags | DontPrint, str, len, &brect );
     return brect;
 }
 
 /*!
-    \fn QRect QPainter::boundingRect( int x, int y, int w, int h, int flags, const QString&, int len = -1, QTextParag **intern=0 );
+    \fn QRect QPainter::boundingRect( int x, int y, int w, int h, int flags, const QString&, int len = -1 );
 
     Returns the bounding rectangle of the aligned text that would be
     printed with the corresponding drawText() function using the first

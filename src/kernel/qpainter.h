@@ -32,7 +32,6 @@
 
 class QGfx;
 class QTextCodec;
-class QTextParag;
 class QPaintDevice;
 class QTextItem;
 #if defined( Q_WS_MAC )
@@ -241,19 +240,17 @@ public:
     void     drawText( const QPoint &p, const QString &, int pos, int len, TextDirection dir = Auto );
 
     void	drawText( int x, int y, int w, int h, int flags,
-			  const QString&, int len = -1, QRect *br=0,
-			  QTextParag **intern=0 );
+			  const QString&, int len = -1, QRect *br=0);
     void	drawText( const QRect &, int flags,
-			  const QString&, int len = -1, QRect *br=0,
-			  QTextParag **intern=0 );
+			  const QString&, int len = -1, QRect *br=0);
 
     void drawTextItem( int x, int y, const QTextItem &ti, int textflags = 0 );
     void drawTextItem( const QPoint& p, const QTextItem &ti, int textflags = 0 );
 
     QRect	boundingRect( int x, int y, int w, int h, int flags,
-			      const QString&, int len = -1, QTextParag **intern=0 );
+			      const QString&, int len = -1);
     QRect	boundingRect( const QRect &, int flags,
-			      const QString&, int len = -1, QTextParag **intern=0 );
+			      const QString&, int len = -1);
 
     int		tabStops() const;
     void	setTabStops( int );
@@ -403,7 +400,7 @@ protected:
     friend void qt_format_text( const QFont &, const QRect &r,
 		     int tf, const QString& str, int len, QRect *brect,
 		     int tabstops, int* tabarray, int tabarraylen,
-		     QTextParag **internal, QPainter* painter );
+		     QPainter* painter );
     friend void qt_draw_background( QPainter *p, int x, int y, int w,  int h );
     friend void qt_draw_transformed_rect( QPainter *p,  int x, int y, int w,  int h, bool fill );
     friend class QPrinter;
@@ -688,10 +685,10 @@ inline void QPainter::drawText( const QPoint &p, const QString &s, int pos, int 
 }
 
 inline void QPainter::drawText( int x, int y, int w, int h, int tf,
-				const QString& str, int len, QRect *br, QTextParag **i )
+				const QString& str, int len, QRect *br )
 {
     QRect r(x, y, w, h);
-    drawText( r, tf, str, len, br, i );
+    drawText( r, tf, str, len, br );
 }
 
 inline void QPainter::drawTextItem( const QPoint& p, const QTextItem &ti, int textflags )
@@ -700,10 +697,10 @@ inline void QPainter::drawTextItem( const QPoint& p, const QTextItem &ti, int te
 }
 
 inline QRect QPainter::boundingRect( int x, int y, int w, int h, int tf,
-				     const QString& str, int len, QTextParag **i )
+				     const QString& str, int len )
 {
     QRect r(x, y, w, h);
-    return boundingRect( r, tf, str, len, i );
+    return boundingRect( r, tf, str, len );
 }
 
 #if defined(Q_WS_QWS)
