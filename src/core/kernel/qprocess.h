@@ -1,4 +1,3 @@
-//depot/qt/main/src/core/kernel/qprocess.h#9 - edit change 149107 (text)
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
