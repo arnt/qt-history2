@@ -266,7 +266,7 @@ public:
                 }
 
                 argv[0] = 0;
-                argv_pointer[0];
+                argv_pointer[0] = 0;
             }
 
             int p;
@@ -302,7 +302,7 @@ public:
                     bool out;
                     QByteArray ptype = meta->paramType(signame, p, &out);
                     if (out) {
-                        if (!QVariantToVARIANT(varp[p], pDispParams->rgvarg[pcount - p - 1], ptype, out))
+                        if (!QVariantToVARIANT(varp[p + 1], pDispParams->rgvarg[pcount - p - 1], ptype, out))
                             ok = false;
                     }
                 }
