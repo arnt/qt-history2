@@ -343,6 +343,7 @@ static const struct QTextHtmlElement
     { "i", Html_i, QTextHtmlElement::DisplayInline },
     { "img", Html_img, QTextHtmlElement::DisplayInline },
     { "li", Html_li, QTextHtmlElement::DisplayBlock },
+    { "meta", Html_meta, QTextHtmlElement::DisplayNone },
     { "nobr", Html_nobr, QTextHtmlElement::DisplayInline },
     { "ol", Html_ol, QTextHtmlElement::DisplayBlock },
     { "p", Html_p, QTextHtmlElement::DisplayBlock },
@@ -1112,6 +1113,9 @@ static QTextHtmlParserNode::WhiteSpaceMode stringToWhiteSpaceMode(const QString 
 
 void QTextHtmlParser::parseAttributes()
 {
+    // local state variable for qt3 whitespace mode
+    bool seenQt3Richtext = false;
+
     QTextHtmlParserNode *node = &nodes.last();
     while (pos < len) {
         eatSpace();
@@ -1199,6 +1203,18 @@ void QTextHtmlParser::parseAttributes()
                 setIntAttribute(&node->tableCellPadding, value);
             } else if (key == QLatin1String("width")) {
                 setWidthAttribute(&node->width, value);
+            }
+        } else if (node->id == Html_meta) {
+            if (key == QLatin1String("name")
+                && value == QLatin1String("qrichtext")) {
+                seenQt3Richtext = true;
+            }
+
+            if (key == QLatin1String("content")
+                && value == QLatin1String("1")
+                && seenQt3Richtext) {
+
+                enableQt3WhitespacePreservationMode();
             }
         }
 
@@ -1315,5 +1331,13 @@ void QTextHtmlParser::parseAttributes()
                 node->alignment = Qt::AlignJustify;
         }
     }
+}
+
+void QTextHtmlParser::enableQt3WhitespacePreservationMode()
+{
+    // ensure we use whitespace preservation mode all over the place,
+    // including for future nodes
+    for (int i = 0; i < nodes.count(); ++i)
+        nodes[i].wsm = QTextHtmlParserNode::WhiteSpacePreWrap;
 }
 

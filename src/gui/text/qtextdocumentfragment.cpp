@@ -809,6 +809,9 @@ QTextDocumentFragment QTextDocumentFragment::fromHtml(const QString &_html)
         else
             html = html.mid(startFragmentPos);
 
+        html.prepend(QLatin1String("<span style=\"white-space: pre-wrap;\">"));
+        html.append(QLatin1String("</span>"));
+
         res.d->containsCompleteDocument = false;
     } else {
         res.d->containsCompleteDocument = true;

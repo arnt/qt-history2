@@ -93,6 +93,7 @@ enum QTextHTMLElements {
     // misc...
     Html_style,
     Html_title,
+    Html_meta,
 
     Html_NumElements
 };
@@ -248,6 +249,7 @@ public:
     static int lookupElement(const QString &element);
 protected:
     QTextHtmlParserNode *newNode(int parent);
+    void enableQt3WhitespacePreservationMode();
     QVector<QTextHtmlParserNode> nodes;
     QString txt;
     int pos, len;
