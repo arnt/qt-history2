@@ -2232,8 +2232,13 @@ QPopupMenu *MainWindow::setupTabWidgetHierarchyMenu( QWidget *parent, const char
 void MainWindow::closeEvent( QCloseEvent *e )
 {
     QWidgetList windows = qWorkspace()->windowList();
-    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+    QWidgetListIt wit( windows );
+    while ( wit.current() ) {
+	QWidget *w = wit.current();
+	++wit;
 	if ( w->inherits( "FormWindow" ) ) {
+	    if ( ( (FormWindow*)w )->formFile()->editor() )
+		windows.removeRef( ( (FormWindow*)w )->formFile()->editor() );
 	    if ( !( (FormWindow*)w )->formFile()->close() ) {
 		e->ignore();
 		return;

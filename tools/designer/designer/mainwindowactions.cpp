@@ -1023,9 +1023,14 @@ void MainWindow::fileCloseProject()
 
 	QWidgetList windows = qWorkspace()->windowList();
 	qWorkspace()->blockSignals( TRUE );
-	for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+	QWidgetListIt wit( windows );
+	while ( wit.current() ) {
+	    QWidget *w = wit.current();
+	    ++wit;
 	    if ( w->inherits( "FormWindow" ) ) {
 		if ( ( (FormWindow*)w )->project() == pro ) {
+		    if ( ( (FormWindow*)w )->formFile()->editor() )
+			windows.removeRef( ( (FormWindow*)w )->formFile()->editor() );
 		    if ( !( (FormWindow*)w )->formFile()->close() )
 			return;
 		}
