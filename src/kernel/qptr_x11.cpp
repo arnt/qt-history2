@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#240 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#241 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#240 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#241 $");
 
 
 /*****************************************************************************
@@ -2135,6 +2135,9 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     }
     if ( sh + sy > pixmap.height() )
 	sh = pixmap.height() - sy;
+    
+    if ( sw <= 0 || sh <= 0 )
+	return;
 
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) || txop == TxScale || txop == TxRotShear ) {
