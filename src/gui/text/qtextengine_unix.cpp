@@ -40,7 +40,7 @@ void QTextEngine::shapeText(int item) const
     shaper_item.from = si.position;
     shaper_item.length = length(item);
     shaper_item.font = font;
-    shaper_item.num_glyphs = qMax(layoutData->num_glyphs - layoutData->used, shaper_item.length);
+    shaper_item.num_glyphs = qMax(int(layoutData->num_glyphs - layoutData->used), shaper_item.length);
     shaper_item.flags = si.analysis.bidiLevel % 2 ? RightToLeft : 0;
     if (option.usesDesignMetrics())
         shaper_item.flags |= DesignMetrics;
