@@ -60,8 +60,10 @@ public:
     inline const T * constData() const { return ptr; }
 
 private:
-    // disallow construction on the heap.
+    // disallow construction on the heap and copying
     void *operator new(size_t sz);
+    QStackArray(const QStackArray &);
+    QStackArray &operator =(const QStackArray &);
     void realloc(int size, int alloc);
     int a;
     int s;
