@@ -80,7 +80,7 @@ protected:
     bool fetchLast();
 
     int colCount() const;
-ValueCache &cache();
+    ValueCache &cache();
 
 private:
     bool cacheNext();
