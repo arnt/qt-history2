@@ -106,10 +106,13 @@ public:
     QString shortTitle() const
     { return "License information"; }
 
-#if defined(EVAL) || defined(EDU)
+#if defined(EVAL)
     QLineEdit* evalName;
     QLineEdit* evalCompany;
-    QLineEdit* evalSerialNumber;
+    QLineEdit* serialNumber;
+#elif defined(EDU)
+    QLineEdit* university;
+    QLineEdit* serialNumber;
 #endif
 };
 

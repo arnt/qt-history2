@@ -1263,22 +1263,42 @@ void SetupWizardImpl::showPageProgress()
 		copySuccessful = FALSE;
 		QMessageBox::critical( this,
 			tr( "Error patching Qt library" ),
+#    if defined(EVAL)
 			tr( "Could not patch the Qt library with the evaluation\n"
-			    "license information - no Qt DLL was found." ) );
+			    "license information - no Qt DLL was found." )
+#    else
+			tr( "Could not patch the Qt library with the educational\n"
+			    "edition license information - no Qt DLL was found." )
+#    endif
+			);
 	    }
 	    for ( it=qtDlls.begin(); it!=qtDlls.end(); ++it ) {
 		logFiles( tr("Patching the Qt library %1.").arg(*it) );
 		int ret = trDoIt( lib.absFilePath(*it),
+#    if defined(EVAL)
 			licensePage->evalName->text().latin1(),
 			licensePage->evalCompany->text().latin1(),
-			licensePage->evalSerialNumber->text().latin1() );
+			licensePage->serialNumber->text().latin1()
+#    else
+			"",
+			licensePage->university->text().latin1(),
+			licensePage->serialNumber->text().latin1()
+#    endif
+			);
 		if ( ret != 0 ) {
 		    copySuccessful = FALSE;
 		    QMessageBox::critical( this,
 			    tr( "Error patching Qt library" ),
+#    if defined(EVAL)
 			    tr( "Could not patch the Qt library with the evaluation\n"
 				"license information. You will not be able to execute\n"
-				"any program linked against %1." ).arg( *it ) );
+				"any program linked against %1." ).arg( *it )
+#    else
+			    tr( "Could not patch the Qt library with the educational\n"
+				"edition license information. You will not be able to\n"
+				"execute any program linked against %1." ).arg( *it )
+#    endif
+			    );
 		}
 	    }
 #  endif
@@ -1599,9 +1619,17 @@ void SetupWizardImpl::configPageChanged()
 void SetupWizardImpl::licenseChanged()
 {
 #if defined(EVAL) || defined(EDU)
-    int ret = trCheckIt( licensePage->evalName->text().latin1(),
+    int ret = trCheckIt(
+#  if defined(EVAL)
+	    licensePage->evalName->text().latin1(),
 	    licensePage->evalCompany->text().latin1(),
-	    licensePage->evalSerialNumber->text().latin1() );
+	    licensePage->serialNumber->text().latin1()
+#  else
+	    "",
+	    licensePage->university->text().latin1(),
+	    licensePage->serialNumber->text().latin1()
+#  endif
+	    );
 
     if ( ret == 0 )
 	setNextEnabled( licensePage, TRUE );
@@ -1830,8 +1858,10 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 void SetupWizardImpl::setInstallStep( int step )
 {
     QString captionTxt;
-#if defined(EVAL) || defined(EDU)
+#if defined(EVAL)
     captionTxt = tr("Qt Evaluation Version Installation Wizard");
+#elif defined(EDU)
+    captionTxt = tr("Qt Educational Edition Installation Wizard");
 #else
     if( globalInformation.reconfig() )
 	captionTxt = tr("Qt Configuration Wizard");

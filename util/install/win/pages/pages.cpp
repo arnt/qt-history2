@@ -80,7 +80,7 @@ LicensePageImpl::LicensePageImpl( QWidget* parent, const char* name, WFlags fl )
     : LicensePage( parent, name, fl )
 {
     customerID->setFocus();
-#if defined(EVAL) || defined(EDU)
+#if defined(EVAL)
     // ### improve text
     licenseInfoHeader->setText( tr("Thank you for your interest in Qt.\n"
 		"Please enter the license information you got for this evaluation version of Qt.") );
@@ -90,8 +90,25 @@ LicensePageImpl::LicensePageImpl( QWidget* parent, const char* name, WFlags fl )
     licenseeLabel->setText( tr("Serial number") );
     evalName = customerID;
     evalCompany = licenseID;
-    evalSerialNumber = licenseeName;
+    serialNumber = licenseeName;
 
+    expiryLabel->hide();
+    expiryDate->hide();
+    productsLabel->hide();
+    productsString->hide();
+    keyLabel->hide();
+    key->hide();
+    readLicenseButton->hide();
+#elif defined(EDU)
+    licenseInfoHeader->setText( tr("Please enter the license information for the educational edition of Qt.") );
+
+    customerIDLabel->setText( tr("University") );
+    licenseeLabel->setText( tr("Serial number") );
+    university = customerID;
+    serialNumber = licenseeName;
+
+    licenseIDLabel->hide();
+    licenseID->hide();
     expiryLabel->hide();
     expiryDate->hide();
     productsLabel->hide();
