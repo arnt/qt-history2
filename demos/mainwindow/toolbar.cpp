@@ -62,6 +62,7 @@ ToolBar::ToolBar(QMainWindow *parent)
     menu->addAction(genIcon("1.1", Qt::yellow), "One One");
     menu->addAction(genIcon("1.2", Qt::yellow), "One Two");
     menu->addAction(genIcon("1.3", Qt::yellow), "One Three");
+    addAction(menu->menuAction());
 
     QAction *two = addAction(genIcon(2, QColor(0, 0, 160)), "Two");
     QFont boldFont;
