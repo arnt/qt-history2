@@ -48,7 +48,7 @@ Page custom SetEnvPage SetEnvVariables
 !insertmacro MUI_PAGE_INSTFILES
 
 ; Finish page
-!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\README"
+!define MUI_FINISHPAGE_SHOWREADME "%PACKAGEDIR%\README"
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
