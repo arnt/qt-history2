@@ -247,14 +247,16 @@ void WidgetDatabase::setupDataBase()
     r->name = "QDateEdit";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Date Edit";
+    r->includeFile = "qdatetimeedit.h";
 
     append( r );
 
-        r = new WidgetDatabaseRecord;
+    r = new WidgetDatabaseRecord;
     r->iconSet = "lineedit.xpm";
     r->name = "QTimeEdit";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Time Edit";
+    r->includeFile = "qdatetimeedit.h";
 
     append( r );
 
@@ -263,6 +265,7 @@ void WidgetDatabase::setupDataBase()
     r->name = "QDateTimeEdit";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Date-Time Edit";
+    r->includeFile = "qdatetimeedit.h";
 
     append( r );
 
