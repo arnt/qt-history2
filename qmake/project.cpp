@@ -539,6 +539,8 @@ QMakeProject::read(uchar cmd)
 	    }
 
 	    /* parse qmake configuration */
+	    while(Option::mkfile::qmakespec.endsWith(QString(QChar(QDir::separator()))))
+		Option::mkfile::qmakespec.truncate(Option::mkfile::qmakespec.length()-1);
 	    QString spec = Option::mkfile::qmakespec + QDir::separator() + "qmake.conf";
 	    debug_msg(1, "QMAKESPEC conf: reading %s", spec.latin1());
 	    if(!read(spec, base_vars)) {
