@@ -2184,9 +2184,7 @@ int QGLWidget::displayListBase(const QFont & fnt, int listBase)
 void QGLWidget::renderText(int x, int y, const QString & str, const QFont & fnt, int listBase)
 {
     makeCurrent();
-
-    // save GL state
-    glPushAttrib(GL_TRANSFORM_BIT | GL_VIEWPORT_BIT | GL_LIST_BIT | GL_COLOR_BUFFER_BIT);
+    glPushAttrib(GL_TRANSFORM_BIT | GL_VIEWPORT_BIT | GL_LIST_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT);
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
@@ -2197,11 +2195,11 @@ void QGLWidget::renderText(int x, int y, const QString & str, const QFont & fnt,
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
-    glRasterPos2i(x, y);
-    glListBase(displayListBase(fnt, listBase));
+    glRasterPos2i(0, 0);
+    glBitmap(0, 0, 0, 0, x, -y, NULL);
+    glListBase(displayListBase( fnt, listBase ));
     glCallLists(str.length(), GL_UNSIGNED_BYTE, str.local8Bit());
 
-    // restore the matrix stacks and GL state
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
@@ -2219,8 +2217,8 @@ void QGLWidget::renderText(double x, double y, double z, const QString & str, co
                             int listBase)
 {
     makeCurrent();
+    glPushAttrib(GL_LIST_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT);
     glRasterPos3d(x, y, z);
-    glPushAttrib(GL_LIST_BIT | GL_COLOR_BUFFER_BIT);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glListBase(displayListBase(fnt, listBase));
