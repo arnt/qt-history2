@@ -766,7 +766,7 @@ do
     rpath)
 	R_FLAGS="$R_FLAGS \$\${QMAKE_RPATH}${VAL}"
 	;;
-    -link)
+    link)
 	l_FLAGS="$l_FLAGS -l${VAL}"
 	;;
     *)
