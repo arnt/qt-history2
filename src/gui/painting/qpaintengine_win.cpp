@@ -1612,20 +1612,25 @@ typedef int (__stdcall *PtrGdipSetTransform) (QtGpGraphics *, QtGpMatrix *);
 typedef int (__stdcall *PtrGdipSetClipRegion) (QtGpGraphics *, QtGpRegion *, int);
 typedef int (__stdcall *PtrGdipResetClip) (QtGpGraphics *);
 typedef int (__stdcall *PtrGdipSetSmoothingMode)(QtGpGraphics *, int);
-typedef int (__stdcall *PtrGdipFillEllipseI) (QtGpGraphics *, QtGpBrush *, int x, int y, int w, int h);
-typedef int (__stdcall *PtrGdipFillRectangleI) (QtGpGraphics *, QtGpBrush *, int x, int y, int w, int h);
+typedef int (__stdcall *PtrGdipFillEllipse) (QtGpGraphics *, QtGpBrush *,
+                                             float x, float y, float w, float h);
+typedef int (__stdcall *PtrGdipFillRectangle) (QtGpGraphics *, QtGpBrush *,
+                                               float x, float y, float w, float h);
 typedef int (__stdcall *PtrGdipFillPath) (QtGpGraphics *, QtGpBrush *, QtGpPath *);
-typedef int (__stdcall *PtrGdipFillPolygonI) (QtGpGraphics *, QtGpBrush *, const QPoint *, int, int);
-typedef int (__stdcall *PtrGdipDrawRectangleI) (QtGpGraphics *, QtGpPen *, int x, int y, int w, int h);
-typedef int (__stdcall *PtrGdipDrawEllipseI) (QtGpGraphics *, QtGpPen *, int x, int y, int w, int h);
-typedef int (__stdcall *PtrGdipDrawImageRectRectI) (QtGpGraphics *, QtGpImage *,
-                                                    int x, int y, int w, int h,
-                                                    int sx, int sy, int sw, int sh,
-                                                    int srcUnit, const void *attr, void *callback,
-                                                    void *callBackData);
-typedef int (__stdcall *PtrGdipDrawLineI) (QtGpGraphics *, QtGpPen *, int x1, int y1, int x2, int y2);
+typedef int (__stdcall *PtrGdipFillPolygon) (QtGpGraphics *, QtGpBrush *, const QPointF *, int, int);
+typedef int (__stdcall *PtrGdipDrawRectangle) (QtGpGraphics *, QtGpPen *,
+                                               float x, float y, float w, float h);
+typedef int (__stdcall *PtrGdipDrawEllipse) (QtGpGraphics *, QtGpPen *,
+                                             float x, float y, float w, float h);
+typedef int (__stdcall *PtrGdipDrawImageRectRect) (QtGpGraphics *, QtGpImage *,
+                                                   float x, float y, float w, float h,
+                                                   float sx, float sy, float sw, float sh,
+                                                   int srcUnit, const void *attr, void *callback,
+                                                   void *callBackData);
+typedef int (__stdcall *PtrGdipDrawLine) (QtGpGraphics *, QtGpPen *,
+                                          float x1, float y1, float x2, float y2);
 typedef int (__stdcall *PtrGdipDrawPath) (QtGpGraphics *, QtGpPen *, QtGpPath *);
-typedef int (__stdcall *PtrGdipDrawPolygonI) (QtGpGraphics *, QtGpPen *, const QPoint *, int);
+typedef int (__stdcall *PtrGdipDrawPolygon) (QtGpGraphics *, QtGpPen *, const QPointF *, int);
 
 typedef int (__stdcall *PtrGdipCreateMatrix2) (float, float, float, float, float, float, QtGpMatrix **);
 typedef int (__stdcall *PtrGdipDeleteMatrix) (QtGpMatrix *);
@@ -1646,8 +1651,10 @@ typedef int (__stdcall *PtrGdipSetPenDashStyle) (QtGpPen *, int dashStyle);
 
 typedef int (__stdcall *PtrGdipCreatePath) (int fillMode, QtGpPath **path);
 typedef int (__stdcall *PtrGdipDeletePath) (QtGpPath *path);
-typedef int (__stdcall *PtrGdipAddPathLine) (QtGpPath *path, float x1, float y1, float x2, float y2);
-typedef int (__stdcall *PtrGdipAddPathArc) (QtGpPath *path, float x, float y, float w, float h,
+typedef int (__stdcall *PtrGdipAddPathLine) (QtGpPath *path,
+                                             float x1, float y1, float x2, float y2);
+typedef int (__stdcall *PtrGdipAddPathArc) (QtGpPath *path,
+                                            float x, float y, float w, float h,
                                             float startAngle, float sweepAngle);
 typedef int (__stdcall *PtrGdipAddPathBezier)(QtGpPath *path,
                                               float, float, float, float,
@@ -1672,22 +1679,22 @@ static PtrGdipCreateFromHDC GdipCreateFromHDC = 0;           // Graphics::Graphi
 static PtrGdipDeleteGraphics GdipDeleteGraphics = 0;         // Graphics::~Graphics()
 static PtrGdipGetDC GdipGetDC = 0;                           // Graphics::GetDC(hdc)
 static PtrGdipReleaseDC GdipReleaseDC = 0;                   // Graphics::ReleaseDC()
-static PtrGdipDrawEllipseI GdipDrawEllipseI = 0;             // Graphics::DrawEllipse(pen, x, y, w, h)
-static PtrGdipDrawLineI GdipDrawLineI = 0;                   // Graphics::DrawLine(pen, x1, y1, x2, y2)
+static PtrGdipDrawEllipse GdipDrawEllipse = 0;               // Graphics::DrawEllipse(pen, x, y, w, h)
+static PtrGdipDrawLine GdipDrawLine = 0;                     // Graphics::DrawLine(pen, x1, y1, x2, y2)
 static PtrGdipDrawPath GdipDrawPath = 0;                     // Graphics::DrawPath(pen, path);
-static PtrGdipDrawPolygonI GdipDrawPolygonI = 0;
-static PtrGdipDrawRectangleI GdipDrawRectangleI = 0;         // Graphics::DrawRectangle(brush,x,y,w,h)
-static PtrGdipDrawImageRectRectI GdipDrawImageRectRectI = 0; // Graphics::DrawImage(image, r, sr);
-static PtrGdipFillEllipseI GdipFillEllipseI = 0;             // Graphics::FillEllipse(brush, x, y, w, h)
+static PtrGdipDrawPolygon GdipDrawPolygon = 0;
+static PtrGdipDrawRectangle GdipDrawRectangle = 0;           // Graphics::DrawRectangle(brush,x,y,w,h)
+static PtrGdipDrawImageRectRect GdipDrawImageRectRect = 0;   // Graphics::DrawImage(image, r, sr);
+static PtrGdipFillEllipse GdipFillEllipse = 0;               // Graphics::FillEllipse(brush, x, y, w, h)
 static PtrGdipFillPath GdipFillPath = 0;                     // Graphics::FillPath(brush, path)
-static PtrGdipFillPolygonI GdipFillPolygonI = 0;
-static PtrGdipFillRectangleI GdipFillRectangleI = 0;         // Graphics::FillRectangle(brush,x,y,w,h)
+static PtrGdipFillPolygon GdipFillPolygon = 0;
+static PtrGdipFillRectangle GdipFillRectangle = 0;           // Graphics::FillRectangle(brush,x,y,w,h)
 static PtrGdipResetClip GdipResetClip = 0;                   // Graphics::ResetClip()
 static PtrGdipSetClipRegion GdipSetClipRegion = 0;           // Graphics::SetClipRegion(region)
 static PtrGdipSetSmoothingMode GdipSetSmoothingMode = 0;     // Graphics::SetSmoothingMode(mode)
 static PtrGdipSetTransform GdipSetTransform = 0;             // Graphics::SetTransform(matrix)
 
-static PtrGdipCreateMatrix2 GdipCreateMatrix2 = 0;             // Matrix::Matrix(a, b, c, d, dx, dy)
+static PtrGdipCreateMatrix2 GdipCreateMatrix2 = 0;           // Matrix::Matrix(a, b, c, d, dx, dy)
 static PtrGdipDeleteMatrix GdipDeleteMatrix = 0;             // Matrix::~Matrix()
 
 static PtrGdipCreateRegionHrgn GdipCreateRegionHrgn = 0;     // Region::Region(hRgn)
@@ -1750,16 +1757,16 @@ static void qt_resolve_gdiplus()
     GdipSetClipRegion            = (PtrGdipSetClipRegion)      lib.resolve("GdipSetClipRegion");
     GdipResetClip                = (PtrGdipResetClip)          lib.resolve("GdipResetClip");
     GdipSetSmoothingMode         = (PtrGdipSetSmoothingMode)   lib.resolve("GdipSetSmoothingMode");
-    GdipFillEllipseI             = (PtrGdipFillEllipseI)       lib.resolve("GdipFillEllipseI");
+    GdipFillEllipse              = (PtrGdipFillEllipse)        lib.resolve("GdipFillEllipse");
     GdipFillPath                 = (PtrGdipFillPath)           lib.resolve("GdipFillPath");
-    GdipFillPolygonI             = (PtrGdipFillPolygonI)       lib.resolve("GdipFillPolygonI");
-    GdipFillRectangleI           = (PtrGdipFillRectangleI)     lib.resolve("GdipFillRectangleI");
-    GdipDrawEllipseI             = (PtrGdipDrawEllipseI)       lib.resolve("GdipDrawEllipseI");
-    GdipDrawLineI                = (PtrGdipDrawLineI)          lib.resolve("GdipDrawLineI");
+    GdipFillPolygon              = (PtrGdipFillPolygon)        lib.resolve("GdipFillPolygon");
+    GdipFillRectangle            = (PtrGdipFillRectangle)      lib.resolve("GdipFillRectangle");
+    GdipDrawEllipse              = (PtrGdipDrawEllipse)        lib.resolve("GdipDrawEllipse");
+    GdipDrawLine                 = (PtrGdipDrawLine)           lib.resolve("GdipDrawLine");
     GdipDrawPath                 = (PtrGdipDrawPath)           lib.resolve("GdipDrawPath");
-    GdipDrawPolygonI             = (PtrGdipDrawPolygonI)       lib.resolve("GdipDrawPolygonI");
-    GdipDrawRectangleI           = (PtrGdipDrawRectangleI)     lib.resolve("GdipDrawRectangleI");
-    GdipDrawImageRectRectI       = (PtrGdipDrawImageRectRectI) lib.resolve("GdipDrawImageRectRectI");
+    GdipDrawPolygon              = (PtrGdipDrawPolygon)        lib.resolve("GdipDrawPolygon");
+    GdipDrawRectangle            = (PtrGdipDrawRectangle)      lib.resolve("GdipDrawRectangle");
+    GdipDrawImageRectRect        = (PtrGdipDrawImageRectRect)  lib.resolve("GdipDrawImageRectRect");
 
     // Matrix functions
     GdipCreateMatrix2            = (PtrGdipCreateMatrix2)      lib.resolve("GdipCreateMatrix2");
@@ -1812,16 +1819,16 @@ static void qt_resolve_gdiplus()
     Q_ASSERT(GdipSetClipRegion);
     Q_ASSERT(GdipResetClip);
     Q_ASSERT(GdipSetSmoothingMode);
-    Q_ASSERT(GdipFillEllipseI);
+    Q_ASSERT(GdipFillEllipse);
     Q_ASSERT(GdipFillPath);
-    Q_ASSERT(GdipFillPolygonI);
-    Q_ASSERT(GdipFillRectangleI);
-    Q_ASSERT(GdipDrawEllipseI);
-    Q_ASSERT(GdipDrawImageRectRectI);
-    Q_ASSERT(GdipDrawLineI);
+    Q_ASSERT(GdipFillPolygon);
+    Q_ASSERT(GdipFillRectangle);
+    Q_ASSERT(GdipDrawEllipse);
+    Q_ASSERT(GdipDrawImageRectRect);
+    Q_ASSERT(GdipDrawLine);
     Q_ASSERT(GdipDrawPath);
-    Q_ASSERT(GdipDrawPolygonI);
-    Q_ASSERT(GdipDrawRectangleI);
+    Q_ASSERT(GdipDrawPolygon) ;
+    Q_ASSERT(GdipDrawRectangle);
     Q_ASSERT(GdipCreateMatrix2);
     Q_ASSERT(GdipDeleteMatrix);
     Q_ASSERT(GdipCreateRegionHrgn);
@@ -2053,7 +2060,7 @@ void QGdiplusPaintEngine::drawLine(const QLineF &line)
 {
     if (d->usePen) {
 //         d->graphics->DrawLine(d->pen, p1.x(), p1.y(), p2.x(), p2.y());
-        GdipDrawLineI(d->graphics, d->pen, line.startX(), line.startY(), line.endX(), line.endY());
+        GdipDrawLine(d->graphics, d->pen, line.startX(), line.startY(), line.endX(), line.endY());
     }
 }
 
@@ -2065,19 +2072,19 @@ void QGdiplusPaintEngine::drawRect(const QRectF &r)
     if (d->brush) {
 //         d->graphics->FillRectangle(d->brush, r.x(), r.y(),
 //                                    r.width()-subtract, r.height()-subtract);
-        GdipFillRectangleI(d->graphics, d->brush, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
+        GdipFillRectangle(d->graphics, d->brush, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
     }
     if (d->usePen) {
 //         d->graphics->DrawRectangle(d->pen, r.x(), r.y(),
 //                                    r.width()-subtract, r.height()-subtract);
-        GdipDrawRectangleI(d->graphics, d->pen, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
+        GdipDrawRectangle(d->graphics, d->pen, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
     }
 }
 
 void QGdiplusPaintEngine::drawPoint(const QPointF &p)
 {
     if (d->usePen)
-        GdipDrawRectangleI(d->graphics, d->pen, p.x(), p.y(), 1, 1);
+        GdipDrawRectangle(d->graphics, d->pen, p.x(), p.y(), 1, 1);
 }
 
 void QGdiplusPaintEngine::drawEllipse(const QRectF &r)
@@ -2085,12 +2092,12 @@ void QGdiplusPaintEngine::drawEllipse(const QRectF &r)
     int subtract = QT_GDIPLUS_SUBTRACT;
     if (d->brush) {
 //         d->graphics->FillEllipse(d->brush, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
-        GdipFillEllipseI(d->graphics, d->brush, r.x(), r.y(),
+        GdipFillEllipse(d->graphics, d->brush, r.x(), r.y(),
                          r.width()-subtract, r.height()-subtract);
     }
     if (d->usePen) {
 //         d->graphics->DrawEllipse(d->pen, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
-        GdipDrawEllipseI(d->graphics, d->pen, r.x(), r.y(),
+        GdipDrawEllipse(d->graphics, d->pen, r.x(), r.y(),
                          r.width()-subtract, r.height()-subtract);
     }
 }
@@ -2121,14 +2128,14 @@ void QGdiplusPaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
     }
 
     if (d->brush) {
-        GdipFillPolygonI(d->graphics, d->brush, p.toPointArray().data(), p.size(),
+        GdipFillPolygon(d->graphics, d->brush, p.data(), p.size(),
                          mode == WindingMode
                          ? 1 // FillModeWinding
                          : 0 // FillModeAlternate
                          );
     }
     if (d->usePen)
-        GdipDrawPolygonI(d->graphics, d->pen, p.toPointArray().data(), p.size());
+        GdipDrawPolygon(d->graphics, d->pen, p.data(), p.size());
 }
 
 
@@ -2151,7 +2158,7 @@ void QGdiplusPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
 
     QImage backupPixels;
     QtGpBitmap *bitmap = qt_convert_to_gdipbitmap(&pm, &backupPixels);
-    GdipDrawImageRectRectI(d->graphics, bitmap,
+    GdipDrawImageRectRect(d->graphics, bitmap,
                            r.x(), r.y(), r.width(), r.height(),
                            sr.x(), sr.y(), sr.width(), sr.height(),
                            2, // UnitPixel
