@@ -1950,29 +1950,8 @@ void QObject::activate_signal( int signal )
     QConnectionList *clist = connections->at( signal );
     if ( !clist )
 	return;
-    QObject *object;
-    QConnection   *c;
     UObject o[1];
-    if ( clist->count() == 1 ) { // save iterator
-	c = clist->first();
-	object = c->object();
-	sigSender = this;
-	if ( c->memberType() == SIGNAL_CODE )
-	    object->qt_emit( c->member(), o );
-	else
-	    object->qt_invoke( c->member(), o );
-    } else {
-	QConnectionListIt it(*clist);
-	while ( (c=it.current()) ) {
-	    ++it;
-	    object = c->object();
-	    sigSender = this;
-	    if ( c->memberType() == SIGNAL_CODE )
-		object->qt_emit( c->member(), o );
-	    else
-		object->qt_invoke( c->member(), o );
-	}
-    }
+    activate_signal( clist, o );
 }
 
 /*! \internal */
@@ -2031,30 +2010,9 @@ void QObject::FNAME( int signal, TYPE param )				      \
     QConnectionList *clist = connections->at( signal );			      \
     if ( !clist )						      	      \
 	return;								      \
-    QConnection *c;							      \
-    QObject *object;							      \
     UObject o[2]; 							      \
     pUType_##TYPE->set( o+1, param );					      \
-    if ( clist->count() == 1 ) { 					      \
-	c = clist->first(); 						      \
-	object = c->object(); 						      \
-	sigSender = this;					      	      \
-	if ( c->memberType() == SIGNAL_CODE ) 				      \
-	    object->qt_emit( c->member(), o ); 				      \
-	else 								      \
-	    object->qt_invoke( c->member(), o );			      \
-    } else { 								      \
-        QConnectionListIt it(*clist);					      \
-        while ( (c=it.current()) ) {					      \
-   	    ++it;							      \
-	    object = c->object();					      \
-	    sigSender = this;						      \
-	    if ( c->memberType() == SIGNAL_CODE ) 			      \
-		object->qt_emit( c->member(), o ); 			      \
-	    else 							      \
-		object->qt_invoke( c->member(), o );		      	      \
-	}								      \
-    } 									      \
+    activate_signal( clist, o );					      \
 }
 
 // We don't want to duplicate too much text so...
