@@ -3,7 +3,7 @@ OBJS=project.o main.o makefile.o unixmake.o borland_bmake.o msvc_nmake.o msvc_ds
 vpath %.cpp generators/:generators/win32:generators/unix
 
 CFLAGS=-I. -Igenerators -Igenerators/unix -Igenerators/win32  -I$(QTDIR)/include -I$(QTDIR)/src/tools -g 
-LFLAGS=-L$(QTDIR) -lqt
+LFLAGS=-L$(QTDIR)/lib -lqt
 
 qmake: $(OBJS)
 	$(CXX) -o $@ $^ $(LFLAGS)
@@ -24,10 +24,8 @@ distclean:: clean
 
 %.d: %.cpp
 	@[ -d .deps/ ] || mkdir -p .deps/
-	@$(CXX) -M $(CFLAGS) $(<) -o .deps/$(@)
+	@$(CXX) -M $(CFLAGS) $(<) > .deps/$(@)
 
 %.d: %.c
 	@[ -d .deps/ ] || mkdir -p .deps/
-	@$(CC) -M $(CFLAGS) $(<) -o .deps/$(@)
-
-
+	@$(CC) -M $(CFLAGS) $(<) > .deps/$(@)
