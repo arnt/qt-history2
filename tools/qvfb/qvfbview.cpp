@@ -325,7 +325,7 @@ void QVFbView::sendMouseData( const QPoint &pos, int buttons )
     write( mouseFd, &buttons, sizeof( int ) );
 }
 
-void QVFbView::sendKeyboardData( int unicode, int keycode, int modifiers,
+void QVFbView::sendKeyboardData( int unicode, int keycode, Qt::KeyboardModifiers modifiers,
                                  bool press, bool repeat )
 {
     QVFbKeyData kd;
@@ -570,14 +570,14 @@ void QVFbView::mouseMoveEvent( QMouseEvent *e )
 void QVFbView::keyPressEvent( QKeyEvent *e )
 {
     sendKeyboardData(e->text()[0].unicode(), e->key(),
-                     e->state()&(Qt::ShiftButton|Qt::ControlButton|Qt::AltButton),
+                     e->modifiers() & (Qt::ShiftModifier|Qt::ControlModifier|Qt::AltModifier),
                      TRUE, e->isAutoRepeat());
 }
 
 void QVFbView::keyReleaseEvent( QKeyEvent *e )
 {
     sendKeyboardData(/*#### e->ascii()*/0, e->key(),
-                     e->state()&(Qt::ShiftButton|Qt::ControlButton|Qt::AltButton),
+                     e->modifiers() & (Qt::ShiftModifier|Qt::ControlModifier|Qt::AltModifier),
                      FALSE, e->isAutoRepeat());
 }
 

@@ -62,7 +62,7 @@ protected:
     QImage getBuffer( const QRect &r, int &leading ) const;
     void drawScreen();
     void sendMouseData( const QPoint &pos, int buttons );
-    void sendKeyboardData( int unicode, int keycode, int modifiers,
+    void sendKeyboardData( int unicode, int keycode, Qt::KeyboardModifiers modifiers,
 			   bool press, bool repeat );
     virtual void paintEvent( QPaintEvent *pe );
     virtual void mousePressEvent( QMouseEvent *e );
