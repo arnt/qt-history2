@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 2.4 1997/05/20 15:01:30 hanord Exp $
+** $Id: examples.doc,v 2.5 1997/05/20 15:23:32 hanord Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 2.4 1997/05/20 15:01:30 hanord Exp $";
+static char ident[] = "$Id: examples.doc,v 2.5 1997/05/20 15:23:32 hanord Exp $";
 #endif
 
 
@@ -18,14 +18,11 @@ static char ident[] = "$Id: examples.doc,v 2.4 1997/05/20 15:01:30 hanord Exp $"
 
   This example displays an analog clock widget.
 
-  Here is the definition:
   <hr>
 
   \include aclock/aclock.h
 
   <hr>
-
-  Here is the implementation:
 
 */
 
@@ -56,11 +53,11 @@ static char ident[] = "$Id: examples.doc,v 2.4 1997/05/20 15:01:30 hanord Exp $"
   This example displays a digital LCD clock and can switch between time
   and date.
 
-  Here is the definition:
+  <hr>
 
   \include dclock/dclock.h
 
-  Here is the implementation:
+  <hr>
 */
 
 
@@ -89,14 +86,11 @@ static char ident[] = "$Id: examples.doc,v 2.4 1997/05/20 15:01:30 hanord Exp $"
   This example brings up the words "Hello, World" moving up and down,
   and in different colors.
 
-  Here is the definition:
   <hr>
 
   \include hello/hello.h
 
   <hr>
-
-  Here is the implementation:
 */
 
 
@@ -169,25 +163,11 @@ cursor is on.
   to see how you can make reusable components such as the TicTacGameBoard
   widget.
 
-  Here is the definition of the tic-tac-toe classes:
   <hr>
 
   \include tictac/tictac.h
 
   <hr>
-
-  Here is the implementation:
-*/
-
-
-/*! \example widgets/widgets.cpp
-
-  <h1 align=center>Widgets Demo</h1>
-
-  This example creates a window with many Qt widgets and two custom
-  example widgets; aclock and dclock.
-
-  It also shows how to connect widget signals to internal slots.
 */
 
 
@@ -203,3 +183,13 @@ cursor is on.
   tool tips on the blue rectangles and a static tool tip on the red one.
 */
 
+
+/*! \example widgets/widgets.cpp
+
+  <h1 align=center>Widgets Demo</h1>
+
+  This example creates a window with many Qt widgets and two custom
+  example widgets; aclock and dclock.
+
+  It also shows how to connect widget signals to internal slots.
+*/
