@@ -457,67 +457,67 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   PrimitiveElements that make use of extra data. When data is
   non-zero, the data is used as follows:
 
-  <center>
-  <table cellpadding=4 cellspacing=2 border=0>
-    <tr bgcolor=#A2C511>
-      <th>PrimitiveElement</th>
-      <th>Data</th>
-      <th>Data Cast</th>
-      <th>Notes</th>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>PE_FocusRect</b></td>
-      <td valign=top>data[0]</td>
-      <td valign=top>const QColor *</td>
-      <td valign=top>pointer to the background color on which the focus rect is being drawn.</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>PE_Panel</b></td>
-      <td valign=top>data[0]</td>
-      <td valign=top>int *</td>
-      <td valign=top>frame width for drawing the panel.</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>PE_PanelPopup</b></td>
-      <td valign=top>data[0]</td>
-      <td valign=top>int *</td>
-      <td valign=top>frame width for drawing the panel.</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>PE_PanelMenuBar</b></td>
-      <td valign=top>data[0]</td>
-      <td valign=top>int *</td>
-      <td valign=top>frame width for drawing the panel.</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>PE_PanelDockWindow</b></td>
-      <td valign=top>data[0]</td>
-      <td valign=top>int *</td>
-      <td valign=top>frame width for drawing the panel.</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top rowspan=4><b>PE_GroupBoxFrame</b></td>
-      <td valign=top>data[0]</td>
-      <td valign=top>int *</td>
-      <td valign=top>frame shape for the group box.  See QFrame.</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top>data[1]</td>
-      <td valign=top>int *</td>
-      <td valign=top>frame shadow for the group box.</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top>data[2]</td>
-      <td valign=top>int *</td>
-      <td valign=top>line width for the group box.</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top>data[3]</td>
-      <td valign=top>int *</td>
-      <td valign=top>mid-line width for the group box.</td>
-    </tr>
-  </table>
-  </center>
+<center>
+<table cellpadding=4 cellspacing=2 border=0>
+<tr bgcolor=#A2C511>
+<th>PrimitiveElement</th>
+<th>Data</th>
+<th>Data Cast</th>
+<th>Notes</th>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top><b>PE_FocusRect</b></td>
+<td valign=top>data[0]</td>
+<td valign=top>const QColor *</td>
+<td valign=top>pointer to the background color on which the focus rect is being drawn.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top><b>PE_Panel</b></td>
+<td valign=top>data[0]</td>
+<td valign=top>int *</td>
+<td valign=top>frame width for drawing the panel.</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top><b>PE_PanelPopup</b></td>
+<td valign=top>data[0]</td>
+<td valign=top>int *</td>
+<td valign=top>frame width for drawing the panel.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top><b>PE_PanelMenuBar</b></td>
+<td valign=top>data[0]</td>
+<td valign=top>int *</td>
+<td valign=top>frame width for drawing the panel.</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top><b>PE_PanelDockWindow</b></td>
+<td valign=top>data[0]</td>
+<td valign=top>int *</td>
+<td valign=top>frame width for drawing the panel.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top rowspan=4><b>PE_GroupBoxFrame</b></td>
+<td valign=top>data[0]</td>
+<td valign=top>int *</td>
+<td valign=top>frame shape for the group box.  See QFrame.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>data[1]</td>
+<td valign=top>int *</td>
+<td valign=top>frame shadow for the group box.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>data[2]</td>
+<td valign=top>int *</td>
+<td valign=top>line width for the group box.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>data[3]</td>
+<td valign=top>int *</td>
+<td valign=top>mid-line width for the group box.</td>
+</tr>
+</table>
+</center>
 
   For all other \link QStyle::PrimitiveElement
   PrimitiveElements\endlink, \a data is unused.
@@ -571,7 +571,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   The rect \a r should be in screen coordinates.
 
   The \a how argument is used to control how the ControlElement is
-  drawn.  Multiple flags can be OR'ed together.
+  drawn.  Multiple flags can be OR'ed together.  See the table below for
+  an explanation of which flags are used with the various ControlElements.
 
   The \a widget argument is a pointer to a QWidget or one of its
   subclasses.  The widget can be cast to the appropriate type based on
@@ -581,120 +582,305 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   of the extra data.  See the table below for the appropriate \a
   widget and \a data casts:
 
-  <center>
-  <table cellpadding=4 cellspacing=2 border=0>
-    <tr bgcolor=#A2C511>
-      <th>ControlElement</th>
-      <th>Widget Cast</th>
-      <th>Data</th>
-      <th>Data Cast</th>
-      <th>Notes</th>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>CE_PushButton</b></td>
-      <td valign=top>const QPushButton *</b></td>
-      <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
-      <td valign=top>&nbsp;</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>CE_PushButtonLabel</b></td>
-      <td valign=top>const QPushButton *</b></td>
-      <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
-      <td valign=top>&nbsp;</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>CE_CheckBox</b></td>
-      <td valign=top>const QCheckBox *</b></td>
-      <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
-      <td valign=top>&nbsp;</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>CE_CheckboxLabel</b></td>
-      <td valign=top>const QCheckBox *</b></td>
-      <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
-      <td valign=top>&nbsp;</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>CE_RadioButton</b></td>
-      <td valign=top>const QRadioButton *</b></td>
-      <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
-      <td valign=top>&nbsp;</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>CE_RadioButtonLabel</b></td>
-      <td valign=top>const QRadioButton *</b></td>
-      <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
-      <td valign=top>&nbsp;</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>CE_TabBarTab</b></td>
-      <td valign=top>const QTabBar *</b></td>
-      <td valign=top>data[0]</td>
-      <td valign=top>QTab *</td>
-      <td valign=top>pointer to the QTab being drawn.</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>CE_TabBarLabel</b></td>
-      <td valign=top>const QTabBar *</td>
-      <td valign=top>data[0]</td>
-      <td valign=top>QTab *</td>
-      <td valign=top>pointer to the QTab being drawn.</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>CE_ProgressBarGroove</b></td>
-      <td valign=top>const QProgressBar *</b></td>
-      <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
-      <td valign=top>&nbsp;</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>CE_ProgressBarContents</b></td>
-      <td valign=top>const QProgressBar *</b></td>
-      <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
-      <td valign=top>&nbsp;</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>CE_ProgressBarLabel</b></td>
-      <td valign=top>const QProgressBar *</b></td>
-      <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
-      <td valign=top>&nbsp;</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top rowspan=3><b>CE_PopupMenuItem</b></td>
-      <td valign=top rowspan=3>const QPopupMenu *</td>
-      <td valign=top>data[0]</td>
-      <td valign=top>QMenuItem *</td>
-      <td valign=top>pointer to the menu item being drawn.
-      QMenuItem is currently an internal class.</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top>data[1]</td>
-      <td valign=top>int *</td>
-      <td valign=top>width of the tab column where key accelerators are drawn.</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top>data[2]</td>
-      <td valign=top>int *</td>
-      <td valign=top>maximum width of the check column where checkmarks and iconsets
-          are drawn.</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>CE_MenuBarItem</b></td>
-      <td valign=top>const QMenuBar *</td>
-      <td valign=top>data[0]</td>
-      <td valign=top>QMenuItem *</td>
-      <td valign=top>pointer to the menu item being drawn.</td>
-    </tr>
-  </table>
-  </center>
+<center>
+<table cellpadding=4 cellspacing=2 border=0>
+<tr bgcolor=#A2C511>
+<th>ControlElement<br>&amp; Widget Cast</th>
+<th>Style Flags</th>
+<th>Notes</th>
+<th>Data</th>
+<th>Data Cast</th>
+<th>Notes</th>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td rowspan=6 valign=top><b>CE_PushButton</b><br>const QPushButton *</td>
+<td valign=top>Style_Enabled</td>
+<td valign=top>set if the button is enabled.</td>
+<td rowspan=6 valign=top>unused</td>
+<td rowspan=6 valign=top>&nbsp;</td>
+<td rowspan=6 valign=top>&nbsp;</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_HasFocus</td>
+<td valign=top>set if the button has input focus.</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_Raised
+<td valign=top>set if the button is not down, not on and not flat.</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_On</td>
+<td valign=top>set if the button is a toggle button and toggled on.</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_Down</td>
+<td valign=top>set if the button is down (ie. mouse button or space pressed on
+    the button).</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_ButtonDefault</td>
+<td valign=top>set if the button a default button.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td rowspan=6 valign=top><b>CE_PushButtonLabel</b><br>const QPushButton *</td>
+<td valign=top>Style_Enabled</td>
+<td valign=top>set if the button is enabled.</td>
+<td rowspan=6 valign=top>unused</td>
+<td rowspan=6 valign=top>&nbsp;</td>
+<td rowspan=6 valign=top>&nbsp;</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_HasFocus</td>
+<td valign=top>set if the button has input focus.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_Raised
+<td valign=top>set if the button is not down, not on and not flat.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_On</td>
+<td valign=top>set if the button is a toggle button and toggled on.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_Down</td>
+<td valign=top>set if the button is down (ie. mouse button or space pressed on
+    the button).</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_ButtonDefault</td>
+<td valign=top>set if the button a default button.</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td rowspan=6 valign=top><b>CE_CheckBox</b><br>const QCheckBox *</td>
+<td valign=top>Style_Enabled</td>
+<td valign=top>set if the checkbox is enabled.</td>
+<td rowspan=6 valign=top>unused</td>
+<td rowspan=6 valign=top>&nbsp;</td>
+<td rowspan=6 valign=top>&nbsp;</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_HasFocus</td>
+<td valign=top>set if the checkbox has input focus.</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_On</td>
+<td valign=top>set if the checkbox is checked.</td>
+</tr>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_Off</td>
+<td valign=top>set if the checkbox is not checked.</td>
+</tr>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_NoChange</td>
+<td valign=top>set if the checkbox is in the NoChange state.</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_Down</td>
+<td valign=top>set if the checkbox is down (ie. mouse button or space pressed on
+    the button).</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td rowspan=6 valign=top><b>CE_CheckboxLabel</b><br>const QCheckBox *</td>
+<td valign=top>Style_Enabled</td>
+<td valign=top>set if the checkbox is enabled.</td>
+<td rowspan=6 valign=top>unused</td>
+<td rowspan=6 valign=top>&nbsp;</td>
+<td rowspan=6 valign=top>&nbsp;</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_HasFocus</td>
+<td valign=top>set if the checkbox has input focus.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_On</td>
+<td valign=top>set if the checkbox is checked.</td>
+</tr>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_Off</td>
+<td valign=top>set if the checkbox is not checked.</td>
+</tr>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_NoChange</td>
+<td valign=top>set if the checkbox is in the NoChange state.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_Down</td>
+<td valign=top>set if the checkbox is down (ie. mouse button or space pressed on
+    the button).</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td rowspan=5 valign=top><b>CE_RadioButton</b><br>const QRadioButton *</td>
+<td valign=top>Style_Enabled</td>
+<td valign=top>set if the radiobutton is enabled.</td>
+<td rowspan=5 valign=top>unused</td>
+<td rowspan=5 valign=top>&nbsp;</td>
+<td rowspan=5 valign=top>&nbsp;</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_HasFocus</td>
+<td valign=top>set if the radiobutton has input focus.</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_On</td>
+<td valign=top>set if the radiobutton is checked.</td>
+</tr>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_Off</td>
+<td valign=top>set if the radiobutton is not checked.</td>
+</tr>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_Down</td>
+<td valign=top>set if the radiobutton is down (ie. mouse button or space pressed on
+    the button).</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td rowspan=5 valign=top><b>CE_RadioButtonLabel</b><br>const QRadioButton *</td>
+<td valign=top>Style_Enabled</td>
+<td valign=top>set if the radiobutton is enabled.</td>
+<td rowspan=5 valign=top>unused</td>
+<td rowspan=5 valign=top>&nbsp;</td>
+<td rowspan=5 valign=top>&nbsp;</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_HasFocus</td>
+<td valign=top>set if the radiobutton has input focus.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_On</td>
+<td valign=top>set if the radiobutton is checked.</td>
+</tr>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_Off</td>
+<td valign=top>set if the radiobutton is not checked.</td>
+</tr>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_Down</td>
+<td valign=top>set if the radiobutton is down (ie. mouse button or space pressed on
+    the button).</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td rowspan=2 valign=top><b>CE_TabBarTab</b><br>const QTabBar *</td></td>
+<td valign=top>Style_Enabled</td>
+<td valign=top>set is the tabbar and tab is enabled.</td>
+<td valign=top>data[0]</td>
+<td valign=top>QTab *</td>
+<td valign=top>pointer to the QTab being drawn.</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_Selected</td>
+<td valign=top>set is the tab is selected (ie. the current tab).</td>
+<td valign=top>&nbsp;</td>
+<td valign=top>&nbsp;</td>
+<td valign=top>&nbsp;</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td rowspan=2 valign=top><b>CE_TabBarLabel</b><br>const QTabBar *</td>
+<td valign=top>Style_Enabled</td>
+<td valign=top>set is the tabbar and tab is enabled.</td>
+<td valign=top>data[0]</td>
+<td valign=top>QTab *</td>
+<td valign=top>pointer to the QTab being drawn.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_HasFocus</td>
+<td valign=top>set is the tab has input focus.</td>
+<td valign=top>&nbsp;</td>
+<td valign=top>&nbsp;</td>
+<td valign=top>&nbsp;</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td rowspan=2 valign=top><b>CE_ProgressBarGroove</b><br>const QProgressBar *</td>
+<td valign=top>Style_Enabled</td>
+<td valign=top>set is the progressbar is enabled.</td>
+<td rowspan=2 valign=top>unused</td>
+<td rowspan=2 valign=top>&nbsp;</td>
+<td rowspan=2 valign=top>&nbsp;</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_HasFocus</td>
+<td valign=top>set is the progressbar has input focus.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td rowspan=2 valign=top><b>CE_ProgressBarContents</b><br>const QProgressBar *</td>
+<td valign=top>Style_Enabled</td>
+<td valign=top>set is the progressbar is enabled.</td>
+<td rowspan=2 valign=top>unused</td>
+<td rowspan=2 valign=top>&nbsp;</td>
+<td rowspan=2 valign=top>&nbsp;</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_HasFocus</td>
+<td valign=top>set is the progressbar has input focus.</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td rowspan= 2 valign=top><b>CE_ProgressBarLabel</b><br>const QProgressBar *</td>
+<td valign=top>Style_Enabled</td>
+<td valign=top>set is the progressbar is enabled.</td>
+<td rowspan=2 valign=top>unused</td>
+<td rowspan=2 valign=top>&nbsp;</td>
+<td rowspan=2 valign=top>&nbsp;</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_HasFocus</td>
+<td valign=top>set is the progressbar has input focus.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top rowspan=3><b>CE_PopupMenuItem</b><br>const QPopupMenu *</td>
+<td valign=top>Style_Enabled</td>
+<td valign=top>set if the menuitem is enabled</td>
+<td valign=top>data[0]</td>
+<td valign=top>QMenuItem *</td>
+<td valign=top>pointer to the menu item being drawn.
+QMenuItem is currently an internal class.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_Active</td>
+<td valign=top>set if the menuitem is active (ie. the current item).</td>
+<td valign=top>data[1]</td>
+<td valign=top>int *</td>
+<td valign=top>width of the tab column where key accelerators are drawn.</td>
+</tr>
+<tr bgcolor=#f0f0f0>
+<td valign=top>Style_Down</td>
+<td valign=top>set if the menuitem is down (ie. mouse button or space pressed).</td>
+<td valign=top>data[2]</td>
+<td valign=top>int *</td>
+<td valign=top>maximum width of the check column where checkmarks and iconsets
+are drawn.</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td rowspan=4 valign=top><b>CE_MenuBarItem</b><br>const QMenuBar *</td>
+<td valign=top>Style_Enabled</td>
+<td valign=top>set if the menuitem is enabled</td>
+<td valign=top>data[0]</td>
+<td valign=top>QMenuItem *</td>
+<td valign=top>pointer to the menu item being drawn.</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_Active</td>
+<td valign=top>set if the menuitem is active (ie. the current item).</td>
+<td rowspan=3>&nbsp;</td>
+<td rowspan=3>&nbsp;</td>
+<td rowspan=3>&nbsp;</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_Down</td>
+<td valign=top>set if the menuitem is down (ie. mouse button or space pressed).</td>
+</tr>
+<tr bgcolor=#d0d0d0>
+<td valign=top>Style_HasFocus</td>
+<td valign=top>set if the menubar has input focus.</td>
+</tr>
+</table>
+</center>
 
   \sa ControlElement, StyleFlags
 */
