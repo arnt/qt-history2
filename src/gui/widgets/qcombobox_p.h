@@ -178,6 +178,7 @@ public:
     void updateArrow(QStyle::StateFlag state);
     bool updateHoverControl(const QPoint &pos);
     QStyle::SubControl newHoverControl(const QPoint &pos);
+    int modelColumn() const;
 
     QAbstractItemModel *model;
     QLineEdit *lineEdit;
