@@ -110,8 +110,6 @@ int QShortcutMap::addShortcut(const QWidget *owner, const QObject *monitor,
 {
     Q_ASSERT_X(owner, "QShortcutMap::addShortcut", "All shortcuts need an owner");
     Q_ASSERT_X(!key.isEmpty(), "QShortcutMap::addShortcut", "Cannot add keyless shortcuts to map");
-    while (qt_cast<QMenu*>(owner))
-        owner = owner->parentWidget();
 
     QShortcutEntry newEntry(owner, monitor, key, context, --(d->currentId));
     QList<QShortcutEntry>::iterator it
@@ -149,9 +147,6 @@ int QShortcutMap::removeShortcut(int id, const QWidget *owner, const QObject *mo
         d->sequences.clear();
         return itemsRemoved;
     }
-
-    while (qt_cast<QMenu*>(owner))
-        owner = owner->parentWidget();
 
     int i = d->sequences.size()-1;
     while (i>=0)
@@ -194,9 +189,6 @@ int QShortcutMap::setShortcutEnabled(bool enable, int id,
     bool allMonitors = (monitor == 0);
     bool allKeys = key.isEmpty();
     bool allIds = id == 0;
-
-    while (qt_cast<QMenu*>(owner))
-        owner = owner->parentWidget();
 
     int i = d->sequences.size()-1;
     while (i>=0)
@@ -241,16 +233,16 @@ int QShortcutMap::changeMonitor(const QObject *monitor, const QKeySequence &key,
 #if 0
             if (entry.keyseq == key && entry.enabled == enabled) {
                 if (itemsModified != 0) {
-                    qDebug() << "Items removed:";                    
+                    qDebug() << "Items removed:";
                     for(int j = 0; j < newEntries.count(); ++j) {
                         QShortcutEntry itm = newEntries.at(j);
                         qDebug() << " --> " << &itm;
                     }
                     qDebug() << "Matching item:\n" << &entry;
-#ifdef Dump_QShortcutMap                
+#ifdef Dump_QShortcutMap
                     qDebug() << "Current shortcut map";
                     dumpMap();
-#endif                
+#endif
                 }
                 Q_ASSERT_X(itemsModified == 0,
                            "QShortcutMap::changeMonitorKey",
@@ -489,10 +481,13 @@ void QShortcutMap::createNewSequence(QKeyEvent *e, QKeySequence &seq)
     top-level widget.
 */
 bool QShortcutMap::correctContext(const QShortcutEntry &item) {
+    Q_ASSERT_X(item.owner, "QShortcutMap", "Shortcut has no owner. Illegal map state!");
     QWidget *wtlw = qApp->activeWindow();
 
     const QWidget *w = item.owner;
-    if (!w->isVisible() || !w->isEnabled() || !wtlw)
+    while (qt_cast<QMenu*>(w))
+        w = w->parentWidget();
+    if (!w || !w->isVisible() || !w->isEnabled() || !wtlw)
         return false;
 
     QWidget *tlw = w->topLevelWidget();
