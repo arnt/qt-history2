@@ -1257,7 +1257,7 @@ QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, bool clipEnabled
     Q_ASSERT(isActive());
     if(clipEnabled) {
         QPolygon poly = p.toFillPolygon();
-        d->current.clip = QRegion(poly.toPointArray(), p.fillMode() == Qt::WindingFill);
+        d->current.clip = QRegion(poly.toPointArray(), p.fillRule() == Qt::WindingFill);
         setf(ClipOn);
     } else {
         clearf(ClipOn);
@@ -1302,7 +1302,7 @@ QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
 {
     CGMutablePathRef path = qt_mac_compose_path(p);
     uchar ops = QCoreGraphicsPaintEnginePrivate::CGStroke;
-    if(p.fillMode() == Qt::WindingFill)
+    if(p.fillRule() == Qt::WindingFill)
         ops |= QCoreGraphicsPaintEnginePrivate::CGFill;
     else
         ops |= QCoreGraphicsPaintEnginePrivate::CGEOFill;
