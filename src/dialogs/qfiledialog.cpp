@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#99 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#100 $
 **
 ** Implementation of QFileDialog class
 **
@@ -767,7 +767,6 @@ void QFileDialog::init()
     d->stack->setFrameStyle( QFrame::WinPanel + QFrame::Sunken );
 			
     files = new QListView( d->stack, "current directory listing" );
-    files->setSorting( -1, TRUE );
     QFontMetrics fm( fontMetrics() );
     files->addColumn( tr("Name"), 150 );
     files->setColumnWidthMode( 0, QListView::Manual );
