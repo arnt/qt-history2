@@ -828,8 +828,10 @@ void QPainter::setClipRegion(const QRegion &r)
     d->state->clipRegion = r;
     d->state->clipRegionMatrix = d->state->matrix;
     d->state->clipEnabled = true;
-    if (d->engine)
+    if (d->engine) {
         d->engine->setDirty(QPaintEngine::DirtyClip);
+        d->engine->updateState(d->state);
+    }
 }
 
 
