@@ -2466,8 +2466,8 @@ QDomNamedNodeMapPrivate* QDomNamedNodeMapPrivate::clone(QDomNodePrivate* p)
     m->readonly = readonly;
     m->appendToParent = appendToParent;
 
-    QHash<QString, QDomNodePrivate*>::Iterator it = map.begin();
-    for (; it != map.end(); ++it)
+    QHash<QString, QDomNodePrivate*>::const_iterator it = map.constBegin();
+    for (; it != map.constEnd(); ++it)
         m->setNamedItem((*it)->cloneNode());
 
     // we are no longer interested in ownership
@@ -2479,12 +2479,11 @@ void QDomNamedNodeMapPrivate::clearMap()
 {
     // Dereference all of our children if we took references
     if (!appendToParent) {
-        QHash<QString, QDomNodePrivate *>::Iterator it = map.begin();
-        for (; it != map.end(); ++it)
+        QHash<QString, QDomNodePrivate *>::const_iterator it = map.constBegin();
+        for (; it != map.constEnd(); ++it)
             if (!--(*it)->ref)
                 delete *it;
     }
-
     map.clear();
 }
 
@@ -2496,15 +2495,14 @@ QDomNodePrivate* QDomNamedNodeMapPrivate::namedItem(const QString& name) const
 
 QDomNodePrivate* QDomNamedNodeMapPrivate::namedItemNS(const QString& nsURI, const QString& localName) const
 {
-    QHash<QString, QDomNodePrivate *>::ConstIterator it = map.begin();
+    QHash<QString, QDomNodePrivate *>::const_iterator it = map.constBegin();
     QDomNodePrivate *n;
-    for (; it != map.end(); ++it) {
+    for (; it != map.constEnd(); ++it) {
         n = *it;
         if (!n->prefix.isNull()) {
             // node has a namespace
-            if (n->namespaceURI==nsURI && n->name==localName) {
+            if (n->namespaceURI == nsURI && n->name == localName)
                 return n;
-            }
         }
     }
     return 0;
@@ -2567,11 +2565,7 @@ QDomNodePrivate* QDomNamedNodeMapPrivate::item(int index) const
 {
     if ((uint)index >= length())
         return 0;
-
-    QHash<QString, QDomNodePrivate *>::ConstIterator it = map.begin();
-    for (int i = 0; i < index; ++i, ++it)
-        ;
-    return *it;
+    return *(map.constBegin() + index);
 }
 
 uint QDomNamedNodeMapPrivate::length() const
@@ -2581,12 +2575,12 @@ uint QDomNamedNodeMapPrivate::length() const
 
 bool QDomNamedNodeMapPrivate::contains(const QString& name) const
 {
-    return (map[name] != 0);
+    return map.value(name) != 0;
 }
 
 bool QDomNamedNodeMapPrivate::containsNS(const QString& nsURI, const QString & localName) const
 {
-    return (namedItemNS(nsURI, localName) != 0);
+    return namedItemNS(nsURI, localName) != 0;
 }
 
 /**************************************************************
@@ -2991,12 +2985,12 @@ void QDomDocumentTypePrivate::save(QTextStream& s, int, int indent) const
     if (entities->length()>0 || notations->length()>0) {
         s << " [" << endl;
 
-        QHash<QString, QDomNodePrivate *>::ConstIterator it2 = notations->map.begin();
-        for (; it2 != notations->map.end(); ++it2)
+        QHash<QString, QDomNodePrivate *>::const_iterator it2 = notations->map.constBegin();
+        for (; it2 != notations->map.constEnd(); ++it2)
             (*it2)->save(s, 0, indent);
 
-        QHash<QString, QDomNodePrivate *>::ConstIterator it = entities->map.begin();
-        for (; it != entities->map.end(); ++it)
+        QHash<QString, QDomNodePrivate *>::const_iterator it = entities->map.constBegin();
+        for (; it != entities->map.constEnd(); ++it)
             (*it)->save(s, 0, indent);
 
         s << "]";
@@ -3983,8 +3977,8 @@ void QDomElementPrivate::save(QTextStream& s, int depth, int indent) const
 
     if (!m_attr->map.isEmpty()) {
         s << " ";
-        QHash<QString, QDomNodePrivate *>::ConstIterator it = m_attr->map.begin();
-        for (; it != m_attr->map.end(); ++it) {
+        QHash<QString, QDomNodePrivate *>::const_iterator it = m_attr->map.constBegin();
+        for (; it != m_attr->map.constEnd(); ++it) {
             (*it)->save(s, 0, indent);
             s << " ";
         }
@@ -5826,7 +5820,7 @@ void QDomDocumentPrivate::save(QTextStream& s, int, int indent) const
         // we have an XML declaration
         QString data = n->nodeValue();
         QRegExp encoding(QString::fromLatin1("encoding\\s*=\\s*((\"([^\"]*)\")|('([^']*)'))"));
-        encoding.search(data);
+        encoding.indexIn(data);
         QString enc = encoding.cap(3);
         if (enc.isEmpty()) {
             enc = encoding.cap(5);
@@ -6846,7 +6840,34 @@ bool QDomHandler::notationDecl(const QString & name, const QString & publicId, c
  *
  **************************************************************/
 
-typedef QMap<QString, QCoreVariant> KeyMap;
+/*
+    When QSettings is moved from research to qt/main, uncomment the
+    include and get rid of the #else ... #endif code.
+*/
+#if 0
+#include <private/qcoresettings_p.h>
+#else
+struct QSettingsKey
+{
+    QSettingsKey(const QString &key, QString::CaseSensitivity cs)
+         : realKey(key), compareKey(key)
+    {
+        if (cs == QString::CaseInsensitive)
+            compareKey = compareKey.toLower();
+    }
+
+    inline bool startsWith(const QSettingsKey &other) const
+    { return compareKey.startsWith(other.compareKey); }
+    inline bool operator<(const QSettingsKey &other) const
+    { return compareKey < other.compareKey; }
+    inline QString toString() const { return realKey; }
+
+    QString realKey;
+    QString compareKey;
+};
+
+typedef QMap<QSettingsKey, QCoreVariant> KeyMap;
+#endif
 
 static QString nameAttr(const QDomElement &elt)
 {
@@ -6923,7 +6944,7 @@ extern "C" bool qSettingsReadXmlFile(QIODevice &device, KeyMap *keys)
             continue;
         QString value = valueAttr.nodeValue();
 
-        keys->insert(key, value);
+        keys->insert(QSettingsKey(key, QString::CaseSensitive), value);
     }
 
     QDomNodeList arrayElts = root.elementsByTagName(QLatin1String("array"));
@@ -6941,7 +6962,8 @@ extern "C" bool qSettingsReadXmlFile(QIODevice &device, KeyMap *keys)
                 ++itemCnt;
         }
 
-        keys->insert(key + QLatin1String("size"), itemCnt);
+        key += QLatin1String("size");
+        keys->insert(QSettingsKey(key, QString::CaseSensitive), itemCnt);
     }
 
     return true;
@@ -6953,12 +6975,13 @@ static QStringList getGroupItemList(const QString &prefix, const KeyMap &keys)
     QStringList result;
 
 //     qDebug("getGroupItemList(): \"%s\"", prefix.latin1());
+    QSettingsKey thePrefix(prefix, QString::CaseSensitive);
     Q_ASSERT(prefix.endsWith(QLatin1String("/")));
     int prefLen = prefix.length();
 
-    KeyMap::const_iterator i = keys.lowerBound(prefix);
-    while (i != keys.end() && i.key().startsWith(prefix)) {
-        QString key = i.key();
+    KeyMap::const_iterator i = keys.lowerBound(thePrefix);
+    while (i != keys.constEnd() && i.key().startsWith(thePrefix)) {
+        QString key = i.key().toString();
         int itemLen = key.indexOf(QLatin1Char('/'), prefLen);
         if (itemLen != -1)
             itemLen -= prefLen - 1; // keep trailing '/'
@@ -6984,8 +7007,9 @@ static bool arrayItems(const QStringList &itemList, const QString &group, const 
     if (itemList.last() != QLatin1String("size"))
         return false;
 
-    KeyMap::const_iterator keyIter = keys.find(group + "size");
-    Q_ASSERT(keyIter != keys.end());
+    KeyMap::const_iterator keyIter = keys.find(QSettingsKey(group + "size",
+                                               QString::CaseSensitive));
+    Q_ASSERT(keyIter != keys.constEnd());
     bool ok;
     int size = keyIter.value().toInt(&ok);
     if (!ok || size < 1 || itemList.size() != size + 1)
@@ -7012,8 +7036,8 @@ static bool arrayItems(const QStringList &itemList, const QString &group, const 
         if (!item.endsWith(QLatin1String("/")))
             return false;
         item = item.mid(0, item.length() - 1);
-        if (item != item.stripWhiteSpace())  // make sure there is no whitespace (which toInt()
-            return false;                    // would ignore)
+        if (item != item.trimmed())  // make sure there's no whitespace (which toInt() would ignore)
+            return false;
         bool ok;
         int j = item.toInt(&ok);
         if (!ok || j < 1 || j > size)
@@ -7058,8 +7082,9 @@ static void addGroupItems(QDomDocument *doc, QDomElement *parentElt, const KeyMa
                 addGroupItems(doc, &subGroupElt, keys);
             } else {
                 // insert setting
-                KeyMap::const_iterator i = keys.find(group + item);
-                Q_ASSERT(i != keys.end());
+                KeyMap::const_iterator i = keys.find(QSettingsKey(group + item,
+                                                                  QString::CaseSensitive));
+                Q_ASSERT(i != keys.constEnd());
                 const QCoreVariant value = i.value();
                 QDomElement settingElt = doc->createElement(QLatin1String("setting"));
                 settingElt.setAttribute(QLatin1String("name"), item);
