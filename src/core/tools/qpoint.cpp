@@ -410,7 +410,7 @@ QDataStream &operator>>(QDataStream &s, QPoint &p)
 */
 int QPoint::manhattanLength() const
 {
-    return QABS(x())+QABS(y());
+    return qAbs(x())+qAbs(y());
 }
 
 #ifndef QT_NO_DEBUG
