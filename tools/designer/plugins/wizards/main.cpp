@@ -70,9 +70,10 @@ unsigned long StandardTemplateWizardInterface::addRef()
 
 unsigned long StandardTemplateWizardInterface::release()
 {
-    if ( !--ref )
+    if ( !--ref ) {
 	delete this;
-
+	return 0;
+    }
     return ref;
 }
 
