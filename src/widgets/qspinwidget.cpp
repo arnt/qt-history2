@@ -214,14 +214,15 @@ void QSpinWidget::timerDoneEx()
 }
 
 
-void QSpinWidget::windowActivationChange( bool active )
+void QSpinWidget::windowActivationChange( bool oldActive )
 {
-    if ( !active && d->buttonDown ) {
+    //was active, but lost focus
+    if ( oldActive && d->buttonDown ) { 
 	d->stopTimer();
 	d->buttonDown = 0;
 	d->theButton = 0;
     }    
-    QWidget::windowActivationChange(active);
+    QWidget::windowActivationChange( oldActive );
 }
 
 

@@ -4457,7 +4457,7 @@ bool QWidget::event( QEvent *e )
 
 	case QEvent::WindowActivate:
 	case QEvent::WindowDeactivate:
-	    windowActivationChange( e->type() == QEvent::WindowActivate );
+	    windowActivationChange( e->type() != QEvent::WindowActivate );
 	    if ( children() ) {
 		QObjectListIt it( *children() );
 		QObject *o;
