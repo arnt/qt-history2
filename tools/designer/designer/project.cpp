@@ -1462,7 +1462,6 @@ extern QString *qwf_language;
 extern bool qwf_execute_code;
 extern bool qwf_stays_on_top;
 extern QObject* qwf_form_object;
-extern QString *qwf_plugin_dir;
 
 QObjectList *Project::run()
 {
