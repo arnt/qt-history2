@@ -1883,6 +1883,11 @@ void QWidget::setBackgroundFromMode()
 	case PaletteButtonText:
 	    r = QColorGroup::ButtonText;
 	    break;
+	case X11ParentRelative:
+#if defined(_WS_X11_)
+	    setBackgroundX11Relative();
+#endif
+	    return;
 	}
     }
     QPixmap * p = palette().active().brush( r ).pixmap();

@@ -876,7 +876,8 @@ void QButton::paintEvent( QPaintEvent *event )
 {
     if ( event &&
 	 width() <= drawingPixWidth &&
-	 height() <= drawingPixHeight ) {
+	 height() <= drawingPixHeight &&
+	 backgroundMode() != X11ParentRelative ) {
 	makeDrawingPixmap(); // makes file-static drawpm variable
 	if ( backgroundOrigin() == ParentOrigin && !isTopLevel() )
 	    drawpm->fill( this, x(), y() );

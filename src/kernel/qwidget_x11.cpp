@@ -780,6 +780,12 @@ void QWidget::setBackgroundEmpty()
 }
 
 
+void QWidget::setBackgroundX11Relative()
+{
+    XSetWindowBackgroundPixmap( x11Display(), winId(), ParentRelative );
+}
+
+
 /*!
   Sets the widget cursor shape to \e cursor.
 

@@ -197,7 +197,8 @@ public:
 			  PaletteMidlight, PaletteDark, PaletteMid,
 			  PaletteText, PaletteBrightText, PaletteBase,
 			  PaletteBackground, PaletteShadow, PaletteHighlight,
-			  PaletteHighlightedText, PaletteButtonText };
+			  PaletteHighlightedText, PaletteButtonText, 
+			  X11ParentRelative };
 
     BackgroundMode	backgroundMode() const;
     virtual void	setBackgroundMode( BackgroundMode );
@@ -521,6 +522,9 @@ private:
     void   	 setBackgroundPixmapDirect( const QPixmap & );
     void         setBackgroundModeDirect( BackgroundMode );
     void         setBackgroundEmpty();
+#if defined(_WS_X11_)
+    void         setBackgroundX11Relative();
+#endif
 
     WId		 winid;
     uint	 widget_state;

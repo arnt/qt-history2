@@ -153,7 +153,7 @@ struct QTabPrivate {
 */
 
 QTabBar::QTabBar( QWidget * parent, const char *name )
-    : QWidget( parent, name )
+    : QWidget( parent, name, WRepaintNoErase | WResizeNoErase  )
 {
     d = new QTabPrivate;
     d->id = 0;
@@ -477,9 +477,13 @@ void QTabBar::paintEvent( QPaintEvent * e )
 {
     QPainter p( this );
 
-    p.setBrushOrigin( rect().bottomLeft() );
-    p.fillRect( 0, 0, width(), height(),
-		QBrush( colorGroup().brush( QColorGroup::Background ) ));
+    if ( backgroundMode() == X11ParentRelative ) {
+	erase();
+    } else {
+	p.setBrushOrigin( rect().bottomLeft() );
+	p.fillRect( 0, 0, width(), height(),
+		    QBrush( colorGroup().brush( QColorGroup::Background ) ));
+    }
 
     QTab * t;
     t = l->first();
@@ -782,7 +786,7 @@ void QTabBar::layoutTabs()
 	h = QMAX( h, QApplication::globalStrut().height() );
 
 	h += vframe;
-	t->r.setRect( x, 0, QMAX( lw + hframe + iw, 
+	t->r.setRect( x, 0, QMAX( lw + hframe + iw,
 		    QApplication::globalStrut().width() ), h );
 	x += t->r.width() - overlap;
 	r = r.unite( t->r );

@@ -387,10 +387,7 @@ void QProgressBar::drawContents( QPainter *p )
 
 	// ### This part changes every percentage change.
 	p->setPen( colorGroup().foreground() );
-	if ( backgroundOrigin() == QWidget::ParentOrigin )
-	    p->setBrushOrigin( -x(), -y() );
-	p->fillRect( r.x()+r.width(), bar.y(), textw, bar.height(),
-		     colorGroup().brush(QColorGroup::Background ) );
+	erase ( r.x()+r.width(), bar.y(), textw, bar.height() );
 	p->drawText( r.x()+r.width(), bar.y(), textw, bar.height(),
 	    AlignRight | AlignVCenter, progress_str );
     } else {

@@ -248,7 +248,7 @@ void QCheckBox::drawButton( QPainter *paint )
 #if defined(SAVE_CHECKBOX_PIXMAPS)
     if ( use_pm ) {
 	pmpaint.end();
-	if ( backgroundPixmap() ) {
+	if ( backgroundPixmap() || backgroundMode() == X11ParentRelative ) {
 	    QBitmap bm( pm->size() );
 	    bm.fill( color0 );
 	    pmpaint.begin( &bm );

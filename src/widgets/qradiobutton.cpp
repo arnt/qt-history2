@@ -198,7 +198,7 @@ void QRadioButton::drawButton( QPainter *paint )
     y = (height() - lsz.height() + fm.height() - sz.height())/2;
 
 #ifndef QT_NO_TEXTSTREAM
-#define SAVE_CHECKBOX_PIXMAPS
+#define SAVE_RADIOBUTTON_PIXMAPS
 #endif
 
 #if defined(SAVE_RADIOBUTTON_PIXMAPS)
@@ -239,7 +239,7 @@ void QRadioButton::drawButton( QPainter *paint )
 #if defined(SAVE_RADIOBUTTON_PIXMAPS)
     if ( use_pm ) {
 	pmpaint.end();
-	if ( backgroundPixmap() ) {
+	if ( backgroundPixmap() || backgroundMode() == X11ParentRelative ) {
 	    QBitmap bm( pm->size() );
 	    bm.fill( color0 );
 	    pmpaint.begin( &bm );
