@@ -615,31 +615,35 @@ void Project::save( bool onlyProjectFile )
     }
 
     QFile f( filename );
-    QString contents = "";
+    QString original = "";
 
     // read the existing file
     bool hasPreviousContents = FALSE;
     if ( f.open( IO_ReadOnly ) ) {
 	QTextStream ts( &f );
-	contents = ts.read();
+	original = ts.read();
 	f.close();
 	hasPreviousContents = TRUE;
-	remove_contents( contents, "{SOURCES+=" ); // ### compatibility with early 3.0 betas
-	remove_contents( contents, "DBFILE" );
-	remove_contents( contents, "LANGUAGE" );
-	remove_contents( contents, "TEMPLATE" );
-	removePlatformSettings( contents, "CONFIG" );
-	removePlatformSettings( contents, "DEFINES" );
-	removePlatformSettings( contents, "LIBS" );
-	removePlatformSettings( contents, "INCLUDEPATH" );
-	removePlatformSettings( contents, "SOURCES" );
-	removePlatformSettings( contents, "HEADERS" );
-	remove_multiline_contents( contents, "FORMS" );
-	remove_multiline_contents( contents, "INTERFACES" ); // compatibility
-	remove_multiline_contents( contents, "IMAGES" );
+	remove_contents( original, "{SOURCES+=" ); // ### compatibility with early 3.0 betas
+	remove_contents( original, "DBFILE" );
+	remove_contents( original, "LANGUAGE" );
+	remove_contents( original, "TEMPLATE" );
+	removePlatformSettings( original, "CONFIG" );
+	removePlatformSettings( original, "DEFINES" );
+	removePlatformSettings( original, "LIBS" );
+	removePlatformSettings( original, "INCLUDEPATH" );
+	removePlatformSettings( original, "SOURCES" );
+	removePlatformSettings( original, "HEADERS" );
+	remove_multiline_contents( original, "FORMS" );
+	remove_multiline_contents( original, "INTERFACES" ); // compatibility
+	remove_multiline_contents( original, "IMAGES" );
 	for ( QStringList::Iterator it = csList.begin(); it != csList.end(); ++it )
-	    remove_contents( contents, *it );
+	    remove_contents( original, *it );
     }
+
+    // the contents of the saved file
+    QString contents;
+    qDebug(original.latin1());
 
     // template
     contents += "TEMPLATE\t= " + templ + "\n";
@@ -752,6 +756,8 @@ void Project::save( bool onlyProjectFile )
 
     QTextStream os( &f );
     os << contents;
+    if (hasPreviousContents)
+        os << original;
 
     f.close();
 
