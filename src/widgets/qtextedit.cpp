@@ -681,7 +681,7 @@ static bool block_set_alignment = FALSE;
 
   Sets the font of the current format to \a f.
 
-  \sa font() setPointSize() setFamily()
+  \sa currentFont() setPointSize() setFamily()
 */
 
 /*!
@@ -3908,16 +3908,31 @@ QColor QTextEdit::color() const
 }
 
 /*!
-  Returns the font of the current format.
+  \obsolete
 
-  \sa setCurrentFont() setFamily() setPointSize()
+  Returns QScrollView::font()
 
+  \warning In previous versions This function returned the font of the
+  current format. This lead to confusion, use currentFont() instead
+  now.
 */
 
 QFont QTextEdit::font() const
 {
+    return QScrollView::font();
+}
+
+/*!
+  Returns the font of the current format.
+
+  \sa setCurrentFont() setFamily() setPointSize()
+*/
+
+QFont QTextEdit::currentFont() const
+{
     return currentFormat->font();
 }
+
 
 /*!
   Returns the alignment of the current paragraph.
@@ -5173,8 +5188,8 @@ void QTextEdit::setSelectionAttributes( int selNum, const QColor &back, bool inv
 void QTextEdit::windowActivationChange( bool oldActive )
 {
     if ( oldActive && scrollTimer )
-	scrollTimer->stop();    
-    
+	scrollTimer->stop();
+
     if ( !isVisible() )
 	return;
 

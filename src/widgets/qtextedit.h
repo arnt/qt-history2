@@ -268,6 +268,7 @@ public:
     int pointSize() const;
     QColor color() const;
     QFont font() const;
+    QFont currentFont() const;
     int alignment() const;
     int undoDepth() const;
 
