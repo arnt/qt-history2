@@ -22,11 +22,10 @@ QSqlError makeError( const QString& err, int type, const QMySQLPrivate* p )
     return QSqlError("QMySQL: " + err, QString(mysql_error( p->mysql )), type);
 }
 
-QSqlFieldInfo makeFieldInfo( const MYSQL_FIELD* f )
+QVariant::Type qDecodeMYSQLType( int mysqltype )
 {
-    const char* c = (const char*)f->name;
     QVariant::Type type;
-    switch ( f->type ) {
+    switch ( mysqltype ) {
     case FIELD_TYPE_SHORT :
     case FIELD_TYPE_LONG :
     case FIELD_TYPE_INT24 :
@@ -61,7 +60,13 @@ QSqlFieldInfo makeFieldInfo( const MYSQL_FIELD* f )
 	type = QVariant::String;
 	break;
     }
-    return QSqlFieldInfo( QString(c), type, f->length, f->decimals );
+    return type;
+}
+
+QSqlFieldInfo makeFieldInfo( const MYSQL_FIELD* f )
+{
+    const char* c = (const char*)f->name;
+    return QSqlFieldInfo( QString(c), qDecodeMYSQLType(f->type), f->length, f->decimals );
 }
 
 QMySQLResult::QMySQLResult( const QMySQLDriver* db )
@@ -283,7 +288,7 @@ QSql QMySQLDriver::createResult() const
     return QSql(new QMySQLResult( this ) );
 }
 
-QStringList QMySQLDriver::tables() const
+QStringList QMySQLDriver::tables( const QString& user ) const
 {
     MYSQL_RES* tableRes = mysql_list_tables( d->mysql, NULL );
     MYSQL_ROW 	row;
@@ -295,7 +300,38 @@ QStringList QMySQLDriver::tables() const
 	if ( !row )
 	    break;
 	tl.append( QString(row[0]) );
+	i++;
     }
     mysql_free_result( tableRes );
     return tl;
+    Q_CONST_UNUSED( user );
 }
+
+QSqlIndex QMySQLDriver::primaryIndex( const QString& tablename ) const
+{
+    QSqlIndex idx;
+    QSql i = createResult();
+    QString stmt( "show index from %1;" );
+    i << stmt.arg( tablename );
+    while ( i.isActive() && i.next() ) {
+	if ( i[2].toString() == "PRIMARY" ) {
+	    QSqlFieldInfoList fil = fields( tablename );
+	    idx.append( fil[ i[3].toInt()-1 ] );
+	    break;
+	}
+    }
+    return idx;
+}
+
+QSqlFieldInfoList QMySQLDriver::fields( const QString& tablename ) const
+{
+    QSqlFieldInfoList fil;
+    QString fieldStmt( "show columns from %1;");
+    QSql i = createResult();
+    i << fieldStmt.arg( tablename );
+    while ( i.isActive() && i.next() )
+	fil.append ( QSqlFieldInfo( i[0].toString(), qDecodeMYSQLType(i[1].toInt()), 0, 0 ));
+    return fil;
+}
+
+

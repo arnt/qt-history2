@@ -46,7 +46,9 @@ public:
 				const QString & host = QString::null );
     void 		close();
     QSql		createResult() const;
-    QStringList         tables() const;    
+    QStringList         tables( const QString& user ) const;
+    QSqlIndex           primaryIndex( const QString& tablename ) const;
+    QSqlFieldInfoList   fields( const QString& tablename ) const;
 private:
     void		init();
     QMySQLPrivate* 	d;
