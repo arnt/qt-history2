@@ -21,21 +21,25 @@ if ( $#ARGV != 0 ) {
 }
 
 @fromBranchFiles = ();
+@changeDescription = ();
+$readingDescription = 1;
 open( P4, "$P4 describe -s $change |") || die "$0: Couldn't exec $P4: $!\n";
-@changeDescription = <P4>;
-close( P4 );
-# The last line is blank, so discard it.
-pop( @changeDescription );
-
-# This is pretty evil; essentially it picks out the "affected files" lines and
-# pushes the filename and revision of each onto @fromBranchFiles and
-# @fromBranchRevisions, respectively.
-grep {
-    if ( /^\.\.\. (\/\/depot.*)\#([0-9]+)/ ) {
+while( $line = <P4> ) {
+    if ( $line =~ /^Affected files \.\.\./ ) {
+	$readingDescription = 0;
+    } elsif ( $readingDescription ) {
+	push( @changeDescription, $line );
+    } elsif ( $line =~ /^\.\.\. (\/\/depot.*)\#([0-9]+)/ ) {
 	push( @fromBranchFiles, $1 );
 	push( @fromBranchRevisions, $2 );
     }
-} @changeDescription;
+}
+close( P4 );
+# The last line is blank, so discard it.
+pop( @changeDescription );
+foreach $changeLine (@changeDescription) {
+    $changeLine =~ s/^[\t ]+/ /;
+}
 
 if ( $#fromBranchFiles == -1 ) {
     die "$0: No files found in changelist";
@@ -253,9 +257,8 @@ open( P4, "| $P4 $action -i" ) || die "$0: Couldn't exec $P4: $!\n";
 print P4 "Change: new\n";
 print P4 "Description:\n";
 print P4 "\tp4i integration\n";
-print P4 "\tIntegrate change $change from $fromBranch to $toBranch.\n";
-print P4 "\tDescription for change $change:\n\n";
-print P4 "\t: ".join( "\t: ", @changeDescription )."\n";
+print P4 "\tIntegrate $change from $fromBranch to $toBranch:\n";
+print P4 "\t: ".join( "\t:", @changeDescription )."\n";
 print P4 "Files:\n\t".join( "\n\t", @toBranchFiles )."\n";
 
 close( P4 );
