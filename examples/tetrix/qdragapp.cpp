@@ -14,6 +14,7 @@
 #include "qptrlist.h"
 #include "qintdict.h"
 #include "qpopupmenu.h"
+#include "qguardedptr.h"
 #include "qcolor.h"
 #include "qwidget.h"
 #include "qfontmetrics.h"
@@ -82,7 +83,7 @@ private:
     bool		   killingDrop;
     bool		   sendingChild;
     QWidget		  *clickedWidget;
-    QWidget		  *hostWidget;
+    QGuardedPtr<QWidget>   hostWidget;
     QCursor		   cursor;
 
     QPopupMenu*		   menu;
@@ -132,7 +133,6 @@ void DropWindow::closeEvent( QCloseEvent *e )
 QDragger::QDragger()
 {
     dragInfo.w	 = 0;
-    hostWidget	 = 0;
     killingDrop	 = FALSE;
     sendingChild = FALSE;
     draggedDict.setAutoDelete( TRUE );
@@ -377,7 +377,8 @@ void QDragger::grabFinished()
 {
     killingDrop	 = FALSE;
     sendingChild = FALSE;
-    hostWidget->setCursor( cursor );
+    if(hostWidget)
+	hostWidget->setCursor( cursor );
 }
 
 void QDragger::closeDropWindow( DropWindow *w )
