@@ -473,7 +473,7 @@ void QToolBox::itemDestroyed(QObject *object)
 }
 
 /*!
-    Removes the widget \a w from the toolbox. Note that the widget is
+    Removes the widget \a item from the toolbox. Note that the widget is
     \e not deleted. Returns the removed widget's index, or -1 if the
     widget was not in this tool box.
 */
@@ -660,7 +660,7 @@ void QToolBox::frameChanged()
     QFrame::frameChanged();
 }
 
-/* \reimp */
+/*! \reimp */
 void QToolBox::styleChange(QStyle &style)
 {
     d->updateTabs();

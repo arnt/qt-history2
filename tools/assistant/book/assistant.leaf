@@ -374,9 +374,9 @@ startup page, and application icon.
 \section1 Modifying the Default Documentation Set
 
 When it is started without any options, \QA displays a default set of
-documentation. When \QT is installed, the default documentation set in
-\QA contains the \QT reference documentation as well as the tools that
-come with \QT, such as \QD and qmake.
+documentation. When Qt is installed, the default documentation set in
+\QA contains the Qt reference documentation as well as the tools that
+come with Qt, such as \QD and qmake.
 
 Documentation can be added or removed from \QA by
 adding and removing the content files. The format of the content files are
@@ -444,9 +444,9 @@ The paths in the \c refs attribute are always written Unix-style
 documentation content file itself.
 
 Since the introduction of the new root tag \c assistantconfig in the
-fileformat from \QT version 3.2.0, it is possible to specify multiple DCF tags in
+fileformat from Qt version 3.2.0, it is possible to specify multiple DCF tags in
 one file. Note that the old document contents file format, used up to
-\QT 3.2 is still valid.
+Qt 3.2 is still valid.
 
 \section1 Profiles
 
@@ -484,7 +484,7 @@ aboutmenutext
 
 \i About URL- This property can be used to point to an HTML file that
 describes the contents in the About dialog that is opened for the
-\Meny Help menu, e.g. About Application. The url is specified relative
+\Menu Help menu, e.g. About Application. The url is specified relative
 to the location of the profile. The property name is \c abouturl
 
 \i \QA Documentation- This property describes the location of
@@ -543,7 +543,7 @@ file above, \c helpdemo.adp, we would run the command as follows:
 > assistant -profile helpdemo.adp
 \endcode
 
-See the HelpDemo example in the \QT distribution for a demonstration
+See the HelpDemo example in the Qt distribution for a demonstration
 on how to use \QA with profiles for your own applications.
 
 \omit

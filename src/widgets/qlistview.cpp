@@ -5619,11 +5619,10 @@ int QListView::itemMargin() const
     \fn void QListView::contextMenuRequested( QListViewItem *item, const QPoint & pos, int col )
 
     This signal is emitted when the user invokes a context menu with
-    the right mouse button or with special system keys, item being the
-    item under the mouse cursor, or the current item in case of
-    invoked by key. If no item is under the mouse cursor, item is 0,
-    unless invoked by key.
-
+    the right mouse button or with special system keys. If the
+    keyboard was used \a item is the current item; if the mouse was
+    used, \a item is the item under the mouse pointer or 0 if there is
+    no item under the mouse pointer.
 
     \a pos is the position for the context menu in the global
     coordinate system.
