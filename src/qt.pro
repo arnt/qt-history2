@@ -124,6 +124,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qpngio.h \
 		  $$KERNEL_H/qpointarray.h \
 		  $$KERNEL_H/qpoint.h \
+		  $$KERNEL_H/qpolygonscanner.h \
 		  $$KERNEL_H/qprinter.h \
 		  $$KERNEL_H/qrect.h \
 		  $$KERNEL_H/qregion.h \
@@ -202,6 +203,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 	          $$TOOLS_H/qvaluelist.h \
 		  $$WIDGETS_H/qbuttongroup.h \
 		  $$WIDGETS_H/qbutton.h \
+		  $$WIDGETS_H/qcanvas.h \
 		  $$WIDGETS_H/qcheckbox.h \
 		  $$WIDGETS_H/qcdestyle.h \
 		  $$WIDGETS_H/qcombobox.h \
@@ -369,6 +371,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qpngio.cpp \
 		  kernel/qpointarray.cpp \
 		  kernel/qpoint.cpp \
+		  kernel/qpolygonscanner.cpp \
 		  kernel/qprinter.cpp \
 		  kernel/qrect.cpp \
 		  kernel/qregion.cpp \
@@ -392,6 +395,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qvariant.cpp \
 		  widgets/qbuttongroup.cpp \
 		  widgets/qbutton.cpp \
+		  widgets/qcanvas.cpp \
 		  widgets/qcdestyle.cpp \
 		  widgets/qcheckbox.cpp \
 		  widgets/qcombobox.cpp \
