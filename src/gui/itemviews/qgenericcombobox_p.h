@@ -5,28 +5,88 @@
 #include <qgenericlistview.h>
 #include <qlineedit.h>
 #include <qgenericcombobox.h>
+#include <qbasictimer.h>
+#include <qabstractslider.h>
+#include <qstyle.h>
+#include <qstyleoption.h>
+#include <qpainter.h>
 #include <private/qwidget_p.h>
 #endif // QT_H
 
-class ComboListView : public QGenericListView
+class Scroller : public QWidget
 {
     Q_OBJECT
 
 public:
-    ComboListView(QAbstractItemModel *model, QWidget *parent = 0);
-    bool ignoreNextMousePress();
+    Scroller(QAbstractSlider::SliderAction action, QWidget *parent)
+        : QWidget(parent), sliderAction(action) {
+        setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+    }
+    QSize sizeHint() const {
+        return QSize(20, style().pixelMetric(QStyle::PM_MenuScrollerHeight));
+    }
 
 protected:
-    void mouseReleaseEvent(QMouseEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
+    void enterEvent(QEvent *) {
+        timer.start(100, this);
+    }
+    void leaveEvent(QEvent *) {
+        timer.stop();
+    }
+    void timerEvent(QTimerEvent *e) {
+        if (e->timerId() == timer.timerId())
+            emit doScroll(sliderAction);
+    }
+    void hideEvent(QHideEvent *) {
+        timer.stop();
+    }
+    void paintEvent(QEvent *e) {
+        QPainter p(this);
+        Q4StyleOptionMenuItem menuOpt(0);
+        menuOpt.palette = palette();
+        menuOpt.state = QStyle::Style_Default;
+        menuOpt.checkState = Q4StyleOptionMenuItem::NotCheckable;
+        menuOpt.menuRect = rect();
+        menuOpt.maxIconWidth = 0;
+        menuOpt.tabWidth = 0;
+        menuOpt.menuItemType = Q4StyleOptionMenuItem::Scroller;
+        if (sliderAction == QAbstractSlider::SliderSingleStepAdd)
+            menuOpt.state = QStyle::Style_Down;
+        menuOpt.rect = rect();
+        style().drawControl(QStyle::CE_MenuScroller, &menuOpt, &p);
+    }
+
+signals:
+    void doScroll(int action);
+
+private:
+    QAbstractSlider::SliderAction sliderAction;
+    QBasicTimer timer;
+};
+
+class ListViewContainer : public QFrame
+{
+    Q_OBJECT
+
+public:
+    ListViewContainer(QGenericListView *listView, QWidget *parent = 0);
+    QGenericListView *listView() const;
+
+public slots:
+    void scrollListView(int action);
+    void updateScrollers();
+
+protected:
+    bool eventFilter(QObject *o, QEvent *e);
     void keyPressEvent(QKeyEvent *e);
-    bool event(QEvent * e);
 
 signals:
     void itemSelected(const QModelIndex &);
 
 private:
-    bool ignoreMousePress;
+    QGenericListView *list;
+    Scroller *top;
+    Scroller *bottom;
 };
 
 class QGenericComboBoxPrivate: public QWidgetPrivate
@@ -37,8 +97,8 @@ public:
         : QWidgetPrivate(),
           model(0),
           lineEdit(0),
-          listView(0),
           delegate(0),
+          container(0),
           insertionPolicy(QGenericComboBox::AtBottom),
           autoCompletion(true),
           duplicatesEnabled(false),
@@ -55,8 +115,8 @@ public:
 
     QAbstractItemModel *model;
     QLineEdit *lineEdit;
-    ComboListView *listView;
     QAbstractItemDelegate *delegate;
+    ListViewContainer *container;
     QGenericComboBox::InsertionPolicy insertionPolicy;
     bool autoCompletion;
     bool duplicatesEnabled;

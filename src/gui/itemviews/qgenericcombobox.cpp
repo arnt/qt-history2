@@ -7,54 +7,119 @@
 #include <qgenericlistview.h>
 #include <qitemdelegate.h>
 #include <qmap.h>
+#include <qlayout.h>
+#include <qscrollbar.h>
 #include <private/qgenericcombobox_p.h>
 
 #define d d_func()
 #define q q_func()
 
-ComboListView::ComboListView(QAbstractItemModel *model, QWidget *parent) :
-    QGenericListView(model, parent), ignoreMousePress(false)
+ListViewContainer::ListViewContainer(QGenericListView *listView, QWidget *parent)
+    : QFrame(parent), list(listView), top(0), bottom(0)
 {
-    setMouseTracking(true);
-    setSelectionMode(SingleSelection);
+    // setup container
     setFrameStyle(QFrame::Box|QFrame::Plain);
     setLineWidth(1);
-    setStartEditActions(QAbstractItemDelegate::NeverEdit);
-    setFocusPolicy(Qt::StrongFocus);
-}
 
-/*! internal
-  needed to skip mousePressEvents for replayed events generated when the ComboListView is closed/hidden.
-*/
-bool ComboListView::ignoreNextMousePress()
-{
-    if (ignoreMousePress) {
-        ignoreMousePress = false;
-        return true;
+    // setup the listview
+    Q_ASSERT(list);
+    list->setParent(this);
+    list->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    list->viewport()->installEventFilter(this);
+    setFocusProxy(list);
+    list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    if (style().styleHint(QStyle::SH_ComboBox_Popup))
+        list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    if (style().styleHint(QStyle::SH_ComboBox_ListMouseTracking))
+        list->setMouseTracking(true);
+    list->setSelectionMode(QAbstractItemView::SingleSelection);
+    list->setFrameStyle(QFrame::NoFrame);
+    list->setLineWidth(0);
+    list->setStartEditActions(QAbstractItemDelegate::NeverEdit);
+    list->setFocusPolicy(Qt::StrongFocus);
+    connect(list->verticalScrollBar(), SIGNAL(valueChanged(int)),
+            this, SLOT(updateScrollers()));
+    connect(list->verticalScrollBar(), SIGNAL(rangeChanged(int, int)),
+            this, SLOT(updateScrollers()));
+
+    // add widgets to layout and create scrollers if needed
+    QBoxLayout *layout =  new QBoxLayout(QBoxLayout::TopToBottom, this);
+    if (style().styleHint(QStyle::SH_ComboBox_Popup)) {
+        top = new Scroller(QAbstractSlider::SliderSingleStepSub, this);
+        bottom = new Scroller(QAbstractSlider::SliderSingleStepAdd, this);
     }
-    return false;
+    if (top) {
+        layout->addWidget(top);
+        connect(top, SIGNAL(doScroll(int)), this, SLOT(scrollListView(int)));
+    }
+    layout->addWidget(list);
+    if (bottom) {
+        layout->addWidget(bottom);
+        connect(bottom, SIGNAL(doScroll(int)), this, SLOT(scrollListView(int)));
+    }
 }
 
-void ComboListView::mouseReleaseEvent(QMouseEvent *)
+void ListViewContainer::scrollListView(int action)
 {
-    hide();
-    emit itemSelected(currentItem());
+    list->verticalScrollBar()->triggerAction(static_cast<QAbstractSlider::SliderAction>(action));
 }
 
-void ComboListView::mouseMoveEvent(QMouseEvent *e)
+/*
+  \internal
+
+  Hides or shows the scrollers when we emulate a popupmenu
+*/
+void ListViewContainer::updateScrollers()
 {
-    QMouseEvent tmp(e->type(), e->pos(), e->button(), e->state() | Qt::LeftButton);
-    QGenericListView::mouseMoveEvent(&tmp);
+    if (!top || !bottom)
+        return;
+    if (list->verticalScrollBar()->minimum() < list->verticalScrollBar()->maximum()) {
+        bool needTop = list->verticalScrollBar()->value() > list->verticalScrollBar()->minimum()
+                       + list->spacing();
+        bool needBottom = list->verticalScrollBar()->value() < (list->verticalScrollBar()->maximum()
+                                                                - list->spacing()*2);
+        needTop ? top->show() : top->hide();
+        needBottom ? bottom->show() : bottom->hide();
+    } else {
+            top->hide();
+            bottom->hide();
+    }
 }
 
-void ComboListView::keyPressEvent(QKeyEvent *e)
+/*
+  \internal
+
+  Returns the listview used for the combobox popup.
+*/
+QGenericListView *ListViewContainer::listView() const
 {
-    QGenericListView::keyPressEvent(e);
+    return list;
+}
+
+bool ListViewContainer::eventFilter(QObject *o, QEvent *e)
+{
+    switch (e->type()) {
+    case QEvent::MouseButtonRelease: {
+        QMouseEvent *m = static_cast<QMouseEvent *>(e);
+        if (list->rect().contains(m->pos())) {
+            hide();
+            emit itemSelected(list->currentItem());
+        }
+        break;
+    }
+    default:
+        break;
+    }
+    return QFrame::eventFilter(o, e);
+}
+
+void ListViewContainer::keyPressEvent(QKeyEvent *e)
+{
     switch (e->key()) {
     case Qt::Key_Enter:
     case Qt::Key_Return:
         hide();
-        emit itemSelected(currentItem());
+        emit itemSelected(list->currentItem());
         break;
     case Qt::Key_F4:
     case Qt::Key_Escape:
@@ -63,28 +128,6 @@ void ComboListView::keyPressEvent(QKeyEvent *e)
     default:
         break;
     }
-}
-
-bool ComboListView::event(QEvent *e)
-{
-    if (e->type() == QEvent::MouseButtonPress) {
-        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(e);
-        // hide if mousePress outside listview
-        if (!rect().contains(mouseEvent->pos())) {
-            QGenericComboBox *comboBox = qt_cast<QGenericComboBox *>(parentWidget());
-            if (comboBox) {
-                QRect arrowRect = comboBox->style().querySubControlMetrics(
-                    QStyle::CC_ComboBox, comboBox, QStyle::SC_ComboBoxArrow);
-                QRect globalArrowRect(comboBox->mapToGlobal(arrowRect.topLeft()),
-                                      comboBox->mapToGlobal(arrowRect.bottomRight()));
-                if (globalArrowRect.contains(mouseEvent->globalPos()))
-                    ignoreMousePress = true; // ignore next mousepress (replayed) if click on arrowrect
-            }
-            hide();
-            return true;
-        }
-    }
-    return QGenericListView::event(e);
 }
 
 QGenericComboBox::QGenericComboBox(QAbstractItemModel *model, QWidget *parent) :
@@ -107,13 +150,14 @@ QGenericComboBox::QGenericComboBox(QGenericComboBoxPrivate &dd,
 void QGenericComboBoxPrivate::init()
 {
     q->setFocusPolicy(Qt::StrongFocus);
-    q->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed));
+    q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     q->setCurrentItem(model->index(0, 0, root));
     delegate = new QItemDelegate(model, q);
-    listView = new ComboListView(model, q);
-    listView->setParent(q, Qt::WType_Popup);
-    listView->setItemDelegate(delegate);
-    QApplication::connect(listView, SIGNAL(itemSelected(const QModelIndex &)),
+    QGenericListView *l = new QGenericListView(model, 0);
+    l->setItemDelegate(delegate);
+    container = new ListViewContainer(l, q);
+    container->setParent(q, Qt::WType_Popup);
+    QApplication::connect(container, SIGNAL(itemSelected(const QModelIndex &)),
                           q, SLOT(itemSelected(const QModelIndex &)));
 }
 
@@ -216,10 +260,8 @@ bool QGenericComboBoxPrivate::contains(const QString &text, int role)
 
 QGenericComboBox::~QGenericComboBox()
 {
-    delete d->listView;
-    d->listView = 0;
+    // ### check delegateparent and delete delegate if us?
 }
-
 
 int QGenericComboBox::sizeLimit() const
 {
@@ -285,6 +327,9 @@ void QGenericComboBox::setEditable(bool editable)
     }
 }
 
+/*!
+    Sets the line edit to use \a edit instead of the current line edit.
+*/
 void QGenericComboBox::setLineEdit(QLineEdit *edit)
 {
     if ( !edit ) {
@@ -313,6 +358,11 @@ void QGenericComboBox::setLineEdit(QLineEdit *edit)
     update();
 }
 
+/*!
+    Returns the line edit, or 0 if there is no line edit.
+
+    Only editable listboxes have a line editor.
+*/
 QLineEdit *QGenericComboBox::lineEdit() const
 {
     return d->lineEdit;
@@ -347,7 +397,7 @@ void QGenericComboBox::setItemDelegate(QAbstractItemDelegate *delegate)
         delete d->delegate;
 
     d->delegate = delegate;
-    d->listView->setItemDelegate(d->delegate);
+    listView()->setItemDelegate(d->delegate);
 }
 
 QAbstractItemModel *QGenericComboBox::model() const
@@ -364,6 +414,7 @@ void QGenericComboBox::setRoot(const QModelIndex &index)
 {
     QModelIndex old = d->root;
     d->root = QPersistentModelIndex(index, d->model);
+    listView()->setRoot(index);
     emit rootChanged(old, index);
     update();
 }
@@ -467,7 +518,7 @@ QModelIndex QGenericComboBox::changeItem(const QString &text, const QIconSet &ic
 
 QGenericListView *QGenericComboBox::listView() const
 {
-    return d->listView;
+    return d->container->listView();
 }
 
 QSize QGenericComboBox::sizeHint() const
@@ -478,6 +529,8 @@ QSize QGenericComboBox::sizeHint() const
     const QFontMetrics &fm = fontMetrics();
     d->sizeHint.setWidth(fm.width("XXX"));
     d->sizeHint.setHeight(fontMetrics().lineSpacing());
+    if (d->lineEdit)
+        d->sizeHint.setHeight(d->lineEdit->sizeHint().height());
 
     QItemOptions options;
     options.editing = isEditable();
@@ -495,6 +548,46 @@ QSize QGenericComboBox::sizeHint() const
     d->sizeHint = (style().sizeFromContents(QStyle::CT_ComboBox, this, d->sizeHint)
                    .expandedTo(QApplication::globalStrut()));
     return d->sizeHint;
+}
+
+void QGenericComboBox::popup()
+{
+    if (model()->rowCount(root()) <= 0)
+        return;
+
+    // set current item
+    listView()->setCurrentItem(currentItem());
+
+    // use top item as height for complete listView
+    int itemHeight = listView()->itemSizeHint(model()->index(0, 0, root())).height()
+                     + listView()->spacing();
+    QRect listRect(rect());
+    listRect.setHeight(itemHeight * qMin(d->sizeLimit, model()->rowCount(root()))
+                       + listView()->spacing()*2);
+
+    // make sure the widget fits on screen
+    //### do horizontally as well
+    QRect screen = QApplication::desktop()->availableGeometry(this);
+    QPoint below = mapToGlobal(rect().bottomLeft());
+    int belowHeight = screen.bottom() - below.y();
+    QPoint above = mapToGlobal(rect().topLeft());
+    int aboveHeight = above.y() - screen.y();
+    if (listRect.height() <= belowHeight) {
+        listRect.moveTopLeft(below);
+    } else if (listRect.height() <= aboveHeight) {
+        listRect.moveBottomLeft(above);
+    } else if (belowHeight >= aboveHeight) {
+        listRect.setHeight(belowHeight);
+        listRect.moveTopLeft(below);
+    } else {
+        listRect.setHeight(aboveHeight);
+        listRect.moveBottomLeft(above);
+    }
+
+    d->container->setGeometry(listRect);
+    listView()->ensureItemVisible(listView()->currentItem());
+    d->container->raise();
+    d->container->show();
 }
 
 void QGenericComboBox::currentChanged(const QModelIndex &old, const QModelIndex &current)
@@ -555,14 +648,12 @@ void QGenericComboBox::paintEvent(QPaintEvent *)
 
 void QGenericComboBox::mousePressEvent(QMouseEvent *e)
 {
-    // prevent popup for replayed events
-    if (d->listView->ignoreNextMousePress())
-        return;
-
     QRect arrowRect = style().querySubControlMetrics(QStyle::CC_ComboBox, this,
                                                      QStyle::SC_ComboBoxArrow);
-    if (arrowRect.contains(e->pos()) && (!d->listView || !d->listView->isVisible()))
-        popupListView();
+    if (arrowRect.contains(e->pos()) && (!listView() || !listView()->isVisible()))
+        popup();
+    else
+        e->ignore();
 }
 
 void QGenericComboBox::keyPressEvent(QKeyEvent *e)
@@ -573,7 +664,6 @@ void QGenericComboBox::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Backspace:
         // skip autoCompletion if Delete or Backspace has been pressed
         d->skipCompletion = true;
-        e->ignore();
         break;
     case Qt::Key_PageUp:
     case Qt::Key_Up:
@@ -584,73 +674,27 @@ void QGenericComboBox::keyPressEvent(QKeyEvent *e)
         newIndex = model()->index(currentItem().row() + 1, currentItem().column(), root());
         break;
     case Qt::Key_Home:
-        if (isEditable())
-            e->ignore();
-        else
+        if (!isEditable())
             newIndex = model()->index(0, 0, root());
         break;
     case Qt::Key_End:
-        if (isEditable())
-            e->ignore();
-        else
+        if (!isEditable())
             newIndex = model()->index(model()->rowCount(root()) - 1, 0, root());
         break;
     default:
         if (!e->text().isEmpty() && !isEditable()) {
-            d->listView->setCurrentItem(currentItem());
-            d->listView->keyboardSearch(e->text());
-            if (d->listView->currentItem().isValid()
-                && d->listView->currentItem() != currentItem())
-                setCurrentItem(d->listView->currentItem());
+            // use keyboardSearch from the listView so we do not duplicate code
+            listView()->setCurrentItem(currentItem());
+            listView()->keyboardSearch(e->text());
+            if (listView()->currentItem().isValid()
+                && listView()->currentItem() != currentItem())
+                setCurrentItem(listView()->currentItem());
         }
         break;
     }
 
     if (newIndex.isValid())
         setCurrentItem(newIndex);
-}
-
-void QGenericComboBox::popupListView()
-{
-    if (model()->rowCount(root()) <= 0)
-        return;
-
-    // set current item and select it
-    if (d->listView->currentItem() != currentItem())
-        d->listView->setCurrentItem(currentItem());
-    if (!d->listView->selectionModel()->isSelected(d->listView->currentItem()))
-        d->listView->selectionModel()->select(d->listView->currentItem(),
-                                              QItemSelectionModel::ClearAndSelect);
-
-    // use top item as height for complete listView
-    int itemHeight = d->listView->itemSizeHint(model()->index(0, 0, root())).height() + d->listView->spacing();
-    QRect listRect = rect();
-    listRect.setHeight(itemHeight * qMin(d->sizeLimit, model()->rowCount(root())) +
-                       d->listView->spacing());
-
-    // make sure the widget fits on screen
-    //### do horizontally as well
-    QRect screen = QApplication::desktop()->availableGeometry(this);
-    QPoint below = mapToGlobal(rect().bottomLeft());
-    int belowHeight = screen.bottom() - below.y();
-    QPoint above = mapToGlobal(rect().topLeft());
-    int aboveHeight = above.y() - screen.y();
-    if (listRect.height() <= belowHeight) {
-        listRect.moveTopLeft(below);
-    } else if (listRect.height() <= aboveHeight) {
-        listRect.moveBottomLeft(above);
-    } else if (belowHeight >= aboveHeight) {
-        listRect.setHeight(belowHeight);
-        listRect.moveTopLeft(below);
-    } else {
-        listRect.setHeight(aboveHeight);
-        listRect.moveBottomLeft(above);
-    }
-
-    d->listView->setGeometry(listRect);
-    d->listView->ensureItemVisible(d->listView->currentItem());
-    d->listView->raise();
-    d->listView->show();
 }
 
 #include "moc_qgenericcombobox.cpp"

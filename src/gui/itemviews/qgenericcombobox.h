@@ -78,6 +78,8 @@ public:
 
     QSize sizeHint() const;
 
+    virtual void popup();
+
 signals:
     void textChanged(const QString &);
     void activated(const QModelIndex &);
@@ -98,7 +100,6 @@ protected:
 
 
 private:
-    void popupListView();
     Q_PRIVATE_SLOT(void itemSelected(const QModelIndex &item))
     Q_PRIVATE_SLOT(void returnPressed())
     Q_PRIVATE_SLOT(void complete())

@@ -876,7 +876,6 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Enter:
     case Qt::Key_Return:
         emit returnPressed(currentItem());
-        e->accept();
         return;
     case Qt::Key_Space:
         d->selectionModel->select(currentItem(),
@@ -885,11 +884,9 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
                                                    e->type(),
                                                    (Qt::Key)e->key()));
         emit spacePressed(currentItem());
-        e->accept();
         return;
     case Qt::Key_Delete:
         emit deletePressed(currentItem());
-        e->accept();
         return;
     case Qt::Key_F2:
         if (startEdit(currentItem(), QAbstractItemDelegate::EditKeyPressed, e))
