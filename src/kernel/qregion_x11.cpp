@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#10 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -13,50 +13,18 @@
 #include "qregion.h"
 #include "qpntarry.h"
 #include "qbuffer.h"
-#include "qdstream.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#10 $";
 #endif
 
 
 /*!
-\class QRegion qregion.h
-\brief The QRegion class specified a clip region for the painter.
-
-A region defines a clip region for a QPainter. A region can be
-a rectangle, an ellipse, a polygon or a combination of these.
-
-Regions are combined by creating a new region which is a
-union, intersection or difference between any two regions.
-
-The region XOR operation is defined as:
-\code
-  a XOR b = (a UNION b) - (a INTERSECTION b)
-\endcode
-
-Example of use:
-\code
-  QWidget  w;
-  QPainter p;
-  QRegion r1( QRect(100,100,200,80),	\/ r1 = elliptic region
-	      QRegion::Ellipse );
-  QRegion r2( QRect(100,120,90,30) );	\/ r2 = rectangular region
-  QRegion r3 = r1.intersect( r2 );	\/ r3 = intersection
-  p.begin( &w );			\/ start painting widget
-  p.setClipRegion( r3 );		\/ set clip region
-  ...					\/ paint clipped graphics
-  p.end();				\/ painting done
-\endcode
-*/
-
-
-/*!
-Constructs an empty region.
+  Constructs an empty region.
 */
 
 QRegion::QRegion()				// create empty region
@@ -67,32 +35,33 @@ QRegion::QRegion()				// create empty region
 }
 
 /*!
-Constructs a rectangular or elliptic region.
+  Constructs a rectangular or elliptic region.
 
-\arg \e rr is the region rectangle.
-\arg \e t is the region type: QRegion::Rectangle (default) or QRegion::Ellipse.
+  \arg \e r is the region rectangle.
+  \arg \e t is the region type: QRegion::Rectangle (default) or
+  QRegion::Ellipse.
 */
 
-QRegion::QRegion( const QRect &rr, RegionType t )
+QRegion::QRegion( const QRect &r, RegionType t )
 {						// create region from rect
-    QRect r = rr;
+    QRect rr = r;
     data = new QRegionData;
     CHECK_PTR( data );
-    r.fixup();
+    rr.fixup();
     int id;
     if ( t == Rectangle ) {			// rectangular region
 	data->rgn = XCreateRegion();
 	XRectangle xr;
-	xr.x = r.x();
-	xr.y = r.y();
-	xr.width = r.width();
-	xr.height = r.height();
+	xr.x = rr.x();
+	xr.y = rr.y();
+	xr.width  = rr.width();
+	xr.height = rr.height();
 	XUnionRectWithRegion( &xr, data->rgn, data->rgn );
 	id = QRGN_SETRECT;
     }
     else if ( t == Ellipse ) {			// elliptic region
 	QPointArray a;
-	a.makeEllipse( r.x(), r.y(), r.width(), r.height() );
+	a.makeEllipse( rr.x(), rr.y(), rr.width(), rr.height() );
 	id = QRGN_SETELLIPSE;
 	data->rgn = XPolygonRegion( (XPoint*)a.data(), a.size(), EvenOddRule );
     }
@@ -102,11 +71,11 @@ QRegion::QRegion( const QRect &rr, RegionType t )
 #endif
 	return;
     }
-    cmd( id, &r );
+    cmd( id, &rr );
 }
 
 /*!
-Constructs a polygon region from the point array \e a.
+  Constructs a polygon region from the point array \e a.
 */
 
 QRegion::QRegion( const QPointArray &a )	// create region from pt array
@@ -118,7 +87,7 @@ QRegion::QRegion( const QPointArray &a )	// create region from pt array
 }
 
 /*!
-Constructs a region which is a shallow copy of \e r.
+  Constructs a region which is a shallow copy of \e r.
 */
 
 QRegion::QRegion( const QRegion &r )
@@ -128,20 +97,21 @@ QRegion::QRegion( const QRegion &r )
 }
 
 /*!
-Destroys the region.
+  Destroys the region.
 */
 
 QRegion::~QRegion()
 {
     if ( data->deref() ) {
-	XDestroyRegion( data->rgn );
+	if ( data->rgn )
+	    XDestroyRegion( data->rgn );
 	delete data;
     }
 }
 
 /*!
-Assigns a shallow copy of \e r to this region and returns a reference to
-the region.
+  Assigns a shallow copy of \e r to this region and returns a reference to
+  the region.
 */
 
 QRegion &QRegion::operator=( const QRegion &r )
@@ -157,7 +127,7 @@ QRegion &QRegion::operator=( const QRegion &r )
 
 
 /*!
-Returns a deep copy of the region.
+  Returns a deep copy of the region.
 */
 
 QRegion QRegion::copy() const
@@ -170,7 +140,7 @@ QRegion QRegion::copy() const
 
 
 /*!
-Returns TRUE if the region is a null region.
+  Returns TRUE if the region is a null region.
 */
 
 bool QRegion::isNull() const
@@ -179,7 +149,7 @@ bool QRegion::isNull() const
 }
 
 /*!
-Returns TRUE if the region is empty, or FALSE if it is non-empty.
+  Returns TRUE if the region is empty, or FALSE if it is non-empty.
 */
 
 bool QRegion::isEmpty() const
@@ -189,8 +159,8 @@ bool QRegion::isEmpty() const
 
 
 /*!
-Returns TRUE if the region contains the point \e p, or FALSE if \e p is
-outside the region.
+  Returns TRUE if the region contains the point \e p, or FALSE if \e p is
+  outside the region.
 */
 
 bool QRegion::contains( const QPoint &p ) const
@@ -199,8 +169,8 @@ bool QRegion::contains( const QPoint &p ) const
 }
 
 /*!
-Returns TRUE if the region contains the rectangle \e r, or FALSE if \e r is
-outside the region.
+  Returns TRUE if the region contains the rectangle \e r, or FALSE if \e r is
+  outside the region.
 */
 
 bool QRegion::contains( const QRect &r ) const
@@ -211,8 +181,8 @@ bool QRegion::contains( const QRect &r ) const
 
 
 /*!
-Changes the offset of the region \e dx along the X axis and \e dy along the
-Y axis.
+  Changes the offset of the region \e dx along the X axis and \e dy along the
+  Y axis.
 */
 
 void QRegion::move( int dx, int dy )
@@ -224,7 +194,7 @@ void QRegion::move( int dx, int dy )
 
 
 /*!
-Returns a region which is the union of this region and \e r.
+  Returns a region which is the union of this region and \e r.
 */
 
 QRegion QRegion::unite( const QRegion &r ) const
@@ -236,7 +206,7 @@ QRegion QRegion::unite( const QRegion &r ) const
 }
 
 /*!
-Returns a region which is the intersection of this region and \e r.
+  Returns a region which is the intersection of this region and \e r.
 */
 
 QRegion QRegion::intersect( const QRegion &r ) const
@@ -248,7 +218,7 @@ QRegion QRegion::intersect( const QRegion &r ) const
 }
 
 /*!
-Returns a region which is \e r subtracted from this region.
+  Returns a region which is \e r subtracted from this region.
 */
 
 QRegion QRegion::subtract( const QRegion &r ) const
@@ -260,7 +230,7 @@ QRegion QRegion::subtract( const QRegion &r ) const
 }
 
 /*!
-Returns a region which is this region XOR \e r.
+  Returns a region which is this region XOR \e r.
 */
 
 QRegion QRegion::xor( const QRegion &r ) const
@@ -273,135 +243,18 @@ QRegion QRegion::xor( const QRegion &r ) const
 
 
 /*!
-\fn bool QRegion::operator!=( const QRegion &r ) const
-Returns TRUE if the region is different from \e r, or FALSE if the regions are
-equal.
+  \fn bool QRegion::operator!=( const QRegion &r ) const
+  Returns TRUE if the region is different from \e r, or FALSE if the regions
+  are equal.
 */
 
 /*!
-Returns TRUE if the region is equal to \e r, or FALSE if the regions are
-different.
+  Returns TRUE if the region is equal to \e r, or FALSE if the regions are
+  different.
 */
 
 bool QRegion::operator==( const QRegion &r ) const
 {
-    return data->bop == r.data->bop ?
+    return data == r.data ?
 	TRUE : XEqualRegion( data->rgn, r.data->rgn );
-}
-
-
-void QRegion::cmd( int id, void *param, const QRegion *r1, const QRegion *r2 )
-{
-    QBuffer buf( data->bop );
-    QDataStream s( &buf );
-    buf.open( IO_WriteOnly );
-    buf.at( buf.size() );
-    s << id;
-    switch ( id ) {
-	case QRGN_SETRECT:
-	case QRGN_SETELLIPSE:
-	    s << *((QRect*)param);
-	    break;
-	case QRGN_SETPTARRAY:
-	    s << *((QPointArray*)param);
-	    break;
-	case QRGN_MOVE:
-	    s << *((QPoint*)param);
-	    break;
-	case QRGN_OR:
-	case QRGN_AND:
-	case QRGN_SUB:
-	case QRGN_XOR:
-	    s << r1->data->bop << r2->data->bop;
-	    break;
-#if defined(CHECK_RANGE)
-	default:
-	    warning( "QRegion: Internal cmd error" );
-#endif
-    }
-    buf.close();
-}
-
-
-void QRegion::exec()
-{
-    QBuffer buf( data->bop );
-    QDataStream s( &buf );
-    buf.open( IO_ReadOnly );
-    QRegion rgn;
-#if defined(DEBUG)
-    int test_cnt = 0;
-#endif
-    while ( !s.eos() ) {
-	int id;
-	s >> id;
-#if defined(DEBUG)
-	if ( test_cnt > 0 && id != QRGN_MOVE )
-	    warning( "QRegion: Internal exec error" );
-	test_cnt++;
-#endif
-	if ( id == QRGN_SETRECT || id == QRGN_SETELLIPSE ) {
-	    QRect r;
-	    s >> r;
-	    rgn = QRegion( r, id == QRGN_SETRECT ? Rectangle : Ellipse );
-	}
-	else if ( id == QRGN_SETPTARRAY ) {
-	    QPointArray a;
-	    s >> a;
-	    rgn = QRegion( a );
-	}
-	else if ( id == QRGN_MOVE ) {
-	    QPoint p;
-	    s >> p;
-	    rgn = *this;
-	    rgn.move( p.x(), p.y() );
-	}
-	else if ( id >= QRGN_OR && id <= QRGN_XOR ) {
-	    QByteArray bop1, bop2;
-	    s >> bop1;
-	    s >> bop2;
-	    QRegion r1, r2;
-	    r1.data->bop = bop1;
-	    r2.data->bop = bop2;
-	    r1.exec();
-	    r2.exec();
-	    switch ( id ) {
-		case QRGN_OR:
-		    rgn = r1.unite( r2 );
-		    break;
-		case QRGN_AND:
-		    rgn = r1.intersect( r2 );
-		    break;
-		case QRGN_SUB:
-		    rgn = r1.subtract( r2 );
-		    break;
-		case QRGN_XOR:
-		    rgn = r1.xor( r2 );
-		    break;
-	    }
-	}
-    }
-    buf.close();
-    *this = rgn;
-}
-
-
-// --------------------------------------------------------------------------
-// QRegion stream functions
-//
-
-QDataStream &operator<<( QDataStream &s, const QRegion &r )
-{
-    return s << r.data->bop;
-}
-
-QDataStream &operator>>( QDataStream &s, QRegion &r )
-{
-    QRegion newr;
-    QByteArray b;
-    s >> b;
-    newr.data->bop = b;
-    newr.exec();
-    r = newr;
-    return s;
 }
