@@ -1630,12 +1630,20 @@ QStringList
 MakefileGenerator::createObjectList(const QString &var)
 {
     QStringList &l = project->variables()[var], ret;
-    QString objdir;
+    QString objdir, dir;
     if(!project->variables()["OBJECTS_DIR"].isEmpty())
 	objdir = project->first("OBJECTS_DIR");
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi(Option::fixPathToLocalOS((*it)));
-	ret.append(objdir + fi.baseName(TRUE) + Option::obj_ext);
+	if(objdir.isEmpty() && project->isActiveConfig("object_with_source")) {
+	    QString fName = Option::fixPathToTargetOS((*it), FALSE);
+	    int dl = fName.findRev(Option::dir_sep);
+	    if(dl != -1)
+		dir = fName.left(dl + 1);
+	} else {
+	    dir = objdir;
+	}
+	ret.append(dir + fi.baseName(TRUE) + Option::obj_ext);
     }
     return ret;
 }
