@@ -2730,19 +2730,21 @@ void QListBox::setSelected( QListBoxItem * item, bool select )
 	return;
 
     bool emitHighlighted = FALSE;
-    if ( selectionMode() == Single && d->current != item ) {
-	QListBoxItem *o = d->current;
-	if ( d->current && d->current->s )
-	    d->current->s = FALSE;
-	d->current = item;
+    if ( selectionMode() == Single ) {
+	emitHighlighted = (d->current != item) ||
+	     ( item->s != (uint) select && select );
+	if ( d->current != item ) {
+	    QListBoxItem *o = d->current;
+	    if ( d->current && d->current->s )
+		d->current->s = FALSE;
 
-	int ind = index( item );
-	d->currentColumn = ind / numRows();
-	d->currentRow = ind % numRows();
+	    int ind = index( item );
+	    d->currentColumn = ind / numRows();
+	    d->currentRow = ind % numRows();
 
-	if ( o )
-	    updateItem( o );
-	emitHighlighted = TRUE;
+	    if ( o )
+		updateItem( o );
+	}
     }
 
     item->s = (uint)select;
