@@ -643,7 +643,7 @@ void QTextEdit::init()
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     od = 0;
     optimizedMode = FALSE;
-#endif    
+#endif
     doc->formatCollection()->setPaintDevice( this );
     undoEnabled = TRUE;
     readonly = TRUE;
@@ -725,8 +725,12 @@ void QTextEdit::paintDocument( bool drawAll, QPainter *p, int cx, int cy, int cw
     if ( doc->paper() )
 	g.setBrush( QColorGroup::Base, *doc->paper() );
 
-    if ( contentsY() == 0 ) {
+    if ( contentsY() < doc->y() ) {
 	p->fillRect( contentsX(), contentsY(), visibleWidth(), doc->y(),
+		     g.brush( QColorGroup::Base ) );
+    }
+    if ( drawAll && doc->width() - contentsX() < cx + cw ) {
+	p->fillRect( doc->width() - contentsX(), cy, cx + cw - doc->width() + contentsX(), ch,
 		     g.brush( QColorGroup::Base ) );
     }
 
@@ -751,7 +755,7 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	optimizedDrawContents( p, cx, cy, cw, ch );
 	return;
     }
-#endif    
+#endif
     paintDocument( TRUE, p, cx, cy, cw, ch );
     int v;
     p->setPen( foregroundColor() );
@@ -1634,7 +1638,7 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 	optimizedMousePressEvent( e );
 	return;
     }
-#endif    
+#endif
     clearUndoRedo();
     QTextCursor oldCursor = *cursor;
     QTextCursor c = *cursor;
@@ -2014,7 +2018,7 @@ void QTextEdit::contentsContextMenuEvent( QContextMenuEvent *e )
 }
 
 void QTextEdit::doAutoScroll()
-{     
+{
     if ( !mousePressed )
 	return;
 
@@ -2147,10 +2151,11 @@ void QTextEdit::formatMore()
 
 void QTextEdit::doResize()
 {
+    if ( wrapMode != WidgetWidth )
+	return;
     doc->setMinimumWidth( -1 );
     resizeContents( 0, 0 );
     doc->setWidth( visibleWidth() );
-    wrapWidth = visibleWidth();
     doc->invalidate();
     lastFormatted = doc->firstParag();
     interval = 0;
@@ -2212,7 +2217,7 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, boo
     if ( optimizedMode )
 	return;
 #endif
-    
+
     if ( cursor->nestedDepth() != 0 ) // #### for 3.0, disable editing of tables as this is not advanced enough
 	return;
     QString txt( text );
@@ -2631,7 +2636,7 @@ void QTextEdit::setPalette( const QPalette &p )
     if ( textFormat() == PlainText ) {
 	QTextFormat *f = doc->formatCollection()->defaultFormat();
 	f->setColor( colorGroup().text() );
-	repaintContents( FALSE );
+	updateContents();
     }
 }
 
@@ -2943,7 +2948,7 @@ void QTextEdit::setText( const QString &text, const QString &context )
 	optimizedSetText( text );
 	return;
     }
-#endif    
+#endif
     if ( this->text() == text && this->context() == context )
 	return;
 
@@ -2969,7 +2974,7 @@ void QTextEdit::setText( const QString &text, const QString &context )
     lastFormatted = doc->firstParag();
     cursor->setParag( doc->firstParag() );
     cursor->setIndex( 0 );
-    repaintContents( FALSE );
+    updateContents();
     emit textChanged();
     formatMore();
     updateCurrentFormat();
@@ -3429,7 +3434,7 @@ void QTextEdit::selectAll( bool select )
 	optimizedSelectAll();
 	return;
     }
-#endif    
+#endif
     if ( !select )
 	doc->removeSelection( QTextDocument::Standard );
     else
@@ -3630,7 +3635,7 @@ void QTextEdit::append( const QString &text )
 	optimizedAppend( text );
 	return;
     }
-#endif    
+#endif
     doc->removeSelection( QTextDocument::Standard );
     TextFormat f = doc->textFormat();
     if ( f == AutoText ) {
@@ -3990,7 +3995,7 @@ void QTextEdit::setWordWrap( WordWrap mode )
 	doc->setWidth( visibleWidth() );
 	doc->setMinimumWidth( -1 );
 	doc->invalidate();
-	repaintContents( FALSE );
+	updateContents();
 	lastFormatted = doc->firstParag();
 	interval = 0;
 	formatMore();
@@ -4003,9 +4008,13 @@ void QTextEdit::setWordWrap( WordWrap mode )
     case FixedPixelWidth:
 	document()->formatter()->setWrapEnabled( TRUE );
 	document()->formatter()->setWrapAtColumn( -1 );
+	if ( wrapWidth < 0 )
+	    wrapWidth = 200;
 	setWrapColumnOrWidth( wrapWidth );
 	break;
     case FixedColumnWidth:
+	if ( wrapWidth < 0 )
+	    wrapWidth = 80;
 	document()->formatter()->setWrapEnabled( TRUE );
 	document()->formatter()->setWrapAtColumn( wrapWidth );
 	setWrapColumnOrWidth( wrapWidth );
@@ -4050,7 +4059,7 @@ void QTextEdit::setWrapColumnOrWidth( int value )
 	return;
     }
     doc->invalidate();
-    repaintContents( FALSE );
+    updateContents();
     lastFormatted = doc->firstParag();
     interval = 0;
     formatMore();
@@ -4058,6 +4067,8 @@ void QTextEdit::setWrapColumnOrWidth( int value )
 
 int QTextEdit::wrapColumnOrWidth() const
 {
+    if ( wrapMode == WidgetWidth )
+	return visibleWidth();
     return wrapWidth;
 }
 
@@ -4101,7 +4112,7 @@ void QTextEdit::setWrapPolicy( WrapPolicy policy )
     formatter->setWrapEnabled( document()->formatter()->isWrapEnabled( 0 ) );
     document()->setFormatter( formatter );
     doc->invalidate();
-    repaintContents( FALSE );
+    updateContents();
     lastFormatted = doc->firstParag();
     interval = 0;
     formatMore();
@@ -4140,7 +4151,7 @@ void QTextEdit::clear()
 	lastFormatted = 0;
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     }
-#endif    
+#endif
     repaintContents( FALSE );
 }
 
@@ -4184,7 +4195,11 @@ void QTextEdit::setUndoDepth( int d )
 void QTextEdit::setTabStopWidth( int ts )
 {
     document()->setTabStops( ts );
-    doResize();
+    doc->invalidate();
+    lastFormatted = doc->firstParag();
+    interval = 0;
+    formatMore();
+    updateContents();
 }
 
 /*! \reimp */
@@ -4312,7 +4327,7 @@ QPopupMenu *QTextEdit::createPopupMenu( const QPoint& pos )
     popup->setItemEnabled( d->id[ IdSelectAll ], optimizedMode ? od->len : (bool)text().length() );
 #else
     popup->setItemEnabled( d->id[ IdSelectAll ], (bool)text().length() );
-#endif    
+#endif
     return popup;
 #else
     return 0;
@@ -4340,7 +4355,7 @@ void QTextEdit::setFont( const QFont &f )
 	QScrollView::setFont( f );
 	return;
     }
-#endif    
+#endif
     QFont old( QScrollView::font() );
     QScrollView::setFont( f );
     doc->setMinimumWidth( -1 );
@@ -4456,7 +4471,7 @@ void QTextEdit::setEnabled( bool b )
     if ( textFormat() == PlainText ) {
 	QTextFormat *f = doc->formatCollection()->defaultFormat();
 	f->setColor( colorGroup().text() );
-	repaintContents();
+	updateContents();
     }
     if ( b ) {
 	blinkTimer->start( QApplication::cursorFlashTime() / 2 );
@@ -4672,7 +4687,7 @@ bool QTextEdit::checkOptimizedMode()
 	optimizedMode = TRUE;
     else
 	optimizedMode = FALSE;
-	 
+	
     // when changing mode - try to keep selections and text
     if ( oldMode != optimizedMode ) {
 	if ( optimizedMode ) {
@@ -4707,8 +4722,8 @@ bool QTextEdit::checkOptimizedMode()
 
 QString QTextEdit::optimizedText() const
 {
-    QString str;    
-    
+    QString str;
+
     if ( od->len == 0 )
 	return str;
 
@@ -4720,17 +4735,17 @@ QString QTextEdit::optimizedText() const
 	else
 	    str += od->lines[ i ] + "\n";
     }
-    return str;    
+    return str;
 }
 
 void QTextEdit::optimizedSetText( const QString &str )
-{    
+{
     if ( str == optimizedText() )
 	return;
-    
+
     od->numLines = 0;
     od->lines.clear();
-    od->len = str.length();    
+    od->len = str.length();
     QStringList strl = QStringList::split( '\n', str, TRUE );
     QFontMetrics fm( QScrollView::font() );
     int lWidth;
@@ -4740,7 +4755,7 @@ void QTextEdit::optimizedSetText( const QString &str )
 	if ( lWidth > od->maxLineWidth )
 	    od->maxLineWidth = lWidth;
     }
-    resizeContents( od->maxLineWidth + 4, od->numLines * fm.lineSpacing() + 
+    resizeContents( od->maxLineWidth + 4, od->numLines * fm.lineSpacing() +
 		    fm.descent() + 1 );
     repaintContents( FALSE );
     emit textChanged();
@@ -4750,11 +4765,11 @@ void QTextEdit::optimizedAppend( const QString &str )
 {
     if ( str.isEmpty() || str.isNull() )
 	return;
-    
+
     od->len += str.length();
     QStringList strl = QStringList::split( '\n', str, TRUE );
     QStringList::Iterator it = strl.begin();
-    
+
     QFontMetrics fm( QScrollView::font() );
     int lWidth;
     // append first line in str to previous line in buffer
@@ -4765,14 +4780,14 @@ void QTextEdit::optimizedAppend( const QString &str )
 	    od->maxLineWidth = lWidth;
 	++it;
     }
-    
+
     for ( ; it != strl.end(); ++it ) {
 	od->lines[ od->numLines++ ] = *it;
 	lWidth = fm.width( *it );
 	if ( lWidth > od->maxLineWidth )
 	    od->maxLineWidth = lWidth;
     }
-    resizeContents( od->maxLineWidth + 4, od->numLines * fm.lineSpacing() + 
+    resizeContents( od->maxLineWidth + 4, od->numLines * fm.lineSpacing() +
  		    fm.descent() + 1 );
     emit textChanged();
 }
@@ -4782,23 +4797,23 @@ void QTextEdit::optimizedDrawContents( QPainter * p, int clipx, int clipy,
 {
     QFontMetrics fm( QScrollView::font() );
     int startLine = clipy / fm.lineSpacing();
-    
+
     // we always have to fetch at least two lines for drawing because the
     // painter may be translated so that parts of two lines cover the area
     // of a single line
     int nLines = (cliph / fm.lineSpacing()) + 2;
     int endLine = startLine + nLines;
-    
+
     if ( startLine >= od->numLines )
 	return;
     if ( (startLine + nLines) > od->numLines )
 	nLines = od->numLines - startLine;
-    
+
     int i = 0;
     QString str;
     for ( i = startLine; i < (startLine + nLines); i++ )
 	str.append( od->lines[ i ] + "\n" );
-    
+
     QTextDocument * td = new QTextDocument( 0 );
     td->updateFontAttributes( QScrollView::font(), QApplication::font() );
     td->updateFontSizes( QScrollView::font().pointSize() );	
@@ -4811,7 +4826,7 @@ void QTextEdit::optimizedDrawContents( QPainter * p, int clipx, int clipy,
     QTextFormat f;
     f.setColor( colorGroup().text() );
     f.setFont( QScrollView::font() );
-    td->setFormat( QTextDocument::Standard, &f, 
+    td->setFormat( QTextDocument::Standard, &f,
 		   QTextFormat::Color | QTextFormat::Font );
     td->removeSelection( QTextDocument::Standard );
 
@@ -4874,7 +4889,7 @@ void QTextEdit::optimizedDrawContents( QPainter * p, int clipx, int clipy,
 	    c1.setIndex( idxStart );
 	    c2.setParag( td->lastParag() );
 	    c2.setIndex( td->lastParag()->string()->toString().length() - 1 );
-	    
+	
 	}
 	// previously selected?
 	if ( !td->hasSelection( QTextDocument::Standard ) ) {
@@ -4882,7 +4897,7 @@ void QTextEdit::optimizedDrawContents( QPainter * p, int clipx, int clipy,
 	    td->setSelectionEnd( QTextDocument::Standard, &c2 );
 	}
     }
-        
+
     // have to align the painter so that partly visible lines are
     // drawn at the correct position within the area that needs to be
     // painted
@@ -4891,14 +4906,14 @@ void QTextEdit::optimizedDrawContents( QPainter * p, int clipx, int clipy,
     p->translate( 0, clipy - offset );
     td->draw( p, r.x(), r.y(), r.width(), r.height(), colorGroup() );
     p->translate( 0, -(clipy - offset) );
-    delete td;    
+    delete td;
 }
 
 void QTextEdit::optimizedMousePressEvent( QMouseEvent * e )
 {
     if ( e->button() != LeftButton )
 	return;
-    
+
     QFontMetrics fm( QScrollView::font() );
     mousePressed = TRUE;
     od->selectionStart.line = e->y() / fm.lineSpacing();
@@ -4938,7 +4953,7 @@ void QTextEdit::optimizedMouseReleaseEvent( QMouseEvent * e )
 	od->selectionEnd.index = tmp;
     }
     oldMousePos = e->pos();
-    repaintContents( FALSE );    
+    repaintContents( FALSE );
     emit copyAvailable( optimizedHasSelection() );
     emit selectionChanged();
 }
@@ -4960,7 +4975,7 @@ void QTextEdit::optimizedDoAutoScroll()
     bool doScroll = FALSE;
     int xx = contentsX() + pos.x();
     int yy = contentsY() + pos.y();
-        
+
     // find out how much we have to scroll in either dir.
     if ( pos.x() < 0 || pos.x() > viewport()->width() ||
 	 pos.y() < 0 || pos.y() > viewport()->height() ) {
@@ -4987,10 +5002,10 @@ void QTextEdit::optimizedDoAutoScroll()
 	
     if ( od->selectionEnd.line < 0 )
 	od->selectionEnd.line = 0;
-    
+
     QString str = od->lines[ od->selectionEnd.line ];
     od->selectionEnd.index = optimizedCharIndex( str );
-    
+
     // have to have a valid index before generating a paint event
     if ( doScroll )
 	ensureVisible( xx, yy, 1, 1 );
@@ -5013,7 +5028,7 @@ void QTextEdit::optimizedDoAutoScroll()
     if ( !scrollTimer->isActive() && pos.y() < 0 || pos.y() > height() )
 	scrollTimer->start( 100, FALSE );
     else if ( scrollTimer->isActive() && pos.y() >= 0 && pos.y() <= height() )
-	scrollTimer->stop();    
+	scrollTimer->stop();
 }
 
 int QTextEdit::optimizedCharIndex( const QString &str )
@@ -5025,7 +5040,7 @@ int QTextEdit::optimizedCharIndex( const QString &str )
 
     if ( mousePos.x() > fm.width( str ) )
 	return str.length();
-    
+
     while ( i < str.length() ) {
 	dd = fm.width( str.left( i ) ) - mousePos.x();
 	if ( QABS(dd) < dist || dist == dd ) {
@@ -5038,7 +5053,7 @@ int QTextEdit::optimizedCharIndex( const QString &str )
 //     qWarning("x: %d, y: %d, c: %d, tabwidth: %d, strwidth(1): %d",
 // 	     mousePos.x(), mousePos.y(), curpos, fm.width("\t"),
 // 	     fm.width(str.left(1) ) );
-    return curpos;    
+    return curpos;
 }
 
 void QTextEdit::optimizedSelectAll()
@@ -5072,23 +5087,23 @@ bool QTextEdit::optimizedHasSelection() const
     if ( od->selectionStart.line != od->selectionEnd.line ||
 	 od->selectionStart.index != od->selectionEnd.index )
 	return TRUE;
-    return FALSE;    
+    return FALSE;
 }
 
 QString QTextEdit::optimizedSelectedText() const
 {
     QString str;
-    
+
     if ( !optimizedHasSelection() )
 	return str;
-    
+
     // concatenate all strings
     if ( od->selectionStart.line == od->selectionEnd.line ) {
 	str = od->lines[ od->selectionEnd.line ].mid( od->selectionStart.index,
 			   od->selectionEnd.index - od->selectionStart.index );
     } else {
 	int i = od->selectionStart.line;
-	str = od->lines[ i ].right( od->lines[i].length() - 
+	str = od->lines[ i ].right( od->lines[i].length() -
 				  od->selectionStart.index ) + "\n";
 	i++;
 	for ( ; i < od->selectionEnd.line; i++ ) {
