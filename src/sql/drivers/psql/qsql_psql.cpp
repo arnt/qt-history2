@@ -138,6 +138,7 @@ QVariant::Type qDecodePSQLType( int t )
 	//    case ZPBITOID	: // 7.x
 	//    case VARBITOID	: // 7.x
     case OIDOID         :
+    case BYTEAOID       :
 	type = QVariant::ByteArray;
 	break;
     case REGPROCOID     :
@@ -156,7 +157,6 @@ QVariant::Type qDecodePSQLType( int t )
     case VARCHAROID	:
     case TEXTOID	:
     case NAMEOID	:
-    case BYTEAOID       :
     case CASHOID        :
     case INETOID        :
     case CIDROID        :
@@ -260,12 +260,9 @@ QVariant QPSQLResult::data( int i )
 {
     int ptype = PQftype( d->result, i );
     QVariant::Type type = qDecodePSQLType( ptype );
-    QString val;
-    if ( d->isUtf8 ) {
-	val = QString::fromUtf8( PQgetvalue( d->result, at(), i ) );
-    } else {
-	val = QString::fromLocal8Bit( PQgetvalue( d->result, at(), i ) );
-    }
+    const QString val = ( d->isUtf8 && ptype != BYTEAOID ) ? 
+			QString::fromUtf8( PQgetvalue( d->result, at(), i ) ) :
+			QString::fromLocal8Bit( PQgetvalue( d->result, at(), i ) );
     switch ( type ) {
     case QVariant::Bool:
 	{
@@ -296,23 +293,25 @@ QVariant QPSQLResult::data( int i )
     case QVariant::Time:
 	if ( val.isEmpty() )
 	    return QVariant( QTime() );
-	// strip the timezone
 	if ( val.at( val.length() - 3 ) == '+' )
-	    val.truncate( val.length() - 3 );
+	    // strip the timezone
+	    return QVariant( QTime::fromString( val.left( val.length() - 3 ), Qt::ISODate ) );
 	return QVariant( QTime::fromString( val, Qt::ISODate ) );
-    case QVariant::DateTime:
+    case QVariant::DateTime: {
 	if ( val.length() < 10 )
 	    return QVariant( QDateTime() );
 	// remove the timezone
-	if ( val.at( val.length() - 3 ) == '+' )
-	    val.truncate( val.length() - 3 );
+	QString dtval = val;
+	if ( dtval.at( dtval.length() - 3 ) == '+' )
+	    dtval.truncate( dtval.length() - 3 );
 	// milliseconds are sometimes returned with 2 digits only
-	if ( val.at( val.length() - 3 ).isPunct() )
-	    val += '0';
-	if ( val.isEmpty() )
+	if ( dtval.at( dtval.length() - 3 ).isPunct() )
+	    dtval += '0';
+	if ( dtval.isEmpty() )
 	    return QVariant( QDateTime() );
 	else
-	    return QVariant( QDateTime::fromString( val, Qt::ISODate ) );
+	    return QVariant( QDateTime::fromString( dtval, Qt::ISODate ) );
+    }
     case QVariant::Point:
 	return QVariant( pointFromString( val ) );
     case QVariant::Rect: // format '(x,y),(x',y')'
@@ -347,6 +346,29 @@ QVariant QPSQLResult::data( int i )
 	    return QVariant( parray );
 	}
     case QVariant::ByteArray: {
+	if ( ptype == BYTEAOID ) {
+	    uint i = 0;
+	    int index = 0;
+	    uint len = val.length();
+	    static const QChar backslash( '\\' );
+	    QByteArray ba( (int)len );
+	    while ( i < len ) {
+		if ( val.at( i ) == backslash ) {
+		    if ( val.at( i + 1 ).isDigit() ) {
+			ba[ index++ ] = (char)(val.mid( i + 1, 3 ).toInt( 0, 8 ));
+			i += 4;
+		    } else {
+			ba[ index++ ] = val.at( i + 1 );
+			i += 2;
+		    }
+		} else {
+		    ba[ index++ ] = val.at( i++ ).unicode();
+		}
+	    }
+	    ba.resize( index );
+	    return QVariant( ba );
+	}
+
 	QByteArray ba;
 	((QSqlDriver*)driver())->beginTransaction();
 	Oid oid = val.toInt();
@@ -511,6 +533,25 @@ bool QPSQLDriver::hasFeature( DriverFeature f ) const
     }
 }
 
+static bool setEncodingUtf8( PGconn* connection )
+{
+    PGresult* result = PQexec( connection, "SET CLIENT_ENCODING TO 'UNICODE'" );
+    int status = PQresultStatus( result );
+    PQclear( result );
+    return status == PGRES_COMMAND_OK;
+}
+
+static void setDatestyle( PGconn* connection )
+{
+    PGresult* result = PQexec( connection, "SET DATESTYLE TO 'ISO'" );
+#ifdef QT_CHECK_RANGE
+    int status =  PQresultStatus( result );
+    if ( status != PGRES_COMMAND_OK )
+        qWarning( PQerrorMessage( connection ) );
+#endif
+    PQclear( result );
+}
+
 static QPSQLDriver::Protocol getPSQLVersion( PGconn* connection )
 {
     PGresult* result = PQexec( connection, "select version()" );
@@ -554,7 +595,6 @@ bool QPSQLDriver::open( const QString & db,
 			const QString & host,
 			int port )
 {
-    int status;
     if ( isOpen() )
 	close();
     QString connectString;
@@ -575,33 +615,11 @@ bool QPSQLDriver::open( const QString & db,
 	return FALSE;
     }
 
-// Unicode support is only working if the client library has been compiled with
-// multibyte support.
-#ifdef MULTIBYTE
-    status = PQsetClientEncoding( d->connection, "UNICODE" );
-    if ( status == 0 ) {
-	d->isUtf8 = TRUE;
-    }
-#endif
-
     pro = getPSQLVersion( d->connection );
+    d->isUtf8 = setEncodingUtf8( d->connection );
+    setDatestyle( d->connection );
 
-    PGresult* dateResult = 0;
-    switch( pro ) {
-    case QPSQLDriver::Version6:
-	dateResult = PQexec( d->connection, "SET DATESTYLE TO 'ISO'" );
-	break;
-    default:
-	dateResult = PQexec( d->connection, "SET DATESTYLE=ISO" );
-	break;
-    }
-#ifdef QT_CHECK_RANGE
-    status =  PQresultStatus( dateResult );
-    if ( status != PGRES_COMMAND_OK )
-	qWarning( PQerrorMessage( d->connection ) );
-#endif
     setOpen( TRUE );
-
     return TRUE;
 }
 
@@ -993,12 +1011,23 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
 	    else
 		r = "FALSE";
 	    break;
-	case QVariant::ByteArray:
-#ifdef QT_CHECKRANGE
-	    // bytearrays cannot be inserted directly into postgresql
-	    qWarning( "QPSQLDriver::formatValue: cannot format ByteArray." );
-#endif
+	case QVariant::ByteArray: {
+	    QByteArray ba = field->value().asByteArray();
+	    QString res;
+	    r = "'";
+	    unsigned char uc;
+	    for ( int i = 0; i < (int)ba.size(); ++i ) {
+		uc = (unsigned char) ba[ i ];
+		if ( uc > 40 && uc < 92 ) {
+		    r += uc;
+		} else {
+		    r += "\\\\";
+		    r += QString::number( (unsigned char) ba[ i ], 8 ).rightJustify( 3, '0', TRUE );
+		}
+	    }
+	    r += "'";
 	    break;
+	}
 	default:
 	    r = QSqlDriver::formatValue( field );
 	    break;
