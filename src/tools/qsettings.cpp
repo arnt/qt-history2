@@ -239,7 +239,7 @@ static HANDLE openlock( const QString &name, int type )
     fl.l_start = 0;
     fl.l_len = 0;
     if ( fcntl( fd, F_SETLKW, &fl ) == -1 ) {
-	perror( "fcntl" );
+	perror( "fcntl" ); // ### remove debuggery!
     }
 
     return fd;
@@ -257,7 +257,7 @@ static void closelock( HANDLE fd )
     fl.l_start = 0;
     fl.l_len = 0;
     if ( fcntl( fd, F_SETLKW, &fl ) == -1 ) {
-	perror( "fcntl" );
+	perror( "fcntl" ); // ### remove debuggery!
     }
 
     close( fd );
