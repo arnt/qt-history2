@@ -3241,6 +3241,8 @@ void QTable::removeSelection( const QTableSelection &s )
 	if ( s == *sel ) {
 	    selections.removeRef( sel );
 	    repaintSelections( sel, 0, TRUE, TRUE );
+	    if ( sel == currentSel )
+		currentSel = 0;
 	    delete sel;
 	}
     }
@@ -3261,6 +3263,8 @@ void QTable::removeSelection( int num )
 	return;
 
     QTableSelection *s = selections.at( num );
+    if ( s == currentSel )
+	currentSel = 0;
     selections.removeRef( s );
     repaintContents( FALSE );
 }
