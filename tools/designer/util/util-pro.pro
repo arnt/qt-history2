@@ -8,6 +8,6 @@ SOURCES	= ../../../src/xml/qdom.cpp \
 		   ../../../src/xml/qxml.cpp \
 		   ../../../src/iconview/qiconview.cpp
 TARGET		= qutil
-DESTDIR		= $(QTDIR)/lib
+DESTDIR		= $$QMAKE_LIBDIR_QT
 VERSION		= 1.0.0
 
