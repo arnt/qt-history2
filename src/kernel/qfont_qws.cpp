@@ -393,7 +393,7 @@ void QFontPrivate::load()
     if ( !qfs ) {
 	qfs = new QFontStruct(request);
 	// make larger fonts cost a little more
-	fontCache->insert(k, qfs, 1+request.pointSize/80);
+	fontCache->insert(k, qfs, 1+qfs->s.pointSize/80);
     }
     qfs->ref();
     if ( fin )
@@ -413,6 +413,8 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
     int i;
     int width = 0;
     const QChar *ch = str.unicode() + pos;
+    if ( request.dirty || fin->dirty() )
+	load();
     for( i = 0; i < len; i++ ) {
 	if ( ch->combiningClass() == 0 ) {
 	    width += memorymanager->lockGlyphMetrics(fin->handle(), *ch )->advance;

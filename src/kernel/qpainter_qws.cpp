@@ -80,6 +80,12 @@ void qt_clear_paintevent_clipping()
     paintEventDevice = 0;
 }
 
+class QPainterPrivate
+{
+public:
+    QPoint curPt;
+};
+
 
 /*****************************************************************************
   Trigonometric function for QPainter
@@ -182,6 +188,7 @@ void QPainter::cleanup()
 
 void QPainter::destroy()
 {
+    delete d;
 }
 
 
@@ -214,7 +221,7 @@ void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
 
 void QPainter::init()
 {
-    d = 0;
+    d = new QPainterPrivate;
     flags = IsStartingUp;
     bg_col = white;				// default background color
     bg_mode = TransparentMode;			// default background mode
@@ -255,6 +262,8 @@ void QPainter::updateFont()
 {
     clearf(DirtyFont);
     if(testf(ExtDev)) {
+	if ( pfont ) delete pfont;
+	pfont = new QFont( cfont.d, pdev );
 	QPDevCmdParam param[1];
 	param[0].font = &cfont;
 	if ( !pdev->cmd(QPaintDevice::PdcSetFont, this, param) )
@@ -441,6 +450,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 
     pdev->painters++;				// also tell paint device
     bro = QPoint( 0, 0 );
+    d->curPt = QPoint( 0, 0 );
     if ( reinit ) {
 	bg_mode = TransparentMode;		// default background mode
 	rop = CopyROP;				// default ROP
@@ -566,6 +576,11 @@ bool QPainter::end()				// end painting
 
     delete gfx;
     gfx = 0;
+
+    if ( pfont ) {
+	delete pfont;
+	pfont = 0;
+    }
 
     flags = 0;
     pdev->painters--;
@@ -853,6 +868,7 @@ void QPainter::moveTo( int x, int y )
 	map( x, y, &x, &y );
     }
     gfx->moveTo( x, y );
+    d->curPt = QPoint( x, y );
 }
 
 
@@ -871,6 +887,7 @@ void QPainter::lineTo( int x, int y )
 	map( x, y, &x, &y );
     }
     gfx->lineTo( x, y );
+    d->curPt = QPoint( x, y );
 }
 
 
@@ -893,6 +910,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
     if ( cpen.style() != NoPen )
 	gfx->drawLine( x1, y1, x2, y2 );
     gfx->moveTo( x2, y2 );
+    d->curPt = QPoint( x2, y2 );
 }
 
 
@@ -1242,8 +1260,10 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 	if ( cpen.style() != NoPen )
 	    gfx->drawLine( x1, y1, x2, y2 );
     }
-    if ( nlines > 0 )
+    if ( nlines > 0 ) {
 	gfx->moveTo( x2, y2 );
+	d->curPt = QPoint( x2, y2 );
+    }
 }
 
 
@@ -1606,11 +1626,23 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len,
 	    updateFont();
 
 	if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[2];
-	    QPoint p( x, y );
-	    param[0].point = &p;
-	    param[1].str = &shaped;
-	    if ( !pdev->cmd(QPaintDevice::PdcDrawText2,this,param) || !gfx )
+	    QPDevCmdParam param[3];
+	    QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
+	    pfont->d->textWidth( shaped, 0, len, cache ); // create cache
+	    bool retval = FALSE;
+	    QFontPrivate::TextRun *runs = cache;
+	    while ( cache ) {
+		QPoint p( x + cache->xoff, y + cache->yoff );
+		QString s =
+		    QConstString( cache->string, cache->length ).string();
+		param[0].point = &p;
+		param[1].str = &s;
+		param[2].ival = cache->script;
+		retval = pdev->cmd(QPaintDevice::PdcDrawText2, this, param);
+		cache = cache->next;
+	    }
+	    delete runs;
+	    if ( !retval || !gfx )
 		return;
 	}
 #ifndef QT_NO_TRANSFORMATIONS
@@ -1797,5 +1829,7 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len,
 
 QPoint QPainter::pos() const
 {
+    if ( !gfx )
+	return xFormDev( d->curPt );
     return gfx->pos();
 }
