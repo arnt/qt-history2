@@ -2376,12 +2376,16 @@ QString QPSPrinterFontPrivate::glyphName( unsigned short glyphindex )
     QString glyphname;
     int l = 0;
     unsigned short unicode = unicode_for_glyph( glyphindex );
-    while( unicodetoglyph[l].u < unicode )
-        l++;
-    if ( unicodetoglyph[l].u == unicode )
-        glyphname = unicodetoglyph[l].g;
-    else
-        glyphname.sprintf("U%04x", unicode);
+    if ( !unicode && glyphindex ) {
+	glyphname.sprintf("G%04x", glyphindex );
+    } else {
+	while( unicodetoglyph[l].u < unicode )
+	    l++;
+	if ( unicodetoglyph[l].u == unicode )
+	    glyphname = unicodetoglyph[l].g;
+	else
+	    glyphname.sprintf("U%04x", unicode);
+    }
     return glyphname;
 }
 
@@ -2841,6 +2845,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
   /* We need to have the PostScript table around. */
 
   post_table = getTable("post");
+#if 0
   if ( post_table ) {
       Fixed post_format = getFixed( post_table );
 
@@ -2852,6 +2857,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
           // defective = true;
       }
   }
+#endif  
   BYTE *maxp = getTable("maxp");
   if ( !maxp ) {
       defective = TRUE;
@@ -3079,6 +3085,7 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
         } else { /* type 3 */
             if (!glyphset[x]) continue;
 
+	    //qDebug("emitting charproc for glyph %d, name=%s", x, glyphName(x).latin1() );
             s << "/";
             s << glyphName( x );
             s << "{";
@@ -4191,7 +4198,7 @@ void QPSPrinterFontTTF::subsetGlyph(int charindex,bool* glyphset)
       glyph += 2;
 
       glyphset[ glyphIndex ] = TRUE;
-      //printf("%s ",glyphName(glyphIndex).latin1());
+      //printf("subset contains: %d %s ",glyphIndex, glyphName(glyphIndex).latin1());
 
       if(flags & ARG_1_AND_2_ARE_WORDS) {
         glyph += 2;
