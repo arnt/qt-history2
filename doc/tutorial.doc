@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 2.3 1996/10/20 15:58:41 agulbra Exp $
+** $Id: tutorial.doc,v 2.4 1996/11/03 17:30:33 agulbra Exp $
 **
 ** Tutorial
 **
@@ -1147,11 +1147,14 @@ We create and set up our CannonField. Its position is 10 pixels to the
 right of the LCDRange and the same y position as LCDRange.  The size
 will be set by the resize event.
 
-Then we set the background color of the CannonField. QColor is Qt's color
-class.  Here we hard code it to the RGB value red=250, green=250 and
-blue=200 (which gives an easter-like yellow pastel color).  The range of
-the RGB values is 0..255. You can also set up a QColor using the \link
-QColor::setHsv() HSV\endlink color model.
+Then we set the background color of the CannonField. QColor is one of
+Qt's color classes.  Here we hard code an RGB value red=250, green=250
+and blue=200 (which gives an easter-like yellow pastel color).  The
+range of the RGB values is 0..255. You can also set up a QColor using
+the \link QColor::setHsv() HSV\endlink color model.
+
+Another color class, QPalette, provides a complete array of colors, so
+you can change the colors without messing up the 3D effects.
 
 \skip connect
 \line connect
