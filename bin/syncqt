@@ -45,13 +45,12 @@ $force_relative    = 1 if ( -d "/System/Library/Frameworks" );
 sub showUsage
 {
     print "$scriptname usage:\n";
-    print "  -r, --remove-stale         Removes stale headers              (default: $remove_stale)\n";
-    print "  -l, --relative             Force relative symlinks            (default: $force_relative)\n";
-    print "  -w, --windows              Force platform to Windows          (default: $force_win)\n";
-    print "  -o, --outdir <PATH>        Specify include directory for sync (default: $includedir)\n";
-    print "  -i, --inc <PATH>             (as above)\n";
-    print "  -s, --show                 Show action but not perform        (default: $showonly)\n";
-    print "  -h, --?, --help            This help\n";
+    print "  -remove-stale         Removes stale headers              (default: $remove_stale)\n";
+    print "  -relative             Force relative symlinks            (default: $force_relative)\n";
+    print "  -windows              Force platform to Windows          (default: $force_win)\n";
+    print "  -outdir <PATH>        Specify include directory for sync (default: $includedir)\n";
+    print "  -showonly             Show action but not perform        (default: $showonly)\n";
+    print "  -help                 This help\n";
 }
 
 ######################################################################
@@ -67,39 +66,72 @@ sub showUsage
 sub parseArgs
 {
     while ( @ARGV ) {
-        $_ = shift @ARGV;
-        if (s/^-+//) {
-            if (/^h$/ || /^help$/ || /^\?$/) {
-                showUsage();
-                exit 0;
-            } elsif (/^s$/ || /^show$/) {
-                $showonly++;
-            } elsif (/^r$/ || /^remove-stale$/) {
-                $remove_stale = 1;
-            } elsif (/^w$/ || /^windows$/) {
-                $force_win = 1;
-            } elsif (/^l$/ || /^relative$/) {
-                $force_relative = 1;
-            } elsif (/^o$/ || /^i$/ || /^outdir$/ || /^inc$/) {
-                my $outdir = shift @ARGV;
-                if($outdir !~ /^\//) {
-                    $includedir = getcwd();
-                    chomp $includedir;
-                    $includedir .= "/" . $outdir;
-                } else {
-                    $includedir = $outdir;
-                }
-                # \ -> /
-                $includedir =~ s=\\=/=g;
-            } else {
-                print "Unknown option: $_\n\n";
-                showUsage();
-                exit 1;
-            }
-        } else {
-            print "Unknown parameter: $_\n\n";
-            showUsage();
-            exit 2;
+	my $var = 0;
+	my $val = 0;
+
+	#parse
+        my $arg = shift @ARGV;
+	if ("$arg" eq "-h" || "$arg" eq "-help" || "$arg" eq "?") {
+	    $var = "show_help";
+	    $val = "yes";
+	} elsif("$arg" eq "-o" || "$arg" eq "-outdir") {
+	    $var = "output";
+	    $val = shift @ARGV;
+	} elsif("$arg" eq "-showonly" || "$arg" eq "-remove-stale" || "$arg" eq "-windows" || "$arg" eq "-relative") {
+	    $var = substr($arg, 1);
+	    $val = "yes";
+	} elsif("$arg" =~ /^-no-(.*)$/) {
+	    $var = $1;
+	    $val = "no";
+	#these are for commandline compat
+	} elsif("$arg" eq "-inc") {
+	    $var = "output";
+	    $val = shift @ARGV;
+	} elsif("$arg" eq "-show") {
+	    $var = "showonly";
+	    $val = "yes";
+	}
+
+	#do something
+	if(!$var || "$var" eq "show_help") {
+	    print "Unknown option: $arg\n\n" if(!$var);
+	    showUsage();
+	    exit $var;
+	} elsif ("$var" eq "showonly") {
+	    if("$val" eq "yes") {
+		$showonly++;
+	    } elsif($showonly) {
+		$showonly--;
+	    }
+	} elsif ("$var" eq "remove_stale") {
+	    if("$val" eq "yes") {
+		$remove_stale++;
+	    } elsif($remove_stale) {
+		$remove_stale--;
+	    }
+	} elsif ("$var" eq "windows") {
+	    if("$val" eq "yes") {
+		$force_win++;
+	    } elsif($force_win) {
+		$force_win--;
+	    }
+	} elsif ("$var" eq "relative") {
+	    if("$val" eq "yes") {
+		$force_relative++;
+	    } elsif($force_relative) {
+		$force_relative--;
+	    }
+	} elsif ("$var" eq "output") {
+	    my $outdir = $val;
+	    if($outdir !~ /^\//) {
+		$includedir = getcwd();
+		chomp $includedir;
+		$includedir .= "/" . $outdir;
+	    } else {
+		$includedir = $outdir;
+	    }
+	    # \ -> /
+	    $includedir =~ s=\\=/=g;
         }
     }
 }
