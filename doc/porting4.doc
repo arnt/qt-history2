@@ -213,10 +213,10 @@ Both allWidgets() and topLevelWidgets() return a QWidgetList (it was a
 pointer to a QWidgetList in Qt3). This resolves some memory management
 issues using these methods.
 
+\section1 QRegion
 
-
-
-
-
+Null QRegions have been removed, use isEmpty() in most places where you would
+have used a null Qregion. rects() now returns a QVector<QRect> instead of
+QMemArray<QRect>.
 
 */
