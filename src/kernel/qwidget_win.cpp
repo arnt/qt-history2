@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#122 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#123 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -634,9 +634,10 @@ QWidget *QWidget::keyboardGrabber()
 
 bool QWidget::isActiveWindow() const
 {
-    HWND win = GetActiveWindow();
-    QWidget *w = find( win );
-    return w && w->topLevelWidget() == topLevelWidget();
+     return topLevelWidget() == qApp->activeWindow();
+//    HWND win = GetActiveWindow();
+//     QWidget *w = find( win );
+//     return w && w->topLevelWidget() == topLevelWidget();
 }
 
 void QWidget::setActiveWindow()
