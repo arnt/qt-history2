@@ -3031,7 +3031,8 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         if (widget && (opt->state & State_Rectangle)) {
             ret = 0;
             QRegion reg = widget->rect();
-            reg -= opt->rect.adjusted(4, 4, -4, -4);
+            int margin = pixelMetric(PM_DefaultFrameWidth) * 2;
+            reg -= opt->rect.adjusted(margin, margin, -margin, -margin);
             const_cast<QWidget*>(widget)->setMask(reg);
             //### TODO return region in QStyleHintReturn
         }

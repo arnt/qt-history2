@@ -1076,6 +1076,10 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
         qDrawShadePanel(p, opt->rect, opt->palette, bool(opt->state & State_On),
                         pixelMetric(PM_DefaultFrameWidth), &fill);
         break; }
+    case CE_RubberBand:
+        p->fillRect(opt->rect, opt->palette.base());
+        p->fillRect(opt->rect, QBrush(opt->palette.foreground().color(), Qt::Dense4Pattern));
+        break;
     default:
         QCommonStyle::drawControl(element, opt, p, widget);
         break; }
