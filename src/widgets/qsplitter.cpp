@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#71 $
 **
 **  Splitter widget
 **
@@ -690,8 +690,8 @@ void QSplitter::recalc( bool update )
 	}
     }
 
-    for ( int i = 0; i< n; i++ ) {
-	QSplitterLayoutStruct *s = data->list.at(i);
+    for ( int j = 0; j< n; j++ ) {
+	QSplitterLayoutStruct *s = data->list.at(j);
 	if ( !s->wid->testWState(WState_ForceHide) ) {
 	    if ( s->isSplitter ) {
 		minl += s->sizer;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#235 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#236 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -10028,9 +10028,9 @@ static unsigned int reverse(QString &chars, unsigned char *level,
 	QChar temp;
 	unsigned int d = a, e = c-1;
 	while (d < e) {
-	    temp = chars[d];
-	    chars[d] = chars[e];
-	    chars[e] = temp;
+	    temp = chars[(int)d];
+	    chars[(int)d] = chars[(int)e];
+	    chars[(int)e] = temp;
 			
 	    d++; e--;
 	}
