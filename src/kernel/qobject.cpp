@@ -1826,9 +1826,9 @@ QMetaObject* QObject::staticMetaObject()
     props_tbl[0].sspec = QMetaProperty::ConstCharStar;
     QMetaEnum* enum_tbl = QMetaObject::new_metaenum( 3 );
     enum_tbl[0].name = "Alignment";
-    enum_tbl[0].count = 7;
+    enum_tbl[0].count = 8;
     enum_tbl[0].set = TRUE;
-    enum_tbl[0].items = QMetaObject::new_metaenum_item( 7 );
+    enum_tbl[0].items = QMetaObject::new_metaenum_item( 8 );
     enum_tbl[0].items[0].key = "AlignLeft";
     enum_tbl[0].items[0].value = (int) Qt::AlignLeft;
     enum_tbl[0].items[1].key = "AlignRight";
@@ -1841,8 +1841,10 @@ QMetaObject* QObject::staticMetaObject()
     enum_tbl[0].items[4].value = (int) Qt::AlignBottom;
     enum_tbl[0].items[5].key = "AlignVCenter";
     enum_tbl[0].items[5].value = (int) Qt::AlignVCenter;
-    enum_tbl[0].items[3].key = "WordBreak";
-    enum_tbl[0].items[3].value = (int) Qt::WordBreak;
+    enum_tbl[0].items[6].key = "AlignCenter";
+    enum_tbl[0].items[6].value = (int) Qt::AlignCenter;
+    enum_tbl[0].items[7].key = "WordBreak";
+    enum_tbl[0].items[7].value = (int) Qt::WordBreak;
     enum_tbl[1].name = "Orientation";
     enum_tbl[1].count = 2;
     enum_tbl[1].set = FALSE;
@@ -2091,8 +2093,6 @@ void QObject::dumpObjectInfo()
 */
 bool QObject::setProperty( const char *name, const QVariant& value )
 {
-    //#ME this should manage all QVariant can do
-
     if ( !value.isValid() )
 	return FALSE;
 
@@ -2177,18 +2177,39 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     if ( !p )
 	return FALSE;
 
-    if ( p->enumData ) {
-	if ( value.type() != QVariant::String && value.type() != QVariant::CString )
-	    return FALSE;
-	QCString s = value.toCString();
-	for( uint i = 0; i < p->enumData->count; ++i ) {
-	    if ( s == p->enumData->items[i].key ) {
-		ProtoInt m = (ProtoInt)p->set;
-		(this->*m)( p->enumData->items[i].value );
-		return TRUE;
+    if ( p->isEnumType() ) {
+	int v = 0;
+	if ( p->isSetType() ) {
+	    if ( value.type() != QVariant::StringList )
+		return FALSE;
+	    QStringList l = value.toStringList();
+	    for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+		QCString s = (*it).latin1();
+		for( uint i = p->enumData->count; TRUE; --i ) {
+		    if ( !i )
+			return FALSE;
+		    if ( s == p->enumData->items[i-1].key ) {
+			v += p->enumData->items[i-1].value;
+			break;
+		    }
+		}
+	    }
+	} else { 
+	    if ( value.type() != QVariant::String && value.type() != QVariant::CString )
+		return FALSE;
+	    QCString s = value.toCString();
+	    for( uint i = p->enumData->count; TRUE; --i ) {
+		if ( !i )
+		    return FALSE;
+		if ( s == p->enumData->items[i-1].key ) {
+		    v += p->enumData->items[i-1].value;
+		    break;
+		}
 	    }
 	}
-	return FALSE;
+	ProtoInt m = (ProtoInt)p->set;
+	(this->*m)( v );
+	return TRUE;
     }
 
     QVariant::Type type = QVariant::nameToType( p->type() );
@@ -2226,33 +2247,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	else
 	    ASSERT( 0 );
 	return TRUE;
-	/*
-    case QVariant::DoubleList:
-	if ( p->sspec == QMetaProperty::Class ) {
-	    ProtoDoubleList m = (ProtoDoubleList)p->set;
-	    (this->*m)( value.toDoubleList() );
-	}
-	else if ( p->sspec == QMetaProperty::Reference ) {
-	    RProtoDoubleList m = (RProtoDoubleList)p->set;
-	    (this->*m)( value.toDoubleList() );
-	}
-	else
-	    ASSERT( 0 );
-	return TRUE;
-
-    case QVariant::IntList:
-	if ( p->sspec == QMetaProperty::Class ) {
-	    ProtoIntList m = (ProtoIntList)p->set;
-	    (this->*m)( value.toIntList() );
-	}
-	else if ( p->sspec == QMetaProperty::Reference ) {
-	    RProtoIntList m = (RProtoIntList)p->set;
-	    (this->*m)( value.toIntList() );
-	}
-	else
-	    ASSERT( 0 );
-	return TRUE;
-	*/
+	
     case QVariant::StringList:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoStringList m = (ProtoStringList)p->set;
@@ -2564,7 +2559,6 @@ QVariant QObject::property( const char *name ) const
 
     QVariant value;
 
-    //#ME this should manage all QVariant can do
     typedef const char* (QObject::*ProtoConstCharStar)() const;
 
     typedef QString (QObject::*ProtoString)() const;
@@ -2670,13 +2664,25 @@ QVariant QObject::property( const char *name ) const
     if ( !p )
 	return value;
 
-    if ( p->enumData ) {
+    if ( p->isEnumType() ) {
 	ProtoInt m = (ProtoInt)p->get;
 	int x = (int) (this->*m)();
-	for( uint i = 0; i < p->enumData->count; ++i ) {
-	    if ( x == p->enumData->items[i].value ) {
-		value = QVariant( p->enumData->items[i].key );
-		return value;
+	if ( p->isSetType() ) {
+	    QStringList l;
+	    for( uint i = p->enumData->count; i > 0; --i ) {
+		int y = p->enumData->items[i-1].value;
+		if ( (x & y) == y ) {
+		    x = x & ~y;
+		    l += QString::fromLatin1( p->enumData->items[i-1].key );
+		}
+	    }
+	    value = QVariant( l );
+	} else {
+	    for( uint i = p->enumData->count; i > 0; --i ) {
+		if ( x == p->enumData->items[i-1].value ) {
+		    value = QVariant( p->enumData->items[i-1].key );
+		    break;
+		}
 	    }
 	}
 	return value;
@@ -2733,49 +2739,7 @@ QVariant QObject::property( const char *name ) const
 	else
 	    ASSERT( 0 );
 	return value;
-	/*
-    case QVariant::DoubleList:
-	if ( p->gspec == QMetaProperty::Class ) {
-	    ProtoDoubleList m = (ProtoDoubleList)p->get;
-	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
-	    RProtoDoubleList m = (RProtoDoubleList)p->get;
-	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
-	    PProtoDoubleList m = (PProtoDoubleList)p->get;
-	    const QValueList<double>* p = (this->*m)();
-	    if ( p )
-		value = QVariant( *p );
-	    else
-		value = QVariant( QValueList<double>() );
-	}
-	else
-	    ASSERT( 0 );
-	return value;
-
-    case QVariant::IntList:
-	if ( p->gspec == QMetaProperty::Class ) {
-	    ProtoIntList m = (ProtoIntList)p->get;
-	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
-	    RProtoIntList m = (RProtoIntList)p->get;
-	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
-	    PProtoIntList m = (PProtoIntList)p->get;
-	    const QValueList<int>* p = (this->*m)();
-	    if ( p )
-		value = QVariant( *p );
-	    else
-		value = QVariant( QValueList<int>() );
-	}
-	else
-	    ASSERT( 0 );
-	return value;
-	*/
+	
     case QVariant::StringList:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoStringList m = (ProtoStringList)p->get;
