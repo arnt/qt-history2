@@ -2392,7 +2392,7 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
 	return Bottom;
     }
 
-    rect = QRect( pos, tb->size() );
+    rect = QRect( pos - d->cursorOffset, tb->size() );
 
     // mouse pos outside of any docking area
     return Unmanaged;
