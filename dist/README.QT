@@ -80,8 +80,17 @@ You may use the Qt toolkit to create application programs provided that:
   - You accept this license.
   - Your software is distributed including source code.
   - Your software does not require modifications to Qt.
-  - Your software may legally be distributed by third parties for no
-    charge.
+  - Third parties may legally modify and/or redistribute your software for
+    no charge.
+
+If you are paid to develop something with Qt or it is a part of your job
+the following conditions also apply:
+  - Your software must be suitable for use outside your organization.
+  - You must upload your software (including source) to ftp.troll.no
+    before you start using it.
+  - When you change your software in any significant way, you must upload
+    the new version of your software (including source) to ftp.troll.no
+    before you start using it.
 
 You may also use the Qt toolkit to create reusable components (such as
 libraries) provided that you accept the terms above, and in addition that:
