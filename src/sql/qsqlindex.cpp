@@ -16,8 +16,6 @@
 
 #ifndef QT_NO_SQL
 
-#include "qsqlcursor.h"
-
 /*!
     \class QSqlIndex qsqlindex.h
     \brief The QSqlIndex class provides functions to manipulate and
