@@ -129,7 +129,7 @@ void HelpWindow::setSource(const QUrl &name)
         QFileInfo fi(name.toLocalFile());
         if (!fi.exists()) {
             mw->statusBar()->showMessage(tr("Failed to open link: '%1'").arg(fi.absoluteFilePath()), 5000);
-            setHtml(tr("<div align=\"center\"><h1>The page could not be found!</h1><br>"
+            setHtml(tr("<div align=\"center\"><h1>The page could not be found</h1><br>"
                 "<h3>'%1'</h3></div>").arg(fi.absoluteFilePath()));
             mw->browsers()->updateTitle(tr("Error..."));
             return;
@@ -145,7 +145,7 @@ void HelpWindow::setSource(const QUrl &name)
         return;
     }
     mw->statusBar()->showMessage(tr("Failed to open link: '%1'").arg(name.toString()), 5000);
-    setHtml(tr("<div align=\"center\"><h1>The page could not be found!!!</h1><br>"
+    setHtml(tr("<div align=\"center\"><h1>The page could not be found</h1><br>"
         "<h3>'%1'</h3></div>").arg(name.toString()));
     mw->browsers()->updateTitle(tr("Error..."));    
 }

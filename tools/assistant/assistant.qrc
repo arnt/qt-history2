@@ -1,4 +1,4 @@
-<RCC>
+<!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="/trolltech/assistant/">
   <file>images/win/editcopy.png</file>
   <file>images/win/find.png</file>

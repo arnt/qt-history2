@@ -1045,7 +1045,9 @@ void HelpDialog::startSearch()
 
 void HelpDialog::on_helpButton_clicked()
 {
-    emit showLink(Config::configuration()->assistantDocPath() + QLatin1String("/assistant-5.html"));
+    emit showLink(MainWindow::urlifyFileName(
+                  Config::configuration()->assistantDocPath() +
+                  QLatin1String("/assistant-manual.html#full-text-searching")));
 }
 
 void HelpDialog::on_resultBox_mouseButtonClicked(int button, Q3ListBoxItem *i, const QPoint &)

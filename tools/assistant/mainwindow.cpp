@@ -684,7 +684,7 @@ void MainWindow::showGoActionLink()
 
 void MainWindow::on_actionHelpAssistant_triggered()
 {
-    showLink(Config::configuration()->assistantDocPath() + QLatin1String("/assistant.html"));
+    showLink(Config::configuration()->assistantDocPath() + QLatin1String("/assistant-manual.html"));
 }
 
 HelpDialog* MainWindow::helpDialog() const
