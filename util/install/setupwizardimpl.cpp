@@ -73,7 +73,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	introText->setText( QString( fileData.data() ) );
     }
     // Optionspage
-    installPath->setText( QString( "C:\\Qt\\" ) + DISTVER );
+    installPath->setText( QString( "C:\\Qt\\" ) + QT_VERSION_STR );
     sysGroup->setButton( 0 );
     // Folderspage
     QByteArray buffer( 256 );
@@ -81,7 +81,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     GetUserNameA( buffer.data(), &buffSize );
     folderGroups->insertItem( "Anyone who uses this computer (all users)" );
     folderGroups->insertItem( QString( "Only for me (" ) + QString( buffer.data() ) + ")" );
-    folderPath->setText( QString( "Qt " ) + DISTVER );
+    folderPath->setText( QString( "Qt " ) + QT_VERSION_STR );
     if( int( qWinVersion() ) & int( Qt::WV_NT_based ) )   // On NT we also have a common folder
 	folderGroups->setEnabled( true );
     else
@@ -298,7 +298,7 @@ void SetupWizardImpl::doFinalIntegration()
     shell.createShortcut( dirName, common, "License agreement", "notepad.exe", "Review the license agreement", QString( "\"" ) + QEnvironment::getEnv( "QTDIR" ) + "\\LICENSE\"" );
     shell.createShortcut( dirName, common, "On-line documentation", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\assistant.exe", "Browse the On-line documentation" );
     if( int( qWinVersion() ) & int( WV_DOS_based ) )
-	shell.createShortcut( dirName, common, QString( "Build Qt " ) + DISTVER, QEnvironment::getEnv( "QTDIR" ) + "\\build.bat", "Build the Qt library" );
+	shell.createShortcut( dirName, common, QString( "Build Qt " ) + QT_VERSION_STR, QEnvironment::getEnv( "QTDIR" ) + "\\build.bat", "Build the Qt library" );
 
     if( installTutorials->isChecked() ) {
 	tutorialsName = shell.createFolder( folderPath->text() + "\\Tutorials", common );
@@ -320,9 +320,9 @@ void SetupWizardImpl::doFinalIntegration()
     else
 	uninstaller << ( QString( "\"" ) + shell.localProgramsFolderName + QString( "\\" ) + folderPath->text() + QString( "\"" ) );
 
-    uninstaller << DISTVER;
+    uninstaller << QT_VERSION_STR;
 
-    QEnvironment::recordUninstall( QString( "Qt " ) + DISTVER, uninstaller.join( " " ) );
+    QEnvironment::recordUninstall( QString( "Qt " ) + QT_VERSION_STR, uninstaller.join( " " ) );
 }
 
 void SetupWizardImpl::integratorDone()
@@ -799,7 +799,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 		finishMsg += "The environment variables needed to use Qt have been recorded into your AUTOEXEC.BAT file.\n";
 		finishMsg += "Please review this file, and take action as appropriate depending on your operating system to get them into the persistent environment. (Windows Me users, run MsConfig)\n\n";
 	    }
-	    finishMsg += QString( "To build Qt, please double-click to \"Build Qt " ) + QString( DISTVER ) + "\" icon which has been installed into your Start-Menu.";
+	    finishMsg += QString( "To build Qt, please double-click to \"Build Qt " ) + QString( QT_VERSION_STR ) + "\" icon which has been installed into your Start-Menu.";
 	}
 	finishText->setText( finishMsg );
 	setInstallStep( 8 );
