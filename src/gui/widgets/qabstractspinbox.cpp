@@ -371,7 +371,9 @@ void QAbstractSpinBox::fixup(QString & /* input */) const
 }
 
 /*!
+  Steps up by one linestep
   Calling this slot is analogous to calling stepBy(1);
+  \sa stepBy(), stepDown()
 */
 
 void QAbstractSpinBox::stepUp()
@@ -380,7 +382,9 @@ void QAbstractSpinBox::stepUp()
 }
 
 /*!
-  Calling this slot is analogous to calling stepBy(1);
+  Steps down by one linestep
+  Calling this slot is analogous to calling stepBy(-1);
+  \sa stepBy(), stepUp()
 */
 
 void QAbstractSpinBox::stepDown()
@@ -398,8 +402,6 @@ void QAbstractSpinBox::stepDown()
     function. Note that this function is called even if the resulting
     value will be outside the bounds of minimum and maximum. It's this
     function's job to handle these situations.
-
-    \sa QSpinBox::setValue(), QSpinBox::minimum(), QSpinBox::maximum()
 */
 
 void QAbstractSpinBox::stepBy(int steps)
