@@ -1024,8 +1024,6 @@ QFont QTextEdit::currentFont() const
 void QTextEdit::setAlignment(Qt::Alignment a)
 {
     Q_D(QTextEdit);
-    if (d->readOnly)
-	return;
     QTextBlockFormat fmt;
     fmt.setAlignment(a);
     d->cursor.mergeBlockFormat(fmt);
@@ -1105,9 +1103,6 @@ QTextCursor QTextEdit::textCursor() const
 */
 void QTextEdit::setFontFamily(const QString &fontFamily)
 {
-    Q_D(QTextEdit);
-    if (d->readOnly)
-	return;
     QTextCharFormat fmt;
     fmt.setFontFamily(fontFamily);
     mergeCurrentCharFormat(fmt);
@@ -1123,9 +1118,6 @@ void QTextEdit::setFontFamily(const QString &fontFamily)
 */
 void QTextEdit::setFontPointSize(qreal s)
 {
-    Q_D(QTextEdit);
-    if (d->readOnly)
-	return;
     QTextCharFormat fmt;
     fmt.setFontPointSize(s);
     mergeCurrentCharFormat(fmt);
@@ -1138,9 +1130,6 @@ void QTextEdit::setFontPointSize(qreal s)
 */
 void QTextEdit::setFontWeight(int w)
 {
-    Q_D(QTextEdit);
-    if (d->readOnly)
-	return;
     QTextCharFormat fmt;
     fmt.setFontWeight(w);
     mergeCurrentCharFormat(fmt);
@@ -1154,9 +1143,6 @@ void QTextEdit::setFontWeight(int w)
 */
 void QTextEdit::setFontUnderline(bool b)
 {
-    Q_D(QTextEdit);
-    if (d->readOnly)
-	return;
     QTextCharFormat fmt;
     fmt.setFontUnderline(b);
     mergeCurrentCharFormat(fmt);
@@ -1170,9 +1156,6 @@ void QTextEdit::setFontUnderline(bool b)
 */
 void QTextEdit::setFontItalic(bool b)
 {
-    Q_D(QTextEdit);
-    if (d->readOnly)
-	return;
     QTextCharFormat fmt;
     fmt.setFontItalic(b);
     mergeCurrentCharFormat(fmt);
@@ -1185,9 +1168,6 @@ void QTextEdit::setFontItalic(bool b)
 */
 void QTextEdit::setTextColor(const QColor &c)
 {
-    Q_D(QTextEdit);
-    if (d->readOnly)
-	return;
     QTextCharFormat fmt;
     fmt.setForeground(QBrush(c));
     mergeCurrentCharFormat(fmt);
@@ -1200,9 +1180,6 @@ void QTextEdit::setTextColor(const QColor &c)
 */
 void QTextEdit::setCurrentFont(const QFont &f)
 {
-    Q_D(QTextEdit);
-    if (d->readOnly)
-	return;
     QTextCharFormat fmt;
     fmt.setFont(f);
     mergeCurrentCharFormat(fmt);
@@ -2304,8 +2281,6 @@ void QTextEdit::setReadOnly(bool ro)
 void QTextEdit::mergeCurrentCharFormat(const QTextCharFormat &modifier)
 {
     Q_D(QTextEdit);
-    if (d->readOnly)
-        return;
 
     if (!d->cursor.hasSelection()) {
         if (d->cursor.atBlockStart() && d->cursor.atBlockEnd()) {
