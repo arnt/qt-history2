@@ -1445,6 +1445,10 @@ void SetupWizardImpl::showPageConfig()
 
     configPage->configList->setUpdatesEnabled(TRUE);
     configPage->advancedList->setUpdatesEnabled(TRUE);
+    
+    // Needed to force the scrollbars to appear on Windows 9x...
+    QListViewItem *dummy = new QListViewItem(configPage->configList, "Dummy Item");
+    delete dummy;
 
     setBackEnabled( buildPage, false );
 #endif
