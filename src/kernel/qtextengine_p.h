@@ -33,7 +33,7 @@ class QString;
 class QOpenType;
 class QPainter;
 
-struct QTextInlineObjectInterface;
+class QTextInlineObjectInterface;
 
 // this uses the same coordinate system as Qt, but a different one to freetype and Xft.
 // * y is usually negative, and is equal to the ascent.

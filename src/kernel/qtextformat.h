@@ -12,7 +12,7 @@ class QFont;
 
 class QTextFormatCollection;
 class QTextFormatCollectionPrivate;
-struct QTextFormatProperty;
+class QTextFormatProperty;
 class QTextFormatPrivate;
 class QTextBlockFormat;
 class QTextCharFormat;

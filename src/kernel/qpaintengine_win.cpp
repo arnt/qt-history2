@@ -909,8 +909,8 @@ void QWin32PaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int t
     QFontEngine *fe = engine->fontEngine(*si);
     Q_ASSERT( fe );
 
-    int x = p.x() + si->x;
-    int y = p.y() + si->y;
+    int x = p.x();
+    int y = p.y();
 
     HDC oldDC = fe->hdc;
     fe->hdc = d->hdc;

@@ -178,8 +178,9 @@ private:
     QTextEngine *d;
 };
 
-struct QTextInlineObjectInterface
+class QTextInlineObjectInterface
 {
+public:
     virtual void layoutItem(QTextItem item, const QTextFormat &format) = 0;
     virtual void drawItem(QPainter *painter, const QPoint &position, QTextItem item, const QTextFormat &format, QTextLayout::SelectionType selection) = 0;
 };
