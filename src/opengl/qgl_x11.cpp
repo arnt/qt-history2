@@ -326,7 +326,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     // 2. Contexts cannot be shared btw. direct/non-direct renderers.
     // 3. Pixmaps cannot share contexts that are set up for direct rendering.
     if ( shareContext && (format().rgba() != shareContext->format().rgba() ||
-			  (deviceIsPixmap() && 
+			  (deviceIsPixmap() &&
 			   glXIsDirect( disp, (GLXContext)shareContext->cx ))))
 	shareContext = 0;
 
@@ -1083,6 +1083,10 @@ void QGLWidget::cleanupColormaps()
 		       (Colormap) cmap.d->cmapHandle );
 	cmap.d->cmapHandle = 0;
     }
+}
+
+void QGLWidget::macInternalFixBufferRect()
+{
 }
 
 #endif

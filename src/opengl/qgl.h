@@ -181,7 +181,7 @@ public:
     QGLFormat		format() const;
     QGLFormat		requestedFormat() const;
     virtual void	setFormat( const QGLFormat& format );
-    
+
     virtual void	makeCurrent();
     virtual void	swapBuffers() const;
 
@@ -190,7 +190,7 @@ public:
     QColor		overlayTransparentColor() const;
 
     static const QGLContext*	currentContext();
-        
+
 protected:
     virtual bool	chooseContext( const QGLContext* shareContext = 0 );
     virtual void	doneCurrent();
@@ -270,7 +270,7 @@ public:
 
     void		qglColor( const QColor& c ) const;
     void		qglClearColor( const QColor& c ) const;
-    
+
     bool		isValid() const;
     bool		isSharing() const;
     virtual void	makeCurrent();
@@ -302,10 +302,10 @@ public:
     void		setMouseTracking( bool enable );
     virtual void 	reparent( QWidget* parent, WFlags f, const QPoint& p,
 				  bool showIt = FALSE );
-    
+
     const QGLColormap & colormap() const;
     void                setColormap( const QGLColormap & map );
-    
+
 public slots:
     virtual void	updateGL();
     virtual void	updateOverlayGL();
@@ -327,7 +327,7 @@ protected:
 
     virtual void	glInit();
     virtual void	glDraw();
-    
+
 private:
     void                cleanupColormaps();
     void		init( const QGLFormat& fmt,
@@ -335,9 +335,9 @@ private:
     bool		renderCxPm( QPixmap* pm );
     QGLContext*		glcx;
     bool		autoSwap;
-    
+
     QGLColormap         cmap;
-    
+
 #if  defined(Q_WS_WIN)
     QGLContext*		olcx;
 #elif defined(Q_WS_X11)
@@ -353,7 +353,7 @@ private:	// Disabled copy constructor and operator=
     QGLWidget&		operator=( const QGLWidget& );
 #endif
 
-#ifdef Q_WS_MAC
+#if defined(Q_WS_MAC)
 private:
     uint pending_fix : 1, dblbuf : 1, clp_serial : 15;
     QPixmap *gl_pix;
@@ -363,9 +363,9 @@ private:
     bool macInternalDoubleBuffer(bool fix=TRUE);
     virtual void setRegionDirty(bool);
     virtual void macWidgetChangedWindow();
+#endif
 private slots:
     void macInternalFixBufferRect();
-#endif
 };
 
 

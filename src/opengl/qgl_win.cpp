@@ -116,10 +116,10 @@ private:
     void detach();
     QGLCmapPrivate* d;
 };
-    
+
 #endif
 
-    
+
 QGLCmap::QGLCmap( int maxSize ) // add a bool prealloc?
 {
     d = new QGLCmapPrivate;
@@ -348,7 +348,7 @@ bool QGLFormat::hasOpenGLOverlays()
 	GLint params;
 	glGetIntegerv( GL_DEPTH_BITS, &params );
 	opengl32dll = TRUE;
-    }    
+    }
 
     static bool checkDone = FALSE;
     static bool hasOl = FALSE;
@@ -476,7 +476,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	GLint params;
 	glGetIntegerv( GL_DEPTH_BITS, &params );
 	opengl32dll = TRUE;
-    }    
+    }
 
     HDC myDc;
 
@@ -534,7 +534,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	if ( glFormat.rgba() ) {
 	    if ( lpfd.dwFlags & LPD_TRANSPARENT )
 		d->transpColor = QColor( lpfd.crTransparent & 0xff,
-				      (lpfd.crTransparent >> 8) & 0xff, 
+				      (lpfd.crTransparent >> 8) & 0xff,
 				      (lpfd.crTransparent >> 16) & 0xff );
 	    else
 		d->transpColor = QColor( 0, 0, 0 );
@@ -580,7 +580,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	return FALSE;
     }
 
-    if ( deviceIsPixmap() && 
+    if ( deviceIsPixmap() &&
 	 (((QPixmap*)d->paintDevice)->depth() != realPfd.cColorBits ) ) {
 #if defined(QT_CHECK_NULL)
 	qWarning( "QGLContext::chooseContext(): Failed to get pixmap rendering context of suitable depth." );
@@ -626,7 +626,7 @@ static bool qLogEq( bool a, bool b )
     return ( ((!a) && (!b)) || (a && b) );
 }
 
-/*! 
+/*!
 
 <strong>Win32 only</strong> This virtual function chooses a pixel format
 that matches the OpenGL \link setFormat() format\endlink. Reimplement this function in a subclass if you need a custom context.
@@ -644,7 +644,7 @@ int QGLContext::choosePixelFormat( void* dummyPfd, HDC pdc )
 	GLint params;
 	glGetIntegerv( GL_DEPTH_BITS, &params );
 	opengl32dll = TRUE;
-    }    
+    }
 
     int pmDepth = deviceIsPixmap() ? ((QPixmap*)d->paintDevice)->depth() : 0;
     PIXELFORMATDESCRIPTOR* p = (PIXELFORMATDESCRIPTOR*)dummyPfd;
@@ -688,20 +688,20 @@ int QGLContext::choosePixelFormat( void* dummyPfd, HDC pdc )
 #endif
 
     // Since the GDI function ChoosePixelFormat() does not handle
-    // overlay and direct-rendering requests, we must roll our own here 
+    // overlay and direct-rendering requests, we must roll our own here
 
     bool doSearch = chosenPfi <= 0;
     PIXELFORMATDESCRIPTOR pfd;
     QGLFormat fmt;
     if ( !doSearch ) {
-	DescribePixelFormat( pdc, chosenPfi, sizeof(PIXELFORMATDESCRIPTOR), 
+	DescribePixelFormat( pdc, chosenPfi, sizeof(PIXELFORMATDESCRIPTOR),
 			     &pfd );
 	fmt = pfdToQGLFormat( &pfd );
 	if ( glFormat.hasOverlay() && !fmt.hasOverlay() )
 	    doSearch = TRUE;
 	else if ( !qLogEq( glFormat.directRendering(), fmt.directRendering() ))
 	    doSearch = TRUE;
-	else if ( deviceIsPixmap() && ( !(pfd.dwFlags & PFD_DRAW_TO_BITMAP) || 
+	else if ( deviceIsPixmap() && ( !(pfd.dwFlags & PFD_DRAW_TO_BITMAP) ||
 					pfd.cColorBits != pmDepth ) )
 	    doSearch = TRUE;
 	else if ( !deviceIsPixmap() && !(pfd.dwFlags & PFD_DRAW_TO_WINDOW) )
@@ -745,7 +745,7 @@ int QGLContext::choosePixelFormat( void* dummyPfd, HDC pdc )
 		score += 4000;
 	    if ( qLogEq( glFormat.rgba(), fmt.rgba() ) )
 		score += 8000;
-	    
+	
 	    if ( score > bestScore ) {
 		bestScore = score;
 		bestPfi = pfi;
@@ -768,7 +768,7 @@ void QGLContext::reset()
 	GLint params;
 	glGetIntegerv( GL_DEPTH_BITS, &params );
 	opengl32dll = TRUE;
-    }    
+    }
 
     if ( !d->valid )
 	return;
@@ -1036,7 +1036,7 @@ static void qStoreColors( HPALETTE cmap, const QGLColormap & cols )
 {
     QRgb color;
     PALETTEENTRY pe;
-    
+
     for ( int i = 0; i < cols.size(); i++ ) {
 	color = cols.entryRgb( i );
 	pe.peRed   = qRed( color );
@@ -1053,7 +1053,7 @@ void QGLWidget::setColormap( const QGLColormap & c )
     cmap = c;
     if ( !cmap.d )
 	return;
-    
+
     if ( cmap.d->cmapHandle ) { // already have an allocated cmap
         HDC hdc = GetDC( winId() );
 	SelectPalette( hdc, (HPALETTE) cmap.d->cmapHandle, FALSE );
@@ -1083,13 +1083,17 @@ void QGLWidget::cleanupColormaps()
 {	
     if ( !cmap.d )
 	return;
-    
+
     if ( cmap.d->cmapHandle ) {
-	HDC hdc = GetDC( winId() ); 
+	HDC hdc = GetDC( winId() );
 	SelectPalette( hdc, (HPALETTE) GetStockObject( DEFAULT_PALETTE ),
 		       FALSE );
 	DeleteObject( (HPALETTE) cmap.d->cmapHandle );
 	ReleaseDC( winId(), hdc );
 	cmap.d->cmapHandle = 0;
     }
+}
+
+void QGLWidget::macInternalFixBufferRect()
+{
 }
