@@ -1843,6 +1843,30 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
     QSize oldSizeHint = activeqt->sizeHint();
 
     switch ( wFlags ) {
+    case 3:
+    case DISPATCH_PROPERTYGET:
+	{
+	    const QMetaProperty *property = proplist->find( dispidMember );
+	    if ( property ) {
+		if ( !pvarResult )
+		    return DISP_E_PARAMNOTOPTIONAL;
+		if ( pDispParams->cArgs ||
+		     pDispParams->cNamedArgs )
+		    return DISP_E_BADPARAMCOUNT;
+
+		QVariant var = activeqt->property( property->name() );
+		if ( !var.isValid() )
+		    res =  DISP_E_MEMBERNOTFOUND;
+		else if ( !QVariantToVARIANT( var, *pvarResult, property->type() ) )
+		    res = DISP_E_TYPEMISMATCH;
+		else
+		    res = S_OK;
+		break;
+	    } else if ( wFlags == DISPATCH_PROPERTYGET ) {
+		break;
+	    }
+	}
+	// FALLTHROUGH if wFlags == 3 AND not a property.
     case DISPATCH_METHOD:
 	{
 	    const QMetaData *slot = slotlist->find( dispidMember );
@@ -1947,26 +1971,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		m_spAdviseSink->OnViewChange( DVASPECT_CONTENT, 0 );
 	}
 	break;
-    case DISPATCH_PROPERTYGET:
-	{
-	    const QMetaProperty *property = proplist->find( dispidMember );
-	    if ( !property )
-		break;
-	    if ( !pvarResult )
-		return DISP_E_PARAMNOTOPTIONAL;
-	    if ( pDispParams->cArgs ||
-		 pDispParams->cNamedArgs )
-		return DISP_E_BADPARAMCOUNT;
 
-	    QVariant var = activeqt->property( property->name() );
-	    if ( !var.isValid() )
-		res =  DISP_E_MEMBERNOTFOUND;
-	    else if ( !QVariantToVARIANT( var, *pvarResult, property->type() ) )
-		res = DISP_E_TYPEMISMATCH;
-	    else
-		res = S_OK;
-	}
-	break;
     default:
 	break;
     }
