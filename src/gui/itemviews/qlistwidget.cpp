@@ -186,17 +186,20 @@ QListWidgetItem::QListWidgetItem(QListWidget *view)
 
 QListWidgetItem::~QListWidgetItem()
 {
-    view->removeItem(this);
+    if (view)
+        view->removeItem(this);
 }
 
 void QListWidgetItem::openPersistentEditor()
 {
-    view->openPersistentEditor(this);
+    if (view)
+        view->openPersistentEditor(this);
 }
 
 void QListWidgetItem::closePersistentEditor()
 {
-    view->closePersistentEditor(this);
+    if (view)
+        view->closePersistentEditor(this);
 }
 
 /*!
