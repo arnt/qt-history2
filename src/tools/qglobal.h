@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#146 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#147 $
 **
 ** Global type declarations and definitions
 **
@@ -380,8 +380,9 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 #endif
 
 //
-// To get C++ compiler warnings, define CC_WARNINGS or comment out the line
-// "#define NO_WARNINGS"
+// Avoid some particularly useless warnings from some stupid compilers.
+// To get ALL C++ compiler warnings, define CC_WARNINGS or comment out
+// the line "#define NO_WARNINGS"
 //
 
 #if !defined(CC_WARNINGS)
@@ -391,6 +392,7 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 #if defined(_CC_MSVC_)
 #pragma warning(disable: 4244)
 #pragma warning(disable: 4275)
+#pragma warning(disable: 4514)
 #pragma warning(disable: 4800)
 #elif defined(_CC_BOR_)
 #pragma option -w-inl
