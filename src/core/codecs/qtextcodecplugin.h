@@ -17,6 +17,8 @@
 #include "qplugin.h"
 #include "qfactoryinterface.h"
 
+#include <qstringlist.h>
+
 class QTextCodec;
 
 struct Q_CORE_EXPORT QTextCodecFactoryInterface : public QFactoryInterface
