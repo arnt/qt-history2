@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#2 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#3 $
 **
 ** Implementation of QFileDialog class
 **
@@ -73,7 +73,7 @@ public:
 signals:
     void error( int ecode, const QString &msg );
     void data( const QCString & );
-    void putSuccessful( const QString & );
+    void putSuccessful( const QCString & );
     void connectionStateChanged( int state, const QString &data );
     void finished( int );
     void start( int );

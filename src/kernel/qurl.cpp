@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#20 $
 **
 ** Implementation of QFileDialog class
 **
@@ -357,7 +357,7 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
     // relUrl starts in the root ?
     if ( relUrl[0] == '/' ) {
 	*this = url;
- 	if ( QFileInfo( d->path ).isFile() )
+ 	if ( QFileInfo( d->path ).isFile() ) // #### todo
  	    d->path = QFileInfo( d->path ).dirPath();
 	int pos = relUrl.find( '#' );
 	QString tmp;
@@ -372,7 +372,7 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
     } else if ( relUrl[0] == '#' ) {
 	// relUrl just affects the reference ?
 	*this = url;
- 	if ( QFileInfo( d->path ).isFile() )
+ 	if ( QFileInfo( d->path ).isFile() ) // #### todo
  	    d->path = QFileInfo( d->path ).dirPath();
 	setRef( relUrl.mid(1) );
     } else if ( relUrl.find( ":/" ) != -1 ) {
@@ -380,7 +380,7 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
 	*this = relUrl;
     } else {	
 	*this = url;
- 	if ( QFileInfo( d->path ).isFile() )
+ 	if ( QFileInfo( d->path ).isFile() ) // #### todo
  	    d->path = QFileInfo( d->path ).dirPath();
 	int pos = relUrl.find( '#' );
 	QString tmp;
@@ -1023,6 +1023,15 @@ void QUrl::setEncodedPathAndQuery( const QString& path )
 
 QString QUrl::path() const
 {
+    if ( isLocalFile() ) {
+	QFileInfo fi( d->path );
+	if ( fi.isDir() )
+	    return QDir::cleanDirPath( QDir( d->path ).canonicalPath() );
+	else {
+	    QString p = QDir::cleanDirPath( fi.dir().canonicalPath() ); 
+	    return p + "/" + fi.fileName();
+	}
+    }
     return QDir::cleanDirPath( d->path );
 }
 
@@ -1604,8 +1613,8 @@ QString QUrl::toString() const
     if ( isLocalFile() ) {
 	if ( !qNetworkProtocolRegister || ( qNetworkProtocolRegister &&
 					    qNetworkProtocolRegister->count() == 0 ) )
-	    return QDir::cleanDirPath( d->path );
-	return d->protocol + ":" + QDir::cleanDirPath( d->path );
+	    return path();
+	return d->protocol + ":" + path();
     } else {
 	QString res = d->protocol + "://";
 	if ( !d->user.isEmpty() || !d->pass.isEmpty() ) {
@@ -1615,7 +1624,7 @@ QString QUrl::toString() const
 		res += ":" + d->pass;
 	    res += "@";
 	}
-	res += d->host + QDir::cleanDirPath( d->path );
+	res += d->host + path();
 	
 	// #### todo better way to compose an URL
 	
