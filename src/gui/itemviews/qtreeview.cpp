@@ -1455,13 +1455,11 @@ void  QTreeViewPrivate::updateHorizontalScrollbar(int itemWidth)
 
 int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const
 {
-//    bool reverse = QApplication::reverseLayout();
-//     int scrollbar = reverse && q->verticalScrollBar()->isVisible()
-//                     ? q->verticalScrollBar()->width() : 0;
-    int x = pos.x();// - header->x() + header->offset() + scrollbar;
+    int x = pos.x();
     int column = header->logicalIndexAt(x);
-    int position = header->sectionPosition(column);
-    int cx = /*reverse ? position + header->sectionSize(column) - x :*/ x - position;
+    int position = header->sectionViewportPosition(column);
+    int size = header->sectionSize(column);
+    int cx = (QApplication::reverseLayout() ? size - x + position : x - position);
     int viewItemIndex = item(pos.y());
     int itemIndentation = indentation(viewItemIndex);
     QModelIndex index = modelIndex(viewItemIndex);
