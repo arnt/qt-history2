@@ -783,7 +783,9 @@ QString HtmlGenerator::generateListOfAllMemberFile(const InnerNode *inner, CodeM
 
     QString fileName = fileBase(inner) + ".members." + fileExtension();
     beginSubPage(inner->location(), fileName);
-    generateHeader( "List of All Members for " + inner->name() );
+    QString title = "List of All Members for " + inner->name();
+    generateHeader(title, inner);
+    generateTitle(title);
     out() << "<p>This is the complete list of members for ";
     generateFullName(inner, 0, marker);
     out() << ", including inherited members.</p>\n";
