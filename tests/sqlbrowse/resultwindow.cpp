@@ -40,10 +40,10 @@ void ResultWindow::slotExec()
 
 void ResultWindow::newSelection( const QSqlRecord* fields )
 {
-    QString cap;
-    for ( uint i = 0; i < fields->count(); ++i ) {
-	cap += fields->displayLabel( fields->fieldName(i) ).leftJustify(20) + ":" +
-	       fields->value(i).toString().rightJustify(30) + "\n";
-    }
-    currentRecordEdit->setText( cap );
+//     QString cap;
+//     for ( uint i = 0; i < fields->count(); ++i ) {
+//	cap += fields->displayLabel( fields->fieldName(i) ).leftJustify(20) + ":" +
+//	       fields->value(i).toString().rightJustify(30) + "\n";
+//     }
+//     currentRecordEdit->setText( cap );
 }
