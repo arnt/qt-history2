@@ -1998,7 +1998,22 @@ Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 #ifndef QT_NO_XFTFREETYPE
     // copy alpha data
     extern bool qt_use_xrender; // from qapplication_x11.cpp
-    if ( ! qt_use_xrender )
+    if ( ! qt_use_xrender || ! src->data->alphapm )
+	return;
+
+    if ( sw < 0 )
+	sw = src->width() - sx;
+    else
+	sw = QMIN( src->width()-sx, sw );
+    sw = QMIN( dst->width()-dx, sw );
+
+    if ( sh < 0 )
+	sh = src->height() - sy ;
+    else
+	sh = QMIN( src->height()-sy, sh );
+    sh = QMIN( dst->height()-dy, sh );
+
+    if ( sw <= 0 || sh <= 0 )
 	return;
 
     // create an alpha pixmap for dst if it doesn't exist
@@ -2024,11 +2039,6 @@ Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 	    (Qt::HANDLE) XftDrawCreateAlpha( dst->x11Display(),
 					     dst->data->alphapm->hd, 8 );
     }
-
-    if (sw < 0)
-	sw = src->width() - sx;
-    if (sh < 0)
-	sh = src->height() - sy;
 
     GC gc = XCreateGC(dst->x11Display(), dst->data->alphapm->hd, 0, 0);
 

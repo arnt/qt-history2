@@ -803,16 +803,32 @@ Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 
 #ifdef QMAC_PIXMAP_ALPHA
     // copy alpha data
-    if ( src->data->alphapm ) {
-	if ( ! dst->data->alphapm ) {
-	    dst->data->alphapm = new QPixmap( dst->data->w, dst->data->h, 32 );
+    if ( ! src->data->alphapm )
+	return;
 
-	    // new alpha pixmaps are fully opaque by default
-	    dst->data->alphapm->fill( Qt::black );
-	}
+    if ( sw < 0 )
+	sw = src->width() - sx;
+    else
+	sw = QMIN( src->width()-sx, sw );
+    sw = QMIN( dst->width()-dx, sw );
 
-	bitBlt( dst->data->alphapm, dx, dy,
-		src->data->alphapm, sx, sy, sw, sh, Qt::CopyROP, TRUE );
+    if ( sh < 0 )
+	sh = src->height() - sy ;
+    else
+	sh = QMIN( src->height()-sy, sh );
+    sh = QMIN( dst->height()-dy, sh );
+
+    if ( sw <= 0 || sh <= 0 )
+	return;
+
+    if ( ! dst->data->alphapm ) {
+	dst->data->alphapm = new QPixmap( dst->data->w, dst->data->h, 32 );
+
+	// new alpha pixmaps are fully opaque by default
+	dst->data->alphapm->fill( Qt::black );
     }
+
+    bitBlt( dst->data->alphapm, dx, dy,
+	    src->data->alphapm, sx, sy, sw, sh, Qt::CopyROP, TRUE );
 #endif // QMAC_PIXMAP_ALPHA
 }
