@@ -440,8 +440,8 @@ static bool matchEnumItem( EnumDecl *enumDecl )
 	    yyTok = getToken();
 	}
     }
-    enumDecl->addItem( new EnumItemDecl(yyTokenizer->location(), name,
-		       enumDecl->context(), val) );
+    enumDecl->addItem( new EnumItemDecl(yyTokenizer->location(), name, enumDecl,
+					val) );
     return TRUE;
 }
 

@@ -615,7 +615,14 @@ void ClassDecl::buildPlainSymbolTables( bool omitUndocumented )
 	ch = c->children().begin();
 	while ( ch != c->children().end() ) {
 	    QString name = (*ch)->name();
-	    bool omit = ( omitUndocumented && (*ch)->doc() == 0 ) ||
+	    bool documented;
+	    if ( (*ch)->kind() == EnumItem )
+		documented = ( ((EnumItemDecl *) *ch)->parentEnum()->doc() !=
+			       0 );
+	    else
+		documented = ( (*ch)->doc() != 0 );
+
+	    bool omit = ( omitUndocumented && !documented ) ||
 			( !config->isInternal() && (*ch)->internal() );
 
 	    if ( (*ch)->kind() == Decl::Function ) {
@@ -1051,7 +1058,8 @@ void ClassDecl::fillInDocsForThis()
 	    }
 
 	    // a great place to do something unrelated
-	    checkParams( *g, (*g)->parameterNames() );
+	    if ( !internal() )
+		checkParams( *g, (*g)->parameterNames() );
 	    ++g;
 	}
 
@@ -1458,9 +1466,16 @@ void FunctionDecl::printHtmlLong( HtmlWriter& out ) const
 }
 
 EnumItemDecl::EnumItemDecl( const Location& loc, const QString& name,
-			    Decl *context, const CodeChunk& value )
-    : Decl( EnumItem, loc, name, context ), v( value )
+			    EnumDecl *parentEnum, const CodeChunk& value )
+    : Decl( EnumItem, loc, name, parentEnum->context() ),
+      enumDecl( parentEnum ), v( value )
 {
+}
+
+QString EnumItemDecl::uniqueName() const
+{
+    // use parent's name as the link
+    return enumDecl->uniqueName();
 }
 
 void EnumItemDecl::printHtmlShort( HtmlWriter& out ) const

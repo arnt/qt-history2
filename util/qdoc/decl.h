@@ -252,15 +252,20 @@ private:
     PropertyDecl *prop;
 };
 
+class EnumDecl;
+
 class EnumItemDecl : public Decl
 {
 public:
-    EnumItemDecl( const Location& loc, const QString& name, Decl *context,
-		  const CodeChunk& value );
+    EnumItemDecl( const Location& loc, const QString& name,
+		  EnumDecl *parentEnum, const CodeChunk& value );
 
+    virtual QString uniqueName() const;
     const CodeChunk& value() const { return v; }
 
     virtual void printHtmlShort( HtmlWriter& out ) const;
+
+    EnumDecl *parentEnum() const { return enumDecl; }
 
 private:
 #if defined(Q_DISABLE_COPY)
@@ -268,6 +273,7 @@ private:
     EnumItemDecl& operator=( const Decl& );
 #endif
 
+    EnumDecl *enumDecl;
     CodeChunk v;
 };
 
@@ -351,7 +357,7 @@ public:
 private:
     /*
       A Trool is a bit like a bool, except that it admits three truth
-      values (true, false, and default).
+      values (true, false and default).
     */
     enum Trool { Ttrue, Tfalse, Tdef };
 

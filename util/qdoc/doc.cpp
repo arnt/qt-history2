@@ -959,7 +959,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 				 value.left(k + 2).latin1() );
 		    value = value.mid( k + 2 );
 		}
-		yyOut += QString( "<a name=\"%1\"></a>" ).arg( value );
 		yyOut += QString( "<tt>%1</tt>" ).arg( enumPrefix + value );
 		if ( valueIsDocumented() )
 		    yyOut += QString( " - " );
