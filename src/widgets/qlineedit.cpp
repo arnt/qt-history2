@@ -615,6 +615,10 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	}
     } else { // ### check for *no* modifier
 	switch ( e->key() ) {
+	case Key_Shift:
+	    if ( !d->parag->hasSelection( QTextDocument::Standard ) )
+		d->selectionStart = d->cursor->index();
+	    break;
 	case Key_Left:
 	    cursorLeft( e->state() & ShiftButton );
 	    break;
