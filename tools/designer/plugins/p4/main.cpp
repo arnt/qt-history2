@@ -617,6 +617,10 @@ void P4Interface::p4Info( const QString& filename, P4Info* p4i )
 
     if ( p4i->controlled ) {
 	QPixmap pix = fwIface->requestProperty( "icon" ).toPixmap();
+	if ( pix.isNull() ) {
+	    pix = QPixmap( 22,22,32 );
+	    pix.fill( Qt::color0 );
+	}
 	QPainter paint( &pix );
 	paint.setRasterOp( AndROP );
 	paint.fillRect( 0, 0, pix.width() - 1 , pix.height() - 1, p4i->uptodate ? gray : red );
