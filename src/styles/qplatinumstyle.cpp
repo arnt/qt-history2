@@ -606,34 +606,7 @@ void QPlatinumStyle::drawControl( ControlElement element,
 	    drawPrimitive( PE_FocusRect, p,
 			   subRect(SR_PushButtonFocusRect, widget),
 			   cg, flags );
-	break; }
-//     case CE_CheckBox:
-// 	{
-// 	    // many people expect to checkbox to be square, do that here.
-// 	    QRect ir = r;
-
-// 	    if (r.width() < r.height()) {
-// 		ir.setTop(r.top() + (r.height() - r.width()) / 2);
-// 		ir.setHeight(r.width());
-// 	    } else if (r.height() < r.width()) {
-// 		ir.setLeft(r.left() + (r.width() - r.height()) / 2);
-// 		ir.setWidth(r.height());
-// 	    }
-
-// 	    const QCheckBox *checkbox = (const QCheckBox *) widget;
-
-// 	    if (checkbox->isDown())
-// 		flags |= Style_Down;
-// 	    if (checkbox->state() == QButton::On)
-// 		flags |= Style_On;
-// 	    else if (checkbox->state() == QButton::Off)
-// 		flags |= Style_Off;
-// 	    else if (checkbox->state() == QButton::NoChange)
-// 		flags |= Style_NoChange;
-
-// 	    drawPrimitive(PE_Indicator, p, ir, cg, flags, data);
-// 	    break;
-// 	}	
+	break; }	
     default:
 	QWindowsStyle::drawControl( element, p, widget, r, cg, how, data );
 	break;
