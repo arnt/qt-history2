@@ -18,30 +18,30 @@
 #include "config.h"
 #include "tabbedbrowser.h"
 
-#include <qprogressbar.h>
-#include <qfile.h>
-#include <qtextstream.h>
-#include <qapplication.h>
-#include <qevent.h>
-#include <qmessagebox.h>
-#include <qlabel.h>
-#include <qtabwidget.h>
-#include <qurl.h>
-#include <qheader.h>
-#include <qtimer.h>
-#include <qlineedit.h>
-#include <qfileinfo.h>
-#include <qdir.h>
-#include <qtextbrowser.h>
 #include <qaccel.h>
-#include <qregexp.h>
-#include <qpixmap.h>
-#include <qptrstack.h>
-#include <qptrlist.h>
+#include <qapplication.h>
 #include <qcursor.h>
-#include <qstatusbar.h>
-#include <qvalidator.h>
+#include <qdir.h>
+#include <qeventloop.h>
+#include <qfile.h>
+#include <qfileinfo.h>
+#include <qheader.h>
+#include <qlabel.h>
+#include <qlineedit.h>
+#include <qmessagebox.h>
+#include <qpixmap.h>
+#include <qprogressbar.h>
+#include <qptrlist.h>
+#include <qptrstack.h>
+#include <qregexp.h>
 #include <qsettings.h>
+#include <qstatusbar.h>
+#include <qtabwidget.h>
+#include <qtextbrowser.h>
+#include <qtextstream.h>
+#include <qtimer.h>
+#include <qurl.h>
+#include <qvalidator.h>
 
 #include <stdlib.h>
 #include <limits.h>
@@ -217,6 +217,13 @@ void HelpDialog::initialize()
     setupTitleMap();
 }
 
+
+void HelpDialog::processEvents()
+{
+    qApp->eventLoop()->processEvents( QEventLoop::ExcludeUserInput );
+}
+
+
 void HelpDialog::lastWinClosed()
 {
     lwClosed = TRUE;
@@ -284,7 +291,7 @@ void HelpDialog::loadIndexFile()
     indexDone = TRUE;
     labelPrepare->setText( tr( "Prepare..." ) );
     framePrepare->show();
-    qApp->processEvents();
+    processEvents();
 
     QProgressBar *bar = progressPrepare;
     bar->setTotalSteps( 100 );
@@ -296,7 +303,7 @@ void HelpDialog::loadIndexFile()
 		     Config::configuration()->profileName() );
     if ( !indexFile.open( IO_ReadOnly ) ) {
 	buildKeywordDB();
-	qApp->processEvents();
+	processEvents();
 	if( lwClosed )
 	    return;
 	indexFile.open( IO_ReadOnly );
@@ -320,7 +327,7 @@ void HelpDialog::loadIndexFile()
     indexFile.close();
 
     bar->setProgress( bar->totalSteps() );
-    qApp->processEvents();
+    processEvents();
 
     listIndex->clear();
     HelpNavigationListItem *lastItem = 0;
@@ -364,7 +371,7 @@ void HelpDialog::buildKeywordDB()
     labelPrepare->setText( tr( "Prepare..." ) );
     progressPrepare->setTotalSteps( steps );
     progressPrepare->setProgress( 0 );
-    qApp->processEvents();
+    processEvents();
 
     QValueList<IndexKeyword> lst;
     Q_UINT32 fileAges = 0;
@@ -406,7 +413,7 @@ void HelpDialog::buildKeywordDB()
 					      int(fi.absFilePath().length() * 1.6) );
 
 	    if( ++counter%100 == 0 ) {
-		qApp->processEvents();
+		processEvents();
 		if( lwClosed ) {
 		    return;
 		}
@@ -450,7 +457,7 @@ void HelpDialog::setupTitleMap()
 	    titleMap[ link.absFilePath() ] = (*it).title.stripWhiteSpace();
 	}
     }
-    qApp->processEvents();
+    processEvents();
 }
 
 void HelpDialog::getAllContents()
@@ -478,7 +485,7 @@ void HelpDialog::getAllContents()
 	contentList.insert( key, new QValueList<ContentItem>( lst ) );
     }
     contentFile.close();
-    qApp->processEvents();
+    processEvents();
 
 }
 
@@ -827,7 +834,7 @@ void HelpDialog::insertContents()
 		}
 	    }
 	}
-	qApp->processEvents();
+	processEvents();
     }
     setCursor( arrowCursor );
     showInitDoneMessage();
@@ -900,7 +907,7 @@ void HelpDialog::setupFullTextIndex()
     fullTextIndex = new Index( documentList, QDir::homeDirPath() ); // ### Is this correct ?
     fullTextIndex->setDictionaryFile( cacheFilesPath + "/indexdb.dict." + pname );
     fullTextIndex->setDocListFile( cacheFilesPath + "/indexdb.doc." + pname );
-    qApp->processEvents();
+    processEvents();
 
     connect( fullTextIndex, SIGNAL( indexingProgress( int ) ),
 	     this, SLOT( setIndexingProgress( int ) ) );
@@ -913,7 +920,7 @@ void HelpDialog::setupFullTextIndex()
 	progressPrepare->reset();
 	progressPrepare->show();
 	framePrepare->show();
-	qApp->processEvents();
+	processEvents();
 	if ( fullTextIndex->makeIndex() == -1 )
 	    return;
 	fullTextIndex->writeDict();
@@ -924,7 +931,7 @@ void HelpDialog::setupFullTextIndex()
     } else {
 	setCursor( waitCursor );
 	help->statusBar()->message( tr( "Reading dictionary..." ) );
-	qApp->processEvents();
+	processEvents();
 	fullTextIndex->readDict();
 	help->statusBar()->message( tr( "Done" ), 3000 );
 	setCursor( arrowCursor );
@@ -934,7 +941,7 @@ void HelpDialog::setupFullTextIndex()
 void HelpDialog::setIndexingProgress( int prog )
 {
     progressPrepare->setProgress( prog );
-    qApp->processEvents();
+    processEvents();
 }
 
 void HelpDialog::startSearch()

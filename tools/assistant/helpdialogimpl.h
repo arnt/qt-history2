@@ -116,6 +116,7 @@ private slots:
     void showItemMenu( QListBoxItem *item, const QPoint &pos );
     void showItemMenu( QListViewItem *item, const QPoint &pos );
     void insertBookmarks();
+    void processEvents();
 
 private:
     typedef QValueList<ContentItem> ContentList;
