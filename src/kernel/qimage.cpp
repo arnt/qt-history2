@@ -4066,17 +4066,13 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 		break;
 	    b = buf24;
 	    while ( p < end ) {
-#ifdef _OS_IRIX_
-                c = *(uchar*)b | *(uchar*)(b+1)<<8;
-                if (nbits != 16)
-                    c |= *(uchar*)(b+2)<<16;
-#else
-                c = (nbits == 16)?*(unsigned short*)b:*(int *)b;
-#endif
-  		*p++ = qRgb(((c & red_mask) >> red_shift) * red_scale,
+		c = *(uchar*)b | *(uchar*)(b+1)<<8;
+		if (nbits != 16)
+		    c |= *(uchar*)(b+2)<<16;
+		*p++ = qRgb(((c & red_mask) >> red_shift) * red_scale,
 					((c & green_mask) >> green_shift) * green_scale,
-  					((c & blue_mask) >> blue_shift)) * blue_scale;
-  		b += nbits/8;
+					((c & blue_mask) >> blue_shift)) * blue_scale;
+		b += nbits/8;
 	    }
 	}
 	delete[] buf24;
