@@ -12,12 +12,8 @@ QOCI
 - [done] optimize fetchNext() - no need to keep asking for field info unless the query changes. duh.
 - [done] pull the caching code out of fetchNext() and stick it in reset() where it can be optimized better.  Then all the fetch*() methods are in-memory only.
 - [done] or... never cache anything until the first fetch() <= this will optimize copying QSql around before it is actually used.
-- transaction support
+- [done] transaction support
 - fix QOCIResultPrivate to use proper field size when creating memory
-- OCI_FETCH_PRIOR?
-
-QODBC
-- check out the easysoft Oracle ODBC driver, and see how useful it is
 
 QSqlIndex
 - [done] Add ASC/DESC sorting
@@ -25,12 +21,12 @@ QSqlIndex
 - foreign indexes?  <= important for lookups
 
 QSqlFieldList
-- get rid of fieldStrList cache thing for now
+- [done - toString() is virtual] get rid of fieldStrList cache thing for now
 
 Sql tables
 - [done]allow data to be displayed without using setNumRows() or QSql::size().
 
-- replace Q_UNUSED with unnamed parms
+- [done] replace Q_UNUSED with unnamed parms
 
 - solve *.pro path problems for building drivers
 
