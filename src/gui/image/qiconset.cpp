@@ -256,6 +256,10 @@ QIconSetIcon *QIconSetData::icon(const QIconSet *iconSet, QIconSet::Size size,
       \link guibooks.html#fowler GUI Design Handbook: Iconic Label \endlink
 */
 
+/*!
+    \enum QIconSet::PixmapGeneratorFn
+    \interna
+*/
 
 /*!
   \enum QIconSet::Size
@@ -627,12 +631,22 @@ void QIconSet::clearGenerated()
 
     If no icon factory is installed, QIconFactory::defaultFactory()
     is used.
+
+    \sa defaultPixmapGeneratorFn()
 */
 void QIconSet::setPixmapGeneratorFn(PixmapGeneratorFn func)
 {
     detach();
     d->func = func;
 }
+
+/*!
+    \fn PixmapGeneratorFn QIconSet::defaultPixmapGeneratorFn()
+
+    Returns the default icon factory.
+
+    \sa setPixmapGeneratorFn()
+*/
 
 /*!
     \fn bool QIconSet::isNull() const
