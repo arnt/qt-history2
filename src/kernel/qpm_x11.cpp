@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#37 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#36 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#37 $";
 #endif
 
 
@@ -280,7 +280,7 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
   The optimization flag is initially set to the global pixmap optimization
   flag allAreOptimized(), which is TRUE by default.
 
-  \sa optimize(), optimizeAll()
+  \sa optimize(), optimizeGlobally(), isGloballyOptimized()
 */
 
 bool QPixmap::isOptimized() const
@@ -295,7 +295,7 @@ bool QPixmap::isOptimized() const
   Pixmap optimization makes pixmap operations faster. The disadvantage is
   that pixmap optimization consumes some extra memory.
 
-  \sa isOptimized(), optimizeAll(), allAreOptimized()
+  \sa isOptimized(), optimizeGlobally(), isGloballyOptimized()
 */
 
 void QPixmap::optimize( bool enable )
@@ -312,7 +312,7 @@ void QPixmap::optimize( bool enable )
 
 /*!
   Returns the global pixmap optimization flag.  The default value is TRUE.
-  \sa optimizeAll(), isOptimized()
+  \sa optimizeGlobally(), optimize(), isOptimized()
 */
 
 bool QPixmap:isGloballyOptimized()
@@ -328,7 +328,7 @@ bool QPixmap:isGloballyOptimized()
 
   Optimization can be overridden for individual pixmaps by optimize().
 
-  \sa optimizeAll(), optimize(), optimized()
+  \sa isGloballyOptimized(), optimize(), isOptimized()
 */
 
 void QPixmap::optimizeGlobally( bool enable )
