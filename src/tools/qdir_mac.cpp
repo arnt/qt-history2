@@ -24,14 +24,14 @@ QString QDir::canonicalPath() const
 bool QDir::mkdir(const QString &dirname,bool acceptAbsPath) const
 {
     FSSpec myspec;
-    unsigned char bigbuf[257];
-    const unsigned char * wingle=
-           (const unsigned char *)QFile::encodeName(filePath(dirname,
+    char bigbuf[257];
+    const char * wingle=
+           (const char *)QFile::encodeName(filePath(dirname,
 						    acceptAbsPath));
     strcpy(bigbuf+1,dirname.wingle);
     bigbuf[0]=strlen(wingle);    
     OSErr ret;
-    ret=FSMakeFSSpec((short)0,(long)0,bigbuf,&myspec);
+    ret=FSMakeFSSpec((short)0,(long)0,(const unsigned char *)bigbuf,&myspec);
     if(ret!=noErr) {
 	qWarning("Make FS spec in mkdir error %d",ret);
 	return false;
@@ -48,14 +48,14 @@ bool QDir::mkdir(const QString &dirname,bool acceptAbsPath) const
 bool QDir::rmdir(const QString &dirname,bool acceptAbsPath) const
 {
     FSSpec myspec;
-    unsigned char bigbuf[257];
-    const unsigned char * wingle=
-           (const unsigned char *)QFile::encodeName(filePath(dirname,
+    char bigbuf[257];
+    const char * wingle=
+           (const char *)QFile::encodeName(filePath(dirname,
 						    acceptAbsPath));
     strcpy(bigbuf+1,dirname.wingle);
     bigbuf[0]=strlen(wingle);    
     OSErr ret;
-    ret=FSMakeFSSpec((short)0,(long)0,bigbuf,&myspec);
+    ret=FSMakeFSSpec((short)0,(long)0,(const unsigned char *)bigbuf,&myspec);
     if(ret!=noErr) {
 	qWarning("Make FS spec in rmdir error %d",ret);
 	return false;
@@ -124,7 +124,7 @@ const QFileInfoList * QDir::drives()
 	QHdrPtr headerp;
 	headerp=GetDrvQHdr();
 	drivep=headerp->qHead;
-	unsigned char somebuf[257];
+	char somebuf[257];
 	short int refnum;
 	long int freebytes;
 	while(drivep) {
@@ -134,7 +134,8 @@ const QFileInfoList * QDir::drives()
 	    int driveref=el->dQRefNum;
 	    int driveid=el->dQFSID;
 	    refnum=driveref;	
-	    OSErr ret=GetVInfo(drivenum,somebuf,&refnum,&freebytes);
+	    OSErr ret=GetVInfo(drivenum,(unsigned char *)somebuf,&refnum,
+			       &freebytes);
 	    if(ret!=noErr) {
 		if(ret==nsvErr) {
 		    qWarning("QDir::drives, no such volume");
