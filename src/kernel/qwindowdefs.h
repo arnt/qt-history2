@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#147 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#148 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -95,13 +95,18 @@ typedef void *HANDLE;
 
 #if defined(Q_WINSTRICT)
 
+#if !defined(STRICT)
 #define STRICT
+#endif
+#undef NO_STRICT
 #define Q_DECLARE_HANDLE(name) struct name##__; typedef struct name##__ *name
 
 #else
 
-#undef  STRICT
+#if !defined(NO_STRICT)
 #define NO_STRICT
+#endif
+#undef  STRICT
 #define Q_DECLARE_HANDLE(name) typedef HANDLE name
 
 #endif
