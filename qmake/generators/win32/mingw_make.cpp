@@ -263,9 +263,11 @@ MingwMakefileGenerator::writeMingwParts(QTextStream &t)
     if(!project->isEmpty("IMAGES"))
 	t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-$(DEL_FILE) ", "\n\t-$(DEL_FILE) ", "");
 
-    // blasted user defined targets
+    // user defined targets
+    QStringList::Iterator it;
     QStringList &qut = project->variables()["QMAKE_EXTRA_WIN_TARGETS"];
-    for(QStringList::Iterator it = qut.begin(); it != qut.end(); ++it) {
+
+    for(it = qut.begin(); it != qut.end(); ++it) {
 	QString targ = var((*it) + ".target"),
 		 cmd = var((*it) + ".commands"), deps;
 	if(targ.isEmpty())
@@ -284,7 +286,7 @@ MingwMakefileGenerator::writeMingwParts(QTextStream &t)
     t << endl << endl;
    
     QStringList &quc = project->variables()["QMAKE_EXTRA_WIN_COMPILERS"];
-    for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
+    for(it = quc.begin(); it != quc.end(); ++it) {
 	QString tmp_out = project->variables()[(*it) + ".output"].first();
 	QString tmp_cmd = project->variables()[(*it) + ".commands"].join(" ");
 	QString tmp_dep = project->variables()[(*it) + ".depends"].join(" ");
@@ -548,7 +550,8 @@ MingwMakefileGenerator::init()
     project->variables()["QMAKE_FILETAGS"] += QStringList::split(' ',
 	"HEADERS SOURCES DEF_FILE RC_FILE TARGET QMAKE_LIBS DESTDIR DLLDESTDIR INCLUDEPATH");
     QStringList &l = project->variables()["QMAKE_FILETAGS"];
-    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+    QStringList::Iterator it;
+    for(it = l.begin(); it != l.end(); ++it) {
 	QStringList &gdmf = project->variables()[(*it)];
 	for(QStringList::Iterator inner = gdmf.begin(); inner != gdmf.end(); ++inner)
 	    (*inner) = Option::fixPathToTargetOS((*inner), FALSE);
@@ -601,7 +604,7 @@ MingwMakefileGenerator::init()
     }
 
     QStringList &quc = project->variables()["QMAKE_EXTRA_WIN_COMPILERS"];
-    for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
+    for(it = quc.begin(); it != quc.end(); ++it) {
 	QString tmp_out = project->variables()[(*it) + ".output"].first();
 	if(tmp_out.isEmpty())
 	    continue;
