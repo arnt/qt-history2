@@ -59,6 +59,7 @@ static PtrSHGetPathFromIDList ptrSHGetPathFromIDList = 0;
 static void resolveLibs()
 {
     QLibrary* lib = new QLibrary("shell32");
+    lib->setAutoUnload( FALSE );
     static bool triedResolve = FALSE;
     if ( !ptrSHBrowseForFolder && !ptrSHGetPathFromIDList && !triedResolve ) {
 	triedResolve = TRUE;
