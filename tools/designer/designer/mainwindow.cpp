@@ -143,6 +143,7 @@ MainWindow::MainWindow( bool asClient )
     windowMenu = 0;
     actionWindowPropertyEditor = 0;
     hierarchyView = 0;
+    actionPluginManager = 0;
 
     statusBar()->clear();
     statusBar()->addWidget( new QLabel("Ready", statusBar()), 1 );
@@ -205,10 +206,12 @@ MainWindow::MainWindow( bool asClient )
     delete w;
 
     statusBar()->setSizeGripEnabled( TRUE );
+    
 }
 
 MainWindow::~MainWindow()
 {
+    delete actionPluginManager;
 }
 
 void MainWindow::setupMDI()
