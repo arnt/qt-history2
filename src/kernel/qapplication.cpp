@@ -43,15 +43,6 @@
 #include "qptrdict.h"
 #include "qcleanuphandler.h"
 
-#include "qwindowsstyle.h"
-#ifdef Q_WS_QWS
-#include "qcompactstyle.h"
-#endif
-#include "qmotifstyle.h"
-#include "qmotifplusstyle.h"
-#include "qplatinumstyle.h"
-#include "qcdestyle.h"
-#include "qsgistyle.h"
 #include "qtranslator.h"
 #include "qtextcodec.h"
 #include "qpngio.h"
@@ -405,70 +396,17 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	    continue;
 	}
 	QCString arg = argv[i];
+	QCString s;
 	if ( arg == "-qdevel" || arg == "-qdebug") {
 	    makeqdevel = !makeqdevel;
-#ifndef QT_NO_STYLE_WINDOWS
-	} else if ( qstricmp(arg, "-style=windows") == 0 ) {
-	    setStyle( new QWindowsStyle );
-#endif
-#ifndef QT_NO_STYLE_MOTIF
-	} else if ( qstricmp(arg, "-style=motif") == 0 ) {
-	    setStyle( new QMotifStyle );
-#endif
-#ifndef QT_NO_STYLE_PLATINUM
-	} else if ( qstricmp(arg, "-style=platinum") == 0 ) {
-	    setStyle( new QPlatinumStyle );
-#endif
-#ifndef QT_NO_STYLE_CDE
-	} else if ( qstricmp(arg, "-style=cde") == 0 ) {
-	    setStyle( new QCDEStyle );
-#endif
-#ifndef QT_NO_STYLE_SGI
-	} else if ( qstricmp(arg, "-style=sgi") == 0 ) {
-	    setStyle( new QSGIStyle );
-#endif
-#ifndef QT_NO_STYLE_MOTIFPLUS
-	} else if (qstricmp(arg, "-style=motifplus") == 0) {
-	    setStyle(new QMotifPlusStyle);
-#endif
-#ifndef QT_NO_STYLE
+	} else if ( arg.find( "-style=", 0, FALSE ) != -1 ) {
+	    s = arg.right( arg.length() - 7 );
 	} else if ( qstrcmp(arg,"-style") == 0 && i < argc-1 ) {
-	    QCString s = argv[++i];
+	    s = argv[++i];
 	    s = s.lower();
-#ifndef QT_NO_STYLE_WINDOWS
-	    if ( s == "windows" )
-		setStyle( new QWindowsStyle );
-	    else
-#endif
-#ifndef QT_NO_STYLE_MOTIF
-	    if ( s == "motif" )
-		setStyle( new QMotifStyle );
-	    else
-#endif
-#ifndef QT_NO_STYLE_PLATINUM
-	    if ( s == "platinum" )
-		setStyle( new QPlatinumStyle );
-	    else
-#endif
-#ifndef QT_NO_STYLE_CDE
-	    if ( s == "cde" )
-		setStyle( new QCDEStyle );
-	    else
-#endif
-#ifndef QT_NO_STYLE_SGI
-	    if ( s == "sgi" )
-		setStyle( new QSGIStyle );
-	    else
-#endif
-#ifndef QT_NO_STYLE_MOTIFPLUS
-	    if ( s == "motifplus" )
-		setStyle(new QMotifPlusStyle);
-	    else
-#endif
-	    qWarning("Invalid -style option");
-#endif
+	}
 #ifndef QT_NO_SESSIONMANAGER
-	} else if ( qstrcmp(arg,"-session") == 0 && i < argc-1 ) {
+	else if ( qstrcmp(arg,"-session") == 0 && i < argc-1 ) {
 	    QCString s = argv[++i];
 	    if ( !s.isEmpty() ) {
 		session_id = QString::fromLatin1( s );
@@ -476,9 +414,13 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	    }
 #endif
 	} else if ( qstrcmp(arg, "-reverse") == 0 ) {
-	    setReverseLayout(true);
+	    setReverseLayout( TRUE );
 	} else {
 	    argv[j++] = argv[i];
+	}
+	if ( !s.isEmpty() ) {
+	    if ( !setStyle( s ) )
+		qWarning("Invalid -style option");
 	}
     }
 
@@ -715,26 +657,24 @@ void QApplication::initialize( int argc, char **argv )
     if (!app_style) {
 	// Compile-time search for default style
 	//
-#if defined(Q_WS_WIN) && !defined(QT_NO_STYLE_WINDOWS)
-	app_style = new QWindowsStyle; // default style for Windows
-#elif defined(Q_WS_X11) && defined(Q_OS_IRIX) && !defined(QT_NO_STYLE_SGI)
-	app_style = new QSGIStyle; // default comment
-#elif defined(Q_WS_X11) && !defined(QT_NO_STYLE_MOTIF)
-	app_style = new QMotifStyle; // default style for X11
-#elif defined(Q_WS_MAC) && !defined(QT_NO_STYLE_PLATINUM)
-	app_style = new QPlatinumStyle;
-#elif defined(Q_WS_QWS) && !defined(QT_NO_STYLE_COMPACT)
-	app_style = new QCompactStyle; // default style for small devices
-#elif !defined(QT_NO_STYLE_WINDOWS)
-	app_style = new QWindowsStyle; // default style for Windows
-#elif !defined(QT_NO_STYLE_MOTIF)
-	app_style = new QMotifStyle; // default style for X11
-#elif !defined(QT_NO_STYLE_PLATINUM)
-	app_style = new QPlatinumStyle;
-#else
-#error "No styles defined"
+	QString style;
+#if defined(Q_WS_WIN)
+	style = "windows";		// default style for Windows
+#elif defined(Q_WS_X11) && defined(Q_OS_IRIX)
+	style = "sgi";			// default comment
+#elif defined(Q_WS_X11)
+	style = "motif";		// default style for X11
+#elif defined(Q_WS_MAC)
+	style = "platinum";		// round style for round devices
+#elif defined(Q_WS_QWS)
+	style = "compact";		// default style for small devices
 #endif
-
+	app_style = QStyleFactory::create( style );
+	if ( !app_style &&		// platform default style not available, try alternatives
+	     !(app_style = QStyleFactory::create( "windows" ) ) &&
+	     !(app_style = QStyleFactory::create( "motif" ) ) &&
+	     !(app_style = QStyleFactory::create( "platinum" ) ) )
+	    qFatal( "Requested style %s not defined!", style.latin1() );
     }
 #endif
 
