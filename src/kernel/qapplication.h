@@ -43,6 +43,7 @@
 #include "qasciidict.h"
 #include "qpalette.h"
 #include "qtranslator.h"
+#include "qstrlist.h"
 #endif // QT_H
 
 class QSessionManager;
@@ -58,11 +59,12 @@ extern Q_EXPORT QApplication *qApp;		// global application object
 
 #if defined(QT_THREAD_SUPPORT)
 class QMutex;
-class QSemaphore;
 #endif
 
 // REMOVE IN 3.0 (just here for moc source compatibility)
 #define QNonBaseApplication QApplication
+
+class QApplicationInterface;
 
 class Q_EXPORT QApplication : public QObject
 {
@@ -235,6 +237,9 @@ public:
     bool 	     locked();
 #endif
 
+    virtual QApplicationInterface* requestApplicationInterface( const QCString& request );
+    virtual QStrList queryInterfaceList() const;
+
 signals:
     void	     lastWindowClosed();
     void	     aboutToQuit();
@@ -321,7 +326,6 @@ private: // Disabled copy constructor and operator=
     QApplication &operator=( const QApplication & );
 #endif
 };
-
 
 inline int QApplication::argc() const
 {

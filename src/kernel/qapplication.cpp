@@ -3129,3 +3129,35 @@ void MyApplication::commitData( QSessionManager& sm ) {
 
   \sa isPhase2()
 */
+
+/*!
+  Returns an interface implementation that matches the \a request.
+
+  The plugin-loader will try to connect all QClientInterfaces that 
+  correspond to interfaces the application returns for matching requests.
+  Reimplement this function to provide interfaces plugins can use to 
+  access the application's components.
+
+  The default implementation returns null for all requests.
+
+  \sa QPlugIn, QClientInterface
+*/
+QApplicationInterface* QApplication::requestApplicationInterface( const QCString& request )
+{
+    return 0;
+}
+
+/*!
+  Returns a list of provided interfaces for this application.
+
+  Reimplement this function to enable plugins to connect to the application's
+  components.
+
+  The default implementation returns an empty list.
+
+  \sa QPlugIn, QApplicationInterface, QClientInterface
+*/
+QStrList QApplication::queryInterfaceList() const
+{
+    return QStrList();
+}
