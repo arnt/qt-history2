@@ -891,12 +891,6 @@ class QDataStream;
 #ifndef Q_EXPORT
 #  define Q_EXPORT
 #endif
-#ifndef Q_GUI_EXPORT
-#  define Q_GUI_EXPORT
-#endif
-#ifndef Q_KERNEL_EXPORT
-#  define Q_KERNEL_EXPORT
-#endif
 
 #ifndef Q_KERNEL_EXPORT
 #  define Q_KERNEL_EXPORT

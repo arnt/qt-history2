@@ -1667,10 +1667,10 @@ void QWidget::setWindowTransparency(double level)
 
     level = QMIN(QMAX(level, 0), 1.0);
     (*ptrSetLayeredWindowAttributes)(winId(), 0, (int)(level*255), Q_LWA_ALPHA);
-    topData()->transparency = (uchar)(level*255);
+    d->topData()->transparency = (uchar)(level*255);
 }
 
 double QWidget::windowTransparency() const
 {
-    return isTopLevel() ? (((QWidget*)this)->topData()->transparency/255.0) : 1.0;
+    return isTopLevel() ? (d->topData()->transparency/255.0) : 1.0;
 }
