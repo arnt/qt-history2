@@ -261,6 +261,14 @@ MainWindow::MainWindow( bool asClient )
 
 MainWindow::~MainWindow()
 {
+    QMap< QAction*, Project* >::Iterator it = projects.begin();
+    while ( it != projects.end() ) {
+	Project *p = *it;
+	++it;
+	delete p;
+    }
+    projects.clear();
+
     delete oWindow;
     oWindow = 0;
 
@@ -268,9 +276,13 @@ MainWindow::~MainWindow()
     desInterface = 0;
 
     delete actionPluginManager;
+//    delete preferencePluginManager;
+//    delete interpreterPluginManager;
     delete programPluginManager;
     delete templateWizardPluginManager;
     delete editorPluginManager;
+
+    MetaDataBase::clearDataBase();
 }
 
 void MainWindow::setupMDI()
@@ -4348,6 +4360,8 @@ void MainWindow::setupPluginManagers()
 	    PreferenceInterface::Preference *pf = i->globalPreference( *it );
 	    if ( pf )
 		addPreferencesTab( pf->tab, pf->title, pf->receiver, pf->init_slot, pf->accept_slot );
+	    i->deletePreferenceObject( pf );
+
 	    pf = i->projectSetting( *it );
 	    if ( pf )
 		addProjectTab( pf->tab, pf->title, pf->receiver, pf->init_slot, pf->accept_slot );
