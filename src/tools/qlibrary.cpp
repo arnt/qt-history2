@@ -35,15 +35,21 @@
 **
 **********************************************************************/
 
+
+#include <private/qlibrary_p.h>
+
 // uncomment this to get error messages
 //#define QT_DEBUG_COMPONENT 1 
 // uncomment this to get error and success messages
 //#define QT_DEBUG_COMPONENT 2
 
-#include <private/qlibrary_p.h>
+#ifndef QT_DEBUG_COMPONENT
+# if defined(QT_DEBUG)
+#  define QT_DEBUG_COMPONENT 1
+# endif
+#endif
 
 #ifndef QT_NO_COMPONENT
-
 
 // KAI C++ has at the moment problems with unloading the Qt plugins. So don't
 // unload them as a workaround for now.
@@ -57,6 +63,9 @@
 
 /* Platform independent QLibraryPrivate implementations */
 #ifndef QT_LITE_COMPONENT
+
+#include "qtimer.h"
+
 extern Q_EXPORT QApplication *qApp;
 
 QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
@@ -254,15 +263,15 @@ void QLibrary::createInstanceInternal()
 #endif
 #ifndef QT_LITE_COMPONENT
 #  ifdef Q_CC_BOR
-	typedef int __stdcall (*UCMInitProc)(QApplication*, bool*);
+	typedef int __stdcall (*UCMInitProc)(QApplication*, bool*, bool* );
 #  else
-	typedef int (*UCMInitProc)(QApplication*, bool*);
+	typedef int (*UCMInitProc)(QApplication*, bool*, bool* );
 #  endif
 #else
 #  ifdef Q_CC_BOR
-	typedef int __stdcall (*UCMInitProc)(void*, bool*);
+	typedef int __stdcall (*UCMInitProc)(void*, bool*, bool* );
 #  else
-	typedef int (*UCMInitProc)(void*, bool*);
+	typedef int (*UCMInitProc)(void*, bool*, bool* );
 #  endif
 #endif
 	UCMInitProc ucmInitProc;
@@ -270,30 +279,32 @@ void QLibrary::createInstanceInternal()
 
 	bool ucm_init = TRUE;
 	if ( ucmInitProc ) {
-#if defined(QT_THREAD_SUPPORT)
-	    bool qtThreaded = TRUE;
-#else
-	    bool qtThreaded = FALSE;
-#endif
 	    bool plugQtThreaded;
+	    bool plugQtDebug;
 #ifndef QT_LITE_COMPONENT
-	    int plugQtVersion = ucmInitProc( qApp, &plugQtThreaded );
+	    int plugQtVersion = ucmInitProc( qApp, &plugQtThreaded, &plugQtDebug );
 #else
-	    int plugQtVersion = ucmInitProc( 0, &plugQtThreaded );
+	    int plugQtVersion = ucmInitProc( 0, &plugQtThreaded, &plugQtDebug );
 #endif
 	    if ( QABS(plugQtVersion - QT_VERSION ) > 99 ) {
 #if defined(QT_DEBUG_COMPONENT)
-		qWarning( "%s: Plugin links against incompatible Qt library (%d)!", library().latin1(), plugQtVersion );
+		qWarning( "Conflict in %s: Plugin links against incompatible Qt library (%d)!", library().latin1(), plugQtVersion );
 #endif
 		ucm_init = FALSE;
 	    }
-	    if ( plugQtThreaded != qtThreaded ) {
+	    if ( plugQtThreaded != QT_THREADED_BUILD ) {
 #if defined(QT_DEBUG_COMPONENT)
-		qWarning( "%s: Plugin uses Qt library with different threading model!", library().latin1() );
+		qWarning( "Conflict in %s: Plugin uses %s Qt library!", library().latin1(), plugQtThreaded ? "multi threaded" : "single threaded" );
 #endif
 		// the plugin is threaded, but the application is not. If we live long enough to cancel the load, do it...
 		if ( plugQtThreaded )
 		    ucm_init = FALSE;
+	    }
+	    if ( plugQtDebug != QT_DEBUG_BUILD ) {
+#if defined(QT_DEBUG_COMPONENT)
+		qWarning( "Conflict in %s: Plugin uses Qt library %s debug symbols!", library().latin1(), plugQtDebug ? "with" : "without" );
+#endif
+		ucm_init = FALSE;
 	    }
 	}
 	if ( !ucm_init ) {

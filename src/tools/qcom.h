@@ -8,7 +8,6 @@
 
 #ifndef QT_NO_COMPONENT
 
-class QLibrary;
 class QObject;
 struct QUInterfaceDescription;
 struct QUObject;
@@ -229,10 +228,17 @@ public:
 #endif
 
 #define Q_REFCOUNT  ulong addRef() {return ref++;}ulong release() {if(!--ref){delete this;return 0;}return ref;}
+
 #if defined(QT_THREAD_SUPPORT)
 #define QT_THREADED_BUILD 1
 #else
 #define QT_THREADED_BUILD 0
+#endif
+
+#if defined(QT_DEBUG)
+#define QT_DEBUG_BUILD 1
+#else
+#define QT_DEBUG_BUILD 0
 #endif
 
 #ifndef Q_EXPORT_INTERFACE
@@ -241,12 +247,14 @@ public:
 #	    define Q_EXPORT_INTERFACE() \
 		extern Q_EXPORT QApplication *qApp; \
 		extern Q_EXPORT void qt_ucm_initialize( QApplication *theApp ); \
-		Q_EXTERN_C __declspec(dllexport) int __stdcall ucm_initialize( QApplication *theApp, bool *mt ) \
+		Q_EXTERN_C __declspec(dllexport) int __stdcall ucm_initialize( QApplication *theApp, bool *mt, bool *debug ) \
 		{ \
 		    if ( !qApp && theApp ) \
 			qt_ucm_initialize( theApp ); \
 		    if ( mt ) \
 			*mt = QT_THREADED_BUILD; \
+		    if ( debug ) \
+		        *debug = QT_DEBUG_BUILD; \
 		    return QT_VERSION; \
 		} \
 		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* __stdcall ucm_instantiate()
@@ -254,12 +262,14 @@ public:
 #	    define Q_EXPORT_INTERFACE() \
 		extern Q_EXPORT QApplication *qApp; \
 		extern Q_EXPORT void qt_ucm_initialize( QApplication *theApp ); \
-		Q_EXTERN_C __declspec(dllexport) int ucm_initialize( QApplication *theApp, bool *mt ) \
+		Q_EXTERN_C __declspec(dllexport) int ucm_initialize( QApplication *theApp, bool *mt, bool *debug ) \
 		{ \
 		    if ( !qApp && theApp ) \
 			qt_ucm_initialize( theApp ); \
 		    if ( mt ) \
 			*mt = QT_THREADED_BUILD; \
+		    if ( debug ) \
+		        *debug = QT_DEBUG_BUILD; \
 		    return QT_VERSION; \
 		} \
 		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* ucm_instantiate()
@@ -268,12 +278,14 @@ public:
 #	define Q_EXPORT_INTERFACE() \
 	    extern Q_EXPORT QApplication *qApp; \
 	    extern Q_EXPORT void qt_ucm_initialize( QApplication *theApp ); \
-	    Q_EXTERN_C int ucm_initialize( QApplication *theApp, bool *mt ) \
+	    Q_EXTERN_C int ucm_initialize( QApplication *theApp, bool *mt, bool *debug ) \
 	    { \
 		if ( !qApp && theApp ) \
 		    qt_ucm_initialize( theApp ); \
 		if ( mt ) \
 		    *mt = QT_THREADED_BUILD; \
+		if ( debug ) \
+		    *debug = QT_DEBUG_BUILD; \
 		return QT_VERSION; \
 	    } \
 	    Q_EXTERN_C QUnknownInterface* ucm_instantiate()

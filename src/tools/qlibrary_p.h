@@ -57,9 +57,11 @@
 #ifndef QT_H
 #include "qwindowdefs.h"
 #ifndef QT_LITE_COMPONENT
-#include "qtimer.h"
+#include "qobject.h"
 #endif
 #endif // QT_H
+
+class QTimer;
 
 /*
   Private helper class that saves the platform dependent handle
