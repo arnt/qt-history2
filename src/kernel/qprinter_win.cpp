@@ -38,6 +38,7 @@
 #include "qapplication.h"
 #include "qt_windows.h"
 #include "qpaintdevicemetrics.h"
+#include "qapplication_p.h"
 
 // QPrinter states
 

@@ -41,6 +41,7 @@
 #include "qlayout.h"
 #include "qt_windows.h"
 #include "qpaintdevicemetrics.h"
+#include "qcursor.h"
 
 
 #if !defined(WS_EX_TOOLWINDOW)
