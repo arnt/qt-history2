@@ -308,11 +308,14 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 			interpreterInterface->exec( widgetFactory->toplevel, "dummy=0;" );
 		    for ( QMap<QObject *, EventFunction>::Iterator it = widgetFactory->eventMap.begin();
 			  it != widgetFactory->eventMap.end(); ++it ) {
-			QStringList::Iterator eit, fit;
+			QStringList::Iterator eit;
+			QValueList<QStringList>::Iterator fit;
 			for ( eit = (*it).events.begin(), fit = (*it).functions.begin(); eit != (*it).events.end(); ++eit, ++fit ) {
-			    QString func = *fit;
-			    if ( widgetFactory->languageSlots.find( func ) != widgetFactory->languageSlots.end() && qwf_execute_code )
-				eventInterface->setEventHandler( it.key(), widgetFactory->toplevel, *eit, func );
+			    QStringList funcs = *fit;
+			    for ( QStringList::Iterator fit2 = funcs.begin(); fit2 != funcs.end(); ++fit2 ) {
+				if ( widgetFactory->languageSlots.find( *fit2 ) != widgetFactory->languageSlots.end() && qwf_execute_code )
+				    eventInterface->addEventHandler( it.key(), widgetFactory->toplevel, *eit, *fit2 );
+			    }
 			}
 		    }
 		    eventInterface->release();
@@ -623,7 +626,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	    createColumn( n, w );
 	} else if ( n.tagName() == "event" ) {
 	    ef.events.append( n.attribute( "name" ) );
-	    ef.functions.append( n.attribute( "function" ) );
+	    ef.functions.append( QStringList::split( ',', n.attribute( "functions" ) ) );
 	}
 
 	n = n.nextSibling().toElement();

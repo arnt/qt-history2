@@ -55,7 +55,7 @@ public:
     QMap<int, QString> pixmapArguments;
     QMap<int, QString> pixmapKeys;
     QMap<QString, QString> columnFields;
-    QMap<QString, QString> eventFunctions;
+    QMap<QString, QStringList> eventFunctions;
     QMap<QString, QString> functionBodies;
     QValueList<int> breakPoints;
 };
@@ -1110,7 +1110,7 @@ QValueList<MetaDataBase::EventDescription> MetaDataBase::events( QObject *o )
     return list;
 }
 
-bool MetaDataBase::setEventFunction( QObject *o, QObject *form, const QString &event, const QString &function, bool addIfNotExisting )
+bool MetaDataBase::setEventFunctions( QObject *o, QObject *form, const QString &event, const QStringList &functions, bool addIfNotExisting )
 {
     if ( !o )
 	return FALSE;
@@ -1142,39 +1142,44 @@ bool MetaDataBase::setEventFunction( QObject *o, QObject *form, const QString &e
 	}
     }
 
-    QString fName = function + "(";
-    if ( ed.name != "<none>" ) {
-	QStringList args;
-	for ( QStringList::Iterator it = ed.args.begin(); it != ed.args.end(); ++it )
-	    args << *it;
-	LanguageInterface *iface = languageInterface( langList[ 0 ] ); // #### get real language
-	if ( iface )
-	    fName += iface->createArguments( args );
-    }
-    fName += ")";
-    fName = normalizeSlot( fName );
-
     bool slotExists = FALSE;
-    for ( QValueList<Slot>::Iterator it = r2->slotList.begin(); it != r2->slotList.end(); ++it ) {
-	Slot s = *it;
-	QString sName = normalizeSlot( s.slot );
-	if ( sName == fName ) {
-	    slotExists = TRUE;
-	    break;
+
+    for ( QStringList::ConstIterator fit = functions.begin(); fit != functions.end(); ++fit ) {
+	QString fName = *fit + "(";
+	if ( ed.name != "<none>" ) {
+	    QStringList args;
+	    for ( QStringList::Iterator it = ed.args.begin(); it != ed.args.end(); ++it )
+		args << *it;
+	    LanguageInterface *iface = languageInterface( langList[ 0 ] ); // #### get real language
+	    if ( iface )
+		fName += iface->createArguments( args );
 	}
+	fName += ")";
+	fName = normalizeSlot( fName );
+
+	bool needAddSlot = FALSE;
+	for ( QValueList<Slot>::Iterator it = r2->slotList.begin(); it != r2->slotList.end(); ++it ) {
+	    Slot s = *it;
+	    QString sName = normalizeSlot( s.slot );
+	    if ( sName == fName ) {
+		slotExists = TRUE;
+		needAddSlot = TRUE;
+		break;
+	    }
+	}
+
+	if ( needAddSlot && addIfNotExisting ) // ##### find the language of the event, and use that language here
+	    addSlot( form, fName.latin1(), "public",  langList[ 0 ] );
     }
 
-    if ( !slotExists && addIfNotExisting ) // ##### find the language of the event, and use that language here
-	addSlot( form, fName.latin1(), "public",  langList[ 0 ] );
-
-    r->eventFunctions.insert( event, function );
+    r->eventFunctions.insert( event, functions );
     return !slotExists;
 }
 
-QString MetaDataBase::eventFunction( QObject *o, const QString &event )
+QStringList MetaDataBase::eventFunctions( QObject *o, const QString &event )
 {
     if ( !o )
-	return QString::null;
+	return QStringList();
     setupDataBase();
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r ) {
@@ -1186,16 +1191,16 @@ QString MetaDataBase::eventFunction( QObject *o, const QString &event )
     return *r->eventFunctions.find( event );
 }
 
-QMap<QString, QString> MetaDataBase::eventFunctions( QObject *o )
+QMap<QString, QStringList> MetaDataBase::eventFunctions( QObject *o )
 {
     if ( !o )
-	return QMap<QString, QString>();
+	return QMap<QString, QStringList>();
     setupDataBase();
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r ) {
 	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
 		  o, o->name(), o->className() );
-	return QMap<QString, QString>();
+	return QMap<QString, QStringList>();
     }
 
     return r->eventFunctions;

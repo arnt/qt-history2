@@ -837,10 +837,16 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
     }
 
     if ( MetaDataBase::hasEvents() ) {
-	QMap<QString, QString> eventFunctions = MetaDataBase::eventFunctions( w );
-	QMap<QString, QString>::ConstIterator it = eventFunctions.begin();
+	QMap<QString, QStringList> eventFunctions = MetaDataBase::eventFunctions( w );
+	QMap<QString, QStringList>::ConstIterator it = eventFunctions.begin();
 	for ( ; it != eventFunctions.end(); ++it ) {
-	    ts << makeIndent( indent ) << "<event name=\"" << it.key() << "\" function=\"" << it.data() << "\" />\n";
+	    ts << makeIndent( indent ) << "<event name=\"" << it.key() << "\" functions=\"";
+	    for ( QStringList::ConstIterator fit = (*it).begin(); fit != (*it).end(); ++fit ) {
+		if ( fit != (*it).begin() )
+		    ts << ",";
+		ts << *fit;
+	    }
+	    ts << "\" />\n";
 	}
     }
 
@@ -1202,7 +1208,7 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	} else if ( n.tagName() == "column" || n.tagName() =="row" ) {
 	    createColumn( n, w );
 	} else if ( n.tagName() == "event" ) {
-	    MetaDataBase::setEventFunction( obj, formwindow, n.attribute( "name" ), n.attribute( "function" ), FALSE );
+	    MetaDataBase::setEventFunctions( obj, formwindow, n.attribute( "name" ), QStringList::split( ',', n.attribute( "functions" ) ), FALSE );
 	}
 
 	n = n.nextSibling().toElement();

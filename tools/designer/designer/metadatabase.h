@@ -205,9 +205,9 @@ public:
     static bool hasEditor( const QString &lang );
 
     static QValueList<EventDescription> events( QObject *o );
-    static bool setEventFunction( QObject *o, QObject *form, const QString &event, const QString &function, bool = TRUE );
-    static QString eventFunction( QObject *o, const QString &event );
-    static QMap<QString, QString> eventFunctions( QObject *o );
+    static bool setEventFunctions( QObject *o, QObject *form, const QString &event, const QStringList &functions, bool = TRUE );
+    static QStringList eventFunctions( QObject *o, const QString &event );
+    static QMap<QString, QStringList> eventFunctions( QObject *o );
     static void setFunctionBodies( QObject *o, const QMap<QString, QString> &bodies, const QString &lang );
     static QMap<QString, QString> functionBodies( QObject *o );
 

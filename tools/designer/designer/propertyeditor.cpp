@@ -2823,10 +2823,10 @@ void EventTable::valueChanged( PropertyItem *i )
 	( (PropertyListItem*)i )->addItem( s );
 	( (PropertyListItem*)i )->setCurrentItem( s );
     }
-    if ( MetaDataBase::setEventFunction( editor->widget(), editor->formWindow(),
-					 i->text( 0 ), ( (PropertyListItem*)i )->currentItem() ) ) {
+    if ( MetaDataBase::setEventFunctions( editor->widget(), editor->formWindow(),
+					  i->text( 0 ), QStringList( ( (PropertyListItem*)i )->currentItem() ) ) ) { // ###### events
 	editor->formWindow()->mainWindow()->objectHierarchy()->updateFunctionList();
-	editor->formWindow()->mainWindow()->editFunction( MetaDataBase::eventFunction( editor->widget(), i->text( 0 ) ),
+	editor->formWindow()->mainWindow()->editFunction( ( (PropertyListItem*)i )->currentItem(),
 							  editor->formWindow()->project()->language() );
     }
 }
@@ -2838,7 +2838,7 @@ void EventTable::refetchData()
 
 void EventTable::setPropertyValue( PropertyItem *i )
 {
-    QString s = MetaDataBase::eventFunction( editor->widget(), i->text( 0 ) );
+    QString s = MetaDataBase::eventFunctions( editor->widget(), i->text( 0 ) )[ 0 ]; // ### events
     ( (PropertyListItem*)i )->setValue( QStringList( s ) );
     ( (PropertyListItem*)i )->setCurrentItem( s );
 }

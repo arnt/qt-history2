@@ -96,10 +96,10 @@ private:
     struct EventFunction
     {
 	EventFunction() {}
-	EventFunction( const QString &e, const QString &f )
-	    : events( e ), functions( f ) {}
+	EventFunction( const QString &e, const QStringList &f )
+	    : events( e ) { functions.append( f ); }
 	QStringList events;
-	QStringList functions;
+	QValueList<QStringList> functions;
     };
 
     struct SqlWidgetConnection
