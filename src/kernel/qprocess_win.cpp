@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#24 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -380,13 +380,10 @@ void QProcess::timeout()
 	socketRead( 2 ); // try stderr
     }
 
-qDebug( "bla" );
     // stop timer if process is not running also emit processExited() signal
     if ( !isRunning() ) {
-qDebug( "fnord" );
 	d->lookup->stop();
 	if ( notifyOnExit ) {
-qDebug( "snafu" );
 	    emit processExited();
 	}
     }
