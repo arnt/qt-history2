@@ -253,7 +253,12 @@ Win32MakefileGenerator::findLibraries(const QString &where)
     }
     dirs.setAutoDelete(TRUE);
     for(QStringList::Iterator it = l.begin(); it != l.end(); ) {
-	QString opt = (*it);
+	QChar quoted;
+	QString opt = (*it).stripWhiteSpace();
+	if((opt.left(1) == '\'' || opt.left(1) == '"') && opt[opt.length()-1] == opt[0]) {
+	    quoted = opt[0];
+	    opt = opt.mid(1, opt.length());
+	}
         bool remove = FALSE;
 	if(opt.startsWith("/LIBPATH:")) {
             QString r = opt.mid(9), l = Option::fixPathToLocalOS(r);
@@ -280,10 +285,10 @@ Win32MakefileGenerator::findLibraries(const QString &where)
 		    }
                 }
             }
-            if(out.isEmpty())
+            if(out.isEmpty()) 
                 remove = TRUE;
             else
-                (*it) = out;
+                (*it) = quoted + out + quoted;
         } else if(!QFile::exists(Option::fixPathToLocalOS(opt))) {
 	    QPtrList<MakefileDependDir> lib_dirs;
 	    QString file = opt;
@@ -313,7 +318,7 @@ Win32MakefileGenerator::findLibraries(const QString &where)
 				    dir += Option::dir_sep;
 				lib_tmpl.prepend(dir);
 			    }
-			    (*it) = lib_tmpl;
+			    (*it) = quoted + lib_tmpl + quoted;
 			    break;
 			} 
 		    }
