@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#46 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#45 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#46 $";
 #endif
 
 
@@ -803,14 +803,25 @@ void QPainter::drawChord( const QRect &r, int a, int alen )
 
 /*!
   \overload void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm, const QRect &sr )
-
-  Overloaded drawPixmap; takes a QPoint instead of \e (x,y).
 */
 
 void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm,
 			   const QRect &sr )
 {
     drawPixmap( p.x(), p.y(), pm, sr.x(), sr.y(), sr.width(), sr.height() );
+}
+
+/*!
+  \overload void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
+
+  This version of the call draws the entire pixmap.
+
+  \bug fix qdoc to accept default values that call functions
+*/
+
+void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
+{
+    drawPixmap( p.x(), p.y(), pm, 0, 0, pm.width(), pm.height() );
 }
 
 /*!
