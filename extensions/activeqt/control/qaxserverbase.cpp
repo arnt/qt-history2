@@ -2853,6 +2853,8 @@ HRESULT WINAPI QAxServerBase::Close( DWORD dwSaveOption )
     return S_OK;
 }
 
+bool qax_disable_inplaceframe = FALSE;
+
 /*
     Executes the steps to activate the control.
 */
@@ -2940,7 +2942,7 @@ HRESULT QAxServerBase::internalActivate()
 
 	if ( m_spInPlaceFrame ) {
 	    hr = m_spInPlaceFrame->SetActiveObject( this, QStringToBSTR(class_name) );
-	    if ( !FAILED(hr) ) {
+	    if ( !FAILED(hr) && !qax_disable_inplaceframe ) {
 		menuBar = activeqt ? (QMenuBar*)activeqt->child( 0, "QMenuBar" ) : 0;
 		if ( menuBar ) {
 		    createMenu( menuBar );
