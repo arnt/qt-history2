@@ -31,6 +31,7 @@
 #include "qurloperator.h"
 
 #define QLOCALFS_MAX_BYTES 1024
+//#define QLOCALFS_DEBUG
 
 // NOT REVISED
 
@@ -63,6 +64,9 @@ QLocalFs::QLocalFs()
 
 void QLocalFs::operationListChildren( QNetworkOperation *op )
 {
+#ifdef QLOCALFS_DEBUG
+    qDebug( "QLocalFs: operationListChildren" );
+#endif
     op->setState( StInProgress );
 	
     dir = QDir( url()->path() );
@@ -107,6 +111,9 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 
 void QLocalFs::operationMkDir( QNetworkOperation *op )
 {
+#ifdef QLOCALFS_DEBUG
+    qDebug( "QLocalFs: operationMkDir" );
+#endif
     op->setState( StInProgress );
     QString dirname = op->arg( 0 );
 
@@ -135,6 +142,9 @@ void QLocalFs::operationMkDir( QNetworkOperation *op )
 
 void QLocalFs::operationRemove( QNetworkOperation *op )
 {
+#ifdef QLOCALFS_DEBUG
+    qDebug( "QLocalFs: operationRemove" );
+#endif
     op->setState( StInProgress );
     QString name = QUrl( op->arg( 0 ) ).path();
 
@@ -158,6 +168,9 @@ void QLocalFs::operationRemove( QNetworkOperation *op )
 
 void QLocalFs::operationRename( QNetworkOperation *op )
 {
+#ifdef QLOCALFS_DEBUG
+    qDebug( "QLocalFs: operationRename" );
+#endif
     op->setState( StInProgress );
     QString oldname = op->arg( 0 );
     QString newname = op->arg( 1 );
@@ -182,11 +195,17 @@ void QLocalFs::operationRename( QNetworkOperation *op )
 
 void QLocalFs::operationGet( QNetworkOperation *op )
 {
+#ifdef QLOCALFS_DEBUG
+    qDebug( "QLocalFs: operationGet" );
+#endif
     op->setState( StInProgress );
     QString from = QUrl( op->arg( 0 ) ).path();
 
     QFile f( from );
     if ( !f.open( IO_ReadOnly ) ) {
+#ifdef QLOCALFS_DEBUG
+	qDebug( "QLocalFs: could not open %s", from.latin1() );
+#endif
 	QString msg = tr( "Could not open\n%1" ).arg( from );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
@@ -202,6 +221,9 @@ void QLocalFs::operationGet( QNetworkOperation *op )
 	f.readBlock( s.data(), f.size() );
 	emit data( s, op );
 	emit dataTransferProgress( f.size(), f.size(), op );
+#ifdef QLOCALFS_DEBUG
+	qDebug( "QLocalFs: got all %d bytes at once", f.size() );
+#endif
     } else {
 	s.resize( QLOCALFS_MAX_BYTES );
 	int remaining = f.size();
@@ -222,6 +244,9 @@ void QLocalFs::operationGet( QNetworkOperation *op )
 	    }
 	    qApp->processEvents();
 	}
+#ifdef QLOCALFS_DEBUG
+	qDebug( "QLocalFs: got all %d bytes step by step", f.size() );
+#endif
 	emit dataTransferProgress( f.size(), f.size(), op );
     }
     op->setState( StDone );
@@ -235,6 +260,9 @@ void QLocalFs::operationGet( QNetworkOperation *op )
 
 void QLocalFs::operationPut( QNetworkOperation *op )
 {
+#ifdef QLOCALFS_DEBUG
+    qDebug( "QLocalFs: operationPut" );
+#endif
     op->setState( StInProgress );
     QString to = QUrl( op->arg( 0 ) ).path();
 

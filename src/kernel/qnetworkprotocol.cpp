@@ -29,6 +29,8 @@
 #include "qtimer.h"
 #include "qmap.h"
 
+//#define QNETWORKPROTOCOL_DEBUG
+
 extern Q_EXPORT QNetworkProtocolDict *qNetworkProtocolRegister;
 
 QNetworkProtocolDict *qNetworkProtocolRegister = 0;
@@ -455,6 +457,9 @@ int QNetworkProtocol::supportedOperations() const
 
 void QNetworkProtocol::addOperation( QNetworkOperation *op )
 {
+#ifdef QNETWORKPROTOCOL_DEBUG
+    qDebug( "QNetworkOperation: addOperation: %p %d", op, op->operation() );
+#endif
     d->operationQueue.enqueue( op );
     if ( !d->opInProgress )
 	d->opStartTimer->start( 1, TRUE );
@@ -541,6 +546,9 @@ bool QNetworkProtocol::hasOnlyLocalFileSystem()
 
 void QNetworkProtocol::startOps()
 {
+#ifdef QNETWORKPROTOCOL_DEBUG
+    qDebug( "QNetworkOperation: start processing operations" );
+#endif
     processNextOperation( 0 );
 }
 
@@ -696,6 +704,9 @@ void QNetworkProtocol::operationPut( QNetworkOperation * )
 
 void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
 {
+#ifdef QNETWORKPROTOCOL_DEBUG
+    qDebug( "QNetworkOperation: process next operation, old: %p", old );
+#endif
     d->removeTimer->stop();
 
     bool makeNull = old == d->old;
@@ -820,8 +831,8 @@ bool QNetworkProtocol::autoDelete() const
 void QNetworkProtocol::removeMe()
 {
     if ( d->autoDelete ) {
-#if 0
-	qDebug( "******************** autodelete of QNetworkProtocol %p ****************", this );
+#ifdef QNETWORKPROTOCOL_DEBUG
+	qDebug( "QNetworkOperation:  autodelete of QNetworkProtocol %p", this );
 #endif
 	delete url();
     }

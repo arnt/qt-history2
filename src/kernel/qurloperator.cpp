@@ -31,6 +31,8 @@
 #include "qptrdict.h"
 #include "qtimer.h"
 
+//#define QURLOPERATOR_DEBUG
+
 struct QUrlOperatorPrivate
 {
     QMap<QString, QUrlInfo> entryMap;
@@ -502,6 +504,10 @@ const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QSt
 
 QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString &to, bool move )
 {
+#ifdef QURLOPERATOR_DEBUG
+    qDebug( "QUrlOperator: copy %s %s %d", from.latin1(), to.latin1(), move );
+#endif
+    
     QList<QNetworkOperation> ops;
     ops.setAutoDelete( FALSE );
 
@@ -560,6 +566,10 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
 	    gProt->setAutoDelete( FALSE );
 	}	
 
+#ifdef QURLOPERATOR_DEBUG
+	qDebug( "QUrlOperator: copy operation should start now..." );
+#endif
+	
 	return ops;
     } else {
 	delete gProt;
@@ -979,6 +989,9 @@ bool QUrlOperator::checkValid()
 
 void QUrlOperator::copyGotData( const QByteArray &data_, QNetworkOperation *op )
 {
+#ifdef QURLOPERATOR_DEBUG
+    qDebug( "QUrlOperator: copyGotData: %d new bytes", data_.size() );
+#endif
     QNetworkOperation *put = d->getOpPutOpMap[ (void*)op ];
     if ( put ) {
 	QByteArray &s = put->raw( 1 );
@@ -998,6 +1011,10 @@ void QUrlOperator::continueCopy( QNetworkOperation *op )
     if ( op->operation() != QNetworkProtocol::OpGet )
 	return;
 
+#ifdef QURLOPERATOR_DEBUG
+    qDebug( "QUrlOperator: continue copy (get finished, put will start)" );
+#endif
+    
     QNetworkOperation *put = d->getOpPutOpMap[ (void*)op ];
     QNetworkProtocol *gProt = d->getOpGetProtMap[ (void*)op ];
     QNetworkProtocol *pProt = d->getOpPutProtMap[ (void*)op ];
@@ -1028,6 +1045,10 @@ void QUrlOperator::continueCopy( QNetworkOperation *op )
 
 void QUrlOperator::finishedCopy()
 {
+#ifdef QURLOPERATOR_DEBUG
+    qDebug( "QUrlOperator: finished copy (finished putting)" );
+#endif
+    
     d->currPut = 0;
     if ( d->waitingCopies.isEmpty() )
 	return;
