@@ -3757,9 +3757,6 @@ void QFileDialog::createdDirectory( const QUrlInfo &info, QNetworkOperation * )
 
   If \a dir is null, getExistingDirectory() starts wherever the
   previous file dialog left off.
-
-  NOTE: In the windows version of Qt this static method uses the native
-  windows file dialog, and not the QFileDialog.
 */
 
 QString QFileDialog::getExistingDirectory( const QString & dir,
