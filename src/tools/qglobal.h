@@ -246,7 +246,7 @@
 #elif defined(Q_OS_HPUX)
 // __HP_aCC was not defined by first aCC releases
 #  if defined(__HP_aCC) || __cplusplus >= 199707L
-#    define Q_CC_HPACC_
+#    define Q_CC_HPACC
 #    define Q_HAS_BOOL_TYPE
 #  else
 #    define Q_CC_HP
