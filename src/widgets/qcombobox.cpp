@@ -1026,7 +1026,10 @@ void QComboBox::setAutoResize( bool enable )
 }
 
 
-/*!\reimp
+/*!
+    This implementation caches the sizeHint to avoid resizing of 
+    the control when the contents change dynamically. To invalidate 
+    the cached value call setFont().
 */
 QSize QComboBox::sizeHint() const
 {
@@ -1116,8 +1119,6 @@ void QComboBox::internalClickTimeout()
 }
 
 /*!
-    Reimplements QWidget::setPalette().
-
     Sets the palette for both the combobox button and the combobox
     popup list to \a palette.
 */
@@ -1136,8 +1137,6 @@ void QComboBox::setPalette( const QPalette &palette )
 }
 
 /*!
-    Reimplements QWidget::setFont().
-
     Sets the font for both the combobox button and the combobox popup
     list to \a font.
 */
