@@ -351,8 +351,7 @@ void Win32MakefileGenerator::processRcFileVar()
             fprintf(stderr, "Please specify one of them, not both.");
             exit(666);
         }
-        project->variables()["RES_FILE"] = project->variables()["RC_FILE"];
-        QString resFile = project->variables()["RES_FILE"].first();
+        QString resFile = project->variables()["RC_FILE"].first();
         resFile.replace(".rc", Option::res_ext);
         project->variables()["RES_FILE"].first() = fileInfo(resFile).fileName();
         if (!project->variables()["OBJECTS_DIR"].isEmpty())
