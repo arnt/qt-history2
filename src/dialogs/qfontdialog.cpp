@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#43 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#44 $
 **
 ** Implementation of QFontDialog
 **
@@ -107,7 +107,7 @@ public:
 };
 
 /*
-  Work around bugs in layout.
+  Tweak layout.
  */
 
 class QExpandingLineEdit : public QLineEdit

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#48 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -545,8 +545,6 @@ public:
 		fmtatom = *qt_xdnd_str_to_atom(fmt);
 	    }
 	} else {
-	    // TODO: X11 pixmap standard (XA_PIXMAP?)
-
 	    fmtatom = *qt_xdnd_str_to_atom(fmt);
 	}
 	return getDataInFormat(fmtatom);
