@@ -200,9 +200,13 @@ native menubar.
 
 \endlist
 
-\section2 Unsupported Native Widgets
+\section2 Native Widgets
 
-Qt/Mac currently has no support for sheets, drawers, or the chooser
-(Panther-style tabs). There may be support for these in a future version of Qt.
+Qt/Mac now has support for sheets, drawers. Represented as \l {WMacSheet} and
+\l {WMacDrawer} in the window flags respectiviely. Brushed metal windows are
+also possible using \l {WMacMetal}.
+
+We currently do not support the chooser (Panther-style tabs). There may be
+support for these in a future version of Qt.
 
 */

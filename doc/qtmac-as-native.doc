@@ -136,21 +136,21 @@ it can interact with specific components of the Mac OS X experience:
 
    Mac OS X developers expect a certain level of interopability
    between their development toolkit and the platform's developer
-   tools (for example MSVC, gmake, etc). Qt/Mac supports both Unix
-   style Makefiles, and ProjectBuilder/XCode project files by using
+   tools (for example Visual Studio, gmake, etc). Qt/Mac supports both Unix
+   style Makefiles, and ProjectBuilder/Xcode project files by using
    the qmake tool. For example:
 
    \code
-   qmake -spec macx-pbuilder project.pro
+   qmake -spec macx-xcode project.pro
    \endcode
 
-   will generate an XCode project file from project.pro. With qmake
+   will generate an Xcode project file from project.pro. With qmake
    you do not have to worry about rules for Qt's preprocessors (moc
    and uic) since qmake automatically handles them and ensures that
    everything necessary is linked into your application.
 
    Qt does not entirely interact with the development environment (for
-   example plugins to set a file to 'mocable' from within the XCode
+   example plugins to set a file to 'mocable' from within the Xcode
    user interface). Trolltech is actively working on improving Qt's
    interoperability with various IDEs, so hopefully this will be
    supported soon.
