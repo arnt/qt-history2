@@ -23,3 +23,13 @@ SaveFormAsTemplate::~SaveFormAsTemplate()
 {
 }
 
+void SaveFormAsTemplate::on_okButton_clicked()
+{
+    accept();
+}
+
+void SaveFormAsTemplate::on_cancelButton_clicked()
+{
+    reject();
+}
+

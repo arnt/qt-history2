@@ -23,6 +23,10 @@ public:
     SaveFormAsTemplate(QWidget *parent = 0);
     virtual ~SaveFormAsTemplate();
 
+private slots:
+    void on_okButton_clicked();
+    void on_cancelButton_clicked();
+
 private:
     Ui::SaveFormAsTemplate ui;
 };

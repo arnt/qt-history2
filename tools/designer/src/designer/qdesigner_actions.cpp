@@ -18,6 +18,7 @@
 #include "qdesigner_formwindow.h"
 #include "preferencedialog.h"
 #include "newform.h"
+#include "saveformastemplate.h"
 
 // sdk
 #include <abstractformeditor.h>
@@ -66,8 +67,8 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
 
     m_toolActions = new QActionGroup(this);
     m_toolActions->setExclusive(true);
-    
-    
+
+
 //
 // file actions
 //
@@ -426,7 +427,10 @@ void QDesignerActions::saveFormAs()
 
 void QDesignerActions::saveFormAsTemplate()
 {
-    notImplementedYet();
+    if (AbstractFormWindow *fw = core()->formWindowManager()->activeFormWindow()) {
+        SaveFormAsTemplate dlg(fw);
+        dlg.exec();
+    }
 }
 
 void QDesignerActions::notImplementedYet()
