@@ -51,7 +51,6 @@ class QValidator;
 class Q_EXPORT QMultiLineEdit : public QTextEdit
 {
     Q_OBJECT
-    Q_ENUMS( WordWrap WrapPolicy )
     Q_PROPERTY( int numLines READ numLines )
     Q_PROPERTY( bool atBeginning READ atBeginning )
     Q_PROPERTY( bool atEnd READ atEnd )
@@ -81,7 +80,7 @@ public:
 
     void setEdited( bool );
     bool edited() const;
-    
+
     bool hasMarkedText() const;
     QString markedText() const;
 

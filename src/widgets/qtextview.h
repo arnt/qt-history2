@@ -70,6 +70,7 @@ class Q_EXPORT QTextView : public QScrollView
     friend class QTextBrowser;
 
     Q_OBJECT
+    Q_ENUMS( WordWrap WrapPolicy )
     Q_PROPERTY( TextFormat textFormat READ textFormat WRITE setTextFormat )
     Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( QBrush paper READ paper WRITE setPaper )
@@ -77,6 +78,9 @@ class Q_EXPORT QTextView : public QScrollView
     Q_PROPERTY( bool linkUnderline READ linkUnderline WRITE setLinkUnderline )
     Q_PROPERTY( QString documentTitle READ documentTitle )
     Q_PROPERTY( int length READ length )
+    Q_PROPERTY( WordWrap wordWrap READ wordWrap WRITE setWordWrap )
+    Q_PROPERTY( int wrapColumnOrWidth READ wrapColumnOrWidth WRITE setWrapColumnOrWidth )
+    Q_PROPERTY( WrapPolicy wrapPolicy READ wrapPolicy WRITE setWrapPolicy )
 
 public:
     enum WordWrap {
