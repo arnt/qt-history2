@@ -883,7 +883,7 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
 
     \sa drawButton(), drawButtonLabel()
 */
-void QButton::paintEvent( QPaintEvent *e)
+void QButton::paintEvent( QPaintEvent *)
 {
     QSharedDoubleBuffer buffer( this );
     drawButton( buffer.painter() );
