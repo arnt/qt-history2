@@ -21,13 +21,16 @@ class QTableViewPrivate : public QAbstractItemViewPrivate
     Q_DECLARE_PUBLIC(QTableView)
 public:
     QTableViewPrivate()
-        : showGrid(true), gridStyle(Qt::SolidLine), horizontalHeader(0), verticalHeader(0) {}
+        : showGrid(true), gridStyle(Qt::SolidLine), rowSectionAnchor(0), columnSectionAnchor(0),
+          horizontalHeader(0), verticalHeader(0) {}
     void init();
     void updateVerticalScrollbar(int itemHeight);
     void updateHorizontalScrollbar(int itemWidth);
 
     bool showGrid;
     Qt::PenStyle gridStyle;
+    int rowSectionAnchor;
+    int columnSectionAnchor;
     QHeaderView *horizontalHeader;
     QHeaderView *verticalHeader;
 };

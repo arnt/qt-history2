@@ -678,7 +678,7 @@ int QTableView::columnSizeHint(int column) const
 }
 
 /*!
-    Returns the x-coordinate in contents coordinates of the given \a
+    Returns the y-coordinate in contents coordinates of the given \a
     row.
 */
 
@@ -707,7 +707,7 @@ int QTableView::rowAt(int y) const
 }
 
 /*!
-    Returns the y-coordinate in contents coordinates of the given \a
+    Returns the x-coordinate in contents coordinates of the given \a
     column.
 */
 
@@ -926,13 +926,19 @@ void QTableView::columnIndexChanged(int, int oldIndex, int newIndex)
 void QTableView::selectRow(int row, Qt::ButtonState state)
 {
     if (row >= 0 && row < d->model->rowCount(root())) {
-        QModelIndex tl = d->model->index(row, 0, root());
-        QModelIndex br = d->model->index(row, d->model->columnCount(root()) - 1, root());
-        selectionModel()->setCurrentItem(tl, QItemSelectionModel::NoUpdate);
-        if (d->selectionMode == SingleSelection)
-            selectionModel()->select(tl, selectionCommand(state, tl));
-        else
-            selectionModel()->select(QItemSelection(tl, br, model()), selectionCommand(state, tl));
+        QModelIndex newCurrent = model()->index(row, 0, root());
+        QItemSelectionModel::SelectionFlags command = selectionCommand(state, newCurrent);
+        if (selectionMode() == SingleSelection) {
+            selectionModel()->setCurrentItem(newCurrent, command);
+        } else {
+            if ((command & QItemSelectionModel::Current) == 0)
+                d->rowSectionAnchor = row;
+            QPoint tl(columnViewportPosition(0), rowViewportPosition(d->rowSectionAnchor));
+            QPoint br(columnViewportPosition(model()->columnCount(root()) - 1),
+                      rowViewportPosition(row));
+            selectionModel()->setCurrentItem(newCurrent, QItemSelectionModel::NoUpdate);
+            setSelection(QRect(tl, br).normalize(), command);
+        }
     }
 }
 
@@ -946,13 +952,19 @@ void QTableView::selectRow(int row, Qt::ButtonState state)
 void QTableView::selectColumn(int column, Qt::ButtonState state)
 {
     if (column >= 0 && column < d->model->columnCount(root())) {
-        QModelIndex tl = model()->index(0, column, root());
-        QModelIndex br = model()->index(d->model->rowCount(root()) - 1, column, root());
-        selectionModel()->setCurrentItem(tl, QItemSelectionModel::NoUpdate);
-        if (d->selectionMode == SingleSelection)
-            selectionModel()->select(tl, selectionCommand(state, tl));
-        else
-            selectionModel()->select(QItemSelection(tl, br, model()), selectionCommand(state, tl));
+        QModelIndex newCurrent = model()->index(0, column, root());
+        QItemSelectionModel::SelectionFlags command = selectionCommand(state, newCurrent);
+        if (selectionMode() == SingleSelection) {
+            selectionModel()->setCurrentItem(newCurrent, command);
+        } else {
+            if ((command & QItemSelectionModel::Current) == 0)
+                d->columnSectionAnchor = column;
+            QPoint tl(columnViewportPosition(d->columnSectionAnchor), rowViewportPosition(0));
+            QPoint br(columnViewportPosition(column),
+                      rowViewportPosition(model()->rowCount(root()) - 1));
+            selectionModel()->setCurrentItem(newCurrent, QItemSelectionModel::NoUpdate);
+            setSelection(QRect(tl, br).normalize(), command);
+        }
     }
 }
 
