@@ -190,7 +190,7 @@ public:
     {
 	return theObject;
     }
-    void readMetaData();
+    void ensureMetaData();
     bool isPropertyExposed(int index);
 
 // IDispatch
@@ -368,7 +368,7 @@ private:
     QString class_name;
 
     QHash<long, int> indexCache;
-    QMap<int,DISPID>* signallist;
+    QHash<int,DISPID> signalCache;
 
     IUnknown *m_outerUnknown;
     IAdviseSink *m_spAdviseSink;
@@ -942,7 +942,7 @@ HRESULT GetClassObject( REFIID clsid, REFIID iid, void **ppUnk )
 */
 QAxServerBase::QAxServerBase( const QString &classname, IUnknown *outerUnknown )
 : aggregatedObject(0), ref(0), ole_ref(0), class_name(classname),
-  signallist(0), m_hWnd(0), m_hWndCD(m_hWnd), hmenuShared(0), hwndMenuOwner(0),
+  m_hWnd(0), m_hWndCD(m_hWnd), hmenuShared(0), hwndMenuOwner(0),
   m_outerUnknown(outerUnknown)
 {
     init();
@@ -955,7 +955,7 @@ QAxServerBase::QAxServerBase( const QString &classname, IUnknown *outerUnknown )
 */
 QAxServerBase::QAxServerBase( QObject *o )
 : aggregatedObject(0), ref( 0), ole_ref(0),
-  signallist(0), m_hWnd(0), m_hWndCD( m_hWnd ), hmenuShared(0), hwndMenuOwner(0),
+  m_hWnd(0), m_hWndCD( m_hWnd ), hmenuShared(0), hwndMenuOwner(0),
   m_outerUnknown(0)
 {
     init();
@@ -1055,7 +1055,6 @@ QAxServerBase::~QAxServerBase()
     DeleteCriticalSection( &createWindowSection );
 
     qAxUnlock();
-    delete signallist;
 }
 
 /*
@@ -1641,91 +1640,90 @@ extern bool ignoreProps( const char *test );
 /*!
     Creates mappings between DISPIDs and Qt signal/slot/property data.
 */
-void QAxServerBase::readMetaData()
+void QAxServerBase::ensureMetaData()
 {
-    if (!theObject)
-	return;
-    if (!signallist) {
-	signallist = new QMap<int,DISPID>;
-/*
-	int qtProps = 0;
-	int qtSlots = 0;
-
-	if (theObject->isWidgetType()) {
-	    qtProps = QWidget::staticMetaObject()->numProperties(TRUE);
-	    qtSlots = QWidget::staticMetaObject()->numProperties(TRUE);
-	}
-
-	const QMetaObject *mo = qt.object->metaObject();
-	for ( int islot = mo->numSlots( TRUE )-1; islot >=0 ; --islot ) {
-	    const QMetaData *slot = mo->slot( islot, TRUE );
-
-	    if (islot <= qtSlots && ignoreSlots( slot->method->name ) || slot->access != QMetaData::Public)
-		continue;
-
-	    BSTR bstrNames = QStringToBSTR( slot->method->name );
-	    DISPID dispId;
-	    GetIDsOfNames( IID_NULL, (BSTR*)&bstrNames, 1, LOCALE_USER_DEFAULT, &dispId );
-	    if ( dispId >= 0 )
-		slotcache->insert( dispId, slot );
-	    SysFreeString( bstrNames );
-	}
-	IConnectionPointContainer *cpoints = 0;
-	QueryInterface( IID_IConnectionPointContainer, (void**)&cpoints );
-	if ( cpoints ) {
-	    IProvideClassInfo *classinfo = 0;
-	    cpoints->QueryInterface( IID_IProvideClassInfo, (void**)&classinfo );
-	    if ( classinfo ) {
-		ITypeInfo *info = 0;
-		ITypeInfo *eventinfo = 0;
-		classinfo->GetClassInfo( &info );
-		if ( info ) {
-		    TYPEATTR *typeattr = 0;
-		    info->GetTypeAttr( &typeattr );
-		    if ( typeattr ) {
-			for ( int impl = 0; impl < typeattr->cImplTypes && !eventinfo; ++impl ) {
-			    // get the ITypeInfo for the interface
-			    HREFTYPE reftype;
-			    info->GetRefTypeOfImplType( impl, &reftype );
-			    ITypeInfo *eventtype = 0;
-			    info->GetRefTypeInfo( reftype, &eventtype );
-			    if ( eventtype ) {
-				TYPEATTR *eventattr;
-				eventtype->GetTypeAttr( &eventattr );
-				// this is it
-				if ( eventattr && eventattr->guid == qAxFactory()->eventsID( class_name ) )
-				    eventinfo = eventtype;
-
-				eventtype->ReleaseTypeAttr( eventattr );
-				if ( eventtype != eventinfo )
-				    eventtype->Release();
-			    }
-			}
-			info->ReleaseTypeAttr( typeattr );
-		    }
-		    info->Release();
-		}
-		if ( eventinfo ) {
-		    for ( int isignal = mo->numSignals( TRUE )-1; isignal >= 0; --isignal ) {
-			const QMetaData *signal = mo->signal( isignal, TRUE );
-
-			BSTR bstrNames = QStringToBSTR( signal->method->name );
-			DISPID dispId;
-			eventinfo->GetIDsOfNames( (BSTR*)&bstrNames, 1, &dispId );
-			if ( dispId >= 0 )
-			    signallist->insert( isignal, dispId );
-			else
-			    signallist->insert( isignal, -1 );
-			SysFreeString( bstrNames );
-		    }
-		    eventinfo->Release();
-		}
-		classinfo->Release();
-	    }
-	    cpoints->Release();
-	}
-*/
+    if (!m_spTypeInfo) {
+	qAxTypeLibrary->GetTypeInfoOfGuid( qAxFactory()->interfaceID(class_name), &m_spTypeInfo );
+	m_spTypeInfo->AddRef();
     }
+/*
+    int qtProps = 0;
+    int qtSlots = 0;
+
+    if (theObject->isWidgetType()) {
+	qtProps = QWidget::staticMetaObject()->numProperties(TRUE);
+	qtSlots = QWidget::staticMetaObject()->numProperties(TRUE);
+    }
+
+    const QMetaObject *mo = qt.object->metaObject();
+    for ( int islot = mo->numSlots( TRUE )-1; islot >=0 ; --islot ) {
+	const QMetaData *slot = mo->slot( islot, TRUE );
+
+	if (islot <= qtSlots && ignoreSlots( slot->method->name ) || slot->access != QMetaData::Public)
+	    continue;
+
+	BSTR bstrNames = QStringToBSTR( slot->method->name );
+	DISPID dispId;
+	GetIDsOfNames( IID_NULL, (BSTR*)&bstrNames, 1, LOCALE_USER_DEFAULT, &dispId );
+	if ( dispId >= 0 )
+	    slotcache->insert( dispId, slot );
+	SysFreeString( bstrNames );
+    }
+    IConnectionPointContainer *cpoints = 0;
+    QueryInterface( IID_IConnectionPointContainer, (void**)&cpoints );
+    if ( cpoints ) {
+	IProvideClassInfo *classinfo = 0;
+	cpoints->QueryInterface( IID_IProvideClassInfo, (void**)&classinfo );
+	if ( classinfo ) {
+	    ITypeInfo *info = 0;
+	    ITypeInfo *eventinfo = 0;
+	    classinfo->GetClassInfo( &info );
+	    if ( info ) {
+		TYPEATTR *typeattr = 0;
+		info->GetTypeAttr( &typeattr );
+		if ( typeattr ) {
+		    for ( int impl = 0; impl < typeattr->cImplTypes && !eventinfo; ++impl ) {
+			// get the ITypeInfo for the interface
+			HREFTYPE reftype;
+			info->GetRefTypeOfImplType( impl, &reftype );
+			ITypeInfo *eventtype = 0;
+			info->GetRefTypeInfo( reftype, &eventtype );
+			if ( eventtype ) {
+			    TYPEATTR *eventattr;
+			    eventtype->GetTypeAttr( &eventattr );
+			    // this is it
+			    if ( eventattr && eventattr->guid == qAxFactory()->eventsID( class_name ) )
+				eventinfo = eventtype;
+
+			    eventtype->ReleaseTypeAttr( eventattr );
+			    if ( eventtype != eventinfo )
+				eventtype->Release();
+			}
+		    }
+		    info->ReleaseTypeAttr( typeattr );
+		}
+		info->Release();
+	    }
+	    if ( eventinfo ) {
+		for ( int isignal = mo->numSignals( TRUE )-1; isignal >= 0; --isignal ) {
+		    const QMetaData *signal = mo->signal( isignal, TRUE );
+
+		    BSTR bstrNames = QStringToBSTR( signal->method->name );
+		    DISPID dispId;
+		    eventinfo->GetIDsOfNames( (BSTR*)&bstrNames, 1, &dispId );
+		    if ( dispId >= 0 )
+			signallist->insert( isignal, dispId );
+		    else
+			signallist->insert( isignal, -1 );
+		    SysFreeString( bstrNames );
+		}
+		eventinfo->Release();
+	    }
+	    classinfo->Release();
+	}
+	cpoints->Release();
+    }
+*/
 }
 
 /*!
@@ -1918,8 +1916,7 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
     if (freezeEvents || inDesignMode)
 	return TRUE;
 
-    if (!signallist)
-	readMetaData();
+    ensureMetaData();
 
     // get the signal information.
     QMetaMember signal;
@@ -1951,10 +1948,28 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 	{
 	    signal = qt.object->metaObject()->signal(index);
 	    type = signal.type();
+	    QString signature(signal.signature());
+	    QString name(signature);
+	    name.truncate(name.indexOf('('));
 
-	    // XXX Get the Dispatch ID of the method to be called
-	    pcount = 0;
-	    eventId = 0;
+	    eventId = signalCache.value(index, -1);
+	    if (eventId == -1) {
+		ITypeInfo *eventInfo = 0;
+		qAxTypeLibrary->GetTypeInfoOfGuid(qAxFactory()->eventsID(class_name), &eventInfo);
+		if (eventInfo) {
+		    const OLECHAR *olename = name.ucs2();
+		    eventInfo->GetIDsOfNames((OLECHAR**)&olename, 1, &eventId);
+		    eventInfo->Release();
+		}
+	    }
+
+	    signature = signature.mid(name.length() + 1);
+	    signature.truncate(signature.length() - 1);
+
+	    if (!signature.isEmpty())
+		ptypes = signature.split(',');
+	    
+	    pcount = ptypes.count();
 	}
 	break;
     }
@@ -2035,7 +2050,6 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 		for (p = 0; p < pcount; ++p)
 		    clearVARIANT(dispParams.rgvarg+p);
 		free(dispParams.rgvarg);
-
 	    }
 	    clist->Release();
 	}
@@ -2148,7 +2162,7 @@ HRESULT WINAPI QAxServerBase::GetClassInfo(ITypeInfo** pptinfo)
     if ( !qAxTypeLibrary )
 	return DISP_E_BADINDEX;
 
-    return qAxTypeLibrary->GetTypeInfoOfGuid( qAxFactory()->classID( class_name ), pptinfo );
+    return qAxTypeLibrary->GetTypeInfoOfGuid(qAxFactory()->classID(class_name), pptinfo);
 }
 
 //**** IProvideClassInfo2
@@ -2161,7 +2175,7 @@ HRESULT WINAPI QAxServerBase::GetGUID(DWORD dwGuidKind, GUID* pGUID)
 	return E_POINTER;
 
     if ( dwGuidKind == GUIDKIND_DEFAULT_SOURCE_DISP_IID ) {
-	*pGUID = qAxFactory()->eventsID( class_name );
+	*pGUID = qAxFactory()->eventsID(class_name);
 	return S_OK;
     }
     *pGUID = GUID_NULL;
@@ -2174,7 +2188,7 @@ HRESULT WINAPI QAxServerBase::GetGUID(DWORD dwGuidKind, GUID* pGUID)
 */
 HRESULT WINAPI QAxServerBase::GetTypeInfoCount(UINT* pctinfo)
 {
-    if ( !pctinfo )
+    if (!pctinfo)
 	return E_POINTER;
 
     *pctinfo = qAxTypeLibrary ? 1 : 0;
@@ -2192,17 +2206,12 @@ HRESULT WINAPI QAxServerBase::GetTypeInfo(UINT itinfo, LCID /*lcid*/, ITypeInfo*
     if ( !qAxTypeLibrary )
 	return DISP_E_BADINDEX;
 
-    if ( m_spTypeInfo ) {
-	*pptinfo = m_spTypeInfo;
-	(*pptinfo)->AddRef();
-	return S_OK;
-    }
+    ensureMetaData();
 
-    HRESULT res = qAxTypeLibrary->GetTypeInfoOfGuid( qAxFactory()->interfaceID( class_name ), pptinfo );
-    m_spTypeInfo = *pptinfo;
-    m_spTypeInfo->AddRef();
+    *pptinfo = m_spTypeInfo;
+    (*pptinfo)->AddRef();
 
-    return res;
+    return S_OK;
 }
 
 /*
@@ -2217,9 +2226,7 @@ HRESULT WINAPI QAxServerBase::GetIDsOfNames(REFIID riid, LPOLESTR* rgszNames, UI
     if ( !qAxTypeLibrary )
 	return DISP_E_UNKNOWNNAME;
 
-    if ( !m_spTypeInfo )
-	qAxTypeLibrary->GetTypeInfoOfGuid( qAxFactory()->interfaceID( class_name ), &m_spTypeInfo );
-
+    ensureMetaData();
     if ( !m_spTypeInfo )
 	return DISP_E_UNKNOWNNAME;
 
@@ -2243,10 +2250,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
     int index = indexCache.value(dispidMember, -1);
     QString name;
     if (index == -1) {
-	if (!m_spTypeInfo) {
-	    qAxTypeLibrary->GetTypeInfoOfGuid( qAxFactory()->interfaceID( class_name ), &m_spTypeInfo );
-	    m_spTypeInfo->AddRef();
-	}
+	ensureMetaData();
 
 	BSTR bname;
 	UINT cname = 0;
@@ -2743,11 +2747,6 @@ HRESULT WINAPI QAxServerBase::Save( IPropertyBag *bag, BOOL clearDirty, BOOL /*s
 }
 
 //**** IViewObject
-class HackPainter : public QPainter
-{
-    friend class QAxServerBase;
-};
-
 /*
     Draws the widget into the provided device context.
 */
@@ -2755,15 +2754,15 @@ HRESULT WINAPI QAxServerBase::Draw( DWORD dwAspect, LONG lindex, void *pvAspect,
 		HDC hicTargetDev, HDC hdcDraw, LPCRECTL lprcBounds, LPCRECTL lprcWBounds,
 		BOOL(__stdcall* /*pfnContinue*/)(ULONG_PTR), ULONG_PTR /*dwContinue*/ )
 {
-    if ( !lprcBounds )
+    if (!lprcBounds)
 	return E_INVALIDARG;
 
     internalCreate();
 
-    if ( !isWidget || !qt.widget )
+    if (!isWidget || !qt.widget)
 	return OLE_E_BLANK;
 
-    switch ( dwAspect ) {
+    switch (dwAspect) {
     case DVASPECT_CONTENT:
     case DVASPECT_OPAQUE:
     case DVASPECT_TRANSPARENT:
@@ -2775,33 +2774,22 @@ HRESULT WINAPI QAxServerBase::Draw( DWORD dwAspect, LONG lindex, void *pvAspect,
 	hicTargetDev = 0;
 
     bool bDeleteDC = FALSE;
-    if ( !hicTargetDev ) {
+    if (!hicTargetDev) {
 	hicTargetDev = ::CreateDCA("DISPLAY", NULL, NULL, NULL);
 	bDeleteDC = (hicTargetDev != hdcDraw);
     }
 
     RECTL rc = *lprcBounds;
     bool bMetaFile = GetDeviceCaps(hdcDraw, TECHNOLOGY) == DT_METAFILE;
-    if ( !bMetaFile  )
+    if (!bMetaFile)
 	::LPtoDP(hicTargetDev, (LPPOINT)&rc, 2);
 
-    qt.widget->resize( rc.right - rc.left, rc.bottom - rc.top );
-    QPixmap pm = QPixmap::grabWidget( qt.widget );
-    BOOL res = ::BitBlt( hdcDraw, rc.left, rc.top, pm.width(), pm.height(), pm.handle(), 0, 0, SRCCOPY );
-    if ( !res ) {
-/* XXX
-	QPainter painter( qt.widget );
-	HDC oldDC = ((HackPainter*)&painter)->hdc;
-	((HackPainter*)&painter)->hdc = hdcDraw;
+    qt.widget->resize(rc.right - rc.left, rc.bottom - rc.top);
+    QPixmap pm = QPixmap::grabWidget(qt.widget);
+    ::BitBlt(hdcDraw, rc.left, rc.top, pm.width(), pm.height(), pm.handle(), 0, 0, SRCCOPY);
 
-	painter.drawText( rc.left, rc.top, "I don't know how to draw myself!" );
-
-	((HackPainter*)&painter)->hdc = oldDC;
-*/
-    }
-
-    if ( bDeleteDC )
-	DeleteDC( hicTargetDev );
+    if (bDeleteDC)
+	DeleteDC(hicTargetDev);
 
     return S_OK;
 }
