@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC>
+<HTML>
+<TITLE>Xbase DBMS Chapter 3</TITLE>
+<BODY BGCOLOR=#FFFFFF>
+<H1><p align="center">Fields and Strings</p></H1>
+<p align="center">Chapter Updated 2/1/99</p><hr>
+
+<br><br>
+The title of this chapter almost sounds like a popular North American
+magazine called Field and Stream.  The difference between this chapter and
+that magazine is there are no dead animal carcuses or fishing lures in 
+this chapter.  For those you will need to get a copy of Field and Stream.
+
+<br><br>
+The main objective of this chapter is to provide information regarding the
+basic concepts of manipulating data via the field methods.<br><br>
+
+Field names can be up to ten bytes in length and can contain characters, numbers
+or special characters in the name.  The field methods are used to manipulate
+the data in a record of a data file.  There are several types of fields.<br><br>
+
+
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Field Types</H3></CAPTION>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Type<TD>Size<TD>Allowable Values<TD>Schema Value
+<TR><TH ALIGN="LEFT">Numeric<TD>0 - 17(include sign and decimal point<TD>+ - . 0 through 9<TD>XB_NUMERIC_FLD
+<TR><TH ALIGN="LEFT">Character<TD>0 - 254<TD>Anything<TD>XB_CHAR_FLD
+<TR><TH ALIGN="LEFT">Date<TD>8<TD>CCYYMMDD<TD>XB_DATE_FLD
+<TR><TH ALIGN="LEFT">Floating Point<TD>0 - 17 (includes sign and decimal point<TD>+ - . 0 through 9<TD>XB_FLOAT_FLD
+<TR><TH ALIGN="LEFT">Logical<TD>1<TD>? Y y N n T t F f (? - uninitialized)<TD>XB_LOGICAL_FLD
+<TR><TH ALIGN="LEFT">Memo<TD>Fixed length portion - 10<br>Variable length 0 - 32760
+<TD>Type III - Text<br>Type IV - Anything<TD>XB_MEMO_FLD
+</TABLE>
+
+<br><br>
+Field names, types and lengths are defined when a data file is created.  
+After the file is created, the field characteristics can not be changed. To
+change field characteristics, a new database must be defined with the new
+field requirements.<br><br>
+
+<h2>Memo Fields</h2>
+
+Memo fields are variable length data fields which are stored in two parts.
+This first part is a ten byte field which is stored 
+in the fixed length record of the .DBF file.  The variable data is stored in
+a seperate .DBT file in 512 byte blocks.  The ten byte field in the fixed 
+length portion of the record points to a .DBT block number.<br><br>
+
+There are two versions of memo data files type III and type IV.  Type IV
+is more advanced in that released space can be reused and it also
+supports BLOB data.  The type III file is older technology, does not
+support dynamic space reclamation and only supports string data.
+See method xbDbf::SetVersion for controlling which version type you are 
+using.
+
+<br><br>
+To utilize memo fields, the application program must allocate a buffer 
+which is large enough to handle the memo data.<br><br>
+
+<h2>Fields and Field Numbers</h2>
+
+The Xbase routines can access field data via using field names or field 
+numbers.  Field numbers are numbered 0-n  where the first field in a datafile
+is field 0 going through the last field n.  Accessing fields by number is 
+more efficient than accessing by name.<br><br>
+
+<h2>Record Schema</h2>
+
+The record schema of a file can be found in the documentation for method
+CreateDatabase in the Database Methods chapter, or view example 
+<A HREF="/XbaseSamples/sample1.cpp">
+sample1.cpp.</A><br><br>
+
+<h2>Strings</h2>
+
+Beginning with Release 1.8.0a, Xbase includes support for a string class
+<em>xbString</em>.  The original thinking was not to include a string 
+class in the library, and encourage users to use the string class
+native to the user's compiler.  But as C++ does not have a native way 
+to handle strings,
+and there is not a standard string class across C++ compilers, it was
+decided to include a lightweight string class with the library. 
+In some cases this
+is redundant.
+<br><br>
+The string class interface is derived from the <em>Draft Standard C++ 
+Library by P.J. Plauger</em>.  If you are familiar with other string 
+classes, this one should feel familiar to you.  
+<br><br>
+
+
+<hr>
+<A HREF="mailto:xbase@startech.keller.tx.us">
+Send me mail - xbase@startech.keller.tx.us</A>
+<p>(c)1997 StarTech
+<p><img src="xbase.jpg"><hr>
+</BODY>
+</HTML>

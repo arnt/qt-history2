@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC>
+<HTML>
+<TITLE>Xbase DBMS Appendix A</TITLE>
+<BODY BGCOLOR=#FFFFFF>
+<H1><p align="center">Xbase Return Codes</p></H1>
+<p align="center">Page Updated 2/1/99</p><hr>
+
+
+Beginning with release 1.8.0a, error processing can be handled using exception
+processing, or by checking the functions return codes.  If you choose exception
+processing, you will need to compile in the option to do so when you build 
+the library.  To see an example of how to use exception processing, examine
+program dumprecs.cpp. <br><br> 
+
+If you are not using exception processing, it is generally a good idea to
+check the method return codes to verify an error hasn't occured.
+Most Xbase DBMS methods return a SHORT return code value which corresponds
+to a value in this table.<br><br>
+
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Xbase Return Codes</h3></CAPTION>
+<TR ALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Number<TD>Error<TD>Description<TD>Type
+<TR><TH ALIGN="LEFT">0<TD>XB_NO_ERROR<TD>Success<TD>General
+<TR><TH ALIGN="LEFT">100<TD>XB_XBASE_EOF<TD>End of file<TD>Database<br>Index
+<TR><TH ALIGN="LEFT">102<TD>XB_NO_MEMORY<TD>Error when allocating memory<TD>General
+<TR><TH ALIGN="LEFT">103<TD>XB_FILE_EXISTS<TD>File Already Exists<TD>Database
+<TR><TH ALIGN="LEFT">104<TD>XB_OPEN_ERROR<TD>Error when opening file<TD>Database
+<TR><TH ALIGN="LEFT">105<TD>XB_WRITE_ERROR<TD>Error occured when writing to file<TD>Database<br>Index
+<TR><TH ALIGN="LEFT">106<TD>XB_UNKNOWN_FIELD_TYPE<TD>Field was not one of:<br>
+XB_CHAR_FLD<br>XB_FLOAT_FLD<br>XB_NUMERIC_FLD<br>XB_DATE_FLD<br>
+XB_LOGICAL_FLD or XB_MEMO_FLD<br><TD>Field
+<TR><TH ALIGN="LEFT">107<TD>XB_ALREADY_OPEN<TD>Can't open the same file twice<TD>Database<br>Index
+<TR><TH ALIGN="LEFT">108<TD>XB_NOT_XBASE<TD>Can't open non X-Base file with<br>
+                                         X-Base routines<TD>Database
+<TR><TH ALIGN="LEFT">109<TD>XB_INVALID_RECORD<TD>Not a valid record<TD>Database
+<TR><TH ALIGN="LEFT">110<TD>XB_INVALID_OPTION<TD>Not a valid option<TD>General
+<TR><TH ALIGN="LEFT">112<TD>XB_SEEK_ERROR<TD>Could not position in file<TD>Database<br>Index
+<TR><TH ALIGN="LEFT">114<TD>XB_NOT_FOUND<TD>Record for key not found<TD>Index
+<TR><TH ALIGN="LEFT">116<TD>XB_INVALID_KEY<TD>Invalid key argument given<TD>Index
+<TR><TH ALIGN="LEFT">118<TD>XB_KEY_NOT_UNIQUE<TD>Trying to add a duplicate key for an unique index<TD>Index
+<TR><TH ALIGN="LEFT">119<TD>XB_INVALID_KEY_EXPRESSION<TD>An invalid key expression given<TD>Index
+<TR><TH ALIGN="LEFT">121<TD>XB_INVALID_KEY_TYPE<TD>Invalid Key Type<TD>Index
+<TR><TH ALIGN="LEFT">122<TD>XB_INVALID_NODE_NO<TD>Internal index error, notify tech support<TD>Index
+<TR><TH ALIGN="LEFT">123<TD>XB_NODE_FULL<TD>Internal index error, notify tech support<TD>Index
+<TR><TH ALIGN="LEFT">124<TD>XB_INVALID_FIELDNO<TD>Attempt to access invalid field number<TD>Field
+<TR><TH ALIGN="LEFT">125<TD>XB_INVALID_DATA<TD>Invalid data encountered<TD>Field
+<TR><TH ALIGN="LEFT">126<TD>XB_NOT_LEAFNODE<TD>Internal index error, notify tech support<TD>Index
+<TR><TH ALIGN="LEFT">127<TD>XB_LOCK_FAILED<TD>Lock function failed<BR>See errno for detail
+                                          <TD>Lock
+<TR><TH ALIGN="LEFT">128<TD>XB_CLOSE_ERROR<TD>Error closing file<TD>Database<br>Index
+<TR><TH ALIGN="LEFT">129<TD>XB_INVALID_SCHEMA<TD>Error with schema definition, check decimal points<TD>Database
+<TR><TH ALIGN="LEFT">130<TD>XB_INVALID_NAME<TD>Invalid database name<TD>Memo
+<TR><TH ALIGN="LEFT">131<TD>XB_INVALID_BLOCK_SIZE<TD>Block size is invalid, must be increment of 512<TD>Memo
+<TR><TH ALIGN="LEFT">132<TD>XB_INVALID_BLOCK_NO<TD>Invalid block number used<TD>Memo
+<TR><TH ALIGN="LEFT">133<TD>XB_NOT_MEMO_FIELD<TD>Not a memo field<TD>Memo
+<TR><TH ALIGN="LEFT">134<TD>XB_NO_MEMO_DATA<TD>No memo data<TD>Memo
+<TR><TH ALIGN="LEFT">135<TD>XB_EXP_SYNTAX_ERROR<TD>Expression syntax error<TD>Expression
+<TR><TH ALIGN="LEFT">136<TD>XB_PARSE_ERROR<TD>Parse error in expression<TD>Expression
+<TR><TH ALIGN="LEFT">137<TD>XB_NO_DATA<TD>No data for expression<TD>Expression
+<TR><TH ALIGN="LEFT">140<TD>XB_INVALID_FIELD<TD>Invalid field in expression<TD>Expression
+<TR><TH ALIGN="LEFT">141<TD>XB_INSUFFICIENT_PARMS<TD>Insufficient paramaters for function<TD>Expression
+<TR><TH ALIGN="LEFT">142<TD>XB_INVALID_FUNCTION<TD>Invalid function encountered<TD>Expression
+</TABLE><br><br><hr>
+<A HREF="mailto:xbase@startech.keller.tx.us">
+Send me mail - xbase@startech.keller.tx.us</A><br>
+<p>(c)1997 StarTech
+<p><img src="xbase.jpg"><br><hr>
+</BODY>
+</HTML>

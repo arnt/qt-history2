@@ -1,0 +1,97 @@
+                             XDB Version 1.2.0
+                             
+                             
+                             
+WHAT IS IT?
+-----------
+
+XDB is an xbase (i.e. dBase, FoxPro, etc.) compatible C++ class library 
+originally based on the xBase library (version 1.8.1) by Gary Kunkel and 
+others (see the AUTHORS file).
+
+XDB was forked off from the xBase library because the original authors
+are busy working on other things and we wanted to make our changes and
+bugfixes available to others who might be interested.
+
+XDB is useful for accessing data in legacy dBase 3 and 4 database files as
+well as a general light-weight database engine.  It includes support for
+DBF (dBase version 3 and 4) data files, NDX and NTX indexes, and DBT 
+(dBase version 3 and 4).  It supports file and record locking under *nix
+OS's (we hope to fix the locking support under Win32 soon).
+
+
+DIRECTORY LAYOUT
+----------------
+
+    /bin        contains various utility programs
+    /examples   contains various test programs
+    /html       contains the original xBase documentation in html format
+    /tv         turbo vision interface stuff
+    /xdb        XDB source and header files
+
+
+BUILDING THE LIBRARY
+--------------------
+
+XDB uses autoconf and libtool to manage the build process.
+
+To configure the library for your specific system, run the "configure"
+shell script as follows:
+
+    ./configure
+    
+The configure script accepts the following options in addition to the
+normal default options:
+
+  --enable-debug 	  creates debugging code [default=no]
+  --enable-shared         build shared libraries [default=yes]
+  --enable-static         build static libraries [default=no]
+  --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
+  --without-index-ndx     do not compile .ndx index support 
+  --without-index-ntx     do not compile .ntx index support 
+  --without-memo-fields   do not compile memo fields support 
+  --without-expressions   do not compile expressions support 
+  --without-ui-html       do not compile HTML support 
+  --without-xbase-locking turn off XBase file locking 
+  --without-realdelete     turn off XBase record deletion 
+  --without-xbase-debug   turn off XBase specific debug 
+  --with-exceptions       turn on exceptions 
+  --with-castellano       turn on spanish date logic 
+
+Once configured, execute make as follows to build the library:
+
+    make
+    
+Once compiled (and assuming no errors occurred), use make to install the 
+library, header files, and utilities as follows:
+
+    make install
+    
+The default install directory is /usr/local.  
+
+
+DOCUMENTATION
+-------------
+
+The documentation at this point consists of the original xBase documentation
+(in the html directory).  It is still very useful as little has changed 
+from the original library except bugfixes and a few enhancements.
+However, instead of including "xbase/xxx.h", you should include "xdb/xxx.h"
+and should link against the xdb library instead of the xbase library (i.e.
+-lxdb).
+
+We are working on incorporating comments into the source to allow
+generation of reference documentation using the Doxygen document generator.
+A small amount has been done already, but we hope to complete this effort
+before the next release.
+
+
+CONTACT
+-------
+
+Please email comments, bug reports, and patches to Derry Bryson 
+(derry@techass.com).
+
+
+Maintenance of this library is supported by Technology Associates, Inc. 
+(www.techass.com).

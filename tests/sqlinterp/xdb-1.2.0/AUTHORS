@@ -1,0 +1,26 @@
+This is a list of the people who are or have worked on the XDB Library.
+
+Derry Bryson            <derry@techass.com>     - current maintainer
+Mario Motta                                     - testing and bugfixes
+
+------------------------------------------------------------------------------
+The following is the original AUTHORS file for the xbase library
+------------------------------------------------------------------------------
+This is a partial list of the people that have helped with the xbase
+project and something specific they worked on.  Most have worked on more
+than what is listed.
+
+I didn't mean to leave anyone off or forget anyone - if you are 
+missing and you should be on the list, let me know at 
+gkunkel@startech.keller.tx.us or add yourself (list is in alpha order).
+
+Bob Cotton        <bcotton@synix.com>        - Clipper NTX index support
+Denis Braussen    <postoffice@mail.dotcom.fr> - general support
+Denis Pershin     <dyp@inetlab.com>          - provided library enhancements
+Eirk Bachman      <ebp@geocities.com>        - keeper of definitive Xbase spec 
+Gabriel Emerson   <egabriel@io.com>          - provided logo
+Gary Kunkel       <gkunkel@startech.keller.tx.us> - original author
+Kehl Hubertus     <kehlh@hotmail.com>        - Xbase to Xbase C++ Perl Converter
+Michael Bedward   <mbedward@ozemail.com.au>  - Expression logic support
+Paul Foster       <paulf@quillandmouse.com>  - general support
+Vitaly Fedrushkov <willy@snowyowl.csu.ac.ru> - TV support and more

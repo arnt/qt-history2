@@ -1,0 +1,223 @@
+XDB TODO's (not necessarily in this order!)
+-------------------------------------------
+
+1) Complete Doxygen support
+2) Fix exeception handling
+3) Transaction support
+4) Safe update/modification support
+5) Enhance performance
+6) Add client/server support
+7) Get this thing into CVS
+
+------------------------------------------------------------------------------
+The following is the contents of the TODO file from the original xBase library
+------------------------------------------------------------------------------
+
+2/12/99 - Gary Kunkel updated TODO list based on input from xbase group emails
+
+Please feel free to put your name next to any item or category of items
+that you would like to work on.  Then we will know who to keep asking if 
+it is done yet -)).
+
+Also, if you fix anything, please update this list appropriately.
+
+
+Proposed Version Release Plan and Schedule
+------------------------------------------
+
+1)  1.8.0c
+
+    - Good test of new NTX index logic
+    - Modify sample/example programs to support either index type
+    - Other misc bug fixes as submitted
+    
+    1.8.1
+    
+    - Next stable release
+    
+2)  1.9 - Next development release
+
+    - ANSI C++ where possible
+    - General code cleanup
+      - xbString
+      - new/delete to replace malloc/free usage
+      - lint errors
+      - clean up cr/lf in source files
+      - see the email at the end of this todo list
+      
+    - Other code contributions as donated
+    - Develop Regresion testing scenarios and programs
+
+      Willy's comments on testingg:  "I started thinking of a test suite.
+      DejaGNU looks like an overkill.  Instead I thought of record-by-line
+      dump utility and diff.
+
+    - Other misc bug fixes as submitted
+    - Additional Makefiles
+    
+3)  2.0  Stable release
+
+-----------------------------------------------------------------------------
+
+Specific Items on the TODO list
+------------------------------- 
+
+
+I. General code cleanup, minor bugs, and ansi code usage things]
+
+-  Replace malloc/free with new/delete where possible
+-  Replace string usage with xbString usage
+
+II. Design
+
+-  Enhance common abstract layer under xbDbf/xbIndex/xbNdx/xbNtx.  
+   Use old thread  on "New index class design" as a basis.  
+
+-  Redesign / rebuild / retest field logic
+
+-  Record and File Locking Enhancements needed
+   
+   Analysis is required to determine how Dbase, FoxPro and Clipper perform
+   file and record locking, and determine a scheme for getting Xbase to 
+   peacefully coexist in those environments where similar locking protocols
+   are required.
+
+   html.cpp code relies on XB_LOCKING_ON to use 'struct flock'.  In real 
+   world, even checking for HAVE_FCNTL_H won't help to verify flock() 
+   availability.  Something is to be done to get html.cpp compile under 
+   Windows with XB_LOCKING_ON.
+
+
+III. Enhancements.cheap
+
+   A)  i18n: get rid of XB_CASTELLANO and use static xbDate members instead;
+   B)  i18n: same for xbStrError.  Make it xbXBase member;
+
+   C)  Date: Wed, 10 Feb 1999 16:10:41 +0500 (YEKT)
+       From: Vitaly Fedrushkov <willy@snowyowl.csu.ac.ru>
+
+       Expressions like these are not supported:
+
+       DATE - DATE (= NUM)
+       DATE - NUM  (= DATE)
+       DATE + NUM  (= DATE)
+
+   D) Empty date (like CTOD("  /  /  ") ) is not handled in many cases.
+      In fact, EMPTY() function is not implemented either.
+
+
+IV. Install
+
+-  Write a set of makefiles/configs for all supported platforms;
+
+-  From spits@MailAndNews.com Sun Feb 14 14:15:21 1999
+   Date: Tue, 9 Feb 1999 06:57:52 -0500
+   From: Warren Spits <spits@MailAndNews.com>
+
+   There is a problem with the Makefiles for the bin and example
+   directories. When compiled with a VPATH different from the original source 
+   directory, the compiler fails to find xbase.h. This is because on the 
+   command line the c compiler has -I../xbase instead of -I$(top_srcdir)/xbase.
+   I didn't attach a diff because I don't know much about automake.
+
+
+V.  Half Cooked requests
+
+-  Record and File Locking Enhancements needed
+   a)  finish/test locking logic to support DOS/Windows/NT environments 
+   b)  Verify locking works with other xbase products - Dbase, Foxbase
+       and Clipper
+
+VI. Docs
+
+-  Doc++
+-  Create Xbase How To
+-  Create Xbase FAQ
+-  Create Xbase HACKING
+-  Update xbString documentation chapter
+-  Update Turbo Vision documentation chapter
+
+
+VII. Wish list
+ 
+- map the xbase function names to standard Dbase names
+- Add filter processing - several people have asked for this one
+  and opionally make some type of database rebuild process which can read the
+  log files and rebuild a database from it
+- Additional index types (.IDX,.MDX) support
+- Transaction processing - this is a big one
+- Create a logging routine - put hooks in the PutRecord function to log date
+- Create a client/server Linux/Unix daemon server process for running 
+- Create a command processing environment 
+
+
+--------------------------------------------------------------------------
+
+This email lists things that need worked on during development version 1.9
+
+From paulf@quillandmouse.com Sun Feb 14 16:06:20 1999
+Date: Fri, 12 Feb 1999 19:09:53 -0500 (EST)
+From: "Paul M. Foster" <paulf@quillandmouse.com>
+Reply-To: xbase@startech.keller.tx.us
+Subject: Re: Interface backwards compatibility?
+
+<snip>
+
+> Well, a few minutes ago I finished source linting with '-ansi
+> -pedantic -Wall -W -Wshadow -Wbad-function-cast -Wcast-qual
+> -Wwrite-strings -Wconversion -Wmissing-prototypes
+> -Wmissing-declarations -Woverloaded-virtual'.  Here are my kills:
+> 
+> 1. strdup() is enabled by _GNU_SOURCE.  Shouldn't cause any problem
+>    with most compilers
+> 
+> 2. gcvt() is a SYSV-ism.  Ditto.
+> 
+
+This is problematic. It isn't ANSI, but many compilers have it. Conversion
+to and from numbers/strings in C is a pain.
+
+> 3. fileno() -- not sure about its origin.  Works everywhere?  I saw
+>    even _fileno in NTX code.
+> 
+
+This is a unixism. It's meant to allow a bridge from the ANSI C FILE* way
+of doing things to the old unix way. It is *not* ANSI.
+
+> 4. strcasecmp() is a BSD feature.  In Borland, stricmp() works as
+>    substitute.
+> 
+> 5. Some '#endif FOO' cases.
+> 
+> 6. Many files are written in CRLF convention.  Not sure what to do
+>    here.
+> 
+
+DOS files. No choice here?
+
+> 7. Numerous (const char*) to (char*) casts.  May make BC 4.x angry.
+> 
+> 8. Other nondeadly sins include unused args and unreachable returns
+>    and data members shadowed by function parameters, including pearls
+>    like 'this->size = size' :(
+> 
+
+These should really be cleaned up.
+
+> There were no serious troubles seen.
+> 
+> So it looks like we're far from pure ANSI code, but is it bad?
+> 
+
+Yes and no. Lint kills don't necessarily mean non-ANSI. I'd say the code
+should be ANSI, so we can reasonably expect any compiler to handle it.
+Compilers that can't-- sorry, not supported.
+
+On the other hand, there will be some places (like file locking, process
+control), where we can't help but be platform-specific. Those should be
+isolated in their own files if possible.
+
+Paul M. Foster
+
+
+

@@ -1,0 +1,368 @@
+Fri May 29, 2000
+
+See NEWS file for changes.
+
+
+-------------------------------------------------------------------------------
+The following is the contents of the original ChangeLog from xBase1.8.1
+-------------------------------------------------------------------------------
+Fri Mar 19 15:25:43 1999  Vitaly V. Fedrushkov  <willy@apex.csu.ac.ru>
+
+	* all includes moved to xbase/
+	
+	* xbase/xbase.cpp (xbXBase): free(NULL) prevented
+
+	* xbase/xbexcept.cpp (xbStrError): unreachable return fixed
+
+1999-02-27  Gary Kunkel  <gkunkel@startech.keller.tx.us>
+
+        * created release 1.8.0b,  mainly 
+
+
+1999-02-16  Vitaly V Fedrushkov  <willy@snowyowl.csu.ac.ru>
+
+	* bin/dbfutil1.cpp, bin/dumpdbt.cpp, examples/sample3.cpp,
+	examples/sample2.cpp: depends on XB_MEMO_FIELDS
+
+1999-02-15  Vitaly V Fedrushkov  <willy@snowyowl.csu.ac.ru>
+
+	* xbase/dbf.cpp (PackDatafiles): didn't compile without
+	XB_MEMO_FIELDS
+
+	* examples/testhtml.cpp: depends on XB_HTML
+
+	* xbase/dbf.h: DumpHeader() depends on XBASE_DEBUG
+
+	* bin/dbfutil1.cpp, bin/dumpdbt.cpp, bin/dumphdr.cpp,
+	bin/checkndx.cpp: depends on XBASE_DEBUG
+
+	* xbase/index.h, xbase/ndx.h, xbase/ntx.h: CheckIndexIntegrity
+	depends on XBASE_DEBUG
+
+	* configure.in: NTX support auto-configuration added
+	fixed a bug which turned on castellano together with exceptions
+
+	* xbase/lock.cpp, xbase/dbf.h: got rid of __XBDOS in favor of
+	HAVE_FCNTL
+
+	* acconfig.h: xbconfig.h.bot moved here
+	(XB_INDEX_ANY): new define based on either XB_INDEX_NDX or
+	XB_INDEX_NTX
+	(XB_EXPRESSIONS): moved from xbase.h
+
+	* xbase/lock.cpp, xbase/xbase.h, xbase/dbf.cpp, xbase/dbf.h:
+	XB_INDEX_ANY used to include format-independent index processing
+	code
+
+	* xbase/index.h (class xbIndex): fixed 'const' mismatches at some
+	declarations
+	DumpXxx methods depend on XBASE_DEBUG
+
+	* xbase/xbase.h: XB_EXPRESSIONS auto-inclusion logic moved to
+	xbconfig.h
+
+1999-02-14  Vitaly V Fedrushkov  <willy@snowyowl.csu.ac.ru>
+
+	* xbase/index.cpp: excess #includes removed
+
+	* xbase/xbcf_b32.h: New.  Settings for Borland C++ 4.5.  Must be
+	copied to xbconfig.h before compilation.
+
+	* xbase/xdate.h, xbase/xbexcept.h, xbase/xbase.h, xbase/html.h,
+	xbase/stack.cpp, xbase/dbf.h, xbase/exp.h: options.h changed to
+	xbconfig.h
+
+	* xbase/options.h: Rewritten.  Now contains only user-selectable
+	options.  All the rest gets set in xbconfig.h.  From now on,
+	options.h is consulted only via hand-made xbconfig.h.
+	
+	* xbase/xbstring.h: xbconfig.h included
+
+	* xbase/ntx.cpp: added check for unistd.h.  Anyone know its
+	purpose here?
+
+	* xbase/lock.cpp: HAVE_SYS_TYPES_H typo
+	(LockIndex): unrenamed symbol SEEK_ERROR?  Already had it fixed
+	and committed, how did it survive...
+
+	* xbase/html.cpp (Tally): Did not work without fcntl().
+	Workaround effectively disables locking support even with
+	XB_LOCKING_ON
+
+	* xbase/memo.cpp (CreateMemoFile), xbase/fields.cpp (GetField):
+	(const char*) to (char*) cast fix
+
+	* xbase/lock.cpp (LockIndex) xbase/exp.cpp (LoadExpNode)
+	xbase/fields.cpp (GetField) xbase/index.h (class xbIndex)
+	xbase/xbase.cpp (PutShort, PutLong, PutUShort, PutULong,
+	PutDouble) xbase/dbf.h: fixed 'const' mismatches at some
+	declarations
+
+
+1999-02-13  Vitaly V Fedrushkov  <willy@snowyowl.csu.ac.ru>
+
+	* xbase/dbf.cpp (OpenDatabase): Hexcode used instead of 8-bit char
+	for Version
+	* xbase/dbf.h: Ditto
+
+	* bin/dbfutil1.cpp (ConvertDatabase): Uninitialized pointer fixed
+
+	* bin/dumpdbt.cpp (main): '#endif XB_LOCKING_ON' fixed
+
+	* xbase/expfunc.cpp (DESCEND): fixed an OCR-like typo that made
+	DESCEND() useless.
+
+1999-02-11  Vitaly V Fedrushkov  <willy@snowyowl.csu.ac.ru>
+
+	* xbase/Makefile.am (libxbase_la_LDFLAGS): CURRENT version number
+	incremented to reflect interface changes
+
+	* tv/Makefile.am (tvxbase_SOURCES): header file was missing from
+	distribution
+
+	* Makefile.cvs (all): Fixed a bug that made 'configure' missing
+	from 'make dist' tarball.
+
+	* Makefile.am, */Makefile.am (MAINTAINERCLEANFILES): All
+	auto-generated files are subject to 'make maintainer-clean', which
+	should now reduce all directories to their CVS contents.
+
+1999-02-11  Vitaly V Fedrushkov  <willy@snowyowl.csu.ac.ru>
+
+	* Makefile.am (EXTRA_DIST): COPYING.LIB instead of COPYING.GPL
+
+1999-02-08  Vitaly V Fedrushkov  <willy@snowyowl.csu.ac.ru>
+
+	* html/Makefile.am: new file; HTML docs are now subject to
+	`make dist`
+	* Makefile.am (SUBDIRS): html added
+	* configure.in: html/Makefile added 
+
+1999-02-08  Bob Cotton  <bcotton@synxis.com>
+
+dbf.cpp fields.cpp
+	- Added a configurable instance variable, EofChar. Defaults to
+	  "\x0D\x1A". 
+		- Added SetEofChar()
+	- Added Clipper .NTX support.
+		- Abstracted all referneces from ndx to index.
+	- Added support for Clipper and FoxPro character fields longer
+	  then 255 characters. Determined by a char field and a
+	  decimal field > 0.
+		- Added LongFieldLen to Schema to represent this.
+	- Fix for incrementing CurRec on an AppendRecord().
+	- Fix in dump record to handle large fields
+
+exp.cpp and expfunc.cpp
+	- Added DESCEND(). Only works for dates.
+	- Added DTOS(). Date to string.
+	- Added RECNO() returns the current record number.
+	- Added 2 and 3 parameter versions of STR()
+	- Added STRZERO()
+	- Small expression parsing fix
+
+expproc.cpp
+	- Added support for quoted strings in expressions.
+
+
+ndx.cpp
+	- Changed NodeLink to NdxNodeLink
+	- Moved common instance variables to index.cpp
+
+xbase.cpp
+	- Added GetULong(), PutUShort(), PutULong(). Not sure if
+	  they're necessary.
+
+New Files
+	index.cpp  Index Base class for ndx and ntx classes
+	index.h 
+	ntx.cpp    Clipper NTX class.
+	ntx.h
+
+To Do:
+	- Some methods are almost identical in ntx.cpp and
+	  ndx.cpp. These could be moved to index.cpp.
+1999-02-05  Vitaly V Fedrushkov  <willy@snowyowl.csu.ac.ru>
+
+	* xbase/lock.cpp (LockIndex): unrenamed symbol
+
+	Some HAVE_EXCEPTIONS cleanup:
+
+	* xbase/dbf.cpp (CreateDatabase, OpenDatabase, AddNdxToIxList):
+	xb_memory_error applied
+	(GetNextRecord, GetPrevRecord): xb_eof_error applied
+	* xbase/expproc.cpp (ProcessOperator): xb_memory_error applied
+	* xbase/memo.cpp (CreateMemoFile): xb_memory_error applied
+	* xbase/ndx.cpp (UncloneNodeChain, CreateIndex, AddKey):
+	xb_memory_error applied
+	(GetNextKey, GetPrevKey): xb_eof_error applied
+	* xbase/xbase.cpp: xbexcept.h included unconditionally
+	(AddDbfToDbfList): xb_memory_error applied
+	* xbase/xbexcept.h: xbStrError() prototype
+	* xbase/xbexcept.cpp (xbStrError): moved outside HAVE_EXCEPTIONS.
+	It is useful anyway.
+
+	egcs warnings fixes:
+
+	* xbase/xbase.h (xbXBase::xbXBase): Redundant scope qualifier removed
+	* xbase/xstack.h (xbStack::xbStack): Redundant scope qualifier removed
+	* xbase/exp.h(class xbExpn): Token( void ) removed.  Not seen
+	anywhere else.
+
+1999-02-02  Vitaly V Fedrushkov  <willy@snowyowl.csu.ac.ru>
+
+	* html/Makefile.am: new file; HTML docs are now subject to
+	`make dist`
+	* Makefile.am (SUBDIRS): html added
+	* configure.in: html/Makefile added 
+
+1999-02-01  Vitaly V Fedrushkov  <willy@snowyowl.csu.ac.ru>
+
+	DTOS() function from Clipper added:
+
+	* xbase/expfunc.cpp (DTOS): new function
+	(ProcessFunction): DTOS() function added
+	* xbase/exp.h: DTOS() function added
+
+This Page Last Updated 2/2/99
+Format of page changed 2/2/99 to try to match GNU format
+
+If you make changes/updates to the library, please note them in here
+with the date, your name and email address. 
+
+
+2/2/99     - V1.8.0a
+1999-01-29  Vitaly V Fedrushkov  <willy@snowyowl.csu.ac.ru>
+	* xbase/Makefile.am (include_HEADERS): xbconfig.h was missing
+	* xbase/exp.cpp (IsSeparator): was misspelled
+	* xbase/lock.cpp (LockIndex): SEEK_ERROR renamed
+	* xbase/ndx.h: NO_ERROR renamed
+	* xbase/dbf.h: NO_ERROR renamed
+	* bin/Xb2cpp.pl: NO_ERROR renamed
+	* xbase/exp.h (struct FuncDtl): renamed to xbFuncDtl
+	* xbase/exp.cpp (xbExpn): FuncDtl renamed
+	* xbase/xdate.h (FMT_XXXX): renamed to XB_FMT_XXXX
+	* xbase/dbf.cpp: FMT_XXXX renamed
+	* xbase/xdate.cpp: FMT_XXXX renamed
+	* xbase/expfunc.cpp (DAY, DOW): FMT_XXXX renamed
+	* examples/testdate.cpp (main): FMT_XXXX renamed
+	* xbase/ndx.h (NDX_NODE_SIZE): renamed to XB_NDX_NODE_SIZE
+	* xbase/ndx.cpp: NDX_NODE_SIZE renamed
+	* xbase/lock.cpp (LockIndex): NDX_NODE_SIZE renamed
+	* xbase/options.h: protective define renamed to __XB_OPTIONS_H__
+	* xbase/ndx.h: protective define renamed to __XB_NDX_H__
+	* xbase/retcodes.h: protective define renamed to __XB_RETCODES_H__
+	(XB_OK): alias to XB_NO_ERROR
+	* AUTHORS: Bob Cotton's email was misspelled
+
+- old style ChangeLog follows
+
+        - Exception support - Denis Pershin 
+        - autoconf and automake support - Denis Pershin
+        - fix to TRIM - Michael Bedward
+        - added xbString support - several authors
+        - fix to CreateDatabase for memo field size - always = 10
+        - Added method xbXBase::DisplayError() 
+
+10/27/98   - V1.7.4d
+             - Continued modifications to use const where applicable
+             - Fixes to memo fields 
+             - Dbase IV version - always end with 0x1a, 0x1a
+             - Dbase III version - header not updated by BDE-compatability fix
+             - Fixed library to compile when MEMO_FIELDS unvalued
+             - Look at DBF file to determine version, not DBT file
+
+10/26/98   - V1.7.4c
+	     - Added fix to NDX module for big endian machines 
+             - Updated PackDatabase routine to not lock non-existent memo files
+             - Updated PackDatabase routine to create temp files in same 
+               directory as file to be packed
+             - Converted gcvt calls to sprintf calls for enhanced portability
+             - Renamed types.h to xtypes.h for compatibility reasons
+             - Renamed stack.h to xstakc.h for compatibility reasons
+             - Added fix to NDX which was related to NDX not updated on revise
+             - Added additional expression function RECNO()
+             - Installed portability fix in PutFloatField
+             - autoconf support added - Denis Pershin <dyp@inetlab.com>
+             - updates to us const CHAR * where possible - Denis Pershin
+
+6/9/98     - V1.7.4b
+             - Added methods DBF::CalcCheckSum(), HTML::PrintEncodedChar and
+               PrintEncodedString()
+             - Fixed bug in HTML::DeleteEscChars
+             - Fixed memory leak encountered when closing database
+             - General code cleanup
+             - Fix to CopyDbfStructure 
+             - Changed date defines WEEK,MONTH and YEAR to FMT_WEEK,FMT_MONTH 
+               and FMT_YEAR due to conflicts with the expression logic
+             - Changed define type in CreateDatabase
+             - Changed define type XFLOAT to FLOAT
+             - Alpha release of expression logic routines 
+
+6/3/98     - V1.7.3
+             - Added methods DBF::Zap(), DBF::DeleteAllRecords(), 
+               DBF::UndeleteAllRecords(), DBF::RebuildAllIndices()
+               and DBF::CopyDbfStructure()
+
+5/25/98    - V1.7.1
+             - Fix in NDX::GetPrevRecord when skipping previous to first record
+             - Added support for Big Endian computers (Intel is Little Endian) 
+             - renamed HTML::EndPage to HTML::EndHtmlPage
+             - modified HTML::StartHtmlPage to include <HTML><BODY> and title
+             - Added methods DBF::ValidLogicalData and DBF::ValidNumericData
+             - Add Dbase III compatible memo field support
+
+4/15/98	   - V1.6b
+	     - Numeric key index support
+	     - Added field methods GetDoubleField and PutDoubleField
+             - removed ';' from #endif statements in memo.cc and dbf.cc
+             - renamed all .cc files to .cpp files
+             - included notes for compiling with OpenVMS - thanks Jourquin
+             - added record locking enhancements - thanks Michael
+
+4/1/98    - V1.6a 
+	     - Included beta version for expression support
+	     - Multi-field Index Key support
+             - New XBASE Global Level Class for all date and expression functions
+	     - Support for non Linux platforms w/ makefiles
+             - Fixed reported bugs
+             - Changed define DEBUG to XBASE_DEBUG due to conflicts when 
+               using Xbase DBMS with other libraries
+             - Added "return 0" to the end of SplitLeafNode() in ndx.cc
+             - Fixed SIGSEGV core dump prob when creating index 
+             - Changed Status to DbfStatus in dbf.cc and dbf.h to avoid
+               a conflist with Solaris function Status() 
+             - Made io.h includes conditional only for DOS compiles in ndx.cc and dbf.cc
+             - Modified version byte in DBF file header to be 83 is memo fields
+
+1/2/98    -  V1.5
+             - Added Dbase IV memo field support
+             - Added field method FieldCount()
+             - Added field method GetFieldName()
+             - Fixed bug in PackDatabase method 
+
+12/7/97   -  V1.2b
+             - Fixed an unbalanced if statement in the fields.cc logic.
+
+11/20/97  -  V1.2
+             - Updated and added several new methods to the HTML/CGI class.
+
+10/28/97  -  V1.05
+             - Added date method to determine last day of month for given date
+             - Modified PutField method to handle decimal points 
+             - Added field methods GetFloatField
+             - Added field methods PutFloatField
+             - Modified PutField method to handle decimal points with floats
+             - Added additional logic to DateIsValid method
+
+10/23/97  -  V 1.02
+             - Added method PackDatabase 
+             - Added method ReIndex
+             - Added method KeyExists
+             - Cleaned up ndx.cc source code  
+             - Modified header logic to only update counters, not entire node
+             - Added logic to look for last matching key on non-unique
+               indexes to reduce number of node splits
+
+10/15/97  -  Release of V 1.0
+             - Basic DBF and NDX release

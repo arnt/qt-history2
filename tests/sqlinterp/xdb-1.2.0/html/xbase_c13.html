@@ -1,0 +1,473 @@
+<!DOCTYPE HTML PUBLIC>
+<HTML>
+<TITLE>Xbase DBMS Chapter 13</TITLE>
+<BODY BGCOLOR=#FFFFFF>
+<H1><p align="center">Field Methods</p></H1>
+<p align="center">Chapter Updated 2/1/99</p><hr>
+
+This chapter lists the field methods and provides examples of how to use
+them.<br><br>
+
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Xbase Field Method List</h3></CAPTION>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Method<TD>Description
+<TR><TH ALIGN="LEFT">xbLong cnt FieldCount()<TD>Returns the number of fields
+                                           in the file
+<TR><TH ALIGN="LEFT">xbDouble d GetDoubleField(char * FieldName)<TD>Returns a xbDouble field for field name
+<TR><TH ALIGN="LEFT">xbDouble d GetDoubleField(xbShort FieldNo)<TD>Returns a xbDouble field for field number
+<TR><TH ALIGN="LEFT">xbShort rc GetField(xbShort,char *buf)<TD>Gets field data from the record buffer
+<TR><TH ALIGN="LEFT">xbShort d GetFieldDecimal(xbShort FieldNo)<TD>Gets field decimal count 
+<TR><TH ALIGN="LEFT">xbShort len GetFieldLen(xbShort FieldNo)<TD>Returns the length of a given field
+<TR><TH ALIGN="LEFT">char * name GetFieldName(xbShort FieldNo)<TD>Returns field name for field number
+<TR><TH ALIGN="LEFT">xbShort FieldNo GetFieldNo(char * FieldName)<TD>Returns the field ID number for a given field
+<TR><TH ALIGN="LEFT">char type GetFieldType(xbShort FieldNo)<TD>Returns the type of a given field
+<TR><TH ALIGN="LEFT">xbFloat f GetFloatField(char * FieldName)<TD>Returns a float field for field name
+<TR><TH ALIGN="LEFT">xbFloat f GetFloatField(xbShort FieldNo)<TD>Returns a float field for field number
+<TR><TH ALIGN="LEFT">xbShort l GetLogicalField(xbShort FieldNo)<TD>Returns logical field data
+<TR><TH ALIGN="LEFT">xbShort l GetLogicalField(char * FieldName)<TD>Returns logical field data
+<TR><TH ALIGN="LEFT">xbLong l GetLongField(char * FieldName)<TD>Returns a long field for field name
+<TR><TH ALIGN="LEFT">xbLong l GetLongField(xbShort FieldNo)<TD>Returns a long field for field number
+<TR><TH ALIGN="LEFT">xbShort rc GetMemoField(xbShort FieldNo,<br>xbLong len,char * buf)<TD>Get memo field data
+<TR><TH ALIGN="LEFT">xbLong len GetMemoFieldLen(xbShort FieldNo)<TD>Get memo field data length
+<TR><TH ALIGN="LEFT">xbShort s MemoFieldsPresent()<TD>Determine if memo fields exist in DBF file
+<TR><TH ALIGN="LEFT">xbShort s MemoFieldExists(xbShort FieldNo)<TD>Determine if a particular memo field has data
+<TR><TH ALIGN="LEFT">xbShort rc PutDoubleField(char * FieldName,<br>xbDouble d)<TD>Updates a xbDouble field for field name
+<TR><TH ALIGN="LEFT">xbShort rc PutDoubleField(xbShort FieldNo,<br>xbDouble d)<TD>Updates a xbDouble field for field number
+<TR><TH ALIGN="LEFT">xbShort rc PutField(xbShort FieldNo,char * val)<TD>Fills or overlays a field in the current record buffer 
+</TABLE>
+
+<br>
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Xbase Field Method List (cont)</h3></CAPTION>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Method<TD>Description
+<TR><TH ALIGN="LEFT">xbShort rc PutFloatField(char * FieldName,<br>xbFloat f)<TD>Updates a float field for field name
+<TR><TH ALIGN="LEFT">xbShort rc PutFloatField(xbShort FieldNo,<br>xbFloat f)<TD>Updates a float field for field number
+<TR><TH ALIGN="LEFT">xbShort rc PutLongField(char * FieldName,<br>xbLong l)<TD>Updates a long field for field name
+<TR><TH ALIGN="LEFT">xbShort rc PutLongField(xbShort FieldNo,<br>xbLong l)<TD>Updates a long field for field number
+<TR><TH ALIGN="LEFT">xbShort rc UpdateMemoData(xbShort FieldNo,<br>xbLong len,char * buf,
+xbShort LockOpt)<TD>Update memo field data
+<TR><TH ALIGN="LEFT">xbShort l ValidLogicalData( char * buf )<TD>Check for valid logical data
+<TR><TH ALIGN="LEFT">xbShort l ValidNumericData( char * buf )<TD>Check for valid numeric data
+</TABLE>
+<BR><BR>
+
+<hr>
+<h2>Method Definitions</h2>
+<hr>
+
+<h3>Method xbLong xbDbf::FieldCount( void )</h3><br>
+This method returns the number of fields which exist in the database.
+<br><br>
+<h4>Method Return Codes</h4><br>
+If successful, this method returns the number of fields in the database.
+<h4>Example Program:</h4>
+See sample program <A HREF="/XbaseSamples/sample3.cpp">sample3.cpp</A> for an 
+example of how to use this method.
+<hr>
+
+<h3>Method xbDouble xbDbf::GetxbDoubleField( char * FieldNo )</h3><br>
+This method returns a xbDouble value for field FieldNo. Fieldno can be retrieved 
+by using method GetFieldNo.
+<br><br>
+<hr>
+
+<h3>Method xbDouble xbDbf::GetxbDoubleField( char * FieldName )</h3><br>
+This method returns a xbDouble value for field FieldName. If multiple accesses
+for this particular field will be made from within the program, it is more 
+efficient to access the data utlizing the field's number, rather than its name. 
+<br><br>
+
+<hr>
+<h3>Method xbShort xbDbf::GetField( xbShort FieldNo, char * buf )</h3><br>
+
+This method fills an application program supplied buffer *buf with data 
+from the record buffer for field number FieldNo.  FieldNo can be retrieved
+by using method GetFieldNo.<br><br>
+
+It is the responsibility of the application program to verify the buffer is
+large enough to hold the data.  No checking is done by method GetField to
+verify the buffer is large enough to hold the data.<br><br>
+If successful, this method returns the length of the field in bytes.
+
+<h4>Example Program:</h4>
+See sample program <A HREF="/XbaseSamples/sample3.cpp">sample3.cpp</A> for an 
+example of how to use this method.
+
+<hr>
+<h3>Method xbShort xbDbf::GetFieldDecimal( xbShort FieldNo )</h3><br>
+
+This method returns the decimal count of field FieldNo.  FieldNo can be retrieved
+by using method GetFieldNo.<br><br>
+If successful, this method returns the decimal count.
+
+<hr>
+<h3>Method xbShort xbDbf::GetFieldLen( xbShort FieldNo )</h3><br>
+
+This method returns the length of field FieldNo.  FieldNo can be retrieved
+by using method GetFieldNo.<br><br>
+If successful, this method returns the length of the field in bytes.
+
+<h4>Example Program:</h4>
+See sample program <A HREF="/XbaseSamples/sample3.cpp">sample3.cpp</A> for an example
+of how to use this method.
+
+<hr>
+<h3>Method char * xbDbf::GetFieldName( xbShort FieldNo )</h3><br>
+
+This method returns a pointer to the name of field FieldNo.  FieldNo can be retrieved
+by using method GetFieldNo.<br><br>
+If successful, this method returns the field name.<br>
+
+<h4>Example Program:</h4>
+See sample program <A HREF="/XbaseSamples/dumpdbt.cpp">dumpdbt.cpp</A> for an example 
+of how to use this method.
+<hr>
+
+<h3>Method xbShort xbDbf::GetFieldNo( char * FieldName )</h3><br>
+
+This method is used to get a field's ID number based on paramater
+FieldName.  Where FieldName is a valid name of a field in the database.<br><br>
+
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">-1<TD>Field not found in record
+<TR><TH ALIGN="LEFT">0 through n<TD>The field number for field FieldName
+</TABLE>
+<br><br>
+<h4>Example Program:</h4>
+
+See sample program <A HREF="/XbaseSamples/sample2.cpp">sample2.cpp</A> for an example 
+of how to use this method.
+
+<hr>
+<h3>Method xbShort xbDbf::GetFieldType( xbShort FieldNo )</h3><br>
+
+This method returns the type of field FieldNo.  FieldNo can be retrieved
+by using method GetFieldNo.<br><br>
+
+<h4>Method Return Codes</h4><br>
+If successful, this method returns the field type.<br>
+C = character<br>
+D = Date<br>
+L = Logical<br>
+M = Memo<br>
+N = Numeric<br>
+F = Float<br><br>
+
+<h4>Example Program:</h4>
+See sample program <A HREF="/XbaseSamples/sample3.cpp">sample3.cpp</A> for an example 
+of how to use this method.
+<hr>
+
+<h3>Method xbFloat xbDbf::GetFloatField( char * FieldName )</h3><br>
+
+This method returns a float value for field FieldName. If multiple accesses
+for this particular field will be made from within the program, it is more 
+efficient to access the data utlizing the field's number, rather than its name. 
+<br><br>
+
+<h4>Example Program:</h4>
+See sample program <A HREF="/XbaseSamples/sample3.cpp">sample3.cpp</A> for an 
+example of how to use this method.
+<hr>
+<h3>Method xbFloat xbDbf::GetFloatField( xbShort * FieldNo )</h3><br>
+
+This method returns a float value for field number FieldNo. 
+<br><br>
+
+<h4>Example Program:</h4>
+See sample program <A HREF="/XbaseSamples/sample3.cpp">sample3.cpp</A> for an 
+example of how to use this method.
+<hr>
+
+
+<h3>Method xbShort xbDbf::GetLogicalField( xbShort FieldNo )</h3><br>
+
+<h3>Method xbShort xbDbf::GetLogicalField( char * FieldName )</h3><br>
+
+This method returns -1 if field <em>FieldName</em> or <em>FieldNo</em> is not 
+a logical field.
+It returns 1 if field <em>FieldName</em> is a 'T','t','Y' or 'y'.  It returns
+0 if not 'T','t','Y' or 'y'.
+<br>
+<hr>
+<h3>Method xbLong xbDbf::GetLongField( xbShort * FieldNo )</h3><br>
+
+<h3>Method xbLong xbDbf::GetLongField( char * FieldName )</h3><br>
+
+This method returns a long value for field FieldName. If multiple accesses
+for this particular field will be made from within the program, it is more 
+efficient to access the data utlizing the field's number, rather than its name. 
+<br><br>
+
+<h4>Example Program:</h4>
+See sample program <A HREF="/zips/zipinit.cpp">zipinit.cpp</A> for an 
+example of how to use this method.
+
+<hr>
+<h3>Method xbLong xbDbf::GetLongField( xbShort * FieldNo )</h3><br>
+
+This method returns a long value for field FieldNo.  FieldNo can be 
+determined by utilizing method GetFieldNo.
+<br><br>
+
+<h4>Example Program:</h4>
+See sample program <A HREF="/zips/zipinq.cpp">zipinq.cpp</A> for an 
+example of how to use this method.
+
+
+
+<hr>
+<h3>Method xbShort xbDbf::GetMemoField( xbShort FieldNo, xbLong len, char * Buf, xbShort LockOption )</h3><br>
+
+This method returns <em>Len</em> bytes of memo field <em>FieldNo</em>.  <em>Buf</em>
+is a user supplied buffer large enough to contain the data. No checking
+of the field's size is performed by this method.<br><br>
+
+
+<em>Lock Option</em>is one of:<br>
+
+F_SETLK - return immediately if lock fails<br>
+F_SETLKW - wait until lock function executes<br><br>
+
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">XB_INVALID_FIELDNO<TD>An invalid field number was used
+<TR><TH ALIGN="LEFT">XB_NOT_MEMO_FIELD<TD>Not a memo field
+<TR><TH ALIGN="LEFT">XB_NO_MEMO_DATA<TD>No memo data exists
+<TR><TH ALIGN="LEFT">XB_INVALID_BLOCK_NO<TD>Internal error, notify tech support
+<TR><TH ALIGN="LEFT">XB_SEEK_ERROR<TD>Disk Error
+<TR><TH ALIGN="LEFT">XB_READ_ERROR<TD>Disk Error
+<TR><TH ALIGN="LEFT">XB_NO_ERROR<TD>No Error
+</TABLE>
+<br><br>
+<h4>Example Program:</h4>
+See sample program <A HREF="/XbaseSamples/dumpdbt.cpp">dumpdbt.cpp</A> for 
+an example of how to use this method.
+
+<hr>
+<h3>Method xbLong xbDbf::GetMemoFieldLen( xbShort FieldNo )</h3><br>
+
+This method returns the length of memo field FieldNo.  FieldNo can be 
+retrieved by using method GetFieldNo.<br><br>
+If successful, this method returns the length of the memo field in bytes.
+
+<h4>Example Program:</h4>
+See sample program <A HREF="/XbaseSamples/dumpdbt.cpp">dumpdbt.cpp</A> for 
+an example of how to use this method.
+
+<hr>
+
+<h3>Method xbShort xbDbf::MemoFieldExists( xbShort FieldNo )</h3><br>
+
+This method returns true (1) if field FieldNo has any memo data. Otherwise
+it returns false (0).
+<br><br>
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">0<TD>Data file does not have any memo fields
+<TR><TH ALIGN="LEFT">1<TD>Data file has memo fields
+</TABLE>
+<br><br>
+<h4>Example Program:</h4>
+See sample program <A HREF="/XbaseSamples/dumpdbt.cpp">dumpdbt.cpp</A> for an 
+example of how to use this method.
+
+<hr>
+
+<h3>Method xbShort xbDbf::MemoFieldsPresent( void )</h3><br>
+
+This method returns true (1) if the file has any memo fields. Otherwise
+it returns false (0).
+<br><br>
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">0<TD>Data file does not have any memo fields
+<TR><TH ALIGN="LEFT">1<TD>Data file has memo fields
+</TABLE>
+<br><br>
+<h4>Example Program:</h4>
+See sample program <A HREF="/XbaseSamples/dumpdbt.cpp">dumpdbt.cpp</A> for an 
+example of how to use this method.
+
+<hr>
+<h3>Method xbShort xbDbf::PutxbDoubleField( char * FieldName, xbDouble d )</h3><br>
+
+This method puts a xbDouble value d for field FieldName. If multiple accesses
+for this particular field will be made from within the program, it is more 
+efficient to access the data utlizing the field's number. 
+<br><br>
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">XB_INVALID_FIELDNO<TD>An invalid field number was used
+<TR><TH ALIGN="LEFT">XB_INVALID_DATA<TD>Attempt to load invalid numeric or logical data
+</TABLE>
+<br><br><hr>
+<h3>Method xbShort xbDbf::PutxbDoubleField( xbShort FieldNo, xbDouble d )</h3><br>
+This method puts a xbDouble value d for field FieldNo. 
+<br><br>
+<h3>Method Return Codes</h3>
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">XB_INVALID_FIELDNO<TD>An invalid field number was used
+<TR><TH ALIGN="LEFT">XB_INVALID_DATA<TD>Attempt to load invalid numeric or logical data
+</TABLE>
+<br><br>
+
+<hr>
+<h3>Method xbShort xbDbf::PutField( xbShort FieldNo, char * buf )</h3><br>
+
+This method fills field number FieldNo, with the data from buffer *buf.<br><br>
+It copies data from *buf until a 0x00 character is encountered or the buffer
+is filled. The field will be truncated if it is to long.<br><br>
+Use method GetFieldNo to determine the value for FieldNo.<br><br>
+If the field is type N or F, the field is loaded right justified, left blank 
+filled onto the record buffer.<br><br>
+This method does check the validity of NUMERIC and LOGICAL data it is loading onto the 
+record buffer. Ther can be no spaces or non-numeric data for numeric fields.<br><br>
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">XB_INVALID_FIELDNO<TD>An invalid field number was used
+<TR><TH ALIGN="LEFT">XB_INVALID_DATA<TD>Attempt to load invalid numeric or logical data
+</TABLE>
+<br><br>
+
+<h4>Example Program:</h4>
+See sample program <A HREF="/XbaseSamples/sample2.cpp">sample2.cpp</A> for an example 
+of how to use this method.
+<hr>
+
+<h3>Method xbShort xbDbf::PutFloatField( char * FieldName, FLOAT f )</h3><br>
+
+This method puts a float value f for field FieldName. If multiple accesses
+for this particular field will be made from within the program, it is more 
+efficient to access the data utlizing the field's number. 
+<br><br>
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">XB_INVALID_FIELDNO<TD>An invalid field number was used
+<TR><TH ALIGN="LEFT">XB_INVALID_DATA<TD>Attempt to load invalid numeric or logical data
+</TABLE>
+<br><br>
+<h4>Example Program:</h4>
+See sample program <A HREF="/XbaseSamples/sample2.cpp">sample2.cpp</A> for an 
+example of how to use this method.
+<hr>
+<h3>Method xbShort xbDbf::PutFloatField( xbShort FieldNo, FLOAT f )</h3><br>
+This method puts a float value f for field number FieldNo. 
+<br><br>
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">XB_INVALID_FIELDNO<TD>An invalid field number was used
+<TR><TH ALIGN="LEFT">XB_INVALID_DATA<TD>Attempt to load invalid numeric or logical data
+</TABLE>
+<br><br>
+<h4>Example Program:</h4>
+See sample program <A HREF="/XbaseSamples/sample2.cpp">sample2.cpp</A> for an 
+example of how to use this method.
+<hr>
+<h3>Method xbLong xbDbf::PutLongField( char * FieldName, xbLong Val )</h3><br>
+This method puts a long value Val for field FieldName. If multiple accesses
+for this particular field will be made from within the program, it is more 
+efficient to access the data utlizing the field's number. 
+<br><br>
+<h4>Example Program:</h4>
+See sample program <A HREF="/zips/zipinit.cpp">zipinit.cpp</A> for an 
+example of how to use this method.
+
+<hr>
+<h3>Method xbLong xbDbf::PutLongField( xbShort FieldNo, xbLong Val )</h3><br>
+This method puts a long value Val for field FieldNo. FieldNo can be determined
+by utilizing method GetFieldNo.
+<br><br>
+
+<h4>Example Program:</h4>
+See sample program <A HREF="/zips/zipinq.cpp">zipinq.cpp</A> for an 
+example of how to use this method.
+<hr>
+<h3>Method xbShort xbDbf::UpdateMemoData( xbShort FieldNo, xbLong len,
+       char * Buf, xbShort LockOption )</h3><br>
+This method updates field <em>FieldNo</em> with <em>Len</em> bytes of 
+data from <em>Buf</em>.<br><br>
+This is the only routine necessary to add, revise or delete memo field
+data.  To delete a memo field, set the length to zero (0L).<br><br>
+
+<em>LockOption</em> is one of<br>
+<li>F_SETLK - return immediately if lock fails
+<li>F_SETLKW - wait until lock function executes
+<br><br>
+
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">XB_LOCK_FAILED<TD>Lock Failed
+<TR><TH ALIGN="LEFT">XB_INVALID_BLOCK_NO<TD>Internal error, notify tech support
+<TR><TH ALIGN="LEFT">XB_SEEK_ERROR<TD>Disk Error
+<TR><TH ALIGN="LEFT">XB_READ_ERROR<TD>Disk Error
+<TR><TH ALIGN="LEFT">XB_WRITE_ERROR<TD>Disk Error
+<TR><TH ALIGN="LEFT">XB_NO_ERROR<TD>No Error
+</TABLE>
+<br><br>
+<h4>Example Program:</h4>
+See sample program <A HREF="/XbaseSamples/sample2.cpp">sample2.cpp</A> for 
+an example of how to use this method.
+<hr>
+
+
+
+<h3>Method xbShort xbDbf::ValidLogicalData( char * data )</h3><br>
+
+This method returns true if <em>data</em> contains a valid logical data value.
+Otherwise, it returns false.
+<br><br>
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">1<TD>Valid logical data
+<TR><TH ALIGN="LEFT">0<TD>Invalid logical data
+</TABLE>
+<br>
+<hr>
+
+<h3>Method xbShort xbDbf::ValidNumericData( char * data )</h3><br>
+This method returns true if <em>data</em> contains a valid numeric data value.
+Otherwise, it returns false.
+<br><br>
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>Method Return Codes</h3></CAPTION><br>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Return Code<TD>Description
+<TR><TH ALIGN="LEFT">1<TD>Valid numeric data
+<TR><TH ALIGN="LEFT">0<TD>Invalid numeric data
+</TABLE>
+<br>
+<hr>
+
+<A HREF="mailto:xbase@startech.keller.tx.us">
+Send me mail - xbase@startech.keller.tx.us</A><br>
+<p>(c)1997 StarTech
+<p><img src="xbase.jpg"><br><hr>
+</BODY>
+</HTML>    

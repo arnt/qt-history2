@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC>
+<HTML>
+<TITLE>Xbase DBMS Chapter 11</TITLE>
+<BODY BGCOLOR=#FFFFFF>
+<H1><p align="center">Library Options and Methods<br></H1>
+<p align="center">Chapter Updated 2/1/99</p><hr>
+<br>
+<TABLE BORDER>
+<CAPTION ALIGN="TOP"><h3>xbXbase Class Methods</H3></CAPTION>
+<TR VALIGN="BASELINE">
+<TR><TH ALIGN="LEFT">Method<TD>Description
+<TR><TH ALIGN="LEFT">void xbXBase::DisplayError(xbShort ErrorNumber)<TD>Display error text
+<TR><TH ALIGN="LEFT">char * xbXbase::GetDefaultDateFormat()<TD>Return the default date format
+<TR><TH ALIGN="LEFT">void xbXBase::SetDefaultDateFormat(char * Format)<TD>Set the default date format
+</TABLE>
+<br><br>
+<hr>
+<h2>Method Definitions</h2>
+<hr>
+<h4>Method void xbXbase::DisplayError( xbShort ErrorNo )</h4><br>
+This method prints a text description of an error code.
+<h4>Example Code Snipit:</h4>
+
+<xmp>
+xbShort rc;
+rc = d.SomeXbaseFunction(...);
+if( rc < 0 )
+  x.DisplayError( rc );
+else
+  DoSomethingUsefull();
+</xmp>
+<hr>
+<h4>Method char * xbXBase::GetDefaultDateFormat( void )<br>
+Method void xbXBase::SetDefaultDateFormat( char * NewDateFormat )</h4><br>
+These methods are used for retrieving and setting the default date format 
+which is used by expression function DTOC.
+<br><br><hr>
+<A HREF="mailto:xbase@startech.keller.tx.us">
+Send me mail - xbase@startech.keller.tx.us</A><br>
+<p>(c)1997 StarTech
+<p><img src="xbase.jpg"><br><hr>
+</BODY>
+</HTML>
