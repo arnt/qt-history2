@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form implementation generated from reading ui file 'editbook.ui'
 **
-** Created: Thu Feb 8 15:09:51 2001
+** Created: Fri Feb 16 09:18:13 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -34,7 +34,7 @@ EditBookForm::EditBookForm( QWidget* parent,  const char* name, bool modal, WFla
 {
     if ( !name )
 	setName( "EditBookForm" );
-    resize( 532, 375 ); 
+    resize( 528, 373 ); 
     setCaption( tr( "Edit Books" ) );
     EditBookFormLayout = new QVBoxLayout( this ); 
     EditBookFormLayout->setSpacing( 6 );
@@ -201,31 +201,29 @@ void EditBookForm::polish()
     QDialog::polish();
 }
 
-void EditBookForm::beforeUpdateBook( QSqlRecord *buffer )
+void EditBookForm::beforeUpdateBook( QSqlRecord * buffer )
 {
     int id;
     mapAuthor( ComboBoxAuthor->currentText(), id, FALSE );
     buffer->setValue( "authorid", id );
 }
 
-void EditBookForm::mapAuthor( const QString &name,int &id,bool populate )
+void EditBookForm::mapAuthor( const QString & name, int & id, bool populate )
 {
-    static QMap<QString,int> authorMap;
-    
     if ( populate ) 
 	authorMap[ name ] = id;
     else
 	id = authorMap[ name ];
 }
 
-void EditBookForm::primeInsertBook( QSqlRecord *buffer )
+void EditBookForm::primeInsertBook( QSqlRecord * buffer )
 {
     QSqlQuery query( "SELECT nextval('book_seq');" );   
     if ( query.next() ) 
 	buffer->setValue( "id", query.value( 0 ).toInt() );       
 }
 
-void EditBookForm::primeUpdateBook( QSqlRecord *buffer )
+void EditBookForm::primeUpdateBook( QSqlRecord * buffer )
 {
     // Who is this book's author?
     QSqlQuery query( "SELECT name FROM author_view WHERE id='" +  

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form implementation generated from reading ui file 'book.ui'
 **
-** Created: Thu Feb 8 15:09:47 2001
+** Created: Fri Feb 16 09:18:08 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form interface generated from reading ui file 'editbook.ui'
 **
-** Created: Thu Feb 8 15:09:45 2001
+** Created: Fri Feb 16 09:18:06 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -51,10 +51,10 @@ public:
 
 
 public slots:
-    virtual void beforeUpdateBook( QSqlRecord *buffer );
-    virtual void mapAuthor( const QString &name,int &id,bool populate );
-    virtual void primeInsertBook( QSqlRecord *buffer );
-    virtual void primeUpdateBook( QSqlRecord *buffer );
+    virtual void beforeUpdateBook( QSqlRecord * buffer );
+    virtual void mapAuthor( const QString & name, int & id, bool populate );
+    virtual void primeInsertBook( QSqlRecord * buffer );
+    virtual void primeUpdateBook( QSqlRecord * buffer );
     void polish();
 
 protected slots:
@@ -68,6 +68,8 @@ protected:
     QHBoxLayout* Layout6;
     QHBoxLayout* Layout3;
     QHBoxLayout* Layout6_2;
+
+    QMap<QString,int> authorMap;
 };
 
 #endif // EDITBOOKFORM_H

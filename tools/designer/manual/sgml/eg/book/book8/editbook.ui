@@ -2,6 +2,7 @@
 <class>EditBookForm</class>
 <include location="global" impldecl="in declaration">qsqlrecord.h</include>
 <forward>class QSqlRecord;</forward>
+<variable>QMap&lt;QString,int&gt; authorMap;</variable>
 <widget class="QDialog">
     <property name="name">
         <cstring>EditBookForm</cstring>
@@ -10,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>532</width>
-            <height>375</height>
+            <width>528</width>
+            <height>373</height>
         </rect>
     </property>
     <property name="caption">
@@ -359,12 +360,12 @@
         <receiver>EditBookForm</receiver>
         <slot>primeInsertBook(QSqlRecord*)</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
-    <slot access="public" language="C++">beforeUpdateBook( QSqlRecord *buffer )</slot>
-    <slot access="public" language="C++">mapAuthor( const QString &amp;name,int &amp;id,bool populate )</slot>
-    <slot access="public" language="C++">primeInsertBook( QSqlRecord *buffer )</slot>
-    <slot access="public" language="C++">primeUpdateBook( QSqlRecord *buffer )</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="public" language="C++" returnType="void">beforeUpdateBook( QSqlRecord * buffer )</slot>
+    <slot access="public" language="C++" returnType="void">mapAuthor( const QString &amp; name, int &amp; id, bool populate )</slot>
+    <slot access="public" language="C++" returnType="void">primeInsertBook( QSqlRecord * buffer )</slot>
+    <slot access="public" language="C++" returnType="void">primeUpdateBook( QSqlRecord * buffer )</slot>
 </connections>
 <functions>
     <function name="init()" >{
@@ -384,8 +385,6 @@
     buffer-&gt;setValue( "authorid", id );
 }</function>
     <function name="mapAuthor(const QString&amp;,int&amp;,bool)" >{
-    static QMap&lt;QString,int&gt; authorMap;
-    
     if ( populate ) 
 	authorMap[ name ] = id;
     else
