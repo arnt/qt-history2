@@ -1905,7 +1905,7 @@ public:
     void resetDrawingTools( QPainter * );
     void emitHeader( bool finished );
     void setFont( const QFont &, int script );
-    void drawImage( QPainter *, const QPoint &, const QImage & );
+    void drawImage( QPainter *, float x, float y, float w, float h, const QImage & );
     void initPage( QPainter *paint );
     void flushPage( bool last = FALSE );
 
@@ -5703,11 +5703,13 @@ static const char * psJoin( Qt::PenJoinStyle p ) {
 
 
 
-void QPSPrinterPrivate::drawImage( QPainter *paint, const QPoint &pnt,
+void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, float h,
                             const QImage &img )
 {
     int width  = img.width();
     int height = img.height();
+    float scaleX = w/(float)width;
+    float scaleY = h/(float)height;
 
     if ( img.isNull() )
         return;
@@ -5720,18 +5722,18 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, const QPoint &pnt,
             images++;
             subheight = ( height + images-1 ) / images;
         }
-        int y = 0;
-        while( y < height ) {
-            drawImage( paint, QPoint( pnt.x(), pnt.y()+y ),
-                       img.copy( 0, y, width, QMIN( subheight, height-y ) ) );
-            y += subheight;
+        int suby = 0;
+        while( suby < height ) {
+            drawImage( paint, x, y + suby*scaleY, w, QMIN( subheight, height-suby )*scaleY,
+                       img.copy( 0, suby, width, QMIN( subheight, height-suby ) ) );
+            suby += subheight;
         }
     } else {
         bool gray = (printer->colorMode() == QPrinter::GrayScale) ||
                     img.allGray();
-
-        if ( pnt.x() || pnt.y() )
-            pageStream << pnt.x() << " " << pnt.y() << " TR\n";
+	
+        if ( x || y )
+            pageStream << x << " " << y << " TR\n";
         if ( gray ) {
             pageStream << "/sl " << width*height << " string d\n";
             pageStream << "sl rG\n";
@@ -5739,7 +5741,7 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, const QPoint &pnt,
             out = ::compress( img.convertDepth( 8 ), TRUE );
             ps_r7( pageStream, out, out.size() );
             pageStream << "pop\n";
-            pageStream << width << ' ' << height << " 8[1 0 0 1 0 0]{sl}image\n";
+            pageStream << width << ' ' << height << " 8[" << scaleX << " 0 0 " << scaleY << " 0 0]{sl}image\n";
         } else {
             pageStream << "/sl " << width*3*height << " string d\n";
             pageStream << "sl rC\n";
@@ -5752,10 +5754,10 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, const QPoint &pnt,
                 out = ::compress( img, FALSE );
             ps_r7( pageStream, out, out.size() );
             pageStream << "pop\n";
-            pageStream << width << ' ' << height << " 8[1 0 0 1 0 0]{sl}QCI\n";
+            pageStream << width << ' ' << height << " 8[" << scaleX << " 0 0 " << scaleY << " 0 0]{sl}QCI\n";
         }
-        if ( pnt.x() || pnt.y() )
-            pageStream << -pnt.x() << " " << -pnt.y() << " TR\n";
+        if ( x || y )
+            pageStream << -x << " " << -y << " TR\n";
     }
 }
 
@@ -6316,7 +6318,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
         QPoint pnt = *(p[0].point);
         QImage img;
         img = *(p[1].pixmap);
-        d->drawImage( paint, pnt, img );
+        d->drawImage( paint, pnt.x(), pnt.y(), img.width(), img.height(), img );
         break;
     }
     case PdcDrawImage: {
@@ -6324,7 +6326,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
             break;
         QPoint pnt = *(p[0].point);
         QImage img = *(p[1].image);
-        d->drawImage( paint, pnt, img );
+        d->drawImage( paint, pnt.x(), pnt.y(), img.width(), img.height(), img );
         break;
     }
     case PdcSetBkColor:
