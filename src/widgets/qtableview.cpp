@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#92 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#93 $
 **
 ** Implementation of QTableView class
 **
@@ -115,6 +115,12 @@ void CornerSquare::paintEvent( QPaintEvent * )
   virtual functions like cellWidth() and cellHeight() to be called, even
   if autoUpdate() is FALSE.
   This may cause errors if relevant state variables are not initialized.
+
+  \warning Experience has shown that use of this widget tends to bring
+  more bugs than expected, and our analysis indicates that widget's
+  very flexibility is the problem.  If QScrollView or QListBox can
+  easily be made to do the job you need, we recommend subclassing
+  those widgets rather than QTableView.
 
   \sa QScrollView
   <a href="guibooks.html#fowler">GUI Design Handbook: Table</a>
