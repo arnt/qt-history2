@@ -122,7 +122,7 @@ static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPainter *p,
 }
 
 //utility to figure out the size (from the painter)
-QAquaWidgetSize qt_mac_get_size_for_painter(QPainter *p)
+static QAquaWidgetSize qt_mac_get_size_for_painter(QPainter *p)
 {
     if(p && p->device()->devType() == QInternal::Widget)
 	return qt_aqua_size_constrain((QWidget*)p->device());
