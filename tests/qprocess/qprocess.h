@@ -13,6 +13,9 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#else
+#include <process.h>
+#include <direct.h>
 #endif
 
 //class Q_EXPORT QProcess : public QObject
@@ -74,6 +77,8 @@ private:
     pid_t pid;
     QQueue<QByteArray> stdinBuf;
     ssize_t stdinBufRead;
+#else
+    int pid;
 #endif
 
     void init();

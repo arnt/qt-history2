@@ -9,20 +9,22 @@
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
-
-#if 0
-    QProcess proc( "aclock" );
-    proc.setPath( QDir("/home/rms/qt/examples/aclock/") );
-    proc.start();
-
-    proc.start();
-#endif
+    QVBox vb;
 
 //#if 0
+    QProcess proc( "aclock" );
+#if defined(UNIX)
+    proc.setPath( QDir("../../../examples/aclock/") );
+#else
+    proc.setPath( QDir("../../../examples/aclock/Debug/") );
+#endif
+    proc.start();
+//#endif
+
+#if 0
     QProcess proc( "cat" );
     proc.setPath( QDir("/bin/") );
 
-    QVBox vb;
     QLineEdit *in = new QLineEdit( &vb );
     QLabel *out = new QLabel( &vb );
     QPushButton *close = new QPushButton( "Close Stdin", &vb );
@@ -35,7 +37,7 @@ int main( int argc, char **argv )
 	    out, SLOT(setText(const QString&)) );
 
     proc.start();
-//#endif
+#endif
 
 #if 0
     QProcess proc1( "echo", "b\na\nc\n" );
@@ -44,7 +46,6 @@ int main( int argc, char **argv )
     QProcess proc2( "sort" );
     proc2.setPath( QDir("/usr/bin/") );
 
-    QVBox vb;
     QLabel *out = new QLabel( &vb );
 
     QObject::connect( &proc1, SIGNAL(dataStdout(const QString&)),

@@ -1,4 +1,9 @@
 const char* baseDir = "../../examples";
+#if defined(UNIX)
+const char* suffixDir = "";
+#else
+const char* suffixDir = "Debug";
+#endif
 
 static struct {
     const char* label;

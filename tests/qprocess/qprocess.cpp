@@ -193,6 +193,24 @@ bool QProcess::start()
     delete[] arglist;
     return TRUE;
 #else
+    // construct the arguments for spawn
+    const char** arglist = new const char*[ arguments.count() + 2 ];
+    arglist[0] = command.latin1();
+    int i = 1;
+    for ( QStringList::Iterator it = arguments.begin(); it != arguments.end(); ++it ) {
+	arglist[ i++ ] = (*it).latin1();
+    }
+    arglist[i] = 0;
+
+    // spawn
+    QApplication::flushX();
+    char buffer[_MAX_PATH];
+    if ( _getcwd( buffer, _MAX_PATH ) == NULL )
+	return FALSE;
+    _chdir( workingDir.absPath().latin1() );
+    pid = _spawnvp( P_NOWAIT, path.absFilePath(command).latin1(), arglist );
+    _chdir( buffer );
+
     return TRUE;
 #endif
 }

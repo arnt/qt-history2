@@ -99,8 +99,9 @@ void Launcher::run(const char*path, const char* cmd)
 
     QDir p( baseDir );
     p.cd( path );
-    proc.setPath( p );
     proc.setWorkingDirectory( p );
+    p.cd( suffixDir );
+    proc.setPath( p );
 
     proc.start();
 }
