@@ -148,13 +148,7 @@ static QIntDict<QThread> *thrDict = 0;
 #endif
 
 
-extern "C" {
-    static void *start_thread(void *t)
-    {
-	QThreadPrivate::internalRun( (QThread *) t );
-	return 0;
-    }
-}
+extern "C" { static void *start_thread(void *t); }
 
 
 #if defined(Q_OS_SOLARIS)
@@ -1090,6 +1084,15 @@ public:
 
 
 #endif // defined(Q_OS_SOLARIS)
+
+
+extern "C" {
+    static void *start_thread(void *t)
+    {
+	QThreadPrivate::internalRun( (QThread *) t );
+	return 0;
+    }
+}
 
 
 #endif // QTHREAD_P_H
