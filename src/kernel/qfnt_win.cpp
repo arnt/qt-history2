@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#16 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -18,14 +18,14 @@
 #include "qpainter.h"
 
 #if defined(_CC_BOOL_DEF_)
-#undef  bool
+#undef	bool
 #include <windows.h>
 #define bool int
 #else
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#15 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#16 $")
 
 
 QFont *QFont::defFont = 0;			// default font
@@ -100,13 +100,12 @@ void QFont::cacheStatistics()
 }
 
 
-QFont::QFont( bool )				// create default font
+QFont::QFont( bool )
 {
     init();
-    d->req.family    = "default";
-    d->req.pointSize = 10*10;			// approximate point size, hack
+    d->req.family    = "MS Sans Serif";		// default font
+    d->req.pointSize = 8*10;			// approximate point size, hack
     d->req.weight    = QFont::Normal;
-    d->req.rawMode   = TRUE;
 }
 
 
@@ -190,7 +189,7 @@ void QFont::loadFont( HANDLE output_hdc ) const
 	DWORD	dwVer = GetVersion();
 
 	if ( dwVer < 0x80000000 )
-	    deffnt = SYSTEM_FONT;		// Windows NT
+	    deffnt = SYSTEM_FONT;		// Windows NT 3.x
 	else if ( LOBYTE(LOWORD(dwVer)) < 4 )
 	    deffnt = SYSTEM_FONT;		// Win32s
 	else
@@ -292,17 +291,16 @@ public:
     void  setTextMetric( void *x ) { tm = x; }
 };
 
-static void *get_tm( bool widget, void *any )
+static void *get_tm( QWidget *w, QPainter *p )
 {
-    if ( any == 0 ) {
+    if ( w == 0 && p == 0 ) {
 #if defined(CHECK_NULL)
-	warning( "QFontMetrics: Cannot get font metrics" );
+	warning( "QFontMetrics: Invalid font metrics" );
 #endif
 	return 0;
     }
     void *tm;
-    if ( widget ) {
-	QWidget *w = (QWidget *)any;
+    if ( w ) {
 	QFont *f = (QFont *)&w->font();
 	f->handle();
 	tm = f->d->tm;
@@ -311,107 +309,102 @@ static void *get_tm( bool widget, void *any )
 	    GetTextMetrics( f->d->hdc, (TEXTMETRIC*)tm );
 	    f->d->tm = tm;
 	}
-    }
-    else {
-	InternalPainter *p = (InternalPainter*)any;
-	tm = p->textMetric();
+    } else if ( p ) {
+	InternalPainter *ip = (InternalPainter*)p;
+	tm = ip->textMetric();
 	if ( !tm ) {
 	    tm = new TEXTMETRIC;
-	    GetTextMetrics( p->handle(), (TEXTMETRIC*)tm );
-	    p->setTextMetric( tm );
+	    GetTextMetrics( ip->handle(), (TEXTMETRIC*)tm );
+	    ip->setTextMetric( tm );
 	}
+    } else {
+	tm = 0;
     }
     return tm;
 }
 
 int QFontMetrics::ascent() const
 {
-    TEXTMETRIC *tm = (TEXTMETRIC *)get_tm( data.widget, data.w );
+    TEXTMETRIC *tm = (TEXTMETRIC *)get_tm( w, p );
     return tm ? tm->tmAscent : 0;
 }
 
 int QFontMetrics::descent() const
 {
-    TEXTMETRIC *tm = (TEXTMETRIC *)get_tm( data.widget, data.w );
+    TEXTMETRIC *tm = (TEXTMETRIC *)get_tm( w, p );
     return tm ? tm->tmDescent : 0;
 }
 
 int QFontMetrics::height() const
 {
-    TEXTMETRIC *tm = (TEXTMETRIC *)get_tm( data.widget, data.w );
+    TEXTMETRIC *tm = (TEXTMETRIC *)get_tm( w, p );
     return tm ? tm->tmHeight : 0;
 }
 
 int QFontMetrics::leading() const
 {
-    TEXTMETRIC *tm = (TEXTMETRIC *)get_tm( data.widget, data.w );
+    TEXTMETRIC *tm = (TEXTMETRIC *)get_tm( w, p );
     return tm ? tm->tmExternalLeading : 0;
 }
 
 int QFontMetrics::lineSpacing() const
 {
-    TEXTMETRIC *tm = (TEXTMETRIC *)get_tm( data.widget, data.w );
+    TEXTMETRIC *tm = (TEXTMETRIC *)get_tm( w, p );
     return tm ? tm->tmHeight + tm->tmExternalLeading : 0;
 }
 
 int QFontMetrics::width( const char *str, int len ) const
 {
-    if ( !data.w )
-	return 0;
     if ( len < 0 )
 	len = strlen( str );
     HDC hdc;
-    if ( data.widget ) {
-	QFont f = data.w->font();
+    if ( p ) {
+	hdc = p->handle();
+    } else if ( w ) {
+	QFont f = w->font();
 	f.handle();
 	hdc = f.d->hdc;
+    } else {
+#if defined(CHECK_NULL)
+	warning( "QFontMetrics: Invalid font metrics" );
+#endif
+	return 0;
     }
-    else
-	hdc = data.p->handle();
-#if defined(_WS_WIN32_)
+
     SIZE s;
     GetTextExtentPoint( hdc, str, len, &s );
     return s.cx;
-#else
-    #error Not implemented for win 16
-#endif
 }
 
 QRect QFontMetrics::boundingRect( const char *str, int len ) const
 {
-    if ( !data.w )
-	return QRect(0,0,0,0);
     if ( len < 0 )
 	len = strlen( str );
     HDC hdc;
-    TEXTMETRIC *tm = (TEXTMETRIC *)get_tm( data.widget, data.w );
+    TEXTMETRIC *tm = (TEXTMETRIC *)get_tm( w, p );
     if ( !tm )
 	return QRect( 0, 0, 0, 0 );
-    if ( data.widget ) {
-	QFont f = data.w->font();
+    if ( p ) {
+	hdc = p->handle();
+    } else if ( w ) {
+	QFont f = w->font();
 	f.handle();
 	hdc = f.d->hdc;
-    }
-    else
-	hdc = data.p->handle();
-#if defined(_WS_WIN32_)
-#if 0
-    RECT r;
-    r.left = r.top = r.right = r.bottom;
-    DrawText( hdc, str, len, &r, DT_CALCRECT | DT_SINGLELINE );
-    return QRect( QPoint(r.left,r.top), QPoint(r.right,r.bottom) );
+    } else {
+#if defined(CHECK_NULL)
+	warning( "QFontMetrics: Invalid font metrics" );
 #endif
+	return QRect( 0, 0, 0, 0 );
+    }
+
     SIZE s;
     GetTextExtentPoint32( hdc, str, len, &s );
     return QRect( 0, -tm->tmAscent, s.cx, tm->tmAscent+tm->tmDescent );
-#else
-#error not implemented for win 16
-#endif
 }
 
 int QFontMetrics::maxWidth() const
 {
-    TEXTMETRIC *tm = (TEXTMETRIC *)get_tm( data.widget, data.w );
+    TEXTMETRIC *tm = (TEXTMETRIC *)get_tm( w, p );
     return tm ? tm->tmMaxCharWidth : 0;
 }
 

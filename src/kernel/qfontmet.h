@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmet.h#20 $
+** $Id: //depot/qt/main/src/kernel/qfontmet.h#21 $
 **
 ** Definition of QFontMetrics class
 **
@@ -43,14 +43,12 @@ public:
 private:
     QFontMetrics( const QWidget * );
     QFontMetrics( const QPainter * );
-    static void reset( const void * );
-    struct {
-	bool widget;
-	union {
-	    QWidget  *w;
-	    QPainter *p;
-	};
-    }		data;
+    static void reset( const QWidget * );
+    static void reset( const QPainter * );
+
+    QWidget    *w;
+    QPainter   *p;
+
     friend class QWidget;
     friend class QPainter;
 };

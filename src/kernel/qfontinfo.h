@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontinfo.h#10 $
+** $Id: //depot/qt/main/src/kernel/qfontinfo.h#11 $
 **
 ** Definition of QFontInfo class
 **
@@ -39,14 +39,12 @@ public:
 private:
     QFontInfo( const QWidget * );
     QFontInfo( const QPainter * );
-    static void reset( const void * );
-    struct {
-	bool widget;
-	union {
-	    QWidget  *w;
-	    QPainter *p;
-	};
-    }		data;
+    static void reset( const QWidget * );
+    static void reset( const QPainter * );
+
+    QWidget    *w;
+    QPainter   *p;
+
     friend class QWidget;
     friend class QPainter;
 };

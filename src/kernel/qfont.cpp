@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#44 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qstrlist.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#43 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#44 $")
 
 
 /*----------------------------------------------------------------------------
@@ -912,8 +912,10 @@ static QFontMetricsList *fm_list = 0;
 
 static void insertFontMetrics( QFontMetrics *fm )
 {
-    if ( !fm_list )
+    if ( !fm_list ) {
 	fm_list = new QFontMetricsList;
+	CHECK_PTR( fm_list );
+    }
     fm_list->append( fm );
 }
 
@@ -933,17 +935,34 @@ static void removeFontMetrics( QFontMetrics *fm )
 
 
 /*----------------------------------------------------------------------------
-  Resets all pointers to \e pdev in all font metrics objects in the
-  applications.
+  Resets all pointers to \e w in all font metrics objects in the
+  application.
  ----------------------------------------------------------------------------*/
 
-void QFontMetrics::reset( const void *obj )
+void QFontMetrics::reset( const QWidget *w )
 {
     if ( fm_list ) {
 	QFontMetrics *fm = fm_list->first();
 	while ( fm ) {
-	    if ( fm->data.w == obj )		// points to same thing
-		fm->data.w = 0;			// widget/painter dead
+	    if ( fm->w == w )
+		fm->w = 0;			// detach from widget
+	    fm = fm_list->next();
+	}
+    }
+}
+
+/*----------------------------------------------------------------------------
+  Resets all pointers to \e p in all font metrics objects in the
+  application.
+ ----------------------------------------------------------------------------*/
+
+void QFontMetrics::reset( const QPainter *p )
+{
+    if ( fm_list ) {
+	QFontMetrics *fm = fm_list->first();
+	while ( fm ) {
+	    if ( fm->p == p )
+		fm->p = 0;			// detach from painter
 	    fm = fm_list->next();
 	}
     }
@@ -982,9 +1001,9 @@ QFontMetrics::QFontMetrics( const QWidget *widget )
 #if defined(CHECK_NULL)
     ASSERT( widget != 0 );
 #endif
-    data.widget = TRUE;
-    data.w = (QWidget *)widget;
-    data.w->setWFlags( WExportFontMetrics );
+    w = (QWidget *)widget;
+    p = 0;
+    w->setWFlags( WExportFontMetrics );
     insertFontMetrics( this );			// register this object
 }
 
@@ -998,14 +1017,14 @@ QFontMetrics::QFontMetrics( const QPainter *painter )
 #if defined(CHECK_NULL)
     ASSERT( painter != 0 );
 #endif
-    data.widget = FALSE;
-    data.p = (QPainter *)painter;
+    w = 0;
+    p = (QPainter *)painter;
 #if defined(CHECK_STATE)
-    if ( !data.p->isActive() )
+    if ( !p->isActive() )
 	warning( "QFontMetrics: Get font metrics between QPainter::begin() "
 		 "and QPainter::end()" );
 #endif
-    data.p->setf( QPainter::FontMet );
+    p->setf( QPainter::FontMet );
     insertFontMetrics( this );			// register this object
 }
 
@@ -1061,10 +1080,12 @@ QRect QFontMetrics::boundingRect( char ch ) const
 
 const QFont &QFontMetrics::font() const
 {
-    if ( data.widget )
-	return data.w->font();
-    else
-	return data.p->font();
+    if ( w )
+	return w->font();
+    else if ( p )
+	return p->font();
+    static QFont f;
+    return f;
 }
 
 
@@ -1077,8 +1098,10 @@ static QFontInfoList *fi_list = 0;
 
 static void insertFontInfo( QFontInfo *fi )
 {
-    if ( !fi_list )
+    if ( !fi_list ) {
 	fi_list = new QFontInfoList;
+	CHECK_PTR( fi_list );
+    }
     fi_list->append( fi );
 }
 
@@ -1098,17 +1121,34 @@ static void removeFontInfo( QFontInfo *fi )
 
 
 /*----------------------------------------------------------------------------
-  Resets all pointers to \e pdev in all font info objects in the
-  applications.
+  Resets all pointers to \e w in all font info objects in the
+  application.
  ----------------------------------------------------------------------------*/
 
-void QFontInfo::reset( const void *obj )
+void QFontInfo::reset( const QWidget *w )
 {
     if ( fi_list ) {
 	QFontInfo *fi = fi_list->first();
 	while ( fi ) {
-	    if ( fi->data.w == obj )		// points to paint thing
-		fi->data.w = 0;			// widget/painter dead
+	    if ( fi->w == w )
+		fi->w = 0;			// detach from widget
+	    fi = fi_list->next();
+	}
+    }
+}
+
+/*----------------------------------------------------------------------------
+  Resets all pointers to \e p in all font metrics objects in the
+  application.
+ ----------------------------------------------------------------------------*/
+
+void QFontInfo::reset( const QPainter *p )
+{
+    if ( fi_list ) {
+	QFontInfo *fi = fi_list->first();
+	while ( fi ) {
+	    if ( fi->p == p )
+		fi->p = 0;			// detach from painter
 	    fi = fi_list->next();
 	}
     }
@@ -1148,9 +1188,9 @@ QFontInfo::QFontInfo( const QWidget *widget )
 #if defined(CHECK_NULL)
     ASSERT( widget != 0 );
 #endif
-    data.widget = TRUE;
-    data.w = (QWidget *)widget;
-    data.w->setWFlags( WExportFontInfo );
+    w = (QWidget *)widget;
+    p = 0;
+    w->setWFlags( WExportFontInfo );
     insertFontInfo( this );			// register this object
 }
 
@@ -1164,14 +1204,14 @@ QFontInfo::QFontInfo( const QPainter *painter )
 #if defined(CHECK_NULL)
     ASSERT( painter != 0 );
 #endif
-    data.widget = FALSE;
-    data.p = (QPainter *)painter;
+    w = 0;
+    p = (QPainter *)painter;
 #if defined(CHECK_STATE)
-    if ( !data.p->isActive() )
+    if ( !p->isActive() )
 	warning( "QFontInfo: Get font info between QPainter::begin() "
 		 "and QPainter::end()" );
 #endif
-    data.p->setf( QPainter::FontInf );
+    p->setf( QPainter::FontInf );
     insertFontInfo( this );			// register this object
 }
 
@@ -1185,6 +1225,19 @@ QFontInfo::~QFontInfo()
 }
 
 
+static inline const QFont &get_font_info( QWidget *w, QPainter *p )
+{
+    if ( w == 0 && p == 0 ) {
+#if defined(CHECK_STATE)
+	warning( "QFontInfo: Invalid font info" );
+#endif
+	static QFont f;
+	return f;
+    }
+    return w ? w->font() : p->font();
+}
+
+
 /*----------------------------------------------------------------------------
   Returns the family name of the matched window system font.
   \sa QFont::family()
@@ -1192,7 +1245,7 @@ QFontInfo::~QFontInfo()
 
 const char *QFontInfo::family() const
 {
-    QFont f = data.widget ? data.w->font() : data.p->font();
+    QFont f = get_font_info( w, p );
     f.updateFontInfo();
     return f.d->act.family;
 }
@@ -1204,7 +1257,7 @@ const char *QFontInfo::family() const
 
 int QFontInfo::pointSize() const
 {
-    QFont f = data.widget ? data.w->font() : data.p->font();
+    QFont f = get_font_info( w, p );
     f.updateFontInfo();
     return f.d->act.pointSize / 10;
 }
@@ -1216,7 +1269,7 @@ int QFontInfo::pointSize() const
 
 bool QFontInfo::italic() const
 {
-    QFont f = data.widget ? data.w->font() : data.p->font();
+    QFont f = get_font_info( w, p );
     f.updateFontInfo();
     return f.d->act.italic;
 }
@@ -1228,7 +1281,7 @@ bool QFontInfo::italic() const
 
 int QFontInfo::weight() const
 {
-    QFont f = data.widget ? data.w->font() : data.p->font();
+    QFont f = get_font_info( w, p );
     f.updateFontInfo();
     return (int)f.d->act.weight;
 }
@@ -1243,7 +1296,7 @@ int QFontInfo::weight() const
 
 bool QFontInfo::underline() const
 {
-    QFont f = data.widget ? data.w->font() : data.p->font();
+    QFont f = get_font_info( w, p );
     f.updateFontInfo();
     return f.d->act.underline;
 }
@@ -1258,7 +1311,7 @@ bool QFontInfo::underline() const
 
 bool QFontInfo::strikeOut() const
 {
-    QFont f = data.widget ? data.w->font() : data.p->font();
+    QFont f = get_font_info( w, p );
     f.updateFontInfo();
     return f.d->act.strikeOut;
 }
@@ -1270,7 +1323,7 @@ bool QFontInfo::strikeOut() const
 
 bool QFontInfo::fixedPitch() const
 {
-    QFont f = data.widget ? data.w->font() : data.p->font();
+    QFont f = get_font_info( w, p );
     f.updateFontInfo();
     return f.d->act.fixedPitch;
 }
@@ -1284,7 +1337,7 @@ bool QFontInfo::fixedPitch() const
 
 QFont::StyleHint QFontInfo::styleHint() const
 {
-    QFont f = data.widget ? data.w->font() : data.p->font();
+    QFont f = get_font_info( w, p );
     f.updateFontInfo();
     return (QFont::StyleHint)f.d->act.styleHint;
 }
@@ -1296,7 +1349,7 @@ QFont::StyleHint QFontInfo::styleHint() const
 
 QFont::CharSet QFontInfo::charSet() const
 {
-    QFont f = data.widget ? data.w->font() : data.p->font();
+    QFont f = get_font_info( w, p );
     f.updateFontInfo();
     return (QFont::CharSet)f.d->act.charSet;
 }
@@ -1314,7 +1367,7 @@ QFont::CharSet QFontInfo::charSet() const
 
 bool QFontInfo::rawMode() const
 {
-    QFont f = data.widget ? data.w->font() : data.p->font();
+    QFont f = get_font_info( w, p );
     f.updateFontInfo();
     return f.d->act.rawMode;
 }
@@ -1327,7 +1380,7 @@ bool QFontInfo::rawMode() const
 
 bool QFontInfo::exactMatch() const
 {
-    QFont f = data.widget ? data.w->font() : data.p->font();
+    QFont f = get_font_info( w, p );
     f.updateFontInfo();
     return f.d->exactMatch;
 }
@@ -1339,8 +1392,10 @@ bool QFontInfo::exactMatch() const
 
 const QFont &QFontInfo::font() const
 {
-    if ( data.widget )
-	return data.w->font();
-    else
-	return data.p->font();
+    if ( w )
+	return w->font();
+    else if ( p )
+	return p->font();
+    static QFont f;
+    return f;
 }

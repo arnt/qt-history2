@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#56 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#55 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#56 $")
 
 
 static const int fontFields = 14;
@@ -747,7 +747,13 @@ QString QFont_Private::findFont( bool *exact )
 
 int QFontMetrics::ascent() const
 {
-    QFont f = data.widget ? data.w->font() : data.p->font();
+    if ( w == 0 && p == 0 ) {
+#if defined(CHECK_STATE)
+	warning( "QFontMetrics: Invalid font metrics" );
+#endif
+	return 0;
+    }
+    QFont f = w ? w->font() : p->font();
     f.handle();
     return f.d->xfd->f->max_bounds.ascent;
 }
@@ -765,7 +771,13 @@ int QFontMetrics::ascent() const
 
 int QFontMetrics::descent() const
 {
-    QFont f = data.widget ? data.w->font() : data.p->font();
+    if ( w == 0 && p == 0 ) {
+#if defined(CHECK_STATE)
+	warning( "QFontMetrics: Invalid font metrics" );
+#endif
+	return 0;
+    }
+    QFont f = w ? w->font() : p->font();
     f.handle();
     return f.d->xfd->f->max_bounds.descent - 1;
 }
@@ -781,7 +793,13 @@ int QFontMetrics::descent() const
 
 int QFontMetrics::height() const
 {
-    QFont f = data.widget ? data.w->font() : data.p->font();
+    if ( w == 0 && p == 0 ) {
+#if defined(CHECK_STATE)
+	warning( "QFontMetrics: Invalid font metrics" );
+#endif
+	return 0;
+    }
+    QFont f = w ? w->font() : p->font();
     f.handle();
     return f.d->xfd->f->max_bounds.ascent + f.d->xfd->f->max_bounds.descent;
 }
@@ -797,7 +815,13 @@ int QFontMetrics::height() const
 
 int QFontMetrics::leading() const
 {
-    QFont f = data.widget ? data.w->font() : data.p->font();
+    if ( w == 0 && p == 0 ) {
+#if defined(CHECK_STATE)
+	warning( "QFontMetrics: Invalid font metrics" );
+#endif
+	return 0;
+    }
+    QFont f = w ? w->font() : p->font();
     f.handle();
     int l = f.d->xfd->f->ascent		   + f.d->xfd->f->descent -
 	    f.d->xfd->f->max_bounds.ascent - f.d->xfd->f->max_bounds.descent;
@@ -836,7 +860,13 @@ int QFontMetrics::lineSpacing() const
 
 int QFontMetrics::width( const char *str, int len ) const
 {
-    QFont f = data.widget ? data.w->font() : data.p->font();
+    if ( w == 0 && p == 0 ) {
+#if defined(CHECK_STATE)
+	warning( "QFontMetrics: Invalid font metrics" );
+#endif
+	return 0;
+    }
+    QFont f = w ? w->font() : p->font();
     f.handle();
     if ( len < 0 )
 	len = strlen( str );
@@ -857,7 +887,13 @@ int QFontMetrics::width( const char *str, int len ) const
 
 QRect QFontMetrics::boundingRect( const char *str, int len ) const
 {
-    QFont f = data.widget ? data.w->font() : data.p->font();
+    if ( w == 0 && p == 0 ) {
+#if defined(CHECK_STATE)
+	warning( "QFontMetrics: Invalid font metrics" );
+#endif
+	return QRect(0,0,0,0);
+    }
+    QFont f = w ? w->font() : p->font();
     f.handle();
     if ( len < 0 )
 	len = strlen( str );
@@ -908,7 +944,13 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
 
 int QFontMetrics::maxWidth() const
 {
-    QFont f = data.widget ? data.w->font() : data.p->font();
+    if ( w == 0 && p == 0 ) {
+#if defined(CHECK_STATE)
+	warning( "QFontMetrics: Invalid font metrics" );
+#endif
+	return 0;
+    }
+    QFont f = w ? w->font() : p->font();
     f.handle();
     return f.d->xfd->f->max_bounds.width;
 }
@@ -935,7 +977,13 @@ int QFontMetrics::underlinePos() const
 
 int QFontMetrics::strikeOutPos() const
 {
-    QFont f = data.widget ? data.w->font() : data.p->font();
+    if ( w == 0 && p == 0 ) {
+#if defined(CHECK_STATE)
+	warning( "QFontMetrics: Invalid font metrics" );
+#endif
+	return 0;
+    }
+    QFont f = w ? w->font() : p->font();
     f.handle();
     int pos = f.d->xfd->f->max_bounds.ascent/3;
     return pos ? pos : 1;
@@ -950,7 +998,13 @@ int QFontMetrics::strikeOutPos() const
 
 int QFontMetrics::lineWidth() const
 {
-    QFont f = data.widget ? data.w->font() : data.p->font();
+    if ( w == 0 && p == 0 ) {
+#if defined(CHECK_STATE)
+	warning( "QFontMetrics: Invalid font metrics" );
+#endif
+	return 0;
+    }
+    QFont f = w ? w->font() : p->font();
     f.handle();
     return f.d->lineW;
 }
