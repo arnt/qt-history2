@@ -553,20 +553,20 @@ void QListView::ensureVisible(const QModelIndex &index)
     int vy = verticalScrollBar()->value();
     if (rect.top() < area.top()) // above
         verticalScrollBar()->setValue(vy + rect.top());
-    else if (rect.bottom() > area.bottom()) // below
+    else if ((rect.bottom() > area.bottom()) && (rect.top() > area.top())) // below
         verticalScrollBar()->setValue(vy + rect.bottom() - viewport()->height());
 
     // horizontal
     int vx = horizontalScrollBar()->value();
     if (isRightToLeft()) {
-        if (rect.left() < area.left()) // left of
+        if ((rect.left() < area.left()) && (rect.right() < area.right())) // left of
             horizontalScrollBar()->setValue(vx - rect.left());
         else if (rect.right() > area.right()) // right of
             horizontalScrollBar()->setValue(vx - rect.right() + viewport()->width());
     } else {
         if (rect.left() < area.left()) // left of
             horizontalScrollBar()->setValue(vx + rect.left());
-        else if (rect.right() > area.right()) // right of
+        else if ((rect.right() > area.right()) && (rect.left() > area.left())) // right of
             horizontalScrollBar()->setValue(vx + rect.right() - viewport()->width());
     }
 }
