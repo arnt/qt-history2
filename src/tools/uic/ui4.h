@@ -2099,8 +2099,8 @@ inline DomProperty::~DomProperty()
 inline void DomUI::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute("version")) setAttributeVersion(node.attribute("version"));
-    if (node.hasAttribute("stdSetDef")) setAttributeStdSetDef(node.attribute("stdSetDef").toInt());
+    if (node.hasAttribute(QString("version").toLower())) setAttributeVersion(node.attribute(QString("version").toLower()));
+    if (node.hasAttribute(QString("stdSetDef").toLower())) setAttributeStdSetDef(node.attribute(QString("stdSetDef").toLower()).toInt());
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2142,8 +2142,8 @@ inline void DomIncludes::read(const QDomElement &node)
 inline void DomInclude::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute("location")) setAttributeLocation(node.attribute("location"));
-    if (node.hasAttribute("impldecl")) setAttributeImpldecl(node.attribute("impldecl"));
+    if (node.hasAttribute(QString("location").toLower())) setAttributeLocation(node.attribute(QString("location").toLower()));
+    if (node.hasAttribute(QString("impldecl").toLower())) setAttributeImpldecl(node.attribute(QString("impldecl").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2158,7 +2158,7 @@ inline void DomInclude::read(const QDomElement &node)
 inline void DomActionGroup::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute("name")) setAttributeName(node.attribute("name"));
+    if (node.hasAttribute(QString("name").toLower())) setAttributeName(node.attribute(QString("name").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2177,8 +2177,8 @@ inline void DomActionGroup::read(const QDomElement &node)
 inline void DomAction::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute("name")) setAttributeName(node.attribute("name"));
-    if (node.hasAttribute("menu")) setAttributeMenu(node.attribute("menu"));
+    if (node.hasAttribute(QString("name").toLower())) setAttributeName(node.attribute(QString("name").toLower()));
+    if (node.hasAttribute(QString("menu").toLower())) setAttributeMenu(node.attribute(QString("menu").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2195,7 +2195,7 @@ inline void DomAction::read(const QDomElement &node)
 inline void DomActionRef::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute("name")) setAttributeName(node.attribute("name"));
+    if (node.hasAttribute(QString("name").toLower())) setAttributeName(node.attribute(QString("name").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2225,7 +2225,7 @@ inline void DomImages::read(const QDomElement &node)
 inline void DomImage::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute("name")) setAttributeName(node.attribute("name"));
+    if (node.hasAttribute(QString("name").toLower())) setAttributeName(node.attribute(QString("name").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2241,8 +2241,8 @@ inline void DomImage::read(const QDomElement &node)
 inline void DomImageData::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute("format")) setAttributeFormat(node.attribute("format"));
-    if (node.hasAttribute("length")) setAttributeLength(node.attribute("length").toInt());
+    if (node.hasAttribute(QString("format").toLower())) setAttributeFormat(node.attribute(QString("format").toLower()));
+    if (node.hasAttribute(QString("length").toLower())) setAttributeLength(node.attribute(QString("length").toLower()).toInt());
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2272,7 +2272,7 @@ inline void DomCustomWidgets::read(const QDomElement &node)
 inline void DomHeader::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute("location")) setAttributeLocation(node.attribute("location"));
+    if (node.hasAttribute(QString("location").toLower())) setAttributeLocation(node.attribute(QString("location").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2324,7 +2324,7 @@ inline void DomProperties::read(const QDomElement &node)
 inline void DomPropertyData::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute("type")) setAttributeType(node.attribute("type"));
+    if (node.hasAttribute(QString("type").toLower())) setAttributeType(node.attribute(QString("type").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2355,8 +2355,8 @@ inline void DomSizePolicyData::read(const QDomElement &node)
 inline void DomLayoutDefault::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute("spacing")) setAttributeSpacing(node.attribute("spacing").toInt());
-    if (node.hasAttribute("margin")) setAttributeMargin(node.attribute("margin").toInt());
+    if (node.hasAttribute(QString("spacing").toLower())) setAttributeSpacing(node.attribute(QString("spacing").toLower()).toInt());
+    if (node.hasAttribute(QString("margin").toLower())) setAttributeMargin(node.attribute(QString("margin").toLower()).toInt());
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2371,8 +2371,8 @@ inline void DomLayoutDefault::read(const QDomElement &node)
 inline void DomLayoutFunction::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute("spacing")) setAttributeSpacing(node.attribute("spacing"));
-    if (node.hasAttribute("margin")) setAttributeMargin(node.attribute("margin"));
+    if (node.hasAttribute(QString("spacing").toLower())) setAttributeSpacing(node.attribute(QString("spacing").toLower()));
+    if (node.hasAttribute(QString("margin").toLower())) setAttributeMargin(node.attribute(QString("margin").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2402,7 +2402,7 @@ inline void DomTabStops::read(const QDomElement &node)
 inline void DomLayout::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute("class")) setAttributeClass(node.attribute("class"));
+    if (node.hasAttribute(QString("class").toLower())) setAttributeClass(node.attribute(QString("class").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2422,10 +2422,10 @@ inline void DomLayoutItem::read(const QDomElement &node)
     m_kind = Unknown;
 
     // attributes
-    if (node.hasAttribute("row")) setAttributeRow(node.attribute("row").toInt());
-    if (node.hasAttribute("column")) setAttributeColumn(node.attribute("column").toInt());
-    if (node.hasAttribute("rowSpan")) setAttributeRowSpan(node.attribute("rowSpan").toInt());
-    if (node.hasAttribute("colSpan")) setAttributeColSpan(node.attribute("colSpan").toInt());
+    if (node.hasAttribute(QString("row").toLower())) setAttributeRow(node.attribute(QString("row").toLower()).toInt());
+    if (node.hasAttribute(QString("column").toLower())) setAttributeColumn(node.attribute(QString("column").toLower()).toInt());
+    if (node.hasAttribute(QString("rowSpan").toLower())) setAttributeRowSpan(node.attribute(QString("rowSpan").toLower()).toInt());
+    if (node.hasAttribute(QString("colSpan").toLower())) setAttributeColSpan(node.attribute(QString("colSpan").toLower()).toInt());
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2489,8 +2489,8 @@ inline void DomItem::read(const QDomElement &node)
 inline void DomWidget::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute("class")) setAttributeClass(node.attribute("class"));
-    if (node.hasAttribute("name")) setAttributeName(node.attribute("name"));
+    if (node.hasAttribute(QString("class").toLower())) setAttributeClass(node.attribute(QString("class").toLower()));
+    if (node.hasAttribute(QString("name").toLower())) setAttributeName(node.attribute(QString("name").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2516,7 +2516,7 @@ inline void DomWidget::read(const QDomElement &node)
 inline void DomSpacer::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute("name")) setAttributeName(node.attribute("name"));
+    if (node.hasAttribute(QString("name").toLower())) setAttributeName(node.attribute(QString("name").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2741,8 +2741,8 @@ inline void DomProperty::read(const QDomElement &node)
     m_kind = Unknown;
 
     // attributes
-    if (node.hasAttribute("name")) setAttributeName(node.attribute("name"));
-    if (node.hasAttribute("stdset")) setAttributeStdset(node.attribute("stdset").toInt());
+    if (node.hasAttribute(QString("name").toLower())) setAttributeName(node.attribute(QString("name").toLower()));
+    if (node.hasAttribute(QString("stdset").toLower())) setAttributeStdset(node.attribute(QString("stdset").toLower()).toInt());
 
     // elements
     QDomElement e = node.firstChild().toElement();
