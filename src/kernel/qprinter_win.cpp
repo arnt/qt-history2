@@ -232,7 +232,12 @@ bool QPrinter::newPage()
 	    GetViewportOrgEx( hdc, &p );
 	    QSize margs = margins();
 	    OffsetViewportOrgEx( hdc, -p.x - margs.width(), -p.y - margs.height(), 0 );
-        }
+        } else {
+	    QSize margs = margins();
+	    POINT p;
+	    GetViewportOrgEx( hdc, &p );
+	    OffsetViewportOrgEx( hdc, -p.x, -p.y, 0 );
+	}
         SetTextAlign( hdc, TA_BASELINE );
     }
     return success;
@@ -1076,7 +1081,12 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	    GetViewportOrgEx( hdc, &p );
             OffsetViewportOrgEx( hdc, -p.x - margs.width(), -p.y - margs.height(), 0 );
             //### CS097 viewOffsetDone = TRUE;
-        }
+        } else {
+	    QSize margs = margins();
+	    POINT p;
+	    GetViewportOrgEx( hdc, &p );
+	    OffsetViewportOrgEx( hdc, -p.x, -p.y, 0 );
+	}
         if ( !ok ) {
             if ( hdc ) {
                 DeleteDC( hdc );
