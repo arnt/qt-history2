@@ -505,17 +505,18 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     { //INSTALL BUILDPHASE (sh script)
 	QString targ = project->first("TARGET");
-	if(project->first("TEMPLATE") == "lib" && !project->isActiveConfig("staticlib") &&
-	   project->isActiveConfig("frameworklib"))
+	if(project->first("TEMPLATE") == "app" ||
+	   (project->first("TEMPLATE") == "lib" && !project->isActiveConfig("staticlib") &&
+	    project->isActiveConfig("frameworklib")))
 	    targ = project->first("QMAKE_ORIG_TARGET");
 	int slsh = targ.findRev(Option::dir_sep);
 	if(slsh != -1)
 	    targ = targ.right(targ.length() - slsh - 1);
 	fixEnvVariables(targ);
 	QStringList links;
-	if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console") &&
-	   project->first("TEMPLATE") == "app") {
-	    targ += ".app";
+	if(project->first("TEMPLATE") == "app") {
+	    if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console"))
+		targ += ".app";
 	} else if(!project->isActiveConfig("staticlib") &&
 	   !project->isActiveConfig("frameworklib")) {
 	    QString li[] = { "TARGET_", "TARGET_x", "TARGET_x.y", QString::null };
@@ -533,10 +534,12 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	if(shf.open(IO_WriteOnly | IO_Translate)) {
 	    debug_msg(1, "pbuilder: Creating file: %s", script.latin1());
 	    QString targ = project->first("QMAKE_ORIG_TARGET"), cpflags;
-	    if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console") &&
-	       project->first("TEMPLATE") == "app") {
-		cpflags += "-r ";
-		targ += ".app";
+	    if(project->first("TEMPLATE") == "app") {
+		targ = project->first("TARGET");
+		if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console")) {
+		    targ += ".app";
+		    cpflags += "-r ";
+		}
 	    } else if(!project->isActiveConfig("frameworklib")) {
 		if(project->isActiveConfig("staticlib"))
 		    targ = project->first("TARGET");
