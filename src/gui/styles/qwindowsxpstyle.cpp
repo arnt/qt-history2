@@ -288,7 +288,7 @@ struct XPThemeData
 
     bool isValid()
     {
-	return use_xp && !!name && handle();
+	return use_xp && name.size() && handle();
     }
 
     RECT rect()
