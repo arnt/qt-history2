@@ -208,7 +208,8 @@ private:
     QPoint offset;
     bool mousePressed;
     QToolButton *closeButton;
-
+    bool hadDblClick;
+    
 };
 
 QDockWidgetHandle::QDockWidgetHandle( QDockWidget *dw )
@@ -238,6 +239,7 @@ void QDockWidgetHandle::paintEvent( QPaintEvent *e )
 
 void QDockWidgetHandle::mousePressEvent( QMouseEvent *e )
 {
+    hadDblClick = FALSE;
     mousePressed = TRUE;
     offset = e->pos();
     dockWidget->startRectDraw( e->pos() );
@@ -254,7 +256,8 @@ void QDockWidgetHandle::mouseReleaseEvent( QMouseEvent *e )
 {
     dockWidget->endRectDraw();
     mousePressed = FALSE;
-    dockWidget->updatePosition( e->globalPos() );
+    if ( !hadDblClick )
+	dockWidget->updatePosition( e->globalPos() );
 }
 
 void QDockWidgetHandle::resizeEvent( QResizeEvent * )
@@ -303,6 +306,7 @@ QSizePolicy QDockWidgetHandle::sizePolicy() const
 void QDockWidgetHandle::mouseDoubleClickEvent( QMouseEvent * )
 {
     emit doubleClicked();
+    hadDblClick = TRUE;
 }
 
 class QDockWidgetTitleBar : public QWidget
@@ -329,7 +333,8 @@ private:
     QPoint offset;
     bool mousePressed;
     QToolButton *closeButton;
-
+    bool hadDblClick;
+    
 };
 
 QDockWidgetTitleBar::QDockWidgetTitleBar( QDockWidget *dw )
@@ -343,6 +348,7 @@ QDockWidgetTitleBar::QDockWidgetTitleBar( QDockWidget *dw )
 void QDockWidgetTitleBar::mousePressEvent( QMouseEvent *e )
 {
     mousePressed = TRUE;
+    hadDblClick = FALSE;
     offset = e->pos();
     dockWidget->startRectDraw( e->pos() );
 }
@@ -358,7 +364,8 @@ void QDockWidgetTitleBar::mouseReleaseEvent( QMouseEvent *e )
 {
     dockWidget->endRectDraw();
     mousePressed = FALSE;
-    dockWidget->updatePosition( e->globalPos() );
+    if ( !hadDblClick )
+	dockWidget->updatePosition( e->globalPos() );
 }
 
 void QDockWidgetTitleBar::paintEvent( QPaintEvent *e )
@@ -398,6 +405,7 @@ void QDockWidgetTitleBar::updateGui()
 void QDockWidgetTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 {
     emit doubleClicked();
+    hadDblClick = TRUE;
 }
 
 
