@@ -519,14 +519,18 @@ QString QIODevice::errorString() const
 #if defined QT_COMPAT
 int QIODevice::status() const
 {
+#if !defined(QT_NO_QOBJECT)
     const QFile *f = qt_cast<const QFile *>(this);
     if (f) return (int) f->error();
+#endif
     return isOpen() ? IO_Ok : IO_UnspecifiedError;
 }
 
 void QIODevice::resetStatus()
 {
+#if !defined(QT_NO_QOBJECT)
     QFile *f = qt_cast<QFile *>(this);
     if (f) f->unsetError();
+#endif
 }
 #endif
