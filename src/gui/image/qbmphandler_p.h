@@ -11,15 +11,21 @@
 **
 ****************************************************************************/
 
-#ifndef QJPEGIO_H
-#define QJPEGIO_H
+#ifndef QBMPHANDLER_H
+#define QBMPHANDLER_H
 
-#include "QtCore/qglobal.h"
+#include "qimageiohandler.h"
 
-#ifndef QT_NO_IMAGEIO_JPEG
+class Q_GUI_EXPORT QBmpHandler : public QImageIOHandler
+{
+public:
+    bool canLoadImage() const;
+    bool load(QImage *image);
+    bool save(const QImage &image);
 
-void qInitJpegIO();
+    QByteArray name() const;
 
-#endif // QT_NO_IMAGEIO_JPEG
+    static bool canLoadImage(QIODevice *device);
+};
 
-#endif // QJPEGIO_H
+#endif

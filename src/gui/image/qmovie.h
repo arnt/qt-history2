@@ -87,9 +87,6 @@ public:
                   SpeedChanged=5 };
     void connectStatus(QObject* receiver, const char *member);
     void disconnectStatus(QObject* receiver, const char *member=0);
-
-private:
-    QMoviePrivate *d;
 };
 
 #endif // QT_NO_MOVIE

@@ -163,11 +163,11 @@ QMimeSource* Q3MimeSourceFactory::dataInternal(const QString& abs_name, const QM
         // get the right mimetype
         QString e = fi.extension(false);
         QByteArray mimetype("application/octet-stream");
-        const char* imgfmt;
         if (extensions.contains(e))
             mimetype = extensions[e].latin1();
-        else if ((imgfmt = QImageIO::imageFormat(abs_name)))
-            mimetype = QByteArray("image/")+QByteArray(imgfmt).toLower();
+        QByteArray imgfmt = QImageIO::imageFormatForFileName(abs_name);
+        if (!imgfmt.isEmpty())
+            mimetype = "image/" + imgfmt.toLower();
 
         QFile f(abs_name);
         if (f.open(QIODevice::ReadOnly) && f.size()) {

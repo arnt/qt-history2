@@ -28,6 +28,7 @@
 #include "qpixmapcache.h"
 #include "qdatetime.h"
 #include "qimageio.h"
+#include "qimageiohandler.h"
 
 #if defined(Q_WS_X11)
 #include "qx11info_x11.h"
@@ -282,11 +283,6 @@ QPixmap::QPixmap(const QPixmap &pixmap)
     }
 }
 
-#ifndef QT_NO_IMAGEIO_XPM
-// helper
-extern void qt_read_xpm_image_or_array(QImageIO *, const char * const *, QImage &);
-#endif // QT_NO_IMAGEIO_XPM
-
 /*!
     Constructs a pixmap from \a xpm, which must be a valid XPM image.
 
@@ -314,14 +310,14 @@ QPixmap::QPixmap(const char * const xpm[])
     : QPaintDevice(QInternal::Pixmap)
 {
     init(0, 0, 0, false, defOptim);
-    QImage image;
-#ifndef QT_NO_IMAGEIO_XPM
-    qt_read_xpm_image_or_array(0, xpm, image);
-#else
-    // We use a qFatal rather than disabling the whole function, as this
-    // constructor may be ambiguous.
-    qFatal("XPM not supported");
-#endif
+
+    if (!QImageIO::inputFormats().contains("xpm")) {
+        // We use a qFatal rather than disabling the whole function,
+        // as this constructor may be ambiguous.
+        qFatal("QPixmap::QPixmap(), XPM not supported");
+    }
+
+    QImage image(xpm);
     if (!image.isNull())
         fromImage(image);
 }
@@ -787,7 +783,7 @@ bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConvers
     if (QPixmapCache::find(key, *this))
             return true;
     QImageIO io(fileName, format);
-    if (io.read() && fromImage(io.image(), flags)) {
+    if (io.load() && fromImage(io.image(), flags)) {
         QPixmapCache::insert(key, *this);
         return true;
     }
@@ -819,7 +815,7 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format, Qt::I
     QBuffer b(&a);
     b.open(QIODevice::ReadOnly);
     QImageIO io(&b, format);
-    bool result = io.read();
+    bool result = io.load();
     b.close();
     if (result)
         result = fromImage(io.image(), flags);
@@ -892,7 +888,7 @@ bool QPixmap::doImageIO(QImageIO* io, int quality) const
         qWarning("QPixmap::save: quality out of range [-1,100]");
     if (quality >= 0)
         io->setQuality(qMin(quality,100));
-    return io->write();
+    return io->save();
 }
 
 #endif //QT_NO_IMAGEIO

@@ -19,39 +19,50 @@
 
 #ifndef QT_NO_IMAGEFORMATPLUGIN
 
-#ifdef QT_NO_IMAGEIO_JPEG
-#undef QT_NO_IMAGEIO_JPEG
+#ifdef QT_NO_IMAGEIO_GIF
+#undef QT_NO_IMAGEIO_GIF
 #endif
-#include "qjpeghandler.h"
+#include "qgifhandler.h"
 
-class QJpegPlugin : public QImageIOPlugin
+class QGifPlugin : public QImageIOPlugin
 {
 public:
+    QGifPlugin();
+    ~QGifPlugin();
+
     QStringList keys() const;
     Capabilities capabilities(QIODevice *device, const QByteArray &format) const;
     QImageIOHandler *create(QIODevice *device, const QByteArray &format = QByteArray()) const;
 };
 
-QStringList QJpegPlugin::keys() const
+QGifPlugin::QGifPlugin()
 {
-    return QStringList() << "jpeg";
 }
 
-QImageIOPlugin::Capabilities QJpegPlugin::capabilities(QIODevice *device, const QByteArray &format) const
+QGifPlugin::~QGifPlugin()
 {
-    if (format == "jpeg" || (device && QJpegHandler::canLoadImage(device)))
-        return Capabilities(CanLoad | CanSave);
+}
+
+QStringList QGifPlugin::keys() const
+{
+    return QStringList() << "gif";
+}
+
+QImageIOPlugin::Capabilities QGifPlugin::capabilities(QIODevice *device, const QByteArray &format) const
+{
+    if (format == "gif" || (device && QGifHandler::canLoadImage(device)))
+        return Capabilities(CanLoad);
     return 0;
 }
 
-QImageIOHandler *QJpegPlugin::create(QIODevice *device, const QByteArray &format) const
+QImageIOHandler *QGifPlugin::create(QIODevice *device, const QByteArray &format) const
 {
-    QImageIOHandler *handler = new QJpegHandler;
+    QImageIOHandler *handler = new QGifHandler;
     handler->setDevice(device);
     handler->setFormat(format);
     return handler;
 }
 
-Q_EXPORT_PLUGIN(QJpegPlugin)
+Q_EXPORT_PLUGIN(QGifPlugin)
 
 #endif // QT_NO_IMAGEFORMATPLUGIN

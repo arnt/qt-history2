@@ -7,6 +7,9 @@ VERSION = 1.0.0
 QTDIR_build:REQUIRES = "!contains(QT_CONFIG, no-jpeg)" "!contains(QT_CONFIG, jpeg)"
 
 SOURCES += main.cpp
+SOURCES += qjpeghandler.cpp
+HEADERS += qjpeghandler.h
+
 contains(QT_CONFIG, system-jpeg) {
         unix:LIBS += -ljpeg
         win32:LIBS += libjpeg.lib

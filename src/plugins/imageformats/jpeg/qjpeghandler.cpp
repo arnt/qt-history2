@@ -11,18 +11,10 @@
 **
 ****************************************************************************/
 
-#ifndef QT_CLEAN_NAMESPACE
-#define QT_CLEAN_NAMESPACE
-#endif
+#include "qjpeghandler.h"
 
-#include "qapplication.h"
-#include "qimage.h"
-
-#ifndef QT_NO_IMAGEIO_JPEG
-
-#include "qiodevice.h"
-#include "qjpegio.h"
-#include "qimageio.h"
+#include <qimage.h>
+#include <qvariant.h>
 
 #include <stdio.h>      // jpeglib needs this to be pre-included
 #include <setjmp.h>
@@ -79,11 +71,11 @@ static const int max_buf = 4096;
 
 struct my_jpeg_source_mgr : public jpeg_source_mgr {
     // Nothing dynamic - cannot rely on destruction over longjump
-    QImageIO* iio;
+    QIODevice *device;
     JOCTET buffer[max_buf];
 
 public:
-    my_jpeg_source_mgr(QImageIO* iio);
+    my_jpeg_source_mgr(QIODevice *device);
 };
 
 #if defined(Q_C_CALLBACKS)
@@ -100,9 +92,8 @@ boolean qt_fill_input_buffer(j_decompress_ptr cinfo)
 {
     int num_read;
     my_jpeg_source_mgr* src = (my_jpeg_source_mgr*)cinfo->src;
-    QIODevice* dev = src->iio->ioDevice();
     src->next_input_byte = src->buffer;
-    num_read = dev->read((char*)src->buffer, max_buf);
+    num_read = src->device->read((char*)src->buffer, max_buf);
     if (num_read <= 0) {
         // Insert a fake EOI marker - as per jpeglib recommendation
         src->buffer[0] = (JOCTET) 0xFF;
@@ -152,14 +143,14 @@ void qt_term_source(j_decompress_ptr)
 #endif
 
 
-inline my_jpeg_source_mgr::my_jpeg_source_mgr(QImageIO* iioptr)
+inline my_jpeg_source_mgr::my_jpeg_source_mgr(QIODevice *device)
 {
     jpeg_source_mgr::init_source = qt_init_source;
     jpeg_source_mgr::fill_input_buffer = qt_fill_input_buffer;
     jpeg_source_mgr::skip_input_data = qt_skip_input_data;
     jpeg_source_mgr::resync_to_restart = jpeg_resync_to_restart;
     jpeg_source_mgr::term_source = qt_term_source;
-    iio = iioptr;
+    this->device = device;
     bytes_in_buffer = 0;
     next_input_byte = buffer;
 }
@@ -179,14 +170,13 @@ void scaleSize(int &reqW, int &reqH, int imgW, int imgH, Qt::AspectRatioMode mod
 }
 
 
-static
-void read_jpeg_image(QImageIO* iio)
+static bool read_jpeg_image(QIODevice *device, QImage *outImage, const QByteArray &parameters)
 {
     QImage image;
 
     struct jpeg_decompress_struct cinfo;
 
-    struct my_jpeg_source_mgr *iod_src = new my_jpeg_source_mgr(iio);
+    struct my_jpeg_source_mgr *iod_src = new my_jpeg_source_mgr(device);
     struct my_error_mgr jerr;
 
     jpeg_create_decompress(&cinfo);
@@ -205,7 +195,7 @@ void read_jpeg_image(QImageIO* iio)
 
         (void) jpeg_start_decompress(&cinfo);
 
-        QString params = iio->parameters();
+        QString params = parameters;
         params.simplified();
         int sWidth = 0, sHeight = 0;
         char sModeStr[1024] = "";
@@ -335,22 +325,22 @@ void read_jpeg_image(QImageIO* iio)
             }
         }
 
-        iio->setImage(image);
-	iio->setStatus(image.isNull());
+        *outImage = image;
     }
 
     jpeg_destroy_decompress(&cinfo);
     delete iod_src;
+    return !image.isNull();
 }
 
 
 struct my_jpeg_destination_mgr : public jpeg_destination_mgr {
     // Nothing dynamic - cannot rely on destruction over longjump
-    QImageIO* iio;
+    QIODevice *device;
     JOCTET buffer[max_buf];
 
 public:
-    my_jpeg_destination_mgr(QImageIO*);
+    my_jpeg_destination_mgr(QIODevice *);
 };
 
 
@@ -367,9 +357,8 @@ static
 boolean qt_empty_output_buffer(j_compress_ptr cinfo)
 {
     my_jpeg_destination_mgr* dest = (my_jpeg_destination_mgr*)cinfo->dest;
-    QIODevice* dev = dest->iio->ioDevice();
 
-    int written = dev->write((char*)dest->buffer, max_buf);
+    int written = dest->device->write((char*)dest->buffer, max_buf);
     if (written == -1)
         (*cinfo->err->error_exit)((j_common_ptr)cinfo);
 
@@ -387,13 +376,12 @@ static
 void qt_term_destination(j_compress_ptr cinfo)
 {
     my_jpeg_destination_mgr* dest = (my_jpeg_destination_mgr*)cinfo->dest;
-    QIODevice* dev = dest->iio->ioDevice();
     qint64 n = max_buf - dest->free_in_buffer;
 
-    qint64 written = dev->write((char*)dest->buffer, n);
+    qint64 written = dest->device->write((char*)dest->buffer, n);
     if (written == -1)
         (*cinfo->err->error_exit)((j_common_ptr)cinfo);
-    dev->flush();
+    dest->device->flush();
 }
 
 #if defined(Q_C_CALLBACKS)
@@ -401,28 +389,26 @@ void qt_term_destination(j_compress_ptr cinfo)
 #endif
 
 
-inline
-my_jpeg_destination_mgr::my_jpeg_destination_mgr(QImageIO* iioptr)
+inline my_jpeg_destination_mgr::my_jpeg_destination_mgr(QIODevice *device)
 {
     jpeg_destination_mgr::init_destination = qt_init_destination;
     jpeg_destination_mgr::empty_output_buffer = qt_empty_output_buffer;
     jpeg_destination_mgr::term_destination = qt_term_destination;
-    iio = iioptr;
+    this->device = device;
     next_output_byte = buffer;
     free_in_buffer = max_buf;
 }
 
 
-static
-void write_jpeg_image(QImageIO* iio)
+static bool write_jpeg_image(const QImage &sourceImage, QIODevice *device, int sourceQuality)
 {
-    QImage image = iio->image();
+    QImage image = sourceImage;
 
     struct jpeg_compress_struct cinfo;
     JSAMPROW row_pointer[1];
     row_pointer[0] = 0;
 
-    struct my_jpeg_destination_mgr *iod_dest = new my_jpeg_destination_mgr(iio);
+    struct my_jpeg_destination_mgr *iod_dest = new my_jpeg_destination_mgr(device);
     struct my_error_mgr jerr;
 
     cinfo.err = jpeg_std_error(&jerr);
@@ -474,7 +460,7 @@ void write_jpeg_image(QImageIO* iio)
         }
 
 
-        int quality = iio->quality() >= 0 ? qMin(iio->quality(),100) : 75;
+        int quality = sourceQuality >= 0 ? qMin(sourceQuality,100) : 75;
 #if defined(Q_OS_UNIXWARE)
         jpeg_set_quality(&cinfo, quality, B_TRUE /* limit to baseline-JPEG values */);
         jpeg_start_compress(&cinfo, B_TRUE);
@@ -553,29 +539,90 @@ void write_jpeg_image(QImageIO* iio)
 
         jpeg_finish_compress(&cinfo);
         jpeg_destroy_compress(&cinfo);
-
-        iio->setStatus(0);
     }
 
     delete iod_dest;
     delete [] row_pointer[0];
+    return true;
 }
 
-static bool done = false;
-void qCleanupJpegIO()
+QJpegHandler::QJpegHandler()
 {
-    done = false;
+    quality = 75;
 }
 
-void qInitJpegIO()
+bool QJpegHandler::canLoadImage() const
 {
-    if (!done) {
-        // Not much to go on - just 3 bytes: 0xFF, M_SOI, 0xFF
-        // Even the third is not strictly specified as required.
-        QImageIO::defineIOHandler("JPEG", "^\377\330\377", 0, read_jpeg_image, write_jpeg_image);
-        done = true;
-        qAddPostRoutine(qCleanupJpegIO);
+    return canLoadImage(device());
+}
+
+bool QJpegHandler::canLoadImage(QIODevice *device)
+{
+    if (!device) {
+        qWarning("QJpegHandler::canLoadImage() called with no device");
+        return false;
     }
+
+    qint64 oldPos = device->pos();
+
+    char head[3];
+    qint64 readBytes = device->read(head, sizeof(head));
+    if (readBytes != sizeof(head)) {
+        if (device->isSequential()) {
+            while (readBytes > 0)
+                device->ungetChar(head[readBytes-- - 1]);
+        } else {
+            device->seek(oldPos);
+        }
+        return false;
+    }
+
+    if (device->isSequential()) {
+        qDebug("ungetting back");
+        while (readBytes > 0)
+            device->ungetChar(head[readBytes-- - 1]);
+    } else {
+        qDebug("seeking back");
+        device->seek(oldPos);
+    }
+
+    qDebug("head[0] == %x, head[1] == %x", head[0], head[1]);
+    return qstrncmp(head, "\330\377", 2) == 0;
 }
 
-#endif
+bool QJpegHandler::load(QImage *image)
+{
+    return read_jpeg_image(device(), image, parameters);
+}
+
+bool QJpegHandler::save(const QImage &image)
+{
+    return write_jpeg_image(image, device(), quality);
+}
+
+bool QJpegHandler::supportsProperty(ImageProperty property) const
+{
+    return property == Quality || property == Parameters;
+}
+
+QVariant QJpegHandler::property(ImageProperty property) const
+{
+    if (property == Quality)
+        return quality;
+    else if (property == Parameters)
+        return parameters;
+    return QVariant();
+}
+
+void QJpegHandler::setProperty(ImageProperty property, const QVariant &value)
+{
+    if (property == Name)
+        quality = value.toInt();
+    else if (property == Parameters)
+        parameters = value.toByteArray();
+}
+
+QByteArray QJpegHandler::name() const
+{
+    return "jpeg";
+}

@@ -821,7 +821,7 @@ QByteArray Q3ImageDrag::encodedData(const char* fmt) const
         w.open(QIODevice::WriteOnly);
         QImageIO io(&w, f.toUpper());
         io.setImage(d->img);
-        if (!io.write())
+        if (!io.save())
             return QByteArray();
         w.close();
         return dat;

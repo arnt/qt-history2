@@ -1258,8 +1258,8 @@ QVariant QClipboardWatcher::retrieveData(const QString &fmt, QVariant::Type type
             XFreeGC(dpy,gc);
             QBuffer buf;
             buf.open(QIODevice::WriteOnly);
-            iio.setIODevice(&buf);
-            iio.write();
+            iio.setDevice(&buf);
+            iio.save();
             return buf.buffer();
         } else {
             fmtatom = X11->xdndStringToAtom(fmt.toLatin1().data());

@@ -397,10 +397,6 @@ QImage::QImage(const QString &fileName, const char* format)
     load(fileName, format);
 }
 
-#ifndef QT_NO_IMAGEIO_XPM
-// helper
-extern void qt_read_xpm_image_or_array(QImageIO *, const char * const *, QImage &);
-#endif
 /*!
     Constructs an image from \a xpm, which must be a valid XPM image.
 
@@ -426,13 +422,22 @@ QImage::QImage(const char * const xpm[])
     data = new QImageData;
     ++data->ref;
 
-#ifndef QT_NO_IMAGEIO_XPM
-    qt_read_xpm_image_or_array(0, xpm, *this);
-#else
-    // We use a qFatal rather than disabling the whole function, as this
-    // constructor may be ambiguous.
-    qFatal("XPM not supported");
-#endif
+    if (!QImageIO::inputFormats().contains("xpm")) {
+        // We use a qFatal rather than disabling the whole function,
+        // as this constructor may be ambiguous.
+        qFatal("QImage::QImage(), XPM is not supported");
+    }
+
+    QBuffer buffer;
+    buffer.setData((const char *)xpm);
+    buffer.open(QBuffer::ReadOnly);
+    QImageIO io(&buffer, "xpm");
+    if (!io.load()) {
+        qWarning("QImage::QImage(), failed to load XPM: %s",
+                 io.errorString().toLatin1().constData());
+    }
+
+    operator=(io.image());
 }
 
 /*!
@@ -2986,7 +2991,7 @@ QImage QImage::swapRGB() const
 bool QImage::load(const QString &fileName, const char* format)
 {
     QImageIO io(fileName, format);
-    bool result = io.read();
+    bool result = io.load();
     if (result)
         operator=(io.image());
     return result;
@@ -3024,7 +3029,7 @@ bool QImage::loadFromData(QByteArray buf, const char *format)
     QBuffer b(&buf);
     b.open(QIODevice::ReadOnly);
     QImageIO io(&b, format);
-    bool result = io.read();
+    bool result = io.load();
     b.close();
     if (result)
         operator=(io.image());
@@ -3088,7 +3093,7 @@ bool QImageData::doImageIO(const QImage *image, QImageIO* io, int quality) const
         qWarning("QPixmap::save: quality out of range [-1,100]");
     if (quality >= 0)
         io->setQuality(qMin(quality,100));
-    return io->write();
+    return io->save();
 }
 #endif //QT_NO_IMAGEIO
 
@@ -3120,14 +3125,14 @@ QDataStream &operator<<(QDataStream &s, const QImage &image)
         }
     }
     QImageIO io;
-    io.setIODevice(s.device());
+    io.setDevice(s.device());
     if (s.version() == 1)
         io.setFormat("BMP");
     else
         io.setFormat("PNG");
 
     io.setImage(image);
-    io.write();
+    io.save();
     return s;
 }
 
@@ -3151,7 +3156,7 @@ QDataStream &operator>>(QDataStream &s, QImage &image)
         }
     }
     QImageIO io(s.device(), 0);
-    if (io.read())
+    if (io.load())
         image = io.image();
     return s;
 }

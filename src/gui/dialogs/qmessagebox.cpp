@@ -15,6 +15,8 @@
 
 #ifndef QT_NO_MESSAGEBOX
 
+#include "qbuffer.h"
+#include "qimageio.h"
 #include "qevent.h"
 #include "qdesktopwidget.h"
 #include "qlabel.h"
@@ -1548,9 +1550,12 @@ void QMessageBox::aboutQt(QWidget *parent, const QString &caption)
 #ifndef QT_NO_IMAGEIO
     QPixmap pm;
     QImage logo;
-#ifndef QT_NO_IMAGEIO_XPM
-    qt_read_xpm_image_or_array(0, qtlogo_xpm, logo);
-#endif
+
+    QBuffer buffer;
+    buffer.setData((const char *)qtlogo_xpm);
+    QImageIO io(&buffer, "xpm");
+    if (io.load())
+        logo = io.image();
 
     if (qGray(mb.palette().color(QPalette::Active, QPalette::Text).rgb()) >
         qGray(mb.palette().color(QPalette::Active, QPalette::Base).rgb()))

@@ -14,86 +14,85 @@
 #ifndef QIMAGEIO_H
 #define QIMAGEIO_H
 
-#include <QtCore/qglobal.h>
-#include <QtGui/qimage.h>
-#include <QtCore/qstring.h>
-#include <QtCore/qstringlist.h>
+#include <QtCore/qbytearray.h>
+#include <QtCore/qlist.h>
+#include <QtCore/qsize.h>
 
-#ifndef QT_NO_IMAGEIO
-
-class QImageIO;
 class QIODevice;
-struct QImageIOData;
-typedef void (*image_io_handler)(QImageIO *); // image IO handler
-
+class QImage;
+class QImageIOHandler;
+class QImageIOPrivate;
+class QRegion;
+class QString;
+class QStringList;
 
 class Q_GUI_EXPORT QImageIO
 {
 public:
     QImageIO();
-    QImageIO(QIODevice *ioDevice, const char *format);
-    QImageIO(const QString &fileName, const char* format);
+    explicit QImageIO(QIODevice *device, const QByteArray &format = QByteArray());
+    explicit QImageIO(const QString &fileName, const QByteArray &format = QByteArray());
     ~QImageIO();
 
-    const QImage &image() const { return im; }
-    int status() const { return iostat; }
-    const char *format() const { return frmt; }
-    QIODevice *ioDevice() const { return iodev; }
-    QString fileName() const { return fname; }
+    void reset();
+
+    void setImage(const QImage &image);
+    QImage image() const;
+
+    void setFormat(const QByteArray &format);
+    QByteArray format() const;
+
+    void setDevice(QIODevice *device);
+    QIODevice *device() const;
+
+    void setFileName(const QString &fileName);
+    QString fileName() const;
+
+    void setQuality(int quality);
     int quality() const;
-    QString description() const { return descr; }
-    const char *parameters() const;
+
+    void setResolution(const QSize &resolution);
+    QSize resolution() const;
+
+    void setRegion(const QRegion &region);
+    QRegion region() const;
+
+    void setDescription(const QString &description);
+    QString description() const;
+
+    void setParameters(const QByteArray &parameters);
+    QByteArray parameters() const;
+
+    void setGamma(float gamma);
     float gamma() const;
 
-    void setImage(const QImage &);
-    void setStatus(int);
-    void setFormat(const char *);
-    void setIODevice(QIODevice *);
-    void setFileName(const QString &);
-    void setQuality(int);
-    void setDescription(const QString &);
-    void setParameters(const char *);
-    void setGamma(float);
+    void setSize(const QSize &size);
+    QSize size() const;
 
-    bool read();
-    bool write();
+    bool load();
+    bool save();
 
-    static QByteArray imageFormat(const QString &fileName);
-    static QByteArray imageFormat(QIODevice *);
+    int frameCount() const;
+    int nextFrameDelay() const;
+    int currentFrameNumber() const;
+    int loopCount() const;
+
+    enum Error {
+        UnknownError,
+        UnsupportedImageFormat,
+        InvalidImageData
+    };
+    Error error() const;
+    QString errorString() const;
+
+    static QByteArray imageFormatForFileName(const QString &fileName);
+    static QByteArray imageFormatForDevice(QIODevice *);
     static QList<QByteArray> inputFormats();
     static QList<QByteArray> outputFormats();
 
-    inline static void defineIOHandler(const char *format,
-                                       const char *header,
-                                       const char *flags,
-                                       image_io_handler read_image,
-                                       image_io_handler write_image) {
-        defineIOHandler(format, header, flags, QStringList(QString(format).toLower()), 
-                        read_image, write_image);
-    }
-    static void defineIOHandler(const char *format,
-                                const char *header,
-                                const char *flags,
-                                const QStringList &extensions,
-                                image_io_handler read_image,
-                                image_io_handler write_image);
-
-
 private:
     Q_DISABLE_COPY(QImageIO)
-
-    void init();
-
-    QImage im;               // image
-    int iostat;              // IO status
-    QByteArray frmt;         // image format
-    QIODevice *iodev;        // IO device
-    QString fname;           // file name
-    char *params;            // image parameters
-    QString descr;           // image description
-    QImageIOData *d;
+    QImageIOPrivate *d;
 };
-
-#endif // QT_NO_IMAGEIO
 
 #endif // QIMAGEIO_H
