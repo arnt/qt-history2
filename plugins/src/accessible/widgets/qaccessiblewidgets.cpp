@@ -112,7 +112,7 @@ QWidgetStack *QAccessibleWidgetStack::widgetStack() const
 }
 
 /*! \reimp */
-int QAccessibleWidgetStack::controlAt( int, int ) const
+int QAccessibleWidgetStack::childAt( int, int ) const
 {
     return widgetStack()->id( widgetStack()->visibleWidget() ) + 1;
 }
@@ -301,7 +301,7 @@ QAccessibleSpinWidget::QAccessibleSpinWidget( QObject *o )
 }
 
 /*! \reimp */
-int QAccessibleSpinWidget::controlAt( int x, int y ) const
+int QAccessibleSpinWidget::childAt( int x, int y ) const
 {
     QPoint tl = widget()->mapFromGlobal( QPoint( x, y ) );
     if ( ((QSpinWidget*)widget())->upRect().contains( tl ) )
@@ -479,7 +479,7 @@ QScrollBar *QAccessibleScrollBar::scrollBar() const
 }
 
 /*! \reimp */
-int QAccessibleScrollBar::controlAt( int x, int y ) const
+int QAccessibleScrollBar::childAt( int x, int y ) const
 {
     for ( int i = 1; i <= childCount(); i++ ) {
 	if ( rect(i).contains( x,y ) )
@@ -676,7 +676,7 @@ QSlider *QAccessibleSlider::slider() const
 }
 
 /*! \reimp */
-int QAccessibleSlider::controlAt( int x, int y ) const
+int QAccessibleSlider::childAt( int x, int y ) const
 {
     for ( int i = 1; i <= childCount(); i++ ) {
 	if ( rect(i).contains( x,y ) )
@@ -967,7 +967,7 @@ QHeader *QAccessibleHeader::header() const
 }
 
 /*! \reimp */
-int QAccessibleHeader::controlAt( int x, int y ) const
+int QAccessibleHeader::childAt( int x, int y ) const
 {
     QPoint point = header()->mapFromGlobal( QPoint( x, y ) );
     for ( int i = 0; i < header()->count(); i++ ) {
@@ -1092,9 +1092,9 @@ QTabBar *QAccessibleTabBar::tabBar() const
 }
 
 /*! \reimp */
-int QAccessibleTabBar::controlAt( int x, int y ) const
+int QAccessibleTabBar::childAt( int x, int y ) const
 {
-    int wc = QAccessibleWidget::controlAt( x, y );
+    int wc = QAccessibleWidget::childAt( x, y );
     if ( wc )
 	return wc + tabBar()->count();
 
@@ -1312,7 +1312,7 @@ QComboBox *QAccessibleComboBox::comboBox() const
 }
 
 /*! \reimp */
-int QAccessibleComboBox::controlAt( int x, int y ) const
+int QAccessibleComboBox::childAt( int x, int y ) const
 {
     for ( int i = childCount(); i >= 0; --i ) {
 	if ( rect( i ).contains( x, y ) )
@@ -1476,7 +1476,7 @@ QTitleBar *QAccessibleTitleBar::titleBar() const
 }
 
 /*! \reimp */
-int QAccessibleTitleBar::controlAt( int x, int y ) const
+int QAccessibleTitleBar::childAt( int x, int y ) const
 {
     int ctrl = titleBar()->style().querySubControl( QStyle::CC_TitleBar, titleBar(), titleBar()->mapFromGlobal( QPoint( x,y ) ) );
 
@@ -1692,9 +1692,9 @@ QAccessibleScrollView *QAccessibleViewport::scrollView() const
     return (QAccessibleScrollView *)iface;
 }
 
-int QAccessibleViewport::controlAt( int x, int y ) const
+int QAccessibleViewport::childAt( int x, int y ) const
 {
-    int control = QAccessibleWidget::controlAt( x, y );
+    int control = QAccessibleWidget::childAt( x, y );
     if ( control > 0 )
 	return control;
 

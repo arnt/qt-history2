@@ -31,7 +31,7 @@ class QAccessibleWidgetStack : public QAccessibleWidget
 public:
     QAccessibleWidgetStack( QObject *o );
 
-    int		controlAt( int x, int y ) const;
+    int		childAt( int x, int y ) const;
     bool	queryChild( int control, QAccessibleInterface ** ) const;
 
 protected:
@@ -68,7 +68,7 @@ class QAccessibleSpinWidget : public QAccessibleRangeControl
 public:
     QAccessibleSpinWidget( QObject *o );
 
-    int		controlAt( int x, int y ) const;
+    int		childAt( int x, int y ) const;
     QRect	rect( int control ) const;
     int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
@@ -88,7 +88,7 @@ public:
 	QString description = QString::null, QString help = QString::null, 
 	QString defAction = QString::null, QString accelerator = QString::null );
 
-    int		controlAt( int x, int y ) const;
+    int		childAt( int x, int y ) const;
     QRect	rect( int control ) const;
     int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
@@ -110,7 +110,7 @@ public:
 	QString description = QString::null, QString help = QString::null, 
 	QString defAction = QString::null, QString accelerator = QString::null );
 
-    int		controlAt( int x, int y ) const;
+    int		childAt( int x, int y ) const;
     QRect	rect( int control ) const;
     int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
@@ -154,7 +154,7 @@ public:
 	QString value = QString::null, QString help = QString::null, 
 	QString defAction = QString::null, QString accelerator = QString::null );
 
-    int		controlAt( int x, int y ) const;
+    int		childAt( int x, int y ) const;
     QRect	rect( int control ) const;
     int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
@@ -176,7 +176,7 @@ public:
 	QString value = QString::null, QString help = QString::null, 
 	QString defAction = QString::null, QString accelerator = QString::null );
 
-    int		controlAt( int x, int y ) const;
+    int		childAt( int x, int y ) const;
     QRect	rect( int control ) const;
     int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
@@ -201,7 +201,7 @@ class QAccessibleComboBox : public QAccessibleWidget
 public:
     QAccessibleComboBox( QObject *o );
 
-    int		controlAt( int x, int y ) const;
+    int		childAt( int x, int y ) const;
     QRect	rect( int control ) const;
     int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
@@ -223,7 +223,7 @@ class QAccessibleTitleBar : public QAccessibleWidget
 public:
     QAccessibleTitleBar( QObject *o );
 
-    int		controlAt( int x, int y ) const;
+    int		childAt( int x, int y ) const;
     QRect	rect( int control ) const;
     int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
@@ -259,7 +259,7 @@ class QAccessibleViewport : public QAccessibleWidget
 public:
     QAccessibleViewport( QObject *o, QObject *sv );
 
-    int		controlAt( int x, int y ) const;
+    int		childAt( int x, int y ) const;
     QRect	rect( int control ) const;
     int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
