@@ -46,10 +46,41 @@ static inline int bm_find(const uchar *cc, uint l, int index, const uchar *puc, 
 }
 
 /*! \class QByteArrayMatcher
-    \brief The QByteArrayMatcher class ...
+    \brief The QByteArrayMatcher class holds a sequence of bytes that
+    can be quickly matched in a byte array.
+
+    This class is useful when you have a sequence of bytes that you
+    want to repeatedly match against some byte arrays (perhaps in a
+    loop), or when you want to search for the same sequence of bytes
+    multiple times in the same byte array. Using a matcher object and
+    indexIn() is faster than matching a plain QByteArray with
+    indexOf() if repeated matching takes place. This class offers no
+    benefit if you are doing one-off byte array matches.
+
+    Create the QByteArrayMatcher with the QByteArray you want to
+    search for. Then call indexIn() on the QByteArray that you want to
+    search.
+
+    \code
+    // Assumes that list is a QList<QByteArray*>
+    QList<QPair<int, int> > indexes; // byte array x index position
+    QByteArrayMatcher matcher(QByteArray("ACBD"));
+    for (int i = 0; i < list.size(); ++i) {
+        int pos = 0;
+        while (1) {
+            pos = matcher.indexIn(*list[i], pos);
+            if (pos > -1)
+                indexes.append(qMakePair(i, pos++));
+            else
+                break;
+        }
+    }
+    \endcode
 */
 
 /*!
+    Constructs an empty byte array matcher that won't match anything.
+    Call setPattern() to give it a pattern to match.
 
 */
 QByteArrayMatcher::QByteArrayMatcher()
@@ -59,6 +90,8 @@ QByteArrayMatcher::QByteArrayMatcher()
 }
 
 /*!
+    Constructs a byte array matcher that will search for \a pattern.
+    Call indexIn() to perform a search.
 
 */
 QByteArrayMatcher::QByteArrayMatcher(const QByteArray &pattern)
@@ -68,7 +101,7 @@ QByteArrayMatcher::QByteArrayMatcher(const QByteArray &pattern)
 }
 
 /*!
-
+    Copies the \a other byte array matcher to this byte array matcher.
 */
 QByteArrayMatcher::QByteArrayMatcher(const QByteArrayMatcher &other)
     : d(0)
@@ -77,14 +110,14 @@ QByteArrayMatcher::QByteArrayMatcher(const QByteArrayMatcher &other)
 }
 
 /*!
-
+    Destroys the byte array matcher.
 */
 QByteArrayMatcher::~QByteArrayMatcher()
 {
 }
 
 /*!
-
+    Assignes the \a other byte array matcher to this byte array matcher.
 */
 QByteArrayMatcher &QByteArrayMatcher::operator=(const QByteArrayMatcher &other)
 {
@@ -94,7 +127,10 @@ QByteArrayMatcher &QByteArrayMatcher::operator=(const QByteArrayMatcher &other)
 }
 
 /*!
+    Sets the byte array that this byte array matcher will search for
+    to \a pattern.
 
+    \sa indexIn()
 */
 void QByteArrayMatcher::setPattern(const QByteArray &pattern)
 {
@@ -104,6 +140,11 @@ void QByteArrayMatcher::setPattern(const QByteArray &pattern)
 }
 
 /*!
+    Searches the byte array \a ba, from byte position \a from (default
+    0, i.e. from the first byte), for the byte array pattern() that
+    was set in the constructor or in the most recent call to
+    setPattern(). Returns the position where the pattern() matched in
+    \a ba, or -1 if no match was found.
 
 */
 int QByteArrayMatcher::indexIn(const QByteArray &ba, int from) const
@@ -113,3 +154,11 @@ int QByteArrayMatcher::indexIn(const QByteArray &ba, int from) const
                    reinterpret_cast<const uchar *>(q_pattern.constData()), q_pattern.size(),
                    q_skiptable);
 }
+
+/*!
+    \fn QByteArray QByteArrayMatcher::pattern() const
+
+    Returns the byte array pattern that this byte array matcher will
+    search for. The pattern is set in the constructor, or in a call to
+    setPattern().
+*/
