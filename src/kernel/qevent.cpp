@@ -128,6 +128,7 @@
   \value ShowNormal Widget should be shown normally.
   \value ShowMaximized Widget should be shown maximized.
   \value ShowMinimized Widget should be shown minimized.
+  \value ShowFullScreen Widget should be shown full-screen.
   \value ShowWindowRequest Widget's window should be shown. \obsolete
   \value DeferredDelete The object will be deleted after it has
   cleaned up.
@@ -1365,7 +1366,7 @@ void QFocusEvent::resetReason()
 */
 
 QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int state )
-    : QEvent( ContextMenu ), p( pos ), accpt( FALSE ), consum(FALSE), 
+    : QEvent( ContextMenu ), p( pos ), accpt( FALSE ), consum(FALSE),
     reas( reason ), s((ushort)state)
 {
     gp = QCursor::pos();
@@ -1453,7 +1454,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 /*!
   \fn bool QContextMenuEvent::isAccepted() const
   Returns TRUE if the receiver has processed the event; otherwise returns
-  FALSE.  
+  FALSE.
 
   \sa accept(), ignore(), consume()
 */
@@ -1476,7 +1477,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   Clears the accept flag of the context event object.
 
   Clearing the accept flag indicates that the receiver of this event does not
-  need to show a context menu. This will implicitly remove the consumed flag 
+  need to show a context menu. This will implicitly remove the consumed flag
   as well.
 
   The accept flag is not set by default.
@@ -1822,8 +1823,8 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   A \c ChildRemoved event is sent immediately, but a \c ChildInserted event
   is \e posted (with QApplication::postEvent()).
 
-  Note that if a child is removed immediately after it is inserted, the 
-  \c ChildInserted event may be suppressed, but the \c ChildRemoved 
+  Note that if a child is removed immediately after it is inserted, the
+  \c ChildInserted event may be suppressed, but the \c ChildRemoved
   event will always be sent. In this case there will be a \c ChildRemoved
   event without a corresponding \c ChildInserted event.
 
