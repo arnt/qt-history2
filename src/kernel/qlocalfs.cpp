@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#3 $
 **
 ** Implementation of QFileDialog class
 **
@@ -28,6 +28,8 @@
 #include "qfile.h"
 #include "qurlinfo.h"
 #include "qapplication.h"
+
+// NOT REVISED
 
 /*!
  */

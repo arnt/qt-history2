@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#27 $
 **
 ** Implementation of QSocketNotifier class
 **
@@ -30,6 +30,7 @@
 extern bool qt_set_socket_handler( int, int, QObject *, bool );
 
 
+// NOT REVISED
 /*!
   \class QSocketNotifier qsocketnotifier.h
   \brief The QSocketNotifer class provides support for socket callbacks.
@@ -101,11 +102,11 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   wait before sending more data. In this case, you do not need to
   disable and re-enable the write notifier, it will fire again as soon
   as the system allows more data may be sent.
-  
+
   The behaviour of a write notifier that is left in enabled state
   after having emitting the first activated() signal (and no "would
   block" error has occured) is undefined. Depending on the operating
-  system, it may fire on every pass of the event loop, or not at all.  
+  system, it may fire on every pass of the event loop, or not at all.
 
   If you need a time-out for your sockets, you can use either
   \link QObject::startTimer() timer events\endlink or the QTimer class.

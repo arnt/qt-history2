@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qmime.cpp#19 $
 **
 ** Implementation of MIME support
 **
@@ -28,6 +28,7 @@
 #include "qdir.h"
 #include "qdragobject.h"
 
+// NOT REVISED
 /*!
   \class QMimeSource qmime.h
   \brief An abstract piece of formatted data.
@@ -297,14 +298,14 @@ QPixmap QMimeSourceFactory::pixmap(const QString& abs_name) const
 {
     if ( abs_name.isEmpty() )
 	return QPixmap();
-    
+
     const QMimeSource* m = data( abs_name );
     if ( !m )
 	return QPixmap();
 
     QPixmap pix;
     QImageDrag::decode( m, pix );
-    
+
     return pix;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#50 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -30,6 +30,7 @@
 #include "qbitmap.h"
 #include "qt_x11.h"
 
+// NOT REVISED
 
 static QRegion *empty_region = 0;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#53 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -31,6 +31,7 @@
 #include "qbuffer.h"
 #include "qt_x11.h"
 
+// NOT REVISED
 
 /*****************************************************************************
   Internal QClipboard functions for X11.
@@ -631,7 +632,7 @@ void QClipboard::setData( QMimeSource* src )
 
     d->setSource( src );
     emit dataChanged();
-    
+
     Window prevOwner = XGetSelectionOwner( dpy, XA_PRIMARY );
     XSetSelectionOwner( dpy, XA_PRIMARY, win, qt_x_clipboardtime );
     if ( XGetSelectionOwner(dpy,XA_PRIMARY) != win ) {
@@ -680,7 +681,7 @@ bool qt_check_selection_sentinel( XEvent* )
 	int actualFormat;
 	ulong nitems;
 	ulong bytesLeft;
-	XGetWindowProperty( owner->x11Display(), 
+	XGetWindowProperty( owner->x11Display(),
 			    QApplication::desktop()->winId(),
 			    qt_selection_sentinel, 0, 2, FALSE, XA_WINDOW,
 			    &actualType, &actualFormat, &nitems,

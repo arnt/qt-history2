@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#78 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -32,6 +32,7 @@
 #include "qdom.h"
 #endif // QT_BUILDER
 
+// NOT REVISED
 /*!
   \class QLayoutItem qabstractlayout.h
   \brief The abstract items which a QLayout manipulates.

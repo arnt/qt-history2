@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#106 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#107 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -31,6 +31,7 @@
 #include "qt_x11.h"
 
 
+// NOT REVISED
 /*!
   \class QPaintDevice qpaintdevice.h
   \brief The base class of objects that can be painted.

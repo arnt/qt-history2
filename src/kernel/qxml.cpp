@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qxml.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qxml.cpp#2 $
 **
 ** Implementation of QXML classes
 **
@@ -28,6 +28,8 @@
 #include <qmap.h>
 
 #include <ctype.h>
+
+// NOT REVISED
 
 /*********************************************
  *
@@ -782,7 +784,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
     ++pos;
     goto Node31;
   }
-  else 
+  else
   {
     ++pos;
     goto Node30;
@@ -795,7 +797,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
     ++pos;
     goto Node32;
   }
-  else 
+  else
   {
     ++pos;
     goto Node30;
@@ -900,7 +902,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
   if ( pos == len )
     goto Failed;
   if ( text[pos].isSpace() )
-  { 
+  {
     ++pos;
     goto Node52;
   }
@@ -923,7 +925,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
     goto Node55;
   }
   if ( text[pos].isSpace() )
-  { 
+  {
     tag = text.mid( start, pos - start );
     if ( consumer )
       if ( !consumer->doctype( tag ) )
@@ -941,7 +943,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
   if ( pos == len )
     goto Failed;
   if ( text[pos].isSpace() )
-  { 
+  {
     ++pos;
     goto Node54;
   }
@@ -984,7 +986,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
   if ( pos == len )
     goto Failed;
   if ( text[pos].isSpace() )
-  { 
+  {
     ++pos;
     goto Node57;
   }
@@ -1017,7 +1019,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
   if ( pos == len )
     goto Failed;
   if ( text[pos].isSpace() )
-  { 
+  {
     ++pos;
     goto Node60;
   }
@@ -1051,7 +1053,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
     goto Node55;
   }
   if ( text[pos].isSpace() )
-  { 
+  {
     ++pos;
     goto Node63;
   }
@@ -1060,7 +1062,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
   if ( pos == len )
     goto Failed;
   if ( text[pos].isSpace() )
-  { 
+  {
     ++pos;
     goto Node63;
   }
@@ -1253,7 +1255,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
   if ( pos == len )
     goto Failed;
   if ( text[pos].isSpace() )
-  { 
+  {
     ++pos;
     goto Node77;
   }
@@ -1276,7 +1278,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
   if ( pos == len )
     goto Failed;
   if ( text[pos].isSpace() )
-  { 
+  {
     start = ++pos;
     goto Node79;
   }
@@ -1306,7 +1308,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
   if ( pos == len )
     goto Failed;
   if ( text[pos].isSpace() )
-  { 
+  {
     ++pos;
     goto Node85;
   }
@@ -1355,7 +1357,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
     goto Node65;
   }
   if ( text[pos].isSpace() )
-  { 
+  {
     ++pos;
     goto Node88;
   }
@@ -1404,7 +1406,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
     goto Node65;
   }
   if ( text[pos].isSpace() )
-  { 
+  {
     ++pos;
     goto Node91;
   }
@@ -1413,7 +1415,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
   if ( pos == len )
     goto Failed;
   if ( text[pos].isSpace() )
-  { 
+  {
     ++pos;
     goto Node91;
   }
@@ -1454,7 +1456,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
   if ( pos == len )
     goto Failed;
   if ( text[pos].isSpace() )
-  { 
+  {
     ++pos;
     goto Node93;
   }
@@ -1468,7 +1470,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
     goto Node94;
   }
   if ( text[pos].isSpace() )
-  { 
+  {
     ++pos;
     goto Node91;
   }
@@ -1482,14 +1484,14 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
     goto Node94;
   }
   if ( text[pos].isSpace() )
-  { 
+  {
     if ( !entity( tag, publicId, systemId, text.mid( start, pos - start ) ) )
       return pos;
     ++pos;
     goto Node95;
   }
   if ( text[pos] == '>' )
-  { 
+  {
     if ( !entity( tag, publicId, systemId, text.mid( start, pos - start ) ) )
 	return pos;
     ++pos;
@@ -1500,12 +1502,12 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
   if ( pos == len )
     goto Failed;
   if ( text[pos].isSpace() )
-  { 
+  {
     ++pos;
     goto Node95;
   }
   if ( text[pos] == '>' )
-  { 
+  {
     ++pos;
     goto Node65;
   }
@@ -1514,7 +1516,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
   if ( pos == len )
     goto Failed;
   if ( text[pos].isSpace() )
-  { 
+  {
     publicId = QString::null;
     ++pos;
     goto Node88;
@@ -1529,7 +1531,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
     goto Node100;
   }
   if ( text[pos].isSpace() )
-  { 
+  {
     tag = text.mid( start, pos - start );
     ++pos;
     goto Node101;
@@ -1539,12 +1541,12 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
   if ( pos == len )
     goto Failed;
   if ( text[pos].isSpace() )
-  { 
+  {
     ++pos;
     goto Node101;
   }
   if ( text[pos] == '"' || text[pos] == '\'' )
-  { 
+  {
     // No string value allowed in <!NOTATION>
     if ( type == Notation )
       goto Failed;
@@ -1589,12 +1591,12 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
   if ( pos == len )
     goto Failed;
   if ( text[pos].isSpace() )
-  { 
+  {
     ++pos;
     goto Node103;
   }
   if ( text[pos] == '>' )
-  { 
+  {
     ++pos;
     goto Node65;
   }
@@ -1603,7 +1605,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
   if ( pos == len )
     goto Failed;
   if ( text[pos].isSpace() )
-  { 
+  {
     ++pos;
     goto Node110;
   }
@@ -1625,12 +1627,12 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
   if ( pos == len )
     goto Failed;
   if ( text[pos].isSpace() )
-  { 
+  {
     ++pos;
     goto Node111;
   }
   if ( text[pos] == '[' )
-  { 
+  {
     ++pos;
     goto Node65;
   }
@@ -1640,12 +1642,12 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
   if ( pos == len )
     goto Failed;
   if ( text[pos].isSpace() )
-  { 
+  {
     ++pos;
     goto Node112;
   }
   if ( text[pos] == '[' )
-  { 
+  {
     ++pos;
     goto Node113;
   }

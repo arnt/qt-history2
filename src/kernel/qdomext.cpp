@@ -5,10 +5,12 @@
 #include "qpixmap.h"
 #include "qiconset.h"
 
+// NOT REVISED
+
 /*!
   A convenience function for creating widgets from a XML
   description.
-  
+
   \sa toObject()
 */
 QWidget* QDomElement::toWidget( QWidget* _parent ) const

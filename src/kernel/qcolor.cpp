@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#102 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#103 $
 **
 ** Implementation of QColor class
 **
@@ -31,6 +31,7 @@
 #include <ctype.h>
 
 
+// NOT REVISED
 /*!
   \class QColor qcolor.h
   \brief The QColor class provides colors based on RGB.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#473 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#474 $
 **
 ** Implementation of QWidget class
 **
@@ -42,6 +42,7 @@
 #include "qdom.h"
 #endif // QT_BUILDER
 
+// NOT REVISED
 /*!
   \class QWidget qwidget.h
   \brief The QWidget class is the base class of all user interface objects.

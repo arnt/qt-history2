@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#24 $
 **
 ** Implementation of font database class.
 **
@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+// NOT REVISED
 #ifdef _WS_MAC_
 extern int qFontGetWeight( const QCString &weightString, bool adjustScore=FALSE );
 #endif
@@ -62,14 +63,14 @@ enum FontFieldNames {				// X LFD fields
 #undef	IS_ZERO
 #define IS_ZERO(X) (X[0] == '0' && X[1] == 0)
 
-inline bool isScalable( char **tokens )
+static inline bool isScalable( char **tokens )
 {
     return ( IS_ZERO(tokens[PixelSize]) &&
 	     IS_ZERO(tokens[PointSize]) &&
 	     IS_ZERO(tokens[AverageWidth]) );
 }
 
-inline bool isSmoothlyScalable( char **tokens )
+static inline bool isSmoothlyScalable( char **tokens )
 {
     return ( IS_ZERO( tokens[ResolutionX] ) &&
 	     IS_ZERO( tokens[ResolutionY] ) );

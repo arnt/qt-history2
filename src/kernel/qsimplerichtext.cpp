@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimplerichtext.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qsimplerichtext.cpp#12 $
 **
 ** Implementation of the QSimpleRichText class
 **
@@ -28,6 +28,7 @@
 #include "qapplication.h"
 
 
+// NOT REVISED
 /*!
   \class QSimpleRichText qsimplerichtext.h
   \brief A small displayable piece of rich text.

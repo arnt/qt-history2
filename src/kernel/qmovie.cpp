@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#63 $
 **
 ** Implementation of movie classes
 **
@@ -39,6 +39,7 @@
 
 #include <stdlib.h>
 
+// NOT REVISED
 /*!
   \class QMovie qmovie.h
   \brief Incrementally loads an animation or image, signalling as it progresses.
@@ -896,7 +897,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char *member)
 ** QMovieFilePrivate meta object code from reading C++ file 'standard input'
 **
 ** Created: Fri Aug 21 01:55:09 1998
-**      by: The Qt Meta Object Compiler ($Revision: 1.62 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.63 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

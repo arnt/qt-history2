@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfocusdata.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qfocusdata.cpp#6 $
 **
 ** Implementation of QFocusData class
 **
@@ -25,6 +25,7 @@
 
 #include "qfocusdata.h"
 
+// NOT REVISED
 /*!
   \class QFocusData qfocusdata.h
   \brief Maintains the list of widgets which can take focus.
@@ -34,7 +35,7 @@
   be reset to the current focus widget using home(), or moved to its
   neighboring widgets using next() and prev(), and a count() of
   widgets in the list.
-  
+
   Note that some widgets in the list may not accept focus.  Widgets
   are added to the list as necessary, but not removed from it.  This
   lets widgets change focus policy dynamically without disrupting the
@@ -45,9 +46,9 @@
   focus flow, you will usually call QWidget::focusData() to retrieve
   the focus data stored at the top-level widget - the focus data for
   that hierarchy of widgets.
-  
+
   The cursor may change at any time; this class is not thread-safe.
-  
+
   \sa QWidget::focusNextPrevChild() QWidget::setTabOrder()
   QWidget::setFocusPolicy()
 */

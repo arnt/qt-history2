@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#236 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#237 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -39,6 +39,7 @@
 #include <ctype.h>
 
 
+// NOT REVISED
 /*!
   \class QImage qimage.h
   \brief The QImage class provides a hardware-independent pixmap

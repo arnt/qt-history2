@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#55 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -31,6 +31,7 @@
   QColorGroup member functions
  *****************************************************************************/
 
+// NOT REVISED
 /*!
   \class QColorGroup qpalette.h
   \brief The QColorGroup class contains a group of widget colors.

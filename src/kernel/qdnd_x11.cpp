@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#101 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#102 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -1257,6 +1257,7 @@ bool qt_xdnd_handle_badwindow()
 }
 
 
+// NOT REVISED
 /*!
   \class QDragMoveEvent qevent.h
   \brief Event sent as a drag-and-drop is in progress.

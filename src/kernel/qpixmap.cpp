@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#118 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#119 $
 **
 ** Implementation of QPixmap class
 **
@@ -34,6 +34,7 @@
 #include "qobjectlist.h"
 #include "qapplication.h"
 
+// NOT REVISED
 /*!
   \class QPixmap qpixmap.h
   \brief The QPixmap class is an off-screen pixel-based paint device.

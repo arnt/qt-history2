@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#101 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#102 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -434,6 +434,7 @@ QWidget * QDragObject::source()
 }
 
 
+// NOT REVISED
 /*! \class QDragObject qdragobject.h
 
   \brief The QDragObject encapsulates MIME-based information transfer.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#10 $
 **
 ** Implementation of QFileDialog class
 **
@@ -45,6 +45,7 @@ struct QUrlInfoPrivate
 };
 
 
+// NOT REVISED
 /*!
   \class QUrlInfo qurlinfo.h
 

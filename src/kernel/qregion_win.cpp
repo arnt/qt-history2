@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#51 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -25,6 +25,7 @@
 #include "qimage.h"
 #include "qt_windows.h"
 
+// NOT REVISED
 
 static QRegion *empty_region = 0;
 

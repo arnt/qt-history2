@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#289 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#290 $
 **
 ** Implementation of QApplication class
 **
@@ -43,6 +43,7 @@
 #endif
 
 
+// NOT REVISED
 /*!
   \class QApplication qapplication.h
   \brief The QApplication class manages the GUI application's control flow and main settings.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#40 $
 **
 ** Implementation of QTimer class
 **
@@ -28,6 +28,7 @@
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 
+// NOT REVISED
 /*!
   \class QTimer qtimer.h
   \brief The QTimer class provides timer signals and single-shot timers.

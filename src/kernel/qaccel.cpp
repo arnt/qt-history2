@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#84 $
 **
 ** Implementation of QAccel class
 **
@@ -30,6 +30,7 @@
 #include "qsignal.h"
 #include "qwhatsthis.h"
 
+// NOT REVISED
 /*!
   \class QAccel qaccel.h
   \brief The QAccel class handles keyboard accelerator and shortcut keys.

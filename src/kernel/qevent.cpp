@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#106 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#107 $
 **
 ** Implementation of event classes
 **
@@ -28,6 +28,7 @@
 #include "qapplication.h"
 
 
+// NOT REVISED
 /*!
   \class QEvent qevent.h
   \brief The QEvent class is base class of all
@@ -747,7 +748,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   default implementation of this event handler accepts the close
   event.  If you do not want your widget to be hidden, or want some
   special handing, you need to reimplement the event handler.
-  
+
   The <a href="simple-application.html#closeEvent">closeEvent() in the
   Application Walkthrough</a> shows a close event handler that asks
   whether to save the document before closing.

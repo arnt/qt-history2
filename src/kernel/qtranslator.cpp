@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#33 $
 **
 ** Localization database support.
 **
@@ -247,6 +247,7 @@ void QTranslatorPrivate::Message::write( QTranslator::SaveMode m,
 
 
 
+// NOT REVISED
 /*! \class QTranslator qtranslator.h
 
   \brief The QTranslator class provides internationalization support for text output.

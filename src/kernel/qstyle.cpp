@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#44 $
 **
 ** Implementation of QStyle class
 **
@@ -36,6 +36,7 @@
 #include <limits.h>
 
 
+// NOT REVISED
 /*!
   \class QStyle qstyle.h
   \brief Encapsulates common Look and Feel of a GUI.
@@ -652,7 +653,7 @@ static void cleanupStyleData()
 /*!
   Returns the width of a scrollbar in this style. In this version of
   the Qt library, subclasses must call setScrollBarExtent() to change the
-  extent of scrollbars. In a future version of Qt, this function will 
+  extent of scrollbars. In a future version of Qt, this function will
   become virtual.
 */
 
@@ -666,10 +667,10 @@ int QStyle::scrollBarExtent()
 /*!
   Sets the width of a scrollbar in this style to \a ext. A value of 0
   gives an undefined result.
-  
+
   In a future version of the Qt library, this function will be removed
   and subclasses will be able to reimplement scrollBarExtent().
-  
+
 */
 
 void QStyle::setScrollBarExtent( int ext )

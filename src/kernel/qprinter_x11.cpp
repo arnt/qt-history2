@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#72 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -60,6 +60,7 @@
 #include <process.h>
 #endif
 
+// NOT REVISED
 
 /*****************************************************************************
   QPrinter member functions

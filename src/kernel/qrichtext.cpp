@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#36 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -38,7 +38,7 @@
 #include <qimage.h>
 #include <qdragobject.h>
 
-
+// NOT REVISED
 
 QTextIterator::~QTextIterator()
 {

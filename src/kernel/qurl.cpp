@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#46 $
 **
 ** Implementation of QFileDialog class
 **
@@ -39,12 +39,13 @@ struct QUrlPrivate
     int port;
 };
 
+// NOT REVISED
 /*!
   \class QUrl qurl.h
 
-  \brief This class provides mainly an URL parser and 
+  \brief This class provides mainly an URL parser and
   simplifies working with URLs.
-  
+
   The QUrl class is provided for a easy working with URLs.
   It does all parsing, decoding, encoding and so on.
 

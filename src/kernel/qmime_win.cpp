@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#12 $
 **
 ** Implementation of Win32 MIME <-> clipboard converters
 **
@@ -34,6 +34,7 @@ extern Qt::WindowsVersion qt_winver;
 
 static QList<QWindowsMime> mimes;
 
+// NOT REVISED
 /*!
   \class QWindowsMime qmime.h
   \brief Maps open-standard MIME types with Window Clipboard formats.

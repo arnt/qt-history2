@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qresource.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qresource.cpp#7 $
 **
 ** Implementation of QResource classes
 **
@@ -31,6 +31,8 @@
 #include "qfont.h"
 #include "qwidget.h"
 #include "qlayout.h"
+
+// NOT REVISED
 
 /*********************************************
  *
@@ -91,7 +93,7 @@ const QResourceItem* QResourceItem::child( const QString& type ) const
   return 0;
 }
 
-void QResourceItem::clear() 
+void QResourceItem::clear()
 {
   parentItem = 0;
   if ( firstChildItem )
@@ -180,7 +182,7 @@ QResourceItem* QResourceItem::extractAndReplace( const QResourceItem* pos, QReso
   res->nextSiblingItem = 0;
   res->parentItem = 0;
 
-  return res;  
+  return res;
 }
 
 QResourceItem* QResourceItem::extract( const QResourceItem* pos )
@@ -290,7 +292,7 @@ QProperty QResourceItem::property( const QString& name, QProperty::Type type ) c
   switch( type )
     {
     case QProperty::StringType:
-      { 
+      {
 	QString str;
 	if ( !stringProperty( name, &str ) )
 	  return QProperty();
@@ -298,35 +300,35 @@ QProperty QResourceItem::property( const QString& name, QProperty::Type type ) c
       }
       break;
     case QProperty::BoolType:
-      {    
+      {
 	if ( hasAttrib( name ) )
 	  return QProperty( boolAttrib( name ) );
 	return QProperty();
       }
       break;
     case QProperty::IntType:
-      {    
+      {
 	if ( hasAttrib( name ) )
 	  return QProperty( intAttrib( name ) );
 	return QProperty();
       }
       break;
     case QProperty::DoubleType:
-      {    
+      {
 	if ( hasAttrib( name ) )
 	  return QProperty( doubleAttrib( name ) );
 	return QProperty();
       }
       break;
     case QProperty::ColorType:
-      {    
+      {
 	if ( hasAttrib( name ) )
 	  return QProperty( colorAttrib( name ) );
 	return QProperty();
       }
       break;
     case QProperty::FontType:
-      {    
+      {
 	const QResourceItem* item = child( name );
 	if ( !item )
 	  return QProperty();
@@ -363,7 +365,7 @@ QProperty QResourceItem::property( const QString& name, QProperty::Type type ) c
       }
       break;
     case QProperty::RectType:
-      {    
+      {
 	const QResourceItem* item = child( name );
 	if ( !item )
 	  return QProperty();
@@ -383,7 +385,7 @@ QProperty QResourceItem::property( const QString& name, QProperty::Type type ) c
       }
       break;
     case QProperty::SizeType:
-      {    
+      {
 	const QResourceItem* item = child( name );
 	if ( !item )
 	  return QProperty();
@@ -400,7 +402,7 @@ QProperty QResourceItem::property( const QString& name, QProperty::Type type ) c
 	return QProperty();
       }
     case QProperty::PointType:
-      {    
+      {
 	const QResourceItem* item = child( name );
 	if ( !item )
 	  return QProperty();
@@ -417,7 +419,7 @@ QProperty QResourceItem::property( const QString& name, QProperty::Type type ) c
 	return QProperty();
       }
     case QProperty::StringListType:
-      {    
+      {
 	const QResourceItem* item = child( name );
 	if ( !item )
 	  return QProperty();
@@ -432,7 +434,7 @@ QProperty QResourceItem::property( const QString& name, QProperty::Type type ) c
 	for( ; item; item = item->nextSibling() )
 	{
 	  if ( item->type() == "li" )
-	  {  
+	  {
 	    QString str = "";
 	    const QResourceItem* t = item->firstChild();
 	    for( ; t; t = t->nextSibling() )
@@ -444,7 +446,7 @@ QProperty QResourceItem::property( const QString& name, QProperty::Type type ) c
 	return QProperty( lst );
       }
     case QProperty::IntListType:
-      {    
+      {
 	const QResourceItem* item = child( name );
 	if ( !item )
 	  return QProperty();
@@ -454,16 +456,16 @@ QProperty QResourceItem::property( const QString& name, QProperty::Type type ) c
 	  return QProperty();
 
 	QValueList<int> lst;
-    
+
 	item = item->firstChild();
-	for( ; item; item = item->nextSibling() )    
+	for( ; item; item = item->nextSibling() )
 	  if ( item->type() == "li" && item->hasAttrib( "value" ) )
 	    lst.append( item->intAttrib( "value" ) );
-    
+
 	return QProperty( lst );
       }
     case QProperty::DoubleListType:
-      {    
+      {
 	const QResourceItem* item = child( name );
 	if ( !item )
 	  return QProperty();
@@ -475,12 +477,12 @@ QProperty QResourceItem::property( const QString& name, QProperty::Type type ) c
 	QValueList<double> lst;
 
 	item = item->firstChild();
-	for( ; item; item = item->nextSibling() )    
+	for( ; item; item = item->nextSibling() )
 	  if ( item->type() == "li" && item->hasAttrib( "value" ) )
 	    lst.append( item->doubleAttrib( "value" ) );
 	
 	return QProperty( lst );
-      } 
+      }
     case QProperty::CustomType:
     case QProperty::PixmapType:
     case QProperty::BrushType:
@@ -493,7 +495,7 @@ QProperty QResourceItem::property( const QString& name, QProperty::Type type ) c
     case QProperty::Empty:
       // Do nothing
       break;
-    } 
+    }
 
   return QProperty();
 }
@@ -804,7 +806,7 @@ bool QResourceXMLConsumer::tagEnd( const QString& name )
   qDebug("End=%s\n",name.ascii());
   if ( !item )
     return FALSE;
-  
+
   if ( item->type() != name )
   {
     qDebug("Tag %s does not close %s\n",item->type().ascii(),name.ascii() );
@@ -975,7 +977,7 @@ QResource::QResource( const QString& filename )
 
   setContent( text );
 }
-  
+
 void QResource::setContent( const QString& content )
 {
   if ( d && owns )
@@ -1009,13 +1011,13 @@ QWidget* QResource::createWidget( QWidget* _parent ) const
     qDebug("Dont know class %s", type().ascii() );
     return 0;
   }
-  
+
   if ( !m->inherits( "QWidget" ) )
   {
     qDebug("Class %s does not inherit from QWidget", type().ascii() );
     return 0;
   }
-  
+
   QObjectFactory f = m->factory();
   if ( !f )
   {
@@ -1029,7 +1031,7 @@ QWidget* QResource::createWidget( QWidget* _parent ) const
     qDebug("Factory for class %s returned 0", type().ascii() );
     return 0;
   }
-  
+
   w->setConfiguration( *this );
 
   return w;
@@ -1046,27 +1048,27 @@ QLayout* QResource::createLayout( QWidget* _parent ) const
     qDebug("Dont know class %s", type().ascii() );
     return 0;
   }
-  
+
   if ( !m->inherits( "QLayout" ) )
   {
     qDebug("Class %s does not inherit from QWidget", type().ascii() );
     return 0;
   }
-  
+
   QObjectFactory f = m->factory();
   if ( !f )
   {
     qDebug("Class %s has no factory", type().ascii() );
     return 0;
   }
-  
+
   QLayout* w = (QLayout*)(*f)( _parent, *this );
   if ( !w )
   {
     qDebug("Factory for class %s returned 0", type().ascii() );
     return 0;
   }
-  
+
   w->setConfiguration( *this );
 
   return w;
@@ -1083,27 +1085,27 @@ QLayout* QResource::createLayout( QLayout* _parent ) const
     qDebug("Dont know class %s", type().ascii() );
     return 0;
   }
-  
+
   if ( !m->inherits( "QLayout" ) )
   {
     qDebug("Class %s does not inherit from QWidget", type().ascii() );
     return 0;
   }
-  
+
   QObjectFactory f = m->factory();
   if ( !f )
   {
     qDebug("Class %s has no factory", type().ascii() );
     return 0;
   }
-  
+
   QLayout* w = (QLayout*)(*f)( _parent, *this );
   if ( !w )
   {
     qDebug("Factory for class %s returned 0", type().ascii() );
     return 0;
   }
-  
+
   w->setConfiguration( *this );
 
   return w;
@@ -1120,27 +1122,27 @@ QLayout* QResource::createLayout() const
     qDebug("Dont know class %s", type().ascii() );
     return 0;
   }
-  
+
   if ( !m->inherits( "QLayout" ) )
   {
     qDebug("Class %s does not inherit from QWidget", type().ascii() );
     return 0;
   }
-  
+
   QObjectFactory f = m->factory();
   if ( !f )
   {
     qDebug("Class %s has no factory", type().ascii() );
     return 0;
   }
-  
+
   QLayout* w = (QLayout*)(*f)( 0, *this );
   if ( !w )
   {
     qDebug("Factory for class %s returned 0", type().ascii() );
     return 0;
   }
-  
+
   return w;
 }
 

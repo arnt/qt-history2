@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtextintern.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qrichtextintern.cpp#17 $
 **
 ** Internal rich text classes
 **
@@ -27,6 +27,8 @@
 #include "qstylesheet.h"
 #include "qapplication.h"
 #include "qmime.h"
+
+// NOT REVISED
 
 class QTextContainer;
 class QTextBox;

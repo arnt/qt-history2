@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#68 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -31,6 +31,7 @@
 #include "qt_x11.h"
 #include <X11/cursorfont.h>
 
+// NOT REVISED
 
 /*****************************************************************************
   Internal QCursorData class

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#68 $
 **
 ** Implementation of QPicture class
 **
@@ -32,6 +32,7 @@
 #include "qpaintdevicemetrics.h"
 
 
+// NOT REVISED
 /*!
   \class QPicture qpicture.h
   \brief The QPicture class is a paint device that records and replays QPainter

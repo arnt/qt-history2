@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#87 $
 **
 ** Implementation of QDialog class
 **
@@ -34,6 +34,7 @@
 #include "qdom.h"
 #endif // QT_BUILDER
 
+// NOT REVISED
 /*!
   \class QDialog qdialog.h
   \brief The QDialog class is the base class of dialog windows.

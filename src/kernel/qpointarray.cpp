@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#73 $
 **
 ** Implementation of QPointArray class
 **
@@ -33,6 +33,7 @@
 const double Q_PI   = 3.14159265358979323846;   // pi
 
 
+// NOT REVISED
 /*!
   \class QPointArray qpointarray.h
   \brief The QPointArray class provides an array of points.

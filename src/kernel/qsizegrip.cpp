@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#9 $
 **
 ** Implementation of QSizeGrip class
 **
@@ -35,6 +35,7 @@ extern Atom qt_sizegrip;			// defined in qapplication_x11.cpp
 #include "qt_windows.h"
 #endif
 
+// NOT REVISED
 /*! \class QSizeGrip qsizegrip.h
 
   \brief The QSizeGrip class provides corner-grip for resizeing a top level

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#29 $
 **
 ** Implementation of QWMatrix class
 **
@@ -31,6 +31,7 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
 #include <math.h>
 #endif
 
+// NOT REVISED
 /*!
   \class QWMatrix qwmatrix.h
   \brief The QWMatrix class specifies 2D transformations of a
@@ -487,7 +488,7 @@ QWMatrix operator*( const QWMatrix &m1, const QWMatrix &m2 )
 QDataStream &operator<<( QDataStream &s, const QWMatrix &m )
 {
     if ( s.version() == 1 )
-	s << (float)m.m11() << (float)m.m12() << (float)m.m21() 
+	s << (float)m.m11() << (float)m.m12() << (float)m.m21()
 	  << (float)m.m22() << (float)m.dx()  << (float)m.dy();
     else
 	s << m.m11() << m.m12() << m.m21() << m.m22()

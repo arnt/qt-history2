@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#16 $
 **
 ** Implementation of QSignalMapper class
 **
@@ -50,6 +50,7 @@ public:
     QPtrDict<QSignalMapperRec> dict;
 };
 
+// NOT REVISED
 /*!
   \class QSignalMapper qsignalmapper.h
   \brief A QSignalMapper object bundles signals from identifiable senders.

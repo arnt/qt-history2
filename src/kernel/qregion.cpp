@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#38 $
 **
 ** Implementation of QRegion class
 **
@@ -28,6 +28,7 @@
 #include "qbuffer.h"
 #include "qdatastream.h"
 
+// NOT REVISED
 /*!
   \class QRegion qregion.h
   \brief The QRegion class specifies a clip region for a painter.

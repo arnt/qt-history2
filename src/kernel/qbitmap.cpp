@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#44 $
 **
 ** Implementation of QBitmap class
 **
@@ -27,6 +27,7 @@
 #include "qimage.h"
 
 
+// NOT REVISED
 /*!
   \class QBitmap qbitmap.h
   \brief The QBitmap class provides monochrome (1 bit depth) pixmaps.

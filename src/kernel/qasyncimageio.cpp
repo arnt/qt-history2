@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#55 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -31,6 +31,7 @@
 
 
 
+// NOT REVISED
 /*!
   \class QImageConsumer qasyncimageio.h
   \brief An abstraction used by QImageDecoder.

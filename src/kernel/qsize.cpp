@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qsize.cpp#36 $
 **
 ** Implementation of QSize class
 **
@@ -27,6 +27,7 @@
 #include "qdatastream.h"
 
 
+// NOT REVISED
 /*!
   \class QSize qsize.h
   \brief The QSize class defines the size of a two-dimensional object.
@@ -260,14 +261,14 @@ void QSize::transpose()
 
 /*!
   \fn QSize QSize::expandedTo( const QSize & otherSize ) const
-  
+
   Returns a size with the maximum width and height of this size and
   \a otherSize.
 */
 
 /*!
   \fn QSize QSize::boundedTo( const QSize & otherSize ) const
-  
+
   Returns a size with the minimum width and height of this size and
   \a otherSize.
 */

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#52 $
 **
 ** Implementation of QPrinter class
 **
@@ -25,6 +25,7 @@
 
 #include "qprinter.h"
 
+// NOT REVISED
 /*!
   \class QPrinter qprinter.h
   \brief The QPrinter class is a paint device that paint on a printer.

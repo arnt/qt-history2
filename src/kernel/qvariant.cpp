@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qvariant.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qvariant.cpp#4 $
 **
 ** Implementation of QVariant class
 **
@@ -37,6 +37,7 @@
 #include "qiconset.h"
 #include "qvariant.h"
 
+// NOT REVISED
 /*!
   \class QVariant qvariant.h
   \brief Acts like a union for the most common Qt data types.

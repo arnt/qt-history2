@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#49 $
 **
 ** Implementation of draw utilities
 **
@@ -26,6 +26,8 @@
 #include "qdrawutil.h"
 #include "qbitmap.h"
 #include "qpixmapcache.h"
+
+// NOT REVISED
 
 /*!
   \relates QPainter

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#25 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -63,6 +63,7 @@ public:
     QStyleSheet* sheet;
 };
 
+// NOT REVISED
 /*!
   \class QStyleSheetItem qstylesheet.h
   \brief The QStyleSheetItem class encapsulates a text format.

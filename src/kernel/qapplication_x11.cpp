@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#568 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#569 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -22,6 +22,8 @@
 ** http://www.troll.no/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
+
+// NOT REVISED
 
 #define select		_qt_hide_select
 #define gettimeofday	_qt_hide_gettimeofday

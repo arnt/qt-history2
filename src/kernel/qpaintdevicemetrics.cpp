@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#25 $
 **
 ** Implementation of QPaintDeviceMetrics class
 **
@@ -25,6 +25,7 @@
 
 #include "qpaintdevicemetrics.h"
 
+// NOT REVISED
 /*!
   \class QPaintDeviceMetrics qpaintdevicemetrics.h
   \brief The QPaintDeviceMetrics class provides information about a

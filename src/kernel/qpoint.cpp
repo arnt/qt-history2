@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#40 $
 **
 ** Implementation of QPoint class
 **
@@ -27,6 +27,7 @@
 #include "qdatastream.h"
 
 
+// NOT REVISED
 /*!
   \class QPoint qpoint.h
   \brief The QPoint class defines a point in the plane.

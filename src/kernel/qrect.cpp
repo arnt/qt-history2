@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#55 $
 **
 ** Implementation of QRect class
 **
@@ -27,6 +27,7 @@
 #include "qrect.h"
 #include "qdatastream.h"
 
+// NOT REVISED
 /*!
   \class QRect qrect.h
   \brief The QRect class defines a rectangle in the plane.

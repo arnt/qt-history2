@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsemimodal.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qsemimodal.cpp#11 $
 **
 ** Implementation of QSemiModal class
 **
@@ -26,6 +26,7 @@
 #include "qsemimodal.h"
 #include "qapplication.h"
 
+// NOT REVISED
 /*!
   \class QSemiModal qsemimodal.h
   \brief The QSemiModal class is the base class of semi-modal dialog windows.
@@ -42,8 +43,8 @@
   Note that the parent widget has a different meaning for semi-modal
   dialogs than for other types of widgets. A semi-modal dialog is
   placed on top of the parent widget. The dialog is centered on the
-  screen if the parent widget is zero.  
-*/ 
+  screen if the parent widget is zero.
+*/
 
 
 /*!

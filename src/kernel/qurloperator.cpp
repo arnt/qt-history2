@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#11 $
 **
 ** Implementation of QFileDialog class
 **
@@ -37,6 +37,7 @@ struct QUrlOperatorPrivate
     QDir dir;
 };
 
+// NOT REVISED
 /*!
   \class QUrlOperator qurloperator.h
 

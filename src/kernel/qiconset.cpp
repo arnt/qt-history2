@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#32 $
 **
 ** Implementation of QIconSet class
 **
@@ -59,6 +59,7 @@ struct QIconSetPrivate: public QShared
 };
 
 
+// NOT REVISED
 /*! \class QIconSet qiconset.h
 
   \brief The QIconSet class provides a set of icons (normal, disabled,
@@ -450,7 +451,7 @@ bool QIconSet::isGenerated( Size s, Mode m ) const
 {
     if ( !d )
 	return FALSE;
-    
+
     if ( s == Large ) {
 	if ( m == Disabled )
 	    return d->largeDisabled.generated || !d->largeDisabled.pm;
@@ -480,7 +481,7 @@ QPixmap QIconSet::pixmap() const
 {
     if ( !d )
 	return QPixmap();
-    
+
     return d->defpm;
 }
 
@@ -498,7 +499,7 @@ void QIconSet::detach()
 	d = new QIconSetPrivate;
 	return;
     }
-    
+
     if ( d->count == 1 )
 	return;
 

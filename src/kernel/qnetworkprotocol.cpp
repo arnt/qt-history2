@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#26 $
 **
 ** Implementation of QFileDialog class
 **
@@ -37,12 +37,13 @@ struct QNetworkProtocolPrivate
     QTimer *opStartTimer;
 };
 
+// NOT REVISED
 /*!
   \class QNetworkProtocol qnetworkprotocol.h
 
   \brief This is the base class for network protocols which provides
   a common API for network protocols.
-  
+
   This is a baseclass which should be used for implementations
   of network protocols which can then be used in Qt (e.g.
   in the filedialog).
@@ -786,7 +787,7 @@ struct QNetworkOperationPrivate
 
   \brief This class is used to define operations for network
   protocols and return the state, success, failure, etc.
-  
+
   For each operation, which a network protocol should process
   such an object is created to describe the operation and the current
   state.

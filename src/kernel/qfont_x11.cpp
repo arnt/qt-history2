@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#188 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#189 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -23,6 +23,8 @@
 **
 *****************************************************************************/
 
+// NOT REVISED
+
 #include "qwidget.h"
 #include "qpainter.h"
 #include "qfontdata.h"
@@ -40,6 +42,8 @@
 #include <limits.h>
 #include "qt_x11.h"
 #include "qmap.h"
+
+// NOT REVISED
 
 /* UNICODE:
      XLFD names are defined to be Latin1.
@@ -1116,7 +1120,7 @@ QCString QFont_Private::bestMatch( const char *pattern, int *score )
 	    int resx;
 	    int resy;
 	    int pSize;
-	    if ( bestScalable.smooth ) { 
+	    if ( bestScalable.smooth ) {
 		// X will scale the font accordingly
 		resx  = QPaintDevice::x11AppDpiX();
 		resy  = QPaintDevice::x11AppDpiY();
@@ -1126,7 +1130,7 @@ QCString QFont_Private::bestMatch( const char *pattern, int *score )
 		resy = atoi(tokens[ResolutionY]);
 		pSize = ( 2*deciPointSize()*QPaintDevice::x11AppDpiY() + resy )
 			/ (resy * 2);
-	    }    
+	    }
 	    bestName.sprintf( "-%s-%s-%s-%s-%s-%s-*-%i-%i-%i-%s-*-%s-%s",
 			      tokens[Foundry],
 			      tokens[Family],

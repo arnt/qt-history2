@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#225 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#226 $
 **
 ** Implementation of QObject class
 **
@@ -38,6 +38,7 @@
 #include "qdom.h"
 #endif // QT_BUILDER
 
+// NOT REVISED
 /*! \class Qt qnamespace.h
 
   \brief The Qt class is a namespace for miscellaneous identifiers

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdropsite.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qdropsite.cpp#10 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -25,6 +25,7 @@
 #include "qwidget.h"
 
 
+// NOT REVISED
 /*!
   \class QDropSite qdropsite.h
   \brief Provides nothing and does nothing.

@@ -8,6 +8,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+// NOT REVISED
+
 /**************************************************************
  *
  * QDOMConsumer

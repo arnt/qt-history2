@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#196 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#197 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -35,6 +35,7 @@
 
 typedef QStack<QWMatrix> QWMatrixStack;
 
+// NOT REVISED
 /*!
   \class QPainter qpainter.h
   \brief The QPainter class paints on paint devices.
@@ -178,6 +179,7 @@ typedef QStack<QWMatrix> QWMatrixStack;
   Conflicting combinations of flags have undefined meanings.
 */
 
+
 /*! \enum Qt::PenStyle
 
   This enum type defines the pen styles supported by Qt; ie. that
@@ -186,7 +188,7 @@ typedef QStack<QWMatrix> QWMatrixStack;
 
   <li> \c NoPen - no line at all.  For example, QPainter::drawRect()
   fills but does not draw any explicit boundary line.
-  
+
   <li> \c SolidLine - a simple line.
 
   <li> \c DashLine - dashes, separated by a few pixels.
@@ -199,6 +201,7 @@ typedef QStack<QWMatrix> QWMatrixStack;
 
   </ul>
 */
+
 
 /*!
   Constructs a painter.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#312 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#313 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -36,6 +36,7 @@
 #include "qt_x11.h"
 #include "qpaintdevicemetrics.h"
 
+// NOT REVISED
 
 /* paintevent magic to provide Windows semantics on X11
  */

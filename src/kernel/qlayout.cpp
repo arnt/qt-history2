@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#122 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#123 $
 **
 ** Implementation of layout classes
 **
@@ -746,6 +746,7 @@ private:
 };
 
 
+// NOT REVISED
 /*!
   \class QGridLayout qlayout.h
 

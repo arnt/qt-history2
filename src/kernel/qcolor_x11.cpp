@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#98 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#99 $
 **
 ** Implementation of QColor class for X11
 **
@@ -29,6 +29,7 @@
 #include "qapplication.h"
 #include "qt_x11.h"
 
+// NOT REVISED
 
 /*****************************************************************************
   The color dictionary speeds up color allocation significantly for X11.
@@ -166,7 +167,7 @@ void QColor::initialize()
 {
     static const int blackIdx = 2;
     static const int whiteIdx = 3;
-    
+
     if ( color_init )				// already initialized
 	return;
     color_init = TRUE;

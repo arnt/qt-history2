@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#164 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#165 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -24,6 +24,8 @@
 *****************************************************************************/
 
 #include "qglobal.h"
+
+// NOT REVISED
 
 // Uncomment the next line to enable the MIT Shared Memory extension
 //

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#33 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -494,6 +494,7 @@ void write_png_image(QImageIO* iio)
 	iio->setStatus(-1);
 }
 
+// NOT REVISED
 /*!
   \class QPNGImagePacker qpngio.h
   \brief Creates well-compressed PNG animations.

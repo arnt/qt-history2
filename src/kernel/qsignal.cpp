@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#34 $
 **
 ** Implementation of QSignal class
 **
@@ -27,6 +27,7 @@
 #include "qmetaobject.h"
 #include <ctype.h>
 
+// NOT REVISED
 /*!
   \class QSignal qsignal.h
   \brief The QSignal class can be used to send signals without parameters.
@@ -175,7 +176,7 @@ bool QSignal::disconnect( const QObject *receiver, const char *member )
 /*!
   \fn void QSignal::activate()
   Emits the signal.
-  
+
   \sa isBlocked()
 */
 void  QSignal::activate()

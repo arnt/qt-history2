@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#34 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -28,6 +28,7 @@
 #include "qobject.h"
 
 
+// NOT REVISED
 /*!
   \class QPixmapCache qpixmapcache.h
 
