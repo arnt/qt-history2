@@ -1550,11 +1550,11 @@ void QTable::init( int rows, int cols )
     selections.setAutoDelete( TRUE );
 
     // Create headers
-    leftHeader = new QTableHeader( rows, this, this );
+    leftHeader = new QTableHeader( rows, this, this, "left table header" );
     leftHeader->setOrientation( Vertical );
     leftHeader->setTracking( TRUE );
     leftHeader->setMovingEnabled( TRUE );
-    topHeader = new QTableHeader( cols, this, this );
+    topHeader = new QTableHeader( cols, this, this, "right table header" );
     topHeader->setOrientation( Horizontal );
     topHeader->setTracking( TRUE );
     topHeader->setMovingEnabled( TRUE );
