@@ -840,6 +840,44 @@ QTextFrame *QTextPieceTable::frameAt(int pos) const
 
 #define d d_func()
 
+void QTextPieceTable::scanFrames()
+{
+    QTextFrame *f = frame;
+    frame->d->children.clear();
+
+    for (FragmentIterator it = begin(); it != end(); ++it) {
+        QTextFormat fmt = formats->format(it->format);
+        QTextGroup *group = fmt.group();
+        if (!group || !group->commonFormat().isFrameFormat())
+            continue;
+
+        Q_ASSERT(it.size() == 1);
+        QChar ch = text.at(it->stringPosition);
+
+        QTextFrame *frame = static_cast<QTextFrame *>(group);
+
+        if (ch == QTextBeginningOfFrame) {
+            frame->d->fragment_start = it.n;
+            frame->d->parentFrame = f;
+            frame->d->children.clear();
+            f->d->children.append(frame);
+            f = frame;
+        } else if (ch == QTextEndOfFrame) {
+            frame->d->fragment_end = it.n;
+            f = f->d->parentFrame;
+        } else if (ch == QChar::ObjectReplacementCharacter) {
+            frame->d->fragment_start = it.n;
+            frame->d->fragment_end = it.n;
+            frame->d->parentFrame = f;
+            f->d->children.append(frame);
+        } else if (ch == QTextTableCellSeparator) {
+            ; // nothing for now
+        } else {
+            Q_ASSERT(false);
+        }
+    }
+    Q_ASSERT(f == frame);
+}
 
 void QTextPieceTable::insert_frame(QTextFrame *f)
 {
@@ -918,6 +956,7 @@ QTextFrame *QTextPieceTable::insertFrame(int start, int end, const QTextFrameFor
         insertBlock(QTextBeginningOfFrame, start, idx, charIdx, UndoCommand::MoveCursor);
         insertBlock(QTextEndOfFrame, ++end, idx, charIdx, UndoCommand::KeepCursor);
     } else {
+        Q_ASSERT(text.at(find(start)->stringPosition) == QChar::ObjectReplacementCharacter);
         end = start;
     }
 

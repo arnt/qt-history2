@@ -134,6 +134,7 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
             destPieceTable->insert(cursor.position(), text, formatIdx);
         }
     }
+    cursor.d->pieceTable->scanFrames();
 }
 
 void QTextDocumentFragmentPrivate::appendBlock(int blockFormatIndex, int charFormatIndex)

@@ -115,6 +115,7 @@ public:
     void insertBlock(int pos, int blockFormat, int charFormat, UndoCommand::Operation = UndoCommand::MoveCursor);
     void remove(int pos, int length, UndoCommand::Operation = UndoCommand::MoveCursor);
 
+    void scanFrames();
     QTextFrame *insertFrame(int start, int end, const QTextFrameFormat &format);
     void removeFrame(QTextFrame *frame);
 
