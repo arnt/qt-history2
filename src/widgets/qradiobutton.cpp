@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#96 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#97 $
 **
 ** Implementation of QRadioButton class
 **
@@ -116,7 +116,6 @@ void QRadioButton::init()
 */
 
 /*!
-  \fn void QRadioButton::setChecked( bool check )
   Checks the radio button if \e check is TRUE, or unchecks it if \e check
   is FALSE.
 
@@ -125,6 +124,12 @@ void QRadioButton::init()
 
   \sa isChecked()
 */
+void QRadioButton::setChecked( bool check )
+{
+    setOn( check ); 
+}
+
+
 
 
 /*!

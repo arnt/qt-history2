@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#56 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -120,7 +120,7 @@ void QButtonGroup::init()
     CHECK_PTR( buttons );
     buttons->setAutoDelete( TRUE );
     excl_grp = FALSE;
-    radio_buttons = FALSE;
+    radio_excl = FALSE;
 }
 
 /*!
@@ -154,7 +154,7 @@ bool QButtonGroup::isExclusive() const
   radio buttons\endlink A non-exclusive group allow many buttons to be
   switched on at the same time.
 
-  The default setting is FALSE. 
+  The default setting is FALSE.
 
   \sa isExclusive()
 */
@@ -339,7 +339,7 @@ void QButtonGroup::buttonClicked()
 
 void QButtonGroup::buttonToggled( bool on )
 {
-    if ( !on || !excl_grp && !radio_buttons )
+    if ( !on || !excl_grp && !radio_excl )
 	return;
     QButton *bt = (QButton *)sender();		// object that sent the signal
 #if defined(CHECK_NULL)
@@ -387,5 +387,5 @@ void QButtonGroup::setButton( int id )
 
 void QButtonGroup::setRadioButtonExclusive( bool on)
 {
-    radio_buttons = on;
+    radio_excl = on;
 }

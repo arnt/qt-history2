@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.h#38 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.h#39 $
 **
 ** Definition of QRadioButton class
 **
@@ -67,9 +67,5 @@ private:	// Disabled copy constructor and operator=
 
 inline bool QRadioButton::isChecked() const
 { return isOn(); }
-
-inline void QRadioButton::setChecked( bool check )
-{ setOn( check ); }
-
 
 #endif // QRADIOBUTTON_H

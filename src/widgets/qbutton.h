@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#69 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#70 $
 **
 ** Definition of QButton widget class
 **
@@ -68,6 +68,8 @@ public:
     bool	autoRepeat() const;
     virtual void	setAutoRepeat( bool );
 
+    bool	isExclusiveToggle() const;
+    
 public slots:
     void	animateClick();
     void	toggle();

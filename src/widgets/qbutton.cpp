@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#130 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#131 $
 **
 ** Implementation of QButton widget class
 **
@@ -840,9 +840,7 @@ void QButton::animateTimeout()
 
 void QButton::nextState()
 {
-    bool t = isToggleButton() &&
-	     (!isOn() || !group() || !group()->isExclusive());
-
+    bool t = isToggleButton() && !( isOn() && isExclusiveToggle() );
     bool was = stat != Off;
     if ( t ) {
 	if ( toggleTyp == Tristate )
@@ -880,7 +878,7 @@ void QButton::toggle()
 /*!
   Sets the type of toggling behavior.  \a type is one of:
   <ul>
-   <li>\c SingleShot - pressing the button causes and action, then the
+   <li>\c SingleShot - pressing the button causes an action, then the
 			button returns to the unpressed state.
    <li>\c Toggle - pressing the button toggles between an On and and Off
 			state.
@@ -898,3 +896,17 @@ void QButton::setToggleType( ToggleType type )
     }
 }
 
+
+
+/*!
+  Returns TRUE if this button behaves exclusively inside a QButtonGroup.
+  In that case, this button can only be toggled off by another buton 
+  beinhg toggled on.
+*/
+
+bool QButton::isExclusiveToggle() const
+{
+    return group() && ( group()->isExclusive() || 
+			group()->isRadioButtonExclusive() &&
+			inherits( "QRadioButton" ) );
+}
