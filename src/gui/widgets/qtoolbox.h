@@ -34,12 +34,12 @@ public:
     QToolBox(QWidget *parent = 0, const char *name = 0, WFlags f = 0);
     ~QToolBox();
 
-    int addItem(QWidget *item, const QString &label);
-    int addItem(QWidget *item, const QIconSet &iconSet, const QString &label);
-    int insertItem(int index, QWidget *item, const QString &label);
-    int insertItem(int index, QWidget *item, const QIconSet &iconSet, const QString &label);
+    int addItem(QWidget *widget, const QString &label);
+    int addItem(QWidget *widget, const QIconSet &iconSet, const QString &label);
+    int insertItem(int index, QWidget *widget, const QString &label);
+    int insertItem(int index, QWidget *widget, const QIconSet &iconSet, const QString &label);
 
-    int removeItem(QWidget *item);
+    void removeItem(int index);
 
     void setItemEnabled(int index, bool enabled);
     bool isItemEnabled(int index) const;
@@ -54,8 +54,8 @@ public:
     QString itemToolTip(int index) const;
 
     int currentIndex() const;
-    QWidget *item(int index) const;
-    int indexOf(QWidget *item) const;
+    QWidget *widget(int index) const;
+    int indexOf(QWidget *widget) const;
     int count() const;
 
 public slots:
@@ -66,7 +66,7 @@ signals:
 
 private slots:
     void buttonClicked();
-    void itemDestroyed(QObject*);
+    void widgetDestroyed(QObject*);
 
 protected:
     virtual void itemInserted(int index);
@@ -82,8 +82,10 @@ private:
 
 #ifdef QT_COMPAT
 public:
-    QT_COMPAT QWidget *currentItem() const { return item(currentIndex()); }
-    QT_COMPAT void setCurrentItem(QWidget *item) { setCurrentIndex(indexOf(item)); }
+    QT_COMPAT inline QWidget *currentItem() const { return item(currentIndex()); }
+    QT_COMPAT inline void setCurrentItem(QWidget *item) { setCurrentIndex(indexOf(item)); }
+    QT_COMPAT inline int removeItem(QWidget *item) { int i = indexOf(item); removeItem(i); return i; }
+    QT_COMPAT inline QWidget *item(int index) const { return widget(index); }
 #endif
 };
 

@@ -324,45 +324,45 @@ QToolBox::~QToolBox()
 */
 
 /*!
-    \fn int QToolBox::addItem(QWidget *item, const QIconSet &iconSet,const QString &label)
-    Adds the widget \a item in a new tab at bottom of the toolbox. The
+    \fn int QToolBox::addItem(QWidget *widget, const QIconSet &iconSet,const QString &label)
+    Adds the \a widget in a new tab at bottom of the toolbox. The
     new tab's label is set to \a label, and the \a iconSet is
     displayed to the left of the \a label.  Returns the new tab's index.
 */
 
 /*!
-    \fn int QToolBox::insertItem(int index, QWidget *item, const QString &label)
+    \fn int QToolBox::insertItem(int index, QWidget *widget, const QString &label)
     \overload
 
-    Inserts the widget \a item at position \a index, or at the bottom
+    Inserts the \a widget at position \a index, or at the bottom
     of the toolbox if \a index is out of range. The new item's label is
     set to \a label. Returns the new item's index.
 */
 
 /*!
-    Inserts the widget \a item at position \a index, or at the bottom
+    Inserts the \a widget at position \a index, or at the bottom
     of the toolbox if \a index is out of range. The new item's label
     is set to \a label, and the \a iconSet is displayed to the left of
     the \a label. Returns the new item's index.
 */
 
-int QToolBox::insertItem(int index, QWidget *item, const QIconSet &iconSet,
+int QToolBox::insertItem(int index, QWidget *widget, const QIconSet &iconSet,
                            const QString &label)
 {
-    if (!item)
+    if (!widget)
         return -1;
 
-    connect(item, SIGNAL(destroyed(QObject*)), this, SLOT(itemDestroyed(QObject*)));
+    connect(widget, SIGNAL(destroyed(QObject*)), this, SLOT(widgetDestroyed(QObject*)));
 
     QToolBoxPrivate::Page c;
-    c.widget = item;
+    c.widget = widget;
     c.button = new QToolBoxButton(this, label.latin1());
     connect(c.button, SIGNAL(clicked()), this, SLOT(buttonClicked()));
 
     c.sv = new QScrollView(this);
     c.sv->hide();
     c.sv->setResizePolicy(QScrollView::AutoOneFit);
-    c.sv->addChild(item);
+    c.sv->addChild(widget);
     c.sv->setFrameStyle(QFrame::NoFrame);
 
     c.setTextLabel(label);
@@ -445,7 +445,7 @@ void QToolBox::relayout()
     }
 }
 
-void QToolBox::itemDestroyed(QObject *object)
+void QToolBox::widgetDestroyed(QObject *object)
 {
     // no verification - vtbl corrupted already
     QWidget *page = (QWidget*)object;
@@ -472,22 +472,19 @@ void QToolBox::itemDestroyed(QObject *object)
 }
 
 /*!
-    Removes the widget \a item from the toolbox. Note that the widget
-    is \e not deleted. Returns the removed widget's index, or -1 if
-    the widget was not in this tool box.
+    Removes the item at position \a index from the toolbox. Note that
+    the widget is \e not deleted.
 */
 
-int QToolBox::removeItem(QWidget *item)
+void QToolBox::removeItem(int index)
 {
-    int index = indexOf(item);
-    if (index >= 0) {
-        disconnect(item, SIGNAL(destroyed(QObject*)), this, SLOT(itemDestroyed(QObject*)));
-        item->setParent(this);
+    if (QWidget *w = widget(index)) {
+        disconnect(w, SIGNAL(destroyed(QObject*)), this, SLOT(itemDestroyed(QObject*)));
+        w->setParent(this);
         // destroy internal data
-        itemDestroyed(item);
+        widgetDestroyed(w);
+        itemRemoved(index);
     }
-    itemRemoved(index);
-    return index;
 }
 
 
@@ -504,11 +501,11 @@ int QToolBox::currentIndex() const
 }
 
 /*!
-    Returns the item at position \a index, or 0 if there is no such
+    Returns the widget at position \a index, or 0 if there is no such
     item.
 */
 
-QWidget *QToolBox::item(int index) const
+QWidget *QToolBox::widget(int index) const
 {
     if (index < 0 || index >= (int) d->pageList.size())
         return 0;
@@ -516,13 +513,13 @@ QWidget *QToolBox::item(int index) const
 }
 
 /*!
-    Returns the index of item \a item, or -1 if the item does not
+    Returns the index of \a widget, or -1 if the item does not
     exist.
 */
 
-int QToolBox::indexOf(QWidget *item) const
+int QToolBox::indexOf(QWidget *widget) const
 {
-    QToolBoxPrivate::Page *c = d->page(item);
+    QToolBoxPrivate::Page *c = d->page(widget);
     return c ? d->pageList.indexOf(*c) : -1;
 }
 
