@@ -157,12 +157,7 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
 			    return FALSE;
 			}
 			QString func = comp_scope.left(lparen);
-			QStringList args = QStringList::split(',', 
-							      comp_scope.mid(
-								  lparen+1, rparen - lparen - 1));
-			for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit)
-			    (*arit) = (*arit).stripWhiteSpace(); /* blah, get rid of space */
-			test = doProjectTest(func, args, place);
+			test = doProjectTest(func, comp_scope.mid(lparen+1, rparen - lparen - 1), place);
 			if ( *d == ')' && !*(d+1) ) {
 			    if(invert_test)
 				test = !test;
@@ -544,6 +539,33 @@ QMakeProject::isActiveConfig(const QString &x)
 }
 
 bool
+QMakeProject::doProjectTest(QString func, const QString &params, QMap<QString, QStringList> &place)
+{
+    QStringList args;
+    int last = 0;
+    QChar quote = 0;
+    for(int x = 0; x < params.length(); x++) {
+	if(params[x] == quote) {
+	    quote = 0;
+	} else if(params[x] == '\'' || params[x] == '"') {
+	    quote = params[x];
+	} else if(!quote && params[x] == ',') {
+	    args << params.mid(last, x - last);
+	    last = x+1;
+	}
+    }
+    if(last != params.length()) 
+	args << params.mid(last);
+    for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
+	QString tmp = (*arit).stripWhiteSpace(); 
+	if((tmp[0] == '\'' || tmp[0] == '"') && tmp.right(1) == tmp.left(1))
+	    tmp = tmp.mid(1, tmp.length() - 2);
+	(*arit) = tmp.stripWhiteSpace();
+    }
+    return doProjectTest(func, args, place);
+}
+
+bool
 QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString, QStringList> &place)
 {
     if(func == "requires") {
@@ -556,7 +578,6 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 	}
 	QString file = args.first();
 	file = Option::fixPathToLocalOS(file);
-	file.replace(QRegExp("\""), "");
 	doVariableReplace(file, place);
 
 	if(QFile::exists(file))
@@ -592,14 +613,17 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 	}
 	QMakeProject proj;
 	QString file = args[0];
+	doVariableReplace(file, place);
+	fixEnvVariables(file);
 	int di = file.findRev(Option::dir_sep);
 	QDir sunworkshop42workaround = QDir::current();
 	QString oldpwd = sunworkshop42workaround.currentDirPath();
 	if(di != -1) {
-	    if(!QDir::setCurrent(file.left(file.findRev(Option::dir_sep))))
+	    if(!QDir::setCurrent(file.left(file.findRev(Option::dir_sep)))) {
 		fprintf(stderr, "Cannot find directory: %s\n", file.left(di).latin1());
+		return FALSE;
+	    }
 	    file = file.right(file.length() - di - 1);
-	    return FALSE;
 	}
 	parser_info pi = parser;
 	bool ret = !proj.read(file, oldpwd);
@@ -609,10 +633,10 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 	    QDir::setCurrent(oldpwd);
 	    return FALSE;
 	}
-	if(args.count() == 2)
-	    ret = !proj.isEmpty(args[1]);
+	if(args.count() == 2 || proj.isEmpty(args[1]))
+	    ret = FALSE;
 	else
-	    ret = (proj.isEmpty(args[1]) ? FALSE : (proj.values(args[1]).findIndex(args[2]) != -1));
+	    ret = (proj.values(args[1]).findIndex(args[2]) != -1);
 	QDir::setCurrent(oldpwd);
 	return ret;
     } else if(func == "count") {
@@ -659,8 +683,10 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 		    parser.line_no, func.latin1());
 	    return FALSE;
 	}
-
-	printf("Project %s: %s\n", func.upper().latin1(), args.first().latin1());
+	QString msg = args.first();
+	doVariableReplace(msg, place);
+	fixEnvVariables(msg);
+	printf("Project %s: %s\n", func.upper().latin1(), msg.latin1());
 	if(func == "message")
 	    return TRUE;
 	exit(2);
@@ -693,10 +719,7 @@ QMakeProject::doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringL
 		qmake_error_msg(error);
 	    } else {
 		QString func = chk.left(lparen);
-		QStringList args = QStringList::split(',', chk.mid(lparen+1, rparen - lparen - 1));
-		for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit)
-		    (*arit) = (*arit).stripWhiteSpace(); /* blah, get rid of space */
-		test = doProjectTest(func, args, place);
+		test = doProjectTest(func, chk.mid(lparen+1, rparen - lparen - 1), place);
 	    }
 	} else {
 	    test = isActiveConfig(chk);

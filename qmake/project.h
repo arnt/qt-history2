@@ -49,6 +49,7 @@ class QMakeProject
     QString pfile, cfile;
     QMap<QString, QStringList> vars, base_vars, cache;
     bool parse(QString text, QMap<QString, QStringList> &place);
+    bool doProjectTest(QString func, const QString &params, QMap<QString, QStringList> &place);
     bool doProjectTest(QString func, const QStringList &args, QMap<QString, QStringList> &place);
     bool doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringList> &place);
     QString doVariableReplace(QString &str, const QMap<QString, QStringList> &place);

@@ -125,6 +125,11 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\""
 			  << build << "!ENDIF " << endl << endl;
+		    } else if ( project->isActiveConfig("activeqt") &&
+			(*it).right(4).lower() == ".idl" ) {
+			QString sourcefile = (*it).left( (*it).length()-4 );
+			t << "# ADD MTL /nologo /tlb \"./" << sourcefile << ".tlb\" /iid \"./" << sourcefile << "iface.c\" /Oicf" << endl;
+			t << "# SUBTRACT MTL /mktyplib203" << endl;
 		    }
 		    t << "# End Source File" << endl;
 		}
@@ -446,6 +451,28 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		}
 
 		t << "\n# End Group\n";
+	    } else  if ( variable == "MSVCDSP_IDLOUTPUT" ) {
+		QStringList &l = project->variables()["IDLOUTPUT"];
+		if ( l.isEmpty() )
+		    continue;
+		
+		QString axFile = "main.cpp";
+		for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
+		    QString sourcefile = *it;
+		    t << "# Begin Source File\n\nSOURCE=" << sourcefile << endl;
+		    if ( sourcefile.right( 4 ).lower() == ".tlb" ) {
+			QString output = sourcefile.left( sourcefile.length()-4) + ".idl";
+			t << "USERDEP_" << sourcefile << "=\"" << axFile << "\"" << endl;
+			t << "# Begin Custom Build - Generating IDL from " << axFile << "..." << endl;
+			t << "# InputPath=" << sourcefile << endl << endl;
+			t << "\"" << output << "\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"" << endl;
+			t << "\t$(QTDIR)\\bin\\idc " << axFile << " -o " << output << endl << endl;
+			t << "# End Custom Build" << endl << endl;
+		    } else if ( sourcefile.right( 7 ).lower() == "iface.c" ) {
+			t << "# PROP Exclude_From_Build 1" << endl;
+		    }
+		    t << "# End Source File" << endl;
+		}
 	    }
 	    else if( variable == "MSVCDSP_CONFIGMODE" ) {
 		if( project->isActiveConfig( "release" ) )
@@ -546,7 +573,7 @@ DspMakefileGenerator::init()
 			(*libit).replace(QRegExp("qt(-mt)?\\.lib"), ver);
 		}
 	    }
-	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") ) {
+	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") && !project->isActiveConfig("activeqt") ) {
 		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_DLL"];
 	    }
 	}
@@ -632,6 +659,7 @@ DspMakefileGenerator::init()
     if ( project->variables()["TARGET"].count() )
 	msvcdsp_project = project->variables()["TARGET"].first();
 
+    QString targetfilename = project->variables()["TARGET"].first();
     project->variables()["TARGET"].first() += project->first("TARGET_EXT");
     if ( project->isActiveConfig("moc") ) 
 	setMocAware(TRUE);
@@ -680,6 +708,33 @@ DspMakefileGenerator::init()
             project->variables()["MSVCDSP_TEMPLATE"].append("win32lib" + project->first( "DSP_EXTENSION" ) );
         }
     }
+
+    if ( project->isActiveConfig("activeqt") ) {
+	if ( !project->variables()["APPID"].isEmpty() )
+	    project->variables()["DEFINES"].append( "QT_ACTIVEQT_APPID=\"" + project->variables()["APPID"].first() + "\"" );
+	project->variables()["QMAKE_LIBS"].append( "$(QTDIR)\\lib\\activeqt.lib" );
+	project->variables()["SOURCES"].append( targetfilename + ".rc" );
+	if ( !QFile::exists( targetfilename + ".rc" ) ) {
+	    QFile rcFile( targetfilename + ".rc" );
+	    if ( rcFile.open( IO_WriteOnly ) ) {
+		QTextStream rc( &rcFile );
+		rc << "1 TYPELIB \"" + targetfilename + ".tlb\"" << endl;;
+	    }
+	}
+	project->variables()["SOURCES"].append( targetfilename + ".idl" );
+	if ( !QFile::exists( targetfilename + ".idl" ) ) {
+	    QFile idlFile( targetfilename + ".idl" );
+	    if ( idlFile.open( IO_WriteOnly ) ) {
+		QTextStream idl( &idlFile );
+		idl << "import \"oaidl.idl\";" << endl;
+		idl << "import \"ocidl.idl\";" << endl;
+		idl << "#include \"olectl.h\"" << endl;
+	    }
+	}
+	project->variables()["IDLOUTPUT"].append( targetfilename + ".tlb" );
+	project->variables()["IDLOUTPUT"].append( targetfilename + "iface.c" );
+    }
+
     project->variables()["MSVCDSP_LIBS"] += project->variables()["QMAKE_LIBS"];
     project->variables()["MSVCDSP_LIBS"] += project->variables()["QMAKE_LIBS_WINDOWS"];
     project->variables()["MSVCDSP_LFLAGS" ] += project->variables()["QMAKE_LFLAGS"];
@@ -718,6 +773,18 @@ DspMakefileGenerator::init()
 	    "PostBuild_Desc=Copy DLL to " + project->first("DLLDESTDIR") + "\n"
 	    "PostBuild_Cmds=copy \"" + dest + "\" \"" + project->first("DLLDESTDIR") + "\"\n"
 	    "# End Special Build Tool");
+    }
+    if ( project->isActiveConfig("activeqt") ) {
+	QString regcmd = "# Begin Special Build Tool\n"
+			"TargetPath=" + targetfilename + "\n"
+			"SOURCE=$(InputPath)\n"
+			"PostBuild_Desc=Registering ActiveX control in " + targetfilename + "\n"
+			"PostBuild_Cmds=%1 -RegServer\n"
+			"# End Special Build Tool";
+	QString executable = project->variables()["MSVCDSP_TARGETDIRREL"].first() + "\\" + project->variables()["TARGET"].first();
+	project->variables()["MSVCDSP_REGSVR_REL"].append(regcmd.arg(executable) );
+	executable = project->variables()["MSVCDSP_TARGETDIRDEB"].first() + "\\" + project->variables()["TARGET"].first();
+	project->variables()["MSVCDSP_REGSVR_DBG"].append(regcmd.arg(executable) );
     }
     if ( !project->variables()["SOURCES"].isEmpty() || !project->variables()["RC_FILE"].isEmpty() ) {
 	project->variables()["SOURCES"] += project->variables()["RC_FILE"];
