@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#360 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#361 $
 **
 ** Implementation of QFileDialog class
 **
@@ -468,7 +468,7 @@ struct QFileDialogPrivate {
 
     class UrlInfoList : public QList<QUrlInfo> {
     public:
-	UrlInfoList() : QList() { setAutoDelete( TRUE ); }
+	UrlInfoList() { setAutoDelete( TRUE ); }
 	int compareItems( QCollection::Item n1, QCollection::Item n2 ) {
 	    if ( !n1 || !n2 )
 		return 0;
