@@ -258,9 +258,8 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
 	mi->accel_key = Qt::Key_unknown;
 	if ( pixmap )
 	    mi->pixmap_data = new QPixmap( *pixmap );
-	mi->popup_menu = popup;
-	if ( popup )
-	    popup->selfItem = mi;
+	if ( (mi->popup_menu = popup) ) 
+	    menuInsPopup( popup );
 	if ( iconset )
 	    mi->iconset_data = new QIconSet( *iconset );
     }
@@ -430,7 +429,7 @@ int QMenuData::insertItem( const QPixmap &pixmap,
   Inserts a menu item with the icon \a icon, and the pixmap \a pixmap
   The icon will be displayed to the left of the pixmap in the item.
 
-  The accelerator key is set to \a accel and the item is connected it 
+  The accelerator key is set to \a accel and the item is connected it
   to the \a member slot in the \a receiver object.
 
   The menu item is assigned the identifier \a id or an automatically
@@ -475,7 +474,7 @@ int QMenuData::insertItem( const QString &text, int id, int index )
 }
 
 /*!\overload
-  
+
   Inserts a menu item with the icon \a icon, and the text \a text
   The icon will be displayed to the left of the text in the item.
 
@@ -516,8 +515,8 @@ int QMenuData::insertItem( const QString &text, QPopupMenu *popup,
 
 /*!\overload
 
-  Inserts a menu item with the icon \a icon, the text \a text 
-  and the submenu \a popup. The icon will be displayed to the 
+  Inserts a menu item with the icon \a icon, the text \a text
+  and the submenu \a popup. The icon will be displayed to the
   left of the text in the item.
 
   The menu item is assigned the identifier \a id or an automatically
@@ -555,7 +554,7 @@ int QMenuData::insertItem( const QIconSet& icon,
 
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
-  
+
   Returns the menu item identifier.
 
   To look best when being highlighted as menu item, the pixmap should
@@ -570,7 +569,7 @@ int QMenuData::insertItem( const QPixmap &pixmap, int id, int index )
 }
 
 /*!\overload
-  Inserts a menu item with the icon \a icon, the pixmap \a pixmap 
+  Inserts a menu item with the icon \a icon, the pixmap \a pixmap
   The icon will be displayed to the left of the pixmap in the item.
 
   The menu item is assigned the identifier \a id or an automatically
@@ -621,8 +620,8 @@ int QMenuData::insertItem( const QPixmap &pixmap, QPopupMenu *popup,
 
 
 /*!\overload
-  Inserts a menu item with the icon \a icon, the pixmap \a pixmap 
-  and the submenu \a popup. The icon will be displayed to the left 
+  Inserts a menu item with the icon \a icon, the pixmap \a pixmap
+  and the submenu \a popup. The icon will be displayed to the left
   of the pixmap in the item.
 
   The menu item is assigned the identifier \a id or an automatically
@@ -754,10 +753,8 @@ void QMenuData::removeItemAt( int index )
 	return;
     }
     QMenuItem *mi = mitems->at( index );
-    if ( mi->popup_menu ) {
-	mi->popup_menu->selfItem = 0;
+    if ( mi->popup_menu )
 	menuDelPopup( mi->popup_menu );
-    }
     mitems->remove();
     if ( !QApplication::closingDown() )		// avoid trouble
 	menuContentsChanged();
@@ -773,10 +770,8 @@ void QMenuData::clear()
 {
     register QMenuItem *mi = mitems->first();
     while ( mi ) {
-	if ( mi->popup_menu ) {
-	    mi->popup_menu->selfItem = 0;
+	if ( mi->popup_menu )
 	    menuDelPopup( mi->popup_menu );
-	}
 	mitems->remove();
 	mi = mitems->current();
     }
@@ -967,7 +962,7 @@ void QMenuData::changeItem( int id, const QPixmap &pixmap )
 }
 
 /*!
-  Changes the iconset and text of the menu item \a id 
+  Changes the iconset and text of the menu item \a id
   to the iconset \a icon and to the text \a text.
   \sa pixmap()
 */
@@ -980,8 +975,8 @@ void QMenuData::changeItem( int id, const QIconSet &icon, const QString &text )
 
 /*!
   \overload
-    
-  Changes the iconset and pixmap of the menu item \a id 
+
+  Changes the iconset and pixmap of the menu item \a id
   to the iconset \a icon and to the pixmap \a pixmap.
   \sa pixmap()
 */
@@ -1050,9 +1045,9 @@ void QMenuData::setItemEnabled( int id, bool enable )
 
 
 /*!
-  Returns TRUE if the menu item with the id \a id has been checked, 
+  Returns TRUE if the menu item with the id \a id has been checked,
   otherwise FALSE.
-  
+
   \sa setItemChecked()
 */
 
@@ -1096,8 +1091,8 @@ QMenuItem *QMenuData::findItem( int id ) const
 
 
 /*!
-  \overload    
-  
+  \overload
+
   Returns a pointer to the menu item with identifier \a id, or 0 if
   there is no item with such an identifier, and changes \a parent to
   point to the parent of the return value.

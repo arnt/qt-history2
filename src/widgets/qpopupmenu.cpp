@@ -396,7 +396,6 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     if (parentMenu && parentMenu->actItem == -1){
 	//reuse
 	parentMenu->menuDelPopup( this );
-	selfItem = 0;
 	parentMenu = 0;
     }
     // #### should move to QWidget - anything might need this functionality,
@@ -992,7 +991,6 @@ void QPopupMenu::updateAccel( QWidget *parent )
 		popup->avoid_circularity = 1;
 		if (popup->parentMenu)
 		    popup->parentMenu->menuDelPopup(popup);
-		popup->selfItem  = mi;
 		menuInsPopup(popup);
 		popup->updateAccel( parent );
 		popup->avoid_circularity = 0;
@@ -1114,7 +1112,7 @@ int QPopupMenu::itemHeight( QMenuItem *mi ) const
 void QPopupMenu::drawItem( QPainter* p, int tab_, QMenuItem* mi,
 			   bool act, int x, int y, int w, int h)
 {
-    bool dis = (selfItem && !selfItem->isEnabled()) || !mi->isEnabled();
+    bool dis = !mi->isEnabled();
     if ( mi->custom() && mi->custom()->fullSpan() ) {
 	QMenuItem dummy;
 	style().drawPopupMenuItem(p, checkable, maxPMWidth, tab_, &dummy, palette(),
@@ -1623,7 +1621,6 @@ void QPopupMenu::subMenuTimer() {
 	// reuse
 	if (popup->parentMenu)
 	    popup->parentMenu->menuDelPopup(popup);
-	popup->selfItem  = mi;
 	menuInsPopup(popup);
     }
 
@@ -1839,7 +1836,7 @@ void QPopupMenu::setActiveItem( int i )
     if ( !mi )
 	return;
 
-   
+
     if ( mi->widget() && mi->widget()->isFocusEnabled() ) {
 	mi->widget()->setFocus();
     } else {

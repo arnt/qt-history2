@@ -766,7 +766,7 @@ QWidget::~QWidget()
     if(qt_style_global_context == this)
 	qt_style_global_context = NULL;
 #endif
-    
+
     if ( focusWidget() == this )
 	clearFocus();
     if ( QApplication::focus_widget == this )
@@ -2814,14 +2814,12 @@ void QWidget::clearFocus()
     if ( focusProxy() ) {
 	focusProxy()->clearFocus();
 	return;
-    } else {
+    } else if ( hasFocus() ) {
 	QWidget* w = qApp->focusWidget();
-	if ( w && w->focusWidget() == this ) {
-	    // clear active focus
-	    qApp->focus_widget = 0;
-	    QFocusEvent out( QEvent::FocusOut );
-	    QApplication::sendEvent( w, &out );
-	}
+	// clear active focus
+	qApp->focus_widget = 0;
+	QFocusEvent out( QEvent::FocusOut );
+	QApplication::sendEvent( w, &out );
     }
 }
 

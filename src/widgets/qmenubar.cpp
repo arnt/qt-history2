@@ -202,7 +202,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 	if ( tlw != parent )
 	    tlw->installEventFilter( this );
     }
-    
+
     setFrameStyle( QFrame::MenuBarPanel );
 
     QFontMetrics fm = fontMetrics();
@@ -403,26 +403,25 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
     if ( event->type() == QEvent::Accel ) {
 	QWidget * f = ((QWidget *)object)->focusWidget();
 	QKeyEvent * ke = (QKeyEvent *) event;
-	if ( f ) { // ### this thinks alt and meta are the same
-	    if ( ke->key() == Key_Alt || ke->key() == Key_Meta ) {
-		if ( waitforalt ) {
-		    waitforalt = 0;
-		    if ( object->parent() )
-			object->removeEventFilter( this );
-		    ke->accept();
-		    return TRUE;
-		} else if ( hasFocus() ) {
-		    setAltMode( FALSE );
-		    ke->accept();
-		    return TRUE;
-		} else {
-		    waitforalt = 1;
-		    if ( f != object )
-			f->installEventFilter( this );
-		}
-	    } else if ( ke->key() == Key_Control || ke->key() == Key_Shift) {
+	// ### this thinks alt and meta are the same
+	if ( ke->key() == Key_Alt || ke->key() == Key_Meta ) {
+	    if ( waitforalt ) {
+		waitforalt = 0;
+		if ( object->parent() )
+		    object->removeEventFilter( this );
+		ke->accept();
+		return TRUE;
+	    } else if ( hasFocus() ) {
 		setAltMode( FALSE );
+		ke->accept();
+		return TRUE;
+	    } else {
+		waitforalt = 1;
+		if ( f && f != object )
+		    f->installEventFilter( this );
 	    }
+	} else if ( ke->key() == Key_Control || ke->key() == Key_Shift) {
+	    setAltMode( FALSE );
 	}
 	// ### ! block all accelerator events when the menu bar is active
 	if ( qApp && qApp->focusWidget() == this ) {
@@ -435,15 +434,10 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
     // look for Alt release
     if ( ((QWidget*)object)->focusWidget() == object ||
 	 (object->parent() == 0 && ((QWidget*)object)->focusWidget() == 0) ) {
-	if ( event->type() == QEvent::KeyRelease &&
+	if ( waitforalt && 
+	     event->type() == QEvent::KeyRelease &&
 	     (((QKeyEvent *)event)->key() == Key_Alt ||
 	      ((QKeyEvent *)event)->key() == Key_Meta) ) {
-	    if ( !waitforalt ) {
-		setAltMode( FALSE );
-		return FALSE; 
-	    }
-	    if ( !hasmouse || actItem < 0 )
-		setActiveItem( 0, FALSE );
 	    setAltMode( TRUE );
 	    if ( object->parent() )
 		object->removeEventFilter( this );
@@ -589,7 +583,6 @@ void QMenuBar::openActPopup()
 	// reuse
 	if (popup->parentMenu)
 	    popup->parentMenu->menuDelPopup(popup);
-	popup->selfItem	 = mitems->at(actItem);
 	menuInsPopup(popup);
     }
 
@@ -1194,7 +1187,6 @@ void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
 	    mi->signal()->activate();
 	emit activated( mi->id() );
     }
-
 }
 
 
@@ -1210,6 +1202,8 @@ void QMenuBar::setAltMode( bool enable )
     } else {
 	if ( QMenuData::d->aWidget )
 	    QMenuData::d->aWidget->setFocus();
+	else
+	    clearFocus();
 	int actId = idAt( actItem );
 	actItem = -1;
 	updateItem( actId );
@@ -1252,7 +1246,6 @@ void QMenuBar::setupAccelerators()
 	    QPopupMenu* popup = mi->popup();
 	    if (popup->parentMenu)
 		popup->parentMenu->menuDelPopup(popup);
-	    popup->selfItem  = mi;
 	    menuInsPopup(popup);
 	    popup->updateAccel( this );
 	    if ( !popup->isEnabled() )
@@ -1275,10 +1268,16 @@ bool QMenuBar::customWhatsThis() const
  */
 void QMenuBar::focusInEvent( QFocusEvent * )
 {
-    if ( actItem < 0 )
-	setActiveItem( 0, FALSE );
-    else if ( !popupvisible )
+    if ( actItem < 0 ) {
+	int i = -1;
+	while ( actItem < 0 && ++i < (int) mitems->count() ) {
+	    QMenuItem* mi = mitems->at( i );
+	    if ( mi && mi->isEnabled() && !mi->isSeparator() )
+		setActiveItem( i, FALSE );
+	}
+    } else if ( !popupvisible ) {
 	updateItem( idAt( actItem ) );
+    }
 }
 
 /*!\reimp
