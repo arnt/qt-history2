@@ -1031,13 +1031,13 @@ void QHeader::paintSection( QPainter *p, int id, QRect fr )
 	if ( data->sortDirection ) {
 	    QPointArray pa( 3 );
 	    int x = fr.x() + fr.width() - ( arrowWidth + 4 );
-	    p->setPen( colorGroup().dark() );
-	    pa.setPoint( 0, x, 4 );
-	    pa.setPoint( 1, x + arrowWidth, 4 );
+	    p->setPen( colorGroup().light() );
+	    pa.setPoint( 0, x + arrowWidth, 4 );
+	    pa.setPoint( 1, x, 4 );
 	    pa.setPoint( 2, x + arrowWidth / 2, fr.height() - 6 );
 	    p->drawPolyline( pa );
-	    p->setPen( colorGroup().light() );
-	    p->drawLine( x, 4, x + arrowWidth / 2, fr.height() - 6 );
+	    p->setPen( colorGroup().dark() );
+	    p->drawLine( x + arrowWidth / 2, fr.height() - 6, x + arrowWidth, 4 );
 	} else {
 	    QPointArray pa( 3 );
 	    int x = fr.x() + fr.width() - ( arrowWidth + 4 );
