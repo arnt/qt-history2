@@ -10,10 +10,7 @@ class QAbstractButtonPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QAbstractButton)
 public:
-    QAbstractButtonPrivate()
-        :shortcutId(0), checkable(false), checked(false), autoRepeat(false), autoExclusive(false),
-         down(false), mlbDown(false), blockRefresh(false), group(0)
-        {}
+    QAbstractButtonPrivate();
 
     QString text;
     QIconSet icon;

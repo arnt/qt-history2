@@ -144,9 +144,14 @@ public:
     bool exclusive;
 };
 
+
 #define d d_func()
 #define q q_func()
 
+QAbstractButtonPrivate::QAbstractButtonPrivate()
+    :shortcutId(0), checkable(false), checked(false), autoRepeat(false), autoExclusive(false),
+     down(false), mlbDown(false), blockRefresh(false), group(0)
+{}
 
 Q4ButtonGroup::Q4ButtonGroup(QObject *parent)
     : QObject(*new Q4ButtonGroupPrivate, parent)
