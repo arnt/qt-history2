@@ -500,9 +500,6 @@ while [ "$#" -gt 0 ]; do
     exceptions|g++-exceptions)
 	if [ "$VAL" = "no" ]; then
 	    CFG_EXCEPTION_SUPPORT=no
-	    QMAKE_VARS="$QMAKE_VARS \"QMAKE_CFLAGS+=-fno-exceptions\""
-	    QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-fno-exceptions\""
-	    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LFLAGS+=-fno-exceptions\""
 	else
 	    UNKNOWN_OPT=yes
 	fi
@@ -2570,6 +2567,29 @@ QMAKE_VARS="$QMAKE_VARS \"libs.path=${QT_INSTALL_LIBS}\""
 QMAKE_VARS="$QMAKE_VARS \"bins.path=${QT_INSTALL_BINS}\""
 QMAKE_VARS="$QMAKE_VARS \"data.path=${QT_INSTALL_DATA}\""
 
+# turn off exceptions for the compilers that support it
+COMPILER=`echo $PLATFORM | cut -f 2- -d-`
+if [ "$CFG_EXCEPTION_SUPPORT" = "no" ]; then
+    case "$COMPILER" in
+    g++-*)
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_CFLAGS+=-fno-exceptions\""
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-fno-exceptions\""
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LFLAGS+=-fno-exceptions\""
+	;;
+    cc*)
+	case "$PLATFORM" in
+	irix-cc*)
+	    QMAKE_VARS="$QMAKE_VARS \"QMAKE_CFLAGS+=-LANG:exceptions=off\""
+	    QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-LANG:exceptions=off\""
+	    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LFLAGS+=-LANG:exceptions=off\""
+	    ;;
+	*) ;;
+	esac
+	;;
+    *) ;;
+    esac
+fi
+
 #-------------------------------------------------------------------------------
 # part of configuration information goes into qmodules.h
 #-------------------------------------------------------------------------------
@@ -2600,7 +2620,6 @@ fi
 
 # some compilers generate binary incompatible code between different versions,
 # so we need to generate a build key that is different between these compilers
-COMPILER=`echo $PLATFORM | cut -f 2- -d-`
 case "$COMPILER" in
 g++)
     # GNU C++
@@ -2856,7 +2875,6 @@ fi
 # give feedback on configuration
 #-------------------------------------------------------------------------------
 
-# check if we are using gcc/g++
 case "$COMPILER" in
 g++-*)
     if [ "$CFG_EXCEPTION_SUPPORT" != "no" ]; then
@@ -2868,12 +2886,31 @@ g++-*)
 	exceptions, which increase both the size of the Qt library and the
 	amount of memory taken by your applications.
 
-	You may elect to re-run `basename $0` with the -no-exceptions
-	option to compile Qt without exceptions.  This is completely binary
+	You may choose to re-run `basename $0` with the -no-exceptions
+	option to compile Qt without exceptions. This is completely binary
 	compatible, and existing applications should continue to work.
 
 EOF
     fi
+    ;;
+cc*)
+    case "$PLATFORM" in
+    irix-cc*)
+	if [ "$CFG_EXCEPTION_SUPPORT" != "no" ]; then
+	    cat <<EOF
+	
+	This target is using the MIPSpro C++ compiler ($PLATFORM).
+
+	You may choose to re-run `basename $0` with the -no-exceptions
+	option to compile Qt without exceptions. This will make the
+	size of the Qt library smaller and reduce the amount of memory
+	taken by your applications.
+
+EOF
+	fi
+	;;
+    *) ;;
+    esac
     ;;
 *) ;;
 esac
