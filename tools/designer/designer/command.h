@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -1017,7 +1017,7 @@ public:
 
 };
 
-#ifdef CONTAINER_CUSTOM_WIDGETS
+#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 class QWidgetContainerInterfacePrivate;
 
 class AddContainerPageCommand : public Command

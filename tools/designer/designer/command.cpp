@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -2014,7 +2014,7 @@ void AddToolBarCommand::unexecute()
 
 // ------------------------------------------------------------
 
-#ifdef CONTAINER_CUSTOM_WIDGETS
+#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 AddContainerPageCommand::AddContainerPageCommand( const QString &n, FormWindow *fw,
 						  QWidget *c, const QString &label )
     : Command( n, fw ), container( c ), index( -1 ), pageLabel( label ), page( 0 )

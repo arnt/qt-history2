@@ -1637,7 +1637,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	}
     }
 
-#ifdef CONTAINER_CUSTOM_WIDGETS
+#ifdef QT_CONTAINER_CUSTOM_WIDGETS
     QString parentClassName = parent ? parent->className() : 0;
     bool isPlugin = parent ? !!d->customWidgets.find( parent->className() ) : FALSE;
     if ( isPlugin )
@@ -1704,7 +1704,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 		} else if ( parent->inherits( "QWizard" ) ) {
 		    if ( attrib == "title" )
 			( (QWizard*)parent )->addPage( w, v.toString() );
-#ifdef CONTAINER_CUSTOM_WIDGETS
+#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 		} else if ( isPlugin ) {
 		    if ( attrib == "label" ) {
 			WidgetInterface *iface = 0;

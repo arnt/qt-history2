@@ -778,7 +778,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	saveChildrenOf( ( (QMainWindow*)obj )->centralWidget(), ts, indent );
     } else {
 	bool saved = FALSE;
-#ifdef CONTAINER_CUSTOM_WIDGETS
+#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 	if ( WidgetDatabase::isCustomPluginWidget( WidgetDatabase::idFromClassName( className ) ) ) {
 	    WidgetInterface *iface = 0;
 	    widgetManager()->queryInterface( className, &iface );
@@ -1462,7 +1462,7 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	colspan = 1;
 
     QString className = e.attribute( "class", "QWidget" );
-#ifdef CONTAINER_CUSTOM_WIDGETS
+#ifdef QT_CONTAINER_CUSTOM_WIDGETS
     QString parentClassName = WidgetFactory::classNameOf( parent );
     bool isPlugin =
 	WidgetDatabase::isCustomPluginWidget( WidgetDatabase::idFromClassName( parentClassName ) );
@@ -1508,7 +1508,7 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 		 ( !parent->inherits( "QTabWidget" ) &&
 		   !parent->inherits("QWidgetStack") &&
 		   !parent->inherits( "QWizard" )
-#ifdef CONTAINER_CUSTOM_WIDGETS
+#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 		   && !isPlugin
 #endif
 		     ) )
@@ -1517,7 +1517,7 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 		      ( parent->inherits( "QTabWidget" ) ||
 			parent->inherits("QWidgetStack") ||
 			parent->inherits( "QWizard" )
-#ifdef CONTAINER_CUSTOM_WIDGETS
+#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 			|| isPlugin
 #endif
 			  ) )
@@ -1559,7 +1559,7 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	    } else if ( parent->inherits( "QWizard" ) ) {
 		if ( attrib == "title" )
 		    ( (QWizard*)parent )->addPage( w, v.toString() );
-#ifdef CONTAINER_CUSTOM_WIDGETS
+#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 	    } else if ( isPlugin ) {
 		if ( attrib == "label" ) {
 		    WidgetInterface *iface = 0;

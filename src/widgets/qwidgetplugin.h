@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QWidgetPlugin class
 **
 ** Created : 010920
 **
-** Copyright (C) 2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -79,7 +79,7 @@ private:
     QWidgetPluginPrivate *d;
 };
 
-#ifdef CONTAINER_CUSTOM_WIDGETS
+#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 #ifndef Q_QDOC
 class QWidgetContainerPluginPrivate;
 

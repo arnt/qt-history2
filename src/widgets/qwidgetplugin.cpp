@@ -41,7 +41,7 @@
 #include "qwidgetinterface_p.h"
 #include "qobjectcleanuphandler.h"
 #include "qwidget.h"
-#ifdef CONTAINER_CUSTOM_WIDGETS
+#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 #include "qwidgetlist.h"
 #endif
 
@@ -71,7 +71,7 @@
 */
 
 class QWidgetPluginPrivate : public QWidgetFactoryInterface,
-#ifdef CONTAINER_CUSTOM_WIDGETS
+#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 			     public QWidgetContainerInterfacePrivate,
 #endif
 			     private QLibraryInterface
@@ -95,7 +95,7 @@ public:
     QString toolTip( const QString &widget ) const;
     QString whatsThis( const QString &widget ) const;
     bool isContainer( const QString &widget ) const;
-#ifdef CONTAINER_CUSTOM_WIDGETS
+#ifdef QT_CONTAINER_CUSTOM_WIDGETS
     QWidget* containerOfWidget( const QString &key, QWidget *widget ) const;
     bool isPassiveInteractor( const QString &key, QWidget *widget ) const;
     bool supportsPages( const QString &key ) const;
@@ -135,7 +135,7 @@ QRESULT QWidgetPluginPrivate::queryInterface( const QUuid &iid, QUnknownInterfac
 	*iface = (QWidgetFactoryInterface*)this;
     else if ( iid == IID_QLibrary )
 	*iface = (QLibraryInterface*)this;
-#ifdef CONTAINER_CUSTOM_WIDGETS
+#ifdef QT_CONTAINER_CUSTOM_WIDGETS
     else if ( iid == IID_QWidgetContainer )
 	*iface = (QWidgetContainerInterfacePrivate*)this;
 #endif
@@ -230,7 +230,7 @@ bool QWidgetPluginPrivate::canUnload() const
     return widgets.isEmpty();
 }
 
-#ifdef CONTAINER_CUSTOM_WIDGETS
+#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 QWidget* QWidgetPluginPrivate::containerOfWidget( const QString &key, QWidget *widget ) const
 {
     QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
@@ -425,7 +425,7 @@ bool QWidgetPlugin::isContainer( const QString & ) const
     return FALSE;
 }
 
-#ifdef CONTAINER_CUSTOM_WIDGETS
+#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 QWidgetContainerPlugin::QWidgetContainerPlugin()
     : QWidgetPlugin()
 {

@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -940,7 +940,7 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	return 0;
 
     QWidget *w = iface->create( className, parent, name );
-#ifdef CONTAINER_CUSTOM_WIDGETS
+#ifdef QT_CONTAINER_CUSTOM_WIDGETS
     if ( init && WidgetDatabase::isCustomPluginWidget( WidgetDatabase::idFromClassName( className ) ) ) {
 	QWidgetContainerInterfacePrivate *iface2 = 0;
 	iface->queryInterface( IID_QWidgetContainer, (QUnknownInterface**)&iface2 );
@@ -1054,7 +1054,7 @@ QWidget* WidgetFactory::containerOfWidget( QWidget *w )
 	return ((QWidgetStack*)w)->visibleWidget();
     if ( w->inherits( "QMainWindow" ) )
 	return ((QMainWindow*)w)->centralWidget();
-#ifdef CONTAINER_CUSTOM_WIDGETS
+#ifdef QT_CONTAINER_CUSTOM_WIDGETS
     if ( !WidgetDatabase::isCustomPluginWidget( WidgetDatabase::idFromClassName( classNameOf( w ) ) ) )
 	return w;
     WidgetInterface *iface = 0;
@@ -1129,7 +1129,7 @@ bool WidgetFactory::isPassiveInteractor( QObject* o )
     else if ( qstrcmp( o->name(), "designer_wizardstack_button" ) == 0 )
 	return ( lastWasAPassiveInteractor = TRUE );
 
-#ifdef CONTAINER_CUSTOM_WIDGETS
+#ifdef QT_CONTAINER_CUSTOM_WIDGETS
     if ( !o->isWidgetType() )
 	return ( lastWasAPassiveInteractor = FALSE );
     WidgetInterface *iface = 0;
