@@ -26,6 +26,7 @@
 #include <qlist.h>
 #include <qguardedptr.h>
 #include <qtabwidget.h>
+#include <qmodules.h>
 
 class PropertyList;
 class PropertyEditor;

@@ -37,6 +37,8 @@
 #ifndef __PROPERTYEDITORSQL_H__
 #define __PROPERTYEDITORSQL_H__
 
+#include "propertyeditor.h"
+
 class QDateEdit;
 class QTimeEdit;
 class QDateTimeEdit;

@@ -25,6 +25,7 @@
 #include <qcombobox.h>
 #include <qlineedit.h>
 #include <qpushbutton.h>
+#include <qsqldatabase.h>
 
 /*
  *  Constructs a DatabaseConnection which is a child of 'parent', with the

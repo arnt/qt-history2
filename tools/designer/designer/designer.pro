@@ -101,7 +101,7 @@ INTERFACES	= listboxeditor.ui connectioneditor.ui editslots.ui newform.ui listvi
 PROJECTNAME	= Designer
 
 sql {
-	SOURCE  +=		  database.cpp		  dbconnectionsimpl.cpp
+	SOURCES  +=		  database.cpp		  dbconnectionsimpl.cpp
 	HEADERS += 		  database.h		  dbconnectionsimpl.h   propertyeditorsql.h
 	INTERFACES +=             dbconnections.ui 
 }
