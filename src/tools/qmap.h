@@ -87,23 +87,22 @@ public:
     {
 	QMapData::Node *i;
     public:
-#ifndef QT_NO_STL
 	typedef std::bidirectional_iterator_tag iterator_category;
-#endif
+        typedef ptrdiff_t difference_type;
+        typedef T value_type;
+        typedef T *pointer;
+        typedef T &reference;
+
 	inline operator QMapData::Node *() const { return i; }
 	inline Iterator() : i(0) { }
 	inline Iterator(QMapData::Node *node) : i((QMapData::Node *)node) { }
 
-	inline T &operator*() { return concrete(i)->value; }
-	inline const T &operator*() const { return concrete(i)->value; }
-
 	inline const Key &key() const { return concrete(i)->key; }
-	inline const T &value() const { return concrete(i)->value; }
-	inline T &value() { return concrete(i)->value; }
-#ifndef QT_NO_COMPAT
-	inline const T &data() const { return concrete(i)->value; }
-	inline T &data() { return concrete(i)->value; }
+	inline T &value() const { return concrete(i)->value; }
+#ifdef QT_COMPAT
+	inline QT_COMPAT T &data() const { return concrete(i)->value; }
 #endif
+	inline T &operator*() const { return concrete(i)->value; }
 	inline bool operator==(const Iterator &o) { return i == o.i; }
 	inline bool operator!=(const Iterator &o) { return i != o.i; }
 
@@ -134,18 +133,23 @@ public:
     {
 	QMapData::Node *i;
     public:
+	typedef std::bidirectional_iterator_tag iterator_category;
+        typedef ptrdiff_t difference_type;
+        typedef T value_type;
+        typedef T *pointer;
+        typedef T &reference;
+
 	inline operator QMapData::Node *() const { return i; }
 	inline ConstIterator() : i(0) { }
 	inline ConstIterator(QMapData::Node *node) : i((QMapData::Node *)node) { }
 	inline ConstIterator(const Iterator &o) { i = ((ConstIterator &)o).i; }
 
-	inline const T &operator*() const { return concrete(i)->value; }
-
 	inline const Key &key() const { return concrete(i)->key; }
 	inline const T &value() const { return concrete(i)->value; }
-#ifndef QT_NO_COMPAT
-	inline const T &data() const { return concrete(i)->value; }
+#ifdef QT_COMPAT
+	inline QT_COMPAT const T &data() const { return concrete(i)->value; }
 #endif
+	inline const T &operator*() const { return concrete(i)->value; }
 	inline bool operator==(const ConstIterator &o) { return i == o.i; }
 	inline bool operator!=(const ConstIterator &o) { return i != o.i; }
 
@@ -172,60 +176,34 @@ public:
     };
     friend class ConstIterator;
 
-    typedef Key key_type;
-    typedef T mapped_type;
-    typedef QPair<const Key, T> value_type;
-    typedef QPair<Iterator, bool> insert_pair;
-    typedef value_type *pointer;
-    typedef const value_type *const_pointer;
-    typedef value_type &reference;
-    typedef const value_type &const_reference;
-    typedef T ValueType;
-#ifndef QT_NO_STL
-    typedef ptrdiff_t difference_type;
-#else
-    typedef int difference_type;
-#endif
-    typedef size_t size_type;
-    typedef Iterator iterator;
-    typedef ConstIterator const_iterator;
-
     inline void detach() { if (d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }
 
-    inline Iterator begin() { detach(); return Iterator(e->forward[0]); }
-    inline Iterator end() { detach(); return Iterator(e); }
-    inline ConstIterator begin() const { return ConstIterator(e->forward[0]); }
-    inline ConstIterator end() const { return ConstIterator(e); }
-    inline ConstIterator constBegin() const { return ConstIterator(e->forward[0]); }
-    inline ConstIterator constEnd() const { return ConstIterator(e); }
-
     inline int size() const { return d->size; }
-#ifndef QT_NO_COMPAT
-    inline int count() const { return d->size; }
+#ifdef QT_COMPAT
+    inline QT_COMPAT int count() const { return d->size; }
 #endif
-    inline bool empty() const { return !d->size; }
     inline bool isEmpty() const { return !d->size; }
-    size_type count(const key_type &key) const;
+    int count(const Key &key) const;
 
     void clear();
 
-    QPair<Iterator, bool> insert(const value_type &x);
+//    QPair<Iterator, bool> insert(const value_type &x); // ###?
     Iterator insert(const Key &key, const T &value);
-#ifndef QT_NO_COMPAT
-    Iterator insert(const Key &key, const T &value, bool overwrite);
+#ifdef QT_COMPAT
+    QT_COMPAT Iterator insert(const Key &key, const T &value, bool overwrite);
 #endif
+    Iterator insertMulti(const Key &key, const T &value);
 
-    size_type erase(const Key &key);
+    int erase(const Key &key);
     Iterator erase(Iterator it);
-
-#ifndef QT_NO_COMPAT
-    inline size_type remove(const Key &key) { return erase(key); }
-    inline Iterator remove(Iterator it) { return erase(it); }
+#ifdef QT_COMPAT
+    inline QT_COMPAT int remove(const Key &key) { return erase(key); }
+    inline QT_COMPAT Iterator remove(Iterator it) { return erase(it); }
 #endif
 
-#ifndef QT_NO_COMPAT
-    inline Iterator replace(const Key &key, const T &value) { return insert(key, value); }
+#ifdef QT_COMPAT
+    inline QT_COMPAT Iterator replace(const Key &key, const T &value) { return insert(key, value); }
 #endif
 
     bool contains(const Key &key) const;
@@ -238,9 +216,27 @@ public:
 
     QList<Key> keys() const;
     QList<T> values() const;
+    QList<T> values(const Key &key);
+
+    inline Iterator begin() { detach(); return Iterator(e->forward[0]); }
+    inline ConstIterator begin() const { return ConstIterator(e->forward[0]); }
+    inline ConstIterator constBegin() const { return ConstIterator(e->forward[0]); }
+    inline Iterator end() {
+#ifndef QT_NO_QMAP_BACKWARD_ITERATORS
+	detach();
+#endif
+        return Iterator(e);
+    }
+    inline ConstIterator end() const { return ConstIterator(e); }
+    inline ConstIterator constEnd() const { return ConstIterator(e); }
 
     inline bool ensure_constructed()
     { if (!d) { d = &QMapData::shared_null; ++d->ref; return false; } return true; }
+
+    // stl compatibility
+    typedef Iterator iterator;
+    typedef ConstIterator const_iterator;
+    inline bool empty() const { return isEmpty(); }
 
 private:
     void detach_helper();
@@ -299,11 +295,9 @@ Q_INLINE_TEMPLATE QMapData::Node *QMap<Key, T>::findNode(const Key &key) const
     QMapData::Node *cur = e;
     QMapData::Node *next = e;
 
-#if 0
     QMapData::Node *node = d->cachedNode;
     if (node != e && concrete(node)->key == key)
 	return node;
-#endif
 
     for (int i = d->topLevel; i >= 0; i--) {
 	while ((next = cur->forward[i]) != e && concrete(next)->key < key)
@@ -364,13 +358,22 @@ Q_INLINE_TEMPLATE T &QMap<Key, T>::operator[](const Key &key)
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE typename QMap<Key, T>::size_type QMap<Key, T>::count(const key_type &key) const
+Q_INLINE_TEMPLATE int QMap<Key, T>::count(const Key &key) const
 {
-    return findNode(key) != e ? 1 : 0;
+    int cnt = 0;
+    QMapData::Node *node = findNode(key);
+    if (node != e) {
+	Node *concreteNode = concrete(node);
+        do {
+	    ++cnt;
+            node = node->forward[0];
+	} while (node != e && (concreteNode = concrete(node))->key == key);
+    }
+    return cnt;
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE bool QMap<Key, T>::contains(const key_type &key) const
+Q_INLINE_TEMPLATE bool QMap<Key, T>::contains(const Key &key) const
 {
     return findNode(key) != e;
 }
@@ -391,7 +394,7 @@ Q_INLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::insert(const Key
     return Iterator(node);
 }
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 template <class Key, class T>
 Q_INLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::insert(const Key &key,
 								       const T &value,
@@ -412,7 +415,18 @@ Q_INLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::insert(const Key
 #endif
 
 template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE typename QMap<Key, T>::size_type QMap<Key, T>::erase(const Key &key)
+Q_INLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::insertMulti(const Key &key,
+									    const T &value)
+{
+    detach();
+
+    QMapData::Node *update[QMapData::LastLevel + 1];
+    mutableFindNode(update, key);
+    return Iterator(node_create(d, update, key, value));
+}
+
+template <class Key, class T>
+Q_OUTOFLINE_TEMPLATE int QMap<Key, T>::erase(const Key &key)
 {
     detach();
 
@@ -480,11 +494,9 @@ template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE QMapData::Node *
 QMap<Key, T>::mutableFindNode(QMapData::Node *update[], const Key &key)
 {
-#if 0
     QMapData::Node *node = d->cachedNode;
     if (node != e && concrete(node)->key == key)
 	return node;
-#endif
 
     QMapData::Node *cur = e;
     QMapData::Node *next = e;
@@ -503,7 +515,7 @@ QMap<Key, T>::mutableFindNode(QMapData::Node *update[], const Key &key)
 }
 
 template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE QList<Key> QMap<Key,T>::keys() const
+Q_OUTOFLINE_TEMPLATE QList<Key> QMap<Key, T>::keys() const
 {
     QList<Key> res;
     ConstIterator i = begin();
@@ -515,7 +527,7 @@ Q_OUTOFLINE_TEMPLATE QList<Key> QMap<Key,T>::keys() const
 }
 
 template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE QList<T> QMap<Key,T>::values() const
+Q_OUTOFLINE_TEMPLATE QList<T> QMap<Key, T>::values() const
 {
     QList<Key> res;
     ConstIterator i = begin();
@@ -524,6 +536,21 @@ Q_OUTOFLINE_TEMPLATE QList<T> QMap<Key,T>::values() const
         ++i;
     }
     return res;
+}
+
+template <class Key, class T>
+Q_OUTOFLINE_TEMPLATE QList<T> QMap<Key, T>::values(const Key &key)
+{
+    QList<T> list;
+    QMapData::Node *node = findNode(key);
+    if (node != e) {
+	Node *concreteNode = concrete(node);
+        do {
+	    list.append(concreteNode->value);
+	    node = node->forward[0];
+        } while (node != e && (concreteNode = concrete(node))->key == key);
+    }
+    return list;
 }
 
 #ifndef QT_NO_STL
