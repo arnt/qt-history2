@@ -365,11 +365,13 @@ bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, Q_UINT16 port)
     if (bindResult < 0) {
         switch(errno) {
         case EADDRINUSE:
-        case EINVAL:
             setError(Qt::AddressInUseError, "The address is already bound");
             break;
         case EACCES:
             setError(Qt::SocketAccessError, "The address is protected");
+            break;
+        case EINVAL:
+            setError(Qt::UnsupportedSocketOperationError, "Unsupported socket operation");
             break;
         default:
             break;
