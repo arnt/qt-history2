@@ -319,24 +319,13 @@ bool QTrayWidget::winEvent( MSG *m )
 /*!
   \reimp
 
-  Removes the entry from the system tray and quits the application.
+  Removes the entry from the system tray.
 */
 void QTrayWidget::closeEvent( QCloseEvent *e )
 {
     hide();
 
     QWidget::closeEvent( e );
-}
-
-/*!
-  \reimp
-*/
-void QTrayWidget::mousePressEvent( QMouseEvent *e )
-{
-    if ( e->button() == e->state() == LeftButton )
-	emit clicked( e->globalPos() );
-
-    QWidget::mousePressEvent( e );
 }
 
 /*!
@@ -365,6 +354,8 @@ void QTrayWidget::mouseReleaseEvent( QMouseEvent *e )
 	    e->accept();
 	    return;
 	}
+    } else if ( e->button() == e->state() == LeftButton ) {
+	emit clicked( e->globalPos() );
     }
 
     QWidget::mouseReleaseEvent( e );
