@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#41 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#40 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#41 $";
 #endif
 
 
@@ -451,31 +451,33 @@ void QApplication::syncX()	{}		// do nothing
 <title>Qt toolkit - documentation home page</title>
 </head><body>
 
-<h1>Qt documentation home page</h1>
+<h1>Qt Documentation Home Page</h1>
 
-<strong> This documentation is far from complete.  It, like the code,
-is still in beta.  </strong>
+<strong> This documentation is far from complete.  Remember, Qt is
+still not at version 1.0. </strong>
 
 <p>
 
-The Qt toolkit documentation is organized as one HTML page per class,
-header file, example program, or topical documentation files.
-<p>
-There are several different index pages: <ul>
-<li><a href=hierarchy.html>The classes according to inheritance</a>
-<li><a href=tools.html>General utility classes</a>
-<li><a href=classes.html>Alphabetical class list</a>
-<li><a href=headers.html>All the header files</a>
-<li><a href=enums.html>All the enum types</a>
-<li><a href=examples.html>All the example programs</a>
+Here are the main index pages: <ul>
+<li><a href=hierarchy.html>Class overview</a>
+<li><a href=classes.html>Alphabetical list</a>
+<li><a href=topicals.html>Other index pages</a>
 </ul>
 
-<p>There are also pages on these topics:<ul>
-<li><a href=fontmatch.html>Font matching</a>
+<p>
+
+Here are some introductory pages and pages about the central concepts
+in Qt: <ul>
+<li><a href=faq.html>FAQ</a>
 <li><a href=metaobjects.html>Signals, slots and the Meta Object Compiler</a>
-<li><a href=qt.html>Qt overview</a>
+<li><a href=fontmatch.html>Font matching</a>
+</ul>
+
+<p>
+
+And, finally, some meta-information: <ul>
 <li><a href=troll.html>Troll Tech contact information</a>
-<li><a href=licence.html>Licence statement for Qt 0.90</a>
+<li><a href=license.html>License statement for Qt</a>
 </ul>
 
 <p>
@@ -486,9 +488,26 @@ href=mailto:qt-interest-request@nvg.unit.no>qt-interest-request@nvg.unit.no</a>
 to join the list.  You will receive a receipt from the list server
 within a few minutes. */
 
-/*! \page licence.html
 
-<title>Qt licence statement</title>
+/*! \page topicals.html
+
+<title>Qt toolkit - topical index pages</title>
+</head><body>
+
+<h1>Topical Index pages</h1>
+
+<ul>
+<li><a href=tools.html>General utility classes</a>
+<li><a href=headers.html>Header files</a>
+<li><a href=enums.html>enum types</a>
+<li><a href=examples.html>Example programs</a>
+</ul>
+
+*/
+
+/*! \page license.html
+
+<title>Qt License Statement</title>
 
 <h1>All Rights Reserved</h1>
 
