@@ -384,7 +384,7 @@ private:
     *actionEditHLayout, *actionEditVLayout, *actionEditGridLayout,
     *actionEditSplitHorizontal, *actionEditSplitVertical,
     *actionEditSelectAll, *actionEditBreakLayout, *actionEditFunctions, *actionEditConnections,
-    *actionEditLower, *actionEditRaise;
+    *actionEditLower, *actionEditRaise, *actionInsertSpacer;
     QActionGroup *actionGroupTools, *actionGroupProjects;
     QAction* actionPointerTool, *actionConnectTool, *actionOrderTool, *actionBuddyTool;
     QAction* actionCurrentTool;
@@ -400,7 +400,6 @@ private:
     QAction *actionEditSource, *actionNewFile, *actionFileSave, *actionFileExit;
     QAction *actionSearchFind, *actionSearchIncremetal, *actionSearchReplace, *actionSearchGotoLine;
     QActionGroup *actionGroupNew;
-    QAction *actionSpacer;
 
     QPopupMenu *rmbWidgets;
     QPopupMenu *rmbFormWindow;

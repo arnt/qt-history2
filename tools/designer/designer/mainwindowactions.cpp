@@ -347,24 +347,26 @@ void MainWindow::setupLayoutActions()
     actionEditBreakLayout->setStatusTip(tr("Breaks the selected layout") );
     actionEditBreakLayout->setWhatsThis( whatsThisFrom( "Layout|Break Layout" ) );
     connect( actionEditBreakLayout, SIGNAL( activated() ), this, SLOT( editBreakLayout() ) );
+    actionEditBreakLayout->setEnabled( FALSE );
 
     int id = WidgetDatabase::idFromClassName( "Spacer" );
-    QAction* a = new WidgetAction( "Layout", actionGroupTools, QString::number( id ).latin1() );
-    actionSpacer = a;
-    a->setToggleAction( TRUE );
-    a->setText( WidgetDatabase::className( id ) );
-    a->setMenuText( tr( "Add ") + WidgetDatabase::className( id ) );
-    a->setIconSet( WidgetDatabase::iconSet( id ) );
-    a->setToolTip( WidgetDatabase::toolTip( id ) );
-    a->setStatusTip( tr( "Insert a %1").arg(WidgetDatabase::toolTip( id )) );
-    a->setWhatsThis( QString("<b>A %1</b><p>%2</p>"
+    actionInsertSpacer = new WidgetAction( "Layout", actionGroupTools, QString::number( id ).latin1() );
+    actionInsertSpacer->setEnabled( FALSE );
+    actionInsertSpacer->setToggleAction( TRUE );
+    actionInsertSpacer->setText( WidgetDatabase::className( id ) );
+    actionInsertSpacer->setMenuText( tr( "Add ") + WidgetDatabase::className( id ) );
+    actionInsertSpacer->setIconSet( WidgetDatabase::iconSet( id ) );
+    actionInsertSpacer->setToolTip( WidgetDatabase::toolTip( id ) );
+    actionInsertSpacer->setStatusTip( tr( "Insert a %1").arg(WidgetDatabase::toolTip( id )) );
+    actionInsertSpacer->setWhatsThis( QString("<b>A %1</b><p>%2</p>"
 			     "<p>Click to insert a single %3,"
 			     "or double click to keep the tool selected.")
 	.arg(WidgetDatabase::toolTip( id ))
 	.arg(WidgetDatabase::whatsThis( id ))
 	.arg(WidgetDatabase::toolTip( id ) ));
-    actionSpacer->addTo( commonWidgetsToolBar );
-    commonWidgetsPage.append( actionSpacer );
+
+    actionInsertSpacer->addTo( commonWidgetsToolBar );
+    commonWidgetsPage.append( actionInsertSpacer );
     commonWidgetsToolBar->setStretchableWidget( new QWidget( commonWidgetsToolBar ) );
     QWhatsThis::add( layoutToolBar, tr( "<b>The Layout toolbar</b>%1" ).arg(tr(toolbarHelp).arg("")) );
     actionEditAdjustSize->addTo( layoutToolBar );
@@ -376,7 +378,7 @@ void MainWindow::setupLayoutActions()
     actionEditSplitVertical->addTo( layoutToolBar );
     actionEditBreakLayout->addTo( layoutToolBar );
     layoutToolBar->addSeparator();
-    a->addTo( layoutToolBar );
+    actionInsertSpacer->addTo( layoutToolBar );
 
     QPopupMenu *menu = new QPopupMenu( this, "Layout" );
     layoutMenu = menu;
@@ -390,7 +392,7 @@ void MainWindow::setupLayoutActions()
     actionEditSplitVertical->addTo( menu );
     actionEditBreakLayout->addTo( menu );
     menu->insertSeparator();
-    a->addTo( menu );
+    actionInsertSpacer->addTo( menu );
 }
 
 void MainWindow::setupToolActions()

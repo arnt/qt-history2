@@ -1765,6 +1765,7 @@ void MainWindow::selectionChanged()
 	actionEditLower->setEnabled( FALSE );
 	actionEditRaise->setEnabled( FALSE );
 	actionEditAdjustSize->setEnabled( FALSE );
+	actionInsertSpacer->setEnabled( FALSE );
 	return;
     }
 
@@ -1775,6 +1776,7 @@ void MainWindow::selectionChanged()
     actionEditDelete->setEnabled( enable );
     actionEditLower->setEnabled( enable );
     actionEditRaise->setEnabled( enable );
+    actionInsertSpacer->setEnabled( TRUE );
 
     actionEditAdjustSize->setEnabled( FALSE );
     actionEditSplitHorizontal->setEnabled( FALSE );
@@ -1843,7 +1845,7 @@ void MainWindow::selectionChanged()
 		breakLayout = TRUE;
 	    }
 	}
-    } else if ( selectedWidgets == 0 && formWindow() ) {
+    } else if ( selectedWidgets == 0 ) {
 	actionEditAdjustSize->setEnabled( TRUE );
 	QWidget *w = formWindow()->mainContainer();
 	if ( WidgetFactory::layoutType( w ) == WidgetFactory::NoLayout ) {
