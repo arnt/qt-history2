@@ -1773,6 +1773,8 @@ QWorkspaceChild::~QWorkspaceChild()
         workspace->d->focus.removeAll(this);
         if (workspace->d->active == this)
             workspace->activatePreviousWindow();
+        if (workspace->d->active == this)
+            workspace->d->activateWindow(0);
         if (workspace->d->maxWindow == this) {
             workspace->d->hideMaximizeControls();
             workspace->d->maxWindow = 0;
