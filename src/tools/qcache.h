@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcache.h#3 $
+** $Id: //depot/qt/main/src/tools/qcache.h#4 $
 **
 ** Definition of QCache template/macro class
 **
@@ -36,13 +36,16 @@ class QCacheM(type) : public QGCache					      \
 {									      \
 public:									      \
     QCacheM(type)( const QCacheM(type) &c ) : QGCache(c) {}		      \
-    QCacheM(type)( long maxCost=100, int size=17,bool cs=TRUE,bool ck=TRUE )  \
+    QCacheM(type)( long maxCost=100, int size=17, bool cs=TRUE,bool ck=TRUE ) \
 	: QGCache( maxCost, size, cs, ck, FALSE ) {}			      \
    ~QCacheM(type)()		      { clear(); }			      \
     QCacheM(type) &operator=( const QCacheM(type) &c )			      \
 			{ return (QCacheM(type)&)QGCache::operator=(c); }     \
-    uint  count()   const	      { return QGCache::count(); }	      \
-    uint  size()    const	      { return QGCache::size(); }	      \
+    long  maxCost()   const	      { return QGCache::maxCost(); }	      \
+    long  totalCost() const	      { return QGCache::totalCost(); }	      \
+    void  setMaxCost( long m )	      { QGCache::setMaxCost(m); }	      \
+    uint  count()     const	      { return QGCache::count(); }	      \
+    uint  size()      const	      { return QGCache::size(); }	      \
     bool  isEmpty() const	      { return QGCache::count() == 0; }	      \
     bool  insert( const char *k, const type *d, long c=1, int p=0 )	      \
 				      { return QGCache::insert(k,(GCI)d,c,p);}\
@@ -111,9 +114,12 @@ public:
    ~QCacheT()			      { clear(); }
     QCacheT<type> &operator=( const QCacheT<type> &c )
 			{ return (QCacheT<type>&)QGCache::operator=(c); }
-    uint  count()   const	      { return QGCache::count(); }
-    uint  size()    const	      { return QGCache::size(); }
-    bool  isEmpty() const	      { return QGCache::count() == 0; }
+    long  maxCost()   const	      { return QGCache::maxCost(); }
+    long  totalCost() const	      { return QGCache::totalCost(); }
+    void  setMaxCost( long m )	      { QGCache::setMaxCost(m); }
+    uint  count()     const	      { return QGCache::count(); }
+    uint  size()      const	      { return QGCache::size(); }
+    bool  isEmpty()   const	      { return QGCache::count() == 0; }
     bool  insert( const char *k, const type *d, long c=1, int p=0 )
 				      { return QGCache::insert(k,(GCI)d,c,p);}
     bool  remove( const char *k )     { return QGCache::remove(k); }

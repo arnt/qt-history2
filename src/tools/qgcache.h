@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.h#4 $
+** $Id: //depot/qt/main/src/tools/qgcache.h#5 $
 **
 ** Definition of QGCache and QGCacheIterator classes
 **
@@ -29,18 +29,17 @@ class QCDict;
 class QGCache : public QCollection		// LRU cache class
 {
 friend class QGCacheIterator;
-public:
-    uint     count()	 const	{ return ((QGList*)lruList)->count(); }
-    uint     size()	 const	{ return ((QGDict*)dict)->size(); }
-    long     maxCost()	 const	{ return mCost; }
-    long     totalCost() const	{ return tCost; }
-    void     setMaxCost( long maxCost );
-
 protected:
     QGCache( long maxCost, uint size,bool caseS, bool copyKeys, bool trivial );
     QGCache( const QGCache & );			// not allowed, calls fatal()
    ~QGCache();
     QGCache &operator=( const QGCache & );	// not allowed, calls fatal()
+
+    uint     count()	 const	{ return ((QGList*)lruList)->count(); }
+    uint     size()	 const	{ return ((QGDict*)dict)->size(); }
+    long     maxCost()	 const	{ return mCost; }
+    long     totalCost() const	{ return tCost; }
+    void     setMaxCost( long maxCost );
 
     GCI	     find( const char *key ) const;
     bool     insert( const char *key, GCI, long cost, int priority );

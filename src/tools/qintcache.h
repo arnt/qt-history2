@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintcache.h#3 $
+** $Id: //depot/qt/main/src/tools/qintcache.h#4 $
 **
 ** Definition of QIntCache template/macro class
 **
@@ -41,9 +41,12 @@ public:									      \
    ~QIntCacheM(type)()		      { clear(); }			      \
     QIntCacheM(type) &operator=( const QIntCacheM(type) &c )		      \
 			{ return (QIntCacheM(type)&)QGCache::operator=(c); }  \
-    uint  count()   const	      { return QGCache::count(); }	      \
-    uint  size()    const	      { return QGCache::size(); }	      \
-    bool  isEmpty() const	      { return QGCache::count() == 0; }	      \
+    long  maxCost()   const	      { return QGCache::maxCost(); }	      \
+    long  totalCost() const	      { return QGCache::totalCost(); }	      \
+    void  setMaxCost( long m )	      { QGCache::setMaxCost(m); }	      \
+    uint  count()     const	      { return QGCache::count(); }	      \
+    uint  size()      const	      { return QGCache::size(); }	      \
+    bool  isEmpty()   const	      { return QGCache::count() == 0; }	      \
     bool  insert( long k, const type *d, long c=1, int p=0 )		      \
 			{ return QGCache::insert((const char*)k,(GCI)d,c,p); }\
     bool  remove( long k )   { return QGCache::remove((const char*)k); }      \
@@ -110,9 +113,12 @@ public:
    ~QIntCacheT()	     { clear(); }
     QIntCacheT<type> &operator=( const QIntCacheT<type> &c )
 			{ return (QIntCacheT<type>&)QGCache::operator=(c); }
-    uint  count()   const    { return QGCache::count(); }
-    uint  size()    const    { return QGCache::size(); }
-    bool  isEmpty() const    { return QGCache::count() == 0; }
+    long  maxCost()   const  { return QGCache::maxCost(); }
+    long  totalCost() const  { return QGCache::totalCost(); }
+    void  setMaxCost( long m){ QGCache::setMaxCost(m); }
+    uint  count()     const  { return QGCache::count(); }
+    uint  size()      const  { return QGCache::size(); }
+    bool  isEmpty()   const  { return QGCache::count() == 0; }
     bool  insert( long k, const type *d, long c=1, int p=0 )
 			 { return QGCache::insert((const char *)k,(GCI)d,c,p);}
     bool  remove( long k )   { return QGCache::remove((const char *)k); }
