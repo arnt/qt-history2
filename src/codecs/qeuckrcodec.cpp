@@ -234,6 +234,8 @@ int QEucKrCodec::heuristicNameMatch(const char* hint) const
       return score + 4;
     }
   }
+  score = QTextCodec::simpleHeuristicNameMatch( "ks_c_5601-1987", hint );
+  if ( score ) return score;
   return QTextCodec::heuristicNameMatch(hint);
 }
 
