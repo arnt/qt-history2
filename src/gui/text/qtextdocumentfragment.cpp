@@ -495,6 +495,7 @@ QTextDocumentFragment QTextDocumentFragment::loadFromHTML(const QString &html)
 
     QStack<int> listReferences;
     int indent = 0;
+    QStack<int> tableIndices;
 
     bool hasBlock = true;
     for (int i = 0; i < parser.count(); ++i) {
@@ -508,15 +509,18 @@ QTextDocumentFragment QTextDocumentFragment::loadFromHTML(const QString &html)
 
 	    while (closedNode->parent && closedNode->parent != grandParent) {
 		if (closedNode->tag == QLatin1String("tr")) {
+		    Q_ASSERT(!tableIndices.isEmpty());
 		    QTextBlockFormat fmt;
 		    fmt.setNonDeletable(true);
-		    fmt.setTableFormatIndex(closedNode->tableIndex);
+		    fmt.setTableFormatIndex(tableIndices.top());
 		    fmt.setTableCellEndOfRow(true);
 		    d->appendBlock(fmt);
 		} else if (closedNode->tag == QLatin1String("table")) {
+		    Q_ASSERT(!tableIndices.isEmpty());
 		    QTextBlockFormat fmt;
 		    fmt.setNonDeletable(true);
 		    d->appendBlock(fmt);
+		    tableIndices.pop();
 		} else if (closedNode->isListStart) {
 
 		    Q_ASSERT(!listReferences.isEmpty());
@@ -529,13 +533,6 @@ QTextDocumentFragment QTextDocumentFragment::loadFromHTML(const QString &html)
 	    }
 	}
 
-	if (node->cellIndex != -1) {
-	    QTextBlockFormat fmt = d->localFormatCollection.blockFormat(node->cellIndex);
-	    if (node->bgColor.isValid())
-		fmt.setBackgroundColor(node->bgColor);
-	    d->appendBlock(fmt);
-	}
-
 	if (node->isListStart) {
 	    QTextListFormat listFmt;
 	    listFmt.setStyle(node->listStyle);
@@ -544,6 +541,17 @@ QTextDocumentFragment QTextDocumentFragment::loadFromHTML(const QString &html)
 	    listFmt.setIndent(indent);
 
 	    listReferences << d->localFormatCollection.createReferenceIndex(listFmt);
+	} else if (node->tag == QLatin1String("table")) {
+	    tableIndices << d->localFormatCollection.createReferenceIndex(QTextTableFormat());
+	} else if (node->isTableCell) {
+	    Q_ASSERT(!tableIndices.isEmpty());
+
+	    QTextBlockFormat fmt;
+	    fmt.setNonDeletable(true);
+	    fmt.setTableFormatIndex(tableIndices.top());
+	    if (node->bgColor.isValid())
+		fmt.setBackgroundColor(node->bgColor);
+	    d->appendBlock(fmt);
 	}
 
 	if (node->isBlock) {
@@ -561,8 +569,7 @@ QTextDocumentFragment QTextDocumentFragment::loadFromHTML(const QString &html)
 		if (node->isListItem) {
 		    Q_ASSERT(!listReferences.isEmpty());
 		    block.setListFormatIndex(listReferences.top());
-		}
-		else
+		} else if (indent)
 		    block.setIndent(indent);
 
 		block.setAlignment(node->alignment);

@@ -569,20 +569,11 @@ void QTextHtmlParser::parseTag()
     node->isListStart = (node->tag == QLatin1String("ol") || node->tag == QLatin1String("ul"));
     if (node->isListStart)
 	node->listStyle = convertListStyle(node->style->listStyle());
+    node->isTableCell = (node->tag == QLatin1String("td") || node->tag == QLatin1String("th"));
 
     resolveParent();
     resolveNode();
     parseAttributes();
-
-    if (node->tag == QLatin1String("table")) {
-	node->tableIndex = formats->createReferenceIndex(QTextTableFormat());
-    } else if ((node->tag == QLatin1String("td") || node->tag == QLatin1String("th"))
-	       && node->tableIndex != -1) {
-	QTextBlockFormat fmt;
-	fmt.setNonDeletable(true);
-	fmt.setTableFormatIndex(node->tableIndex);
-	node->cellIndex = formats->indexForFormat(fmt);
-    }
 
     // finish tag
     while (pos < len && txt.at(pos++) != QLatin1Char('>'))
@@ -756,7 +747,6 @@ void QTextHtmlParser::resolveNode()
     node->listStyle = parent->listStyle;
     node->anchorHref = parent->anchorHref;
     node->anchorName = parent->anchorName;
-    node->tableIndex = parent->tableIndex;
     node->wsm = parent->wsm;
 
     // initialize remaining properties
