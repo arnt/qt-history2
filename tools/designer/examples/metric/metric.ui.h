@@ -7,7 +7,12 @@
 ** place of a destructor.
 *****************************************************************************/
 
+#include <qvalidator.h>
 
+void dialog::init()
+{
+    editInput->setValidator( new QDoubleValidator( editInput ) );
+}
 
 void dialog::convert()
 {

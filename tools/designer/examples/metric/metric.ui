@@ -212,6 +212,7 @@
     <include location="local" impldecl="in implementation">metric.ui.h</include>
 </includes>
 <functions>
+    <function type="function" access="private">init()</function>
     <function type="slot">convert()</function>
 </functions>
 <layoutdefaults spacing="6" margin="11"/>
