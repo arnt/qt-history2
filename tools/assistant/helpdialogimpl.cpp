@@ -45,10 +45,17 @@ class MyString : public QString
 public:
     MyString() {}
     MyString( const QString& other )
-	:QString( other ){
-	    lower = other.lower();
+	: QString( other ) {
+	int from = other.find( "\"" );
+	int to = other.findRev( "\"" );
+	if ( from != -1 && to != -1 )
+	    key = other.mid( from+1, to-from-1 ).lower();
+	else
+	    key = other.lower();
+	// original string as 2nd sort criteria
+	key += QChar::null + other;
     }
-    QString lower;
+    QString key;
 };
 
 struct Entry
@@ -66,11 +73,11 @@ bool operator==( const Entry&, const Entry& ) { return FALSE; }
 #endif
 
 bool operator<=( const MyString &s1, const MyString &s2 )
-{ return s1.lower <= s2.lower; }
+{ return s1.key <= s2.key; }
 bool operator<( const MyString &s1, const MyString &s2 )
-{ return s1.lower < s2.lower; }
+{ return s1.key < s2.key; }
 bool operator>( const MyString &s1, const MyString &s2 )
-{ return s1.lower > s2.lower; }
+{ return s1.key > s2.key; }
 
 HelpNavigationListItem::HelpNavigationListItem( QListBox *ls, const QString &txt )
     : QListBoxText( ls, txt )
@@ -145,7 +152,7 @@ void HelpDialog::loadIndexFile()
 
     QString indexFile = documentationPath + "/index";
     QString linguistIndexFile = linguistDocPath + "/index";
-    
+
     QProgressBar *bar = progressPrepare;
     bar->setTotalSteps( QFileInfo( indexFile ).size() +
 	                QFileInfo( linguistIndexFile ).size() );
@@ -197,7 +204,7 @@ void HelpDialog::loadIndexFile()
 		    bar->setProgress( bar->progress() + l.length() );
 	    }
 	}
-	 
+
 	// Read the Linguist index as well
 	// ### This is a temp hack and should be removed when the
 	// ### Assistant becomes more generalised.
