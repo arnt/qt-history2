@@ -515,14 +515,17 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             case QPicturePrivate::PdcDrawLineSegments:
                 s >> pa;
                 painter->drawLines(pa);
+                pa.clear();
                 break;
             case QPicturePrivate::PdcDrawPolyline:
                 s >> a;
                 painter->drawPolyline(a);
+                a.clear();
                 break;
             case QPicturePrivate::PdcDrawPolygon:
                 s >> a >> i_8;
                 painter->drawPolygon(a, i_8 ? Qt::WindingFill : Qt::OddEvenFill);
+                a.clear();
                 break;
             case QPicturePrivate::PdcDrawCubicBezier: {
                 s >> a;
@@ -531,6 +534,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
                 path.moveTo(a.at(0));
                 path.curveTo(a.at(1), a.at(2), a.at(3));
                 painter->strokePath(path, painter->pen());
+                a.clear();
             }
                 break;
             case QPicturePrivate::PdcDrawText:
