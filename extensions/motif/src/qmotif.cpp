@@ -149,17 +149,8 @@ Boolean qmotif_event_dispatcher( XEvent *event )
     QWidget* qMotif = mapper->find( event->xany.window );
     if ( !qMotif && QWidget::find( event->xany.window) == 0 ) {
 	// event is not for Qt, try Xt
-
-	if ( !grabbed && ( event->type == XFocusIn &&
-			   event->xfocus.mode == NotifyGrab ) ) {
-	    grabbed = TRUE;
-	} else if ( grabbed && ( event->type == XFocusOut &&
-				 event->xfocus.mode == NotifyUngrab ) ) {
-	    grabbed = FALSE;
-	}
-
-	Display* dpy = QPaintDevice::x11AppDisplay();
-	Widget w = XtWindowToWidget( dpy, event->xany.window );
+	Widget w = XtWindowToWidget( QPaintDevice::x11AppDisplay(),
+				     event->xany.window );
 	while ( w && ! ( qMotif = mapper->find( XtWindow( w ) ) ) ) {
 	    if ( XtIsShell( w ) ) {
 		break;
@@ -171,6 +162,16 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	     ( event->type == XKeyPress || event->type == XKeyRelease ) )  {
 	    // remap key events
 	    event->xany.window = qMotif->winId();
+	}
+
+	if ( w ) {
+	    if ( !grabbed && ( event->type == XFocusIn &&
+			       event->xfocus.mode == NotifyGrab ) ) {
+		grabbed = TRUE;
+	    } else if ( grabbed && ( event->type == XFocusOut &&
+				     event->xfocus.mode == NotifyUngrab ) ) {
+		grabbed = FALSE;
+	    }
 	}
     }
 
@@ -221,9 +222,28 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	// we get all events through the popup grabs.  discard the event
 	return True;
 
-    if ( qMotif && QApplication::activeModalWidget() ) {
-	if ( !qt_try_modal(qMotif, event) )
-	    return True;
+    if ( QApplication::activeModalWidget() ) {
+	if ( qMotif ) {
+	    // send event through Qt modality handling...
+	    if ( !qt_try_modal(qMotif, event) )
+		return True;
+	} else {
+	    // event is destined for an Xt widget, but since Qt has an
+	    // active modal widget, we stop here...
+	    switch ( event->type ) {
+	    case ButtonPress:			// disallow mouse/key events
+	    case ButtonRelease:
+	    case MotionNotify:
+	    case XKeyPress:
+	    case XKeyRelease:
+	    case EnterNotify:
+	    case LeaveNotify:
+	    case ClientMessage:
+		return True;
+	    default:
+		break;
+	    }
+	}
     }
 
     if ( static_d->dispatchers[ event->type ]( event ) )
