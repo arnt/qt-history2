@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#263 $
+** $Id: //depot/qt/main/src/moc/moc.y#264 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2682,7 +2682,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#263 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#264 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -3245,6 +3245,10 @@ void addMember( Member m )
 	tmpFunc = new Function( *tmpFunc );
 	tmpFunc->args = tmpFunc->args->magicClone();
     }
+
+    skipFunc = FALSE;
+    tmpFunc = new Function;
+    tmpArgList = new ArgList;
 }
 
 /* Used to check property names. They must match the pattern
