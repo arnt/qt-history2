@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#273 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#274 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#273 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#274 $");
 
 
 /*****************************************************************************
@@ -2592,8 +2592,8 @@ static KeySym KeyTbl[] = {			// keyboard mapping table
 };
 
 
-static QIntDict<int> * keyDict = 0;
-static QIntDict<QString> * asciiDict = 0;
+static QIntDict<int>     *keyDict   = 0;
+static QIntDict<QString> *asciiDict = 0;
 
 static void deleteKeyDicts()
 {
