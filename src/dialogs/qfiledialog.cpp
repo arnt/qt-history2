@@ -817,43 +817,6 @@ void QFDProgressDialog::setWriteLabel( const QString &s )
  *
  ************************************************************************/
 
-#if !defined(_CC_SUN_) // Work around bug 4328291/4325168 (Sun WorkShop 5.0)
-inline
-#endif
-int sun4325168Workaround( QCollection::Item n1, QCollection::Item n2 ) {
-    if ( !n1 || !n2 )
-	return 0;
-
-    QUrlInfo *i1 = ( QUrlInfo *)n1;
-    QUrlInfo *i2 = ( QUrlInfo *)n2;
-
-    if ( i1->isDir() && !i2->isDir() )
-	return -1;
-    if ( !i1->isDir() && i2->isDir() )
-	return 1;
-
-    if ( i1->name() == ".." )
-	return -1;
-    if ( i2->name() == ".." )
-	return 1;
-
-#if defined(_OS_WIN32_)
-    if ( sortFilesBy == QDir::Name ) {
-	QString name1 = i1->name().lower();
-	QString name2 = i2->name().lower();
-	return name1.compare( name2 );
-    }
-#endif
-    if ( QUrlInfo::equal( *i1, *i2, sortFilesBy ) )
-	return 0;
-    else if ( QUrlInfo::greaterThan( *i1, *i2, sortFilesBy ) )
-	return 1;
-    else if ( QUrlInfo::lessThan( *i1, *i2, sortFilesBy ) )
-	return -1;
-    // can't happen...
-    return 0;
-}
-
 struct QFileDialogPrivate {
     ~QFileDialogPrivate();
 
@@ -923,7 +886,37 @@ struct QFileDialogPrivate {
     public:
 	UrlInfoList() { setAutoDelete( TRUE ); }
 	int compareItems( QCollection::Item n1, QCollection::Item n2 ) {
-	    return sun4325168Workaround( n1, n2 );
+	    if ( !n1 || !n2 )
+		return 0;
+
+	    QUrlInfo *i1 = ( QUrlInfo *)n1;
+	    QUrlInfo *i2 = ( QUrlInfo *)n2;
+
+	    if ( i1->isDir() && !i2->isDir() )
+		return -1;
+	    if ( !i1->isDir() && i2->isDir() )
+		return 1;
+
+	    if ( i1->name() == ".." )
+		return -1;
+	    if ( i2->name() == ".." )
+		return 1;
+
+#if defined(_OS_WIN32_)
+	    if ( sortFilesBy == QDir::Name ) {
+		QString name1 = i1->name().lower();
+		QString name2 = i2->name().lower();
+		return name1.compare( name2 );
+	    }
+#endif
+	    if ( QUrlInfo::equal( *i1, *i2, sortFilesBy ) )
+		return 0;
+	    else if ( QUrlInfo::greaterThan( *i1, *i2, sortFilesBy ) )
+		return 1;
+	    else if ( QUrlInfo::lessThan( *i1, *i2, sortFilesBy ) )
+		return -1;
+	    // can't happen...
+	    return 0;
 	}
 	QUrlInfo *operator[]( int i ) {
 	    return at( i );
