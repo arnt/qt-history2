@@ -272,7 +272,7 @@ void QFont::initialize()
 	const QChar *uc = sample.unicode();
 	QFontPrivate *priv = new QFontPrivate;
 
-	for ( uint i = 0; i < sample.length(); i++ ) {
+	for ( int i = 0; i < sample.length(); i++ ) {
 	    SCRIPT_FOR_CHAR( tmp, *uc );
 	    uc++;
 	    if ( tmp != cs && tmp != QFont::UnknownScript ) {
