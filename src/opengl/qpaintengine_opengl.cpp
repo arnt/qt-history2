@@ -614,9 +614,9 @@ void QOpenGLPaintEngine::drawPolyline(const QPointArray &pa, int index, int npoi
 // Need to allocate space for new vertices on intersecting lines and
 // they need to be alive until gluTessEndPolygon() has returned
 static QList<GLdouble *> vertexStorage;
-static void CALLBACK qglTessCombine(GLdouble coords[3],
-				    GLdouble *[4],
-				    GLfloat [4], GLdouble **dataOut)
+static void CALLBACK qgl_tess_combine(GLdouble coords[3],
+				      GLdouble *[4],
+				      GLfloat [4], GLdouble **dataOut)
 {
     GLdouble *vertex;
     vertex = (GLdouble *) malloc(3 * sizeof(GLdouble));
@@ -627,48 +627,48 @@ static void CALLBACK qglTessCombine(GLdouble coords[3],
     vertexStorage.append(vertex);
 }
 
-static void CALLBACK qglTessError(GLenum errorCode)
+static void CALLBACK qgl_tess_error(GLenum errorCode)
 {
     qWarning("QOpenGLPaintEngine: tessellation error: %s", gluErrorString(errorCode));
 }
 
-static GLUtesselator *qglTess = 0;
-static void qglCleanupTesselator()
+static GLUtesselator *qgl_tess = 0;
+static void qgl_cleanup_tesselator()
 {
-    gluDeleteTess(qglTess);
+    gluDeleteTess(qgl_tess);
 }
 
-static void qglDrawPoly(const QPointArray &pa, int index, int npoints)
+static void qgl_draw_poly(const QPointArray &pa, int index, int npoints)
 {
 #ifndef QT_GL_NO_CONCAVE_POLYGONS
-    if (!qglTess) {
-	qglTess = gluNewTess();
-	qAddPostRoutine(qglCleanupTesselator);
+    if (!qgl_tess) {
+	qgl_tess = gluNewTess();
+	qAddPostRoutine(qgl_cleanup_tesselator);
     }
     QVarLengthArray<GLdouble> v(npoints*3);
-    gluTessCallback(qglTess, GLU_TESS_BEGIN, reinterpret_cast<GLvoid (CALLBACK *)()>(&glBegin));
-    gluTessCallback(qglTess, GLU_TESS_VERTEX,
+    gluTessCallback(qgl_tess, GLU_TESS_BEGIN, reinterpret_cast<GLvoid (CALLBACK *)()>(&glBegin));
+    gluTessCallback(qgl_tess, GLU_TESS_VERTEX,
                     reinterpret_cast<GLvoid (CALLBACK *)()>(&glVertex3dv));
-    gluTessCallback(qglTess, GLU_TESS_END, reinterpret_cast<GLvoid (CALLBACK *)()>(&glEnd));
-    gluTessCallback(qglTess, GLU_TESS_COMBINE,
-                    reinterpret_cast<GLvoid (CALLBACK *)()>(&qglTessCombine));
-    gluTessCallback(qglTess, GLU_TESS_ERROR,
-                    reinterpret_cast<GLvoid (CALLBACK *) ()>(&qglTessError));
-    gluTessBeginPolygon(qglTess, NULL);
+    gluTessCallback(qgl_tess, GLU_TESS_END, reinterpret_cast<GLvoid (CALLBACK *)()>(&glEnd));
+    gluTessCallback(qgl_tess, GLU_TESS_COMBINE,
+                    reinterpret_cast<GLvoid (CALLBACK *)()>(&qgl_tess_combine));
+    gluTessCallback(qgl_tess, GLU_TESS_ERROR,
+                    reinterpret_cast<GLvoid (CALLBACK *) ()>(&qgl_tess_error));
+    gluTessBeginPolygon(qgl_tess, NULL);
     {
-	gluTessBeginContour(qglTess);
+	gluTessBeginContour(qgl_tess);
 	{
 	    for (int i = index; i < npoints; ++i) {
 		v[(i-index)*3] = (GLdouble) pa[i].x();
 		v[(i-index)*3+1] = (GLdouble) pa[i].y();
 		v[(i-index)*3+2] = 0.0;
-		gluTessVertex(qglTess, &v[(i-index)*3], &v[(i-index)*3]);
+		gluTessVertex(qgl_tess, &v[(i-index)*3], &v[(i-index)*3]);
 	    }
 	}
-	gluTessEndContour(qglTess);
+	gluTessEndContour(qgl_tess);
     }
-    gluTessEndPolygon(qglTess);
-    // clean up after the qglTessCombine callback
+    gluTessEndPolygon(qgl_tess);
+    // clean up after the qgl_tess_combine callback
     for (int i=0; i < vertexStorage.size(); ++i)
 	free(vertexStorage[i]);
     vertexStorage.clear();
@@ -687,7 +687,7 @@ void QOpenGLPaintEngine::drawPolygon(const QPointArray &pa, bool, int index, int
 {
     dgl->makeCurrent();
     dgl->qglColor(d->cbrush.color());
-    qglDrawPoly(pa, index, npoints);
+    qgl_draw_poly(pa, index, npoints);
     dgl->qglColor(d->cpen.color());
     if (d->cpen.style() != Qt::NoPen) {
         int x1, y1, x2, y2; // connect last to first point
@@ -714,7 +714,7 @@ void QOpenGLPaintEngine::drawPolyInternal(const QPointArray &a, bool close)
         if (d->cbrush.style() != Qt::SolidPattern && d->bgmode == Qt::OpaqueMode) {
             dgl->qglColor(d->bgbrush.color());
             glDisable(GL_POLYGON_STIPPLE);
-	    qglDrawPoly(a, 0, a.size());
+	    qgl_draw_poly(a, 0, a.size());
             glEnable(GL_POLYGON_STIPPLE);
         }
         dgl->qglColor(d->cbrush.color());
@@ -977,7 +977,7 @@ static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush)
         if (xbot1 > 0)
             leftFill << QPoint(0, rh);
 	glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
-	qglDrawPoly(leftFill, 0, leftFill.size());
+	qgl_draw_poly(leftFill, 0, leftFill.size());
 
         // Fill the area to the right of the gradient
         QPointArray rightFill;
@@ -988,7 +988,7 @@ static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush)
 	    rightFill << QPoint(rw, rh);
 	rightFill << QPoint(xbot2-1, rh);
 	glColor4ub(gcol2.red(), gcol2.green(), gcol2.blue(), gcol2.alpha());
-	qglDrawPoly(rightFill, 0, rightFill.size());
+	qgl_draw_poly(rightFill, 0, rightFill.size());
 #endif // QT_GRAD_NO_POLY
 
 	glBegin(GL_POLYGON);
@@ -1032,7 +1032,7 @@ static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush)
 	    topFill << QPoint(rw, 0);
 	topFill << QPoint(rw, yright1+1);
 	glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
-	qglDrawPoly(topFill, 0, topFill.size());
+	qgl_draw_poly(topFill, 0, topFill.size());
 
         QPointArray bottomFill;
 	bottomFill << QPoint(0, yleft2-1);
@@ -1042,7 +1042,7 @@ static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush)
 	    bottomFill << QPoint(rw, rh);
 	bottomFill << QPoint(rw, yright2-1);
 	glColor4ub(gcol2.red(), gcol2.green(), gcol2.blue(), gcol2.alpha());
-	qglDrawPoly(bottomFill, 0, bottomFill.size());
+	qgl_draw_poly(bottomFill, 0, bottomFill.size());
 #endif // QT_GRAD_NO_POLY
 
 	glBegin(GL_POLYGON);
