@@ -977,8 +977,8 @@ QTab * QTabBar::tabAt( int index ) const
 */
 int QTabBar::indexOf( int id ) const
 {
-    for (int i=0; i<d->l.size(); ++i) {
-	if (d->l.at(i) && d->l.at(i)->id == id)
+    for (int i=0; i<d->lstatic.size(); ++i) {
+	if (d->lstatic.at(i) && d->lstatic.at(i)->id == id)
 	    return i;
     }
     return -1;
