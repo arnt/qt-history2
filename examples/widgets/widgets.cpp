@@ -359,11 +359,13 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 
     // Create an editable combo box
     QComboBox *edCombo = new QComboBox( TRUE, central, "edComboBox" );
-    edCombo->insertItem( "Permutable" );
-    edCombo->insertItem( "Malleable" );
-    edCombo->insertItem( "Adaptable" );
-    edCombo->insertItem( "Alterable" );
-    edCombo->insertItem( "Inconstant" );
+    QListBox *edComboLst = new QListBox(this);
+    edCombo->setListBox(edComboLst);
+    edComboLst->insertItem( "Permutable" );
+    edComboLst->insertItem( "Malleable" );
+    edComboLst->insertItem( "Adaptable" );
+    edComboLst->insertItem( "Alterable" );
+    edComboLst->insertItem( "Inconstant" );
     vbox->addWidget( edCombo );
     connect( edCombo, SIGNAL(activated(const QString&)),
 	     this, SLOT(edComboBoxItemActivated(const QString&)) );

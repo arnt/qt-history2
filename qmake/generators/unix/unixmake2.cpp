@@ -75,7 +75,7 @@ UnixMakefileGenerator::writeMakefile(QTextStream &t)
 void
 UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 {
-    QString deps = fileFixify(Option::output.name(), QDir::currentDirPath()), prl;
+    QString deps = fileFixify(Option::output.name()), prl;
     bool do_incremental = (project->isActiveConfig("incremental") &&
 			   !project->variables()["QMAKE_INCREMENTAL"].isEmpty() &&
 			   (!project->variables()["QMAKE_APP_FLAG"].isEmpty() ||

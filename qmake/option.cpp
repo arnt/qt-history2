@@ -260,6 +260,9 @@ Option::parseCommandLine(int argc, char **argv)
 		else
 		    Option::after_user_vars.append(arg);
 	    } else {
+		QFileInfo fi(arg);
+		if(!fi.convertToAbs()) //strange
+		    arg = fi.filePath();
 		if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
 		   Option::qmake_mode == Option::QMAKE_GENERATE_PRL)
 		    Option::mkfile::project_files.append(arg);

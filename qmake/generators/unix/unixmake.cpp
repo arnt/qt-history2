@@ -219,7 +219,7 @@ UnixMakefileGenerator::init()
     project->variables()["QMAKE_FILETAGS"] += QStringList::split("HEADERS SOURCES TARGET DESTDIR", " ");
     if ( !project->isEmpty("PRECOMPH") ) {
 	initOutPaths(); 	// Need to fix MOC_DIR since we do this before init()
-	QString allmoc = project->first("MOC_DIR") + "/allmoc.cpp";
+	QString allmoc = fileFixify(project->first("MOC_DIR") + "/allmoc.cpp", QDir::currentDirPath(), Option::output_dir);
 	project->variables()["SOURCES"].prepend(allmoc);
 	project->variables()["HEADERS_ORIG"] = project->variables()["HEADERS"];
 	project->variables()["HEADERS"].clear();
