@@ -159,7 +159,7 @@ rm -rf qt/examples/network
 rm -rf qt/doc/html
 
 cd ${DISTDIR}/qt/bin
-rm -f makeqtmake* syncqt*
+rm -f syncqt*
 
 echo "Removing kernel .cpp files for other platforms..." >&2
 cd ${DISTDIR}/qt/src/kernel
