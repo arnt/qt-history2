@@ -52,6 +52,10 @@
 // This is needed for Borland with STL support, since in that case, INT32 is
 // already defined by some Borland header.
 #define XMD_H
+#if defined(Q_OS_UNIXWARE7)
+#  define HAVE_BOOLEAN  // libjpeg under Unixware seems to need this
+#  define HAVE_PROTOTYPES
+#endif
 #include <libmng.h>
 #include <stdlib.h>
 
