@@ -109,7 +109,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 				    debug_msg(2, "Mocgen: %s:%d Found \"qmake ignore Q_OBJECT\"",
 					      fn_target.latin1(), line_count);
 				    x += 20;
-				    ignore_qobject = !ignore_qobject;
+				    ignore_qobject = TRUE;
 				}
 			    }
 			} else if(*(big_buffer + x) == '*') {
