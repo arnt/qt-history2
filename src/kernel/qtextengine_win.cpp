@@ -455,34 +455,6 @@ void QScriptItemArray::resize( int s )
     d->alloc = alloc;
 }
 
-void QScriptItemArray::split( int item, int pos )
-{
-    if ( pos <= 0 )
-	return;
-
-    if ( d->size == d->alloc )
-	resize( d->size + 1 );
-
-    int numMove = d->size - item-1;
-    if ( numMove > 0 )
-	memmove( d->items + item+2, d->items +item+1, numMove*sizeof( QScriptItem ) );
-    d->size++;
-    QScriptItem &newItem = d->items[item+1];
-    QScriptItem &oldItem = d->items[item];
-    newItem = oldItem;
-    d->items[item+1].position += pos;
-    if ( newItem.fontEngine )
-	newItem.fontEngine->ref();
-
-//     qDebug("split at position %d itempos=%d", pos, item );
-}
-
-
-void QTextEngine::bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder )
-{
-    ::bidiReorder(numRuns, levels, visualOrder );
-}
-
 void QTextEngine::itemize( int mode )
 {
     if ( !(mode & NoBidi) ) {

@@ -603,7 +603,7 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
 
 }
 
-static void bidiReorder( int numItems, const Q_UINT8 *levels, int *visualOrder )
+void QTextEngine::bidiReorder( int numItems, const Q_UINT8 *levels, int *visualOrder )
 {
 
     // first find highest and lowest levels
@@ -780,6 +780,58 @@ const QCharAttributes *QTextEngine::attributes()
     haveCharAttributes = TRUE;
     return charAttributes;
 }
+
+void QTextEngine::splitItem( int item, int pos )
+{
+    if ( pos <= 0 )
+	return;
+
+#ifdef Q_WS_WIN
+    // if we use Uniscribe we have to ensure we get correct shaping for arabic and other
+    // complex languages so we have to call shape _before_ we split the item.
+    if (hasUsp10)
+	shape(item);
+#endif
+
+    if ( items.d->size == items.d->alloc )
+	items.resize( items.d->size + 1 );
+
+    int numMove = items.d->size - item-1;
+    if ( numMove > 0 )
+	memmove( items.d->items + item+2, items.d->items +item+1, numMove*sizeof( QScriptItem ) );
+    items.d->size++;
+    QScriptItem &newItem = items.d->items[item+1];
+    QScriptItem &oldItem = items.d->items[item];
+    newItem = oldItem;
+    newItem.analysis.linkBefore = TRUE;
+    oldItem.analysis.linkAfter = TRUE;
+    items.d->items[item+1].position += pos;
+    if ( newItem.fontEngine )
+	newItem.fontEngine->ref();
+
+    if (oldItem.num_glyphs) {
+	// already shaped, break glyphs aswell
+	int breakGlyph = logClusters(&oldItem)[pos];
+
+	newItem.num_glyphs = oldItem.num_glyphs - breakGlyph;
+	oldItem.num_glyphs = breakGlyph;
+	newItem.glyph_data_offset = oldItem.glyph_data_offset + breakGlyph;
+
+	for (int i = 0; i < newItem.num_glyphs; i++)
+	    logClusters(&newItem)[i] -= breakGlyph;
+
+	int w = 0;
+	const advance_t *a = advances(&oldItem);
+	for(int j = 0; j < breakGlyph; ++j) 
+	    w += *(a++);
+
+	newItem.width = oldItem.width - w;
+	oldItem.width = w;
+    }
+
+//     qDebug("split at position %d itempos=%d", pos, item );
+}
+
 
 int QTextEngine::width( int from, int len ) const
 {

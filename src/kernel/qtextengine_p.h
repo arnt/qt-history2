@@ -232,7 +232,6 @@ public:
 	d->size++;
     }
     inline int size() const { return d ? d->size : 0; }
-    void split( int item, int pos );
 
     void resize( int s );
     void clear();
@@ -294,6 +293,7 @@ public:
 	item++;
 	return ( item < items.size() ? items[item].position : string.length() ) - from;
     }
+    void splitItem( int item, int pos );
 
     glyph_t *glyphPtr;
     advance_t *advancePtr;

@@ -214,7 +214,7 @@ void QTextLayout::setBoundary( int strPos )
 	// already a split at the requested position
 	return;
     }
-    d->items.split( itemToSplit, strPos - d->items[itemToSplit].position );
+    d->splitItem( itemToSplit, strPos - d->items[itemToSplit].position );
 }
 
 
@@ -427,22 +427,7 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 
 //  	    qDebug("splitting item, itemWidth=%d", itemWidth);
 	    // not a full item, need to break
-	    d->items.split( breakItem, breakPosition );
-	    QScriptItem &endItem = d->items[breakItem];
-// 	    qDebug("new items are at %d (len=%d) and %d (len=%d)", endItem.position, d->length(breakItem),
-// 		   d->items[breakItem+1].position, d->length(breakItem+1) );
-
-
-	    QScriptItem &bSi = d->items[breakItem + 1];
-	    bSi.num_glyphs = d->items[breakItem].num_glyphs - breakGlyph;
-	    d->items[breakItem].num_glyphs = breakGlyph;
-	    bSi.glyph_data_offset = d->items[breakItem].glyph_data_offset + breakGlyph;
-
-	    for ( int i = 0; i < d->items[breakItem+1].num_glyphs; i++ )
-		d->logClusters( &bSi )[i] -= breakGlyph;
-
-	    bSi.width = endItem.width - itemWidth;
-	    endItem.width = itemWidth;
+	    d->splitItem( breakItem, breakPosition );
 	    d->currentItem = breakItem+1;
 	} else {
 	    d->currentItem = breakItem;
