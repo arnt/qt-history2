@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#92 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#93 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -27,7 +27,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#92 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#93 $");
 
 
 #if !defined(WS_EX_TOOLWINDOW)
@@ -208,19 +208,21 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	GetWindowRect( id, &fr );		// update rects
 	GetClientRect( id, &cr );
 	if ( cr.top == cr.bottom && cr.left == cr.right ) {
-	    int x, y, w, h;
-	    if ( topLevel ) {
-		x = sw/4;
-		y = 3*sh/10;
-		w = sw/2;
-		h = 4*sh/10;
-	    } else {
-		x = y = 0;
-		w = 100;
-		h = 30;
-	    }
-	    if ( initializeWindow )
+	    if ( initializeWindow ) {
+		int x, y, w, h;
+		if ( topLevel ) {
+		    x = sw/4;
+		    y = 3*sh/10;
+		    w = sw/2;
+		    h = 4*sh/10;
+		} else {
+		    x = y = 0;
+		    w = 100;
+		    h = 30;
+		}
+
 		MoveWindow( winId(), x, y, w, h, TRUE );
+	    }
 	    GetWindowRect( id, &fr );		// update rects
 	    GetClientRect( id, &cr );
 	}
@@ -301,11 +303,13 @@ bool QWidget::destroy()
 }
 
 
-void QWidget::recreate( QWidget *parent, WFlags, const QPoint &p,
+void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
 			bool showIt )
 {
-    HANDLE parentWin = parent ? parent->winId() : 0;
-    hide();
+    WId old_winid = winid;
+    if ( testWFlags(WType_Desktop) )
+	old_winid = 0;
+    setWinId( 0 );
 
     reparentFocusWidgets( parent );		// fix focus chains
 
@@ -315,10 +319,38 @@ void QWidget::recreate( QWidget *parent, WFlags, const QPoint &p,
 	parentObj = parent;			// avoid insertChild warning
 	parent->insertChild( this );
     }
-    SetParent( winId(), parentWin );
-    move( p.x(), p.y() );
+    bool     enable = isEnabled();		// remember status
+    QSize    s	    = size();
+    QPixmap *bgp    = (QPixmap *)backgroundPixmap();
+    QColor   bgc    = bg_col;			// save colors
+    const char* capt= caption();
+    flags = f;
+    clearWFlags( WState_Created | WState_Visible );
+    create();
+    const QObjectList *chlist = children();
+    if ( chlist ) {				// reparent children
+	QObjectListIt it( *chlist );
+	QObject *obj;
+	while ( (obj=it.current()) ) {
+	    if ( obj->isWidgetType() ) {
+		QWidget *w = (QWidget *)obj;
+		SetParent( w->winId(), winId() );
+	    }
+	    ++it;
+	}
+    }
+
+    bg_col = bgc;
+    setGeometry( p.x(), p.y(), s.width(), s.height() );
+    setEnabled( enable );
+    if ( capt ) {
+	extra->caption = 0;
+	setCaption( capt );
+    }
     if ( showIt )
 	show();
+    if ( old_winid )
+	DestroyWindow( old_winid );
 
     QObjectList	*accelerators = queryList( "QAccel" );
     QObjectListIt it( *accelerators );
