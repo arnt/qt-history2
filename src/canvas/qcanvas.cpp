@@ -2126,6 +2126,8 @@ void QCanvasItem::setCanvas(QCanvas* c)
     bool v=isVisible();
     setVisible(false);
     if (cnv) {
+	if (ext)
+	    cnv->removeAnimation(this);
         cnv->removeItem(this);
     }
     cnv=c;
