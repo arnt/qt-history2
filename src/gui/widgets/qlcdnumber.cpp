@@ -54,8 +54,8 @@
 
     Incidentally, QLCDNumber is the very oldest part of Qt, tracing
     back to a BASIC program on the \link
-    http://www.nvg.ntnu.no/sinclair/spectrum.htm Sinclair
-    Spectrum\endlink.
+    http://www.nvg.ntnu.no/sinclair/computers/zxspectrum/zxspectrum.htm
+    Sinclair Spectrum\endlink.
 
     <img src=qlcdnum-m.png> <img src=qlcdnum-w.png>
 
@@ -351,6 +351,13 @@ void QLCDNumber::setNumDigits( int numDigits )
         qWarning( "QLCDNumber::setNumDigits: (%s) Max 99 digits allowed",
                  objectName( "unnamed" ) );
         numDigits = 99;
+    }
+    if (numDigits < 0 ) {
+#if defined(QT_CHECK_RANGE)
+        qWarning( "QLCDNumber::setNumDigits: (%s) Min 0 digits allowed",
+                 name( "unnamed" ) );
+#endif
+        numDigits = 0;
     }
     if ( digitStr.isNull() ) {                  // from constructor
         ndigits = numDigits;
