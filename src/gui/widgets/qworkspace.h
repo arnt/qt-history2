@@ -35,7 +35,7 @@ class Q_GUI_EXPORT QWorkspace : public QWidget
 public:
     QWorkspace(QWidget* parent=0);
 #ifdef QT_COMPAT
-    QWorkspace(QWidget* parent=0, const char* name);
+    QWorkspace(QWidget* parent, const char* name);
 #endif
     ~QWorkspace();
 
