@@ -128,12 +128,23 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
     if(src->devType() == QInternal::Widget) {
 	QWidget *w = (QWidget *)src;
 	srcdepth = 32; //well, not 0 anyway :)
-	srcbitmap = GetPortBitMapForCopyBits(GetWindowPort((WindowPtr)w->handle()));
-	QMacSavedPortInfo::setPaintDevice(w); //wtf?
-
-	QPoint p(posInWindow(w));
-	srcoffx = p.x();
-	srcoffy = p.y();
+	if(w->isDesktop()) {
+	    GDHandle gdh;
+#if 0
+	    if(GetWindowGreatestAreaDevice((WindowPtr)w->handle(), kWindowStructureRgn, &gdh, NULL) || !gdh)
+		qDebug("Shouldn't happen: %s:%d", __FILE__, __LINE__);
+#else
+	    if(!(gdh=GetMainDevice()))
+		qDebug("Shouldn't happen: %s:%d", __FILE__, __LINE__);
+#endif
+	    srcbitmap = (BitMap*)(*(*gdh)->gdPMap);
+	} else {
+	    srcbitmap = GetPortBitMapForCopyBits(GetWindowPort((WindowPtr)w->handle()));
+	    QMacSavedPortInfo::setPaintDevice(w); //wtf?
+	    QPoint p(posInWindow(w));
+	    srcoffx = p.x();
+	    srcoffy = p.y();
+	}
 
 	if(sw < 0)
 	    sw = w->width();

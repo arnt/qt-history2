@@ -434,11 +434,6 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 	QThread::initialize();
 #endif
 
-	{ //create an empty widget on startup and this can be used for a port anytime
-	    QWidget *tlw = new QWidget(NULL, "empty_widget", Qt::WDestructiveClose);
-	    tlw->hide();
-	    qt_mac_safe_pdev = tlw;
-	}
 #if defined(QT_THREAD_SUPPORT)
 	qt_mac_port_mutex = new QMutex(TRUE);
 #endif
