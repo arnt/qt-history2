@@ -38,10 +38,6 @@ bool QGuiEventLoop::processEvents( ProcessEventsFlags flags )
     // process events from the QWS server
     int	   nevents = 0;
 
-#if defined(QT_THREAD_SUPPORT)
-    QMutexLocker locker( QApplication::qt_mutex );
-#endif
-
     // handle gui and posted events
     QApplication::sendPostedEvents();
 

@@ -132,7 +132,7 @@ QSocketNotifier::QSocketNotifier( int socket, Type type, QObject *parent,
     sockfd = socket;
     sntype = type;
     snenabled = TRUE;
-    QKernelApplication::eventLoop()->registerSocketNotifier( this );
+    QEventLoop::instance()->registerSocketNotifier( this );
 }
 
 /*!
@@ -216,7 +216,11 @@ void QSocketNotifier::setEnabled( bool enable )
 	return;
     snenabled = enable;
 
-    QEventLoop *eventloop = QKernelApplication::eventLoop();
+#if defined(QT_THREAD_SUPPORT)
+    QEventLoop *eventloop = QEventLoop::instance(thread());
+#else
+    QEventLoop *eventloop = QEventLoop::instance();
+#endif
     if ( ! eventloop ) // perhaps application is shutting down
 	return;
 

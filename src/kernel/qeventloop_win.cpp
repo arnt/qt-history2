@@ -440,9 +440,6 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 {
     MSG	 msg;
 
-#if defined(QT_THREAD_SUPPORT)
-    QMutexLocker locker( QKernelApplication::qt_mutex );
-#endif
     emit awake();
 
     QKernelApplication::sendPostedEvents();

@@ -1,6 +1,6 @@
 #include <qkernelapplication.h>
 #include <qeventloop.h>
-#include <qvector.h>
+#include <qkernelevent.h>
 #include <qfile.h>
 #include <qtextcodec.h>
 
@@ -8,32 +8,39 @@
 #include <qevent.h>
 #endif
 
-#ifdef QT_THREAD_SUPPORT
-# include <qmutex.h>
-# include <qthread.h>
+#if defined(QT_THREAD_SUPPORT)
+#  include <qmutex.h>
+#  include <qthread.h>
 #endif
 
 #include "qkernelapplication_p.h"
+#include "qeventloop_p.h"
+
 #define d d_func()
 #define q q_func()
+
 
 #ifdef Q_WS_WIN
 extern const char *qAppFileName(); // Declared in qapplication_win.cpp
 #endif
 
+
+// from qeventloop.cpp
+extern QEventLoopPrivate *qt_find_eventloop_private(Qt::HANDLE thread);
+
+
 typedef void (*VFPTR)();
 typedef QList<VFPTR> QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
-Q_EXPORT void qAddPostRoutine( QtCleanUpFunction p)
+Q_EXPORT void qAddPostRoutine(QtCleanUpFunction p)
 {
     if ( !postRList )
 	postRList = new QVFuncList;
     postRList->prepend( p );
 }
 
-
-Q_EXPORT void qRemovePostRoutine( QtCleanUpFunction p )
+Q_EXPORT void qRemovePostRoutine(QtCleanUpFunction p)
 {
     if ( !postRList ) return;
     QVFuncList::Iterator it = postRList->begin();
@@ -47,34 +54,22 @@ Q_EXPORT void qRemovePostRoutine( QtCleanUpFunction p )
     }
 }
 
-// Definitions for posted events
-struct QPostEvent {
-    QPostEvent():receiver(0),event(0){}
-    QPostEvent( QObject *r, QEvent *e ): receiver( r ), event( e ) {}
-    QObject  *receiver;
-    QEvent   *event;
-};
-typedef QVector<QPostEvent> QPostEventList;
-static uint postEventCounter = 0;
 
-static QPostEventList postedEvents;	// list of posted events
+// app starting up if FALSE
+bool QKernelApplication::is_app_running = FALSE;
+ // app closing down if TRUE
+bool QKernelApplication::is_app_closing = FALSE;
+
 
 uint qGlobalPostedEventsCount()
 {
-    return postedEvents.size();
+    QEventLoopPrivate *p = qt_find_eventloop_private(QThread::currentThread());
+    return p->postedEvents->size();
 }
 
 
-bool	  QKernelApplication::is_app_running = FALSE;	// app starting up if FALSE
-bool	  QKernelApplication::is_app_closing = FALSE;	// app closing down if TRUE
-QEventLoop *QKernelApplication::eventloop = 0;	// application event loop
-
-#ifdef QT_THREAD_SUPPORT
-QMutex *QKernelApplication::qt_mutex		= 0;
-static QMutex *postevent_mutex		= 0;
-#endif // QT_THREAD_SUPPORT
-
 QKernelApplication *QKernelApplication::self = 0;
+
 
 QKernelApplicationPrivate::QKernelApplicationPrivate(int &aargc,  char **aargv)
     : QObjectPrivate(), argc(aargc), argv(aargv)
@@ -142,31 +137,19 @@ void QKernelApplication::init()
     d->app_libpaths = 0;
 #endif
 
-    if (self)
-	qFatal("cannot construct to application objects");
+    Q_ASSERT_X(!self, "QKernelApplication", "there should be only one application object.");
     self = this;
 
 #if defined(QT_THREAD_SUPPORT)
     QThread::initialize();
-    qt_mutex = new QMutex( TRUE );
-    postevent_mutex = new QMutex( TRUE );
 #endif // QT_THREAD_SUPPORT
 
-    if (!eventloop) {
-	qDebug("constructed kernel event loop");
-	(void) new QEventLoop(self, 0);
-    }
+    QEventLoop *eventloop = QEventLoop::instance();
+    if (!eventloop) (void) new QEventLoop(self, 0);
 }
 
 QKernelApplication::~QKernelApplication()
 {
-#ifdef QT_THREAD_SUPPORT
-    delete qt_mutex;
-    qt_mutex = 0;
-    delete postevent_mutex;
-    postevent_mutex = 0;
-    QThread::cleanup();
-#endif
     if ( postRList ) {
 	QVFuncList::Iterator it = postRList->begin();
 	while ( it != postRList->end() ) {	// call post routines
@@ -183,10 +166,12 @@ QKernelApplication::~QKernelApplication()
     d->app_libpaths = 0;
 #endif
 
-    removePostedEvents(this);
     self = 0;
     is_app_running = FALSE;
 
+#ifdef QT_THREAD_SUPPORT
+    QThread::cleanup();
+#endif
 }
 
 /*!
@@ -200,7 +185,12 @@ QKernelApplication::~QKernelApplication()
 */
 QEventLoop *QKernelApplication::eventLoop()
 {
-    return eventloop;
+    if (!self) return 0;
+#if defined(QT_THREAD_SUPPORT)
+    return QEventLoop::instance(self->thread());
+#else
+    return QEventLoop::instance();
+#endif
 }
 
 /*!
@@ -251,11 +241,24 @@ bool QKernelApplication::notify( QObject *receiver, QEvent *e )
 	return TRUE;
     }
 
+#if defined(QT_THREAD_SUPPORT)
+    Q_ASSERT_X(QThread::currentThread() == receiver->thread(),
+	       "QKernelApplication::sendEvent",
+	       QString("Cannot send events to objects owned by a different thread (%1).  "
+		       "Receiver '%2' (of type '%3') was created in thread %4")
+	       .arg(QString::number(QThread::currentThread(), 16))
+	       .arg(receiver->objectName())
+	       .arg(receiver->className())
+	       .arg(QString::number(receiver->thread(), 16)));
+#endif
+
 #ifndef QT_NO_COMPAT
     if (e->type() == QEvent::ChildRemoved && receiver->hasPostedChildInsertedEvents) {
+	QEventLoop *eventloop = QEventLoop::instance();
+	QPostEventList *postedEvents = eventloop->d->postedEvents;
 
-#ifdef QT_THREAD_SUPPORT
-	QMutexLocker locker( postevent_mutex );
+#if defined(QT_THREAD_SUPPORT)
+	QMutexLocker locker(&postedEvents->mutex);
 #endif // QT_THREAD_SUPPORT
 
 	// the QObject destructor calls QObject::removeChild, which calls
@@ -266,8 +269,8 @@ bool QKernelApplication::notify( QObject *receiver, QEvent *e )
 	// if this is a child remove event and the child insert
 	// hasn't been dispatched yet, kill that insert
 	QObject * c = ((QChildEvent*)e)->child();
-	for (int i = 0; i < postedEvents.size(); ++i) {
-	    const QPostEvent &pe = postedEvents.at(i);
+	for (int i = 0; i < postedEvents->size(); ++i) {
+	    const QPostEvent &pe = postedEvents->at(i);
 	    if (pe.event && pe.receiver == receiver) {
 		if (pe.event->type() == QEvent::ChildInserted
 		    && ((QChildEvent*)pe.event)->child() == c ) {
@@ -372,7 +375,7 @@ bool QKernelApplication::closingDown()
 */
 void QKernelApplication::processEvents( int maxtime )
 {
-    eventloop->processEvents( QEventLoop::AllEvents, maxtime );
+    eventLoop()->processEvents( QEventLoop::AllEvents, maxtime );
 }
 
 /*! \obsolete
@@ -389,8 +392,7 @@ void QKernelApplication::processEvents( int maxtime )
 
 void QKernelApplication::processOneEvent()
 {
-    eventloop->processEvents( QEventLoop::AllEvents |
-				QEventLoop::WaitForMore );
+    eventLoop()->processEvents( QEventLoop::AllEvents | QEventLoop::WaitForMore );
 }
 
 /*****************************************************************************
@@ -420,7 +422,7 @@ void QKernelApplication::processOneEvent()
 */
 int QKernelApplication::exec()
 {
-    return eventloop->exec();
+    return eventLoop()->exec();
 }
 
 /*!
@@ -441,7 +443,7 @@ int QKernelApplication::exec()
 */
 void QKernelApplication::exit( int retcode )
 {
-    eventloop->exit( retcode );
+    eventLoop()->exit( retcode );
 }
 
 /*!
@@ -452,7 +454,7 @@ void QKernelApplication::exit( int retcode )
 */
 int QKernelApplication::enter_loop()
 {
-    return eventloop->enterLoop();
+    return eventLoop()->enterLoop();
 }
 
 /*!
@@ -463,7 +465,7 @@ int QKernelApplication::enter_loop()
 */
 void QKernelApplication::exit_loop()
 {
-    eventloop->exitLoop();
+    eventLoop()->exitLoop();
 }
 
 /*!
@@ -473,7 +475,7 @@ void QKernelApplication::exit_loop()
 */
 int QKernelApplication::loopLevel() const
 {
-    return eventloop->loopLevel();
+    return eventLoop()->loopLevel();
 }
 
 
@@ -504,11 +506,30 @@ void QKernelApplication::postEvent( QObject *receiver, QEvent *event )
 	return;
     }
 
-#ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( postevent_mutex );
-#endif // QT_THREAD_SUPPORT
+    /*
+      work around a chicken-or-the-egg problem.  we have to have a
+      QEventLoop object to be able to post events (since the post
+      event list is stored in the QEventLoopPrivate).  however,
+      QEventLoop is a QObject subclass, and the QObject constructor
+      posts events before the QEventLoop constructor is called.
 
-    postedEvents.ensure_constructed();
+      solution: since the QEventLoopPrivate will be fully constructed
+      BEFORE the QObject constructor is called, we get access to the
+      QEventLoopPrivate directly using qt_find_eventloop_private().
+    */
+#ifdef QT_THREAD_SUPPORT
+    QEventLoopPrivate *p = qt_find_eventloop_private(receiver->thread());
+#else
+    QEventLoopPrivate *p = qt_find_eventloop_private(0);
+#endif
+    Q_ASSERT_X(p && p->postedEvents, "QKernelApplication::postEvent",
+	       "Cannot post events to threads without an event loop");
+    QEventLoop *eventloop = p->initialized ? p->q : 0;
+    QPostEventList *postedEvents = p->postedEvents;
+
+#ifdef QT_THREAD_SUPPORT
+    QMutexLocker locker(&postedEvents->mutex);
+#endif // QT_THREAD_SUPPORT
 
     // if this is one of the compressible events, do compression
     if (receiver->hasPostedEvents
@@ -523,8 +544,8 @@ void QKernelApplication::postEvent( QObject *receiver, QEvent *event )
 	    || event->type() == QEvent::QWSUpdate
 #endif
 	    || event->type() == QEvent::LanguageChange) ) {
-	for (int i = 0; i < postedEvents.size(); ++i) {
-	    const QPostEvent &cur = postedEvents.at(i);
+	for (int i = 0; i < postedEvents->size(); ++i) {
+	    const QPostEvent &cur = postedEvents->at(i);
 	    if (cur.receiver != receiver || cur.event == 0 || cur.event->type() != event->type() )
 		continue;
 	    if ( cur.event->type() == QEvent::LayoutRequest
@@ -533,11 +554,11 @@ void QKernelApplication::postEvent( QObject *receiver, QEvent *event )
 #endif
 		 || cur.event->type() == QEvent::UpdateRequest ) {
 		;
-// 	    }
-// 	    else if ( cur.event->type() == QEvent::Resize ) {
-// 		((QResizeEvent *)(cur.event))->s = ((QResizeEvent *)event)->s;
-// 	    } else if ( cur.event->type() == QEvent::Move ) {
-// 		((QMoveEvent *)(cur.event))->p = ((QMoveEvent *)event)->p;
+		// 	    }
+		// 	    else if ( cur.event->type() == QEvent::Resize ) {
+		// 		((QResizeEvent *)(cur.event))->s = ((QResizeEvent *)event)->s;
+		// 	    } else if ( cur.event->type() == QEvent::Move ) {
+		// 		((QMoveEvent *)(cur.event))->p = ((QMoveEvent *)event)->p;
 #ifdef Q_WS_QWS
 	    } else if ( cur.event->type() == QEvent::QWSUpdate ) {
 		QPaintEvent * p = (QPaintEvent*)(cur.event);
@@ -560,11 +581,9 @@ void QKernelApplication::postEvent( QObject *receiver, QEvent *event )
     if (event->type() == QEvent::ChildInserted)
 	receiver->hasPostedChildInsertedEvents = true;
 #endif
-    postedEvents.append( QPostEvent( receiver, event ) );
-    ++postEventCounter;
+    postedEvents->append( QPostEvent( receiver, event ) );
 
-    if (eventloop)
-	eventloop->wakeUp();
+    if (eventloop) eventloop->wakeUp();
 }
 
 
@@ -591,9 +610,17 @@ void QKernelApplication::postEvent( QObject *receiver, QEvent *event )
 
 void QKernelApplication::sendPostedEvents( QObject *receiver, int event_type )
 {
-    static int skipSafely = 0;
+    QEventLoop *eventloop = QEventLoop::instance();
+    Q_ASSERT_X(eventloop && eventloop->d->postedEvents,
+	       "QKernelApplication::sendPostedEvents",
+	       "Cannot send events without an event loop");
+    QPostEventList *postedEvents = eventloop->d->postedEvents;
 
-    if ( !postedEvents || ( receiver && !receiver->hasPostedEvents ) )
+#if defined(QT_THREAD_SUPPORT)
+    QMutexLocker locker(&postedEvents->mutex);
+#endif
+
+    if (!*postedEvents || (receiver && !receiver->hasPostedEvents))
 	return;
 
 #ifndef QT_NO_COMPAT
@@ -606,27 +633,28 @@ void QKernelApplication::sendPostedEvents( QObject *receiver, int event_type )
 	sendPostedEvents( 0, QEvent::ChildInserted );
 #endif
 
-#ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( postevent_mutex );
-#endif
-
     // okay. here is the tricky loop. be careful about optimizing
     // this, it looks the way it does for good reasons.
-    int i = skipSafely;
-    while (i < postedEvents.size()) {
-	const QPostEvent &pe = postedEvents.at(i);
+    int i = postedEvents->offset;
+    while (i < postedEvents->size()) {
+	const QPostEvent &pe = postedEvents->at(i);
 	++i;
 
 	// optimize for recursive calls. In the no-receiver
 	// no-event-type case we know that we process all events.
 	if (!receiver && !event_type)
-	    skipSafely = i;
+	    postedEvents->offset = i;
 
-	if ( pe.event // hasn't been sent yet
-	     && ( receiver == 0 // we send to all receivers
-		  || receiver == pe.receiver ) // we send to THAT receiver
-	     && ( event_type == 0 // we send all types
-		  || event_type == pe.event->type() ) ) { // we send THAT type
+	if (// event hasn't been sent
+	    pe.event
+	    // we send to all receivers
+	    && (receiver == 0
+		// we send to a specific receiver
+		|| receiver == pe.receiver)
+	    // we send all types
+	    && (event_type == 0
+		// we send a specific type
+		|| event_type == pe.event->type())) {
 	    // first, we diddle the event so that we can deliver
 	    // it, and that noone will try to touch it later.
 	    pe.event->posted = FALSE;
@@ -639,7 +667,7 @@ void QKernelApplication::sendPostedEvents( QObject *receiver, int event_type )
 
 	    // remember postEventCounter, so we know when events get
 	    // posted or removed.
-	    uint backup = postEventCounter;
+	    uint backup = postedEvents->size();
 #ifdef QT_THREAD_SUPPORT
 	    if ( locker.mutex() ) locker.mutex()->unlock();
 #endif // QT_THREAD_SUPPORT
@@ -652,8 +680,8 @@ void QKernelApplication::sendPostedEvents( QObject *receiver, int event_type )
 #ifdef QT_THREAD_SUPPORT
 	    if ( locker.mutex() ) locker.mutex()->lock();
 #endif // QT_THREAD_SUPPORT
-	    if (backup != postEventCounter) // events got posted or removed ...
-		i = skipSafely; // ... so start all over again.
+	    if (backup != postedEvents->size()) // events got posted or removed ...
+		i = postedEvents->offset; // ... so start all over again.
 
 	    delete e;
 	    // careful when adding anything below this point - the
@@ -666,16 +694,16 @@ void QKernelApplication::sendPostedEvents( QObject *receiver, int event_type )
     // delivered and update the hasPostedEvents cache.
     if (!event_type) {
 	if (!receiver) {
-	    for (i = 0; i < postedEvents.size(); ++i)
-		if ((receiver = postedEvents.at(i).receiver)) {
+	    for (i = 0; i < postedEvents->size(); ++i) {
+		if ((receiver = postedEvents->at(i).receiver)) {
 		    receiver->hasPostedEvents = false;
 #ifndef QT_NO_COMPAT
 		    receiver->hasPostedChildInsertedEvents = false;
 #endif
 		}
-	    postedEvents.clear();
-	    postEventCounter = 0;
-	    skipSafely = 0;
+	    }
+	    postedEvents->clear();
+	    postedEvents->offset = 0;
 	} else {
 	    receiver->hasPostedEvents = false;
 #ifndef QT_NO_COMPAT
@@ -686,8 +714,8 @@ void QKernelApplication::sendPostedEvents( QObject *receiver, int event_type )
 #ifndef QT_NO_COMPAT
     else if (event_type == QEvent::ChildInserted) {
 	if (!receiver) {
-	    for (i = 0; i < postedEvents.size(); ++i)
-		if ((receiver = postedEvents.at(i).receiver))
+	    for (i = 0; i < postedEvents->size(); ++i)
+		if ((receiver = postedEvents->at(i).receiver))
 		    receiver->hasPostedChildInsertedEvents = false;
 	} else {
 	    receiver->hasPostedChildInsertedEvents = false;
@@ -709,26 +737,33 @@ void QKernelApplication::sendPostedEvents( QObject *receiver, int event_type )
 
 void QKernelApplication::removePostedEvents( QObject *receiver )
 {
-    if ( !receiver )
-	return;
+    if (!receiver) return;
+
+#if defined(QT_THREAD_SUPPORT)
+    QEventLoop *eventloop = QEventLoop::instance(receiver->thread());
+#else
+    QEventLoop *eventloop = QEventLoop::instance();
+#endif
+    if (!eventloop || !eventloop->d->postedEvents) return;
+
+    QPostEventList *postedEvents = eventloop->d->postedEvents;
 
 #ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( postevent_mutex );
+    QMutexLocker locker(&postedEvents->mutex);
 #endif // QT_THREAD_SUPPORT
 
     // the QObject destructor calls this function directly.  this can
     // happen while the event loop is in the middle of posting events,
     // and when we get here, we may not have any more posted events
     // for this object.
-    if ( !receiver->hasPostedEvents )
- 	return;
+    if ( !receiver->hasPostedEvents ) return;
 
     // iterate over the object-specific list and delete the events.
     // leave the QPostEvent objects; they'll be deleted by
     // sendPostedEvents().
     receiver->hasPostedEvents = false;
-    for (int i = 0; i < postedEvents.size(); ++i) {
-	const QPostEvent &pe = postedEvents.at(i);
+    for (int i = 0; i < postedEvents->size(); ++i) {
+	const QPostEvent &pe = postedEvents->at(i);
 	if (pe.receiver == receiver) {
 	    if (pe.event) {
 		pe.event->posted = false;
@@ -756,7 +791,16 @@ void QKernelApplication::removePostedEvent( QEvent * event )
     if ( !event || !event->posted )
 	return;
 
-    if ( !postedEvents ) {
+    QEventLoop *eventloop = QEventLoop::instance();
+    if (!eventloop) return;
+    QPostEventList *postedEvents = eventloop->d_func()->postedEvents;
+    if (!postedEvents) return;
+
+#if defined(QT_THREAD_SUPPORT)
+    QMutexLocker locker(&postedEvents->mutex);
+#endif
+
+    if ( !*postedEvents ) {
 #if defined(QT_DEBUG)
 	qDebug( "QKernelApplication::removePostedEvent: %p %d is posted: impossible",
 		(void*)event, event->type() );
@@ -764,12 +808,8 @@ void QKernelApplication::removePostedEvent( QEvent * event )
 #endif
     }
 
-#ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( postevent_mutex );
-#endif // QT_THREAD_SUPPORT
-
-    for (int i = 0; i < postedEvents.size(); ++i) {
-	const QPostEvent & pe = postedEvents.at(i);
+    for (int i = 0; i < postedEvents->size(); ++i) {
+	const QPostEvent & pe = postedEvents->at(i);
 	if ( pe.event == event ) {
 #if defined(QT_DEBUG)
 	    const char *n;
@@ -858,7 +898,7 @@ void QKernelApplication::removePostedEvent( QEvent * event )
 */
 bool QKernelApplication::hasPendingEvents()
 {
-    return eventloop->hasPendingEvents();
+    return eventLoop()->hasPendingEvents();
 }
 
 /*!\reimp
@@ -911,6 +951,7 @@ void QKernelApplication::quit()
 
 
 /*! \fn void QKernelApplication::lock()
+    \obsolete
 
   Lock the Qt Library Mutex. If another thread has already locked the
   mutex, the calling thread will block until the other thread has
@@ -921,6 +962,7 @@ void QKernelApplication::quit()
 
 
 /*! \fn void QKernelApplication::unlock(bool wakeUpMainThread)
+    \obsolete
 
   Unlock the Qt Library Mutex. If \a wakeUpMainThread is TRUE (the default),
   then the main thread will be woken up.
@@ -930,6 +972,7 @@ void QKernelApplication::quit()
 
 
 /*! \fn bool QKernelApplication::locked()
+    \obsolete
 
   Returns TRUE if the Qt Library Mutex is locked by a different thread;
   otherwise returns FALSE.
@@ -942,6 +985,7 @@ void QKernelApplication::quit()
 */
 
 /*! \fn bool QKernelApplication::tryLock()
+    \obsolete
 
   Attempts to lock the Qt Library Mutex, and returns immediately. If
   the lock was obtained, this function returns TRUE. If another thread
@@ -954,28 +998,23 @@ void QKernelApplication::quit()
   \sa lock(), unlock() \link threads.html Thread Support in Qt\endlink
 */
 
-#if defined(QT_THREAD_SUPPORT)
+#if defined(QT_THREAD_SUPPORT) && !defined(QT_NO_COMPAT)
 void QKernelApplication::lock()
 {
-    qt_mutex->lock();
 }
 
-void QKernelApplication::unlock(bool wakeUpMainThread)
+void QKernelApplication::unlock(bool)
 {
-    qt_mutex->unlock();
-
-    if (wakeUpMainThread)
-	eventloop->wakeUp();
 }
 
 bool QKernelApplication::locked()
 {
-    return qt_mutex->isLocked();
+    return false;
 }
 
 bool QKernelApplication::tryLock()
 {
-    return qt_mutex->tryLock();
+    return false;
 }
 #endif
 

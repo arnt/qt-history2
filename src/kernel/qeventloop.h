@@ -18,13 +18,12 @@
 #include "qsocketnotifier.h"
 #endif // QT_H
 
-class QEventLoopPrivate;
+class QApplication;
+class QKernelApplication;
 class QSocketNotifier;
 class QTimer;
 
-#if defined(QT_THREAD_SUPPORT)
-class QMutex;
-#endif // QT_THREAD_SUPPORT
+class QEventLoopPrivate;
 
 class Q_EXPORT QEventLoop : public QObject
 {
@@ -34,6 +33,8 @@ public:
     QEventLoop( QObject *parent = 0, const char *name = 0 );
     QEventLoop(QEventLoopPrivate *, QObject *parent = 0, const char *name = 0);
     ~QEventLoop();
+
+    static QEventLoop *instance(Qt::HANDLE thread = 0);
 
     enum ProcessEvents {
 	AllEvents		= 0x00,
@@ -85,6 +86,7 @@ private:
 
     Q_DECL_PRIVATE(QEventLoop);
     friend class QApplication;
+    friend class QKernelApplication;
 };
 
 #endif // QEVENTLOOP_H

@@ -690,8 +690,7 @@ void QApplication::construct(Type type)
     initialize();
     if ( qt_is_gui_used )
 	qt_maxWindowRect = desktop()->rect();
-    if ( eventloop )
-	eventloop->appStartingUp();
+    eventLoop()->appStartingUp();
 }
 
 #if defined(Q_WS_X11)
@@ -731,8 +730,7 @@ QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
 
     if ( qt_is_gui_used )
 	qt_maxWindowRect = desktop()->rect();
-    if ( eventloop )
-	eventloop->appStartingUp();
+    eventLoop()->appStartingUp();
 }
 
 /*!
@@ -765,8 +763,7 @@ QApplication::QApplication(Display *dpy, int argc, char **argv,
 
     if ( qt_is_gui_used )
 	qt_maxWindowRect = desktop()->rect();
-    if ( eventloop )
-	eventloop->appStartingUp();
+    eventLoop()->appStartingUp();
 }
 
 
@@ -861,8 +858,7 @@ QApplication::~QApplication()
     }
 #endif
 
-    if ( eventloop )
-	eventloop->appClosingDown();
+    eventLoop()->appClosingDown();
 
     QObject *tipmanager = child( "toolTipManager", "QTipManager", FALSE );
     delete tipmanager;

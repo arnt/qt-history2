@@ -35,11 +35,8 @@
 
 #include <errno.h>
 
-
-// resolve the conflict between X11's FocusIn and QEvent::FocusIn
-#undef FocusOut
-#undef FocusIn
-
+// resolve conflict between QEvent::KeyPress/KeyRelease and X11's
+// KeyPress/KeyRelease #defines
 enum {
     XKeyPress = KeyPress,
     XKeyRelease = KeyRelease
@@ -49,13 +46,7 @@ enum {
 
 bool QGuiEventLoop::processEvents( ProcessEventsFlags flags )
 {
-    // process events from the X server
-    XEvent event;
-    int	   nevents = 0;
-
-#if defined(QT_THREAD_SUPPORT)
-    QMutexLocker locker( QApplication::qt_mutex );
-#endif
+    int nevents = 0;
 
     QApplication::sendPostedEvents();
 
@@ -67,6 +58,8 @@ bool QGuiEventLoop::processEvents( ProcessEventsFlags flags )
 		return FALSE;
 	    }
 
+	    // process events from the X server
+	    XEvent event;
 	    XNextEvent( QPaintDevice::x11AppDisplay(), &event );
 
 	    if ( flags & ExcludeUserInput ) {
@@ -107,7 +100,6 @@ bool QGuiEventLoop::processEvents( ProcessEventsFlags flags )
 
     // 0x08 == ExcludeTimers for X11 only
     const uint exclude_all = ExcludeSocketNotifiers | 0x08 | WaitForMore;
-
     if (nevents > 0 && (flags & exclude_all) == exclude_all) {
 	QApplication::sendPostedEvents();
 	return TRUE;

@@ -707,6 +707,13 @@ void QWidgetPrivate::init(Qt::WFlags f)
     if ( qApp->type() == QApplication::Tty )
 	qWarning( "QWidget: Cannot create a QWidget when no GUI is being used" );
 
+#ifdef QT_THREAD_SUPPORT
+    if (q->isTopLevel()) {
+	Q_ASSERT_X(q->thread() == qApp->thread(), "QWidget",
+		   "Widgets must be created in the GUI thread.");
+    }
+#endif
+
     q->fstrut_dirty = 1;
 
     q->winid = 0;
@@ -5071,7 +5078,7 @@ void QWidget::updateGeometry()
 
 
 
-/*! 
+/*!
     \internal
  */
 void QWidget::setParent_helper(QObject *parent)
@@ -5084,7 +5091,7 @@ void QWidget::setParent_helper(QObject *parent)
 }
 
 
-/*! \fn void QWidget::setParent(QWidget *parent) 
+/*! \fn void QWidget::setParent(QWidget *parent)
 
     Sets the parent of the widget to \a parent. The widget is moved
     to position (0,0) in its new parent.

@@ -33,6 +33,9 @@
 #include "qlist.h"
 #include "qobject.h"
 
+#if defined(QT_THREAD_SUPPORT)
+#  include "qthread.h"
+#endif
 
 #define Q_DECL_PUBLIC( Class ) \
 private: \
@@ -52,17 +55,26 @@ protected:
 public:
 
     QObjectPrivate()
-	:connections(0),
-	 senders(0),
-	 polished(0),
-	 objectName(0),
-	 ownObjectName(false)
-	{
-#ifndef QT_NO_USERDATA
-	    userData.setAutoDelete(true);
+	:
+#if defined(QT_THREAD_SUPPORT)
+	thread(QThread::currentThread()),
 #endif
-	}
+	connections(0),
+	senders(0),
+	polished(0),
+	objectName(0),
+	ownObjectName(false)
+    {
+#ifndef QT_NO_USERDATA
+	userData.setAutoDelete(true);
+#endif
+    }
     virtual ~QObjectPrivate() {}
+
+#if defined(QT_THREAD_SUPPORT)
+    // id of the thread that created the QObject
+    const Qt::HANDLE thread;
+#endif
 
     // signal connections
     struct Connections {

@@ -24,7 +24,6 @@ class QKernelApplicationPrivate;
 class QTextCodec;
 class QTranslator;
 class QEventLoop;
-class QMutex;
 
 class Q_EXPORT QKernelApplication : public QObject
 {
@@ -83,7 +82,7 @@ public:
 
     static void flush();
 
-#if defined(QT_THREAD_SUPPORT)
+#if defined(QT_THREAD_SUPPORT) && !defined(QT_NO_COMPAT)
     void	     lock();
     void	     unlock(bool wakeUpGui = TRUE);
     bool	     locked();
@@ -105,13 +104,8 @@ private:
     static void      removePostedEvent( QEvent * );
     bool notify_helper( QObject *, QEvent * );
 
-    static QEventLoop* eventloop;
     static bool is_app_running;
     static bool is_app_closing;
-#ifdef QT_THREAD_SUPPORT
-    static QMutex   *qt_mutex;
-#endif // QT_THREAD_SUPPORT
-
 
     static QKernelApplication *self;
 

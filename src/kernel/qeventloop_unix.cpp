@@ -568,10 +568,6 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 {
     int nevents = 0;
 
-#if defined(QT_THREAD_SUPPORT)
-    QMutexLocker locker( QApplication::qt_mutex );
-#endif
-
     if ( d->shortcut )
 	return FALSE;
 
@@ -582,17 +578,6 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 
     if ( canWait )
 	emit aboutToBlock();
-
-    // unlock the GUI mutex and select.  when we return from this function, there is
-    // something for us to do
-#if defined(QT_THREAD_SUPPORT)
-    locker.mutex()->unlock();
-#endif
-
-    // relock the GUI mutex before processing any pending events
-#if defined(QT_THREAD_SUPPORT)
-    locker.mutex()->lock();
-#endif
 
     // return the maximum time we can wait for an event.
     timeval *tm = 0;

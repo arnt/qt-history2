@@ -71,6 +71,10 @@ public:
     inline bool signalsBlocked() const { return blockSig; }
     bool blockSignals(bool b);
 
+#if defined(QT_THREAD_SUPPORT)
+    Qt::HANDLE thread() const;
+#endif
+
     int startTimer(int interval);
     void killTimer(int id);
 
@@ -180,9 +184,9 @@ private:
     uint hasPostedEvents : 1;
 #ifndef QT_NO_COMPAT
     uint hasPostedChildInsertedEvents : 1;
-    uint unused : 25;
+    uint unused : 24;
 #else
-    uint unused : 26;
+    uint unused : 25;
 #endif
 
     QObject *parentObj;

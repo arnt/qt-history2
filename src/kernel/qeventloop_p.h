@@ -38,15 +38,17 @@
 
 #include "qeventloop.h"
 #include "qwindowdefs.h"
+#if defined(QT_THREAD_SUPPORT)
+#  include "qmutex.h"
+#endif
 
 class QSocketNotifier;
 #ifdef Q_OS_MAC
 class QMacSockNotPrivate;
 #endif
 
-#if defined(Q_OS_UNIX) || defined (Q_WS_WIN)
-#include "qlist.h"
-#endif // Q_OS_UNIX || Q_WS_WIN
+#include <qlist.h>
+#include <qvector.h>
 
 #include "qobject_p.h"
 
@@ -103,18 +105,39 @@ typedef QIntDict<TimerInfo> TimerDict;		// fast dict of timers
 
 #endif // Q_WS_WIN
 
+// Definitions for posted events
+struct QPostEvent
+{
+    QObject *receiver;
+    QEvent *event;
+    inline QPostEvent()
+	: receiver(0), event(0)
+    { }
+    inline QPostEvent(QObject *r, QEvent *e)
+	: receiver(r), event(e)
+    { }
+};
+
+class QPostEventList : public QVector<QPostEvent>
+{
+public:
+    int offset;
+#if defined(QT_THREAD_SUPPORT)
+    QMutex mutex;
+#endif
+
+    inline QPostEventList()
+	: QVector<QPostEvent>(), offset(0)
+    { }
+    ~QPostEventList();
+};
+
+
 class QEventLoopPrivate : public QObjectPrivate
 {
     Q_DECL_PUBLIC(QEventLoop);
- public:
-    QEventLoopPrivate()
-	: QObjectPrivate()
-    {
-	reset();
-#if defined(Q_WS_X11)
-	xfd = -1;
-#endif // Q_WS_X11
-    }
+public:
+    QEventLoopPrivate();
 
     inline void reset() {
 	looplevel = 0;
@@ -133,6 +156,13 @@ class QEventLoopPrivate : public QObjectPrivate
 #if defined(Q_WS_X11)
     int xfd;
 #endif // Q_WS_X11
+
+    // true if QEventLoop has been constructed and initialized,
+    // otherwise false.  used in qkernelapplication.cpp
+    bool initialized;
+
+    // list of posted events
+    QPostEventList *postedEvents;
 
     // pending socket notifiers list
     QList<QSockNot*> sn_pending_list;
@@ -155,6 +185,8 @@ class QEventLoopPrivate : public QObjectPrivate
     void timerInsert(QTimerInfo *);
     void timerRepair(const timeval &);
 #endif
+
+    friend class QKernelApplication;
 };
 
 #endif // QEVENTLOOP_P_H

@@ -15,6 +15,7 @@
 #include "qvariant.h"
 #include "qeventloop.h"
 #include "qkernelapplication.h"
+#include "qkernelevent.h"
 #include "qregexp.h"
 #include "qmetaobject.h"
 
@@ -354,8 +355,13 @@ QObject::~QObject()
     }
 
     // might have pending timers
-    if ( QKernelApplication::eventLoop() && pendTimer )
-	QKernelApplication::eventLoop()->unregisterTimers(this);
+#if defined(QT_THREAD_SUPPORT)
+    QEventLoop *eventloop = QEventLoop::instance(d->thread);
+#else
+    QEventLoop *eventloop = QEventLoop::instance();
+#endif
+    if (eventloop && pendTimer)
+	eventloop->unregisterTimers(this);
 
     if ( parentObj )				// remove it from parent object
 	setParent_helper(0);
@@ -474,7 +480,7 @@ const char *QObject::className() const
 */
 
 /*!
-    \property QObject::name
+    \property QObject::objectName
 
     \brief the name of this object
 
@@ -574,17 +580,6 @@ QObject* QObject::child( const char *objName, const char *inheritsClass,
 
     Calling this function is equivalent to calling
     inherits("QWidget"), except that it is much faster.
-*/
-
-/*!
-    \fn bool QObject::highPriority() const
-
-    Returns TRUE if the object is a high-priority object, or FALSE if
-    it is a standard-priority object.
-
-    High-priority objects are placed first in QObject's list of
-    children on the assumption that they will be referenced very
-    often.
 */
 
 
@@ -827,6 +822,15 @@ bool QObject::blockSignals( bool block )
     return previous;
 }
 
+#if defined(QT_THREAD_SUPPORT)
+/*!
+    Returns the thread id in which this object was created.
+ */
+Qt::HANDLE QObject::thread() const
+{
+    return d->thread;
+}
+#endif
 
 //
 // The timer flag hasTimer is set when startTimer is called.
@@ -892,7 +896,13 @@ bool QObject::blockSignals( bool block )
 int QObject::startTimer( int interval )
 {
     pendTimer = TRUE;				// set timer flag
-    return QKernelApplication::eventLoop()->registerTimer(interval, (QObject *)this);
+#if defined(QT_THREAD_SUPPORT)
+    QEventLoop *eventloop = QEventLoop::instance(d->thread);
+#else
+    QEventLoop *eventloop = QEventLoop::instance();
+#endif
+    Q_ASSERT_X(eventloop, "QObject::startTimer", "Cannot start timer without an event loop");
+    return eventloop->registerTimer(interval, (QObject *)this);
 }
 
 /*!
@@ -906,8 +916,12 @@ int QObject::startTimer( int interval )
 
 void QObject::killTimer( int id )
 {
-    if ( QKernelApplication::eventLoop() )
-	QKernelApplication::eventLoop()->unregisterTimer(id);
+#if defined(QT_THREAD_SUPPORT)
+    QEventLoop *eventloop = QEventLoop::instance(d->thread);
+#else
+    QEventLoop *eventloop = QEventLoop::instance();
+#endif
+    if (eventloop) eventloop->unregisterTimer(id);
 }
 
 static void objSearch( QObjectList &result,
@@ -1071,6 +1085,10 @@ void QObject::setParent_helper(QObject *parent)
     }
     parentObj = parent;
     if (parentObj) {
+#if defined(QT_THREAD_SUPPORT)
+	Q_ASSERT_X(parent->thread() == thread(), "QObject::setParent",
+		   "Cannot use a parent object which is owned by a different thread");
+#endif
 	parentObj->d->children.append(this);
 	const QMetaObject *polished = d->polished;
 	QChildEvent e(QEvent::ChildAdded, this);
@@ -1179,20 +1197,6 @@ void QObject::removeEventFilter( const QObject *obj )
 
 
 /*!
-    \fn QObject::destroyed()
-
-    This signal is emitted when the object is being destroyed.
-
-    Note that the signal is emitted by the QObject destructor, so
-    the object's virtual table is already degenerated at this point,
-    and it is not safe to call any functions on the object emitting
-    the signal. This signal can not be blocked.
-
-    All the objects's children are destroyed immediately after this
-    signal is emitted.
-*/
-
-/*!
     \fn QObject::destroyed( QObject* obj)
 
     This signal is emitted immediately before the object \a obj is
@@ -1215,7 +1219,7 @@ void QObject::deleteLater()
 }
 
 /*!
-    \fn QString Object::tr( const char *sourceText, const char * comment )
+    \fn QString QObject::tr( const char *sourceText, const char * comment )
     \reentrant
 
     Returns a translated version of \a sourceText, or \a sourceText
@@ -1235,7 +1239,7 @@ void QObject::deleteLater()
 */
 
 /*!
-    \fn QString Object::trUtf8( const char *sourceText,
+    \fn QString QObject::trUtf8( const char *sourceText,
                                  const char *comment )
     \reentrant
 
@@ -2311,5 +2315,3 @@ QObjectUserData* QObject::userData( uint id ) const
     function you can pass a QPointer\<X\> to a function where an X*
     is required.
 */
-
-
