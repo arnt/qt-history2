@@ -1661,9 +1661,9 @@ void QWidget::setWindowTransparency(double level)
     if (!ptrSetLayeredWindowAttributes)
 	return;
 
-    int wl = GetWindowLong(winId(), GWL_EXSTYLE);
+    int wl = GetWindowLongA(winId(), GWL_EXSTYLE);
     if ((wl&Q_WS_EX_LAYERED) == 0)
-	SetWindowLong(winId(), GWL_EXSTYLE, Q_WS_EX_LAYERED);
+	SetWindowLongA(winId(), GWL_EXSTYLE, Q_WS_EX_LAYERED);
 
     level = QMIN(QMAX(level, 0), 1.0);
     (*ptrSetLayeredWindowAttributes)(winId(), 0, (int)(level*255), Q_LWA_ALPHA);
