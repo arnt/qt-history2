@@ -146,23 +146,25 @@ public:
     ~QMacInputMethod() { endCompose(); }
 
     QWidget *getWidget() const { return composing ? widget : NULL; }
-    void endCompose();
+    void endCompose(bool fix=TRUE);
     void startCompose(QWidget *);
 };
-void QMacInputMethod::endCompose()
+void QMacInputMethod::endCompose(bool fix)
 {
     if(!composing)
 	return;
-    if(id) {
-	DeleteTSMDocument(id);
-	DeactivateTSMDocument(id);
-    }
-    id = 0;
-    if(widget) {
+    if(widget && fix) {
+	FixTSMDocument(id); //finish what they were doing
 	QIMEvent event(QEvent::IMEnd, QString::null, -1);
 	QApplication::sendSpontaneousEvent(widget, &event);
     }
     widget = NULL;
+
+    if(id) {
+	DeleteTSMDocument(id);
+	DeactivateTSMDocument(id);
+	id = 0;
+    }
 }
 void QMacInputMethod::startCompose(QWidget *w)
 {
@@ -193,7 +195,7 @@ void qt_mac_destroy_widget(QWidget *w)
     if(qt_mouseover == w)
 	qt_mouseover = NULL;
     if(w == qt_app_im.getWidget())
-	qt_app_im.endCompose();
+	qt_app_im.endCompose(FALSE);
 }
 
 bool qt_nograb()				// application no-grab option
@@ -305,6 +307,7 @@ static EventTypeSpec events[] = {
     { kEventClassWindow, kEventWindowBoundsChanged },
 
     { kEventClassQt, kEventQtRequestPropagate },
+    { kEventClassQt, kEventQtRequestMenubarUpdate },
     { kEventClassQt, kEventQtRequestSelect },
     { kEventClassQt, kEventQtRequestContext },
     { kEventClassQt, kEventQtRequestTimer },
@@ -1047,17 +1050,6 @@ bool QApplication::processNextEvent( bool canWait )
 	sendPostedEvents();
     }
 
-    //if there are no events in the queue, this is a good time to do "stuff"
-#ifndef QT_NO_CLIPBOARD
-    if(qt_clipboard) { //manufacture an event so the clipboard can see if it has changed
-	static int clipboard_tst = 0;
-	if(!(clipboard_tst = (clipboard_tst + 1) % 20)) {
-	    QEvent ev(QEvent::Clipboard);
-	    QApplication::sendSpontaneousEvent(qt_clipboard, &ev);
-	}
-    }
-#endif
-
     if( quit_now || app_exit_loop ) {
 #if defined(QT_THREAD_SUPPORT)
 	qApp->unlock( FALSE );
@@ -1460,7 +1452,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    QMenuBar::macUpdateMenuBar();
 #endif
 	} else if(ekind == kEventQtRequestSelect) {
-
 	    request_select_pending = FALSE;
 	    if ( qt_preselect_handler ) {
 		QVFuncList::Iterator end = qt_preselect_handler->end();
@@ -1720,8 +1711,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		    w = w->focusProxy();
 		if(QWidget *tlw = w->topLevelWidget()) {
 		    tlw->raise();
-		    if(tlw->isTopLevel() && !tlw->isPopup() &&
-		       (tlw->isModal() || !tlw->isDialog()))
+		    if(tlw->isTopLevel() && !tlw->isPopup() && (tlw->isModal() || !tlw->isDialog()))
 			app->setActiveWindow(tlw);
 		}
 		if ( w->focusPolicy() & QWidget::ClickFocus ) {
@@ -1954,9 +1944,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	}
 	break;
     case kEventClassApplication:
-	if(ekind == kEventAppActivated)
+	if(ekind == kEventAppActivated) {
 	    app->clipboard()->loadScrap(FALSE);
-	else if(ekind == kEventAppDeactivated) {
+	    if(qt_clipboard) { //manufacture an event so the clipboard can see if it has changed
+		QEvent ev(QEvent::Clipboard);
+		QApplication::sendSpontaneousEvent(qt_clipboard, &ev);
+	    }
+	} else if(ekind == kEventAppDeactivated) {
 	    app->clipboard()->saveScrap();
 	    app->setActiveWindow(NULL);
 	}
@@ -2053,12 +2047,11 @@ void QApplication::openPopup( QWidget *popup )
     // popups are not focus-handled by the window system (the first
     // popup grabbed the keyboard), so we have to do that manually: A
     // new popup gets the focus
-    active_window = popup;
     QFocusEvent::setReason( QFocusEvent::Popup );
-    if (active_window->focusWidget())
-	active_window->focusWidget()->setFocus();
+    if (popup->focusWidget())
+	popup->focusWidget()->setFocus();
     else
-	active_window->setFocus();
+	popup->setFocus();
     QFocusEvent::resetReason();
 }
 
