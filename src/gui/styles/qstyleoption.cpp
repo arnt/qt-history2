@@ -30,3 +30,4 @@ void Q4StyleOption::init(const QWidget *w)
     rect = w->rect();
     palette = w->palette();
 }
+
