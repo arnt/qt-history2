@@ -2822,9 +2822,11 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 }
 
 /*!
-\fn void QGfxRaster<depth,type>::vline( int x,int y1,int y2 )
-Draw a line at coordinate x from y1 to y2.
-Performs clipping.
+    \fn void QGfxRaster<depth,type>::vline( int x,int y1,int y2 )
+
+    Draw a line at coordinate \a x from \a y1 to \a y2.
+
+    Performs clipping.
 */
 
 //screen coordinates, clipped

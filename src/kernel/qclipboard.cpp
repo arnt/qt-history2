@@ -120,6 +120,7 @@ QClipboard::QClipboard( QObject *parent, const char *name )
     // nothing
 }
 
+#ifndef Q_WS_WIN32
 /*!
     \internal
 
@@ -128,7 +129,6 @@ QClipboard::QClipboard( QObject *parent, const char *name )
     You should never delete the clipboard. QApplication will do this
     when the application terminates.
 */
-#ifndef Q_WS_WIN32
 QClipboard::~QClipboard()
 {
 }

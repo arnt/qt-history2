@@ -281,22 +281,7 @@ static int similarity( const QString& s1, const QString& s2 )
   \sa featureList(), library()
 */
 
-/*!
-  \fn const QLibrary* QPluginManager::library( const QString& feature ) const
 
-  Returns a pointer to the QLibrary providing \a feature.
-
-  \sa featureList()
-*/
-
-/*!
-  \fn QStringList QPluginManager::featureList() const
-
-  Returns a list of all features provided by the interfaces managed by this
-  interface manager.
-
-  \sa library(), queryInterface()
-*/
 
 #include <qptrlist.h>
 
@@ -392,7 +377,7 @@ const QLibrary* QGPluginManager::library( const QString& feature ) const
 		sameBasename << (*git).mid( (*git).find( QChar(0xfffd) ) + 1 );
 		++git;
 	    }
-	
+
 	    if ( sameBasename.isEmpty() ) {
 		that->addLibrary( new QComLibrary(lib ) );
 	    } else {
@@ -411,7 +396,7 @@ const QLibrary* QGPluginManager::library( const QString& feature ) const
 		    that->addLibrary( same.take() );
 		}
 	    }
-	
+
 	    if ( ( library = plugDict[feature] ) )
 		return library;
 	}
@@ -502,14 +487,14 @@ bool QGPluginManager::addLibrary( QLibrary* lib )
 		if ( !takeFirst ) {
 		    useful = TRUE;
 		    plugDict.replace( *f, plugin );
-		    qWarning("%s: Discarding feature %s in %s!", 
-			     (const char*) QFile::encodeName( plugin->library()), 
-			     (*f).latin1(), 
+		    qWarning("%s: Discarding feature %s in %s!",
+			     (const char*) QFile::encodeName( plugin->library()),
+			     (*f).latin1(),
 			     (const char*) QFile::encodeName( old->library() ) );
 		} else {
-		    qWarning("%s: Feature %s already defined in %s!", 
+		    qWarning("%s: Feature %s already defined in %s!",
 			     (const char*) QFile::encodeName( old->library() ),
-			     (*f).latin1(), 
+			     (*f).latin1(),
 			     (const char*) QFile::encodeName( plugin->library() ) );
 		}
 	    }

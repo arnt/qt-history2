@@ -527,10 +527,11 @@ bool QMenuBar::activate(MenuRef menu, short idx, bool highlight, bool by_accel)
 }
 
 
+static QIntDict<QMenuBar> *menubars = NULL;
 /*!
+  \internal
   Internal function that cleans up the menubar.
 */
-static QIntDict<QMenuBar> *menubars = NULL;
 void QMenuBar::macCreateNativeMenubar()
 {
     macDirtyNativeMenubar();

@@ -979,6 +979,9 @@ void QScrollBar::setValue( int i )
 }
 
 
+/*!
+    This function is called when the scrollbar is hidden.
+*/
 void QScrollBar::hideEvent( QHideEvent* )
 {
     pressedControl = QStyle::SC_None;

@@ -458,7 +458,8 @@ static int scm(int a, int b)
     inefficient, and some window systems might not support it at all,
     whereas QCanvas scales well. Even with a billion pixels and a million
     items, finding a particular canvas item, detecting collisions, etc.,
-    is still fast.
+    is still fast (though the memory consumption may be prohibitive
+    at such an extreme).
 
     \i Two or more QCanvasView objects can view the same canvas.
 
@@ -2675,35 +2676,41 @@ QRect QCanvasItem::boundingRectAdvanced() const
 }
 
 /*!
-  \class QCanvasPixmap qcanvas.h
-  \brief The QCanvasPixmap class provides a pixmap in a QCanvas.
-  \module canvas
+    \class QCanvasPixmap qcanvas.h
+    \brief The QCanvasPixmap class provides pixmaps for QCanvasSprites.
+
+    \module canvas
     \ingroup graphics
     \ingroup images
 
-  The pixmap is a QPixmap and can only be set in the
-  constructor. There are three different constructors, one taking a
-  QPixmap, one a QImage and one a file name that refers to a file in
-  any supported file format (see QImageIO).
+    If you want to show a single pixmap on a QCanvas use a
+    QCanvasSprite with just one pixmap.
 
-  QCanvasPixmap can have a hotspot which is defined in terms of an (x,
-  y) offset. When you create a QCanvasPixmap from a PNG file or from
-  a QImage that has a QImage::offset(), the offset() is initialized
-  appropriately, otherwise the constructor leaves it at (0, 0). You
-  can set it later using setOffset(). When the QCanvasPixmap is used
-  in a QCanvasSprite, the offset position is the point at
-  QCanvasItem::x() and QCanvasItem::y(), not the top-left corner of
-  the pixmap.
+    When pixmaps are inserted into a QCanvasPixmapArray they are held
+    as QCanvasPixmaps. \l{QCanvasSprite}s are used to show pixmaps on
+    \l{QCanvas}es and hold their pixmaps in a QCanvasPixmapArray. If
+    you retrieve a frame (pixmap) from a QCanvasSprite it will be
+    returned as a QCanvasPixmap.
 
-  Note that for QCanvasPixmap objects created by a QCanvasSprite, the
-  position of each QCanvasPixmap object is set so that the hotspot
-  stays in the same position.
+    The pixmap is a QPixmap and can only be set in the constructor.
+    There are three different constructors, one taking a QPixmap, one
+    a QImage and one a file name that refers to a file in any
+    supported file format (see QImageIO).
 
-  Like any other canvas item, canvas pixmaps can be moved with
-  QCanvasItem::move() and QCanvasItem::moveBy(), or by setting coordinates
-  with QCanvasItem::setX(), QCanvasItem::setY() and QCanvasItem::setZ().
+    QCanvasPixmap can have a hotspot which is defined in terms of an (x,
+    y) offset. When you create a QCanvasPixmap from a PNG file or from
+    a QImage that has a QImage::offset(), the offset() is initialized
+    appropriately, otherwise the constructor leaves it at (0, 0). You
+    can set it later using setOffset(). When the QCanvasPixmap is used
+    in a QCanvasSprite, the offset position is the point at
+    QCanvasItem::x() and QCanvasItem::y(), not the top-left corner of
+    the pixmap.
 
-  \sa QCanvasPixmapArray QCanvasItem QCanvasSprite
+    Note that for QCanvasPixmap objects created by a QCanvasSprite, the
+    position of each QCanvasPixmap object is set so that the hotspot
+    stays in the same position.
+
+    \sa QCanvasPixmapArray QCanvasItem QCanvasSprite
 */
 
 #ifndef QT_NO_IMAGEIO

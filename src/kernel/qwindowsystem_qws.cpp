@@ -1361,16 +1361,14 @@ void QWSServer::setDefaultKeyboard( const char *k )
     defaultKeyboard = k;
 }
 
-/*!
-  Send a mouse event. \a pos is the screen position where the mouse
-  event occurred and \a state is a mask indicating which buttons are
-  pressed.
-*/
-
 static bool prevWin;
 
 /*!
     \internal
+
+  Send a mouse event. \a pos is the screen position where the mouse
+  event occurred and \a state is a mask indicating which buttons are
+  pressed.
 */
 void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 {

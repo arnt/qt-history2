@@ -759,7 +759,7 @@ void QFont::setWeight( int weight )
 /*!
     Returns TRUE if underline has been set; otherwise returns FALSE.
 
-    \sa setUnderline(), QFontInfo::underline()
+    \sa setUnderline()
 */
 bool QFont::underline() const
 {
@@ -786,7 +786,7 @@ void QFont::setUnderline( bool enable )
 /*!
     Returns TRUE if strikeout has been set; otherwise returns FALSE.
 
-    \sa setStrikeOut(), QFontInfo::strikeOut().
+    \sa setStrikeOut()
 */
 bool QFont::strikeOut() const
 {
