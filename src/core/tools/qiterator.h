@@ -40,9 +40,9 @@ public: \
     inline const T &previous() { return *--i; } \
     inline const T &peekPrevious() const { const_iterator p = i; return *--p; } \
     inline bool findNext(const T &t) \
-    { while (i != c->constEnd()) if (*i++ == t) return true; return false; } \
+    { while (i != c.constEnd()) if (*i++ == t) return true; return false; } \
     inline bool findPrevious(const T &t) \
-    { while (i != c->constBegin()) if (*(--i) == t) return true; \
+    { while (i != c.constBegin()) if (*(--i) == t) return true; \
       return false;  } \
 }; \
 \
