@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#194 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#195 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1024,12 +1024,16 @@ void QFileDialog::init()
 
     updateGeometries();
 
-    d->cdToParent->setFocusPolicy( NoFocus );
-    d->newFolder->setFocusPolicy( NoFocus );
-    d->detailView->setFocusPolicy( NoFocus );
-    d->mcView->setFocusPolicy( NoFocus );
+//     d->cdToParent->setFocusPolicy( NoFocus );
+//     d->newFolder->setFocusPolicy( NoFocus );
+//     d->detailView->setFocusPolicy( NoFocus );
+//     d->mcView->setFocusPolicy( NoFocus );
 
-    setTabOrder( d->paths, d->moreFiles );
+    setTabOrder( d->paths, d->cdToParent );
+    setTabOrder( d->cdToParent, d->newFolder );
+    setTabOrder( d->newFolder, d->detailView );
+    setTabOrder( d->detailView, d->mcView );
+    setTabOrder( d->mcView, d->moreFiles );
     setTabOrder( d->moreFiles, files );
     setTabOrder( files, nameEdit );
     setTabOrder( nameEdit, d->types );
