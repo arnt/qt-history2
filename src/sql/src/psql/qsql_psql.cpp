@@ -455,6 +455,7 @@ bool QPSQLResult::reset ( const QString& query )
     d->result = PQexec( d->connection, (const char*)query );
     int status =  PQresultStatus( d->result );
     if ( status == PGRES_COMMAND_OK || status == PGRES_TUPLES_OK ) {
+	setSelect( (status == PGRES_TUPLES_OK) );
 	currentSize = PQntuples( d->result );
 	binary = PQbinaryTuples( d->result );
 	setActive( TRUE );

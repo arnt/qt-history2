@@ -534,6 +534,9 @@ bool QODBCResult::reset ( const QString& query )
 	setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
 	return FALSE;
     }
+    SQLSMALLINT count;
+    r = SQLNumResultCols( d->hStmt, &count );
+    setSelect( r != 0 );
     setActive( TRUE) ;
     return FALSE;
 }

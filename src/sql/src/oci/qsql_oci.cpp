@@ -604,7 +604,7 @@ bool QOCIResult::reset ( const QString& query )
 				      (void**)&param,
 				      count );
 	}
-
+	setSelect( TRUE );
     } else { // non-SELECT
     	r = OCIStmtExecute( d->svc, d->sql, d->err, 1,0,
 				(CONST OCISnapshot *) NULL,
@@ -617,6 +617,7 @@ bool QOCIResult::reset ( const QString& query )
 	    setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
 	    return FALSE;
 	}
+	setSelect( FALSE );	
     }
     setAt( BeforeFirst );
     setActive( TRUE);

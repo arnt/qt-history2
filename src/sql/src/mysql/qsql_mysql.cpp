@@ -226,6 +226,7 @@ bool QMYSQLResult::reset ( const QString& query )
 	setLastError( qMakeError( "Unable to store result", QSqlError::Statement, d ) );
 	return FALSE;
     }
+    setSelect( !(mysql_field_count( d->mysql ) == 0) );
     setActive( TRUE );
     return TRUE;
 }
