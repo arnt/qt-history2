@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#34 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -20,7 +20,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#34 $");
 
 
 /*****************************************************************************
@@ -61,7 +61,7 @@ int QColor::numBitPlanes()
 
 void QColor::initialize()
 {
-    if ( QApplication::colorMode() == QApplication::NormalColors )
+    if ( (QApplication::colorSpec() & QApplication::PrivateColor) == 0 )
 	return;
 
     int numCols = maxColors();
