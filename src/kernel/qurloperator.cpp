@@ -192,49 +192,49 @@ struct QUrlOperatorPrivate
 /*!
   \fn void QUrlOperator::emitNewChild( const QUrlInfo &, QNetworkOperation *op );
 
-  Emits the signal newChild( const QUrlInfo &, QNetworkOperation * ).
+  Emits the signal newChild()
 */
 
 /*!
   \fn void QUrlOperator::emitStart( QNetworkOperation *op )
 
-  Emits the signal start( QNetworkOperation * ).
+  Emits the signal start()
 */
 
 /*!
   \fn void QUrlOperator::emitCreatedDirectory( const QUrlInfo &, QNetworkOperation *op )
 
-  Emits the signal createdDirectory( const QUrlInfo &, QNetworkOperation *op ).
+  Emits the signal createdDirectory()
 */
 
 /*!
   \fn void QUrlOperator::emitRemoved( QNetworkOperation *op )
 
-  Emits the signal removed( QNetworkOperation * ).
+  Emits the signal removed()
 */
 
 /*!
   \fn void QUrlOperator::emitItemChanged( QNetworkOperation *op )
 
-  Emits the signal itemChanged( QNetworkOperation * ).
+  Emits the signal itemChanged()
 */
 
 /*!
   \fn void QUrlOperator::emitDataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation * )
 
-  Emits the signal dataTransferProgress( int, int, QNetworkOperation * ).
+  Emits the signal dataTransferProgress()
 */
 
 /*!
   \fn void QUrlOperator::emitFinished( QNetworkOperation * )
 
-  Emits the signal finished( QNetworkOperation * ).
+  Emits the signal finished()
 */
 
 /*!
   \fn void QUrlOperator::emitData( const QByteArray &, QNetworkOperation * )
 
-  Emits the signal data( const QByteArray &, QNetworkOperation * ).
+  Emits the signal data()
 */
 
 /*!
@@ -319,7 +319,7 @@ QUrlOperator::~QUrlOperator()
   couldn't be created.
 
   The path of this QUrlOperator has to point to a directory, because the childs
-  of this directory will be listed, and not to a file, else this operation might not work! 
+  of this directory will be listed, and not to a file, else this operation might not work!
 */
 
 const QNetworkOperation *QUrlOperator::listChildren()
@@ -691,7 +691,7 @@ bool QUrlOperator::isDir( bool *ok )
   This means if \a location is not empty and relative, it must not
   contain any queries or references, just the name of a child. So,
   if you need to specify a query or reference do it like in the first
-  example or specify the full URL (like 
+  example or specify the full URL (like
   http://www.whatever.org/cgi-bin/search.pl?cmd=Hallo) as \a location.
 
   \sa copy()
