@@ -48,7 +48,7 @@ if ( $#myChanges == -1 ) {
 }
 
 
-# Check if change contains the word intergration
+# Check if change contains the word integration
 # in some form
 # ------------------------------------------------
 open ( P4, "$P4 describe -s $myChanges[0] |") || die "$0: Couldn't get description of change #$myChanges[0]";
@@ -62,9 +62,10 @@ grep {
 
 if ( $abort ) {
   print @description;
-  printf "$0: Change $myChanges[0] seems to be an intergration, aborting...\n";
+  printf "$0: Change $myChanges[0] seems to be an integration, aborting...\n";
   exit 1;
 }
+
 
 # Check if change is on main branch
 # ------------------------------------------------
