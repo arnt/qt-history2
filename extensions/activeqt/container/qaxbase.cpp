@@ -1340,6 +1340,35 @@ void MetaObjectGenerator::readClassInfo()
     if ( typeinfo && !typelib )
 	typeinfo->GetContainingTypeLib( &typelib, &index );
 
+    if ( !typelib ) {
+	QSettings controls;
+	QString tlid = controls.readEntry( "/Classes/CLSID/" + that->control() + "/TypeLib/." );
+	QString tlfile;
+	if ( !tlid.isEmpty() ) {
+	    QStringList versions = controls.subkeyList( "/Classes/TypeLib/" + tlid );
+	    QStringList::Iterator vit = versions.begin();
+	    while ( tlfile.isEmpty() && vit != versions.end() ) {
+		QString version = *vit;
+		++vit;
+		tlfile = controls.readEntry( "/Classes/Typelib/" + tlid + "/" + version + "/0/win32/." );
+	    }
+	} else {
+	    tlfile = controls.readEntry( "/Classes/CLSID/" + that->control() + "/InprocServer32/." );
+	    if (tlfile.isEmpty())
+		tlfile = controls.readEntry( "/Classes/CLSID/" + that->control() + "/LocalServer32/." );
+	}
+	if (!tlfile.isEmpty()) {
+	    LoadTypeLib(tlfile.ucs2(), &typelib);
+	    if (!typelib) {
+		tlfile = tlfile.left(tlfile.findRev('.')) + ".tlb";
+		LoadTypeLib(tlfile.ucs2(), &typelib);
+	    }
+	}
+    }
+
+    if ( !typeinfo && typelib )
+	typelib->GetTypeInfoOfGuid( QUuid(that->control()), &typeinfo );
+
     if ( !typeinfo || !cacheKey.isEmpty() )
 	return;
 
