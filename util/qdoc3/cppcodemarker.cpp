@@ -191,7 +191,7 @@ QString CppCodeMarker::markedUpSynopsis(const Node *node, const Node *relative,
 	break;
     case Node::Property:
 	property = static_cast<const PropertyNode *>(node);
-	synopsis = name + " : " + property->dataType();
+	synopsis = name + " : " + property->qualifiedDataType();
 	break;
     default:
 	synopsis = name;

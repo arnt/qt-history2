@@ -598,6 +598,21 @@ void PropertyNode::setOverriddenFrom(const PropertyNode *baseProperty)
     overrides = baseProperty;
 }
 
+QString PropertyNode::qualifiedDataType() const
+{
+    if (setters().isEmpty() && resetters().isEmpty()) {
+        if (dt.contains("*") || dt.contains("&")) {
+            // 'QWidget *' becomes 'QWidget *' const
+            return dt + " const";
+        } else {
+            // 'int' becomes 'const int' ('int const' is correct C++, but looks wrong)
+            return "const " + dt;
+        }
+    } else {
+        return dt;
+    }
+}
+
 PropertyNode::Trool PropertyNode::toTrool( bool boolean )
 {
     return boolean ? Trool_True : Trool_False;

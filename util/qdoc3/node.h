@@ -350,7 +350,8 @@ public:
     void setDesignable( bool designable ) { des = toTrool( designable ); }
     void setOverriddenFrom(const PropertyNode *baseProperty);
 
-    const QString& dataType() const { return dt; }
+    const QString &dataType() const { return dt; }
+    QString qualifiedDataType() const;
     NodeList functions() const;
     NodeList functions(FunctionRole role) const { return funcs[(int)role]; }
     NodeList getters() const { return functions(Getter); }
