@@ -22,6 +22,7 @@
 #include "syntaxhighliter_cpp.h"
 #include "indent_cpp.h"
 #include "cppcompletion.h"
+#include "cppbrowser.h"
 #include <parenmatcher.h>
 #include <qsettings.h>
 
@@ -31,6 +32,7 @@ CppEditor::CppEditor( const QString &fn, QWidget *parent, const char *name )
     document()->setPreProcessor( new SyntaxHighlighter_CPP );
     document()->setIndent( new Indent_CPP );
     completion = new CppEditorCompletion( this );
+    browser = new CppEditorBrowser( this );
     int i = 0;
     while ( SyntaxHighlighter_CPP::keywords[ i ] != QString::null )
 	    completion->addCompletionEntry( SyntaxHighlighter_CPP::keywords[ i++ ], 0, FALSE );

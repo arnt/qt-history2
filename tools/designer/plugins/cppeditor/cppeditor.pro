@@ -7,7 +7,8 @@ HEADERS		= cppeditor.h  \
 		  editorinterfaceimpl.h \
 		  languageinterfaceimpl.h \
 		  preferenceinterfaceimpl.h \
-		  yyreg.h
+		  yyreg.h \
+		  cppbrowser.h
 
 SOURCES		= cppeditor.cpp \
 		  syntaxhighliter_cpp.cpp \
@@ -17,7 +18,8 @@ SOURCES		= cppeditor.cpp \
 		  languageinterfaceimpl.cpp \
 		  common.cpp \
 		  preferenceinterfaceimpl.cpp \
-		  yyreg.cpp
+		  yyreg.cpp \
+		  cppbrowser.cpp
 		
 TARGET		= cppeditor
 DESTDIR		= ../../../../plugins/designer

@@ -24,6 +24,7 @@
 #include <editor.h>
 
 class EditorCompletion;
+class EditorBrowser;
 
 class  CppEditor : public Editor
 {
@@ -33,12 +34,14 @@ public:
     CppEditor( const QString &fn, QWidget *parent, const char *name );
 
     virtual EditorCompletion *completionManager() { return completion; }
+    virtual EditorBrowser *browserManager() { return browser; }
     void configChanged();
 
     bool supportsBreakPoints() const { return FALSE; }
 
 protected:
     EditorCompletion *completion;
+    EditorBrowser *browser;
 
 };
 
