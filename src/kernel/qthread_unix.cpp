@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread_unix.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qthread_unix.cpp#64 $
 **
 ** QThread class for Unix
 **
@@ -369,7 +369,7 @@ void QThread::sleep( unsigned long secs )
 */
 void QThread::msleep( unsigned long msecs )
 {
-    ::usleep( msecs * 1000 );
+    QThread::usleep( msecs * 1000 );
 }
 
 
@@ -379,7 +379,10 @@ void QThread::msleep( unsigned long msecs )
 */
 void QThread::usleep( unsigned long usecs )
 {
-    ::usleep( usecs );
+    struct timespec ts;
+    ts.tv_nsec = (usecs % 1000000) * 1000;
+    ts.tv_sec  = usecs / 1000000;
+    (void) ::nanosleep(&ts, NULL);
 }
 
 
