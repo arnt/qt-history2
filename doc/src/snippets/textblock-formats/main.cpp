@@ -15,9 +15,9 @@ int main(int argc, char *argv[])
     blockFormat.setBottomMargin(4);
 
     cursor.setBlockFormat(blockFormat);
-    cursor.insertText(app.tr("This contains plain text inside a "
-                             "text block with margins to keep it separate "
-                             "from other parts of the document."));
+    cursor.insertText(QObject::tr("This contains plain text inside a "
+                                  "text block with margins to keep it separate "
+                                  "from other parts of the document."));
 
     cursor.insertBlock();
 
@@ -25,8 +25,8 @@ int main(int argc, char *argv[])
     backgroundFormat.setBackgroundColor(QColor("#dddddd"));
 
     cursor.setBlockFormat(backgroundFormat);
-    cursor.insertText(app.tr("The background color of a text block can be "
-                             "changed to highlight text."));
+    cursor.insertText(QObject::tr("The background color of a text block can be "
+                                  "changed to highlight text."));
 
     cursor.insertBlock();
 
@@ -34,10 +34,10 @@ int main(int argc, char *argv[])
     rightAlignedFormat.setAlignment(Qt::AlignRight);
 
     cursor.setBlockFormat(rightAlignedFormat);
-    cursor.insertText(app.tr("The alignment of the text within a block is "
-                             "controlled by the alignment properties of the "
-                             "block itself. This text block is "
-                             "right-aligned."));
+    cursor.insertText(QObject::tr("The alignment of the text within a block is "
+                                  "controlled by the alignment properties of "
+                                  "the block itself. This text block is "
+                                  "right-aligned."));
 
     cursor.insertBlock();
 
@@ -46,9 +46,9 @@ int main(int argc, char *argv[])
     paragraphFormat.setFirstLineMargin(32);
 
     cursor.setBlockFormat(paragraphFormat);
-    cursor.insertText(app.tr("Text can be formatted so that the first line "
-                             "in a paragraph has its own margin. This makes "
-                             "the text more readable."));
+    cursor.insertText(QObject::tr("Text can be formatted so that the first "
+                                  "line in a paragraph has its own margin. "
+                                  "This makes the text more readable."));
 
     cursor.insertBlock();
 
@@ -57,14 +57,14 @@ int main(int argc, char *argv[])
     reverseFormat.setFirstLineMargin(32);
 
     cursor.setBlockFormat(reverseFormat);
-    cursor.insertText(app.tr("The direction of the text can be reversed. "
-                             "This is useful for right-to-left languages."));
+    cursor.insertText(QObject::tr("The direction of the text can be reversed. "
+                                  "This is useful for right-to-left "
+                                  "languages."));
 
-    editor->setWindowTitle(app.tr("Text Block Formats"));
+    editor->setWindowTitle(QObject::tr("Text Block Formats"));
     editor->resize(480, 480);
     editor->show();
     app.setMainWidget(editor);
     
     return app.exec();
 }
-
