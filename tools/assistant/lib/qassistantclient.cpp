@@ -40,7 +40,7 @@ static QAssistantClientPrivate *data( const QAssistantClient *client, bool creat
 }
 
 /*!
-    \class QAssistantClient qassistantclient.h
+    \class QAssistantClient
     \brief The QAssistantClient class provides a means of using Qt
     Assistant as an application's help tool.
 
@@ -249,8 +249,12 @@ void QAssistantClient::closeAssistant()
     Documentation to Qt Assistant" in the \link assistant.book Qt
     Assistant manual\endlink for further information.
 
-    If Qt Assistant hasn't been \link openAssistant() opened\endlink,
-    this function will open it.
+    If Qt Assistant hasn't been \link openAssistant() opened\endlink
+    yet, this function will do nothing. You can use isOpen() to
+    determine whether Qt Assistant is up and running, or you can
+    connect to the asssistantOpened() signal.
+
+    \sa isOpen(), assistantOpened()
 */
 void QAssistantClient::showPage( const QString &page )
 {
