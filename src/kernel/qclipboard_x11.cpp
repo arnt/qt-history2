@@ -35,8 +35,8 @@
 **
 **********************************************************************/
 
-#define QCLIPBOARD_DEBUG
-#define QCLIPBOARD_DEBUG_VERBOSE
+// #define QCLIPBOARD_DEBUG
+// #define QCLIPBOARD_DEBUG_VERBOSE
 
 #ifdef QCLIPBOARD_DEBUG
 #  define DEBUG qDebug
