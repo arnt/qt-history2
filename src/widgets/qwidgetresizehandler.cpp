@@ -47,7 +47,7 @@ static bool resizeVerticalDirectionFixed = FALSE;
 
 QWidgetResizeHandler::QWidgetResizeHandler( QWidget *parent, QWidget *cw, const char *name )
     : QObject( parent, name ), widget( parent ), childWidget( cw ? cw : parent ),
-      buttonDown( FALSE ), moveResizeMode( FALSE ), extrahei( 0 )
+      buttonDown( FALSE ), moveResizeMode( FALSE ), extrahei( 0 ), moving( TRUE )
 {
     mode = Nowhere;
     widget->setMouseTracking( TRUE );
@@ -177,7 +177,8 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
 	geom =  QRect( widget->geometry().topLeft(), QPoint( p.x(), widget->geometry().bottom() ) ) ;
 	break;
     case Center:
-	geom.moveTopLeft( pp );
+	if ( isMovingEnabled() )
+	    geom.moveTopLeft( pp );
 	break;
     default:
 	break;

@@ -478,7 +478,8 @@ QDockWidget::QDockWidget( Place p, QWidget *parent, const char *name, WFlags f )
       lastPos( -1, -1 )
 {
     widgetResizeHandler = new QWidgetResizeHandler( this );
-
+    widgetResizeHandler->setMovingEnabled( FALSE );
+    
     hbox = new QVBoxLayout( this );
     hbox->setMargin( 2 );
     hbox->setSpacing( 1 );
@@ -684,7 +685,6 @@ void QDockWidget::updatePosition( const QPoint &globalPos )
 	}
 	dockArea = 0;
 	move( currRect.topLeft() );
-	show();
     }
     if ( curPlace != state ) {
 	curPlace = state;
@@ -695,6 +695,8 @@ void QDockWidget::updatePosition( const QPoint &globalPos )
 	    adjustSize();
 	emit positionChanged();
     }
+    if ( state == OutsideDock )
+	show();
     tmpDockArea = 0;
 }
 

@@ -53,6 +53,9 @@ public:
     QWidgetResizeHandler( QWidget *parent, QWidget *cw = 0, const char *name = 0 );
     void setActive( bool b ) { active = b; }
     bool isActive() const { return active; }
+    void setMovingEnabled( bool b ) { moving = b; }
+    bool isMovingEnabled() const { return moving; }
+    
     bool isButtonDown() const { return buttonDown; }
 
     void setExtraHeight( int h ) { extrahei = h; }
@@ -85,7 +88,8 @@ private:
     bool moveResizeMode;
     bool active;
     int extrahei;
-
+    bool moving;
+    
     void setMouseCursor( MousePosition m );
     bool isMove() const {
 	return moveResizeMode && mode == Center;
