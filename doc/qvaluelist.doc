@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qvaluelist.doc,v 1.4 1999/08/17 09:26:01 paul Exp $
+** $Id: qvaluelist.doc,v 1.5 1999/09/25 14:22:10 ettrich Exp $
 **
 ** QValueList and QValueListIterator class documentation
 **
@@ -40,7 +40,7 @@
 
   Some classes can not be used within a QValueList. For example everything derived from
   QObject and as a reason of this that extends to all classes which implement widgets.
-  You can only put stuff in a QValueList which can be easily copied. That means that the 
+  You can only put stuff in a QValueList which can be easily copied. That means that the
   class X should implement a fast copy constructor.
 
   Example:
@@ -78,7 +78,7 @@
 	
 	EmployeeList::Iterator it;
 	for( it = list.begin(); it != list.end(); ++it )
-	    printf( "%s earns %d\n", (*it).name(), (*it).salary() );
+	    printf( "%s earns %d\n", (*it).name().latin1(), (*it).salary().latin1() );
     }
   \endcode
 
@@ -101,7 +101,7 @@
 
   The second way of accessing a list is with operator[]. That means you can address
   it like an array. The return value is a reference to the value stored in the list.
-  There exist two versions of this operator. The first one is const and returns a 
+  There exist two versions of this operator. The first one is const and returns a
   const reference to the value. The second on is non const and returns a non const
   reference to the value. It is up to your compiler to choose the correct one.
 

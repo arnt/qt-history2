@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qtl.doc,v 1.3 1999/07/12 19:19:47 warwick Exp $
+** $Id: qtl.doc,v 1.4 1999/09/25 14:22:09 ettrich Exp $
 **
 ** Qt template library classes documentation
 **
@@ -34,12 +34,13 @@
 The QTL contains the following classes currently:
 
 <ul>
-<li> \link QMap QMap\endlink; a dictionary
-<li> \link QMapIterator QMapIterator\endlink and \link QMapConstIterator QMapConstIterator\endlink; iterators for QMap.
-<li> \link QValueList QValueList\endlink; a linked list
-<li> \link QValueListIterator QValueListIterator\endlink and \link QValueListConstIterator QValueListConstIterator\endlink; iterators for QValueList.
-<li> \link QStringList QStringList\endlink; a list of strings
-<li> \link QArray QArray\endlink; a dynamic array
+<li> \l QMap a dictionary
+<li> \l QMapIterator and \l QMapConstIterator iterators for QMap.
+<li> \l QValueList a linked list
+<li> \l QValueListIterator QValueListIterator and \l QValueListConstIterator QValueListConstIterator; iterators for QValueList.
+<li> \l QStringList QStringList; a list of strings
+<li> \l QValueStack a stack 
+<li> \l QArray a dynamic array
 </ul>
 
 In contrast to the containers based on the class QCollection, the
