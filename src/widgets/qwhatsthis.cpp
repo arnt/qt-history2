@@ -483,7 +483,7 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
     while( it != dict->end() ) {
 	w = (QWidget *)it.key();
 	++it;
-	dict->take(w);
+	i = dict->take(w);
 	delete i;
     }
     delete dict;
