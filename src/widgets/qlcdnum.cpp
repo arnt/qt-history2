@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#7 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#7 $";
 #endif
 
 
@@ -342,7 +342,7 @@ void QLCDNumber::display( const char *s )
 		lastWasPoint = FALSE;
 	    }
 	}
-	if ( index < ndigits - 1 ) {
+	if ( index < ((int) ndigits) - 1 ) {
 	    for( i=index; i>=0; i-- ) {
 		buffer[ndigits - 1 - index + i] = buffer[i];
 		newPoints.setBit( ndigits - 1 - index + i,
