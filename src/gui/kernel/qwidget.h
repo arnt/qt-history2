@@ -600,6 +600,12 @@ private:
     friend class QCoreGraphicsPaintEnginePrivate;
     friend QPoint posInWindow(const QWidget *w);
 #endif
+#ifdef Q_WS_QWS
+    friend class QWSManager;
+    friend class QWSManagerPrivate;
+    friend class QDecoration;
+    friend class QWSPaintEngine;
+#endif
 
 private:
     Q_DISABLE_COPY(QWidget)
