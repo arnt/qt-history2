@@ -38,6 +38,7 @@ class QPaintEnginePrivate
     Q_DECLARE_PUBLIC(QPaintEngine)
 public:
     QPaintEnginePrivate() : pdev(0), q_ptr(0), renderhints(0) { }
+    virtual ~QPaintEnginePrivate() { }
     QPaintDevice *pdev;
     QPaintEngine *q_ptr;
     QPainter::RenderHints renderhints;
