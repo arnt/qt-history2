@@ -290,5 +290,5 @@ unix:SOURCES   += dialogs/qprintdialog.cpp \
 		  kernel/qwidgetcreate_x11.cpp
 
 TARGET		= qt
-VERSION		= 1.40
+VERSION		= 2.00
 DESTDIR		= ../lib
