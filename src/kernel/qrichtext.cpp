@@ -472,17 +472,15 @@ void QTextCursor::gotoIntoNested( const QPoint &globalPos )
 {
     if ( !para )
 	return;
+    Q_ASSERT( para->at( idx )->isCustom() );
     push();
     ox = 0;
     int bl, y;
     para->lineHeightOfChar( idx, &bl, &y );
     oy = y + para->rect().y();
-    QPoint p( globalPos.x() - offsetX(), globalPos.y() - offsetY() );
-    Q_ASSERT( para->at( idx )->isCustom() );
     ox = para->at( idx )->x;
-
     QTextDocument* doc = document();
-    para->at( idx )->customItem()->enterAt( this, doc, para, idx, ox, oy, p );
+    para->at( idx )->customItem()->enterAt( this, doc, para, idx, ox, oy, globalPos-QPoint(ox,oy) );
 }
 #endif
 
