@@ -245,8 +245,8 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
 
 	family->fixedPitch = fixed;
 
-	bool hasScript = false;
 	if ( !family->scriptCheck && type & TRUETYPE_FONTTYPE ) {
+	    bool hasScript = false;
 	    FONTSIGNATURE signature;
 #ifndef Q_OS_TEMP
 	    QT_WA( {
@@ -286,20 +286,23 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
 		    if ( bit == 127 || signature.fsUsb[index] & flag ) {
 			family->scripts[i] = TRUE;
 			hasScript = true;
-			//qDebug( "font %s: index=%d, flag=%8x supports script %d", familyName.latin1(), index, flag, i );
+			// qDebug( "font %s: index=%d, flag=%8x supports script %d", familyName.latin1(), index, flag, i );
 		    }
 		}
 	    }
 	    if( signature.fsCsb[0] & (1 << SimplifiedChineseCsbBit) ) {
 		family->scripts[QFont::Han_SimplifiedChinese] = TRUE;
+		hasScript = TRUE;
 		//qDebug("font %s supports Simplified Chinese", familyName.latin1() );
 	    }
 	    if( signature.fsCsb[0] & (1 << TraditionalChineseCsbBit) ) {
 		family->scripts[QFont::Han_TraditionalChinese] = TRUE;
+		hasScript = TRUE;
 		//qDebug("font %s supports Traditional Chinese", familyName.latin1() );
 	    }
 	    if( signature.fsCsb[0] & (1 << JapaneseCsbBit) ) {
 		family->scripts[QFont::Han_Japanese] = TRUE;
+		hasScript = TRUE;
 		//qDebug("font %s supports Japanese", familyName.latin1() );
 	    }
 
@@ -307,12 +310,10 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
 	    // ##### FIXME
 	    family->scripts[QFont::Latin] = TRUE;
 #endif
-
+	    family->scripts[QFont::Unicode] = !hasScript;
 	    family->scriptCheck = true;
-	    //qDebug( "usb=%08x %08x csb=%08x for %s", signature.fsUsb[0], signature.fsUsb[1], signature.fsCsb[0], familyName.latin1() );
+	    // qDebug( "usb=%08x %08x csb=%08x for %s", signature.fsUsb[0], signature.fsUsb[1], signature.fsCsb[0], familyName.latin1() );
 	}
-	if( !hasScript )
-	    family->scripts[QFont::Unicode] = TRUE;
     }
 
     // keep on enumerating
@@ -381,20 +382,22 @@ static void initializeDb()
 
 #ifdef QFONTDATABASE_DEBUG
     // print the database
-    for ( int i = 0; i < QFont::NScripts; i++ ) {
-	for ( int f = 0; f < db->count; f++ ) {
-	    QtFontFamily *family = db->families[f];
-	    qDebug("    %s", family->name.latin1() );
-	    populate_database( family->name );
+    for ( int f = 0; f < db->count; f++ ) {
+	QtFontFamily *family = db->families[f];
+	qDebug("    %s: %p", family->name.latin1(), family );
+	populate_database( family->name );
 
-	    for ( int fd = 0; fd < family->count; fd++ ) {
-		QtFontFoundry *foundry = family->foundries[fd];
-		qDebug("        %s", foundry->name.latin1() );
-		for ( int s = 0; s < foundry->count; s++ ) {
-		    QtFontStyle *style = foundry->styles[s];
-		    qDebug("            style: italic=%d oblique=%d weight=%d",  style->key.italic,
-			   style->key.oblique, style->key.weight );
-		}
+	qDebug("        scripts supported:");
+        for ( int i = 0; i < QFont::NScripts; i++ ) 
+	    if(family->scripts[i] & QtFontFamily::Supported)
+		qDebug("            %d", i );
+	for ( int fd = 0; fd < family->count; fd++ ) {
+	    QtFontFoundry *foundry = family->foundries[fd];
+	    qDebug("        %s", foundry->name.latin1() );
+	    for ( int s = 0; s < foundry->count; s++ ) {
+		QtFontStyle *style = foundry->styles[s];
+		qDebug("            style: italic=%d oblique=%d weight=%d",  style->key.italic,
+		       style->key.oblique, style->key.weight );
 	    }
 	}
     }
