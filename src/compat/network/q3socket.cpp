@@ -426,7 +426,7 @@ void Q3Socket::tryConnecting()
 #if defined(Q3SOCKET_DEBUG)
 	    qDebug( "Q3Socket (%s)::tryConnecting: host %s, port %d: "
 		    "%d IPv6 addresses",
-		    name(), d->host.ascii(), d->port, l6.count() );
+		    name(), d->host.ascii(), d->port, d->l6.count() );
 #endif
 	    delete d->dns6;
 	    d->dns6 = 0;
