@@ -436,6 +436,8 @@ QString QAxMetaObject::paramType(const QString &prototype, int index, bool *out)
 	return "QVariant";
 
     QString param(plist.at(index));
+    if (param.isEmpty())
+	return "QVariant";
 
     QChar lc = param.at(param.length()-1);
     bool byRef = lc == '&' || lc == '*';
