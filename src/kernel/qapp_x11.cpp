@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#112 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#113 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -40,7 +40,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#112 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#113 $")
 
 
 /*****************************************************************************
@@ -1307,7 +1307,7 @@ int QApplication::enter_loop()
 		continue;
 	    }
 	    else
-		// select error
+		; // select error
 	}
 	else if ( nsel > 0 && sn_highest >= 0 ) {
 	    sn_activate();
