@@ -46,28 +46,27 @@ public:
     QFileDialogPrivate();
 
     // private slots
-    void backClicked();
-    void upClicked();
-    void mkdirClicked();
-    void showListClicked();
-    void showDetailClicked();
-    void enterSubdir(const QModelIndex &index);
-    void keyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers);
-    void selectionChanged(const QItemSelection &selection);
-    void fileNameChanged(const QString &text);
-    void lookInChanged(const QString &text);
+    void reload();
+    void navigateToPrevious();
+    void navigateToParent();
+    void enterDirectory(const QModelIndex &index);
+    void enterDirectory(const QString &path);
+    void enterDirectory();
+    void showList();
+    void showDetails();
+    void showHidden();
     void useFilter(const QString &filter);
-    void setCurrentDir(const QString &path);
+    void updateFileName(const QItemSelection &selection);
+    void autoCompleteFileName(const QString &text);
+    void autoCompleteDirectory(const QString &text);
     void showContextMenu(const QPoint &pos);
+    void createDirectory();
     void renameCurrent();
     void deleteCurrent();
-    void reload();
-    void lookInReturnPressed();
     void sortByName();
     void sortBySize();
     void sortByDate();
     void setUnsorted();
-    void showHidden();
 
     // setup
     void setup(const QString &directory, const QStringList &nameFilter);
@@ -103,6 +102,8 @@ public:
             return path;
 #endif
         }
+    inline QFileDialog::ViewMode viewMode() const
+        { return (listMode->isDown() ? QFileDialog::List : QFileDialog::Detail); }
 
     // static stuff
     static QString encodeFileName(const QString &filename);
