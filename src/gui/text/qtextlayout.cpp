@@ -560,7 +560,7 @@ int QTextLayout::nextCursorPosition(int oldPos, CursorMode mode) const
             oldPos++;
     } else {
         while (oldPos < len && !attributes[oldPos].wordStop && !attributes[oldPos-1].whiteSpace 
-               && !d->wordSeparators.contains(d->layoutData->string.at(oldPos)))
+               && !d->atWordSeparator(oldPos))
             oldPos++;
     }
 //      qDebug("  -> %d",  oldPos);
@@ -585,7 +585,7 @@ int QTextLayout::previousCursorPosition(int oldPos, CursorMode mode) const
             oldPos--;
     } else {
         while (oldPos && !attributes[oldPos].wordStop && !attributes[oldPos-1].whiteSpace 
-               && !d->wordSeparators.contains(d->layoutData->string.at(oldPos - 1)))
+               && !d->atWordSeparator(oldPos - 1))
             oldPos--;
     }
 //     qDebug("  -> %d",  oldPos);

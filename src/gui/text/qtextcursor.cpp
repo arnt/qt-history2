@@ -283,13 +283,12 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     case QTextCursor::StartOfWord: {
         QTextEngine *engine = layout->engine();
         const QCharAttributes *attributes = engine->attributes();
-        const QString string = engine->layoutData->string;
 
         if (relativePos == 0)
             return false;
         while (relativePos > 0 && !attributes[relativePos].wordStop 
                && !attributes[relativePos - 1].whiteSpace
-               && !engine->wordSeparators.contains(string.at(relativePos - 1)))
+               && !engine->atWordSeparator(relativePos - 1))
             relativePos--;
 
         newPosition = blockIt.position() + relativePos;
@@ -373,7 +372,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         relativePos++;
         while (relativePos < len && !attributes[relativePos].wordStop 
                && !attributes[relativePos].whiteSpace
-               && !engine->wordSeparators.contains(string.at(relativePos)))
+               && !engine->atWordSeparator(relativePos))
             relativePos++;
 
         newPosition = blockIt.position() + relativePos;

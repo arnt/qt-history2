@@ -358,6 +358,9 @@ public:
     SpecialData *specialData;
 
     QSet<QChar> wordSeparators;
+    inline bool atWordSeparator(int position) const
+    { return wordSeparators.contains(layoutData->string.at(position)); }
+
 private:
     void setBoundary(int strPos) const;
     void addRequiredBoundaries() const;
