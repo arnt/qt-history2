@@ -169,9 +169,9 @@ bool QUrl::isRelativeUrl( const QString &url )
 }
 
 /*!
-  Constructs and URL taking \a url as base and \a relUrl_ as
-  relative URL to \a url. If \a relUrl_ is not relative,
-  \a relUrl_ is taken as new URL.
+  Constructs and URL taking \a url as base and \a relUrl as
+  relative URL to \a url. If \a relUrl is not relative,
+  \a relUrl is taken as new URL.
 
   For example, the path of
 
@@ -189,38 +189,53 @@ bool QUrl::isRelativeUrl( const QString &url )
 
   will result in a new URL, with "/usr/local" as path
   and "file" as protocol.
+  
+  Normally it is expected that the path of \a url points to
+  a directory, even if the path has no leading slash. But
+  if you want that the constructor handles the last
+  part of the path as filename, if there is no leading
+  slash and let it replace by the filename of \a relUrl
+  (if it contains one), set \a checkSlash to TRUE.
 */
 
-QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
+QUrl::QUrl( const QUrl& url, const QString& relUrl, bool checkSlash )
 {
     d = new QUrlPrivate;
-    QString relUrl = relUrl_.stripWhiteSpace();
-    slashify( relUrl );
+    QString rel = relUrl.stripWhiteSpace();
+    slashify( rel );
 
-    if ( !isRelativeUrl( relUrl ) ) {
-	if ( relUrl[ 0 ] == QChar( '/' ) ) {
+    if ( !isRelativeUrl( rel ) ) {
+	if ( rel[ 0 ] == QChar( '/' ) ) {
 	    *this = url;
-	    setEncodedPathAndQuery( relUrl );
+	    setEncodedPathAndQuery( rel );
 	} else {
-	    *this = relUrl;
+	    *this = rel;
 	}
     } else {
-	if ( relUrl[ 0 ] == '#' ) {
+	if ( rel[ 0 ] == '#' ) {
 	    *this = url;
-	    relUrl.remove( 0, 1 );
-	    decode( relUrl );
-	    setRef( relUrl );
+	    rel.remove( 0, 1 );
+	    decode( rel );
+	    setRef( rel );
+	} else if ( rel[ 0 ] == '?' ) {
+	    *this = url;
+	    rel.remove( 0, 1 );
+	    setQuery( rel );
 	} else {
-	    decode( relUrl );
+	    decode( rel );
 	    *this = url;
-	    QString p = url.path();
-	    if ( p.isEmpty() )
-		p = "/";
-	    if ( p.right( 1 ) != "/" )
-		p += "/";
-	    p += relUrl;
-	    d->path = p;
-	    d->cleanPathDirty = TRUE;
+	    if ( !checkSlash || d->cleanPath[ path().length() - 1 ] == '/' ) {
+		QString p = url.path();
+		if ( p.isEmpty() )
+		    p = "/";
+		if ( p.right( 1 ) != "/" )
+		    p += "/";
+		p += rel;
+		d->path = p;
+		d->cleanPathDirty = TRUE;
+	    } else {
+		setFileName( rel );
+	    }
 	}
     }
 }
@@ -770,9 +785,9 @@ void QUrl::setFileName( const QString& name )
     while ( fn[ 0 ] == '/' )
 	fn.remove( 0, 1 );
 
-    QString p = d->path.isEmpty() ?
-		QString( "/" ) : d->path;
-    if ( !d->path.isEmpty() ) {
+    QString p = path().isEmpty() ?
+		QString( "/" ) : path();
+    if ( !path().isEmpty() ) {
 	int slash = p.findRev( QChar( '/' ) );
 	if ( slash == -1 ) {
 	    p = "/";
@@ -1055,13 +1070,10 @@ QString QUrl::toString( bool encodedPath, bool forcePrependProtocol ) const
 	res += p;
     }
 
-    if ( qNetworkProtocolRegister && qNetworkProtocolRegister->count() > 0 &&
-	 !QNetworkProtocol::hasOnlyLocalFileSystem() ) {
-	if ( !d->refEncoded.isEmpty() )
-	    res += "#" + d->refEncoded;
-	if ( !d->queryEncoded.isEmpty() )
-	    res += "?" + d->queryEncoded;
-    }
+    if ( !d->refEncoded.isEmpty() )
+	res += "#" + d->refEncoded;
+    if ( !d->queryEncoded.isEmpty() )
+	res += "?" + d->queryEncoded;
 
     return res;
 }

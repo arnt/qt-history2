@@ -46,7 +46,7 @@ public:
     QUrlOperator();
     QUrlOperator( const QString &urL );
     QUrlOperator( const QUrlOperator& url );
-    QUrlOperator( const QUrlOperator& url, const QString& relUrl_ );
+    QUrlOperator( const QUrlOperator& url, const QString& relUrl, bool checkSlash = FALSE );
     virtual ~QUrlOperator();
 
     virtual void setPath( const QString& path );
@@ -100,7 +100,7 @@ private slots:
 
 private:
     void deleteOperation( QNetworkOperation *op );
-    
+
     QUrlOperatorPrivate *d;
 
 };

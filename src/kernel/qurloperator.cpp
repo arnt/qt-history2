@@ -268,11 +268,11 @@ QUrlOperator::QUrlOperator( const QUrlOperator& url )
   \reimp
 */
 
-QUrlOperator::QUrlOperator( const QUrlOperator& url, const QString& relUrl_ )
-    : QUrl( url, relUrl_ )
+QUrlOperator::QUrlOperator( const QUrlOperator& url, const QString& relUrl, bool checkSlash )
+    : QUrl( url, relUrl, checkSlash )
 {
     d = new QUrlOperatorPrivate;
-    if ( relUrl_ == "." )
+    if ( relUrl == "." )
 	*d = *url.d;
     d->oldOps.setAutoDelete( FALSE );
     d->networkProtocol = 0;

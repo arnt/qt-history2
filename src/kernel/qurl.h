@@ -39,7 +39,7 @@ public:
     QUrl();
     QUrl( const QString& url );
     QUrl( const QUrl& url );
-    QUrl( const QUrl& url, const QString& relUrl_ );
+    QUrl( const QUrl& url, const QString& relUrl, bool checkSlash = FALSE );
     virtual ~QUrl();
 
     QString protocol() const;
