@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.h#32 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.h#33 $
 **
 ** Definition of the QStyleSheet class
 **
@@ -191,6 +191,7 @@ public:
 			    const QMimeSourceFactory& factory,
 			    bool emptyTag, QTextDocument *doc ) const;
 
+    static QString escape( const QString& );
     static QString convertFromPlainText( const QString& );
     static bool mightBeRichText( const QString& );
 

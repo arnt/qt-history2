@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#85 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -1196,7 +1196,9 @@ QTextCustomItem* QStyleSheet::tag(  const QString& name,
 
 /*!
   Auxiliary function. Converts the plain text string \a plain to a
-  rich text formatted string while preserving its look.
+  rich text formatted paragraph while preserving its look.
+
+  \sa escape()
  */
 QString QStyleSheet::convertFromPlainText( const QString& plain)
 {
@@ -1232,6 +1234,28 @@ QString QStyleSheet::convertFromPlainText( const QString& plain)
 	++col;
     }
     rich += "</p>";
+    return rich;
+}
+
+/*!
+  Auxiliary function. Converts the plain text string \a plain to a
+  rich text formatted string by escaping HTML meta-characters.
+
+  \sa convertFromPlainText()
+ */
+QString QStyleSheet::escape( const QString& plain)
+{
+    QString rich;
+    for ( int i = 0; i < int(plain.length()); ++i ) {
+	if ( plain[i] == '<' )
+	    rich +="&lt;";
+	else if ( plain[i] == '>' )
+	    rich +="&gt;";
+	else if ( plain[i] == '&' )
+	    rich +="&amp;";
+	else
+	    rich += plain[i];
+    }
     return rich;
 }
 
