@@ -10,7 +10,7 @@
 **
 ****************************************************************************/
 
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qradiobutton.h>
 #include <qlabel.h>
 #include <qlistbox.h>
@@ -28,7 +28,7 @@
 #include <qmessagebox.h>
 
 MyWidget::MyWidget( QWidget* parent, const char* name )
-	: QMainWindow( parent, name )
+        : Q3MainWindow( parent, name )
 {
     QVBox* central = new QVBox(this);
     central->setMargin( 5 );
@@ -48,8 +48,8 @@ MyWidget::MyWidget( QWidget* parent, const char* name )
 
     ( void )new QLabel( tr( "The Main Window" ), central );
 
-    QButtonGroup* gbox = new QButtonGroup( 1, QGroupBox::Horizontal,
-				      tr( "View" ), central );
+    Q3ButtonGroup* gbox = new Q3ButtonGroup( 1, Qt::Horizontal,
+                                      tr( "View" ), central );
     (void)new QRadioButton( tr( "Perspective" ), gbox );
     (void)new QRadioButton( tr( "Isometric" ), gbox );
     (void)new QRadioButton( tr( "Oblique" ), gbox );
@@ -68,7 +68,7 @@ void MyWidget::initChoices(QWidget* parent)
 {
     QListBox* lb = new QListBox( parent );
     for ( int i = 0; choices[i]; i++ )
-	lb->insertItem( tr( choices[i] ) );
+        lb->insertItem( tr( choices[i] ) );
 }
 
 void MyWidget::closeEvent(QCloseEvent* e)

@@ -13,10 +13,10 @@
 #ifndef MYWIDGET_H
 #define MYWIDGET_H
 
-#include <qmainwindow.h>
+#include <q3mainwindow.h>
 #include <qstring.h>
 
-class MyWidget : public QMainWindow
+class MyWidget : public Q3MainWindow
 {
     Q_OBJECT
 
