@@ -427,6 +427,7 @@
 #    endif
 #    define Q_NO_USING_KEYWORD /* ### check "using" status */
 #    if defined(_COMPILER_VERSION) && (_COMPILER_VERSION >= 740)
+#      define Q_OUTOFLINE_TEMPLATE inline
 #      pragma set woff 3624,3625, 3649 /* turn off some harmless warnings */
 #    endif
 #  endif
