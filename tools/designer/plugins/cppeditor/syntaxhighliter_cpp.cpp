@@ -269,6 +269,7 @@ void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParag *string, int
 
     static QString alphabeth = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     static QString mathChars = "xXeE";
+    static QString numbers = "0123456789";
     bool questionMark = FALSE;
     QChar lastChar;
     while ( TRUE ) {
@@ -306,7 +307,8 @@ void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParag *string, int
 		break;
 	    case '1': case '2': case '3': case '4': case '5':
 	    case '6': case '7': case '8': case '9': case '0':
-		if ( alphabeth.find( lastChar ) != -1 && mathChars.find( lastChar ) == -1 )
+		if ( alphabeth.find( lastChar ) != -1 &&
+		     ( mathChars.find( lastChar ) == -1 || numbers.find( string->at( i - 1 )->c ) == -1 ) )
 		    input = InputAlpha;
 		else
 		    input = InputNumber;
