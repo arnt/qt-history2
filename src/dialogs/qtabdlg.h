@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#26 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#27 $
 **
 ** Definition of QTabDialog class
 **
@@ -48,6 +48,9 @@ public:
     void setApplyButton( const char *text = "Apply" );
     bool hasApplyButton() const;
 
+#if 1 // OBSOLETE
+    void setOKButton( const char * text = "OK" );
+#endif
     void setOkButton( const char * text = "OK" );
     bool hasOkButton() const;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#48 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#49 $
 **
 ** Implementation of QTabDialog class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#48 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#49 $");
 
 
 /*!
@@ -875,6 +875,14 @@ void QTabDialog::setOkButton( const char * text )
 	setSizes();
 	d->ok->show();
     }
+}
+
+/*!
+  Old version of setOkButton(), provided for backward compatibility.
+ */
+void QTabDialog::setOKButton( const char * text )
+{
+    setOkButton( text );
 }
 
 
