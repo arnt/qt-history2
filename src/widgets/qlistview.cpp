@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#14 $
 **
 ** Implementation of something useful
 **
@@ -13,8 +13,9 @@
 #include "qtimer.h"
 #include "qheader.h"
 #include "qpainter.h"
+#include "qstack.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#14 $");
 
 /*!
   \class QListViewItem qlistview.h
@@ -505,19 +506,17 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 				    int cx, int cy, int cw, int ch )
 {
     struct PendingItem {
-	PendingItem() {};
+	PendingItem( int level, int ypos, const QListViewItem * item)
+	    : l(level), y(ypos), i(item) {};
 
 	int l;
 	int y;
-	const QListViewItem * item;
-	struct PendingItem * next;
+	const QListViewItem * i;
     };
 
-    struct PendingItem * head = new PendingItem();
-    head->l = 0;
-    head->y = 0;
-    head->item = root;
-    head->next = 0;
+    QStack<PendingItem> stack;
+
+    stack.push( new PendingItem( 0, 0, root ) );
 
     QRect r;
     int l;
@@ -525,15 +524,18 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
     l = 0;
     fx = -1;
     int tx = -1;
+    struct PendingItem * current;
 
-    while( head ) {
-	int ih = head->item->height();
-	int ith = head->item->totalHeight();
+    while ( !stack.isEmpty() ) {
+	current = stack.pop();
+
+	int ih = current->i->height();
+	int ith = current->i->totalHeight();
 	int fc, lc, c;
 	int cs;
 
-	// need to paint this item?
-	if ( ih > 0 && head->y < cy+ch && head->y+ih >= cy ) {
+	// need to paint current?
+	if ( ih > 0 && current->y < cy+ch && current->y+ih >= cy ) {
 	    if ( fx < 0 ) {
 		// find first interesting column, once
 		x = 0;
@@ -563,15 +565,15 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
             while( c < lc ) {
 		int i = root->h->mapToLogical( c );
                 cs = root->h->cellSize( c );
-                r.setRect( x + ox, head->y + oy, cs, ih );
+                r.setRect( x + ox, current->y + oy, cs, ih );
                 if ( c + 1 == lc && x + cs < cx + cw )
                     r.setRight( cx + cw + ox - 1 );
-		if ( i==0 && head->l > 0 )
-		    r.setLeft( r.left() + (head->l-1) * treeStepSize() );
+		if ( i==0 && current->l > 0 )
+		    r.setLeft( r.left() + (current->l-1) * treeStepSize() );
                 p->save();
                 p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
                 p->translate( r.left(), r.top() );
-		head->item->paintCell( p, colorGroup(),
+		current->i->paintCell( p, colorGroup(),
 				       root->h->mapToLogical( c ), r.width() );
 		p->restore();
 		x += cs;
@@ -579,24 +581,26 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    }
 	}
 
-	struct PendingItem * next;
+	// push younger sibling of current on the stack?
+	if ( current->y + ith < cy+ch && current->i->nextSibling() )
+	    stack.push( new PendingItem( current->l, current->y + ith,
+					 current->i->nextSibling() ) );
 
-	// do any children of the head need to be painted?
-	if ( head->item->children() > 0 &&
-	     head->item->isOpen() &&
-	     head->y + ith > cy &&
-	     head->y + ih < cy + ch ) {
+	// do any children of current need to be painted?
+	if ( current->i->isOpen() &&
+	     current->y + ith > cy &&
+	     current->y + ih < cy + ch ) {
 	    // perhaps even a branch?
 	    if ( tx < 0 )
 		tx = root->h->cellPos( root->h->mapToActual( 0 ) );
 		
 	    if ( tx < cx + cw &&
-		 tx + head->l * treeStepSize() > cx ) {
+		 tx + current->l * treeStepSize() > cx ) {
 		// compute the clip rectangle the safe way
 
-		int rtop = head->y + ih;
-		int rbottom = head->y + ith;
-		int rleft = tx + (head->l-1)*treeStepSize();
+		int rtop = current->y + ih;
+		int rbottom = current->y + ith;
+		int rleft = tx + (current->l-1)*treeStepSize();
 		int rright = rleft + treeStepSize();
 
 		int crtop = QMAX( rtop, cy );
@@ -607,43 +611,35 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		r.setRect( crleft+ox, crtop+oy, 
 			   crright-crleft, crbottom-crtop );
 
-		if ( r.isValid() ) { // ANOTHER test.
+		if ( r.isValid() ) {
 		    p->save();
 		    p->setClipRect( r );
-
 		    p->translate( rleft+ox, crtop+oy );
-		    head->item->paintTreeBranches( p, colorGroup(),
-						   treeStepSize(), 
-						   rtop - crtop,
-						   r.height(), style() );
+		    current->i->paintTreeBranches( p, colorGroup(),
+						      treeStepSize(), 
+						      rtop - crtop,
+						      r.height(), style() );
 		    p->restore();
 		}
 	    }
 
-	    // also push the children on the stack
-	    const QListViewItem * c = head->item->firstChild();
-	    int y = head->y + ih;
+	    const QListViewItem * c = current->i->firstChild();
+	    int y = current->y + ih;
 
+	    // skip past some of the children quickly... not strictly
+	    // necessary but it probably helps
 	    while ( c && y + c->totalHeight() <= cy ) {
 		y += c->totalHeight();
 		c = c->nextSibling();
 	    }
 
-	    while ( c && y < cy+ch ) {
-		next = new PendingItem;
-		next->l = head->l + 1;
-		next->next = head->next;
-		head->next = next;
-		next->y = y;
-		next->item = c;
-		y += c->totalHeight();
-		c = c->nextSibling();
-	    }
+	    // push one child on the stack, if there is at least one
+	    // needing to be painted
+	    if ( c && y < cy+ch )
+		stack.push( new PendingItem( current->l + 1, y, c ) );
 	}
 
-	next = head->next;
-	delete head;
-	head = next;
+	delete current;
     }
 
     if ( root->totalHeight() < cy + ch ) {
@@ -777,11 +773,9 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
     if ( o == viewport() && e ) {
 	switch( e->type() ) {
 	case Event_MouseButtonPress:
-	    break;
 	case Event_MouseMove:
-	    break;
 	case Event_MouseButtonRelease:
-	    break;
+	    
 	case Event_FocusIn:
 	    // fall through
 	case Event_FocusOut:
