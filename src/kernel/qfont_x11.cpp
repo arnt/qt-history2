@@ -2379,7 +2379,7 @@ static QChar sampleCharacter(QFont::Script script)
 
     case QFont::Devanagari:                ch = 0x0910; break;
     case QFont::Bengali:                   ch = 0x0990; break;
-    case QFont::Gurmukhi:                  ch = 0xa010; break;
+    case QFont::Gurmukhi:                  ch = 0x0a10; break;
     case QFont::Gujarati:                  ch = 0x0a90; break;
     case QFont::Oriya:                     ch = 0x0b10; break;
     case QFont::Tamil:                     ch = 0x0b90; break;
