@@ -1,16 +1,33 @@
 CONFIG *= moc thread
 
+#handle defines
+win32 {
+   shared:DEFINES += QT_DLL
+   !contains(DEFINES, QT_NODLL) {
+      QT_ENV_DLL = $$(QT_DLL)
+      QT_ENV_NO_DLL = $$(QT_NODLL)
+      !isEmpty(QT_ENV_DLL):isEmpty(QT_ENV_NO_DLL):DEFINES += QT_DLL
+      contains(DEFINES, QT_MAKEDLL)|contains(DEFINES, QT_DLL):QMAKE_QT_DLL = 1
+   }
+}
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG
 no_keywords:DEFINES += QT_NO_KEYWORDS
+plugin { #Qt plugins
+   static:DEFINES += QT_STATICPLUGIN
+   DEFINES += QT_PLUGIN
+}
 
-# make sure that the Qt includes are before all others... this
-# prevents us from picking up "stale" includes
-INCLUDEPATH = $$QMAKE_INCDIR_QT $$INCLUDEPATH
+#handle includes
+INCLUDEPATH = $$QMAKE_INCDIR_QT $$INCLUDEPATH #prepending prevents us from picking up "stale" includes
+win32:contains( QT_PRODUCT, qt-(enterprise|internal) ) {
+  INCLUDEPATH += $$QMAKE_INCDIR_QT/ActiveQt
+}
 
+#specific module settings
 !isEmpty(QT_BUILD_TREE):QMAKE_LIBDIR += $$QT_BUILD_TREE/lib
 QMAKE_LIBDIR += $$QMAKE_LIBDIR_QT
 for(QTLIB, $$list($$lower($$unique(QT)))) {
-   qlib =
+   qlib =he 
    isEqual(QTLIB, gui):qlib = QtGui
    else:isEqual(QTLIB, network):qlib = QtNetwork
    else:isEqual(QTLIB, xml):qlib = QtXml
@@ -26,7 +43,7 @@ for(QTLIB, $$list($$lower($$unique(QT)))) {
       } else {
          DEFINES *= $$upper(QT_$${QTLIB}_LIB)
 	 isEqual(QTLIB, compat) {
-	    QTDIR_build:warning(***USE of COMPAT inside of QTDIR!**) #just for us
+	    !qt_no_compat_warning:QTDIR_build:warning(***USE of COMPAT inside of QTDIR!**) #just for us
 	    INCLUDEPATH *= $$QMAKE_INCDIR_QT/Qt
 	    DEFINES *= QT_COMPAT
 	 }
@@ -43,15 +60,11 @@ for(QTLIB, $$list($$lower($$unique(QT)))) {
             }
 	    LIBS   += -framework $${qlib}
 	 } else:CONFIG(debug, debug|release) {
-	    LIBS   += -l$${qlib}_debug
+	    win32:LIBS   += -l$${qlib}d
+	    else:LIBS   += -l$${qlib}_debug
 	 } else { 
  	    LIBS   += -l$${qlib}
          }
       }
    }
-}
-
-plugin {
-   static:DEFINES += QT_STATICPLUGIN
-   DEFINES += QT_PLUGIN
 }
