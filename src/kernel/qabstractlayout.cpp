@@ -959,18 +959,14 @@ QSize QLayout::totalMinimumSize() const
 */
 QSize QLayout::totalSizeHint() const
 {
-    QSize s;
-
     if ( topLevel ) {
 	QWidget *mw = (QWidget*)parent();
 	if ( mw && !mw->testWState(WState_Polished) )
 	    mw->polish();
-	if ( !autoMinimum && !frozen )
-	    s = mw->minimumSize();
     }
     int b = ( topLevel && !marginImpl ) ? 2 * outsideBorder : 0;
 
-    s = s.expandedTo( sizeHint() );
+    QSize s = sizeHint();
     if ( hasHeightForWidth() )
 	s.setHeight( heightForWidth(s.width()) );
     int h = b;
