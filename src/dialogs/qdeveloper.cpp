@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#2 $
+** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#3 $
 **
 ** Implementation of QDeveloper class
 **
@@ -75,7 +75,18 @@ public:
     }
 };
 
-class QDeveloperTranslationKey;
+class QDeveloperTranslationScope;
+
+class QDeveloperTranslationKey : public QListViewItem {
+public:
+    QDeveloperTranslationKey( QDeveloperTranslationScope* parent, const char* key );
+    void setup()
+    {
+	QListViewItem::setup();
+	int lines = 1+text(0).contains('\n');
+	setHeight( listView()->fontMetrics().height()*lines );
+    }
+};
 
 class QDeveloperTranslationScope : public QListViewItem {
 public:
@@ -87,20 +98,12 @@ public:
     QDict<QDeveloperTranslationKey> keys;
 };
 
-class QDeveloperTranslationKey : public QListViewItem {
-public:
-    QDeveloperTranslationKey( QDeveloperTranslationScope* parent, const char* key ) :
+QDeveloperTranslationKey::QDeveloperTranslationKey( QDeveloperTranslationScope* parent, 
+						    const char* key ) :
 	QListViewItem(parent, key)
     {
     }
 
-    void setup()
-    {
-	QListViewItem::setup();
-	int lines = 1+text(0).contains('\n');
-	setHeight( listView()->fontMetrics().height()*lines );
-    }
-};
 
 class QDeveloperPrivate {
 public:
@@ -130,7 +133,7 @@ public:
         // ##### This at least.  But would it make sense to be able to
         // ##### look at some OTHER translation while trying to
         // ##### translate this one?  ie. use an auxiliary QMessageFile
-        // ##### for another column.  
+        // ##### for another column.
 	translations->addColumn(getenv("LANG"));
     }
 

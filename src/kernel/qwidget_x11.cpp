@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#280 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#281 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -325,7 +325,7 @@ void QWidget::setSizeGrip(bool sizegrip){
     if (extra->sizegrip != sizegrip) {
 	XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
 			qt_sizegrip, qt_sizegrip, 32, PropModeReplace,
-			sizegrip?((unsigned char *)&id):None, 1);
+			sizegrip?((unsigned char *)&id):(unsigned char*) None, 1);
     }
 }
 
