@@ -131,7 +131,7 @@ public:
 */
 Q_CORE_EXPORT bool qInvokeSlot(QObject *obj, const char *slotName,
                  QGenericReturnArgument ret,
-                 QGenericArgument val0 = QGenericArgument(),
+                 QGenericArgument val0 = QGenericArgument(0),
                  QGenericArgument val1 = QGenericArgument(),
                  QGenericArgument val2 = QGenericArgument(),
                  QGenericArgument val3 = QGenericArgument(),
@@ -145,7 +145,7 @@ Q_CORE_EXPORT bool qInvokeSlot(QObject *obj, const char *slotName,
 /*! internal
  */
 Q_CORE_EXPORT bool qInvokeSlot(QObject *obj, const char *slotName,
-                 QGenericArgument val0 = QGenericArgument(),
+                 QGenericArgument val0 = QGenericArgument(0),
                  QGenericArgument val1 = QGenericArgument(),
                  QGenericArgument val2 = QGenericArgument(),
                  QGenericArgument val3 = QGenericArgument(),

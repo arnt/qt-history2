@@ -269,9 +269,6 @@ template<typename T>
 inline T qFindChild(const QObject *o, const char *name = 0, T = 0)
 { return static_cast<T>(o->findChild_helper(name, ((T)0)->staticMetaObject)); }
 
-inline QObject *qFindChild(const QObject *o, const char *name = 0)
-{ return qFindChild<QObject *>(o, name, (QObject*)0); }
-
 template<typename T>
 inline QList<T> qFindChildren(const QObject *o, const char *name = 0, T = 0)
 {
@@ -279,11 +276,6 @@ inline QList<T> qFindChildren(const QObject *o, const char *name = 0, T = 0)
     o->findChildren_helper(name, 0, ((T)0)->staticMetaObject,
 			reinterpret_cast<QList<void *>*>(&list));
     return list;
-}
-
-inline QList<QObject *> qFindChildren(const QObject *o, const char *name = 0)
-{
-    return qFindChildren<QObject *>(o, name, (QObject*)0);
 }
 
 #ifndef QT_NO_REGEXP
@@ -296,10 +288,6 @@ inline QList<T> qFindChildren(const QObject *o, const QRegExp &re, T = 0)
     return list;
 }
 
-inline QList<QObject *> qFindChildren(const QObject *o, const QRegExp &re)
-{
-    return qFindChildren<QObject *>(o, re, (QObject*)0);
-}
 #endif
 
 template <class T> inline T qt_cast_helper(const QObject *object, T)
@@ -319,9 +307,6 @@ template<typename T>
 inline T qFindChild(const QObject *o, const char *name = 0)
 { return static_cast<T>(o->findChild_helper(name, ((T)0)->staticMetaObject)); }
 
-inline QObject *qFindChild(const QObject *o, const char *name = 0)
-{ return qFindChild<QObject *>(o, name); }
-
 template<typename T>
 inline QList<T> qFindChildren(const QObject *o, const char *name = 0)
 {
@@ -329,11 +314,6 @@ inline QList<T> qFindChildren(const QObject *o, const char *name = 0)
     o->findChildren_helper(name, 0, ((T)0)->staticMetaObject,
 			reinterpret_cast<QList<void *>*>(&list));
     return list;
-}
-
-inline QList<QObject *> qFindChildren(const QObject *o, const char *name = 0)
-{
-    return qFindChildren<QObject *>(o, name);
 }
 
 #ifndef QT_NO_REGEXP
@@ -344,11 +324,6 @@ inline QList<T> qFindChildren(const QObject *o, const QRegExp &re)
     o->findChildren_helper(0, &re, ((T)0)->staticMetaObject,
 			reinterpret_cast<QList<void*>*>(&list));
     return list;
-}
-
-inline QList<QObject *> qFindChildren(const QObject *o, const QRegExp &re)
-{
-    return qFindChildren<QObject *>(o, re);
 }
 #endif
 
