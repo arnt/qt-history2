@@ -82,7 +82,7 @@ extern "C" { static void *start_thread(void *t); }
 
 // detect mutex types
 #if ((defined(PTHREAD_MUTEX_RECURSIVE) && defined(PTHREAD_MUTEX_DEFAULT)) || \
-     (defined(Q_OS_FREEBSD)))
+     defined(Q_OS_FREEBSD)) && !defined(Q_OS_UNIXWARE7)
     // POSIX 1003.1c-1995 - We love this OS
 #  define Q_SET_MUTEX_TYPE(a, b) pthread_mutexattr_settype((a), (b))
 #  if defined(QT_CHECK_RANGE)
