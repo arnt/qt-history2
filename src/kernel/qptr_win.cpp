@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#69 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#68 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#69 $");
 
 
 /*
@@ -613,7 +613,9 @@ bool QPainter::begin( const QPaintDevice *pd )
 {
     if ( isActive() ) {				// already active painting
 #if defined(CHECK_STATE)
-	warning( "QPainter::begin: Painter is already active" );
+	warning( "QPainter::begin: Painter is already active.\n"
+		 "                 You must end() the painter before\n"
+		 "                 a second begin().\n" );
 #endif
 	return FALSE;
     }
@@ -2107,6 +2109,12 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     if ( decode )				// skip encoding
 	k = len;
 
+    int localTabStops = 0;	       		// tab stops
+    if ( tabstops )
+	localTabStops = tabstops;
+    else
+	localTabStops = fm.width('x')*8;       	// default to 8 times x
+
     while ( k < len ) {				// convert string to codes
 
 	if ( UCHAR(*p) > 32 ) {			// printable character
@@ -2149,8 +2157,8 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 			    tabindex++;
 			}
 		    }
-		    if ( cw == 0 && tabstops )	// use fixed tab stops
-			cw = tabstops - tw%tabstops;
+		    if ( cw == 0 )		// use fixed tab stops
+			cw = localTabStops - tw%localTabStops;
 		    cc = TABSTOP | QMIN(tw+cw,MAXWIDTH);
 		} else {			// convert TAB to space
 		    cc = ' ';
@@ -2264,6 +2272,34 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	xp = w/2 - maxwidth/2;			// centered text
     else
 	xp = 0;					// left aligned
+
+#if defined(CHECK_RANGE)
+    int hAlignFlags = 0;
+    if ( (tf & AlignRight) == AlignRight )
+	hAlignFlags++;
+    if ( (tf & AlignHCenter) == AlignHCenter )
+	hAlignFlags++;
+    if ( (tf & AlignLeft ) == AlignLeft )
+	hAlignFlags++;
+
+    if ( hAlignFlags > 1 ) 
+	warning("QPainter::drawText: More than one of AlignRight, AlignLeft\n"
+		"                    and AlignHCenter set in the tf parameter."
+		);
+
+    int vAlignFlags = 0;
+    if ( (tf & AlignTop) == AlignTop )
+	vAlignFlags++;
+    if ( (tf & AlignVCenter) == AlignVCenter )
+	vAlignFlags++;
+    if ( (tf & AlignBottom ) == AlignBottom )
+	vAlignFlags++;
+
+    if ( hAlignFlags > 1 )
+	warning("QPainter::drawText: More than one of AlignTop, AlignBottom\n"
+		"                    and AlignVCenter set in the tf parameter."
+		);
+#endif // CHECK_RANGE
 
     QRect br( x+xp, y+yp, maxwidth, nlines*fheight );
     if ( brect )				// set bounding rect
