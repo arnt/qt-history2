@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#13 $
+** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#14 $
 **
 ** Implementation of Qt extension classes for Xt/Motif support.
 **
@@ -359,6 +359,7 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
     if (parent ) {
 	ASSERT(!qparent);
 	xtw = XtCreateWidget(name, widget_class, parent, args, num_args);
+	((QWidgetRec*)xtw)->qwidget.qxtwidget = this;
 	xtparent = parent;
 	if (managed)
 	    XtManageChild(xtw);
@@ -369,6 +370,7 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
 	XtGetApplicationNameAndClass(qt_xdisplay(), &n, &c);
 	xtw = XtAppCreateShell(n, c, widget_class, qt_xdisplay(),
 			       args, num_args);
+	((QWidgetRec*)xtw)->qwidget.qxtwidget = this;
     }
 
     if ( qparent ) {
@@ -408,7 +410,6 @@ QXtWidget::QXtWidget(const char* name, Widget parent, bool managed) :
     QWidget( 0, name, WResizeNoErase )
 {
     init(name, qWidgetClass, parent, 0, 0, 0, managed);
-    ((QWidgetRec*)xtw)->qwidget.qxtwidget = this;
     Arg reqargs[20];
     Cardinal nargs=0;
     XtSetArg(reqargs[nargs], XtNborderWidth, 0);            nargs++;
