@@ -1376,7 +1376,7 @@ bool QFont::fromString(const QString &descrip)
 	setFixedPitch(l[8].toInt());
 	setRawMode(l[9].toInt());
     }
-    
+
     return TRUE;
 }
 #endif // QT_NO_STRINGLIST
@@ -2226,7 +2226,7 @@ QFontCache *QFontPrivate::fontCache = 0;
 
 QFontCache::QFontCache() :
     QObject(0, "global font cache"),
-    QCache<QFontStruct>(qtFontCacheMin, qtFontCacheSize, FALSE),
+    QCache<QFontStruct>(qtFontCacheMin, qtFontCacheSize),
     timer_id(0), fast(FALSE)
 {
     setAutoDelete(TRUE);

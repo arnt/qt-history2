@@ -248,6 +248,7 @@ static struct
 
 
 bool qt_has_xft = FALSE;
+bool qt_use_antialiasing = FALSE;
 
 // Data needed for XftFreeType support
 #ifndef QT_NO_XFTFREETYPE
@@ -1507,11 +1508,10 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 				      0);
     }
 
-    static bool useAA = QSettings().readBoolEntry("/qt/useXft");
-    if ( !useAA || request.styleStrategy & ( QFont::PreferAntialias |
+    if ( !qt_use_antialiasing || request.styleStrategy & ( QFont::PreferAntialias |
 					     QFont::NoAntialias) ) {
 	bool requestAA;
-	if ( !useAA || request.styleStrategy & QFont::NoAntialias )
+	if ( !qt_use_antialiasing || request.styleStrategy & QFont::NoAntialias )
 	    requestAA = FALSE;
 	else
 	    requestAA = TRUE;
@@ -2631,7 +2631,7 @@ void QFont::initialize()
     Q_CHECK_PTR(QFontPrivate::fontCache);
     cleanup_fontcache.add(&QFontPrivate::fontCache);
 
-    fontNameDict = new QFontNameDict(QFontPrivate::fontCache->size(), FALSE);
+    fontNameDict = new QFontNameDict(QFontPrivate::fontCache->size());
     Q_CHECK_PTR(fontNameDict);
     fontNameDict->setAutoDelete(TRUE);
     cleanup_fontnamedict.add(&fontNameDict);
@@ -2652,6 +2652,7 @@ void QFont::initialize()
     if (qt_use_xrender &&
 	XftInit(0) && XftInitFtLibrary()) {
 	qt_has_xft = TRUE;
+	qt_use_antialiasing = QSettings().readBoolEntry("/qt/useXft");
 	qt_xft_render_sources = new QPixmapDict();
 	cleanup_pixmapdict.add(&qt_xft_render_sources);
     }
