@@ -2211,7 +2211,8 @@ void QWidget::setPalette( const QPalette &palette )
     pal = palette;
     setBackgroundFromMode();
     paletteChange( old );
-    QApplication::sendEvent( this, &QEvent( QEvent::PaletteChange ) );
+    QEvent ev( QEvent::PaletteChange );
+    QApplication::sendEvent( this, &ev );
     if ( children() ) {
 	QEvent e( QEvent::ParentPaletteChange );
 	QObjectListIt it( *children() );
