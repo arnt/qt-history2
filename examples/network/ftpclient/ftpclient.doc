@@ -13,35 +13,9 @@ $Id: $
  
   <hr>
  
-  Main (main.cpp):
+  The implementation of the FTP commands (ftpmainwindow.ui.h):
  
-  \include network/ftpclient/main.cpp
-*/
-
-/*
-  <hr>
- 
-  The API of the FtpMainWindow class (ftpmainwindow.h):
- 
-  \include network/ftpclient/ftpmainwindow.h
- 
-  <hr>
- 
-  The Implementation of the FtpMainWindow class (ftpmainwindow.cpp):
- 
-  \include network/ftpclient/ftpmainwindow.cpp
- 
-  <hr>
- 
-  The API of the FtpViewItem and FtpView classes (ftpview.h):
- 
-  \include network/ftpclient/ftpview.h
- 
-  <hr>
- 
-  Their Implementation (ftpview.cpp):
- 
-  \include network/ftpclient/ftpview.cpp
+  \include network/ftpclient/ftpmainwindow.ui.h
  
   <hr>
  

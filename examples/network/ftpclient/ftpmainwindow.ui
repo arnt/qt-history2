@@ -223,7 +223,7 @@
         <sender>fileConnectAction</sender>
         <signal>activated()</signal>
         <receiver>FtpMainWindow</receiver>
-        <slot>openConnectDialog()</slot>
+        <slot>connectToHost()</slot>
     </connection>
     <connection>
         <sender>remotePath</sender>
@@ -233,14 +233,21 @@
     </connection>
 </connections>
 <includes>
-    <include location="local" impldecl="in implementation">ftpmainwindow3.ui.h</include>
+    <include location="local" impldecl="in implementation">ftpmainwindow.ui.h</include>
 </includes>
+<forwards>
+    <forward>class QFtp;</forward>
+</forwards>
+<variables>
+    <variable access="private">QFtp *ftp</variable>
+</variables>
 <functions>
+    <function type="function" access="private">init()</function>
     <function type="slot" access="protected">uploadFile()</function>
     <function type="slot" access="protected">downloadFile()</function>
     <function type="slot" access="protected">removeFile()</function>
-    <function type="slot" access="protected">openConnectDialog()</function>
-    <function type="slot" access="protected">changePath( const QString&amp; )</function>
+    <function type="slot" access="protected">connectToHost()</function>
+    <function type="slot" access="protected">changePath( const QString &amp; )</function>
 </functions>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
