@@ -737,8 +737,11 @@ bool QMenuBar::macUpdateMenuBar()
     static bool first = TRUE;
     if(mb) {
 	if(!mb->mac_eaten_menubar || (!first && !mb->mac_d->dirty && (mb == activeMenuBar))) {
-	    if(mb->mac_d->modal != qt_modal_state()) 
-		qt_mac_set_modal_state(mb->mac_d->modal = qt_modal_state());
+	    if(mb->mac_d->modal != qt_modal_state()) {
+		bool qms = qt_modal_state();
+		if(!qms || menubars->find(qApp->activeModalWidget()) != mb) 
+		    qt_mac_set_modal_state(mb->mac_d->modal = qms);
+	    }
 	    return mb->mac_eaten_menubar;
 	}
 	first = FALSE;
@@ -755,8 +758,11 @@ bool QMenuBar::macUpdateMenuBar()
 	    }
 	    InvalMenuBar();
 	}
-	if(mb->mac_d->modal != qt_modal_state()) 
-	    qt_mac_set_modal_state(mb->mac_d->modal = qt_modal_state());
+	if(mb->mac_d->modal != qt_modal_state()) {
+	    bool qms = qt_modal_state();
+	    if(!qms || menubars->find(qApp->activeModalWidget()) != mb) 
+		qt_mac_set_modal_state(mb->mac_d->modal = qms);
+	}
 	return TRUE;
     } else if(first || fall_back_to_empty) {
 	first = FALSE;
