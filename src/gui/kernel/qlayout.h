@@ -207,8 +207,6 @@ public:
     QSize totalSizeHint() const;
     QLayout *layout();
 
-    bool supportsMargin() const { return marginImpl; }
-
     void setEnabled(bool);
     bool isEnabled() const;
 
@@ -220,7 +218,6 @@ protected:
     void addChildWidget(QWidget *w);
     void deleteAllItems();
 
-    void setSupportsMargin(bool);
     QRect alignmentRect(const QRect&) const;
 
 private:
@@ -233,7 +230,7 @@ private:
     uint enabled : 1;
     uint frozen : 1;
     uint activated : 1;
-    uint marginImpl : 1;
+    uint reserved1 : 1;
     uint autoMinimum : 1;
     uint autoResizeMode : 1;
     uint autoNewChild : 1;

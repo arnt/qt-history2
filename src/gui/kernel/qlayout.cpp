@@ -1080,7 +1080,6 @@ void QGridLayout::expand(int nRows, int nCols)
 */
 void QGridLayout::init(int nRows, int nCols)
 {
-    setSupportsMargin(true);
     data = new QGridLayoutData(nRows, nCols);
 }
 
@@ -1543,7 +1542,6 @@ QBoxLayout::QBoxLayout(Direction d, QWidget *parent)
 {
     data = new QBoxLayoutData;
     dir = d;
-    setSupportsMargin(true);
 }
 
 
@@ -1559,7 +1557,6 @@ QBoxLayout::QBoxLayout(Direction d, QLayout *parentLayout)
 {
     data = new QBoxLayoutData;
     dir = d;
-    setSupportsMargin(true);
 }
 
 /*!
@@ -1571,7 +1568,6 @@ QBoxLayout::QBoxLayout(Direction d)
 {
     data = new QBoxLayoutData;
     dir = d;
-    setSupportsMargin(true);
 }
 
 
@@ -1596,7 +1592,6 @@ QBoxLayout::QBoxLayout(QWidget *parent, Direction d,
 {
     data = new QBoxLayoutData;
     dir = d;
-    setSupportsMargin(true);
     setMargin(margin);
     setObjectName(name);
     setSpacing(spacing);
@@ -1617,7 +1612,6 @@ QBoxLayout::QBoxLayout(QLayout *parentLayout, Direction d, int spacing,
 {
     data = new QBoxLayoutData;
     dir = d;
-    setSupportsMargin(true);
     setObjectName(name);
     setSpacing(spacing);
 }
@@ -1635,7 +1629,6 @@ QBoxLayout::QBoxLayout(Direction d, int spacing, const char *name)
 {
     data = new QBoxLayoutData;
     dir = d;
-    setSupportsMargin(true);
     setObjectName(name);
     setSpacing(spacing);
 }

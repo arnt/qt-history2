@@ -629,7 +629,6 @@ void QLayout::init()
     autoNewChild = false;
     frozen = false;
     activated = true;
-    marginImpl = false;
     autoMinimum = false;
     autoResizeMode = true;
 #ifndef QT_NO_MENUBAR
@@ -746,10 +745,6 @@ void QLayout::addWidget(QWidget *w)
     \property QLayout::margin
     \brief the width of the outside border of the layout
 
-    For some layout classes this property has an effect only on
-    top-level layouts; QBoxLayout and QGridLayout support margins for
-    child layouts. The default value is 0.
-
     \sa spacing
 */
 
@@ -865,10 +860,9 @@ void QLayout::widgetEvent(QEvent *e)
 #ifndef QT_NO_MENUBAR
             mbh = menuBarHeightForWidth(menubar, r->size().width());
 #endif
-            int b = marginImpl ? 0 : outsideBorder;
             QWidget *mw = parentWidget();
             QRect rect = mw->testAttribute(Qt::WA_LayoutOnEntireRect)?mw->rect():mw->contentsRect();
-            rect.addCoords(b, mbh + b, -b, -b);
+            rect.rTop() += mbh; //goes away when menubar isn't magic anymore
             setGeometry(rect);
         } else {
             activate();
@@ -950,8 +944,7 @@ int QLayout::totalHeightForWidth(int w) const
 {
     if (topLevel)
         parent()->ensurePolished();
-    int b = (topLevel && !marginImpl) ? 2 * outsideBorder : 0;
-    int side=b, top=b;
+    int side=0, top=0;
     if (topLevel) {
         QWidgetPrivate *wd = parentWidget()->d;
         side += wd->leftmargin + wd->rightmargin;
@@ -972,9 +965,7 @@ QSize QLayout::totalMinimumSize() const
 {
     if (topLevel)
         parent()->ensurePolished();
-    int b = (topLevel && !marginImpl) ? 2 * outsideBorder : 0;
-
-    int side=b, top=b;
+    int side=0, top=0;
     if (topLevel) {
         QWidgetPrivate *wd = parentWidget()->d;
         side += wd->leftmargin + wd->rightmargin;
@@ -996,8 +987,7 @@ QSize QLayout::totalSizeHint() const
 {
     if (topLevel)
         parent()->ensurePolished();
-    int b = (topLevel && !marginImpl) ? 2 * outsideBorder : 0;
-    int side=b, top=b;
+    int side=0, top=0;
     if (topLevel) {
         QWidgetPrivate *wd = parentWidget()->d;
         side += wd->leftmargin + wd->rightmargin;
@@ -1021,8 +1011,7 @@ QSize QLayout::totalMaximumSize() const
 {
     if (topLevel)
         parent()->ensurePolished();
-    int b = (topLevel && !marginImpl) ? 2 * outsideBorder : 0;
-    int side=b, top=b;
+    int side=0, top=0;
     if (topLevel) {
         QWidgetPrivate *wd = parentWidget()->d;
         side += wd->leftmargin + wd->rightmargin;
@@ -1265,9 +1254,8 @@ bool QLayout::activate()
 #ifndef QT_NO_MENUBAR
     mbh = menuBarHeightForWidth(menubar, s.width());
 #endif
-    int b = marginImpl ? 0 : outsideBorder;
     QRect rect = mw->testAttribute(Qt::WA_LayoutOnEntireRect)?mw->rect():mw->contentsRect();
-    rect.addCoords(b, mbh + b, -b, -b);
+    rect.rTop() += mbh;
     setGeometry(rect);
     if (frozen) {
         // will trigger resize
@@ -1685,32 +1673,6 @@ QLayout::ResizeMode QLayout::resizeMode() const
 {
     return (autoResizeMode ? Auto :
              (frozen ? Fixed : (autoMinimum ? Minimum : FreeResize)));
-}
-
-/*!
-    \fn  bool QLayout::supportsMargin() const
-
-    Returns true if this layout supports \l QLayout::margin on
-    non-top-level layouts; otherwise returns false.
-
-    \sa margin
-*/
-
-/*!
-    Sets the value returned by supportsMargin(). If \a b is true,
-    margin() handling is implemented by the subclass. If \a b is
-    false (the default), QLayout will add margin() around top-level
-    layouts.
-
-    If \a b is true, margin handling needs to be implemented in
-    setGeometry(), maximumSize(), minimumSize(), sizeHint() and
-    heightForWidth().
-
-    \sa supportsMargin()
-*/
-void QLayout::setSupportsMargin(bool b)
-{
-    marginImpl = b;
 }
 
 /*!
