@@ -93,10 +93,10 @@ struct QAtomic {
     int atomic;
 
     inline bool operator++()
-    { return q_atomic_increment(&atomic); }
+    { return q_atomic_increment(&atomic) != 0; }
 
     inline bool operator--()
-    { return q_atomic_decrement(&atomic); }
+    { return q_atomic_decrement(&atomic) != 0; }
 
     inline bool operator==(int x) const
     {
