@@ -1862,6 +1862,10 @@ void MetaObjectGenerator::readClassInfo()
                 tlfile = tlfile.left(tlfile.lastIndexOf('.')) + ".tlb";
                 LoadTypeLib((OLECHAR*)tlfile.utf16(), &typelib);
             }
+            if (!typelib) {
+                tlfile = tlfile.left(tlfile.lastIndexOf('.')) + ".olb";
+                LoadTypeLib((OLECHAR*)tlfile.utf16(), &typelib);
+            }
         }
     }
     
