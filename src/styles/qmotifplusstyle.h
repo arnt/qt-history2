@@ -56,7 +56,7 @@ class Q_EXPORT_STYLE_MOTIFPLUS QMotifPlusStyle : public QMotifStyle
     Q_OBJECT
 
 public:
-    QMotifPlusStyle(bool hoveringHighlight = FALSE);
+    QMotifPlusStyle(bool hoveringHighlight = TRUE);
     virtual ~QMotifPlusStyle();
 
     void polish(QPalette &pal);

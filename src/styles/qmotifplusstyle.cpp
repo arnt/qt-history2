@@ -140,7 +140,7 @@ static void drawMotifPlusShade(QPainter *p,
 /*!
   Constructs a QMotifPlusStyle
 
-  If \a hoveringHighlight is FALSE (the default), then the style will not
+  If \a hoveringHighlight is TRUE (the default), then the style will not
   highlight push buttons, checkboxes, radiobuttons, comboboxes, scrollbars
   or sliders.
  */
@@ -152,7 +152,6 @@ QMotifPlusStyle::QMotifPlusStyle(bool hoveringHighlight) : QMotifStyle(TRUE)
         singleton->ref++;
 
     useHoveringHighlight = hoveringHighlight;
-    useHoveringHighlight = TRUE;
 }
 
 /*! \reimp */
