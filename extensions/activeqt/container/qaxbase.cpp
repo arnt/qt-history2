@@ -326,7 +326,10 @@ public:
             if (!var.isValid())
                 return S_OK;
             
+            const QMetaProperty metaProp = meta->property(meta->indexOfProperty(propname));
             void *argv[] = {0, var.data()};
+            if (!qstrcmp(metaProp.type(), "QVariant"))
+                argv[1] = &var;
             
             // emit the "changed" signal
             combase->qt_metacall(QMetaObject::EmitSignal, index, argv);
