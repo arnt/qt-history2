@@ -52,6 +52,16 @@ QMultiLineEdit
 QToolButton/popups
     See qt-bugs/arc-08/16903
 
+Keyboard control of Widgets
+   Reported on sales/arc-10/20644:
+	Many keyboard shortcuts don't work as they usually do in normal windows
+	applications. Examples:
+	In TabControls user can switch from page to page by pressing "Ctrl+Tab" or
+	"Ctrl+Shift+Tab".
+	In Listviews user can press "Ctrl+PlusKeyOnTheNumericKeyPart" to auto
+	resize all columns in a Listview to best fit size.
+	The keys "Home" and "End" are working in ComboBoxes.
+
 Cosmetic
 --------
 
