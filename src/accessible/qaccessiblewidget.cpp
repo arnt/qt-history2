@@ -556,6 +556,48 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 	    // are a controller to us.
 	}
 	break;
+    case Covers: {
+	QWidget *w = widget();
+	QRect rect = w->geometry();
+	QWidget *parentWidget = w->parentWidget();
+	if (!parentWidget)
+	    return -1; // ###topLevel widgets?
+	QObjectList ol = parentWidget->queryList("QWidget", 0, 0, FALSE);
+	int start = ol.indexOf(w) + 1;
+	for (int i = start; i < ol.count(); ++i) {
+	    QWidget *sibling = static_cast<QWidget*>(ol.at(i));
+	    Q_ASSERT(sibling);
+	    if (rect.intersects(sibling->geometry())) {
+		targetObject = sibling;
+		break;
+	    }
+	}
+	if (!targetObject)
+	    return -1;
+	break;
+    }
+    case Covered: {
+	QWidget *w = widget();
+	QRect rect = w->geometry();
+	QWidget *parentWidget = w->parentWidget();
+	if (!parentWidget)
+	    return -1; // ###topLevel widgets?
+	QObjectList ol = parentWidget->queryList("QWidget", 0, 0, FALSE);
+	int end = ol.indexOf(w);
+	if (end < 0)
+	    end = ol.count();
+	for (int i = 0; i < end; ++i) {
+	    QWidget *sibling = static_cast<QWidget*>(ol.at(i));
+	    Q_ASSERT(sibling);
+	    if (rect.intersects(sibling->geometry())) {
+		targetObject = sibling;
+		break;
+	    }
+	}
+	if (!targetObject)
+	    return -1;
+	break;
+    }
     default:
 	break;
     }
