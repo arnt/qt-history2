@@ -40,7 +40,7 @@ The possible events are:
   <dt>QWSMouseEvent
     <dd>
     <pre>
-    char type = 'M';
+    int type = QWSEvent::Mouse;
     int dummy_windowid;
     int x_root, y_root, state;
     int time;</pre>
@@ -56,7 +56,7 @@ The possible events are:
   <dt>QWSFocusEvent
     <dd>
     <pre>
-    char type = 'F';
+    int type = QWSEvent::Focus;
     int windowid;
     uchar get_focus; </pre>
     If <i>get_focus</i> is 1, this indicates that <i>window</i> now has keyboard
@@ -67,7 +67,7 @@ The possible events are:
   <dt>QWSKeyEvent
     <dd>
     <pre>
-    char type = 'K';
+    int type = QWSEvent::Key;
     int windowid;
     int unicode;
     int modifiers;
@@ -87,7 +87,7 @@ The possible events are:
   <dt>QWSRegionEvent
     <dd>
     <pre>
-    char type = 'R';
+    int type = QWSEvent::Region;
     int windowid;
     int eventid;
     int nrectangles;
@@ -106,7 +106,7 @@ The possible events are:
   <dt>QWSCreationEvent
     <dd>
     <pre>
-    char type = 'C';
+    int type = QWSEvent::Creation;
     int objectid;</pre>
     This event is sent to the client at some time after the client sends
     a QWSCreate command.
@@ -121,7 +121,7 @@ During processing, clients may send the following commands.
   <dt>QWSCreate
     <dd>
     <pre>
-    char type = 'C';</pre>
+    int type = QWSCommand::Create;</pre>
     This command is sent by the client to create an object identifier.
     The client will
     eventually receive a QWSCreationEvent containing an identifier.
@@ -132,7 +132,7 @@ During processing, clients may send the following commands.
   <dt>QWSDestroy
     <dd>
     <pre>
-    char type = 'D';
+    int type = QWSCommand::Destroy;
     int objectid;</pre>
     This command is sent by the client to destroy an object identifier,
     including any object (such as a window) so identified.
@@ -140,7 +140,7 @@ During processing, clients may send the following commands.
   <dt>QWSChangeRegion
     <dd>
     <pre>
-    char type = 'R';
+    int type = QWSCommand::Region;
     int windowid;
     int nrectangles;
     struct {
