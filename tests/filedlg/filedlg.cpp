@@ -108,9 +108,7 @@ void Main::paintEvent(QPaintEvent* e)
 
 main(int argc, char** argv)
 {
-    QApplication::setColorSpec( QApplication::ManyColor );
     QApplication app(argc, argv);
-    QApplication::setFont( QFont("Helvetica") );
 
     Main m;
     m.show();
