@@ -2596,6 +2596,10 @@ void MainWindow::showDialogHelp()
 	link += "dialog-edit-listbox";
     else if ( w->inherits( "ListViewEditorBase" ) )
 	link += "dialog-edit-listview";
+    else if ( w->inherits( "IconViewEditorBase" ) )
+	link += "dialog-edit-iconview";
+    else if ( w->inherits( "TableEditorBase" ) )
+	link += "dialog-edit-table";
 
     else {
 	QMessageBox::information( this, tr( "Help" ),
