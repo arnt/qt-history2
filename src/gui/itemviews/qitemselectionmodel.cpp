@@ -288,16 +288,17 @@ QItemSelection::QItemSelection(const QModelIndex &topLeft, const QModelIndex &bo
 
 void QItemSelection::select(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
-    if (topLeft.model() != bottomRight.model())
+    if (!topLeft.isValid() || !bottomRight.isValid()
+        || (topLeft.model() != bottomRight.model())) {
+        qWarning("can't select invalid indexes");
         return;
+    }
     const QAbstractItemModel *model = topLeft.model();
     if (model->parent(topLeft) != model->parent(bottomRight) ||
         !topLeft.isValid() || !bottomRight.isValid())
         return;
-
     if (topLeft.row() > bottomRight.row() || topLeft.column() > bottomRight.column())
         qWarning("topLeft and bottomRight are swapped!");
-
     append(QItemSelectionRange(topLeft, bottomRight));
 }
 
@@ -350,9 +351,11 @@ void QItemSelection::merge(const QItemSelection &other, QItemSelectionModel::Sel
     // Collect intersections
     QItemSelection intersections;
     for (int n = 0; n < newSelection.count(); ++n) {
-        for (int t = 0; t < count(); ++t) {
-            if (newSelection.at(n).intersects(at(t)))
-                intersections.append(at(t).intersect(newSelection.at(n)));
+        if (newSelection.at(n).isValid()) { // nothing intersects an invalid selection range
+            for (int t = 0; t < count(); ++t) {
+                if (newSelection.at(n).intersects(at(t)))
+                    intersections.append(at(t).intersect(newSelection.at(n)));
+            }
         }
     }
 
