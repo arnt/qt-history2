@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/listbox/listbox.cpp#1 $
+** $Id: //depot/qt/main/examples/listbox/listbox.cpp#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -23,10 +23,10 @@
 ListBoxDemo::ListBoxDemo()
     : QWidget( 0, 0 )
 {
-    QGridLayout * g = new QGridLayout( this, 2, 2 );
+    QGridLayout * g = new QGridLayout( this, 2, 2, 6 );
 
-    g->addWidget( new QLabel( "Configuration:", this ), 0, 0 );
-    g->addWidget( new QLabel( "Result:", this ), 0, 1 );
+    g->addWidget( new QLabel( "<b>Configuration:</b>", this ), 0, 0 );
+    g->addWidget( new QLabel( "<b>Result:</b>", this ), 0, 1 );
 
     l = new QListBox( this );
     g->addWidget( l, 1, 1 );
@@ -75,6 +75,7 @@ ListBoxDemo::ListBoxDemo()
     h->addSpacing( 100 );
     h->addWidget( new QLabel( "Rows:", this ) );
     rows = new QSpinBox( this );
+    rows->setEnabled( FALSE );
     h->addWidget( rows );
 
     v->addSpacing( 12 );
@@ -97,15 +98,17 @@ ListBoxDemo::ListBoxDemo()
     cb = new QCheckBox( "Variable-width columns", this );
     connect( cb, SIGNAL(toggled(bool)), this, SLOT(setVariableWidth(bool)) );
     v->addWidget( cb );
-    
+
     v->addStretch( 100 );
 
     int i = 0;
     while( ++i <= 256 )
 	l->insertItem( QString::fromLatin1( "Item " ) + QString::number( i ),
 		       i );
-    columns->setRange( 1, i );
-    rows->setRange( 1, i );
+    columns->setRange( 1, 256 );
+    columns->setValue( 1 );
+    rows->setRange( 1, 256 );
+    rows->setValue( 256 );
 
     connect( columns, SIGNAL(valueChanged(int)), this, SLOT(setNumCols()) );
     connect( rows, SIGNAL(valueChanged(int)), this, SLOT(setNumRows()) );
@@ -120,16 +123,16 @@ ListBoxDemo::~ListBoxDemo()
 
 void ListBoxDemo::setNumRows()
 {
-    columns->setEnabled( TRUE );
-    rows->setEnabled( FALSE );
+    columns->setEnabled( FALSE );
+    rows->setEnabled( TRUE );
     l->setRowMode( rows->value() );
 }
 
 
 void ListBoxDemo::setNumCols()
 {
-    columns->setEnabled( FALSE );
-    rows->setEnabled( TRUE );
+    columns->setEnabled( TRUE );
+    rows->setEnabled( FALSE );
     l->setColumnMode( columns->value() );
 }
 
