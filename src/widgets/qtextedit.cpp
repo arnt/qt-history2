@@ -459,6 +459,7 @@ static bool block_set_alignment = FALSE;
   \brief the depth of the undo history
 
   The maximum number of steps in the undo/redo history.
+  The default is 100.
 
   \sa undo() redo()
 */
