@@ -268,7 +268,7 @@ registered with the property system as well. This way it will be
 possible to set any value just by its textual name, simply with 
 
 \code
-   obj->\link QObject::setProperty setProperty \endlink( "priority", "VeryHigh" ); 
+   obj->setProperty( "priority", "VeryHigh" ); 
 \endcode
 
 Enumeration types are registered with the "Q_ENUMS" macro.
@@ -318,12 +318,13 @@ QMetaObject::property() and \l QMetaProperty for details.
 Connected to the property system is an additional macro "Q_CLASSINFO"
 that can be used to attach additional name/value-pairs to a classes'
 meta object, for example
+
 \code
 Q_CLASSINFO( "Status", "Very nice class")
-\encode
+\endcode
 
 Like other meta data, class information is accessible at runtime
-through the meta object, see QMetaObject::classInfo() for details.
+through the meta object, see \l QMetaObject::classInfo() for details.
 
 */
 
