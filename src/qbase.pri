@@ -3,56 +3,13 @@ INCLUDEPATH *= $$QMAKE_INCDIR_QT/$$TARGET #just for today to have some compat
 TEMPLATE	= lib
 VERSION		= 4.0.0
 
-#load up the pri info
+#load up the headers info
 unix {
     HEADERS_PRI = $$QT_BUILD_TREE/include/$$TARGET/headers.pri
     include($$HEADERS_PRI)|clear(HEADERS_PRI)
 } else {
     HEADERS_PRI =
 }
-
-#exported symbol table (for linux only now)
-sam_version_map:shared {
-   macx-g++ {
-       !isEmpty(QPRO_PWD) {
-           TARGET_MAP = lib$${TARGET}.symbols
-           exists($$QPRO_PWD/$$TARGET_MAP)|contains(QT_PRODUCT, qt-internal) {
-	       TARGET_MAP_IN = $${TARGET_MAP}.in
-               #QMAKE_LFLAGS += -exported_symbols_list $$TARGET_MAP
-               TARGETDEPS += $$TARGET_MAP_IN
-               contains(QT_PRODUCT, qt-internal) {
-                   VERSION_MAP_in.target = $$TARGET_MAP_IN
-                   VERSION_MAP_in.commands = $(QTDIR)/util/scripts/exports.pl -format symbol_list -o $$TARGET_MAP_IN $$QPRO_PWD $$QPRO_SYMBOLS
-                   QMAKE_EXTRA_TARGETS += VERSION_MAP_in
-		   VERSION_MAP = $(QTDIR)/util/scripts/globalsyms.pl -o "$$TARGET_MAP" $$TARGET_MAP_IN $(DESTDIR)$(TARGET)
-		   QMAKE_POST_LINK += $$quote($$VERSION_MAP\n)
-		   exports.depends = $$TARGET_MAP_IN
-                   exports.commands = [ -w "$$TARGET_MAP" ] || p4 edit "$$TARGET_MAP"; $$VERSION_MAP
-                   QMAKE_EXTRA_TARGETS += exports
-               }
-           }
-       }
-   } else:linux-g++ {
-       0:exists($(QTDIR)/src/libqt.map) {
-         QMAKE_LFLAGS += -Wl,--version-script=$(QTDIR)/src/libqt.map
-         TARGETDEPS += $(QTDIR)/src/libqt.map
-       } else:!isEmpty(QPRO_PWD) {
-          TARGET_MAP = lib$${TARGET}.map
-          exists($$QPRO_PWD/$$TARGET_MAP)|contains(QT_PRODUCT, qt-internal) {
-              QMAKE_LFLAGS += -Wl,--version-script=$${TARGET_MAP}
-              TARGETDEPS += $$TARGET_MAP
-              contains(QT_PRODUCT, qt-internal) {
-                  VERSION_MAP.commands = $(QTDIR)/util/scripts/exports.pl -name lib$${TARGET} -o $$TARGET_MAP $$QPRO_PWD $$QPRO_SYMBOLS
-                  VERSION_MAP.target = $$TARGET_MAP
-                  QMAKE_EXTRA_TARGETS += VERSION_MAP
-                  exports.commands = [ -w "$$TARGET_MAP" ] || p4 edit "$$TARGET_MAP"; $$VERSION_MAP.commands
-                  QMAKE_EXTRA_TARGETS += exports
-              }
-          }
-      }
-   }
-}
-contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 
 #version overriding
 win32 {
@@ -80,7 +37,18 @@ win32-msvc {
     equals(TEMPLATE, "vcapp"):CONFIG -= debug_and_release
     equals(TEMPLATE, "vclib"):CONFIG -= debug_and_release
 }
+contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 contains(QT_CONFIG, largefile):CONFIG += largefile
+
+#mac frameworks
+mac:contains(QT_CONFIG, qt_framework) {
+   QMAKE_FRAMEWORK_BUNDLE_NAME = $$TARGET
+   CONFIG += lib_bundle qt_no_framework_direct_includes
+   FRAMEWORK_HEADERS.version = Versions
+   FRAMEWORK_HEADERS.files = $$SYNCQT.HEADER_FILES $$SYNCQT.HEADER_CLASSES
+   FRAMEWORK_HEADERS.path = Headers
+   QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
+}
 
 mac {
    CONFIG += explicitlib
