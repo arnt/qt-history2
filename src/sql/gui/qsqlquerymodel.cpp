@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "qsqlmodel.h"
+#include "qsqlquerymodel.h"
 
 #include <qsqldriver.h>
 #include <qsqlfield.h>
 
-#include "qsqlmodel_p.h"
+#include "qsqlquerymodel_p.h"
 
 #define d d_func()
 #define q q_func()

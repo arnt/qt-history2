@@ -15,7 +15,7 @@
 #define QSQLTABLEMODEL_H
 
 #include "qsqldatabase.h"
-#include "qsqlmodel.h"
+#include "qsqlquerymodel.h"
 
 class QSqlTableModelPrivate;
 class QSqlRecord;

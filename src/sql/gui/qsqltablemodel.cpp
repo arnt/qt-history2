@@ -21,7 +21,7 @@
 #include "qsqlquery.h"
 #include "qsqlrecord.h"
 
-#include "qsqlmodel_p.h"
+#include "qsqlquerymodel_p.h"
 
 class QSqlTableModelPrivate: public QSqlQueryModelPrivate
 {
