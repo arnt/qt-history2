@@ -80,9 +80,6 @@ void Window::createDateTimeEdits()
     formatComboBox->insertItem("yyyy-MM-dd hh:mm:ss (zzz ms)");
     formatComboBox->insertItem("hh:mm:ss MM/dd/yyyy");
     formatComboBox->insertItem("hh:mm:ss dd/MM/yyyy");
-    formatComboBox->insertItem("dd MMM yy");
-    formatComboBox->insertItem("ddd MMMM d yyyy");
-    formatComboBox->insertItem("dddd MMMM d yyyy");
     formatComboBox->insertItem("hh:mm:ss");
     formatComboBox->insertItem("hh:mm ap");
 
