@@ -48,6 +48,8 @@ public:
 
     int sectionLength(Section s) const;
     int sectionPos(Section s) const;
+    QDateTimeEdit::Section publicSection(Section s) const;
+
     SectionNode sectionNode(Section t) const;
     QCoreVariant stepBy(Section s, int steps, bool test = false) const;
     QString sectionText(const QString &text, Section s) const;
@@ -439,7 +441,7 @@ QDateTimeEdit::Sections QDateTimeEdit::display() const
 
 QDateTimeEdit::Section QDateTimeEdit::currentSection() const
 {
-    return (Section)(d->currentsection & (~QDateTimeEditPrivate::Internal));
+    return d->publicSection(d->currentsection);
 }
 
 void QDateTimeEdit::setCurrentSection(Section section)
@@ -529,11 +531,6 @@ bool QDateTimeEdit::setFormat(const QString &format)
     if (d->parseFormat(format)) {
         d->sizehintdirty = true;
 	d->update();
-	if ((d->sections.front().pos == 0 && d->sections.front().section != QDateTimeEditPrivate::NoSection)
-	    || d->sections.front().pos > 0)
-	    d->currentsection = QDateTimeEditPrivate::FirstSection;
-	else
-	    d->sections.front().section;
         d->edit->setCursorPosition(0);
 	return true;
     }
@@ -580,7 +577,8 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
 //    const QDateTimeEditPrivate::Section s = d->currentsection;
     bool select = true;
     bool fixcursor = !e->text().isEmpty();
-    if ((e->key() == Qt::Key_Backspace || (e->key() == Qt::Key_H && e->key() & Qt::ControlButton)) && !d->edit->hasSelectedText()) {
+    if ((e->key() == Qt::Key_Backspace ||
+         (e->key() == Qt::Key_H && e->key() & Qt::ControlButton)) && !d->edit->hasSelectedText()) {
         const QDateTimeEditPrivate::SectionNode &sn = d->sectionNode(d->currentsection);
         const int cur = d->edit->cursorPosition();
         if (cur == sn.pos && cur > d->sections.front().pos) {
@@ -610,16 +608,12 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
         const QDateTimeEditPrivate::SectionNode newSection =
             d->nextPrevSection(d->currentsection,
                                (e->key() == Qt::Key_Right || (e->key() == Qt::Key_Tab && !(e->state() & Qt::ShiftButton))));
-        switch (newSection.section) {
-        case QDateTimeEditPrivate::NoSection: case QDateTimeEditPrivate::FirstSection: case QDateTimeEditPrivate::LastSection: break;
-        default:
-            if (select) {
-                d->setSelected(newSection.section); break;
-            } else {
-                d->edit->setCursorPosition(e->key() == Qt::Key_Right
-                                           ? newSection.pos
-                                           : d->sectionPos(d->currentsection));
-            }
+        if (select) {
+            d->setSelected(newSection.section);
+        } else {
+            d->edit->setCursorPosition(e->key() == Qt::Key_Right
+                                       ? newSection.pos
+                                       : d->sectionPos(d->currentsection));
         }
         if (!select)
             d->edit->deselect();
@@ -1105,6 +1099,22 @@ int QDateTimeEditPrivate::sectionPos(Section s) const
 	    return sections.at(i).pos;
     return -1;
 }
+/*!
+    \internal
+
+    Converts a QDateTimeEditPrivate::Section to a QDateTimeEdit::Section
+*/
+
+
+QDateTimeEdit::Section QDateTimeEditPrivate::publicSection(Section s) const
+{
+    switch (s) {
+    case NoSection: case FirstSection: case LastSection: return QDateTimeEdit::NoSection;
+    default: break;
+    }
+    return (QDateTimeEdit::Section)(s & (~QDateTimeEditPrivate::Internal));
+}
+
 
 /*!
     \internal
