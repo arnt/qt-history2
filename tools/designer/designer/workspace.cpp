@@ -283,6 +283,7 @@ Workspace::Workspace( QWidget *parent, MainWindow *mw )
 {
     init_colors();
 
+    setDefaultRenameAction( Accept );
     blockNewForms = FALSE;
     bufferEdit = 0;
     header()->setStretchEnabled( TRUE );

@@ -189,6 +189,7 @@ HierarchyList::HierarchyList( QWidget *parent, FormWindow *fw, bool doConnects )
 {
     init_colors();
 
+    setDefaultRenameAction( Accept );
     header()->setMovingEnabled( FALSE );
     header()->setStretchEnabled( TRUE );
     normalMenu = 0;
