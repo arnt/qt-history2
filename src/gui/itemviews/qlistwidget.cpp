@@ -154,6 +154,7 @@ bool QListModel::setData(const QModelIndex &index, int role, const QVariant &val
 
 bool QListModel::insertRows(int row, const QModelIndex &, int count)
 {
+    // insert rows
     QListWidget *view = ::qt_cast<QListWidget*>(QObject::parent());
     QListWidgetItem *itm = 0;
     if (row < rowCount()) {
@@ -174,10 +175,8 @@ bool QListModel::insertRows(int row, const QModelIndex &, int count)
     // update persistent model indexes
     for (int i = 0; i < persistentIndexesCount(); ++i) {
         QModelIndex idx = persistentIndexAt(i);
-        int r = idx.row();
-        int c = idx.column();
-        if (r >= row)
-            setPersistentIndex(i, index(r + count, c, QModelIndex::Null));
+        if (idx.row() >= row)
+            setPersistentIndex(i, index(idx.row() + count, idx.column()));
     }
     emit rowsInserted(QModelIndex::Null, row, row + count - 1);
     return true;
@@ -201,7 +200,7 @@ bool QListModel::removeRows(int row, const QModelIndex &, int count)
             if (r >= lst.count())
                 setPersistentIndex(i, QModelIndex::Null);
             else if (r >= row)
-                setPersistentIndex(i, index(r - count, 0, QModelIndex::Null));
+                setPersistentIndex(i, index(r - count, 0));
         }
         return true;
     }

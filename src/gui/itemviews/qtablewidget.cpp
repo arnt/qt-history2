@@ -28,12 +28,6 @@ public:
     QTableModel(int rows, int columns, QTableWidget *parent);
     ~QTableModel();
 
-//     QStringList mimeTypes() const;
-//     QMimeData *mimeData(const QModelIndexList &indexes) const;
-//     bool dropMimeData(const QMimeData *data, QDrag::DropAction action,
-//                       int row, const QModelIndex &parent);
-//     QDrag::DropActions supportedActions() const;
-
     bool insertRows(int row, const QModelIndex &parent = QModelIndex::Null, int count = 1);
     bool insertColumns(int column, const QModelIndex &parent = QModelIndex::Null, int count = 1);
 
@@ -100,6 +94,7 @@ QTableModel::~QTableModel()
 
 bool QTableModel::insertRows(int row, const QModelIndex &, int count)
 {
+    // insert rows
     int rc = vertical.count();
     int cc = horizontal.count();
     vertical.insert(row, count, 0);
@@ -107,12 +102,19 @@ bool QTableModel::insertRows(int row, const QModelIndex &, int count)
         table.resize(cc * count);
     else
         table.insert(tableIndex(row, 0), cc * count, 0);
+    // update persistent model indexes
+    for (int i = 0; i < persistentIndexesCount(); ++i) {
+        QModelIndex idx = persistentIndexAt(i);
+        if (idx.row() >= row)
+            setPersistentIndex(i, index(idx.row() + count, idx.column()));
+    }
     emit rowsInserted(QModelIndex::Null, row, row + count - 1);
     return true;
 }
 
 bool QTableModel::insertColumns(int column, const QModelIndex &, int count)
 {
+    // insert columns
     int rc = vertical.count();
     int cc = horizontal.count();
     horizontal.insert(column, count, 0);
@@ -121,26 +123,56 @@ bool QTableModel::insertColumns(int column, const QModelIndex &, int count)
     else
         for (int row = 0; row < rc; ++row)
             table.insert(tableIndex(row, column), count, 0);
+    // update persistent model indexes
+    for (int i = 0; i < persistentIndexesCount(); ++i) {
+        QModelIndex idx = persistentIndexAt(i);
+        if (idx.column() >= column)
+            setPersistentIndex(i, index(idx.row(), idx.column() + count));
+    }
     emit columnsInserted(QModelIndex::Null, column, column + count - 1);
     return true;
 }
 
 bool QTableModel::removeRows(int row, const QModelIndex &, int count)
 {
-    emit rowsAboutToBeRemoved(QModelIndex::Null, row, row + count - 1);
-    int i = tableIndex(row, columnCount() - 1);
-    table.remove(qMax(i, 0), count * columnCount());
-    vertical.remove(row, count);
-    return true;
+    if (row >= 0 && row < vertical.count()) {
+        emit rowsAboutToBeRemoved(QModelIndex::Null, row, row + count - 1);
+        // remove rows
+        int i = tableIndex(row, columnCount() - 1);
+        table.remove(qMax(i, 0), count * columnCount());
+        vertical.remove(row, count);
+        // update persistent model indexes
+        for (int i = 0; i < persistentIndexesCount(); ++i) {
+            QModelIndex idx = persistentIndexAt(i);
+            if (idx.row() >= vertical.count())
+                setPersistentIndex(i, QModelIndex::Null);
+            else if (idx.row() >= row)
+                setPersistentIndex(i, index(idx.row() - count, idx.column()));
+        }
+        return true;
+    }
+    return false;
 }
 
 bool QTableModel::removeColumns(int column, const QModelIndex &, int count)
 {
-    emit columnsAboutToBeRemoved(QModelIndex::Null, column, column + count - 1);
-    for (int row = rowCount()-1; row >= 0; --row)
-        table.remove(tableIndex(row, column), count);
-    horizontal.remove(column, count);
-    return true;
+    if (column >= 0 && column < horizontal.count()) {
+        emit columnsAboutToBeRemoved(QModelIndex::Null, column, column + count - 1);
+        // remove columns
+        for (int row = rowCount()-1; row >= 0; --row)
+            table.remove(tableIndex(row, column), count);
+        horizontal.remove(column, count);
+        // update persistent model indexes
+        for (int i = 0; i < persistentIndexesCount(); ++i) {
+            QModelIndex idx = persistentIndexAt(i);
+            if (idx.column() >= horizontal.count())
+                setPersistentIndex(i, QModelIndex::Null);
+            else if (idx.column() >= column)
+                setPersistentIndex(i, index(idx.row(), idx.column() - count));
+        }
+        return true;
+    }
+    return false;
 }
 
 void QTableModel::setItem(int row, int column, QTableWidgetItem *item)
