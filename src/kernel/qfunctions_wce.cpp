@@ -26,24 +26,23 @@
 **********************************************************************/
 #ifdef Q_OS_TEMP
 
-// All these need to be extern "C".
-//
-//  That is why they're failing in c sources.
-//
+#include <windows.h>
+#include <winbase.h>
+#include <kfuncs.h>
 #include <stdio.h>
 
 #include "qfunctions_wce.h"
 #include "qplatformdefs.h"
 #include "qstring.h"
 
-#include <windows.h>
-#include <winbase.h>
-#include <kfuncs.h>
-
 #pragma comment(lib, "ole32.lib")
 #pragma comment(lib, "oleaut32.lib")
 #pragma comment(lib, "uuid.lib")
 
+// All these need to be extern "C".
+//
+//  That is why they're failing in c sources.
+//
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -181,50 +180,71 @@ int _wopen( const WCHAR *filename, int oflag, int pmode )
 {
     WCHAR *flag;
 
-    if (oflag & _O_APPEND) {
-	if (oflag & _O_WRONLY) {
+    if ( oflag & _O_APPEND ) {
+	if ( oflag & _O_WRONLY ) {
 	    flag = L"a";
-	} else if (oflag & _O_RDWR) {
+	} else if ( oflag & _O_RDWR ) {
 	    flag = L"a+";
 	}
-    } else if (oflag & _O_WRONLY) {
+    } else if ( oflag & _O_WRONLY ) {
 	flag = L"w";
-    } else if (oflag & _O_RDWR) {
+    } else if ( oflag & _O_RDWR ) {
 	flag = L"w+"; // slightly different from "r+" where the file must exist
-    } else if (oflag & _O_RDONLY) {
+    } else if ( oflag & _O_RDONLY ) {
 	flag = L"r";
     } else {
 	flag = L"";
     }
 
-    int retval = (int)_wfopen(filename, flag);
+    int retval = (int)_wfopen( filename, flag );
 
     // Return code for error should be -1 instead of NULL
-    if (retval == NULL)
+    if ( retval == NULL )
 	return -1;
-    else
-	return retval;
+    return retval;
 } 
 
 int _fstat( int handle, struct _stat *buffer ) 
 { 
     BY_HANDLE_FILE_INFORMATION fi;
-    if ( !GetFileInformationByHandle( (FILE*)handle, &fi ) )
+    if ( !GetFileInformationByHandle( (FILE*)handle, &fi ) ) {
+	LPVOID lpMsgBuf;
+	FormatMessage(
+	    FORMAT_MESSAGE_ALLOCATE_BUFFER |
+	    FORMAT_MESSAGE_FROM_SYSTEM |
+	    FORMAT_MESSAGE_IGNORE_INSERTS,
+	    NULL,
+	    GetLastError(),
+	    0, // Default language
+	    (LPTSTR) &lpMsgBuf,
+	    0,
+	    NULL
+	);
+	qDebug( "***Error! %s", QString::fromUcs2((LPTSTR)lpMsgBuf).latin1() );
+	// Free the buffer.
+	LocalFree( lpMsgBuf );
 	return -1;
+    }
 
     buffer->st_ctime = ftToTime_t( fi.ftCreationTime );
     buffer->st_atime = ftToTime_t( fi.ftLastAccessTime );
     buffer->st_mtime = ftToTime_t( fi.ftLastWriteTime );
     buffer->st_nlink = fi.nNumberOfLinks;
     buffer->st_size  = fi.nFileSizeLow;
-    buffer->st_mode  = 0;
-
+    buffer->st_mode  = (fi.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ? _S_IFDIR : _S_IFREG;
+    buffer->st_mode |= (fi.dwFileAttributes & FILE_ATTRIBUTE_READONLY) ? _O_RDONLY : _O_RDWR;
     return -1;
 }
 
 int _wstat( const WCHAR *path, struct _stat *buffer ) 
-{ 
-    return -1; 
+{
+/*
+    int handle = _wopen( path, 'r', 0 );
+    int res = _fstat( handle, buffer );
+    _close( handle );
+    return res; 
+*/
+    return -1;
 }
 
 long _lseek( int handle, long offset, int origin )
@@ -311,7 +331,7 @@ BOOL TextOut( HDC hdc, int nXStart, int nYStart, LPCTSTR lpString, int cbString 
     return ExtTextOut( hdc, nXStart, nYStart - 16, 0, NULL, lpString, cbString, NULL );
 }
 
-BOOL GetViewportOrgEx(HDC hdc, LPPOINT lpPoint)
+BOOL GetViewportOrgEx( HDC hdc, LPPOINT lpPoint )
 {
     if (hdc == NULL)
 	return FALSE;
@@ -320,7 +340,7 @@ BOOL GetViewportOrgEx(HDC hdc, LPPOINT lpPoint)
     return TRUE;
 }
 
-BOOL GetViewportExtEx(HDC hdc, LPSIZE lpSize)
+BOOL GetViewportExtEx( HDC hdc, LPSIZE lpSize )
 {
     if (hdc == NULL)
         return FALSE;
@@ -329,7 +349,7 @@ BOOL GetViewportExtEx(HDC hdc, LPSIZE lpSize)
     return TRUE;
 }
 
-BOOL GetWindowOrgEx(HDC hdc, LPPOINT lpPoint)
+BOOL GetWindowOrgEx( HDC hdc, LPPOINT lpPoint )
 {
     if (hdc == NULL)
         return FALSE;
@@ -338,7 +358,7 @@ BOOL GetWindowOrgEx(HDC hdc, LPPOINT lpPoint)
     return TRUE;
 }
 
-BOOL GetWindowExtEx(HDC hdc, LPSIZE lpSize)
+BOOL GetWindowExtEx( HDC hdc, LPSIZE lpSize )
 {
     if (hdc == NULL)
         return FALSE;
@@ -401,7 +421,7 @@ const int _S = 0x08;	// Space character
 const int _P = 0x10;	// Punctuation
 const int _C = 0x20;	// Control character
 const int _X = 0x40;	// Hexadecimal character
-const int _B = 0x80; // Blank space ' '
+const int _B = 0x80;	// Blank space ' '
 
 // Table of character classes
 //
