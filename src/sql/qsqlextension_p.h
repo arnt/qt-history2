@@ -21,7 +21,17 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlExtension {
+#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
+#define QM_EXPORT_SQL
+#else
+#define QM_EXPORT_SQL Q_EXPORT
+#endif
+
+#if defined(Q_TEMPLATEDLL)
+Q_TEMPLATE_EXTERN template class QM_EXPORT_SQL QMap<QString,QVariant>;
+#endif
+
+class QM_EXPORT_SQL QSqlExtension {
 public:
     virtual ~QSqlExtension();
     virtual bool prepare( const QString& query );
