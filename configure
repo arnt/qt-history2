@@ -1292,6 +1292,7 @@ QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC=$outpath/bin/moc\""
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_UIC=$outpath/bin/uic\""
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_UIC3=$outpath/bin/uic3\""
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_QMAKE=$outpath/bin/qmake\""
+QMAKE_VARS="$QMAKE_VARS \"QMAKE_RCC=$outpath/bin/rcc\""
 # hacky src line
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC_SRC=$outpath/src/moc\""
 
