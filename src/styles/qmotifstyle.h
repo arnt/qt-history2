@@ -67,6 +67,50 @@ public:
     void polish( QWidget* );
     void polish( QApplication* );
 
+    // new style API
+    void drawPrimitive( PrimitiveOperation op,
+			QPainter *p,
+			const QRect &r,
+			const QColorGroup &cg,
+			PFlags flags = PStyle_Default,
+			void *data = 0 ) const;
+
+    void drawControl( ControlElement element,
+		      QPainter *p,
+		      const QWidget *widget,
+		      const QRect &r,
+		      const QColorGroup &cg,
+		      CFlags how = CStyle_Default,
+		      void *data = 0 ) const;
+
+    void drawComplexControl( ComplexControl control,
+			     QPainter *p,
+			     const QWidget* w,
+			     const QRect& r,
+			     const QColorGroup& cg,
+			     CFlags flags = CStyle_Default,
+			     SCFlags sub = SC_None,
+			     SCFlags subActive = SC_None,
+			     void* data = 0 ) const;
+
+    void drawSubControl( SCFlags subCtrl,
+			 QPainter* p,
+			 const QWidget* w,
+			 const QRect& r,
+			 const QColorGroup& cg,
+			 CFlags flags = CStyle_Default,
+			 SCFlags subActive = SC_None,
+			 void* data = 0 ) const;
+
+    int pixelMetric( PixelMetric metric, const QWidget *widget = 0 ) const;
+
+    QSize sizeFromContent( ContentsType constents,
+			   const QWidget *w,
+			   const QSize &contentsSize,
+			   void *data ) const;
+
+
+    // the old stuff that has to go!
     void drawButton( QPainter *p, int x, int y, int w, int h,
                      const QColorGroup &g, bool sunken = FALSE,
                      const QBrush *fill = 0 );
