@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#208 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#209 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -164,11 +164,24 @@
 
 struct QComboData
 {
+    QComboData( QListBox *l )   { lBox = l; usingLBox = TRUE;  }
+    QComboData( QPopupMenu *p ) { pop  = p; usingLBox = FALSE; }
+
+
+    bool usingListBox()  { return usingLBox; }
+    QListBox * listBox() { ASSERT(usingLBox); return lBox; }
+    QPopupMenu * popup() { ASSERT(!usingLBox); return pop; }
+    void clearPointer() { if ( usingLBox )
+	                      lBox = 0;
+                          else
+	                      pop  = 0;
+                        }
+    void setListBox( QListBox *l ) { lBox = l ; usingLBox = TRUE; }
+
     int		current;
     int		maxCount;
     int		sizeLimit;
     QComboBox::Policy p;
-    bool	usingListBox;
     bool	autoresize;
     bool	poppedUp;
     bool	mouseWasInsidePopup;
@@ -176,26 +189,28 @@ struct QComboData
     bool	arrowDown;
     bool	discardNextMousePress;
     bool	shortClick;
-    union {
-	QPopupMenu *popup;
-	QListBox   *listBox;
-    };
     bool	useCompletion;
     bool	completeNow;
     int		completeAt;
 
     QLineEdit * ed;  // /bin/ed rules!
+private:
+    bool	usingLBox;
+    union {
+	QPopupMenu *pop;
+	QListBox   *lBox;
+    };
 };
 
 
 bool QComboBox::getMetrics( int *dist, int *buttonW, int *buttonH ) const
 {
-    if ( d->usingListBox && style() == WindowsStyle ) {
+    if ( d->usingListBox() && style() == WindowsStyle ) {
 	QRect r  = arrowRect();
 	*buttonW = r.width();
 	*buttonH = r.height();
 	*dist    = 4;
-    } else if ( d->usingListBox ) {
+    } else if ( d->usingListBox() ) {
 	*dist = 6;
 	*buttonW = 16;
 	*buttonH = 18;
@@ -252,28 +267,25 @@ static inline bool checkIndex( const char *method, const char * name,
 QComboBox::QComboBox( QWidget *parent, const char *name )
     : QWidget( parent, name, WResizeNoErase )
 {
-    d = new QComboData;
     if ( style() == WindowsStyle ) {
-	d->listBox           = new QListBox( 0, 0, WType_Popup );
-	d->listBox->setAutoScrollBar( FALSE );
-	d->listBox->setBottomScrollBar( FALSE );
-	d->listBox->setAutoBottomScrollBar( FALSE );
-	d->listBox->setFrameStyle( QFrame::Box | QFrame::Plain );
-	d->listBox->setLineWidth( 1 );
-	d->listBox->resize( 100, 10 );
+	d = new QComboData( new QListBox( 0, 0, WType_Popup ) );
+	d->listBox()->setAutoScrollBar( FALSE );
+	d->listBox()->setBottomScrollBar( FALSE );
+	d->listBox()->setAutoBottomScrollBar( FALSE );
+	d->listBox()->setFrameStyle( QFrame::Box | QFrame::Plain );
+	d->listBox()->setLineWidth( 1 );
+	d->listBox()->resize( 100, 10 );
 	
-	d->usingListBox      = TRUE;
-	connect( d->listBox, SIGNAL(selected(int)),
+	connect( d->listBox(), SIGNAL(selected(int)),
 		             SLOT(internalActivate(int)) );
-	connect( d->listBox, SIGNAL(highlighted(int)),
+	connect( d->listBox(), SIGNAL(highlighted(int)),
 		             SLOT(internalHighlight(int)));
     } else {
-	d->popup             = new QPopupMenu;
-	d->usingListBox      = FALSE;
-	connect( d->popup, SIGNAL(activated(int)),
-		           SLOT(internalActivate(int)) );
-	connect( d->popup, SIGNAL(highlighted(int)),
-		           SLOT(internalHighlight(int)) );
+	d = new QComboData( new QPopupMenu );
+	connect( d->popup(), SIGNAL(activated(int)),
+		             SLOT(internalActivate(int)) );
+	connect( d->popup(), SIGNAL(highlighted(int)),
+		             SLOT(internalHighlight(int)) );
     }
     d->ed                    = 0;
     d->current               = 0;
@@ -305,19 +317,17 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
 QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     : QWidget( parent, name, WResizeNoErase )
 {
-    d = new QComboData;
-    d->listBox = new QListBox( 0, 0, WType_Popup );
-    d->listBox->setAutoScrollBar( FALSE );
-    d->listBox->setBottomScrollBar( FALSE );
-    d->listBox->setAutoBottomScrollBar( FALSE );
-    d->listBox->setFrameStyle( QFrame::Box | QFrame::Plain );
-    d->listBox->setLineWidth( 1 );
-    d->listBox->resize( 100, 10 );
+    d = new QComboData( new QListBox( 0, 0, WType_Popup ) );
+    d->listBox()->setAutoScrollBar( FALSE );
+    d->listBox()->setBottomScrollBar( FALSE );
+    d->listBox()->setAutoBottomScrollBar( FALSE );
+    d->listBox()->setFrameStyle( QFrame::Box | QFrame::Plain );
+    d->listBox()->setLineWidth( 1 );
+    d->listBox()->resize( 100, 10 );
 	
-    d->usingListBox = TRUE;
-    connect( d->listBox, SIGNAL(selected(int)),
+    connect( d->listBox(), SIGNAL(selected(int)),
 	     SLOT(internalActivate(int)) );
-    connect( d->listBox, SIGNAL(highlighted(int)),
+    connect( d->listBox(), SIGNAL(highlighted(int)),
 	     SLOT(internalHighlight(int)));
 
     d->current = 0;
@@ -360,15 +370,12 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
 QComboBox::~QComboBox()
 {
     if ( !QApplication::closingDown() ) {
-	if ( d->usingListBox )
-	    delete d->listBox;
+	if ( d->usingListBox() )
+	    delete d->listBox();
 	else
-	    delete d->popup;
+	    delete d->popup();
     } else {
-	if ( d->usingListBox )
-	    d->listBox = 0;
-	else
-	    d->popup   = 0;
+	d->clearPointer();
     }
     delete d;
 }
@@ -421,10 +428,10 @@ void QComboBox::setStyle( GUIStyle s )
 
 int QComboBox::count() const
 {
-    if ( d->usingListBox )
-	return d->listBox->count();
+    if ( d->usingListBox() )
+	return d->listBox()->count();
     else
-	return d->popup->count();
+	return d->popup()->count();
 }
 
 
@@ -458,10 +465,10 @@ void QComboBox::insertStrList( const QStrList *list, int index )
 	index = count();
     while ( (tmp=it.current()) ) {
 	++it;
-	if ( d->usingListBox )
-	    d->listBox->insertItem( QString::fromLatin1(tmp), index );
+	if ( d->usingListBox() )
+	    d->listBox()->insertItem( QString::fromLatin1(tmp), index );
 	else
-	    d->popup->insertItem( QString::fromLatin1(tmp), index, index );
+	    d->popup()->insertItem( QString::fromLatin1(tmp), index, index );
 	if ( index++ == d->current && d->current < count() ) {
 	    if ( d->ed )
 		d->ed->setText( text( d->current ) );
@@ -484,10 +491,10 @@ void QComboBox::insertStringList( const QStringList &list, int index )
     if ( index < 0 )
 	index = count();
     while ( it != list.end() ) {
-	if ( d->usingListBox )
-	    d->listBox->insertItem( *it, index );
+	if ( d->usingListBox() )
+	    d->listBox()->insertItem( *it, index );
 	else
-	    d->popup->insertItem( *it, index, index );
+	    d->popup()->insertItem( *it, index, index );
 	if ( index++ == d->current && d->current < count() ) {
 	    if ( d->ed )
 		d->ed->setText( text( d->current ) );
@@ -527,10 +534,10 @@ void QComboBox::insertStrList( const char **strings, int numStrings, int index)
 	index = count();
     int i = 0;
     while ( (numStrings<0 && strings[i]!=0) || i<numStrings ) {
-	if ( d->usingListBox )
-	    d->listBox->insertItem( QString::fromLatin1(strings[i]), index );
+	if ( d->usingListBox() )
+	    d->listBox()->insertItem( QString::fromLatin1(strings[i]), index );
 	else
-	    d->popup->insertItem( QString::fromLatin1(strings[i]), index, index );
+	    d->popup()->insertItem( QString::fromLatin1(strings[i]), index, index );
 	i++;
 	if ( index++ == d->current && d->current < count()  ) {
 	    if ( d->ed )
@@ -555,10 +562,10 @@ void QComboBox::insertItem( const QString &t, int index )
     int cnt = count();
     if ( !checkInsertIndex( "insertItem", name(), cnt, &index ) )
 	return;
-    if ( d->usingListBox )
-        d->listBox->insertItem( t, index );
+    if ( d->usingListBox() )
+        d->listBox()->insertItem( t, index );
     else
-        d->popup->insertItem( t, index, index );
+        d->popup()->insertItem( t, index, index );
     if ( index != cnt )
 	reIndex();
     if ( index == d->current && d->current < count()  ) {
@@ -587,10 +594,10 @@ void QComboBox::insertItem( const QPixmap &pixmap, int index )
     bool append = index < 0 || index == cnt;
     if ( !checkInsertIndex( "insertItem", name(), cnt, &index ) )
 	return;
-    if ( d->usingListBox )
-        d->listBox->insertItem( pixmap, index );
+    if ( d->usingListBox() )
+        d->listBox()->insertItem( pixmap, index );
     else
-        d->popup->insertItem( pixmap, index, index );
+        d->popup()->insertItem( pixmap, index, index );
     if ( !append )
 	reIndex();
     if ( index == d->current )
@@ -607,10 +614,10 @@ void QComboBox::removeItem( int index )
     int cnt = count();
     if ( !checkIndex( "removeItem", name(), cnt, index ) )
 	return;
-    if ( d->usingListBox )
-	d->listBox->removeItem( index );
+    if ( d->usingListBox() )
+	d->listBox()->removeItem( index );
     else
-	d->popup->removeItemAt( index );
+	d->popup()->removeItemAt( index );
     if ( index != cnt-1 )
 	reIndex();
     if ( index == d->current ) {
@@ -621,8 +628,8 @@ void QComboBox::removeItem( int index )
 	    d->ed->setText( s );
 	}
 	else {
-	    if ( d->usingListBox )
-		d-> current = d->listBox->currentItem();
+	    if ( d->usingListBox() )
+		d->current = d->listBox()->currentItem();
 	    else {
 		if (d->current > count()-1 && d->current > 0)
 		    d->current--;
@@ -640,10 +647,10 @@ void QComboBox::removeItem( int index )
 
 void QComboBox::clear()
 {
-    if ( d->usingListBox )
-	d->listBox->clear();
+    if ( d->usingListBox() )
+	d->listBox()->clear();
     else
-	d->popup->clear();
+	d->popup()->clear();
     d->current = 0;
     if ( d->ed )
 	d->ed->setText( QString::fromLatin1("") );
@@ -679,10 +686,10 @@ QString QComboBox::text( int index ) const
 {
     if ( !checkIndex( "text", name(), count(), index ) )
 	return QString::null;
-    if ( d->usingListBox )
-	return d->listBox->text( index );
+    if ( d->usingListBox() )
+	return d->listBox()->text( index );
     else
-	return d->popup->text( index );
+	return d->popup()->text( index );
 }
 
 /*!
@@ -693,10 +700,10 @@ const QPixmap *QComboBox::pixmap( int index ) const
 {
     if ( !checkIndex( "pixmap", name(), count(), index ) )
 	return 0;
-    if ( d->usingListBox )
-	return d->listBox->pixmap( index );
+    if ( d->usingListBox() )
+	return d->listBox()->pixmap( index );
     else
-	return d->popup->pixmap( index );
+	return d->popup()->pixmap( index );
 }
 
 /*!
@@ -707,10 +714,10 @@ void QComboBox::changeItem( const QString &t, int index )
 {
     if ( !checkIndex( "changeItem", name(), count(), index ) )
 	return;
-    if ( d->usingListBox )
-	d->listBox->changeItem( t, index );
+    if ( d->usingListBox() )
+	d->listBox()->changeItem( t, index );
     else
-	d->popup->changeItem( t, index );
+	d->popup()->changeItem( t, index );
     if ( index == d->current && d->ed )
 	d->ed->setText( text( d->current ) );
 }
@@ -726,10 +733,10 @@ void QComboBox::changeItem( const QPixmap &im, int index )
 {
     if ( d->ed != 0 || !checkIndex( "changeItem", name(), count(), index ) )
 	return;
-    if ( d->usingListBox )
-	d->listBox->changeItem( im, index );
+    if ( d->usingListBox() )
+	d->listBox()->changeItem( im, index );
     else
-	d->popup->changeItem( im, index );
+	d->popup()->changeItem( im, index );
 }
 
 
@@ -760,9 +767,9 @@ void QComboBox::setCurrentItem( int index )
     if ( d->ed )
 	d->ed->setText( text( index ) );
     if ( d->poppedUp ) {
-	if ( d->usingListBox && d->listBox )
-	    d->listBox->setCurrentItem( index );
-	else if ( d->popup )
+	if ( d->usingListBox() && d->listBox() )
+	    d->listBox()->setCurrentItem( index );
+	else if ( d->popup() )
 	    // the popup will soon send an override, but for the
 	    // moment this is correct
 	    internalHighlight( index );
@@ -868,10 +875,10 @@ void QComboBox::internalActivate( int index )
 	d->current = index;
 	currentChanged();
     }
-    if ( d->usingListBox )
+    if ( d->usingListBox() )
 	popDownListBox();
     else
-	d->popup->removeEventFilter( this );
+	d->popup()->removeEventFilter( this );
     d->poppedUp = FALSE;
 
     QString t( text( index ) );
@@ -916,8 +923,8 @@ void QComboBox::internalClickTimeout()
 void QComboBox::setBackgroundColor( const QColor &color )
 {
     QWidget::setBackgroundColor( color );
-    if ( !d->usingListBox )
-	d->popup->setBackgroundColor( color );
+    if ( !d->usingListBox() )
+	d->popup()->setBackgroundColor( color );
 }
 
 /*!
@@ -930,10 +937,10 @@ void QComboBox::setBackgroundColor( const QColor &color )
 void QComboBox::setPalette( const QPalette &palette )
 {
     QWidget::setPalette( palette );
-    if ( d->usingListBox )
-	d->listBox->setPalette( palette );
+    if ( d->usingListBox() )
+	d->listBox()->setPalette( palette );
     else
-	d->popup->setPalette( palette );
+	d->popup()->setPalette( palette );
 }
 
 /*!
@@ -946,10 +953,10 @@ void QComboBox::setPalette( const QPalette &palette )
 void QComboBox::setFont( const QFont &font )
 {
     QWidget::setFont( font );
-    if ( d->usingListBox )
-	d->listBox->setFont( font );
+    if ( d->usingListBox() )
+	d->listBox()->setFont( font );
     else
-	d->popup->setFont( font );
+	d->popup()->setFont( font );
     if (d->ed)
 	d->ed->setFont( font );
     if ( d->autoresize )
@@ -987,7 +994,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	return;
     }
 
-    if ( !d->usingListBox ) {			// motif 1.x style
+    if ( !d->usingListBox() ) {			// motif 1.x style
 	int dist, buttonH, buttonW;
 	getMetrics( &dist, &buttonW, &buttonH );
 	int xPos = width() - dist - buttonW - 1;
@@ -996,11 +1003,11 @@ void QComboBox::paintEvent( QPaintEvent * )
 	qDrawShadePanel( &p, xPos, (height() - buttonH)/2,
 			 buttonW, buttonH, g, FALSE, style().defaultFrameWidth() );
 	QRect clip( 4, 2, xPos - 2 - 4, height() - 4 );
-	QString str = d->popup->text( d->current );
+	QString str = d->popup()->text( d->current );
 	if ( !str.isNull() ) {
 	    p.drawText( clip, AlignCenter | SingleLine, str );
 	} else {
-	    QPixmap *pix = d->popup->pixmap( d->current );
+	    QPixmap *pix = d->popup()->pixmap( d->current );
 	    if ( pix ) {
 		p.setClipRect( clip );
 		p.drawPixmap( 4, (height()-pix->height())/2, *pix );
@@ -1065,12 +1072,12 @@ void QComboBox::paintEvent( QPaintEvent * )
 	    qDrawShadePanel( &p, r, g, TRUE, d->ed ? 1 : 2, &fill );
 	} else {
 	    QRect clip( 3, 3, width() - 3 - 3 - 21, height() - 3 - 3 );
-	    QString str = d->listBox->text( d->current );
+	    QString str = d->listBox()->text( d->current );
 	    if ( !str.isNull() ) {
 		p.setPen( g.foreground() );
 		p.drawText( clip, AlignCenter | SingleLine, str );
 	    } else {
-		const QPixmap *pix = d->listBox->pixmap( d->current );
+		const QPixmap *pix = d->listBox()->pixmap( d->current );
 		if ( pix ) {
 		    p.setClipRect( clip );
 		    p.drawPixmap( 4, (height()-pix->height())/2, *pix );
@@ -1084,7 +1091,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 
     } else {					// windows 95 style
 // 	QColor bg = isEnabled() ? g.base() : g.button();
-	QString str = d->listBox->text( d->current );
+	QString str = d->listBox()->text( d->current );
 
 // 	QBrush fill = isEnabled() ? g.fillBase() : g.fillBackground();
 	//	qDrawWinPanel( &p, 0, 0, width(), height(), g, TRUE, &fill );
@@ -1133,7 +1140,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	if ( !str.isNull() ) {
 	    p.drawText( textR, AlignLeft | AlignVCenter | SingleLine, str);
 	} else {
-	    const QPixmap *pix = d->listBox->pixmap( d->current );
+	    const QPixmap *pix = d->listBox()->pixmap( d->current );
 	    if ( pix )
 		p.drawPixmap( 4, (height()-pix->height())/2, *pix );
 	}
@@ -1171,7 +1178,7 @@ void QComboBox::mousePressEvent( QMouseEvent *e )
 		d->arrowDown    = TRUE;
 		repaint( FALSE );
 	    }
-	} else if ( d->usingListBox ) {
+	} else if ( d->usingListBox() ) {
 	    popup();
 	    QTimer::singleShot( 200, this, SLOT(internalClickTimeout()));
 	    d->shortClick = TRUE;
@@ -1225,17 +1232,18 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 	 ( e->key() == Key_Down && (e->state() & AltButton) ) ||
 	 ( !d->ed && e->key() == Key_Space ) ) {
 	if ( count() ) {
-	    d->popup->setActiveItem( d->current );
+	    if ( !d->usingListBox() )
+		d->popup()->setActiveItem( d->current );
 	    popup();
 	}
 	return;
-    } else if ( d->usingListBox && e->key() == Key_Up ) {
+    } else if ( d->usingListBox() && e->key() == Key_Up ) {
 	c = currentItem();
 	if ( c > 0 )
 	    setCurrentItem( c-1 );
 	else
 	    setCurrentItem( count()-1 );
-    } else if ( d->usingListBox && e->key() == Key_Down ) {
+    } else if ( d->usingListBox() && e->key() == Key_Down ) {
 	c = currentItem();
 	if ( ++c < count() )
 	    setCurrentItem( c );
@@ -1288,13 +1296,13 @@ void QComboBox::popup()
     if ( !count() )
 	return;
 
-    if ( d->usingListBox ) {
+    if ( d->usingListBox() ) {
 	                // Send all listbox events to eventFilter():
-	d->listBox->installEventFilter( this );
-	d->listBox->viewport()->installEventFilter( this );
+	d->listBox()->installEventFilter( this );
+	d->listBox()->viewport()->installEventFilter( this );
 	d->mouseWasInsidePopup = FALSE;
-	d->listBox->resize( width(),
-			    listHeight( d->listBox, d->sizeLimit ) + 2 );
+	d->listBox()->resize( width(),
+			    listHeight( d->listBox(), d->sizeLimit ) + 2 );
 	QWidget *desktop = QApplication::desktop();
 	int sw = desktop->width();			// screen width
 	int sh = desktop->height();			// screen height
@@ -1303,8 +1311,8 @@ void QComboBox::popup()
 	// XXX Similar code is in QPopupMenu
 	int x = pos.x();
 	int y = pos.y();
-	int w = d->listBox->width();
-	int h = d->listBox->height();
+	int w = d->listBox()->width();
+	int h = d->listBox()->height();
 
 	// the complete widget must be visible
 	if ( x + w > sw )
@@ -1314,16 +1322,16 @@ void QComboBox::popup()
 	if (y + h > sh && y - h - height() >= 0 )
 	    y = y - h - height();
 
-	d->listBox->move( x,y );
-	d->listBox->raise();
-	d->listBox->blockSignals( TRUE );
-	d->listBox->setCurrentItem( d->current );
-	d->listBox->blockSignals( FALSE );
-	d->listBox->setAutoScrollBar( TRUE );
-	d->listBox->show();
+	d->listBox()->move( x,y );
+	d->listBox()->raise();
+	d->listBox()->blockSignals( TRUE );
+	d->listBox()->setCurrentItem( d->current );
+	d->listBox()->blockSignals( FALSE );
+	d->listBox()->setAutoScrollBar( TRUE );
+	d->listBox()->show();
     } else {
-	d->popup->installEventFilter( this );
-	d->popup->popup( mapToGlobal( QPoint(0,0) ), d->current );
+	d->popup()->installEventFilter( this );
+	d->popup()->popup( mapToGlobal( QPoint(0,0) ), d->current );
     }
     d->poppedUp = TRUE;
 }
@@ -1349,11 +1357,11 @@ void QComboBox::updateMask()
 */
 void QComboBox::popDownListBox()
 {
-    ASSERT( d->usingListBox );
-    d->listBox->removeEventFilter( this );
-    d->listBox->viewport()->removeEventFilter( this );
-    d->listBox->hide();
-    d->listBox->setCurrentItem( d->current );
+    ASSERT( d->usingListBox() );
+    d->listBox()->removeEventFilter( this );
+    d->listBox()->viewport()->removeEventFilter( this );
+    d->listBox()->hide();
+    d->listBox()->setCurrentItem( d->current );
     if ( d->arrowDown ) {
 	d->arrowDown = FALSE;
 	repaint( FALSE );
@@ -1369,10 +1377,10 @@ void QComboBox::popDownListBox()
 
 void QComboBox::reIndex()
 {
-    if ( !d->usingListBox ) {
+    if ( !d->usingListBox() ) {
 	int cnt = count();
 	while ( cnt-- )
-	    d->popup->setId( cnt, cnt );
+	    d->popup()->setId( cnt, cnt );
     }
 }
 
@@ -1453,19 +1461,19 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		}
 	    }
 	}
-    } else if ( d->usingListBox && ( object == d->listBox || object == d->listBox->viewport() )) {
+    } else if ( d->usingListBox() && ( object == d->listBox() || object == d->listBox()->viewport() )) {
 	QMouseEvent *e = (QMouseEvent*)event;
 	switch( event->type() ) {
         case QEvent::MouseMove:
 	    if ( !d->mouseWasInsidePopup  ) {
 		QPoint pos = e->pos();
-		if ( d->listBox->rect().contains( pos ) )
+		if ( d->listBox()->rect().contains( pos ) )
 		    d->mouseWasInsidePopup = TRUE;
 		// Check if arrow button should toggle
 		// this applies only to windows style
 		if ( d->arrowPressed ) {
 		    QPoint comboPos;
-		    comboPos = mapFromGlobal( d->listBox->mapToGlobal(pos) );
+		    comboPos = mapFromGlobal( d->listBox()->mapToGlobal(pos) );
 		    if ( arrowRect().contains( comboPos ) ) {
 			if ( !d->arrowDown  ) {
 			    d->arrowDown = TRUE;
@@ -1481,7 +1489,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    }
 	    break;
 	case QEvent::MouseButtonRelease:
-	    if ( d->listBox->rect().contains( e->pos() ) ) {
+	    if ( d->listBox()->rect().contains( e->pos() ) ) {
 		QMouseEvent tmp( QEvent::MouseButtonDblClick,
 				 e->pos(), e->button(), e->state() ) ;
 		// will hide popup
@@ -1501,8 +1509,8 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    break;
         case QEvent::MouseButtonDblClick:
         case QEvent::MouseButtonPress:
-	    if ( !d->listBox->rect().contains( e->pos() ) ) {
-		QPoint globalPos = d->listBox->mapToGlobal(e->pos());
+	    if ( !d->listBox()->rect().contains( e->pos() ) ) {
+		QPoint globalPos = d->listBox()->mapToGlobal(e->pos());
 		if ( QApplication::widgetAt( globalPos, TRUE ) == this ) {
 		    d->discardNextMousePress = TRUE;
 		    // avoid popping up again
@@ -1531,7 +1539,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	default:
 	    break;
 	}
-    } else if ( !d->usingListBox && object == d->popup ) {
+    } else if ( !d->usingListBox() && object == d->popup() ) {
 	QMouseEvent *e = (QMouseEvent*)event;
 	switch ( event->type() ) {
         case QEvent::MouseButtonRelease:
@@ -1545,9 +1553,9 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    break;
         case QEvent::MouseButtonDblClick:
         case QEvent::MouseButtonPress:
-	    if ( !d->popup->rect().contains( e->pos() ) ) {
+	    if ( !d->popup()->rect().contains( e->pos() ) ) {
 		// remove filter, event will take down popup:
-		d->popup->removeEventFilter( this );
+		d->popup()->removeEventFilter( this );
 		// ### uglehack!
 		// call internalHighlight so the highlighed signal
 		// will be emitted at least as often as necessary.
@@ -1759,26 +1767,25 @@ void QComboBox::setListBox( QListBox * newListBox )
 {
     clear();
 
-    if ( d->usingListBox )
-	delete d->listBox;
+    if ( d->usingListBox() )
+	delete d->listBox();
     else
-	delete d->popup;
+	delete d->popup();
 
     newListBox->reparent( 0, WType_Popup, QPoint(0,0), FALSE );
 
-    d->listBox = newListBox;
-    d->usingListBox = TRUE;
+    d->setListBox( newListBox );
 
-    d->listBox->setAutoScrollBar( FALSE );
-    d->listBox->setBottomScrollBar( FALSE );
-    d->listBox->setAutoBottomScrollBar( FALSE );
-    d->listBox->setFrameStyle( QFrame::Box | QFrame::Plain );
-    d->listBox->setLineWidth( 1 );
-    d->listBox->resize( 100, 10 );
+    d->listBox()->setAutoScrollBar( FALSE );
+    d->listBox()->setBottomScrollBar( FALSE );
+    d->listBox()->setAutoBottomScrollBar( FALSE );
+    d->listBox()->setFrameStyle( QFrame::Box | QFrame::Plain );
+    d->listBox()->setLineWidth( 1 );
+    d->listBox()->resize( 100, 10 );
 
-    connect( d->listBox, SIGNAL(selected(int)),
+    connect( d->listBox(), SIGNAL(selected(int)),
 	     SLOT(internalActivate(int)) );
-    connect( d->listBox, SIGNAL(highlighted(int)),
+    connect( d->listBox(), SIGNAL(highlighted(int)),
 	     SLOT(internalHighlight(int)));
 }
 
@@ -1792,7 +1799,7 @@ void QComboBox::setListBox( QListBox * newListBox )
 
 QListBox * QComboBox::listBox() const
 {
-    return d && d->usingListBox ? d->listBox : 0;
+    return d && d->usingListBox() ? d->listBox() : 0;
 }
 
 
