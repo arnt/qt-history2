@@ -3266,7 +3266,7 @@ void QListView::handleSizeChange( int section, int os, int ns )
     bool upe = viewport()->isUpdatesEnabled();
     viewport()->setUpdatesEnabled( FALSE );
     int sx = horizontalScrollBar()->value();
-    int sv = horizontalScrollBar()->isVisible();
+    bool sv = horizontalScrollBar()->isVisible();
     updateGeometries();
     bool fullRepaint = d->fullRepaintOnComlumnChange || sx != horizontalScrollBar()->value()
 	               || sv != horizontalScrollBar()->isVisible();

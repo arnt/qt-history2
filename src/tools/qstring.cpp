@@ -48,7 +48,6 @@
 #include "qtextcodec.h"
 #endif
 #include <ctype.h>
-#include <locale.h>
 #include <limits.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -13117,10 +13116,6 @@ QString &QString::sprintf( const char* cformat, ... )
     int pos;
     int len = 0;
 
-    // for ::sprintf()
-    const char *locale = setlocale( LC_ALL, (const char *) 0 );
-    setlocale( LC_ALL, "C" );
-
     for (;;) {
 	pos = escape->search( format, last );
 	len = escape->matchedLength();
@@ -13264,7 +13259,6 @@ QString &QString::sprintf( const char* cformat, ... )
     *this = result;
 
     va_end( ap );
-    setlocale( LC_ALL, locale );
     return *this;
 }
 #endif
@@ -14838,15 +14832,10 @@ double QString::toDouble( bool *ok ) const
 {
     char *end;
 
-    // for strtod()
-    const char *locale = setlocale( LC_ALL, (const char *) 0 );
-    setlocale( LC_ALL, "C" );
-
     QCString a = latin1();
     double val = strtod( a.data() ? a.data() : "", &end );
     if ( ok )
 	*ok = ( a && *a && (end == 0 || at(end - a.data()) == QChar('\0')) );
-    setlocale( LC_ALL, locale );
     return val;
 }
 
