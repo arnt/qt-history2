@@ -199,7 +199,7 @@ void QFont::init()
     CHECK_PTR( d );
     d->req.pointSize	 = 0;
     d->req.styleHint	 = AnyStyle;
-    d->req.styleStrategie= NoStrategie;
+    d->req.styleStrategie= PreferDefault;
     d->req.charSet	 = defaultCharSet;
     d->req.weight	 = 0;
     d->req.italic	 = FALSE;
@@ -725,8 +725,13 @@ QFont::StyleHint QFont::styleHint() const
   The algorithm won't prefer any type of font if \c NoStratgie is 
   provided.
 
-  The other available strategies are \c QFont::BitmapFont, \c
-  QFont::DeviceFont, \c QFont::OutlineFont
+  The other available strategies are \c QFont::PreferBitmap, \c
+  QFont::PreferDevice, \c QFont::PreferOutline, \c QFont::ForceOutline
+  
+  Any of these may be ORed with a indicator whether exact matching or
+  good quality should be preferred.
+
+  \c QFont::PreferMatch, \c QFont::PreferQuality
 */
 
 /*!
@@ -736,7 +741,7 @@ QFont::StyleHint QFont::styleHint() const
   task of finding a good default family to the font matching
   algorithm.
 
-  The style strategie has a default value of \c NoStrategie which tells
+  The style strategie has a default value of \c PreferDefault which tells
   the algorithm not to prefer any type of font.
   Right now, the X version only supports bitmap fonts.
 
@@ -784,7 +789,7 @@ void QFont::setStyleHint( StyleHint hint, StyleStrategie strategie )
 
 void QFont::setStyleHint( StyleHint hint ) //#### merge with above in 3.0
 {
-    setStyleHint( hint, NoStrategie );
+    setStyleHint( hint, PreferDefault );
 }
 
 /*!

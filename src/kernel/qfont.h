@@ -79,7 +79,13 @@ public:
 		     Serif	= Times,
 		     TypeWriter = Courier,
 		     Decorative = OldEnglish};
-    enum StyleStrategie { NoStrategie, BitmapFont, DeviceFont, OutlineFont };
+    enum StyleStrategie { PreferDefault = 0x0001, 
+			  PreferBitmap = 0x0002, 
+			  PreferDevice = 0x0004,
+			  PreferOutline = 0x0008, 
+			  ForceOutline = 0x0010, 
+			  PreferMatch = 0x0020, 
+			  PreferQuality = 0x0040 };
     enum Weight	   { Light = 25, Normal = 50, DemiBold = 63,
 		     Bold  = 75, Black	= 87 };
     QFont();					// default font
