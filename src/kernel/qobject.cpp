@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#20 $
 **
 ** Implementation of QObject class
 **
@@ -15,8 +15,24 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#20 $";
 #endif
+
+
+// Remove white space from SIGNAL and SLOT names
+
+static char *rmWS( char *dest, const char *src )
+{
+    register char *d = dest;
+    register char *s = (char *)src;
+    while ( *s ) {
+	if ( !isspace(*s) )
+	    *d++ = *s;
+	s++;
+    }
+    *d = '\0';
+    return dest;
+}
 
 
 // Event functions, implemented in qapp_xxx.cpp
@@ -50,6 +66,10 @@ static void removeObjFromList( QObjectList *objList, const QObject *obj,
     }
 }
 
+
+// ---------------------------------------------------------------------------
+// QObject member functions
+//
 
 QObject::QObject( QObject *parent, const char *name )
 {
@@ -203,7 +223,16 @@ void QObject::killTimers()			// kill all timers for object
 
 QConnectionList *QObject::receivers( const char *signal ) const
 {						// get receiver
-    return connections ? connections->find( signal ) : 0;
+    if ( connections && signal ) {
+	if ( *signal == '2' ) {
+	    QString s( strlen(signal) );
+	    rmWS( s.data(), signal+1 );
+	    return connections->find( s );	    
+	}
+	else
+	    return connections->find( signal );
+    }
+    return 0;
 }
 
 
@@ -258,22 +287,8 @@ void QObject::removeEventFilter( const QObject *obj )
 
 
 // ---------------------------------------------------------------------------
-// Signal connection management.
+// Signal connection management
 //
-
-static char *rmWS( char *dest, const char *src )// remove white space
-{
-    register char *d = dest;
-    register char *s = (char *)src;
-    while ( *s ) {
-	if ( !isspace(*s) )
-	    *d++ = *s;
-	s++;
-    }
-    *d = '\0';
-    return dest;
-}
-
 
 #if defined(CHECK_RANGE)
 
