@@ -5709,7 +5709,8 @@ void QPSPrinter::updateBrush(QPainterState *ps)
 void QPSPrinter::updateFont(QPainterState *ps)
 {
     d->currentSet = ps->font;
-    d->fm = QFontMetrics(*ps->pfont);
+    // ### This is wrong if the screen res is different from printer res-
+    d->fm = QFontMetrics(ps->pfont ? *ps->pfont : ps->font);
     // turn these off - they confuse the 'avoid font change' logic
     d->currentSet.setUnderline(false);
     d->currentSet.setStrikeOut(false);
