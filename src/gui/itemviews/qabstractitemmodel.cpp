@@ -828,7 +828,7 @@ bool QAbstractItemModel::lessThan(const QModelIndex &left, const QModelIndex &ri
 
   \sa isEditable()
 */
-QModelIndex QAbstractItemModel::buddy(const QModelIndex &index) const
+QModelIndex QAbstractItemModel::buddy(const QModelIndex &) const
 {
     return QModelIndex();
 }

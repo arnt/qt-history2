@@ -297,13 +297,13 @@ QString qt_win_get_open_file_name(const QString &initialSelection,
     QFileInfo fi(*initialDirectory);
 
     if (initialDirectory && !fi.isDir()) {
-        *initialDirectory = fi.dirPath(true);
+        *initialDirectory = fi.absolutePath();
         if (isel.isEmpty())
             isel = fi.fileName();
     }
 
     if (!fi.exists())
-        *initialDirectory = QDir::homeDirPath();
+        *initialDirectory = QDir::homePath();
 
     QString title = caption;
     if (title.isNull())
@@ -360,9 +360,9 @@ QString qt_win_get_open_file_name(const QString &initialSelection,
     }
     else {
         QFileInfo fi(result);
-        *initialDirectory = fi.dirPath();
+        *initialDirectory = fi.path();
         *selectedFilter = qt_win_selected_filter(filter, selFilIdx);
-        return fi.absFilePath();
+        return fi.absolutePath();
     }
 }
 
@@ -381,13 +381,13 @@ QString qt_win_get_save_file_name(const QString &initialSelection,
     QFileInfo fi(*initialDirectory);
 
     if (initialDirectory && !fi.isDir()) {
-        *initialDirectory = fi.dirPath(true);
+        *initialDirectory = fi.absolutePath();
         if (isel.isEmpty())
             isel = fi.fileName();
     }
 
     if (!fi.exists())
-        *initialDirectory = QDir::homeDirPath();
+        *initialDirectory = QDir::homePath();
 
     QString title = caption;
     if (title.isNull())
@@ -444,9 +444,9 @@ QString qt_win_get_save_file_name(const QString &initialSelection,
     }
     else {
         QFileInfo fi(result);
-        *initialDirectory = fi.dirPath();
+        *initialDirectory = fi.path();
         *selectedFilter = qt_win_selected_filter(filter, selFilIdx);
-        return fi.absFilePath();
+        return fi.absolutePath();
     }
 }
 
@@ -466,12 +466,12 @@ QStringList qt_win_get_open_file_names(const QString &filter,
     fi = QFileInfo(*initialDirectory);
 
     if (initialDirectory && !fi.isDir()) {
-        *initialDirectory = fi.dirPath(true);
+        *initialDirectory = fi.absolutePath();
         isel = fi.fileName();
     }
 
     if (!fi.exists())
-        *initialDirectory = QDir::homeDirPath();
+        *initialDirectory = QDir::homePath();
 
     QString title = caption;
     if (title.isNull())
@@ -504,7 +504,7 @@ QStringList qt_win_get_open_file_names(const QString &filter,
             if (ofn->lpstrFile[offset] == 0) {
                 // Only one file selected; has full path
                 fi.setFile(fileOrDir);
-                QString res = fi.absFilePath();
+                QString res = fi.absolutePath();
                 if (!res.isEmpty())
                     result.append(res);
             }
@@ -514,7 +514,7 @@ QStringList qt_win_get_open_file_names(const QString &filter,
                 QString f;
                 while(!(f = QString::fromUtf16((ushort*)ofn->lpstrFile+offset)).isEmpty()) {
                     fi.setFile(dir, f);
-                    QString res = fi.absFilePath();
+                    QString res = fi.absolutePath();
                     if (!res.isEmpty())
                         result.append(res);
                     offset += f.length() + 1;
@@ -536,7 +536,7 @@ QStringList qt_win_get_open_file_names(const QString &filter,
             if (ofn->lpstrFile[offset] == '\0') {
                 // Only one file selected; has full path
                 fi.setFile(QString::fromLocal8Bit(fileOrDir));
-                QString res = fi.absFilePath();
+                QString res = fi.absolutePath();
                 if (!res.isEmpty())
                     result.append(res);
             }
@@ -546,7 +546,7 @@ QStringList qt_win_get_open_file_names(const QString &filter,
                 QByteArray f;
                 while (!(f = QByteArray(ofn->lpstrFile + offset)).isEmpty()) {
                     fi.setFile(dir, QString::fromLocal8Bit(f));
-                    QString res = fi.absFilePath();
+                    QString res = fi.absolutePath();
                     if (!res.isEmpty())
                         result.append(res);
                     offset += f.length() + 1;
@@ -561,7 +561,7 @@ QStringList qt_win_get_open_file_names(const QString &filter,
         QApplication::sendEvent(parent, &e);
     }
     if (!result.isEmpty()) {
-        *initialDirectory = fi.dirPath();    // only save the path if there is a result
+        *initialDirectory = fi.path();    // only save the path if there is a result
         *selectedFilter = qt_win_selected_filter(filter, selFilIdx);
     }
     return result;
@@ -621,7 +621,7 @@ QString qt_win_get_existing_directory(const QString &initialDirectory,
                                       const QString& caption)
 {
 #ifndef Q_OS_TEMP
-    QString currentDir = QDir::currentDirPath();
+    QString currentDir = QDir::currentPath();
     QString result;
     if (parent)
         parent = parent->topLevelWidget();
@@ -704,7 +704,7 @@ QString qt_win_get_existing_directory(const QString &initialDirectory,
     // Due to a bug on Windows Me, we need to reset the current
     // directory
     if ((QSysInfo::WindowsVersion == QSysInfo::WV_98 || QSysInfo::WindowsVersion == QSysInfo::WV_Me)
-	&& QDir::currentDirPath() != currentDir)
+	&& QDir::currentPath() != currentDir)
         QDir::setCurrent(currentDir);
 
     if (!result.isEmpty())

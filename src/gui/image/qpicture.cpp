@@ -990,7 +990,7 @@ void QPicture::detach_helper()
     x->pictb.setData(data(), pictsize);
     if (d->pictb.isOpen()) {
         x->pictb.open(d->pictb.mode());
-        x->pictb.at(d->pictb.at());
+        x->pictb.seek(d->pictb.at());
     }
     x->trecs = d->trecs;
     x->formatOk = d->formatOk;
@@ -1930,7 +1930,7 @@ bool QPictureIO::read()
         }
         else
 #endif
-            file.at(0);                        // position to start
+            file.seek(0);                        // position to start
     }
     d->iostat = 1;                                        // assume error
 

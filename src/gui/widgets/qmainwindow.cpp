@@ -107,7 +107,7 @@ void QMainWindow::setCorner(Qt::Corner corner, Qt::DockWindowArea area)
 Qt::DockWindowArea QMainWindow::corner(Qt::Corner corner) const
 { return d->layout->corners[corner]; }
 
-void QMainWindow::setDockWindowState(const QString &state)
+void QMainWindow::setDockWindowState(const QString & /* state */)
 {
     Q_ASSERT_X(false, "QMainWindow::setDockWindowState", "unimplemented");
     Q_UNUSED(state);

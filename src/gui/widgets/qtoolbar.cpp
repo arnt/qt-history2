@@ -392,7 +392,7 @@ void QToolBar::actionEvent(QActionEvent *event)
     }
 }
 
-void QToolBar::resizeEvent(QResizeEvent *event)
+void QToolBar::resizeEvent(QResizeEvent *)
 {
     QList<int> hidden;
     Qt::Orientation o;
@@ -426,10 +426,10 @@ void QToolBar::resizeEvent(QResizeEvent *event)
  	    d->extension->setGeometry(frameWidth(), height() - d->extension->sizeHint().height() - frameWidth()*2,
 				      width() - frameWidth()*2, d->extension->sizeHint().height());
 
-	QMenu *pop = d->extension->popup();
+	QMenu *pop = d->extension->menu();
 	if (!pop) {
 	    pop = new QMenu(this);
-	    d->extension->setPopup(pop);
+	    d->extension->setMenu(pop);
 	    d->extension->setPopupDelay(-1);
 	    box->removeWidget(pop); // auto-added to the layout - remove it
 	}
@@ -442,8 +442,8 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 
 	d->extension->show();
     } else if (d->extension->isShown() && hidden.size() == 0) {
-	if (d->extension->popup())
-	    d->extension->popup()->clear();
+	if (d->extension->menu())
+	    d->extension->menu()->clear();
 	d->extension->hide();
     }
 }

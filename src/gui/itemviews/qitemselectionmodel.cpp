@@ -381,7 +381,7 @@ void QItemSelectionModel::setCurrentItem(const QModelIndex &index, SelectionFlag
 */
 QModelIndex QItemSelectionModel::currentItem() const
 {
-    return d->currentItem;
+    return (QModelIndex)d->currentItem;
 }
 
 /*!

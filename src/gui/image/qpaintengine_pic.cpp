@@ -88,14 +88,14 @@ bool QPicturePaintEngine::end()
     int data_start = cs_start + sizeof(Q_UINT16);
     int brect_start = data_start + 2*sizeof(Q_INT16) + 2*sizeof(Q_UINT8);
     int pos = pic_d->pictb.at();
-    pic_d->pictb.at(brect_start);
+    pic_d->pictb.seek(brect_start);
     if (pic_d->formatMajor >= 4) { // bounding rectangle
         QRect r = pic_d->brect;
         d->s << (Q_INT32) r.left() << (Q_INT32) r.top() << (Q_INT32) r.width()
              << (Q_INT32) r.height();
     }
     d->s << (Q_UINT32) pic_d->trecs;                        // write number of records
-    pic_d->pictb.at(cs_start);
+    pic_d->pictb.seek(cs_start);
     QByteArray buf = pic_d->pictb.buffer();
     Q_UINT16 cs = (Q_UINT16) qChecksum(buf.constData() + data_start, pos - data_start);
     d->s << cs;                                // write checksum
@@ -182,18 +182,18 @@ void QPicturePaintEngine::writeCmdLength(int pos, const QRect &r, bool corr)
     QRect br(r);
 
     if (length < 255) {                        // write 8-bit length
-        pic_d->pictb.at(pos - 1);                        // position to right index
+        pic_d->pictb.seek(pos - 1);                        // position to right index
         d->s << (Q_UINT8)length;
     } else {                                        // write 32-bit length
         d->s << (Q_UINT32)0;                                // extend the buffer
-        pic_d->pictb.at(pos - 1);                        // position to right index
+        pic_d->pictb.seek(pos - 1);                        // position to right index
         d->s << (Q_UINT8)255;                        // indicate 32-bit length
         char *p = pic_d->pictb.buffer().data();
         memmove(p+pos+4, p+pos, length);        // make room for 4 byte
         d->s << (Q_UINT32)length;
         newpos += 4;
     }
-    pic_d->pictb.at(newpos);                                // set to new position
+    pic_d->pictb.seek(newpos);                                // set to new position
 
     if (br.isValid()) {
         if (corr) {                                // widen bounding rect
@@ -331,7 +331,7 @@ void QPicturePaintEngine::drawCubicBezier(const QPointArray &a, int /* index */)
 
 // ### Stream out sr
 void QPicturePaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect & /* sr */,
-                                     Qt::BlendMode mode)
+                                     Qt::BlendMode /* mode */)
 {
     int pos;
     SERIALIZE_CMD(PdcDrawPixmap);

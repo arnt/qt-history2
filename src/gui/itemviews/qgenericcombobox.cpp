@@ -370,7 +370,7 @@ void QGenericComboBox::setRoot(const QModelIndex &index)
 
 QModelIndex QGenericComboBox::currentItem() const
 {
-    return d->currentItem;
+    return (QModelIndex)d->currentItem;
 }
 
 void QGenericComboBox::setCurrentItem(const QModelIndex &index)

@@ -327,7 +327,7 @@ public:
 
     int itemHeight(int index)
     {
-        return QMenu::itemHeight(index);
+        return actionGeometry(actions().value(index)).height();
     }
 
 };
@@ -522,7 +522,8 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name)
     setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed));
 
     if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup, this))
-        d->popup()->setItemChecked(d->current, false);
+        if (QAction *action = d->popup()->findActionForId(d->current))
+            action->setChecked(false);
     d->current = 0;
     d->maxCount = INT_MAX;
     setSizeLimit(10);
@@ -570,7 +571,7 @@ int QComboBox::count() const
     if (d->usingListBox())
         return d->listBox()->count();
     else
-        return d->popup()->count();
+        return d->popup()->actions().count();
 }
 
 /*!
@@ -587,7 +588,7 @@ void QComboBox::insertStringList(const QStringList &list, int index)
         if (d->usingListBox())
             d->listBox()->insertItem(*it, index);
         else
-            d->popup()->insertItem(*it, index, index);
+            d->popup()->insertAny(0, &(*it), 0, 0, 0, 0, index, index);
         if (index++ == d->current && d->current < count()) {
             if (d->ed) {
                 d->ed->setText(text(d->current));
@@ -616,7 +617,7 @@ void QComboBox::insertItem(const QString &t, int index)
     if (d->usingListBox())
         d->listBox()->insertItem(t, index);
     else
-        d->popup()->insertItem(t, index, index);
+        d->popup()->insertAny(0, &t, 0, 0, 0, 0, index, index);
     if (index != cnt)
         d->reIndex();
     if (index == d->current && d->current < count() ) {
@@ -645,7 +646,7 @@ void QComboBox::insertItem(const QPixmap &pixmap, int index)
     if (d->usingListBox())
         d->listBox()->insertItem(pixmap, index);
     else
-        d->popup()->insertItem(pixmap, index, index);
+        d->popup()->insertAny(&QIconSet(pixmap), 0, 0, 0, 0, 0, index, index);
     if (index != cnt)
         d->reIndex();
     if (index == d->current && d->current < count() ) {
@@ -674,7 +675,7 @@ void QComboBox::insertItem(const QPixmap &pixmap, const QString& text, int index
     if (d->usingListBox())
         d->listBox()->insertItem(pixmap, text, index);
     else
-        d->popup()->insertItem(pixmap, text, index, index);
+        d->popup()->insertAny(&QIconSet(pixmap), &text, 0, 0, 0, 0, index, index);
     if (index != cnt)
         d->reIndex();
     if (index == d->current && d->current < count() ) {
@@ -700,10 +701,12 @@ void QComboBox::removeItem(int index)
         return;
     if (d->usingListBox()) {
         if (style().styleHint(QStyle::SH_ComboBox_Popup, this) && d->popup())
-            d->popup()->removeItemAt(index);
+            if(QAction *act = d->popup()->actions().value(index))
+                d->popup()->removeAction(act);
         d->listBox()->removeItem(index);
     } else {
-        d->popup()->removeItemAt(index);
+        if(QAction *act = d->popup()->actions().value(index))
+            d->popup()->removeAction(act);
     }
     if (index != cnt-1)
         d->reIndex();
@@ -754,7 +757,8 @@ void QComboBox::clear()
     }
 
     if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup, this))
-        d->popup()->setItemChecked(d->current, false);
+        if (QAction *action = d->popup()->findActionForId(d->current))
+            action->setChecked(false);
     d->current = 0;
     if (d->ed) {
         d->ed->setText(QString::fromLatin1(""));
@@ -803,7 +807,7 @@ QString QComboBox::text(int index) const
     if (d->usingListBox())
         return d->listBox()->text(index);
     else
-        return d->popup()->text(index);
+        return d->popup()->actions().at(index)->text();
 }
 
 /*!
@@ -818,7 +822,7 @@ const QPixmap *QComboBox::pixmap(int index) const
     if (d->usingListBox())
         return d->listBox()->pixmap(index);
     else
-        return &(d->popup()->pixmap(index)); // FIXME - returning address of temporary
+        return &(d->popup()->actions().at(index)->icon().pixmap());
 }
 
 /*!
@@ -831,8 +835,8 @@ void QComboBox::changeItem(const QString &t, int index)
         return;
     if (d->usingListBox())
         d->listBox()->changeItem(t, index);
-    else
-        d->popup()->changeItem(index, t);
+    else if(QAction *act = d->popup()->findActionForId(index))
+        act->setText(t);
     if (index == d->current) {
         if (d->ed) {
             d->ed->setText(text(d->current));
@@ -857,8 +861,8 @@ void QComboBox::changeItem(const QPixmap &im, int index)
         return;
     if (d->usingListBox())
         d->listBox()->changeItem(im, index);
-    else
-        d->popup()->changeItem(index, im);
+    else if (QAction *act = d->popup()->findActionForId(index))
+        act->setIcon(im);
     if (index == d->current)
         update();
 }
@@ -876,10 +880,12 @@ void QComboBox::changeItem(const QPixmap &im, const QString &t, int index)
 {
     if (!checkIndex("changeItem", objectName(), count(), index))
         return;
-    if (d->usingListBox())
+    if (d->usingListBox()) {
         d->listBox()->changeItem(im, t, index);
-    else
-        d->popup()->changeItem(index, im, t);
+    } else if (QAction *action = d->popup()->findActionForId(index)) {
+        action->setText(t);
+        action->setIcon(im);
+    }
     if (index == d->current)
         update();
 }
@@ -903,7 +909,8 @@ void QComboBox::setCurrentItem(int index)
         return;
 
     if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup, this))
-        d->popup()->setItemChecked(d->current, false);
+        if (QAction *action = d->popup()->findActionForId(index))
+            action->setChecked(false);
     d->current = index;
     d->completeAt = 0;
     if (d->ed) {
@@ -956,7 +963,8 @@ QSize QComboBox::sizeHint() const
     int maxH = qMax(fm.lineSpacing(), 14) + 2;
 
     if (!d->usingListBox()) {
-        w = d->popup()->sizeHint().width() - 2* d->popup()->frameWidth();
+        w = d->popup()->sizeHint().width()
+            - 2 * style().pixelMetric(QStyle::PM_MenuFrameWidth, d->popup());
         if (w > maxW)
             maxW = w;
     } else {
@@ -986,7 +994,8 @@ void QComboBox::internalActivate(int index)
     if (d->current != index) {
         if (!d->usingListBox() || listBox()->item(index)->isSelectable()) {
             if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup, this))
-                d->popup()->setItemChecked(d->current, false);
+                if (QAction *action = d->popup()->findActionForId(index))
+                    action->setChecked(false);
             d->current = index;
             d->currentChanged();
         }
@@ -1120,13 +1129,13 @@ void QComboBox::paintEvent(QPaintEvent *)
                          buttonW, buttonH, pal, false,
                          style().pixelMetric(QStyle::PM_DefaultFrameWidth, this));
         QRect clip(x0, 2, w - 2 - 4 - 5, height() - 4);
-        QString str = d->popup()->text(this->d->current);
+        QString str = d->popup()->findActionForId(this->d->current)->text();
         if (!str.isNull()) {
             p.drawText(clip, Qt::AlignCenter | Qt::SingleLine, str);
         }
 
-        QPixmap pix = d->popup()->pixmap(this->d->current);
-        QIconSet iconSet = d->popup()->iconSet(this->d->current);
+        QPixmap pix = d->popup()->findActionForId(this->d->current)->icon().pixmap();
+        QIconSet iconSet = d->popup()->findActionForId(this->d->current)->icon();
         if (!pix.isNull() || !iconSet.isNull()) {
             QPixmap pm = (pix.isNull() ? iconSet.pixmap() : pix);
             p.setClipRect(clip);
@@ -1148,8 +1157,8 @@ void QComboBox::paintEvent(QPaintEvent *)
         re = QStyle::visualRect(re, this);
         p.setClipRect(re);
 
-        QString str = d->popup()->text(this->d->current);
-        QPixmap pix = d->popup()->pixmap(this->d->current);
+        QString str = d->popup()->findActionForId(this->d->current)->text();
+        QPixmap pix = d->popup()->findActionForId(this->d->current)->icon().pixmap();
         if (!str.isNull()) {
             p.save();
             p.setFont(font());
@@ -1417,12 +1426,12 @@ void QComboBox::popup()
             for(unsigned int i = 0; i < d->listBox()->count(); i++) {
                 QListBoxItem *item = d->listBox()->item(i);
                 if(item->rtti() == QListBoxText::RTTI) {
-                    d->popup()->insertItem(item->text(), i, i);
+                    d->popup()->insertAny(0, &item->text(), 0, 0, 0, 0, i, i);
                 } else if(item->rtti() == QListBoxPixmap::RTTI) {
                     if(item->pixmap())
-                        d->popup()->insertItem(QIconSet(*item->pixmap()), item->text(), i, i);
+                        d->popup()->insertAny(&QIconSet(*item->pixmap()), &item->text(), 0, 0, 0, 0, i, i);
                     else
-                        d->popup()->insertItem(item->text(), i, i);
+                        d->popup()->insertAny(0, &item->text(), 0, 0, 0, 0, i, i);
                 } else {
 #if 0 // For now..
                     d->popup()->insertItem(new QComboBoxPopupItem(item), i, i);
@@ -1434,8 +1443,9 @@ void QComboBox::popup()
         }
         d->popup()->installEventFilter(this);
         if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup, this))
-            d->popup()->setItemChecked(this->d->current, true);
-        d->popup()->popup(mapToGlobal(QPoint(0,0)), this->d->current);
+            if (QAction *action = d->popup()->findActionForId(this->d->current))
+                action->setChecked(true);
+        d->popup()->popup(mapToGlobal(QPoint(0, 0)), actions().value(this->d->current));
         update();
     } else {
         // Send all listbox events to eventFilter():

@@ -968,7 +968,7 @@ void QMessageBox::keyPressEvent(QKeyEvent *e)
         if (key) {
             for (int i = 0; i < list.size(); ++i) {
                 QPushButton *pb = static_cast<QPushButton *>(list.at(i));
-                int acc = pb->accel() & ~(Qt::MODIFIER_MASK|Qt::UNICODE_ACCEL);
+                int acc = pb->shortcut() & ~(Qt::MODIFIER_MASK|Qt::UNICODE_ACCEL);
                 if (acc == key) {
                     emit pb->animateClick();
                     return;

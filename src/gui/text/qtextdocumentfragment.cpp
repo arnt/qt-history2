@@ -113,7 +113,7 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
     int defaultBlockFormat = formats->indexForFormat(cursor.blockFormat());
     int defaultCharFormat = formats->indexForFormat(cursor.charFormat());
 
-    const bool documentWasEmpty = (destPieceTable->length() <= 1);
+//     const bool documentWasEmpty = (destPieceTable->length() <= 1);
     bool firstFragmentWasBlock = false;
 
     for (int i = 0; i < fragments.count(); ++i) {

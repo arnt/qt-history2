@@ -514,7 +514,7 @@ void QTextDocumentLayoutPrivate::relayoutDocument()
     q->documentChange(0, 0, doc->docHandle()->length());
 }
 
-void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom, int layoutTo)
+void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom*/, int /*layoutTo*/)
 {
     // layout frame has already set contents width and relayouted child frames
 
@@ -972,7 +972,7 @@ void QTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextInline
 {
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
-    QTextFrameFormat::Position pos = QTextFrameFormat::InFlow;
+//     QTextFrameFormat::Position pos = QTextFrameFormat::InFlow;
     QTextFrame *frame = qt_cast<QTextFrame *>(document()->objectForFormat(f));
     QRect r = rect;
     if (frame) {

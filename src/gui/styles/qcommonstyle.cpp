@@ -2286,15 +2286,15 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const Q4StyleOptio
             ret = tb->rect;
             switch (tb->parts) {
             case SC_ToolButton:
-                if (tb->extras
-                        & (Q4StyleOptionToolButton::Menu | Q4StyleOptionToolButton::PopupDelay)
-                        == Q4StyleOptionToolButton::Menu)
+                if ((tb->extras
+                     & (Q4StyleOptionToolButton::Menu | Q4StyleOptionToolButton::PopupDelay))
+                    == Q4StyleOptionToolButton::Menu)
                     ret.addCoords(0, 0, -mbi, 0);
                 break;
             case SC_ToolButtonMenu:
-                if (tb->extras
-                        & (Q4StyleOptionToolButton::Menu | Q4StyleOptionToolButton::PopupDelay)
-                        == Q4StyleOptionToolButton::Menu)
+                if ((tb->extras
+                     & (Q4StyleOptionToolButton::Menu | Q4StyleOptionToolButton::PopupDelay))
+                    == Q4StyleOptionToolButton::Menu)
                     ret.addCoords(ret.width() - mbi, 0, 0, 0);
                 break;
             default:
