@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#124 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#125 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#124 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#125 $");
 
 
 /*!
@@ -100,7 +100,7 @@ static void create_palettes()			// creates default palettes
 {
     QColor standardLightGray( 192, 192, 192 );
     QColor light( 255, 255, 255 );
-    QColor dark( standardLightGray.dark() );
+    QColor dark( standardLightGray.dark( 150 ) );
     QColorGroup std_nor( black, standardLightGray,
 			 light, dark, gray,
 			 black, white );
@@ -157,7 +157,7 @@ static void destroy_palettes()
   <li> \c -name \e name, sets the application name.
   <li> \c -title \e title, sets the application title (caption).
   <li> \c -style= \e style, sets the application GUI style. Possible values
-       are \c motif and \c windows 
+       are \c motif and \c windows
   <li> \c -visual \c TrueColor, forces the application to use a TrueColor visual
        on an 8-bit display.
   <li> \c -ncols \e count, limits the number of colors allocated in the
@@ -385,7 +385,7 @@ int QApplication::colorSpec()
       <li> For 256-color displays which have a true color visual with more
 	    than 256 colors, use that visual.  Silicon Graphics X servers
 	    have this feature. They provide an 8 bit visual as default but
-	    can deliver true color when asked. 
+	    can deliver true color when asked.
     </ul>
   </ul>
 
@@ -584,7 +584,7 @@ QWidgetList *QApplication::topLevelWidgets()
   You can get in serious trouble if you for instance try to access
   a widget that has been deleted.
 
-  \sa topLevelWidgets(), QWidget::isVisible(), QList::isEmpty(), 
+  \sa topLevelWidgets(), QWidget::isVisible(), QList::isEmpty(),
 */
 
 QWidgetList *QApplication::allWidgets()
@@ -663,7 +663,7 @@ void QApplication::quit()
 
 /*!
   \fn void QApplication::lastWindowClosed()
-  
+
   This signal is emitted when the user has closed a top level widget
   and there are no more visible top level widgets left.
 
