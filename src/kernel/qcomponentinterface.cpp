@@ -4,16 +4,66 @@
 
 #ifndef QT_NO_PLUGIN
 
+class QInterfaceList : public QList<QUnknownInterface>
+{
+public:
+};
+
 /*!
   \class QUnknownInterface qcomponentinterface.h
 */
 
-QUnknownInterface::QUnknownInterface()
-{
+QUnknownInterface::QUnknownInterface( QUnknownInterface *p )
+: children( 0 ), refcount( 1 ), par( p )
+{   
+    if ( par )
+	par->insertChild( this );
 }
 
 QUnknownInterface::~QUnknownInterface()
 {
+}
+
+void QUnknownInterface::insertChild( QUnknownInterface *child )
+{
+    if ( !children )
+	children = new QInterfaceList;
+    
+    children->append( child );
+}
+
+QUnknownInterface* QUnknownInterface::parent() const
+{
+    return par;
+}
+
+bool QUnknownInterface::ref()
+{
+    QUnknownInterface *tlp = 0;
+    QUnknownInterface *p = this;
+    while ( ( p = p->parent() ) )
+	tlp = p;
+
+    if ( refcount == 1 && !initialize( (tlp ? tlp->applicationInterface() : 0 ) ) )
+	return FALSE;
+
+    ++refcount;
+    return TRUE;
+}
+
+bool QUnknownInterface::release()
+{
+    bool deref = !--refcount;
+    if ( deref ) {
+	QUnknownInterface *tlp = 0;
+	QUnknownInterface *p = this;
+	while ( ( p = parent() ) )
+	    tlp = p;
+
+	cleanUp( tlp ? tlp->applicationInterface() : 0 );
+    }
+
+    return deref;
 }
 
 QString QUnknownInterface::interfaceID() const
@@ -21,33 +71,60 @@ QString QUnknownInterface::interfaceID() const
     return "QUnknownInterface"; 
 }
 
-bool QUnknownInterface::connectNotify( QApplicationInterface* )
+bool QUnknownInterface::initialize( QApplicationInterface* )
 { 
     return TRUE; 
 }
 
-bool QUnknownInterface::disconnectNotify()
+bool QUnknownInterface::cleanUp( QApplicationInterface* )
 { 
     return TRUE; 
 }
 
-QUnknownInterface* QUnknownInterface::queryInterface( const QString& )
+QUnknownInterface* QUnknownInterface::queryInterface( const QString& request )
 { 
-    return 0; 
+    QListIterator<QUnknownInterface> it( *children );
+    while ( it.current() ) {
+	if ( it.current()->interfaceID() == request ) {
+	    if ( it.current()->ref() )
+		return it.current();
+	    return 0;
+	}
+	++it;
+    }
+#ifdef CHECK_RANGE
+    qDebug( "%s doesn't know %s", interfaceID().latin1(), request.latin1() );
+#endif
+    return 0;
 }
 
-QStringList QUnknownInterface::interfaceList() const 
-{ 
-    return QStringList(); 
+QApplicationInterface* QUnknownInterface::applicationInterface() const
+{
+    return appInterface;
 }
 
+void QUnknownInterface::setApplicationInterface( QApplicationInterface* appIface )
+{
+    appInterface = appIface;
+}
 /*!
   \class QPlugInInterface qcomponentinterface.h
 */
 
 QPlugInInterface::QPlugInInterface()
-: QUnknownInterface()
+: QUnknownInterface( 0 )
 {
+}
+
+bool QPlugInInterface::initialize( QApplicationInterface *appIface )
+{
+    setApplicationInterface( appIface );
+    return QUnknownInterface::initialize( appIface );
+}
+
+bool QPlugInInterface::cleanUp( QApplicationInterface *appIface )
+{
+    return ( appIface == applicationInterface() );
 }
 
 QString QPlugInInterface::interfaceID() const 
@@ -85,7 +162,7 @@ QString QPlugInInterface::author() const
   It's not valid to pass null for the same reason.
 */
 QApplicationInterface::QApplicationInterface()
-: QUnknownInterface()
+: QUnknownInterface( 0 )
 {
 }
 
@@ -150,29 +227,8 @@ QString QApplicationInterface::command() const
   As the interface depends on the passed object it gets deleted when the object gets
   destroyed. It's not valid to pass null for the same reason.
 */
-class QInterfaceCleanUp : public QObject
-{
-public:
-    QInterfaceCleanUp( QObject *parent, QApplicationComponentInterface* iface );
-    ~QInterfaceCleanUp();
-
-private:
-    QApplicationComponentInterface* acInterface;
-};
-
-QInterfaceCleanUp::QInterfaceCleanUp( QObject *parent, QApplicationComponentInterface* iface )
-: QObject( parent ), acInterface( iface ) 
-{
-}
-
-QInterfaceCleanUp::~QInterfaceCleanUp()
-{
-    delete acInterface;
-    acInterface = 0;
-}
-
-QApplicationComponentInterface::QApplicationComponentInterface( QObject* o )
-: QUnknownInterface()
+QApplicationComponentInterface::QApplicationComponentInterface( QObject* o, QUnknownInterface *parent )
+: QUnknownInterface( parent )
 {
 
 #ifdef CHECK_RANGE
@@ -180,8 +236,6 @@ QApplicationComponentInterface::QApplicationComponentInterface( QObject* o )
 	qWarning( "Can't create interface with null-object!" );
 #endif CHECK_RANGE
     comp = o;
-
-    cleanUp = new QInterfaceCleanUp( comp, this );
 }
 
 QString QApplicationComponentInterface::interfaceID() const

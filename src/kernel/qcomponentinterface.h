@@ -10,21 +10,37 @@
 #ifndef QT_NO_PLUGIN
 
 class QApplicationInterface;
-class QInterfaceCleanUp;
+class QInterfaceList;
 
 class Q_EXPORT QUnknownInterface
 {
 public:
-    QUnknownInterface();
+    QUnknownInterface( QUnknownInterface *parent = 0 );
     virtual ~QUnknownInterface();
 
     virtual QString interfaceID() const;
 
-    virtual bool connectNotify( QApplicationInterface* );
-    virtual bool disconnectNotify();
+    virtual bool initialize( QApplicationInterface* = 0 );
+    virtual bool cleanUp( QApplicationInterface* = 0 );
 
     virtual QUnknownInterface* queryInterface( const QString& );
-    virtual QStringList interfaceList() const;
+
+    bool release();
+
+    QApplicationInterface *applicationInterface() const;
+    void setApplicationInterface( QApplicationInterface * );
+
+    QUnknownInterface *parent() const;
+
+protected:
+    void insertChild( QUnknownInterface * );
+    bool ref();
+
+private:
+    QInterfaceList* children;
+    QUnknownInterface* par;
+    int refcount;
+    QApplicationInterface *appInterface;
 };
 
 class Q_EXPORT QPlugInInterface : public QUnknownInterface
@@ -34,12 +50,12 @@ public:
 
     QString interfaceID() const;
 
+    bool initialize( QApplicationInterface * = 0 );
+    bool cleanUp( QApplicationInterface* = 0 );
+
     virtual QString name() const;
     virtual QString description() const;
     virtual QString author() const;
-
-    virtual QUnknownInterface* queryInterface( const QString& ) = 0;
-    virtual QStringList interfaceList() const = 0;
 };
 
 class Q_EXPORT QApplicationInterface : public QUnknownInterface
@@ -65,7 +81,7 @@ template class Q_EXPORT QGuardedPtr<QObject>;
 class Q_EXPORT QApplicationComponentInterface : public QUnknownInterface
 {
 public:
-    QApplicationComponentInterface( QObject* c );
+    QApplicationComponentInterface( QObject* c, QUnknownInterface *parent = 0  );
 
     QString interfaceID() const;
 
@@ -82,7 +98,6 @@ protected:
 
 private:
     QGuardedPtr<QObject> comp;
-    QInterfaceCleanUp *cleanUp;
 };
 
 #ifndef Q_EXPORT_INTERFACE
