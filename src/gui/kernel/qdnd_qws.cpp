@@ -339,10 +339,10 @@ void QDragManager::drop()
 {
 }
 
-QVariant QDropData::retrieveData(const QString &mimetype, QVariant::Type type) const
+QCoreVariant QDropData::retrieveData(const QString &mimetype, QCoreVariant::Type type) const
 {
     if (!drag_object)
-        return QVariant();
+        return QCoreVariant();
     QByteArray data =  drag_object->mimeData()->data(mimetype);
     if (type == QVariant::String)
         return QString::fromUtf8(data);
