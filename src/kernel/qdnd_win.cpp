@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#14 $
 **
 ** WM_FILES implementation for Qt.
 **
@@ -27,10 +27,6 @@ extern bool qt_write_dib( QDataStream&, QImage );   // qimage.cpp
   Encapsulation of conversion between MIME and Windows CLIPFORMAT.
   This API will be exposed to Windows users when it matures.
   We might need to use FORMATETC objects rather than simple CLIPFORMAT.
-  We need an Open solution for passing arbitrary MIME data among
-   Windows applications.  Then Qt and other WindowsMime-aware applications
-   can efficiently pass MIME data rather than converting through ugly
-   formats like DIB (headless BMP).
 */
 class QWindowsMime {
 public:
@@ -38,8 +34,8 @@ public:
     virtual ~QWindowsMime();
 
     static QWindowsMime* convertor( const char* mime, int cf );
-
     static const char* cfToMime(int cf);
+
     virtual const char* convertorName()=0;
     virtual int countCf()=0;
     virtual int cf(int index)=0;
