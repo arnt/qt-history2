@@ -21,6 +21,7 @@
 
 #include <QString>
 #include <QIcon>
+#include <QVariant>
 
 class QObject;
 
