@@ -1,0 +1,69 @@
+diff -ur template/Makefile irix-dcc-static/Makefile
+--- template/Makefile	Thu Sep  5 15:25:48 1996
++++ irix-dcc-static/Makefile	Thu Sep  5 15:27:24 1996
+@@ -4,8 +4,8 @@
+ # Read PORTING for instructions how to port Qt to a new platform.
+ #
+ 
+-CC	= gcc
+-CFLAGS	= -O2 -fno-strength-reduce -Wall -W
++CC	= DCC
++CFLAGS	= -O2 -fullwarn -smart
+ LFLAGS	= -lqt
+ 
+ all: library tutorial examples
+diff -ur template/examples/xshape/Makefile irix-dcc-static/examples/xshape/Makefile
+--- template/examples/xshape/Makefile	Sat Aug 17 18:00:13 1996
++++ irix-dcc-static/examples/xshape/Makefile	Thu Sep  5 15:28:23 1996
+@@ -25,8 +25,9 @@
+ 
+ .SUFFIXES: .cpp
+ 
++# evil hack: get rid of -smart, it cores here
+ .cpp.o:
+-	$(CC) -c $(CFLAGS) -I$(INCDIR) $<
++	$(CC) -c -O2 -fullwarn -I$(INCDIR) $<
+ 
+ ####### Build rules
+ 
+diff -ur template/library/Makefile irix-dcc-static/library/Makefile
+--- template/library/Makefile	Thu Sep  5 15:26:13 1996
++++ irix-dcc-static/library/Makefile	Thu Sep  5 15:27:09 1996
+@@ -76,7 +76,7 @@
+ .SUFFIXES: .cpp
+ 
+ .cpp.o:
+-	$(CC) -I$(INCDIR) -c $(CFLAGS) -fpic $<
++	$(CC) -I$(INCDIR) -c $(CFLAGS) $<
+ 
+ # VERSION - the version number of the shared library, where applicable
+ 
+@@ -85,14 +85,8 @@
+ # Creates the library when all files have been compiled
+ 
+ library: $(OBJECTS) $(METAOBJ)
+-	-rm -f ../../../lib/libqt.so.$(VERSION)
+-	$(CC) -shared -Wl,-soname,libqt.so.0 \
+-		-o ../../../lib/libqt.so.$(VERSION) \
+-		$(OBJECTS) $(METAOBJ) -lX11
+-	-rm -f ../../../lib/libqt.so
+-	-ln -sf libqt.so.$(VERSION) ../../../lib/libqt.so
+-	-rm -f ../../../lib/libqt.so.0
+-	-ln -s libqt.so.$(VERSION) ../../../lib/libqt.so.0
++	ar q libqt.a `lorder $(OBJECTS) $(METAOBJ) | tsort`
++	mv libqt.a ../../../lib
+ 
+ depend:
+ 	makedepend $(SOURCES) 2> /dev/null
+diff -ur template/moc/Makefile irix-dcc-static/moc/Makefile
+--- template/moc/Makefile	Thu Sep  5 15:25:48 1996
++++ irix-dcc-static/moc/Makefile	Thu Sep  5 15:26:16 1996
+@@ -75,7 +75,7 @@
+ ####### Compile the .cpp files
+ 
+ moc_gen.o: moc_gen.cpp
+-	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
++	$(CC) -c -O2 -fullwarn -woff 3203,3262 -I$(INCDIR) $? -o $@
+ 
+ qbuffer.o: ../library/qbuffer.cpp
+ 	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
