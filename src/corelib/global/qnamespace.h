@@ -330,6 +330,8 @@ public:
         WA_InputMethodTransparent = 75, // Don't reset IM when user clicks on this (for virtual keyboards on embedded)
         WA_QuitOnClose = 76,
 
+        WA_KeyboardFocusChange = 77,
+
         // Add new attributes above this
         WA_AttributeCount
     };
