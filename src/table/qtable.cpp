@@ -4664,7 +4664,7 @@ QWidget *QTable::beginEdit( int row, int col, bool replace )
     QTableItem *itm = item( row, col );
     if ( itm && !itm->isEnabled() )
 	return 0;
-    if ( itm && cellWidget( itm->row(), itm->col() ) )
+    if ( cellWidget( row, col ) )
 	return 0;
     ensureCellVisible( curRow, curCol );
     QWidget *e = createEditor( row, col, !replace );
@@ -5524,7 +5524,7 @@ QWidget *QTable::cellWidget( int row, int col ) const
     function: see the notes on large tables.
 
     This function deletes the widget at \a row, \a col. Note that the
-    widget is not deleted immediately; instead QObject::deleteLater()
+    widget is not deleted immediately; instead QObject::eleteLater()
     is called on the widget to avoid problems with timing issues.
 
     \sa cellWidget() setCellWidget()
