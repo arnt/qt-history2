@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#96 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#97 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#96 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#97 $");
 
 
 /*!
@@ -774,7 +774,7 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 	    openActPopup();
 	}
     } else {
-	setActItem( item, FALSE );
+	setWindowsAltMode( FALSE, item );
 	hidePopups();
     }
 }
@@ -825,8 +825,7 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 	int item = itemAtPos( e->pos() );
 	QMenuItem *mi = actItem < 0 ? 0 : mitems->at(actItem);
 	if ( item != actItem &&
-	     (!mi ||
-	      (mi->popup() && !mi->popup()->isVisible())) ) {
+	     (!mi || !mi->popup() || !mi->popup()->isVisible()) ) {
 	    if ( item >= 0 ) {
 		setWindowsAltMode( TRUE, item );
 		mi = mitems->at( item );
@@ -867,7 +866,7 @@ void QMenuBar::leaveEvent( QEvent * e )
 {
     if ( windowsaltactive && actItem >= 0 ) {
 	QMenuItem *mi = mitems->at( actItem );
-	if ( mi && mi->popup() && !mi->popup()->isVisible() )
+	if ( mi && (!mi->popup() || !mi->popup()->isVisible()) )
 	    setWindowsAltMode( FALSE, -1 );
     }
     QFrame::leaveEvent( e );
