@@ -51,8 +51,7 @@ extern void moduleUnlock();
     QAxObject is a QObject and can be used as such, e.g. it can be organized in an object hierarchy, 
     receive events and connect to signals and slots.
 
-    \important dynamicCall()
-    \important querySubObject()
+    \important dynamicCall() querySubObject()
 */
 
 /*!
@@ -69,7 +68,7 @@ QAxObject::QAxObject( QObject *parent, const char *name )
     \a parent and \a name are propagated to the QWidget contructor.
 */
 QAxObject::QAxObject( const QString &c, QObject *parent, const char *name )
-: QObject( parent, name )
+: QObject( parent, name ? name : c.latin1() )
 {
     setControl( c );
 }

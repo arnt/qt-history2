@@ -383,6 +383,9 @@ public:
 
     ~QAxMetaObject()
     {
+	if ( !metaObject )
+	    return;
+
 	QMetaObject *metaobj = metaObject;
 
 	int i;
@@ -471,6 +474,7 @@ public:
 	    delete [] (QMetaEnum*)enums;
 	}
 	delete metaobj;
+	metaObject = 0;
     }
 
     QMetaObject *metaObject;
@@ -644,7 +648,6 @@ public:
     use setControl() to instantiate a COM object.
 */
 QAxBase::QAxBase( IUnknown *iface )
-: metaobj( 0 )
 {
     d = new QAxBasePrivate();
     d->ptr = iface;
@@ -665,6 +668,7 @@ QAxBase::~QAxBase()
     clear();
 
     delete d;
+    d = 0;
 }
 
 /*!
@@ -810,10 +814,10 @@ void QAxBase::clear()
 
     ctrl = QString::null;
 
-    if ( d->metaobj && !d->cachedMetaObject )
+    if ( d->metaobj && !d->cachedMetaObject ) {
 	delete d->metaobj;
-
-    metaobj = 0;
+	d->metaobj = 0;
+    }
 }
 
 /*!
@@ -1050,8 +1054,8 @@ static inline void QStringToQUType( const QString& type, QUParameter *param, con
 */
 QMetaObject *QAxBase::metaObject() const
 {
-    if ( metaobj )
-	return metaobj;
+    if ( d->metaobj )
+	return d->metaobj->metaObject;
     QMetaObject* parentObject = parentMetaObject();
 
     // some signals and properties are always there
@@ -1151,10 +1155,9 @@ QMetaObject *QAxBase::metaObject() const
 
     if ( mo_cache && !coClassID.isEmpty() ) {
 	d->metaobj = metaObjectCache()->find( coClassID );
-	that->metaobj = d->metaobj ? d->metaobj->metaObject : 0;
-	if ( metaobj ) {
+	if ( d->metaobj ) {
 	    d->cachedMetaObject = TRUE;
-	    return metaobj;
+	    return d->metaobj->metaObject;
 	}
     }
     d->metaobj = new QAxMetaObject;
@@ -1367,7 +1370,7 @@ QMetaObject *QAxBase::metaObject() const
 
 			    prop = new QMetaProperty;
 			    proplist.insert( function, prop );
-			    prop->meta = (QMetaObject**)&metaobj;
+			    prop->meta = (QMetaObject**)&(d->metaobj->metaObject);
 			    prop->_id = -1;
 			    if ( !ptype.isEmpty() )
 				prop->enumData = enumDict.find( ptype );
@@ -1576,7 +1579,7 @@ QMetaObject *QAxBase::metaObject() const
 		    if ( !prop ) {
 			prop = new QMetaProperty;
 			proplist.insert( variableName, prop );
-			prop->meta = (QMetaObject**)&metaobj;
+			prop->meta = (QMetaObject**)&d->metaobj->metaObject;
 			prop->_id = -1;
 			if ( !variableType.isEmpty() )
 			    prop->enumData = enumDict.find( variableType );
@@ -1920,7 +1923,7 @@ QMetaObject *QAxBase::metaObject() const
 	prop_data[index].flags = 259;
 	prop_data[index]._id = -1;
 	prop_data[index].enumData = 0;
-	prop_data[index].meta = (QMetaObject**)&metaobj;
+	prop_data[index].meta = (QMetaObject**)&d->metaobj->metaObject;
 
 	++index;
     }
@@ -1957,7 +1960,7 @@ QMetaObject *QAxBase::metaObject() const
 #endif
 
     // put the metaobject together
-    that->metaobj = QMetaObject::new_metaobject( 
+    d->metaobj->metaObject = QMetaObject::new_metaobject( 
 	className(), parentObject, 
 	slot_data, slotlist.count(),
 	signal_data, signallist.count()+2,
@@ -1969,13 +1972,12 @@ QMetaObject *QAxBase::metaObject() const
 	0, 0 );
 #endif
 
-    d->metaobj->metaObject = metaobj;
     if ( !coClassID.isEmpty() ) {
 	metaObjectCache()->insert( coClassID, d->metaobj );
 	d->cachedMetaObject = TRUE;
     }
 
-    return metaobj;
+    return d->metaobj->metaObject;
 }
 
 static inline bool checkHRESULT( HRESULT hres )

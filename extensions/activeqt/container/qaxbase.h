@@ -108,7 +108,6 @@ public:
     void disableEventSink();
 
 protected:
-    QMetaObject *metaobj;
     virtual bool initialize( IUnknown** ptr ) = 0;
 
 private:

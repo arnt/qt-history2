@@ -180,8 +180,7 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
     but it depends on the ActiveX control to implement support for ambient properties like e.g. palette or font. 
     QAxWidget tries to provide the necessary hints.
 
-    \important dynamicCall()
-    \important querySubObject()
+    \important dynamicCall() querySubObject()
 */
 
 /*!
@@ -199,7 +198,7 @@ QAxWidget::QAxWidget( QWidget *parent, const char *name, WFlags f )
     \a parent, \a name and \a f are propagated to the QWidget contructor.
 */
 QAxWidget::QAxWidget( const QString &c, QWidget *parent, const char *name, WFlags f )
-: QWidget( parent, name, f ), clientsite( 0 ), host( 0 )
+: QWidget( parent, name ? name : c.latin1(), f ), clientsite( 0 ), host( 0 )
 {
     initContainer();
 
