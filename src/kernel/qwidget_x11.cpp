@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#58 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#57 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#58 $";
 #endif
 
 
@@ -474,7 +474,7 @@ QWidget *QWidget::widgetInFocus() // get focus widget
     return activeWidget;
 }
 
-/*! Enable or disable updates of this widget.  If updates are
+/*! Enables or disables updates of this widget.  If updates are
   disabled, the widget will not receive repaint events. */
 
 bool QWidget::enableUpdates( bool enable )	// enable widget update/repaint
@@ -487,7 +487,7 @@ bool QWidget::enableUpdates( bool enable )	// enable widget update/repaint
     return last;
 }
 
-/*! Update the entire widget.  If updates are enabled, of course.  The
+/*! Updates the entire widget.  If updates are enabled, of course.  The
   default action of this is to clear the widget, so widgets that wish
   to actually interact with the user should reimplement it.  */
 
@@ -497,13 +497,15 @@ void QWidget::update()				// update widget
 	XClearArea( dpy, ident, 0, 0, 0, 0, TRUE );
 }
 
-/*! Update part of the widget.  */
+/*! Updates part of the widget.  */
 
 void QWidget::update( int x, int y, int w, int h )
 {						// update part of widget
     if ( !testFlag(WNoUpdates) )
 	XClearArea( dpy, ident, x, y, w, h, TRUE );
 }
+
+/*! Not documented yet */
 
 void QWidget::repaint( const QRect &r, bool eraseArea )
 {
@@ -515,6 +517,8 @@ void QWidget::repaint( const QRect &r, bool eraseArea )
     QApplication::sendEvent( this, &e );
 }
 
+
+/*! Makes the widget and its children visible on the screen. */
 
 void QWidget::show()				// show widget
 {
@@ -543,6 +547,8 @@ void QWidget::show()				// show widget
 	qt_open_popup( this );
 }
 
+/*! Makes the widget, but not its children, invisible. */
+
 void QWidget::hide()				// hide widget
 {
     if ( !testFlag(WState_Visible) ) {		// not visible
@@ -558,10 +564,15 @@ void QWidget::hide()				// hide widget
 }
 
 
+/*! Raises the widget to the top of the window stack. */
+
 void QWidget::raise()				// raise widget
 {
     XRaiseWindow( dpy, ident );
 }
+
+/*! Lowers the widget to the bottom of the windows stack.  Only the
+  root window will be behind this one afterwards. */
 
 void QWidget::lower()				// lower widget
 {
