@@ -80,11 +80,11 @@ public:
 	ConnectToHost,
 	Login,
 	Close,
+	List,
 //###	Cd,
 //###	Get,
 //###	Put,
 //###	Copy,
-//###	List,
 //###	Remove,
 //###	Mkdir,
 //###	Rename,
@@ -94,6 +94,7 @@ public:
 
     int connectToHost( const QString &host, Q_UINT16 port=21 );
     int login( const QString &user=QString::null, const QString &password=QString::null );
+    int list( const QString &dir=QString::null );
     int close();
 
     int currentId() const;
@@ -101,6 +102,8 @@ public:
 
 signals:
     void connectState( int );
+    void listInfo( const QUrlInfo& );
+
     void start( int );
     void finishedSuccess( int );
     void finishedError( int, const QString& );
@@ -108,7 +111,7 @@ signals:
     void doneError( const QString& );
 
 protected:
-    void parseDir( const QString &buffer, QUrlInfo &info ); // ### private in Qt 4.0?
+    void parseDir( const QString &buffer, QUrlInfo &info ); // ### delete in Qt 4.0?
     void operationListChildren( QNetworkOperation *op );
     void operationMkDir( QNetworkOperation *op );
     void operationRemove( QNetworkOperation *op );
@@ -126,6 +129,7 @@ protected:
 
 private:
     void init();
+    bool parseDir( const QString &buffer, const QString userName, QUrlInfo *info );
     bool checkConnection( QNetworkOperation *op );
     void closeInternal();
     void reinitCommandSocket();
@@ -141,6 +145,10 @@ private slots:
     void startNextCommand();
     void piFinished( int, const QString& );
     void piConnectState( int );
+    void piConnectDTP( const QString&, Q_UINT16 );
+    void dtpConnected();
+    void dtpConnectionClosed();
+    void dtpReadyRead();
 
 protected slots:
     // ### make these private in Qt 4.0
