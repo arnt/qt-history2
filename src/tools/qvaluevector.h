@@ -119,10 +119,11 @@ template <class T>
 Q_INLINE_TEMPLATES QValueVectorPrivate<T>::QValueVectorPrivate( const QValueVectorPrivate<T>& x )
     : QShared()
 {
-    if ( x.size() > 0 ) {
-	start = new T[ x.size() ];
-	finish = start + x.size();
-	end = start + x.size();
+    int i = x.size();
+    if ( i > 0 ) {
+	start = new T[ i ];
+	finish = start + i;
+	end = start + i;
 #if defined(__xlC__) && __xlC__ < 0x400 // xlC 3.6 confused by const
 	qCopy( (pointer)x.start, (pointer)x.finish, start );
 #else
