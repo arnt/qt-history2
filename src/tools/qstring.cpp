@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#239 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#240 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12159,6 +12159,14 @@ QString &QString::setNum( long n, int base )
     bool neg;
     if ( n < 0 ) {
 	neg = TRUE;
+	if ( n == INT_MIN ) {
+	    // Cannot always negate this special case
+	    QString s1, s2;
+	    s1.setNum(n/base);
+	    s2.setNum((-(n+base))%base);
+	    *this = s1 + s2;
+	    return *this;
+	}
 	n = -n;
     } else {
 	neg = FALSE;
