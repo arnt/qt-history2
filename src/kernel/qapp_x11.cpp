@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#189 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#190 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -48,7 +48,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#189 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#190 $");
 
 
 #if !defined(XlibSpecificationRelease)
@@ -1848,10 +1848,10 @@ static int activateTimers()
 	timerList->take();			// unlink from list
 	t->timeout = currentTime + t->interval;
 	insertTimer( t );			// relink timer
+	if ( t->interval.tv_usec > 0 || t->interval.tv_sec > 0 )
+	    n_act++;
 	QTimerEvent e( t->id );
 	QApplication::sendEvent( t->obj, &e );	// send event
-	if ( t->timeout.tv_usec > 0 || t->timeout.tv_sec > 0 )
-	    n_act++;
     }
     return n_act;
 }
@@ -1897,7 +1897,7 @@ int qStartTimer( int interval, QObject *obj )
     TimerInfo *t = new TimerInfo;		// create timer
     CHECK_PTR( t );
     t->id = id;
-    t->interval.tv_sec = interval/1000;
+    t->interval.tv_sec  = interval/1000;
     t->interval.tv_usec = (interval%1000)*1000;
     timeval currentTime;
     getTime( currentTime );
