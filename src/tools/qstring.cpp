@@ -13503,7 +13503,7 @@ int QString::findRev( const QString& str, int index, bool cs ) const
     sep. The returned string consists of \a count fields from position
     \a start.
 
-    ### eg.
+    ### easy eg.
 
     If \a start is negative, it counts fields from the right of the
     string, the right-most field being -1, the one from right-most
