@@ -301,15 +301,15 @@ inline void QList<T>::replace(int i, const T &t)
 template <typename T>
 inline void QList<T>::swap(int i, int j)
 { Q_ASSERT(i >= 0 && i < size() && j >= 0 && j < size()); detach();
- T t = ((Node*)p.at(i))->t(); 
- ((Node*)p.at(i))->t() = ((Node*)p.at(j))->t(); 
- ((Node*)p.at(j))->t() = t; 
+ T t = ((Node*)p.at(i))->t();
+ ((Node*)p.at(i))->t() = ((Node*)p.at(j))->t();
+ ((Node*)p.at(j))->t() = t;
 }
 
 template <typename T>
 inline void QList<T>::move(int from, int to)
 { Q_ASSERT(from >= 0 && from < size() && to >= 0 && to < size()); detach();
- p.move(from, to); 
+ p.move(from, to);
 }
 
 template <typename T>
@@ -494,35 +494,6 @@ int QList<T>::count(const T &t) const
 }
 
 Q_DECLARE_ITERATOR(QList)
-
-#ifndef QT_NO_DATASTREAM
-template <typename T>
-QDataStream& operator>>( QDataStream& s, QList<T>& l )
-{
-    l.clear();
-    Q_UINT32 c;
-    s >> c;
-    for( Q_UINT32 i = 0; i < c; ++i )
-    {
-	T t;
-	s >> t;
-	l.append( t );
-	if ( s.atEnd() )
-	    break;
-    }
-    return s;
-}
-
-template <typename T>
-QDataStream& operator<<( QDataStream& s, const QList<T>& l )
-{
-    s << (Q_UINT32)l.size();
-    typename QList<T>::ConstIterator it = l.begin();
-    for( ; it != l.end(); ++it )
-	s << *it;
-    return s;
-}
-#endif // QT_NO_DATASTREAM
 
 #endif // QLIST_H
 

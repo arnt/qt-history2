@@ -161,7 +161,7 @@ inline T &QVector<T>::operator[](int i)
 template <typename T>
 QVector<T> &QVector<T>::operator=(const QVector<T> &v)
 {
-    QVector::Data *x = v.d;
+    typename QVector::Data *x = v.d;
     ++x->ref;
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)

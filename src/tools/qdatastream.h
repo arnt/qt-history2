@@ -16,8 +16,9 @@
 #define QDATASTREAM_H
 
 #ifndef QT_H
-#include "qiodevice.h"
-#endif // QT_H
+#include <qlist.h>
+#include <qiodevice.h>
+#endif
 
 #ifndef QT_NO_DATASTREAM
 class Q_EXPORT QDataStream				// data stream class
@@ -84,9 +85,9 @@ public:
 private:
     QIODevice	*dev;
     bool	 owndev;
-    int		 byteorder;
     bool	 printable;
     bool	 noswap;
+    int		 byteorder;
     int		 ver;
 
 private:	// Disabled copy constructor and operator=
@@ -155,6 +156,33 @@ inline QDataStream &QDataStream::operator<<( Q_UINT64 i )
 inline QDataStream &QDataStream::operator<<( Q_ULONG i )
 { return *this << (Q_LONG)i; }
 
+
+template <typename T>
+QDataStream& operator>>( QDataStream& s, QList<T>& l )
+{
+    l.clear();
+    Q_UINT32 c;
+    s >> c;
+    for( Q_UINT32 i = 0; i < c; ++i )
+    {
+	T t;
+	s >> t;
+	l.append( t );
+	if ( s.atEnd() )
+	    break;
+    }
+    return s;
+}
+
+template <typename T>
+QDataStream& operator<<( QDataStream& s, const QList<T>& l )
+{
+    s << (Q_UINT32)l.size();
+    typename QList<T>::ConstIterator it = l.begin();
+    for( ; it != l.end(); ++it )
+	s << *it;
+    return s;
+}
 
 #endif // QT_NO_DATASTREAM
 #endif // QDATASTREAM_H
