@@ -50,7 +50,10 @@
 #endif
 
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
-#  include "qmenubar.h"
+#  include "qmenu.h"
+#  ifdef QT_COMPAT
+#     include "qmenubar.h"
+#  endif 
 #endif
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
@@ -397,6 +400,7 @@ void qt_mac_update_os_settings()
 	    { "QListBox", kThemeViewsFont },
 	    { "QTitleBar", kThemeWindowTitleFont },
 	    { "QMenuBar", kThemeMenuTitleFont },
+	    { "Q4MenuBar", kThemeMenuTitleFont },
 	    { "Q4Menu", kThemeMenuItemFont },
 	    { "QHeader", kThemeSmallSystemFont },
 	    { "QTipLabel", kThemeSmallSystemFont },
@@ -1611,7 +1615,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	} else if(ekind == kEventQtRequestMenubarUpdate) {
 	    request_menubarupdate_pending = 0;
-	    QMenuBar::macUpdateMenuBar();
+	    Q4MenuBar::macUpdateMenuBar();
 #endif
 	} else if(ekind == kEventQtRequestSelect) {
 	    request_select_pending = 0;
@@ -2440,7 +2444,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		else
 		    widget->setFocus();
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
-		QMenuBar::macUpdateMenuBar();
+		Q4MenuBar::macUpdateMenuBar();
 #endif
 	    }
 	} else if(ekind == kEventWindowDeactivated) {
@@ -2469,7 +2473,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		}
 	    }
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
-	    QMenuBar::macUpdateMenuBar();
+	    Q4MenuBar::macUpdateMenuBar();
 #endif
 	} else if(ekind == kEventAppDeactivated) {
 	    while(app->inPopupMode())

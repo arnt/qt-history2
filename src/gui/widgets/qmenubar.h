@@ -132,6 +132,7 @@ private:
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     friend class QWidget;
     friend class QApplication;
+    friend class Q4MenuBar;
     friend void qt_mac_set_modal_state(bool, QMenuBar *);
 
     void macCreateNativeMenubar();

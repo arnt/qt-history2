@@ -553,13 +553,11 @@ MenuRef Q4MenuBarPrivate::macMenu()
 }
 MenuRef Q4MenuBar::macMenu() {  return d->macMenu(); }
 
+#ifdef QT_COMPAT
+# include "qmenubar.h"
+#endif
 
-/*****************************************************************************
- This is a huge temporary hack that will go away....
-*****************************************************************************/
-#if 1
-#include "qmenubar.h"
-bool QMenuBar::macUpdateMenuBar()
+bool Q4MenuBar::macUpdateMenuBar()
 {
     if(qt_mac_no_native_menubar) //nothing to be done..
 	return true;
@@ -603,10 +601,12 @@ bool QMenuBar::macUpdateMenuBar()
     static bool first = true;
     if(mb) {
 	SetRootMenu(mb->macMenu());
+#ifdef QT_COMPAT
+    } else if(QMenuBar::macUpdateMenuBar()) {
+#endif
     } else if(first || fall_back_to_empty) {
 	first = false;
 	qt_mac_clear_menubar();
     }
     return false;
 }
-#endif

@@ -142,6 +142,8 @@ private:
     friend class Q4Menu;
     friend class Q4MenuPrivate;
 #ifdef Q_WS_MAC
+    friend class QApplication;
+    static bool macUpdateMenuBar();
     friend bool qt_mac_activate_action(MenuRef, uint, QAction::ActionEvent, bool);
 #endif
 #if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
