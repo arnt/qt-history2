@@ -4701,9 +4701,9 @@ void QFileDialog::setPreviewMode( PreviewMode m )
 }
 QFileDialog::PreviewMode QFileDialog::previewMode() const
 {
-    if ( d->infoPreview && d->previewInfo->isVisible() )
+    if ( d->infoPreview && d->infoPreviewWidget->isVisible() )
 	return Info;
-    else if ( d->contentsPreview && d->previewContents->isVisible() )
+    else if ( d->contentsPreview && d->contentsPreviewWidget->isVisible() )
 	return Contents;
 
     return NoPreview;
