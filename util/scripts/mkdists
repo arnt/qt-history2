@@ -30,7 +30,7 @@ MANIFEST_FILE=${TMP_FILE}-manifest
 #editions
 DO_COMMERCIAL=yes
 DO_FREE=yes
-DO_REVIEW=yes
+DO_REVIEW=no
 #platforms
 DO_WIN=yes
 DO_X11=yes
