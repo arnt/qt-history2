@@ -153,6 +153,7 @@ QWidget *QItemDelegate::createEditor(StartEditAction, QWidget *parent,
     lineEdit->setFrame(false);
     int textElement = model()->element(item, QVariant::String);
     lineEdit->setText(model()->data(item, textElement).toString());
+    lineEdit->selectAll();
     updateEditorGeometry(lineEdit, options, item);
     return lineEdit;
 }

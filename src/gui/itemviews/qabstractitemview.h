@@ -90,7 +90,7 @@ protected:
     virtual void endEdit(const QModelIndex &item, bool accept);
 
     virtual QItemSelectionModel::SelectionBehavior selectionBehavior() const;
-    virtual QItemSelectionModel::SelectionUpdateMode selectionUpdateMode(ButtonState state) const;
+    virtual QItemSelectionModel::SelectionUpdateMode selectionUpdateMode(ButtonState state, const QModelIndex &item = QModelIndex()) const;
 
     void drawSelectionRect(QPainter *painter, const QRect &rect) const;
     void clearArea(QPainter *painter, const QRect &rect) const;

@@ -262,25 +262,18 @@ void QAbstractItemView::contentsMousePressEvent(QMouseEvent *e)
 {
     QPoint pos = e->pos();
     QModelIndex item  = itemAt(pos);
-    if (item.isValid() && e->state() & ShiftButton)
-	d->dragRect.setBottomRight(pos); // do not normalize
-    else
-	d->dragRect = QRect(pos, pos);
     if (item.isValid()) {
 	if (e->state() & ShiftButton) {
+	    d->dragRect.setBottomRight(pos); // do not normalize
 	    selectionModel()->setCurrentItem(item, QItemSelectionModel::NoUpdate, selectionBehavior());
-	    setSelection(d->dragRect.normalize(), selectionUpdateMode(e->state()));
+	    setSelection(d->dragRect.normalize(), selectionUpdateMode(e->state(), item));
 	} else {
-	    bool isSelected = selectionModel()->isSelected(item);
-	    bool isToggle = selectionUpdateMode(e->state()) == QItemSelectionModel::Toggle;
-	    bool noUpdate = isSelected && !isToggle;
-	    selectionModel()->setCurrentItem(item, (noUpdate ? QItemSelectionModel::NoUpdate :
-						    selectionUpdateMode(e->state())), selectionBehavior());
+	    d->dragRect = QRect(pos, pos);
+	    selectionModel()->setCurrentItem(item, selectionUpdateMode(e->state(), item), selectionBehavior());
 	}
     } else {
  	clearSelections();
     }
-
     handleEdit(item, QItemDelegate::NoAction, e); // FIXME: ???
 }
 
@@ -320,7 +313,7 @@ void QAbstractItemView::contentsMouseMoveEvent(QMouseEvent *e)
 	selectionModel()->setCurrentItem(item, QItemSelectionModel::NoUpdate, selectionBehavior());
     }
     setState(Selecting);
-    setSelection(d->dragRect.normalize(), selectionUpdateMode(e->state()));
+    setSelection(d->dragRect.normalize(), selectionUpdateMode(e->state(), item));
     updateContents(d->dragRect.normalize() | oldRect.normalize()); // draw selection rect
 
     handleEdit(item, QItemDelegate::NoAction, e); // FIXME: ???
@@ -380,55 +373,55 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
 	setCurrentItem(model()->index(0, 0, 0));
     }
     QModelIndex newCurrent = current;
-    bool navigationKey = false;
     if (hadCurrent) {
 	switch (e->key()) {
 	case Key_Down:
 	    newCurrent = moveCursor(MoveDown, e->state());
-	    navigationKey = true;
 	    break;
 	case Key_Up:
 	    newCurrent = moveCursor(MoveUp, e->state());
-	    navigationKey = true;
 	    break;
 	case Key_Left:
 	    newCurrent = moveCursor(MoveLeft, e->state());
-	    navigationKey = true;
 	    break;
 	case Key_Right:
 	    newCurrent = moveCursor(MoveRight, e->state());
-	    navigationKey = true;
 	    break;
 	case Key_Home:
 	    newCurrent = moveCursor(MoveHome, e->state());
-	    navigationKey = true;
 	    break;
 	case Key_End:
 	    newCurrent = moveCursor(MoveEnd, e->state());
-	    navigationKey = true;
 	    break;
 	case Key_PageUp:
 	    newCurrent = moveCursor(MovePageUp, e->state());
-	    navigationKey = true;
 	    break;
 	case Key_PageDown:
 	    newCurrent = moveCursor(MovePageDown, e->state());
-	    navigationKey = true;
 	    break;
 	}
 
 	if (newCurrent != current && newCurrent.isValid()) {
 	    if (e->state() & ShiftButton) {
 		d->dragRect.setBottomRight(itemRect(newCurrent).bottomRight());
-		selectionModel()->setCurrentItem(newCurrent, QItemSelectionModel::NoUpdate, selectionBehavior());
-		setSelection(d->dragRect.normalize(), selectionUpdateMode(e->state()));
+		selectionModel()->setCurrentItem(newCurrent,
+						 QItemSelectionModel::NoUpdate,
+						 selectionBehavior());
+		setSelection(d->dragRect.normalize(),
+			     selectionUpdateMode(e->state(), newCurrent));
 	    } else if (e->state() & ControlButton) {
 		d->dragRect = itemRect(newCurrent);
-		selectionModel()->setCurrentItem(newCurrent, QItemSelectionModel::NoUpdate, selectionBehavior());
+		selectionModel()->setCurrentItem(newCurrent,
+						 QItemSelectionModel::NoUpdate,
+						 selectionBehavior());
 	    } else {
 		d->dragRect = itemRect(newCurrent);
-		selectionModel()->setCurrentItem(newCurrent, selectionUpdateMode(e->state()), selectionBehavior());
+		selectionModel()->setCurrentItem(newCurrent,
+						 selectionUpdateMode(e->state(),
+								     newCurrent),
+						 selectionBehavior());
 	    }
+	    return;
 	}
     }
 
@@ -442,21 +435,20 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     case Key_Return:
 	break;
     case Key_Space:
-	if (!navigationKey)
-	    if (handleEdit(currentItem(), QItemDelegate::NoAction, e))
+	if (handleEdit(currentItem(), QItemDelegate::NoAction, e)) {
 		return;
+	} else {
+	    selectionModel()->select(currentItem(),
+				     selectionUpdateMode(e->state(),currentItem()),
+				     selectionBehavior() );
+	    return;
+	}
 	break;
     default:
-	if (!navigationKey && e->text()[0].isPrint())
-	    if (handleEdit(currentItem(), QItemDelegate::AnyKeyPressed, e))
-		return;
+	if (e->text()[0].isPrint() &&
+	    handleEdit(currentItem(), QItemDelegate::AnyKeyPressed, e))
+	    return;
 	break;
-    }
-
-    switch (e->key()) {
-	case Key_Space:
-	    selectionModel()->select(currentItem(), QItemSelectionModel::Toggle, selectionBehavior());
-	    break;
     }
 }
 
@@ -810,8 +802,10 @@ QItemSelectionModel::SelectionBehavior QAbstractItemView::selectionBehavior() co
     return QItemSelectionModel::SelectItems;
 }
 
-QItemSelectionModel::SelectionUpdateMode QAbstractItemView::selectionUpdateMode(ButtonState state) const
+QItemSelectionModel::SelectionUpdateMode QAbstractItemView::selectionUpdateMode(ButtonState state, const QModelIndex &item) const
 {
+    if (selectionModel()->isSelected(item) && !state & ControlButton)
+	return QItemSelectionModel::NoUpdate;
     if (selectionMode() == QItemSelectionModel::Single)
 	return QItemSelectionModel::ClearAndSelect;
     if (state & ShiftButton)
