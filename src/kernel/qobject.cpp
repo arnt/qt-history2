@@ -1407,6 +1407,8 @@ bool QObject::checkConnectArgs( const char    *signal,
 
 QCString QObject::normalizeSignalSlot( const char *signalSlot )
 {
+    if ( !signalSlot )
+	return QCString();
     return  qt_rmWS( signalSlot );
 }
 
