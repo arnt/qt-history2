@@ -39,9 +39,39 @@
 
     QStyleOption and its sub-classes can be safely checked using the qt_cast()
     functions.
- */
+*/
 
+/*!
+  \enum QStyleOption::OptionType
 
+  This enum is used internally by the QStyleOption, its sub-classes and
+  qt_cast() to determine the type of style option. In general you do not need
+  to worry about this unless you want to create your own QStyleOption
+  sub-class.
+
+  \value SO_Default Indicates a default QStyleOption
+  \value SO_FocusRect Indicates a \l QStyleOptionFocusRect
+  \value SO_Button Indicates a \l QStyleOptionButton
+  \value SO_Tab Indicates a \l QStyleOptionTab
+  \value SO_MenuItem Indicates a \l QStyleOptionMenuItem
+  \value SO_Complex Indicates a \l QStyleOptionComplex
+  \value SO_Slider Indicates a \l QStyleOptionSlider
+  \value SO_Frame Indicates a \l QStyleOptionFrame
+  \value SO_ProgressBar Indicates a \l QStyleOptionProgressBar
+  \value SO_ListView Indicates a \l QStyleOptionListView
+  \value SO_ListViewItem Indicates a \l QStyleOptionListViewItem
+  \value SO_Header Indicates a \l QStyleOptionHeader
+  \value SO_DockWindow Indicates a \l QStyleOptionDockWindow
+  \value SO_SpinBox Indicates a \l QStyleOptionSpinBox
+  \value SO_ToolButton Indicates a \l QStyleOptionToolButton
+  \value SO_ComboBox Indicates a \l QStyleOptionComboBox
+  \value SO_ToolBox Indicates a \l QStyleOptionToolBox
+  \value SO_TitleBar Indicates a \l QStyleOptionTitleBar
+  \value SO_ViewItem Indicates a \l QStyleOptionViewItem (used in Interviews)
+  \value SO_CustomBase This is reserved for custom QStyleOptions,
+                        all custom values must be above this value.
+
+*/
 /*!
   Construct a QStyleOption with version \a optionversion and type \a optiontype.
   Usually, you will only pass \a optionversion. The \a optiontype parameter is
@@ -72,3 +102,40 @@ void QStyleOption::init(const QWidget *w)
     palette = w->palette();
 }
 
+/*!
+    \property QStyleOption::palette
+
+    \brief The palette that should be used in when painting the control
+*/
+
+/*!
+    \property QStyleOption::rect
+
+    \brief The area that should be used for various calculations and painting.
+
+    This can have overloaded meanings. For example, for \l CE_PushButton it would
+    be the rectangle for the entire button, while for \l CE_PushButtonLabel it
+    would be just the area for the label.
+*/
+
+/*!
+    \property QStyleOption::state
+
+    \brief The QStyle::SFlags that are used when drawing the control.
+
+    \sa QStyle::drawPrimitive() QStyle::drawControl() QStyle::drawComplexControl() QStyle::SFlags
+*/
+
+/*!
+    \property QStyleOption::type
+
+    \brief The \l OptionType of the QStyleOption
+*/
+
+/*!
+    \property QStyleOption::version
+
+    \brief The version of the QStyleOption
+
+    The current default is 0.
+*/

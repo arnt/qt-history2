@@ -35,6 +35,11 @@ struct Q_GUI_EXPORT QStyleOption {
     enum { Type = SO_Default };
     QStyleOption(int optionversion, int optiontype = SO_Default);
     void init(const QWidget *w);
+    QDOC_PROPERTY(int version);
+    QDOC_PROPERTY(int type);
+    QDOC_PROPERTY(QStyle::SFlags state);
+    QDOC_PROPERTY(QRect rect);
+    QDOC_PROPERTY(QPalette palette);
 };
 
 struct QStyleOptionFocusRect  : public QStyleOption {
