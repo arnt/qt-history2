@@ -1108,6 +1108,8 @@ void QHeaderView::paintEvent(QPaintEvent *e)
 
     if (count() == 0)
         return;
+
+    d->prepareSectionSelected(); // clear and resize the bit array
     const QVector<QHeaderViewPrivate::HeaderSection> sections = d->sections;
 
     QRect rect;
@@ -1292,17 +1294,10 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
         state |= QStyle::State_Active;
 
     if (d->clickableSections) {
-        if (logicalIndex == d->pressed) {
+        if (logicalIndex == d->pressed)
             state |= QStyle::State_Sunken;
-        } else if (d->highlightSelected) {
-            bool selected = false;
-            if (d->orientation == Qt::Horizontal)
-                selected = selectionModel()->isColumnSelected(logicalIndex, QModelIndex());
-            else
-                selected = selectionModel()->isRowSelected(logicalIndex, QModelIndex());
-            if (selected)
-                state |= QStyle::State_On;
-        }
+        else if (d->highlightSelected && d->isSectionSelected(logicalIndex))
+            state |= QStyle::State_On;
     }
     if (showSortIndicator) {
         state |= (sortIndicatorOrder() == Qt::AscendingOrder
@@ -1630,4 +1625,21 @@ QStyleOptionHeader QHeaderViewPrivate::getStyleOption() const
         opt.state |= QStyle::State_Enabled;
     opt.section = 0;
     return opt;
+}
+
+bool QHeaderViewPrivate::isSectionSelected(int section) const
+{
+    if (section < 0 || section >= sections.count() - 1)
+        return false;
+    int i = section * 2;
+    if (sectionSelection.testBit(i))
+        return sectionSelection.testBit(i + 1);
+    bool selected = false;
+    if (orientation == Qt::Horizontal)
+        selected = q->selectionModel()->isColumnSelected(section, QModelIndex());
+    else
+        selected = q->selectionModel()->isRowSelected(section, QModelIndex());
+    sectionSelection.setBit(i + 1, selected);
+    sectionSelection.setBit(i, true);
+    return selected;
 }

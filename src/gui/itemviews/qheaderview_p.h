@@ -26,6 +26,7 @@
 //
 
 #include <private/qabstractitemview_p.h>
+#include <qbitarray.h>
 #include <qapplication.h>
 #include <qlabel.h>
 
@@ -57,6 +58,12 @@ public:
     void setupSectionIndicator(int section, int position);
     void updateSectionIndicator(int section, int position);
 
+    bool isSectionSelected(int section) const;
+    inline void prepareSectionSelected()
+        { if (sectionSelection.count() != sections.count() * 2)
+            sectionSelection.fill(false, sections.count() * 2);
+          else sectionSelection.fill(false); }
+
     inline int defaultSectionSize() const
         { return (orientation == Qt::Horizontal ? 100 : 30); }
 
@@ -81,6 +88,7 @@ public:
     };
     mutable QVector<HeaderSection> sections; // HeaderSection = sections.at(visualIndex)
     mutable QVector<int> visualIndices; // visualIndex = visualIndices.at(logicalIndex)
+    mutable QBitArray sectionSelection;
 
     int lastPos;
     int section; // used for resizing and moving sections
