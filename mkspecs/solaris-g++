@@ -55,6 +55,7 @@ QMAKE_LIBS_X11		= -lXext -lX11 -lm -lresolv -lsocket -lnsl
 QMAKE_LIBS_QT		= -lqt
 QMAKE_LIBS_QT_THREAD	= -lqt-mt
 QMAKE_LIBS_OPENGL	= -lGLU -lGL -lXmu
+QMAKE_LIBS_OPENGL_QT	= -lGL -lXmu
 QMAKE_LIBS_THREAD	= -lthread
 
 QMAKE_MOC		= $(QTDIR)/bin/moc

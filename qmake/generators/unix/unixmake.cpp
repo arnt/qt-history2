@@ -388,7 +388,12 @@ UnixMakefileGenerator::init()
 	if(!project->variables()["QMAKE_LIBDIR_OPENGL"].isEmpty())
 	    project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" +
 							  project->variables()["QMAKE_LIBDIR_OPENGL"].first());
-	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
+	if ( (project->variables()["TARGET"].first() == "qt") ||
+	     (project->variables()["TARGET"].first() == "qt-mt") ) {
+	    	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL_QT"];
+	} else {
+	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
+	}
     }
     if ( project->isActiveConfig("x11sm") ) {
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_X11SM"];

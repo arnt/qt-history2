@@ -53,6 +53,7 @@ QMAKE_LIBS_X11		= -lXext -lX11
 QMAKE_LIBS_QT		= -lqt
 
 QMAKE_LIBS_OPENGL	= -lGLU -lGL -lXmu
+QMAKE_LIBS_OPENGL_QT	= -lGL -lXmu
 QMAKE_LIBS_YACC		= -ly
 
 QMAKE_MOC		= $(QTDIR)/bin/moc
