@@ -258,6 +258,17 @@
 
 
   \value Unicode includes all the above scripts.
+
+  \value HanX11 For internal use only.
+
+  \value LatinBasic For internal use only.
+  \value LatinExtendedA_2 For internal use only.
+  \value LatinExtendedA_3 For internal use only.
+  \value LatinExtendedA_4 For internal use only.
+  \value LatinExtendedA_14 For internal use only.
+  \value LatinExtendedA_15 For internal use only.
+
+  \value LastPrivateScript For internal use only.
 */
 
 /*! \internal
@@ -306,14 +317,14 @@ QFont::QFont()
 }
 
 
-/*! Constructs a font object with the specified \a family, \a pointSize,
-  \a weight and \a italic settings.  The charSet() is copied from the
-  \link QApplication::font() default font \endlink and the rest of the
-  settings are set reasonably.
+/*!
+  Constructs a font object with the specified \a family, \a pointSize,
+  \a weight and \a italic settings. The settings for this font are copied
+  from the default QApplication font.
 
-  If \e pointSize is less than or equal to 0 it is set to 1.
+  If \a pointSize is less than or equal to 0 it is set to 1.
 
-  \sa setFamily(), setPointSize(), setWeight(), setItalic()
+  \sa setFamily(), setPointSize(), setWeight(), setItalic(), QApplication::font()
 */
 QFont::QFont( const QString &family, int pointSize, int weight, bool italic )
 {
@@ -776,7 +787,7 @@ QFont::StyleHint QFont::styleHint() const
   \walkthrough fonts/simple-qfont-demo/simple-qfont-demo.cpp
   \skipto include
   \printuntil PushButton
-  
+
   \printline Bavaria
   \printline setStyleHint
 
@@ -1092,7 +1103,7 @@ void QFont::insertSubstitutions(const QString &familyName,
 }
 
 
-/*! Removes the substitution list for \a familyName from the substitution table. 
+/*! Removes the substitution list for \a familyName from the substitution table.
   The search for \a familyName is case insensitive.
 
   \sa insertSubstitution(), substitutions(), substitute()
@@ -1556,7 +1567,7 @@ QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
 }
 
 
-/*! \overload 
+/*! \overload
 
   Returns the bounding rectangle of \a ch relative to the leftmost
   point on the base line.
