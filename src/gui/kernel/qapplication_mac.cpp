@@ -1561,7 +1561,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                 bool just_show = false;
                 if(!qt_mac_is_macsheet(widget)
                    || ShowSheetWindow(window, qt_mac_window_for((HIViewRef)widget->parentWidget()->winId())) != noErr) {
-                    qWarning("Qt: QWidget: Unable to show as sheet %s::%s", widget->className(), widget->objectName().local8Bit());
+                    qWarning("Qt: QWidget: Unable to show as sheet %s::%s", widget->metaObject()->className(), widget->objectName().local8Bit());
                     just_show = true;
                 }
                 if(just_show) //at least the window will be visible, but the sheet flag doesn't work sadly (probalby too many sheets)
