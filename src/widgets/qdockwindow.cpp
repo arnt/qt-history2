@@ -925,6 +925,18 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f, 
     init();
 }
 
+class CustomGridLayout : public QGridLayout
+{
+public:
+    CustomGridLayout( QWidget *parent, int nRows, int nCols )
+	: QGridLayout( parent, nRows, nCols ) {};
+
+    QSizePolicy::ExpandData expanding() const
+    {
+	return QSizePolicy::NoDirection;
+    }
+};
+
 void QDockWindow::init()
 {
     wid = 0;
@@ -970,13 +982,14 @@ void QDockWindow::init()
 
     // Set up the initial handle layout for Vertical
     // Handle layout will change on calls to setOrienation()
-    QGridLayout *glayout = new QGridLayout( this, 3, 3 );
+    QGridLayout *glayout = new CustomGridLayout( this, 3, 3 );
     glayout->setResizeMode( QLayout::Minimum );
     glayout->addMultiCellWidget( hHandleTop,    0, 0, 1, 1 );
     glayout->addMultiCellWidget( hHandleBottom, 2, 2, 1, 1 );
     glayout->addMultiCellWidget( vHandleLeft,   0, 2, 0, 0 );
     glayout->addMultiCellWidget( vHandleRight,  0, 2, 2, 2 );
     glayout->addLayout( hbox, 1, 1 );
+    glayout->setRowStretch( 1, 1 );
     glayout->setColStretch( 1, 1 );
 
     hHandleBottom->hide();
@@ -1051,8 +1064,6 @@ void QDockWindow::setOrientation( Orientation o )
 	glayout->addMultiCellWidget( hHandleBottom, 2, 2, 0, 2 );
 	glayout->addMultiCellWidget( vHandleLeft,   1, 1, 0, 0 );
 	glayout->addMultiCellWidget( vHandleRight,  1, 1, 2, 2 );
-	glayout->setRowStretch( 1, resizeEnabled ? 1 : 0 );
-	glayout->setColStretch( 1, 1 );
     } else {
 	// Set up the new layout as
 	//   1 3 2      1 = vHandleLeft   4 = hHandleBottom
@@ -1062,8 +1073,6 @@ void QDockWindow::setOrientation( Orientation o )
 	glayout->addMultiCellWidget( hHandleBottom, 2, 2, 1, 1 );
 	glayout->addMultiCellWidget( vHandleLeft,   0, 2, 0, 0 );
 	glayout->addMultiCellWidget( vHandleRight,  0, 2, 2, 2 );
-	glayout->setRowStretch( 1, 1 );
-	glayout->setColStretch( 1, resizeEnabled ? 1 : 0 );
     }
     boxLayout()->setDirection( o == Horizontal ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom );
     QApplication::sendPostedEvents( this, QEvent::LayoutHint );
@@ -1512,15 +1521,6 @@ void QDockWindow::setResizeEnabled( bool b )
 {
     resizeEnabled = b;
     hbox->setMargin( b ? 0 : 2 );
-    QGridLayout *glayout = ::qt_cast<QGridLayout*>(layout());
-
-    if ( orientation() == Horizontal ) {
-	glayout->setRowStretch( 1, resizeEnabled ? 1 : 0 );
-	glayout->setColStretch( 1, 1 );
-    } else {
-	glayout->setRowStretch( 1, 1 );
-	glayout->setColStretch( 1, resizeEnabled ? 1 : 0 );
-    }
     updateGui();
 }
 
