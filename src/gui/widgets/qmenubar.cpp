@@ -89,8 +89,7 @@ void QMenuBarPrivate::updateGeometries()
     itemsDirty = false;
 
 #ifndef QT_NO_LAYOUT
-    if(q->parentWidget() && q->parentWidget()->layout())
-        q->parentWidget()->layout()->activate();
+    q->updateGeometry();
 #endif
 }
 
@@ -430,6 +429,7 @@ void QMenuBarPrivate::init()
 {
     Q_Q(QMenuBar);
     QWidget *parent = q->parentWidget();
+    q->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
     q->setAttribute(Qt::WA_CustomWhatsThis);
 #ifdef Q_WS_MAC
     macCreateMenuBar(parent);
@@ -1094,8 +1094,9 @@ QSize QMenuBar::sizeHint() const
     if(as_gui_menubar) {
         QMap<QAction*, QRect> actionRects;
         QList<QAction*> actionList;
+        const int w = QApplication::desktop()->width();
         int fw = style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, this);
-        d->calcActionRects(width()- 2 * fw, 0, actionRects, actionList);
+        d->calcActionRects(w - (2 * fw), 0, actionRects, actionList);
         for (QMap<QAction*, QRect>::const_iterator i = actionRects.begin();
              i != actionRects.constEnd(); ++i) {
             QRect actionRect(i.value());
