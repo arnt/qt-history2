@@ -348,6 +348,7 @@ public:
 	if ( !p )
 	    return 0;
 	NodePtr n = new Node( *p );
+	n->color = p->color;
 	if ( p->left ) {
 	    n->left = copy( (NodePtr)(p->left) );
 	    n->left->parent = n;
