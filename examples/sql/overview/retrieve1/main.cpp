@@ -22,7 +22,7 @@ int main( int argc, char *argv[] )
 	if ( q.isActive() ) {
 	    while ( q.next() ) {
 		qDebug( q.value(0).toString() + ": " +
-		       q.value(1).toString() );
+		        q.value(1).toString() );
 	    }
 	}
     }
