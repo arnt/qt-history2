@@ -35,6 +35,11 @@ public:
                 new (--i) T;
         }
     }
+    inline QVarLengthArray(const QVarLengthArray &other)
+    {
+        append(other.constData(), other.size());
+    }
+
     inline ~QVarLengthArray() {
         if (QTypeInfo<T>::isComplex) {
             T *i = ptr + s;
@@ -43,6 +48,11 @@ public:
         }
         if (ptr != reinterpret_cast<T *>(array))
             qFree(ptr);
+    }
+    inline QVarLengthArray &operator=(const QVarLengthArray &other)
+    {
+        clear();
+        append(other.constData(), other.size());
     }
 
     inline int size() const { return s; }
@@ -75,8 +85,6 @@ public:
     inline const T * constData() const { return ptr; }
 
 private:
-    Q_DISABLE_COPY(QVarLengthArray)
-
     void *operator new(size_t sz);
     void realloc(int size, int alloc);
 
