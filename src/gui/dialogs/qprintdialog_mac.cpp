@@ -25,14 +25,14 @@ public:
 
     inline void browseClicked() {}
     inline void okClicked() {}
-    inline void printerOrFileSelected(int) {}
+    inline void printerOrFileSelected(QAbstractButton *) {}
     inline void landscapeSelected(int) {}
     inline void paperSizeSelected(int) {}
     inline void orientSelected(int) {}
-    inline void pageOrderSelected(int) {}
-    inline void colorModeSelected(int) {}
+    inline void pageOrderSelected(QAbstractButton *) {}
+    inline void colorModeSelected(QAbstractButton *) {}
     inline void setNumCopies(int) {}
-    inline void printRangeSelected(int) {}
+    inline void printRangeSelected(QAbstractButton *) {}
     inline void setFirstPage(int) {}
     inline void setLastPage(int) {}
     inline void fileNameEditChanged(const QString & /*text*/) {}
