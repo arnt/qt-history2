@@ -466,26 +466,23 @@ static void qt_palette_from_color(QPalette &pal, const QColor & button)
     QColor bg = button,
            btn = button,
            fg,
-           base,
-           disfg;
+           base;
     int h, s, v;
     bg.getHsv(&h, &s, &v);
     if(v > 128) {
         fg   = Qt::black;
         base = Qt::white;
-        disfg = Qt::darkGray;
     } else {
         fg   = Qt::white;
         base = Qt::black;
-        disfg = Qt::darkGray;
     }
     //inactive and active are the same..
     pal.setColorGroup(QPalette::Active, QBrush(fg), QBrush(btn), QBrush(btn.light(150)), QBrush(btn.dark()),
                       QBrush(btn.dark(150)), QBrush(fg), QBrush(Qt::white), QBrush(base), QBrush(bg));
     pal.setColorGroup(QPalette::Inactive, QBrush(fg), QBrush(btn), QBrush(btn.light(150)), QBrush(btn.dark()),
                       QBrush(btn.dark(150)), QBrush(fg), QBrush(Qt::white), QBrush(base), QBrush(bg));
-    pal.setColorGroup(QPalette::Disabled, QBrush(fg), QBrush(btn), QBrush(btn.light(150)), QBrush(btn.dark()),
-                      QBrush(btn.dark(150)), QBrush(disfg), QBrush(Qt::white), QBrush(base),
+    pal.setColorGroup(QPalette::Disabled, QBrush(btn.dark()), QBrush(btn), QBrush(btn.light(150)), QBrush(btn.dark()),
+                      QBrush(btn.dark(150)), QBrush(btn.dark()), QBrush(Qt::white), QBrush(bg),
                       QBrush(bg));
 }
 
