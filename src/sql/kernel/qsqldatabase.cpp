@@ -41,6 +41,9 @@
 #ifdef QT_SQL_SQLITE
 #include "../drivers/sqlite/qsql_sqlite.h"
 #endif
+#ifdef QT_SQL_SQLITE2
+#include "../drivers/sqlite2/qsql_sqlite2.h"
+#endif
 #ifdef QT_SQL_IBASE
 #include "../drivers/ibase/qsql_ibase.h"
 #endif
@@ -432,6 +435,10 @@ QStringList QSqlDatabase::drivers()
     if (!l.contains(QLatin1String("QSQLITE")))
         l << QLatin1String("QSQLITE");
 #endif
+#ifdef QT_SQL_SQLITE2
+    if (!l.contains(QLatin1String("QSQLITE2")))
+        l << QLatin1String("QSQLITE2");
+#endif
 #ifdef QT_SQL_IBASE
     if (!l.contains(QLatin1String("QIBASE")))
         l << QLatin1String("QIBASE");
@@ -599,6 +606,11 @@ void QSqlDatabasePrivate::init(const QString &type)
 #ifdef QT_SQL_SQLITE
         if (type == QLatin1String("QSQLITE"))
             driver = new QSQLiteDriver();
+#endif
+
+#ifdef QT_SQL_SQLITE2
+        if (type == QLatin1String("QSQLITE2"))
+            driver = new QSQLite2Driver();
 #endif
 
 #ifdef QT_SQL_IBASE
