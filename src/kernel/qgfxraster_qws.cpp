@@ -193,12 +193,16 @@ static volatile int * lastop=0;
 /*!
   \class QScreenCursor qgfx_qws.h
   \brief The QScreenCursor class manages the onscreen mouse cursor in
-  Qt/Embedded. It provides an implementation of a software mouse cursor
+  Qt/Embedded.
+
+  \internal (for now)
+
+  It provides an implementation of a software mouse cursor
   and can be subclassed by hardware drivers which support a hardware mouse
   cursor. There may only be one QScreenCursor at a time; it is constructed
   by QScreen or one of its descendants.
 
-  This class is non-portable. It is available \e only in Qt/Embedded.
+  This class is non-portable. It is available only in Qt/Embedded.
   It is also internal - this documentation is intended for those subclassing
   it in hardware drivers, not for application developers.
 */
@@ -782,16 +786,21 @@ void QScreenCursor::drawCursor()
 
 /*!
   \class QGfxRasterBase qgfxraster_qws.h
-  \brief This class is the base class of the QGfxRaster<depth> template
-  and contains the non-depth-dependent code. The QGfxRaster class
-  is used for drawing in software on raw framebuffers of varying depths and 
-  is subclassed by hardware drivers. It handles clipping and a movable origin
-  in order to support subwindows. It is available \e only in Qt/Embedded.
-  QWidget and QPixmap both return a QGfxRaster via their respective
-  graphicsContext() methods, already initialised with the appropriate origin,
-  framebuffer and clip region. QGfxRasterBase and its template subclasses
-  should effectively be considered as one class; a raw QGfxRasterBase is
-  never used, it's simply a handy place to put some of the functionality.
+  \brief The QGfxRasterBase class is the base class of the
+  QGfxRaster<depth> template and contains the non-depth-dependent code.
+
+  \internal (for now)
+
+  The QGfxRaster class is used for drawing in software on raw
+  framebuffers of varying depths and  is subclassed by hardware
+  drivers. It handles clipping and a movable origin in order to
+  support subwindows. It is available \e only in Qt/Embedded. QWidget
+  and QPixmap both return a QGfxRaster via their respective
+  graphicsContext() methods, already initialised with the appropriate
+  origin, framebuffer and clip region. QGfxRasterBase and its
+  template subclasses should effectively be considered as one class;
+  a raw QGfxRasterBase is never used, it's simply a handy place to
+  put some of the functionality.
 */
 
 /*!
@@ -2050,6 +2059,8 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_1(
  depth, specified by the depth parameter of the template. The type field
  is currently not used. In future versions, it may be used to specify the
  pixel storage format. 
+
+ \internal (for now)
  
  Many operations with QGfxRaster are specified along the lines of
 
