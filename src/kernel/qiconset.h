@@ -39,11 +39,13 @@
 #define QICONSET_H
 
 #ifndef QT_H
+#include "qobject.h"
 #include "qpixmap.h"
 #endif // QT_H
 
 #ifndef QT_NO_ICONSET
 
+class QIconFactory;
 class QIconSetPrivate;
 
 class Q_EXPORT QIconSet
@@ -71,9 +73,7 @@ public:
     QPixmap pixmap() const;
     bool isGenerated( Size size, Mode mode, State state = Off ) const;
     void clearGenerated();
-
-    typedef QPixmap *(*PixmapFactory)( const QIconSet&, Size, Mode, State );
-    void setPixmapFactory( PixmapFactory fact );
+    void installIconFactory( QIconFactory *factory );
 
     bool isNull() const;
 
@@ -95,6 +95,19 @@ private:
     QPixmap *createDisabled( Size size, State state ) const;
 
     QIconSetPrivate *d;
+};
+
+class Q_EXPORT QIconFactory : public QObject
+{
+public:
+    QIconFactory( QObject *parent = 0, const char *name = 0 );
+    ~QIconFactory();
+
+    virtual QPixmap *createPixmap( const QIconSet& iconSet, QIconSet::Size size,
+				   QIconSet::Mode mode, QIconSet::State state );
+
+    static QIconFactory *defaultFactory();
+    static void installDefaultFactory( QIconFactory *factory );
 };
 
 #endif // QT_NO_ICONSET
