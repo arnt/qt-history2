@@ -1,5 +1,6 @@
 #include "simplewidgets.h"
 
+#include <qaccel.h>
 #include <qpushbutton.h>
 #include <qtoolbutton.h>
 #include <qlabel.h>
@@ -8,6 +9,7 @@
 #include <qlineedit.h>
 
 QString Q_EXPORT qacc_stripAmp(const QString &text);
+QString Q_EXPORT qacc_hotKey(const QString &text);
 
 /*!
   \class QAccessibleButton qaccessible.h
@@ -70,25 +72,22 @@ QString QAccessibleButton::text(Text t, int child) const
 	default:
 	    return QButton::tr("Press");
 	}
-    case Accelerator:
-	tx = hotKey(button()->text());
-	if (!!tx) {
-	    tx = "Alt + "+tx;
-	} else {
-	    tx = hotKey(buddyString(widget()));
-	    if (!!tx)
-		tx = "Alt + "+tx;
-	}
-	return tx;
-    case Name:
-	tx = button()->text();
-	if (tx.isEmpty() && qt_cast<QToolButton*>(object()))
-	    tx = static_cast<QToolButton*>(object())->textLabel();
-	if (tx.isEmpty())
-	    tx = buddyString(widget());
-
-	return stripAmp(tx);
 */
+    case Accelerator:
+	{
+	    QPushButton *pb = qt_cast<QPushButton*>(object());
+	    if (pb && pb->isDefault())
+		str = QAccel::keyToString(Key_Enter);
+	    if (str.isEmpty())
+		str = qacc_hotKey(button()->text());
+	    qDebug("%s", str.latin1());
+	}
+	break;
+    case Name:
+	str = button()->text();
+	if (str.isEmpty() && qt_cast<QToolButton*>(object()))
+	    str = static_cast<QToolButton*>(object())->textLabel();
+	break;
     default:
 	break;
     }
@@ -105,7 +104,7 @@ QAccessible::State QAccessibleButton::state(int child) const
     QButton *b = button();
     if (b->state() == QButton::On)
 	state |= Checked;
-    else  if (b->state() == QButton::NoChange)
+    else if (b->state() == QButton::NoChange)
 	    state |= Mixed;
     if (b->isDown())
 	state |= Pressed;
@@ -241,15 +240,13 @@ QAccessible::State QAccessibleLineEdit::state(int child) const
     int state = QAccessibleWidget::state(child);
 
     QLineEdit *l = lineEdit();
-    if (l) {
-	if (l->isReadOnly())
-	    state |= ReadOnly;
-	if (l->echoMode() == QLineEdit::Password)
-	    state |= Protected;
-	state |= Selectable;
-	if (l->hasSelectedText())
-	    state |= Selected;
-    }
+    if (l->isReadOnly())
+	state |= ReadOnly;
+    if (l->echoMode() == QLineEdit::Password)
+	state |= Protected;
+    state |= Selectable;
+    if (l->hasSelectedText())
+	state |= Selected;
 
     return (State)state;
 }

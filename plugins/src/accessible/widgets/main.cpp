@@ -50,6 +50,7 @@ QStringList AccessibleFactory::keys() const
     list << "QMessageBox";
     list << "QMainWindow";
     list << "QLabel";
+    list << "QLCDNumber";
     list << "QGroupBox";
     list << "QStatusBar";
     list << "QProgressBar";
