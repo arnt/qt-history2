@@ -242,11 +242,14 @@ public:
 /*!
   \fn void QUrlOperator::connectionStateChanged( int state, const QString &data )
 
-  This signal is emitted whenever the state of the connection of
-  the network protocol of the URL operator changes. \a state describes the new state,
-  which QNetworkProtocol::ConHostFound, QNetworkProtocol::ConConnected or
-  QNetworkProtocol::ConClosed. This enum is defined in QNetworkProtocol
-  \a data.
+  This signal is emitted whenever the state of the connection of the network
+  protocol of the URL operator changes. \a state describes the new state, which
+  QNetworkProtocol::ConHostFound, QNetworkProtocol::ConConnected or
+  QNetworkProtocol::ConClosed. This enum is defined in
+  \l QNetworkProtocol::ConnectionState.
+
+  \a data is a string that describes the change of the connection. This can be
+  used to display a message to the user.
 */
 
 /*!
