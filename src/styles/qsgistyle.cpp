@@ -154,6 +154,7 @@ QSGIStyle::polish( QApplication* app)
 
     QApplication::setPalette( pal, TRUE, "QLineEdit" );
     QApplication::setPalette( pal, TRUE, "QTextEdit" );
+    QApplication::setPalette( pal, TRUE, "QDateTimeEditBase" );
 
     pal = QApplication::palette();
     pal.setColor( QColorGroup::Button, pal.active().background() );
