@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#20 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -465,6 +465,9 @@ const QNetworkOperation *QUrlOperator::copy( const QString &from, const QString 
 	QNetworkProtocol *pProt = QNetworkProtocol::getNetworkProtocol( u2->protocol() );
 	pProt->setUrl( u2 );
 	
+	connect( pProt, SIGNAL( finished( QNetworkOperation * ) ),
+		 this, SLOT( emitFinished( QNetworkOperation * ) ) );
+
 	d->getOpPutProtMap[ opGet ] = pProt;
 	d->getOpGetProtMap[ opGet ] = gProt;
 	d->getOpPutOpMap[ opGet ] = opPut;

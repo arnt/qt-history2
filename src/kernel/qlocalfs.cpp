@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#9 $
 **
 ** Implementation of QLocalFs class
 **
@@ -203,5 +203,5 @@ void QLocalFs::operationPut( QNetworkOperation *op )
 
 int QLocalFs::supportedOperations() const
 {
-    return OpListChildren | OpMkdir | OpRemove | OpGet | OpPut;
+    return OpListChildren | OpMkdir | OpRemove | OpRename | OpGet | OpPut;
 }

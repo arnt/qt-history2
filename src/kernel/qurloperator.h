@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.h#14 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.h#15 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -65,6 +65,9 @@ public:
 
     virtual QUrlInfo info( const QString &entry ) const;
 
+    QUrlOperator& operator=( const QUrlOperator &url );
+
+public slots:
     void emitNewChild( const QUrlInfo &, QNetworkOperation *res );
     void emitFinished( QNetworkOperation *res );
     void emitStart( QNetworkOperation *res );
@@ -73,8 +76,6 @@ public:
     void emitItemChanged( QNetworkOperation *res );
     void emitData( const QByteArray &, QNetworkOperation *res );
     void emitCopyProgress( int step, int total, QNetworkOperation *res );
-
-    QUrlOperator& operator=( const QUrlOperator &url );
 
 signals:
     void newChild( const QUrlInfo &, QNetworkOperation *res );
