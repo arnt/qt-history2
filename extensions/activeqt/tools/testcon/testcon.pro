@@ -13,7 +13,7 @@ CONFIG(debug, debug|release) {
 CONFIG += qaxcontainer
 
 # ui_qaxselect.h
-INCLUDE += ../../container/debug \
+INCLUDEPATH += ../../container/debug \
     ../../container/release
 
 SOURCES	 = main.cpp docuwindow.cpp

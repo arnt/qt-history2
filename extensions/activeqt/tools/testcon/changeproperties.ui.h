@@ -12,13 +12,14 @@
 #include <qfiledialog.h>
 #include <qpixmap.h>
 #include <qregexp.h>
+#include <q3listview.h>
 
 #if 0
 
 class CheckListItem : public Q3CheckListItem
 {
 public:
-    CheckListItem( QListView *parent, const QString &text )
+    CheckListItem( Q3ListView *parent, const QString &text )
 	    : Q3CheckListItem( parent, text, CheckBox )
     {
 	dialog = (ChangeProperties*)parent->topLevelWidget()->qt_metacast( "ChangeProperties" );
@@ -168,7 +169,7 @@ void ChangeProperties::init()
     activex = 0;
 }
 
-void ChangeProperties::editRequestChanged( QCheckListItem *item )
+void ChangeProperties::editRequestChanged( Q3CheckListItem *item )
 {
     if ( !item )
 	return;
