@@ -663,7 +663,7 @@ void Parser::emitCondition( const QVariant& cond,
 	}
     }
 
-    if ( constantsForLevel.isEmpty() ) {
+    if ( cond.isValid() && constantsForLevel.isEmpty() ) {
 	if ( saving )
 	    yyProg->append( new MarkAll(tableId) );    
     } else {
@@ -686,6 +686,7 @@ void Parser::emitCondition( const QVariant& cond,
 	    yyProg->append( new CreateResult(0) );
 	}
 
+	yyProg->append( new RewindMarked(tableId) );
 	yyProg->appendLabel( nextRecord );
 	yyProg->append( new NextMarked(tableId, endRecords) );
 

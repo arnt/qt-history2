@@ -36,8 +36,8 @@
 #include <xdb/xbase.h>
 #include <xdb/xbexcept.h>
 
-//#define DEBUG_XBASE 1
-//#define VERBOSE_DEBUG_XBASE
+#define DEBUG_XBASE 1
+#define VERBOSE_DEBUG_XBASE
 
 static bool canConvert( QVariant::Type t1, QVariant::Type t2 )
 {
@@ -765,9 +765,6 @@ bool FileDriver::rangeAction( const localsql::List* data, const localsql::List* 
     if ( !isOpen() ) {
 	ERROR_RETURN( "Internal error: File not open" );
     }
-    if ( !data->count() ) {
-	ERROR_RETURN( "Internal error: No fields defined" );
-    }
     if ( dosave && !cols->count() ) {
 	ERROR_RETURN( "Internal error: No result columns defined" );
     }
@@ -867,7 +864,7 @@ bool FileDriver::rangeAction( const localsql::List* data, const localsql::List* 
 #endif
 	rc = d->file.GetFirstRecord();
 	while ( rc == XB_NO_ERROR ) {
-	    bool actionOK = FALSE;
+	    bool actionOK = TRUE;
 	    for ( i = 0; i < data->count(); ++i ) {
 		localsql::List rangeMarkFieldData = (*data)[i].toList();
 		localsql::List rangeMarkFieldDesc = rangeMarkFieldData[0].toList();
@@ -876,9 +873,7 @@ bool FileDriver::rangeAction( const localsql::List* data, const localsql::List* 
 		xbShort fieldnum = d->file.GetFieldNo( name.latin1() );
 		QVariant v;
 		field( fieldnum, v );
-		if ( v == value )
-		    actionOK = TRUE;
-		else {
+		if ( v != value ) {
 		    actionOK = FALSE;
 		    break;
 		}
