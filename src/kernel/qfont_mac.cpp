@@ -148,6 +148,34 @@ static QMAC_PASCAL OSStatus macFallbackChar(UniChar *, ByteCount, ByteCount *oSr
 					    ByteCount iDestLen, ByteCount *oDestConvLen, void *, 
 					    ConstUnicodeMappingPtr map)
 {
+#if 0
+    static const ByteCount myDestLen = 2;
+    if(iDestLen < myDestLen) {
+	qDebug("%d %ld %ld", __LINE__, iDestLen, myDestLen);
+	return kTECUnmappableElementErr;
+    }
+
+    static ByteCount mySrcConvLen, myDestConvLen;
+    static UInt8 myStr[myDestLen];
+    static bool been_init = FALSE;
+    if( 1 || !been_init) {
+	UnicodeToTextInfo tuni;
+	CreateUnicodeToTextInfo(map, &tuni);
+	const short flbk = 0x25A1; //square
+	const ByteCount flbklen = sizeof(flbk);
+	OSStatus err = ConvertFromUnicodeToText( tuni, flbklen,(UniChar *)&flbk, 0,
+						 0, NULL, NULL, NULL, myDestLen, &mySrcConvLen,
+						 &myDestConvLen, myStr);
+	DisposeUnicodeToTextInfo(&tuni);
+	if(err != noErr) 
+	    return kTECUnmappableElementErr;
+	been_init = TRUE;
+    }
+    *oSrcConvLen = mySrcConvLen;
+    *oDestConvLen = myDestConvLen;
+    memcpy(myStr, oStr, myDestConvLen);
+    return noErr;
+#else
     UnicodeToTextInfo tuni;
     CreateUnicodeToTextInfo(map, &tuni);
     const short flbk = 0x25A1; //square
@@ -157,6 +185,7 @@ static QMAC_PASCAL OSStatus macFallbackChar(UniChar *, ByteCount, ByteCount *oSr
 					     oDestConvLen, oStr);
     DisposeUnicodeToTextInfo(&tuni);
     return err == noErr ? noErr : kTECUnmappableElementErr;
+#endif
 }
 static UnicodeToTextFallbackUPP qt_macFallbackCharUPP = NULL;
 static void cleanup_font_fallbackUPP() 
