@@ -101,14 +101,14 @@ bool CppEditorCompletion::doObjectCompletion( const QString &objName )
     return TRUE;
 }
 
-QStringList CppEditorCompletion::functionParameters( const QString &expr, QChar &separator,
+QValueList<QStringList> CppEditorCompletion::functionParameters( const QString &expr, QChar &separator,
 						     QString &prefix, QString &postfix )
 {
     Q_UNUSED( prefix );
     Q_UNUSED( postfix );
     separator = ',';
     if ( !ths )
-	return QStringList();
+	return QValueList<QStringList>();
     QString func;
     QString objName;
     int i = -1;
@@ -169,7 +169,7 @@ QStringList CppEditorCompletion::functionParameters( const QString &expr, QChar 
     }
 
     if ( !obj )
-	return QStringList();
+	return QValueList<QStringList>();
 
     QStrList slts = obj->metaObject()->slotNames( TRUE );
     for ( QListIterator<char> sit( slts ); sit.current(); ++sit ) {
@@ -180,18 +180,24 @@ QStringList CppEditorCompletion::functionParameters( const QString &expr, QChar 
 	    f.remove( 0, f.find( "(" ) + 1 );
 	    f = f.left( f.find( ")" ) );
 	    QStringList lst = QStringList::split( ',', f );
-	    if ( !lst.isEmpty() )
-		return lst;
+	    if ( !lst.isEmpty() ) {
+		QValueList<QStringList> l;
+		l << lst;
+		return l;
+	    }
 	}
     }
 
     const QMetaProperty *prop =
 	obj->metaObject()->
 	property( obj->metaObject()->findProperty( func[ 3 ].lower() + func.mid( 4 ), TRUE ), TRUE );
-    if ( prop )
-	return QStringList( prop->type() );
+    if ( prop ) {
+	QValueList<QStringList> l;
+	l << QStringList( prop->type() );
+	return l;
+    }
 
-    return QStringList();
+    return QValueList<QStringList>();
 }
 
 void CppEditorCompletion::setContext( QObjectList *, QObject *this_ )

@@ -534,51 +534,60 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
 
     QChar sep;
     QString pre, post;
-    QStringList args = functionParameters( function, sep, pre, post );
-    if ( args.isEmpty() )
+    QValueList<QStringList> argl = functionParameters( function, sep, pre, post );
+    if ( argl.isEmpty() )
 	return FALSE;
 
-    int argNum = 0;
-    int inParen = 0;
-    for ( int k = 0; k < (int)part.length(); ++k ) {
-	if ( part[ k ] == sep && inParen < 2 )
-	    argNum++;
-	if ( part[ k ] == '(' )
-	    inParen++;
-	if ( part[ k ] == ')' )
-	    inParen--;
+    QString label;
+    int w = 0;
+    for ( QValueList<QStringList>::Iterator vit = argl.begin(); vit != argl.end(); ++vit ) {
+	QStringList args = *vit;
+	if ( args.isEmpty() )
+	    continue;
+	int argNum = 0;
+	int inParen = 0;
+	for ( int k = 0; k < (int)part.length(); ++k ) {
+	    if ( part[ k ] == sep && inParen < 2 )
+		argNum++;
+	    if ( part[ k ] == '(' )
+		inParen++;
+	    if ( part[ k ] == ')' )
+		inParen--;
+	}
+
+	QString func = function;
+	int pnt = -1;
+	pnt = func.findRev( '.' );
+	if ( pnt == -1 )
+	    func.findRev( '>' );
+	if ( pnt != -1 )
+	    func = func.mid( pnt + 1 );
+
+	QString s = func + "( ";
+	i = 0;
+	for ( QStringList::Iterator it = args.begin(); it != args.end(); ++it, ++i ) {
+	    if ( i == argNum )
+		s += "<b>" + *it + "</b>";
+	    else
+		s += *it;
+	    if ( i < (int)args.count() - 1 )
+		s += ", ";
+	    else
+		s += " ";
+	}
+	s += ")";
+	s.prepend( pre );
+	s.append( post );
+	label += "<p>" + s + "</p>";
+	w = QMAX( w, functionLabel->fontMetrics().width( s ) );
     }
-    if ( argNum >= (int)args.count() )
+
+    if ( label.isEmpty() )
 	return FALSE;
-
-    QString func = function;
-    int pnt = -1;
-    pnt = func.findRev( '.' );
-    if ( pnt == -1 )
-	func.findRev( '>' );
-    if ( pnt != -1 )
-	func = func.mid( pnt + 1 );
-
-    QString s = func + "( ";
-    i = 0;
-    for ( QStringList::Iterator it = args.begin(); it != args.end(); ++it, ++i ) {
-	if ( i == argNum )
-	    s += "<b>" + *it + "</b>";
-	else
-	    s += *it;
-	if ( i < (int)args.count() - 1 )
-	    s += ", ";
-	else
-	    s += " ";
-    }
-    s += ")";
-    s.prepend( pre );
-    s.append( post );
-
-    functionLabel->setText( s );
+    functionLabel->setText( label );
+    functionLabel->setAlignment( AlignTop );
     if ( functionLabel->isVisible() ) {
-	functionLabel->resize( functionLabel->fontMetrics().width( functionLabel->text() ),
-			       functionLabel->fontMetrics().height() + 5 );
+	functionLabel->resize( w, functionLabel->heightForWidth( w ) - functionLabel->fontMetrics().height() );
     } else {
 	QTextStringChar *chr = cursor->parag()->at( cursor->index() );
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
@@ -586,9 +595,11 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
 	int y, dummy;
 	cursor->parag()->lineHeightOfChar( cursor->index(), &dummy, &y );
 	y += cursor->parag()->rect().y();
-	functionLabel->resize( functionLabel->fontMetrics().width( functionLabel->text() ),
-			       functionLabel->fontMetrics().height() + 5 );
+	functionLabel->resize( w, functionLabel->heightForWidth( w )  - functionLabel->fontMetrics().height() );
 	functionLabel->move( curEditor->mapToGlobal( curEditor->contentsToViewport( QPoint( x, y + h ) ) ) );
+	if ( functionLabel->x() + functionLabel->width() > QApplication::desktop()->width() )
+	    functionLabel->move( QMAX( 0, QApplication::desktop()->width() - functionLabel->width() ),
+				 functionLabel->y() );
 	functionLabel->show();
 	curEditor->setFocus();
     }
@@ -596,9 +607,9 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
     return TRUE;
 }
 
-QStringList EditorCompletion::functionParameters( const QString &, QChar &, QString &, QString & )
+QValueList<QStringList> EditorCompletion::functionParameters( const QString &, QChar &, QString &, QString & )
 {
-    return QStringList();
+    return QValueList<QStringList>();
 }
 
 void EditorCompletion::setContext( QObjectList *, QObject * )
