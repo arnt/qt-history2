@@ -689,7 +689,6 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 	delete l;
 
 	w->move( fw->mapToGlobal( QPoint(0,0) ) );
-	((MainWindow*)w )->setWFlags( WDestructiveClose );
 	previewing = TRUE;
 	w->show();
 	previewing = FALSE;
@@ -1165,6 +1164,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 		    MetaDataBase::fakeProperty( lastActiveFormWindow, "database" ).toStringList();
 		lastActiveFormWindow->project()->closeDatabase( lst[ 0 ] );
 	    }
+	    previewedForm->deferredDelete();
 	}
 	break;
     case QEvent::DragEnter:
