@@ -42,7 +42,7 @@ void QFocusFramePrivate::updateSize()
     if(geom != q->geometry()) {
         bool sizeChanged = geom.size() != q->geometry().size();
         q->setGeometry(geom);
-        if(sizeChanged) {
+        if(true || sizeChanged) { // #### true necessary, setParent apparently messes up the mask
             QBitmap bm(q->size());
             bm.fill(Qt::color0);
 
@@ -59,7 +59,8 @@ QStyleOption QFocusFramePrivate::getStyleOption() const
 {
     Q_Q(const QFocusFrame);
     QStyleOption opt;
-    opt.init(q);
+    opt.init(widget);
+    opt.rect = q->rect();
     return opt;
 }
 

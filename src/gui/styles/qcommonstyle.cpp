@@ -1495,7 +1495,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
         }
         break;
     case CE_FocusFrame:
-        p->fillRect(opt->rect, Qt::red);
+        p->fillRect(opt->rect, opt->palette.foreground());
         break;
     case CE_HeaderSection:
         qDrawShadePanel(p, opt->rect, opt->palette,
@@ -1526,15 +1526,15 @@ void QCommonStyle::drawControlMask(ControlElement ce, const QStyleOption *opt, Q
             drawPrimitive(PE_PanelButtonCommand, &newBtn, p, w);
         }
         break;
-    case CE_FocusFrame:
+    case CE_FocusFrame: {
         p->save();
-        p->setPen(QPen(Qt::color1, pixelMetric(PM_FocusFrameVMargin)));
-        p->drawLine(opt->rect.x(), opt->rect.y(), opt->rect.x(), opt->rect.bottom());
-        p->drawLine(opt->rect.right(), opt->rect.y(), opt->rect.right(), opt->rect.bottom());
-        p->setPen(QPen(Qt::color1, pixelMetric(PM_FocusFrameHMargin)));
-        p->drawLine(opt->rect.x(), opt->rect.y(), opt->rect.right(), opt->rect.y());
-        p->drawLine(opt->rect.x(), opt->rect.bottom(), opt->rect.right(), opt->rect.bottom());
+        p->setPen(Qt::NoPen);
+        int vmargin = pixelMetric(QStyle::PM_FocusFrameVMargin),
+            hmargin = pixelMetric(QStyle::PM_FocusFrameHMargin);
+        p->fillRect(opt->rect,  QBrush(Qt::color1));
+        p->fillRect(opt->rect.adjusted(hmargin, vmargin, -hmargin, -vmargin), QBrush(Qt::color0));
         p->restore();
+    }
         break;
     case CE_RubberBand:
         p->setBrush(Qt::color1);
@@ -2591,7 +2591,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
     switch (m) {
     case PM_FocusFrameVMargin:
     case PM_FocusFrameHMargin:
-        ret = 4;
+        ret = 2;
         break;
     case PM_MenuBarVMargin:
     case PM_MenuBarHMargin:

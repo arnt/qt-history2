@@ -34,6 +34,7 @@
 #include "qprogressbar.h"
 #include "qimage.h"
 #include "qfocusframe.h"
+#include "qdebug.h"
 #include <limits.h>
 
 // old constants that might still be useful...
@@ -1227,9 +1228,11 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                 p->drawLine(ar.x()+awh-1, sy+1, ar.x()+awh-1, sy+sh-1);
 
                 if (cb->state & State_HasFocus) {
-                    QStyleOption focusOpt = *opt;
-                    focusOpt.rect = QStyle::visualRect(opt->direction, opt->rect, subRect(SR_ComboBoxFocusRect, opt, widget));
-                    drawPrimitive(PE_FrameFocusRect, &focusOpt, p, widget);
+                    QStyleOptionFocusRect focus;
+                    focus.rect = QStyle::visualRect(opt->direction, opt->rect, subRect(SR_ComboBoxFocusRect, opt, widget));
+                    focus.palette = opt->palette;
+                    focus.backgroundColor = opt->palette.button().color();
+                    drawPrimitive(PE_FrameFocusRect, &focus, p, widget);
                 }
             }
 
@@ -2166,7 +2169,7 @@ bool
 QMotifStyle::event(QEvent *e)
 {
     if(e->type() == QEvent::FocusIn) {
-        if (qt_cast<QLineEdit*>(QApplication::focusWidget())) {
+        if (QApplication::focusWidget()) {
             if(focus)
                 focus->setWidget(QApplication::focusWidget());
             else
