@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#141 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#142 $
 **
 ** Definition of QIconView widget class
 **
@@ -633,7 +633,7 @@ bool QIconDrag::decode( QMimeSource* e, QIconList &list_ )
 
 /*!
   \fn void QIconViewItem::renamed (const QString & text)
-  
+
   This signal is emitted when the item has been renamed using
   in-place renaming. \a text is the new item-text.
 */
