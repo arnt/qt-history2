@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#69 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -397,7 +397,7 @@ void QHeader::moveAround( int fromIdx, int toIdx )
 
 void QHeader::setupPainter( QPainter *p )
 {
-    p->setPen( colorGroup().text() );
+    p->setPen( colorGroup().buttonText() );
     p->setFont( font() );
 }
 

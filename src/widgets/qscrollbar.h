@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.h#39 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.h#40 $
 **
 ** Definition of QScrollBar class
 **
@@ -122,10 +122,6 @@ inline int QScrollBar::sliderStart() const
 {
     return sliderPos;
 }
-
-
-void qDrawArrow( QPainter *, ArrowType type, Qt::GUIStyle style, bool down,
-		 int x, int y, int w, int h, const QColorGroup & );
 
 
 #endif // QSCROLLBAR_H

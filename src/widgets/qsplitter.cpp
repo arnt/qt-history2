@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#44 $
 **
 **  Splitter widget
 **
@@ -422,7 +422,8 @@ void QSplitter::drawSplitter( QPainter *p, QCOORD x, QCOORD y, QCOORD w, QCOORD 
 	    qDrawShadeLine( p, xPos, kPos + kSize - 1 ,
 			    xPos, h, colorGroup() );
 	    qDrawShadePanel( p, xPos-bord+1, kPos,
-			     kSize, kSize, colorGroup() );
+			     kSize, kSize, colorGroup(), FALSE, 1,
+			     &colorGroup().fillButton());
 	    qDrawShadeLine( p, xPos, 0, xPos, kPos ,colorGroup() );
 	} else {
 	    QCOORD yPos = y + h/2;
@@ -431,7 +432,8 @@ void QSplitter::drawSplitter( QPainter *p, QCOORD x, QCOORD y, QCOORD w, QCOORD 
 
 	    qDrawShadeLine( p, 0, yPos, kPos, yPos, colorGroup() );
 	    qDrawShadePanel( p, kPos, yPos-bord+1,
-			     kSize, kSize, colorGroup() );
+			     kSize, kSize, colorGroup(), FALSE, 1,
+			     &colorGroup().fillButton());
 	    qDrawShadeLine( p, kPos + kSize -1, yPos,
 			    w, yPos, colorGroup() );
 	}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#42 $
 **
 ** Implementation of QToolButton class
 **
@@ -338,6 +338,7 @@ void QToolButton::toggle()
 void QToolButton::drawButton( QPainter * p )
 {
     if ( uses3D() || isOn() ) {
+#if 0	
 	QPointArray a;
 	a.setPoints( 3, 0, height()-1, 0, 0, width()-1, 0 );
 	if ( isOn() && !isDown() && !uses3D() ) {
@@ -362,6 +363,10 @@ void QToolButton::drawButton( QPainter * p )
 		   ? colorGroup().light()
 		   : colorGroup().dark() );
 	p->drawPolyline( a );
+#else
+	style().drawBevelButton( p, 0, 0, width(), height(), colorGroup(), isOn()||isDown(),
+				&colorGroup().fillButton() );
+#endif	
     }
     drawButtonLabel( p );
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.h#3 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.h#4 $
 **
 ** Definition of something or other
 **
@@ -33,7 +33,7 @@ public:
     void drawPanel( QPainter *p, int x, int y, int w, int h,
 		    const QColorGroup &, bool sunken=FALSE,
 		    int lineWidth = 1, const QBrush *fill = 0 );
-    
+
     void drawArrow( QPainter *p, ArrowType type, bool down,
 		    int x, int y, int w, int h,
 		    const QColorGroup &g, bool enabled, const QBrush *fill = 0 );
@@ -49,7 +49,7 @@ public:
 
     void drawComboButton( QPainter *p, int x, int y, int w, int h,
 			  const QColorGroup &g, bool sunken = FALSE,
-			  bool editable = FALSE, 
+			  bool editable = FALSE,
 			  bool enabled = TRUE,
 			  const QBrush *fill = 0 );
     QRect comboButtonRect( int x, int y, int w, int h);
@@ -63,11 +63,14 @@ public:
     void drawSlider( QPainter *p,
 			     int x, int y, int w, int h,
 			     const QColorGroup &g,
-			     SliderDirection dir);
+			     Orientation, bool tickAbove, bool tickBelow);
+    void drawSliderMask( QPainter *p,
+			 int x, int y, int w, int h,
+			 Orientation, bool tickAbove, bool tickBelow);
     void drawSliderGroove( QPainter *p,
 			   int x, int y, int w, int h,
 			   const QColorGroup& g, QCOORD c,
-			   bool horizontal );
+			   Orientation );
 
     int maximumSliderDragDistance() const;
 

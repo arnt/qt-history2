@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#72 $
 **
 ** Implementation of QSlider class
 **
@@ -356,25 +356,6 @@ QRect QSlider::sliderRect() const
 
 
 /*!
-  Paints the slider button using painter \a p with size and
-  position given by \a r with the widget's default colorGroup.
-
-  Do not reimplement this function, it's mainly there for
-  compatibility reasons. It simply calls
-
-  paintSlider(QPainter *p, const QColorGroup &g, const QRect &r )
-
-  which is the right function to overload.
-
-  \sa colorGroup(), paintSlider(QPainter *p, const QColorGroup &g, const QRect &r )
-
-*/
-void QSlider::paintSlider( QPainter *p, const QRect &r )
-{
-    paintSlider(p, colorGroup(), r);
-}
-
-/*!
   Paints the slider button using painter \a p with size, a colorgroup
   and position given by \a r. Reimplement this function to change the
   look of the slider button.
@@ -385,38 +366,16 @@ void QSlider::paintSlider( QPainter *p, const QRect &r )
   \sa setAutoMask(), updateMask()
 
 */
-
+//####### should this one be removed? private? non-virtual?
 void QSlider::paintSlider( QPainter *p, const QColorGroup &g, const QRect &r )
 {
     QBrush fill = g.fillButton();
 
     QPoint bo = p->brushOrigin();
     p->setBrushOrigin(r.topLeft());
-    switch ( style() ) {
-    case WindowsStyle:
-	if ( ticks == NoMarks || ticks == Both ) {
-	    qDrawWinButton( p, r, g, FALSE, &fill );
-	} else {
-	    QStyle::SliderDirection d = ( orient == Horizontal ) ?
-		      (ticks == Above) ? QStyle::SlUp : QStyle::SlDown
-		    : (ticks == Left) ? QStyle::SlLeft : QStyle::SlRight;
-	    style().drawSlider( p, r.x(), r.y(), r.width(), r.height(), g, d );
-	}
-	break;
-    default:
-    case MotifStyle:
-	qDrawShadePanel( p, r, g, FALSE, 2, &fill );
-	if ( orient == Horizontal ) {
-	    QCOORD mid = ( r.left() + r.right() + 1) / 2;
-	    qDrawShadeLine( p, mid,  r.top(), mid,  r.bottom() - 1,
-			    g, TRUE, 1);
-	} else {
-	    QCOORD mid = ( r.top() + r.bottom() + 1) / 2;
-	    qDrawShadeLine( p, r.left(), mid,  r.right() - 1, mid,
-			    g, TRUE, 1);
-	}
-	break;
-    }
+
+    style().drawSlider( p, r.x(), r.y(), r.width(), r.height(), g, orient, 
+			ticks & Above, ticks & Below );
     p->setBrushOrigin(bo);
 }
 
@@ -488,14 +447,14 @@ void QSlider::paintEvent( QPaintEvent *e )
 	    mid -= style().sliderLength() / 8;
  	if ( orient == Horizontal ) {
  	    style().drawSliderGroove(&p, 0, tickOffset, width(), thickness(),
- 				     g, mid, TRUE );
+ 				     g, mid, Horizontal );
  	    p.fillRect( 0, 0, width(), tickOffset, g.background() );
  	    p.fillRect( 0, tickOffset + thickness(),
  			width(), height()/*###*/, g.background() );
 	}
 	else {
  	    style().drawSliderGroove( &p, tickOffset, 0, thickness(), height(),
-				      g, mid, FALSE );
+				      g, mid, Vertical );
  	    p.fillRect( 0, 0,  tickOffset, height(), g.background() );
  	    p.fillRect( tickOffset + thickness(), 0,
  			width()/*###*/, height(), g.background() );
@@ -567,9 +526,11 @@ void QSlider::updateMask()
 		if ( ticks & Below )
 		    mid -= style().sliderLength() / 8;
 		style().drawSliderGroove(&p, 0, tickOffset, width(), thickness(),
-					 g, mid, TRUE );
+					 g, mid, orient );
 	    }
-	    paintSlider( &p, g, sliderR );
+	    style().drawSliderMask( &p, sliderR.x(), sliderR.y(), 
+				    sliderR.width(), sliderR.height(),
+				    orient, ticks & Above, ticks & Below );
 	    break;
 	default:
 	case MotifStyle:
@@ -594,7 +555,9 @@ void QSlider::updateMask()
 		else
 		    p.drawRect( tickOffset + 1, 1, thickness() - 2, height() - 2 );
 	    }
-	    paintSlider( &p, g, sliderR );
+	    style().drawSliderMask( &p, sliderR.x(), sliderR.y(), 
+				    sliderR.width(), sliderR.height(),
+				    orient, ticks & Above, ticks & Below );
 	    break;
 	}
 

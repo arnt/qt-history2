@@ -20,7 +20,7 @@
 
 
 /*!
-    Constructs a QMotifStyle 
+    Constructs a QMotifStyle
 */
 QMotifStyle::QMotifStyle() : QStyle(MotifStyle)
 {
@@ -458,7 +458,11 @@ void QMotifStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int 
     if ( controls & SLIDER ) {
 	QPoint bo = p->brushOrigin();
 	p->setBrushOrigin(sliderR.topLeft());
-	qDrawShadePanel( p, sliderR, g, FALSE, 2, &g.fillButton() );
+	drawBevelButton( p, sliderR.x(), sliderR.y(),
+			 sliderR.width(), sliderR.height(), g,
+			 FALSE, &g.fillButton() );
+
+	//	qDrawShadePanel( p, sliderR, g, FALSE, 2, &g.fillButton() );
 	p->setBrushOrigin(bo);
     }
 
@@ -503,15 +507,24 @@ int QMotifStyle::sliderLength() const
 void QMotifStyle::drawSlider( QPainter *p,
 			     int x, int y, int w, int h,
 			     const QColorGroup &g,
-			     SliderDirection dir)
+			      Orientation orient, bool, bool )
 {
-    //### still unused in qslider.cppx
+    drawBevelButton( p, x, y, w, h, g, FALSE, &g.fillButton() );
+    if ( orient == Horizontal ) {
+	QCOORD mid = x + w / 2;
+	qDrawShadeLine( p, mid,  y , mid,  y + h - 2,
+			g, TRUE, 1);
+    } else {
+	QCOORD mid = y +h / 2;
+	qDrawShadeLine( p, x, mid,  x + w - 2, mid,
+			g, TRUE, 1);
+    }
 }
 
 void QMotifStyle::drawSliderGroove( QPainter *p,
 				      int x, int y, int w, int h,
 				      const QColorGroup& g, QCOORD /*c */,
-				      bool /* horizontal */)
+				      Orientation )
 {
     qDrawShadePanel( p, x, y, w, h, g, TRUE );
 }

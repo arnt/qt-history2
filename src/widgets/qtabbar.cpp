@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#46 $
 **
 ** Implementation of QTabBar class
 **
@@ -265,12 +265,12 @@ QSize QTabBar::sizeHint() const
 
 /*!
   Specifies that this widget can use more, but is able to survive on
-  less, horizontal space; and may grow vertically.
+  less, horizontal space; and has a fixed height.
 */
 
 QSizePolicy QTabBar::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum );
+    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 }
 
 
@@ -340,6 +340,7 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 	p->drawLine( r.left(), r.top(),
 		     r.left(), r.bottom() - 2 );
     } else {
+	
 	// triangular, above or below
 	int y;
 	int x;

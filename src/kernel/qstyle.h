@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#17 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#18 $
 **
 ** Definition of QStyle class
 **
@@ -92,9 +92,7 @@ public:
 		    const QColorGroup &, bool sunken=FALSE,
 		    int lineWidth = 1, const QBrush *fill = 0 );
 
-    enum ArrowType { UpArrow, DownArrow, LeftArrow, RightArrow };
-
-    virtual void drawArrow( QPainter *p, ArrowType type, bool down,
+    virtual void drawArrow( QPainter *p, Qt::ArrowType type, bool down,
 		     int x, int y, int w, int h,
 		     const QColorGroup &g, bool enabled, const QBrush *fill = 0 ) = 0;
 
@@ -141,24 +139,23 @@ public:
     virtual void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl ) = 0;
 
     // sliders
-    enum SliderDirection {SlUp,SlDown,SlLeft,SlRight};
     virtual int sliderLength() const = 0;
     virtual void drawSlider( QPainter *p,
 			     int x, int y, int w, int h,
 			     const QColorGroup &g,
-			     SliderDirection dir) = 0;
+			     Orientation, bool tickAbove, bool tickBelow) = 0;
 
     virtual void drawSliderMask( QPainter *p,
 				 int x, int y, int w, int h,
-				 SliderDirection dir);
+				 Orientation, bool tickAbove, bool tickBelow);
     virtual void drawSliderGroove( QPainter *p,
 				   int x, int y, int w, int h,
 				   const QColorGroup& g, QCOORD c,
-				   bool horizontal ) = 0;
+				   Orientation ) = 0;
     virtual void drawSliderGrooveMask( QPainter *p,
 				       int x, int y, int w, int h,
 				       QCOORD c,
-				       bool horizontal);
+				       Orientation );
     virtual int maximumSliderDragDistance() const;
 
 };

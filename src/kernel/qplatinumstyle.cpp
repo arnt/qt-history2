@@ -20,7 +20,7 @@
 
 
 /*!
-    Constructs a QPlatinumStyle 
+    Constructs a QPlatinumStyle
 */
 QPlatinumStyle::QPlatinumStyle()
 {
@@ -445,7 +445,7 @@ void QPlatinumStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
     drawItem( p, x, y, w, h,
 	      AlignCenter|ShowPrefix,
 	      btn->colorGroup(), btn->isEnabled(),
-	      btn->pixmap(), btn->text(), -1, 
+	      btn->pixmap(), btn->text(), -1,
 	      (btn->isDown() || btn->isOn())?&btn->colorGroup().brightText():&btn->colorGroup().buttonText());
     if ( dx || dy )
 	p->translate( -dx, -dy );
@@ -899,7 +899,7 @@ QPlatinumStyle::exclusiveIndicatorSize() const
   */
 void QPlatinumStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 				      const QColorGroup &g, bool /* sunken */,
-				      bool editable, 
+				      bool editable,
 				      bool /* enabled */,
 				      const QBrush *fill )
 {
@@ -1075,7 +1075,7 @@ int QPlatinumStyle::sliderLength() const
 void QPlatinumStyle::drawSlider( QPainter *p,
 				 int x, int y, int w, int h,
 				 const QColorGroup &g,
-				 SliderDirection dir)
+				Orientation orient, bool tickAbove, bool tickBelow)
 {
     const QColor c0 = g.shadow();
     const QColor c1 = g.dark();
@@ -1098,11 +1098,6 @@ void QPlatinumStyle::drawSlider( QPainter *p,
 
     //### works only for Down ....
 
-    switch ( dir ) {
-	case SlUp:
-
-	    break;
-	case SlDown:
 	    // shadow border
 	    p->setPen( c0 );
 	    p->drawLine(x1+1,y1,x2-1,y1);
@@ -1125,20 +1120,13 @@ void QPlatinumStyle::drawSlider( QPainter *p,
 	    p->drawLine(x1+mx-2, y2-1, x1+mx+2, y2-1);
 
 	    drawRiffles(p, x+2, y, w-4, h-5, g, TRUE);
-	    break;
-	case SlLeft:
-	    break;
-	case SlRight:
-	    break;
-    }
-
 }
 
 
 void QPlatinumStyle::drawSliderGroove( QPainter *p,
 				      int x, int y, int w, int h,
 				      const QColorGroup& g, QCOORD c,
-				       bool /* horizontal */)
+				       Orientation )
 
 {
 

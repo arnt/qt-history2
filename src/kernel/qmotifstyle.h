@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#3 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#4 $
 **
 ** Definition of something or other
 **
@@ -20,7 +20,7 @@ public:
     QMotifStyle();
 
     void initialize( QApplication*);
-    
+
     void drawButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken = FALSE,
 		     const QBrush *fill = 0 );
@@ -51,11 +51,11 @@ public:
     void drawSlider( QPainter *p,
 			     int x, int y, int w, int h,
 			     const QColorGroup &g,
-			     SliderDirection dir);
+			     Orientation, bool tickAbove, bool tickBelow);
     void drawSliderGroove( QPainter *p,
 			   int x, int y, int w, int h,
 			   const QColorGroup& g, QCOORD c,
-			   bool horizontal );
+			   Orientation );
 
 
 //     void initialize( QApplication*);

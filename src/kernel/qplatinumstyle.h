@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qplatinumstyle.h#4 $
+** $Id: //depot/qt/main/src/kernel/qplatinumstyle.h#5 $
 **
 ** Definition of something or other
 **
@@ -52,11 +52,11 @@ public:
     void drawSlider( QPainter *p,
 			     int x, int y, int w, int h,
 			     const QColorGroup &g,
-			     SliderDirection dir);
+			     Orientation, bool tickAbove, bool tickBelow );
     void drawSliderGroove( QPainter *p,
 			   int x, int y, int w, int h,
 			   const QColorGroup& g, QCOORD c,
-			   bool horizontal );
+			   Orientation );
 
 
     int maximumSliderDragDistance() const;

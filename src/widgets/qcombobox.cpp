@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#165 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#166 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1004,7 +1004,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	style().drawButton( &p, 0, 0, width(), height(), g, FALSE, &fill );
 
 	qDrawArrow( &p, DownArrow, MotifStyle, FALSE,
-		    ax, ay, awh, awh, g );
+		    ax, ay, awh, awh, g, TRUE );
 
 	p.setPen( g.light() );
 	p.drawLine( ax, sy, ax+awh-1, sy );
@@ -1059,9 +1059,9 @@ void QComboBox::paintEvent( QPaintEvent *event )
 // 	QRect textR( 5, 4, width()  - 5 - 4 - arrowR.width(),
 // 		     height() - 4 - 4 );
 
-	QRect tmpR = style().comboButtonRect(0,0,width(),height()); 
+	QRect tmpR = style().comboButtonRect(0,0,width(),height());
 	QRect textR(tmpR.x()+1, tmpR.y()+1, tmpR.width()-2, tmpR.height()-2);
-	    
+	
 	if ( hasFocus()) {
 	    if (!d->ed) {
  		p.fillRect( textR.x(), textR.y(),

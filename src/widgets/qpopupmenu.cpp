@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#186 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#187 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -501,7 +501,7 @@ void QPopupMenu::frameChanged()
 
 void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 {
-    if (parentMenu && parentMenu->actItem == -1){ 
+    if (parentMenu && parentMenu->actItem == -1){
 	//reuse
 	parentMenu->menuDelPopup( this );
 	parentMenu = 0;
@@ -1129,9 +1129,9 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
     }
 
     if ( gs == WindowsStyle )
-	p->setPen( act ? g.highlightedText() : g.text() );
+	p->setPen( act ? g.highlightedText() : g.buttonText() );
     else
-	p->setPen( g.text() );
+	p->setPen( g.buttonText() );
 
     QColor discol;
     if ( dis ) {
@@ -1564,7 +1564,7 @@ void QPopupMenu::subMenuTimer() {
 	    popup->parentMenu->menuDelPopup(popup);
 	menuInsPopup(popup);
     }
-    
+
     emit popup->aboutToShow();
     supressAboutToShow = TRUE;
 

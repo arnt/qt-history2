@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#27 $
 **
 ** Implementation of QProgressBar class
 **
@@ -282,12 +282,11 @@ void QProgressBar::drawContents( QPainter *p )
 	if (total_steps) { // Sanity check
 	    int pw = bar.width() * progress_val / total_steps;
 
-	    p->setPen( colorGroup().base() );
+	    p->setPen( colorGroup().highlightedText() );
 	    p->setClipRect( bar.x(), bar.y(), pw, bar.height() );
 	    p->fillRect( bar, colorGroup().fillHighlight() );
 	    p->drawText( bar, AlignCenter, progress_str );
 
-	    p->setPen( colorGroup().highlight() );
 	    p->setClipRect( bar.x()+pw, bar.y(), bar.width()-pw, bar.height() );
 	}
 	p->fillRect( bar, colorGroup().base() );

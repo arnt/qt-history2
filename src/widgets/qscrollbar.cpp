@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#114 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#115 $
 **
 ** Implementation of QScrollBar class
 **
@@ -825,134 +825,8 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
     style().drawScrollBarControls(p, this, sliderStart(), controls, activeControl);
     return;
 
-#define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )
-#define SUB_LINE_ACTIVE ( activeControl == SUB_LINE )
-    QColorGroup g  = colorGroup();
-
-    int sliderMin, sliderMax, sliderLength;
-    metrics( &sliderMin, &sliderMax, &sliderLength );
-
-    int b = style() == MotifStyle ? MOTIF_BORDER : 0;
-    int dimB = sliderMin - b;
-    QRect addB;
-    QRect subB;
-    QRect addPageR;
-    QRect subPageR;
-    QRect sliderR;
-    int addX, addY, subX, subY;
-    int length = HORIZONTAL ? width()  : height();
-    int extent = HORIZONTAL ? height() : width();
-
-    if ( HORIZONTAL ) {
-	subY = addY = ( extent - dimB ) / 2;
-	subX = b;
-	addX = length - dimB - b;
-    } else {
-	subX = addX = ( extent - dimB ) / 2;
-	subY = b;
-	addY = length - dimB - b;
-    }
-
-    subB.setRect( subX,subY,dimB,dimB );
-    addB.setRect( addX,addY,dimB,dimB );
-
-    int sliderEnd = sliderStart() + sliderLength;
-    int sliderW = extent - b*2;
-    if ( HORIZONTAL ) {
-	subPageR.setRect( subB.right() + 1, b,
-			  sliderStart() - subB.right() - 1 , sliderW );
-	addPageR.setRect( sliderEnd, b, addX - sliderEnd, sliderW );
-	sliderR .setRect( sliderStart(), b, sliderLength, sliderW );
-    } else {
-	subPageR.setRect( b, subB.bottom() + 1, sliderW,
-			  sliderStart() - subB.bottom() - 1 );
-	addPageR.setRect( b, sliderEnd, sliderW, addY - sliderEnd );
-	sliderR .setRect( b, sliderStart(), sliderW, sliderLength );
-    }
-
-    if ( style() == WindowsStyle ) {
-	bool maxedOut = (maxValue() == minValue());
-	if ( controls & ADD_LINE ) {
-	    qDrawWinPanel( p, addB.x(), addB.y(),
-			   addB.width(), addB.height(), g,
-			   ADD_LINE_ACTIVE, &g.fillButton() );
-	    qDrawArrow( p, VERTICAL ? DownArrow : RightArrow,
-			WindowsStyle, ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
-			addB.width()-4, addB.height()-4, g, !maxedOut );
-	}
-	if ( controls & SUB_LINE ) {
-	    qDrawWinPanel( p, subB.x(), subB.y(),
-			   subB.width(), subB.height(), g,
-			   SUB_LINE_ACTIVE );
-	    qDrawArrow( p, VERTICAL ? UpArrow : LeftArrow,
-			WindowsStyle, SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
-			subB.width()-4, subB.height()-4, g, !maxedOut );
-	}
-	p->setBrush( g.fillLight().pixmap()?g.fillLight():QBrush(white,Dense4Pattern) );
-	p->setPen( NoPen );
-	p->setBackgroundMode( OpaqueMode );
-	if ( maxedOut ) {
-	    p->drawRect( sliderR );
-	} else {
-	    if ( controls & SUB_PAGE )
-		p->drawRect( subPageR );
-	    if ( controls & ADD_PAGE )
-		p->drawRect( addPageR );
-	    if ( controls & SLIDER ) {
-		if ( !maxedOut ) {
-		    QPoint bo = p->brushOrigin();
-		    p->setBrushOrigin(sliderR.topLeft());
-		    qDrawWinPanel( p, sliderR.x(), sliderR.y(),
-				   sliderR.width(), sliderR.height(), g,
-				   FALSE, &g.fillButton() );
-		    p->setBrushOrigin(bo);
-		}
-	    }
-	}
-	// ### perhaps this should not be able to accept focus if maxedOut?
-	if ( hasFocus() && (controls & SLIDER) )
-	    p->drawWinFocusRect( sliderR.x()+2, sliderR.y()+2,
-				 sliderR.width()-5, sliderR.height()-5,
-				 backgroundColor() );
-    } else {
-	if ( controls & ADD_LINE )
-	    qDrawArrow( p, VERTICAL ? DownArrow : RightArrow, MotifStyle,
-			ADD_LINE_ACTIVE, addB.x(), addB.y(),
-			addB.width(), addB.height(), g, value()<maxValue() );
-	if ( controls & SUB_LINE )
-	    qDrawArrow( p, VERTICAL ? UpArrow : LeftArrow, MotifStyle,
-			SUB_LINE_ACTIVE, subB.x(), subB.y(),
-			subB.width(), subB.height(), g, value()>minValue() );
-
-	QBrush fill = g.fillMid();
-	if (backgroundPixmap() ){
-	    fill = QBrush( g.mid(), *backgroundPixmap() );
-	}
-
-	if ( controls & SUB_PAGE )
-	    p->fillRect( subPageR, fill );
-	
-	if ( controls & ADD_PAGE )
-	    p->fillRect( addPageR, fill );
-
-	if ( controls & SLIDER ) {
-	    QPoint bo = p->brushOrigin();
-	    p->setBrushOrigin(sliderR.topLeft());
-	    qDrawShadePanel( p, sliderR, g, FALSE, 2, &g.fillButton() );
-	    p->setBrushOrigin(bo);
-	}
-
-    }
 }
 
 
 #undef ADD_LINE_ACTIVE
 #undef SUB_LINE_ACTIVE
-
-
-void qDrawArrow( QPainter *p, ArrowType type, Qt::GUIStyle style, bool down,
-		 int x, int y, int w, int h,
-		 const QColorGroup & g )
-{
-    qDrawArrow( p, type, style, down, x, y, w, h, g, TRUE );
-}

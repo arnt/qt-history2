@@ -20,7 +20,7 @@
 
 
 /*!
-    Constructs a QWindowsStyle 
+    Constructs a QWindowsStyle
 */
 QWindowsStyle::QWindowsStyle() : QStyle(WindowsStyle)
 {
@@ -58,7 +58,7 @@ void QWindowsStyle::drawIndicator( QPainter* p,
 	    a.setPoint( 2*i+1, xx, yy+2 );
 	    xx++; yy--;
 	}
-	p->setPen( g.shadow() );
+	p->setPen( g.foreground() );
 	p->drawLineSegments( a );
     }
 }
@@ -418,12 +418,12 @@ void QWindowsStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
   */
 void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 				     const QColorGroup &g, bool sunken ,
-				     bool /* editable */, 
+				     bool /* editable */,
 				     bool enabled,
 				     const QBrush *fill )
 {
     drawPanel(p, x, y, w, h, g, TRUE, 2, fill?fill:(enabled?&g.fillBase():&g.fillBackground()));
-    drawButton(p, w-2-16,2,16,h-4, g, sunken );
+    drawPanel(p, w-2-16,2,16,h-4, g, sunken );
     drawArrow( p, QStyle::DownArrow, sunken,
 	       w-2-16+ 2, 2+ 2, 16- 4, h-4- 4, g, enabled, fill );
 
@@ -595,7 +595,7 @@ int QWindowsStyle::sliderLength() const
 void QWindowsStyle::drawSlider( QPainter *p,
 			     int x, int y, int w, int h,
 			     const QColorGroup &g,
-			     SliderDirection dir)
+			     Orientation orient, bool tickAbove, bool tickBelow )
 {
     // 3333330
     // 3444410
@@ -607,25 +607,45 @@ void QWindowsStyle::drawSlider( QPainter *p,
     // **340**
     // ***0***
 
+    
+    
     const QColor c0 = g.shadow();
     const QColor c1 = g.dark();
     //    const QColor c2 = g.button();
     const QColor c3 = g.midlight();
     const QColor c4 = g.light();
 
+    
     int x1 = x;
     int x2 = x+w-1;
     int y1 = y;
     int y2 = y+h-1;
 
-
+    if ( tickAbove && tickBelow || !tickAbove && !tickBelow ) {
+	qDrawWinButton( p, QRect(x,y,w,h), g, FALSE, &g.fillButton() );
+	return;
+    }
+    
     QBrush oldBrush = p->brush();
     p->setBrush( g.fillButton() );
     p->setPen( NoPen );
     p->drawRect( x,y,w,h );
     p->setBrush( oldBrush );
 
+    
+    enum  { SlUp, SlDown, SlLeft, SlRight } dir;
 
+    if ( orient == Horizontal )
+	if ( tickAbove )
+	    dir = SlUp;
+	else
+	    dir = SlDown;
+    else
+	if ( tickAbove )
+	    dir = SlLeft;
+	else
+	    dir = SlRight;
+    
     switch ( dir ) {
     case SlUp:
 	y1 = y1 + w/2;
@@ -715,13 +735,85 @@ void QWindowsStyle::drawSlider( QPainter *p,
     }
 }
 
+/*!
+  Draws the mask of a slider
+*/
+void
+QWindowsStyle::drawSliderMask( QPainter *p,
+			int x, int y, int w, int h,
+			Orientation orient, bool tickAbove, bool tickBelow )
+{
+
+    if ( tickAbove && tickBelow || !tickAbove && !tickBelow ) {
+	p->fillRect(x, y, w, h, color1);
+	return;
+    }
+    
+    int x1 = x;
+    int x2 = x+w-1;
+    int y1 = y;
+    int y2 = y+h-1;
+    
+    enum  { SlUp, SlDown, SlLeft, SlRight } dir;
+
+    if ( orient == Horizontal )
+	if ( tickAbove )
+	    dir = SlUp;
+	else
+	    dir = SlDown;
+    else
+	if ( tickAbove )
+	    dir = SlLeft;
+	else
+	    dir = SlRight;
+    
+    switch ( dir ) {
+    case SlUp:
+	y1 = y1 + w/2;
+	break;
+    case SlDown:
+	y2 = y2 - w/2;
+	break;
+    case SlLeft:
+	x1 = x1 + h/2;
+	break;
+    case SlRight:
+	x2 = x2 - h/2;
+	break;
+    }
+
+    QPointArray a;
+
+    switch ( dir ) {
+    case SlUp:
+    a.setPoints(5, x1,y1, x1 + w/2, y1 - w/2, x2,y1, x2,y2, x1,y2);
+	break;
+    case SlDown:
+    a.setPoints(5, x1,y1, x2,y1,  x2,y2,  x1 + w/2, y2 + w/2, x1,y2);
+	break;
+    case SlLeft:
+    a.setPoints(5, x1,y1, x2,y1, x2,y2, x1,y2, x1 - h/2, y1 + h/2 );
+	break;
+    case SlRight:
+    a.setPoints(5, x1,y1, x2,y1, x2 + h/2, y1 + h/2,  x2,y2, x1,y2);
+	break;
+    }
+
+    
+    p->setBrush(color1);
+    p->setPen(color1);
+    p->drawPolygon( a );
+
+}
+
+
 void QWindowsStyle::drawSliderGroove( QPainter *p,
 				      int x, int y, int w, int h,
 				      const QColorGroup& g, QCOORD c,
-				      bool horizontal )
+				      Orientation orient )
 {
 
-    if ( horizontal ) {
+    if ( orient == Horizontal ) {
 	qDrawWinPanel( p, x, y + c - 2,  w, 4, g, TRUE );
 	p->setPen( g.shadow() );
 	p->drawLine( x+1, y + c - 1, x + w - 3, y + c - 1 );

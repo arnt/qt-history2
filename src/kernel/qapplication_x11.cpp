@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#386 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#387 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2291,7 +2291,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		
 		QRect& r = widget->crect;
 		XWindowAttributes *a;
-		if ( a1.x == 0 && a1.y == 0 && (a2.x + a2.y > 0) 
+		if ( a1.x == 0 && a1.y == 0 && (a2.x + a2.y > 0)
 		     && a2.x + a2.y < r.left() + r.top())
 		    a = &a2;			// typical for mwm, fvwm
 		else
@@ -3647,7 +3647,6 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     QRegion paintRegion( paintRect );
 
     if ( merging_okay ) {
-	debug("merge");
 	while ( XCheckIfEvent(dpy,&xevent,isPaintOrScrollDoneEvent,(XPointer)&info)
 	    && !qApp->x11EventFilter(&xevent) )	// send event through filter
 	{

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#21 $
 **
 ** Implementation of QStyle class
 **
@@ -454,7 +454,7 @@ QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool /* on *
 void
 QStyle::drawSliderMask( QPainter *p,
 			int x, int y, int w, int h,
-			SliderDirection )
+			Orientation, bool, bool )
 {
     p->fillRect(x, y, w, h, color1);
 }
@@ -478,7 +478,7 @@ void
 QStyle::drawSliderGrooveMask( QPainter *p,
 				   int x, int y, int w, int h,
 				   QCOORD /* c */,
-				   bool /* horizontal */ )
+				   Orientation )
 {
     p->fillRect(x, y, w, h, color1);
 }

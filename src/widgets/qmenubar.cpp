@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#125 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#126 $
 **
 ** Implementation of QMenuBar class
 **
@@ -727,10 +727,10 @@ void QMenuBar::drawContents( QPainter *p )
 // 		    qDrawPlainRect( p, r, palette().normal().button(),
 // 				    motifItemFrame, &palette().normal().fillButton() );
 	    }
-
+	    QColor btext = g.buttonText();
 	    qDrawItem( p, gs, r.left(), r.top(), r.width(), r.height(),
 		       AlignCenter|ShowPrefix|DontClip|SingleLine,
-		       g, e, mi->pixmap(), mi->text() );
+		       g, e, mi->pixmap(), mi->text(), -1, &btext );
 
 	}
     }
