@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: fontmatch.doc,v 1.5 1996/09/18 15:10:18 agulbra Exp $
+** $Id: fontmatch.doc,v 1.6 1996/09/23 19:02:58 hanord Exp $
 **
 ** Explanation of font matching
 **
@@ -24,25 +24,14 @@ decide which one of the available fonts closely matches the QFont settings.
 
 <p>
 
-In this version Qt has a single built-in font matching mechanism. In
-general it is difficult to make a matching algorithm that fits the
-needs of all types of applications and we will put in the possibility
-for users to supply their own font matching algorithm before the 1.0
-release. We believe that the algorithm selected will fit the needs of
-all but the most highly specialized feinschmecker word processing
-applications.
-
-<p>
-
-The current matching algorithm works as follows:
+The font matching algorithm works as follows:
 
 <p>
 
 First an available font family is found. If the requested is not
 available the \link QFont::setStyleHint() style hint \endlink is
 used to select a replacement family. If the style hint has not been
-set, "helvetica" will be used (this is not optimal and a table of
-common font types will be added to Qt before the 1.0 release).
+set, "helvetica" will be used.
 
 <p>
 
@@ -83,9 +72,7 @@ differs the closest point size to the one requested will be chosen.
 
 <p>
 
-Currently using the correct font family has higher priority than
-using the correct character set. We are not certain if this should
-be reversed and might do so in the 1.0 release. If you have opinions
-about this please <a href="mailto:qt-bugs@troll.no">mail us</a>!
+Using the correct font family has higher priority than using the correct
+character set.
 
 */
