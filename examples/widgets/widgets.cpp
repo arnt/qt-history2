@@ -20,11 +20,11 @@
 #include <qtoolbar.h>
 #include <qmenubar.h>
 #include <qpopupmenu.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>
 #include <qframe.h>
-#include <qgroupbox.h>
+#include <q3groupbox.h>
 #include <qlabel.h>
 #include <qlcdnumber.h>
 #include <qmultilineedit.h>
@@ -220,7 +220,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 		     "that contains a QMovie." );
 
     // Create a group of check boxes
-    bg = new QButtonGroup( central );
+    bg = new Q3ButtonGroup( central );
     bg->setTitle( "Check Boxes" );
     grid->addWidget( bg, 1, 0 );
 
@@ -247,7 +247,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 
     // Create a group of radio buttons
     QRadioButton *rb;
-    bg = new QButtonGroup( central, "radioGroup" );
+    bg = new Q3ButtonGroup( central, "radioGroup" );
     bg->setTitle( "Radio buttons" );
 
     grid->addWidget( bg, 1, 1 );
@@ -260,11 +260,11 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     rb->setText( "&AM" );
     rb->setChecked( TRUE );
     vbox->addWidget(rb);
-    QToolTip::add( rb );
+    QToolTip::add( rb, "radio button 1" );
     rb = new QRadioButton( bg );
     rb->setText( "F&M" );
     vbox->addWidget(rb);
-    QToolTip::add( rb );
+    QToolTip::add( rb, "radio button 2" );
     rb = new QRadioButton( bg );
     rb->setText( "&Short Wave" );
     vbox->addWidget(rb);

@@ -22,7 +22,7 @@ class QLabel;
 class QCheckBox;
 class QProgressBar;
 class QTabWidget;
-class QButtonGroup;
+class Q3ButtonGroup;
 class QMultiLineEdit;
 class QPopupMenu;
 
@@ -98,7 +98,7 @@ private:
     bool	eventFilter( QObject *, QEvent * );
     QLabel     *msg;
     QCheckBox  *cb[3];
-    QButtonGroup* bg;
+    Q3ButtonGroup* bg;
     QLabel     *movielabel;
     QMovie      movie;
     QWidget *central;

@@ -1,7 +1,7 @@
 TEMPLATE	= app
 TARGET		= widgets
 
-CONFIG		+= qt warn_on release
+CONFIG		+= qt warn_on release no_batch
 QT         += compat
 DEPENDPATH	= ../../include
 INCLUDEPATH	+= ../aclock ../dclock
