@@ -452,13 +452,6 @@ the view, and usually display it in the form of a label. New headers
 can be subclassed from the \l QHeaderView class to provide more
 specialized labelling for views.
 
-\omit
-Views depend on models for the data that they present to the user, but
-models themselves can be used as standalone components in an
-application. One result of this is that we must specify the model to
-the view, and not the view to 
-\endomit
-
 \section1 Using an existing view
 
 Qt provides three ready-to-use view classes that present data from
