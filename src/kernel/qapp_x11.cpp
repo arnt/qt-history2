@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#115 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#116 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -40,7 +40,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#115 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#116 $")
 
 
 /*****************************************************************************
@@ -220,8 +220,6 @@ void qt_init( int *argcptr, char **argv )
 	else if ( arg == "-memlog" ) {
 	    if ( ++i < argc ) mcLogFile = argv[i];
 	}
-	else if ( arg == "-testdpy" )
-	    appDpy = (Display *)1;
 #endif
 	else
 	    argv[j++] = argv[i];
@@ -262,21 +260,6 @@ void qt_init( int *argcptr, char **argv )
 #endif
 
   // Connect to X server
-
-#if defined(DEBUG)
-    if ( appDpy != 0 ) {
-	debug( "Start testing display, trying XOpenDisplay 1000 times" );
-	Display *d;
-	for ( int i=0; i<1000; i++ ) {
-	    d = XOpenDisplay(appDpyName);
-	    if ( d )
-		XCloseDisplay( d );
-	    else
-		debug( "  Error at run #%d", i );
-	}
-	debug( "Done testing display" );
-    }
-#endif
 
     if ( ( appDpy = XOpenDisplay(appDpyName) ) == 0 ) {
 	fatal( "%s: cannot connect to X server %s", appName,
