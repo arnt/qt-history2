@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/mdi/application.cpp#6 $
+** $Id: //depot/qt/main/tests/mdi/application.cpp#7 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -39,7 +39,6 @@
 #include "fileopen.xpm"
 #include "fileprint.xpm"
 
-#include <X11/Xlib.h>
 
 const char * fileOpenText = "Click this button to open a <em>new file</em>. <br><br>"
 "You can also select the <b>Open command</b> from the File menu.";
