@@ -460,7 +460,7 @@ const QStringList &QtFontFamily::styles() const
 
 #ifdef Q_WS_WIN
 	// Lazy evaluation
-	populate_database(that->parent()->name());
+	populate_database(that->name());
 #endif // Q_WS_WIN
 
         QMap<QString, QString> styleMap;

@@ -63,6 +63,8 @@ void add_style( QtFontFamily *family, const QString& styleName,
     }
 
     QString sn = styleName;
+    if ( sn.lower() == "regular" )
+	sn = "Normal";
     if ( sn.isEmpty() ) {
         // Not TTF, we make the name
         if ( weight != QFont::Normal || !italic && !lesserItalic ) {
@@ -129,10 +131,9 @@ void newWinFont( void * p )
     if ( familyName[0] == '@' )
 	return;
 
-    QtFontFamily *family = foundry->familyDict.find( familyName );
+    QtFontFamily *family = foundry->familyDict.find( familyName.lower() );
     if ( !family ) {
-        //qWarning( "New font family [%s][%s]",
-        // (const char*) familyName, (const char*) foundryName );
+        //qWarning( "New font family [%s]", (const char*) familyName );
         family = new QtFontFamily( foundry, familyName.lower() );
         Q_CHECK_PTR(family);
         foundry->addFamily( family );
@@ -204,13 +205,8 @@ void populate_database(const QString& fam)
         }
         lf.lfPitchAndFamily = 0;
 
-#if 0
-        EnumFontFamiliesEx( dummy.handle(), &lf,
+        EnumFontFamiliesEx( dummy.handle(), &lf, 
             (FONTENUMPROC)storeFont, (LPARAM)db, 0 );
-#else
-        EnumFontFamilies( dummy.handle(), (LPTSTR) 0,
-            (FONTENUMPROC)storeFont, (LPARAM)db );
-#endif
 #ifndef Q_OS_TEMP
     } else
 #endif
@@ -227,13 +223,9 @@ void populate_database(const QString& fam)
                 QMIN(lname.length()+1,32));  // 32 = Windows hard-coded
         }
         lf.lfPitchAndFamily = 0;
-#if 0        
+
 	EnumFontFamiliesExA( dummy.handle(), &lf,
             (FONTENUMPROCA)storeFont, (LPARAM)db, 0 );
-#else
-	EnumFontFamiliesA( dummy.handle(), 0, 
-	    (FONTENUMPROCA)storeFont, (LPARAM)db );
-#endif
     }
 #endif
 
@@ -245,6 +237,6 @@ void QFontDatabase::createDatabase()
 {
     if ( db ) return;
     db = new QFontDatabasePrivate;
-    populate_database(0);
+    populate_database(QString::null);
 }
 
