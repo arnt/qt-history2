@@ -128,7 +128,7 @@ static const char *const ps_header =
 "string d 0 1 QCIcolor length 3 idiv 1 sub{/QCIindex ED/x QCIindex 3 mul d\n"
 "QCIgray QCIindex QCIcolor x get 0.30 mul QCIcolor x 1 add get 0.59 mul\n"
 "QCIcolor x 2 add get 0.11 mul add add cvi put}for QCIgray image}ie}D/di{\n"
-"gsave TR dup false ne{/languagelevel where{pop languagelevel 2 ge}{false}ie}\n"
+"gsave TR dup false ne{/languagelevel where{pop languagelevel 3 ge}{false}ie}\n"
 "{false}ie{/ma ED 8 eq{/dc[0 1]d/DeviceGray}{/dc[0 1 0 1 0 1]d/DeviceRGB}ie\n"
 "scs/im ED/mt ED/h ED/w ED/id 7 DB/ImageType 1 d/Width w d/Height h d\n"
 "/ImageMatrix mt d/DataSource im d/BitsPerComponent 8 d/Decode dc d DE/md 7\n"
@@ -182,7 +182,6 @@ static const char *const ps_header =
 "/WFi ED/Cy ED/Cx ED/PSt ED/LWi ED/BSt ED/nS nS 1 sub d}if}D/CLSTART{/clipTmp\n"
 "matrix CM d defM SM NP}D/CLEND{clip NP clipTmp SM}D/CLO{grestore gsave defM\n"
 "SM}D\n";
-
 
 // the next table is derived from a list provided by Adobe on its web
 // server: http://partners.adobe.com/asn/developer/typeforum/glyphlist.txt
