@@ -51,11 +51,13 @@ win32:RC_FILE	= install.rc
 #    distributed on tradeshows (eval-cd)
 #  - the QSA evaluation version (qsa)
 #  - educational version (edu)
+#  - non-commercial version (noncommercial)
 #
 #CONFIG += eval
 #CONFIG += eval-cd
 #CONFIG += qsa
 #CONFIG += edu
+#CONFIG += noncommercial
 
 
 unix:LIBS		+= -L$$QT_BUILD_TREE/util/install/archive -larq
@@ -64,17 +66,19 @@ INCLUDEPATH		+= ../keygen
 
 # We have the following dependencies on config:
 #
-#  qsa     -> eval
-#  eval-cd -> eval
-#  eval    -> (none)
-#  edu     -> (none)
+#  qsa           -> eval
+#  eval-cd       -> eval
+#  eval          -> (none)
+#  edu           -> (none)
+#  noncommercial -> (none)
 #
 # For the code this means that the following defines are defined:
 #
-# eval   : EVAL
-# eval-cd: EVAL, EVAL_CD
-# qsa    : EVAL, QSA
-# edu    : EDU
+# eval         : EVAL
+# eval-cd      : EVAL, EVAL_CD
+# qsa          : EVAL, QSA
+# edu          : EDU
+# noncommercial: NON_COMMERCIAL
 #
 
 qsa {
@@ -108,6 +112,17 @@ edu {
     }
     DEFINES		+= EDU
     win32:RC_FILE	= install-edu.rc
+    SOURCES		+= $(QTEVAL)/src/check-and-patch.cpp
+    INCLUDEPATH		+= $(QTEVAL)/src
+    DESTDIR		= ../../../bin
+}
+
+noncommercial {
+    !exists($(QTEVAL)/src) {
+	error(You must set the QTEVAL environment variable to the directory where you checked out //depot/qteval/main in order to be able to build the evaluation version of install.)
+    }
+    DEFINES		+= NON_COMMERCIAL
+    win32:RC_FILE	= install-noncommercial.rc
     SOURCES		+= $(QTEVAL)/src/check-and-patch.cpp
     INCLUDEPATH		+= $(QTEVAL)/src
     DESTDIR		= ../../../bin
