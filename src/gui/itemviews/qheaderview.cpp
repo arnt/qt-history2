@@ -1075,10 +1075,12 @@ void QHeaderView::paintEvent(QPaintEvent *e)
         logical = sections.at(i).logical;
         if (orientation() == Qt::Horizontal) {
             rect.setRect(sectionViewportPosition(logical), 0, sectionSize(logical), height);
-            highlight = d->highlightSelected && d->selectionModel->columnIntersectsSelection(i, root());
+            highlight = d->highlightSelected
+                        && d->selectionModel->columnIntersectsSelection(logical, root());
         } else {
             rect.setRect(0, sectionViewportPosition(logical), width, sectionSize(logical));
-            highlight = d->highlightSelected && d->selectionModel->rowIntersectsSelection(i, root());
+            highlight = d->highlightSelected
+                        && d->selectionModel->rowIntersectsSelection(logical, root());
         }
         if (highlight) {
             QFont bf(fnt);

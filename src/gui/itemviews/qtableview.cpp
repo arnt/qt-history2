@@ -331,48 +331,44 @@ void QTableView::paintEvent(QPaintEvent *e)
     QBrush base = option.palette.base();
     QRect area = e->rect();
 
+    // if there's nothing to do, clear the area and return
+
     QPainter painter(d->viewport);
     if (d->horizontalHeader->count() == 0 || d->verticalHeader->count() == 0) {
         painter.fillRect(area, base);
         return;
     }
 
-    int colfirst = columnAt(area.left());
-    int collast = columnAt(area.right());
+    // get the horizontal start and end sections (visual indexes)
+
+    int left = d->horizontalHeader->visualIndexAt(area.left());
+    int right = d->horizontalHeader->visualIndexAt(area.right());
 
     if (QApplication::reverseLayout()) {
-        colfirst = (colfirst == -1 ? model()->columnCount(root()) - 1 : colfirst);
-        collast = (collast == -1 ? 0 : collast);
+        left = (left == -1 ? model()->columnCount(root()) - 1 : left);
+        right = (right == -1 ? 0 : right);
     } else {
-        colfirst = (colfirst == -1 ? 0 : colfirst);
-        collast = (collast == -1 ? model()->columnCount(root()) - 1 : collast);
+        left = (left == -1 ? 0 : left);
+        right = (right == -1 ? model()->columnCount(root()) - 1 : right);
     }
 
-    int tmp = colfirst;
-    colfirst = qMin(colfirst, collast);
-    collast = qMax(tmp, collast);
+    int tmp = left;
+    left = qMin(left, right);
+    right = qMax(tmp, right);
 
-    if (collast < 0) {
-        painter.fillRect(area, base);
-        return;
-    }
+    // get the vertical start and end sections (visual indexes)
+    
+    int top = d->verticalHeader->visualIndexAt(area.top());
+    int bottom = d->verticalHeader->visualIndexAt(area.bottom());
 
-    int rowfirst = rowAt(area.top());
-    int rowlast = rowAt(area.bottom());
+    top = (top == -1 ? 0 : top);
+    bottom = (bottom == -1 ? d->model->rowCount(root()) - 1 : bottom);
 
-    if (rowfirst == -1)
-        rowfirst = 0;
-    if (rowlast == -1)
-        rowlast = d->model->rowCount(root()) - 1;
-    if (rowlast < 0) {
-        painter.fillRect(area, base);
-        return;
-    }
-    if (rowfirst > rowlast) {
-        int tmp = rowfirst;
-        rowfirst = rowlast;
-        rowlast = tmp;
-    }
+    tmp = top;
+    top = qMin(top, bottom);
+    bottom = qMax(tmp, bottom);
+
+    // setup temp variables for the painting
 
     bool showGrid = d->showGrid;
     int gridSize = showGrid ? 1 : 0;
@@ -392,19 +388,23 @@ void QTableView::paintEvent(QPaintEvent *e)
     QColor oddColor = d->oddColor;
     QColor evenColor = d->evenColor;
 
-    for (int r = rowfirst; r <= rowlast; ++r) {
-        if (verticalHeader->isSectionHidden(r))
+    // do the actual painting
+
+    for (int v = top; v <= bottom; ++v) {
+        int row = verticalHeader->logicalIndex(v);
+        if (verticalHeader->isSectionHidden(row))
             continue;
         if (alternate)
-            option.palette.setColor(QPalette::Base, r & 1 ? oddColor : evenColor);
-        int rowp = rowViewportPosition(r);
-        int rowh = rowHeight(r) - gridSize;
-        for (int c = colfirst; c <= collast; ++c) {
-            if (horizontalHeader->isSectionHidden(c))
+            option.palette.setColor(QPalette::Base, v & 1 ? oddColor : evenColor);
+        int rowp = rowViewportPosition(row);
+        int rowh = rowHeight(row) - gridSize;
+        for (int h = left; h <= right; ++h) {
+            int col = horizontalHeader->logicalIndex(h);
+            if (horizontalHeader->isSectionHidden(col))
                 continue;
-            int colp = columnViewportPosition(c);
-            int colw = columnWidth(c) - gridSize;
-            QModelIndex index = model()->index(r, c, root());
+            int colp = columnViewportPosition(col);
+            int colw = columnWidth(col) - gridSize;
+            QModelIndex index = model()->index(row, col, root());
             if (index.isValid()) {
                 option.rect = QRect(colp, rowp, colw, rowh);
                 option.state = state;
@@ -419,7 +419,7 @@ void QTableView::paintEvent(QPaintEvent *e)
                                   ? option.palette.highlight() : option.palette.base()));
                 itemDelegate()->paint(&painter, option, model(), index);
             }
-            if (r == rowfirst && showGrid) {
+            if (v == top && showGrid) {
                 QPen old = painter.pen();
                 painter.setPen(gridPen);
                 painter.drawLine(colp + colw, area.top(), colp + colw, area.bottom());
@@ -438,17 +438,17 @@ void QTableView::paintEvent(QPaintEvent *e)
     int h = d->viewport->height();
     int x = d->horizontalHeader->length();
     int y = d->verticalHeader->length();
-    QRect bottom(0, y, w, h - y);
-    if (y < h && area.intersects(bottom))
-        painter.fillRect(bottom, base);
+    QRect b(0, y, w, h - y);
+    if (y < h && area.intersects(b))
+        painter.fillRect(b, base);
     if (QApplication::reverseLayout()) {
-        QRect right(0, 0, w - x, h);
-        if (x > 0 && area.intersects(right))
-            painter.fillRect(right, base);
+        QRect r(0, 0, w - x, h);
+        if (x > 0 && area.intersects(r))
+            painter.fillRect(r, base);
     } else {
-        QRect left(x, 0, w - x, h);
-        if (x < w && area.intersects(left))
-            painter.fillRect(left, base);
+        QRect l(x, 0, w - x, h);
+        if (x < w && area.intersects(l))
+            painter.fillRect(l, base);
     }
 }
 
