@@ -123,6 +123,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qpngio.h \
 		  $$KERNEL_H/qpointarray.h \
 		  $$KERNEL_H/qpoint.h \
+		  $$KERNEL_H/qpolygonscanner.h \
 		  $$KERNEL_H/qprinter.h \
 		  $$KERNEL_H/qrect.h \
 		  $$KERNEL_H/qregion.h \
@@ -373,6 +374,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qpngio.cpp \
 		  kernel/qpointarray.cpp \
 		  kernel/qpoint.cpp \
+		  kernel/qpolygonscanner.cpp \
 		  kernel/qprinter.cpp \
 		  kernel/qrect.cpp \
 		  kernel/qregion.cpp \

@@ -23,6 +23,9 @@
 **
 *****************************************************************************/
 
+#include <qpolygonscanner.h>
+#include <qpointarray.h>
+#include <stdlib.h>
 
 
 // Based on Xserver code miFillGeneralPoly...

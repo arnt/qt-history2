@@ -27,9 +27,11 @@
 #define QPOLYGONSCANNER_H
 
 #ifndef QT_H
+#include <qglobal.h>
 #endif // QT_H
 
 class QPointArray;
+class QPoint;
 
 class Q_EXPORT QPolygonScanner {
 public:
