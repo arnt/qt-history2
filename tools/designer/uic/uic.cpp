@@ -1162,15 +1162,16 @@ void Uic::createFormImpl( const QDomElement &e )
 		    QString tab = getDatabaseInfo( n, "table" );
 		    if ( !( conn.isEmpty() || tab.isEmpty() ) ) {
 			out << indent << "if ( " << c << " ) {" << endl;
-			out << indent << indent << "QSqlCursor* c = " << c << "->sqlCursor();" << endl;
-			out << indent << indent << "if ( !c ) {" << endl;
+			out << indent << indent << "QSqlCursor* cursor = " << c << "->sqlCursor();" << endl;
+			out << indent << indent << "if ( !cursor ) {" << endl;
 			if ( conn == "(default)" )
-			    out << indent << indent << indent << "c = new QSqlCursor( \"" << tab << "\" );" << endl;
+			    out << indent << indent << indent << "cursor = new QSqlCursor( \"" << tab << "\" );" << endl;
 			else
-			    out << indent << indent << indent << "QSqlCursor* c = new QSqlCursor( \"" << tab << "\", " << conn << "Connection );" << endl;
-			out << indent << indent << indent << c << "->setCursor( c, FALSE, TRUE );" << endl;
+			    out << indent << indent << indent << "cursor = new QSqlCursor( \"" << tab << "\", " << conn << "Connection );" << endl;
+			out << indent << indent << indent << c << "->setCursor( cursor, FALSE, TRUE );" << endl;
 			out << indent << indent << "}" << endl;
-			out << indent << indent << c << "->refresh();" << endl;
+			out << indent << indent << "if ( !cursor->isActive() )" << endl;
+			out << indent << indent << indent << c << "->refresh();" << endl;
 			out << indent << "}" << endl;
 		    }
 		}
