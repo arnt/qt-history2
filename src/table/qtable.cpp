@@ -615,7 +615,6 @@ QWidget *QTableItem::createEditor() const
     QLineEdit *e = new QLineEdit( table()->viewport(), "qt_tableeditor" );
     e->setFrame( FALSE );
     e->setText( text() );
-    QObject::connect( e, SIGNAL( textChanged( const QString & ) ), table(), SLOT( doValueChanged() ) );
     return e;
 }
 
@@ -4304,7 +4303,6 @@ QWidget *QTable::createEditor( int row, int col, bool initFromCell ) const
     if ( !e ) {
 	e = new QLineEdit( viewport(), "qt_lineeditor" );
 	( (QLineEdit*)e )->setFrame( FALSE );
-	connect( e, SIGNAL( textChanged( const QString & ) ), this, SLOT( doValueChanged() ) );
     }
 
     return e;
