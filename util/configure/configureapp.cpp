@@ -153,7 +153,7 @@ void Configure::parseCmdLine()
 	else if( (*args) == "-no-zlib" ) {
 	    dictionary[ "ZLIB" ] = "no";
 	    dictionary[ "PNG" ] = "no";
-	} else if( (*args) == "-zlib" ) {
+	} else if( (*args) == "-qt-zlib" ) {
 	    dictionary[ "ZLIB" ] = "yes";
 	} else if( (*args) == "-system-zlib" ) {
 	    dictionary[ "ZLIB" ] = "system";
