@@ -33,6 +33,159 @@
 #include "op.h"
 #include "sqlinterpreter.h"
 
+/*
+  Here are the tokens recognized by the tokenizer.
+*/
+enum { Tok_Eoi, Tok_Equal, Tok_NotEq, Tok_LessThan, Tok_GreaterThan,
+       Tok_LessEq, Tok_GreaterEq, Tok_Plus, Tok_Minus, Tok_Aster,
+       Tok_Div, Tok_LeftParen, Tok_RightParen, Tok_Comma, Tok_Dot,
+       Tok_Colon, Tok_Semicolon, Tok_Name, Tok_IntNum, Tok_ApproxNum,
+       Tok_String,
+
+       Tok_abs, Tok_all, Tok_and, Tok_any, Tok_as, Tok_asc, Tok_avg,
+       Tok_between, Tok_by, Tok_ceil, Tok_character, Tok_check,
+       Tok_close, Tok_commit, Tok_count, Tok_create, Tok_current,
+       Tok_date, Tok_decimal, Tok_declare, Tok_default, Tok_delete,
+       Tok_desc, Tok_distinct, Tok_double, Tok_drop, Tok_escape,
+       Tok_float, Tok_floor, Tok_for, Tok_foreign, Tok_from,
+       Tok_group, Tok_having, Tok_in, Tok_index, Tok_insert,
+       Tok_integer, Tok_into, Tok_is, Tok_key, Tok_length, Tok_like,
+       Tok_lower, Tok_max, Tok_min, Tok_mod, Tok_not, Tok_null,
+       Tok_numeric, Tok_of, Tok_on, Tok_or, Tok_order, Tok_power,
+       Tok_precision, Tok_primary, Tok_real, Tok_references,
+       Tok_replace, Tok_rollback, Tok_select, Tok_set, Tok_sign,
+       Tok_smallint, Tok_some, Tok_soundex, Tok_substring, Tok_sum,
+       Tok_table, Tok_to, Tok_translate, Tok_union, Tok_unique,
+       Tok_update, Tok_upper, Tok_user, Tok_values, Tok_varchar,
+       Tok_view, Tok_where, Tok_with, Tok_work };
+
+/*
+  The syntax tree of an expression is either a simple node or a
+  complex node. Simple nodes are QVariant objects of type other than
+  List. Complex nodes are QValueList<QVariant>. The first item in the
+  list is the kind of the complex node (one of the Node_Xxx constants
+  below). Here is the format and meaning of the nodes:
+
+      (Node_UnresolvedField t s) - field s of table called t
+      (Node_UnresolvedStar t) - all fields of table called t
+      (Node_ResolvedField n s) - field s of table n
+      (Node_ResolvedStar n1 n2 ... nN) - all fields of tables n1, n2, ..., nN
+      (Node_ResultColumnNo n) - field number n of result set
+
+      (Node_Abs x) - abs(x)
+      (Node_Add x y) - x + y
+      (Node_Ceil x) - ceil(x)
+      (Node_Divide x y) - x / y
+      (Node_Floor x) - floor(x)
+      (Node_Mod x y) - mod(x, y)
+      (Node_Multiply x y) - x * y
+      (Node_Power x y) - power(x, y)
+      (Node_Sign x) - sign(x)
+      (Node_Subtract x y) - x - y
+
+      (Node_Length s) - length(s)
+      (Node_Lower s) - lower(s)
+      (Node_Replace s t u) - replace(s, t, u)
+      (Node_Soundex s) - soundex(s)
+      (Node_Substring s, k, n) - substring(s, k, n)
+      (Node_Translate s t u) - translate(s, t, u)
+      (Node_Upper s) - upper(s)
+
+      (Node_And x y) - x and y
+      (Node_Eq x y) - x = y
+      (Node_GreaterEq x y) - x >= y
+      (Node_LessThan x y) - x < y
+      (Node_In x y1 y2 ... yN) - x in (y1, y2, ..., yN)
+      (Node_Like s t) - s like t
+      (Node_Not x) - not x
+      (Node_NotEq x y) - x <> y
+      (Node_Or x y) - x or y
+
+      (Node_Avg X) - avg(X)
+      (Node_Count X) - count(X)
+      (Node_Max X) - max(X)
+      (Node_Min X) - min(X)
+      (Node_Sum X) - sum(X)
+
+  In some cases, an expression is really a scalar expression, and at
+  the end of its evaluation, its value is on the top of the stack. In
+  other cases, an "expression" contains conditionals, and the
+  evaluation of such an "expression" leaves nothing on the stack but
+  rather jumps to a certain instruction if true and to another
+  \instruction if false.
+*/
+enum { Node_Abs, Node_Add, Node_And, Node_Avg, Node_Ceil, Node_Count,
+       Node_Divide, Node_Eq, Node_Floor, Node_GreaterEq, Node_In,
+       Node_Length, Node_LessThan, Node_Like, Node_Lower, Node_Max,
+       Node_Min, Node_Mod, Node_Multiply, Node_Not, Node_NotEq,
+       Node_Or, Node_Power, Node_Replace, Node_ResolvedField,
+       Node_ResolvedStar, Node_ResultColumnNo, Node_Sign,
+       Node_Soundex, Node_Substring, Node_Subtract, Node_Sum,
+       Node_Translate, Node_UnresolvedField, Node_UnresolvedStar,
+       Node_Upper };
+
+/*
+  Yes, that's the representation of 'null' in the virtual machine.
+*/
+static QPoint NullRep( 0, 0 );
+
+/*
+  Returns (Node_ResolvedField tableId fieldName).
+*/
+static QVariant resolvedField( int tableId, const QString& fieldName )
+{
+    QValueList<QVariant> f;
+    f.append( (int) Node_ResolvedField );
+    f.append( tableId );
+    f.append( fieldName );
+    return f;
+}
+
+static bool isIdent( QChar ch )
+{
+    return ch.isLetterOrNumber() || ch == QChar( '_' );
+}
+
+/*
+  Returns a canonical column name. For example, 'SUM(id)' and ' sum (id )' are
+  both 'sum(id)' canonically, whereas 'sum(ID)' stays 'sum(ID)'. Remember:
+  Keywords are case-insensitive in SQL, but other identifiers are
+  case-sensitive.
+*/
+static QString fixedColumnName( const QString& name )
+{
+    QString out;
+    bool keepSpace = FALSE;
+    bool pendingSpace = FALSE;
+
+    for ( int i = 0; i < (int) name.length(); i++ ) {
+	QChar ch = name[i];
+	if ( ch.isSpace() ) {
+	    if ( keepSpace ) {
+		pendingSpace = TRUE;
+		keepSpace = FALSE;
+	    }
+	} else {
+	    keepSpace = isIdent( ch.unicode() );
+	    if ( pendingSpace && keepSpace ) {
+		out += QChar( ' ' );
+		pendingSpace = FALSE;
+	    }
+
+	    // normalize function names to lowercase
+	    if ( ch == QChar('(') ) {
+		int j = (int) out.length() - 1;
+		while ( j >= 0 && isIdent(out[j].unicode()) ) {
+		    out[j] = out[j].lower();
+		    j--;
+		}
+	    }
+	    out += ch;
+	}
+    }
+    return out;
+}
+
 Parser::Parser()
 {
 }
@@ -82,100 +235,11 @@ bool Parser::parse( const QString& commands, LocalSQLEnvironment *env )
     yyActiveTableMap.clear();
     yyActiveTableIds.clear();
     yyLookedUpColumnMap.clear();
-    yyNumAggregateOccs = 0; // ### variable needed?
+    yyNumAggregateOccs = 0;
 
     matchSql();
     return yyOK;
 }
-
-enum { Tok_Eoi, Tok_Equal, Tok_NotEq, Tok_LessThan, Tok_GreaterThan,
-       Tok_LessEq, Tok_GreaterEq, Tok_Plus, Tok_Minus, Tok_Aster,
-       Tok_Div, Tok_LeftParen, Tok_RightParen, Tok_Comma, Tok_Dot,
-       Tok_Colon, Tok_Semicolon, Tok_Name, Tok_IntNum, Tok_ApproxNum,
-       Tok_String,
-
-       Tok_abs, Tok_all, Tok_and, Tok_any, Tok_as, Tok_asc, Tok_avg,
-       Tok_between, Tok_by, Tok_ceil, Tok_character, Tok_check,
-       Tok_close, Tok_commit, Tok_count, Tok_create, Tok_current,
-       Tok_date, Tok_decimal, Tok_declare, Tok_default, Tok_delete,
-       Tok_desc, Tok_distinct, Tok_double, Tok_drop, Tok_escape,
-       Tok_float, Tok_floor, Tok_for, Tok_foreign, Tok_from,
-       Tok_group, Tok_having, Tok_in, Tok_index, Tok_insert,
-       Tok_integer, Tok_into, Tok_is, Tok_key, Tok_length, Tok_like,
-       Tok_lower, Tok_max, Tok_min, Tok_mod, Tok_not, Tok_null,
-       Tok_numeric, Tok_of, Tok_on, Tok_or, Tok_order, Tok_power,
-       Tok_precision, Tok_primary, Tok_real, Tok_references,
-       Tok_replace, Tok_rollback, Tok_select, Tok_set, Tok_sign,
-       Tok_smallint, Tok_some, Tok_soundex, Tok_substring, Tok_sum,
-       Tok_table, Tok_to, Tok_translate, Tok_union, Tok_unique,
-       Tok_update, Tok_upper, Tok_user, Tok_values, Tok_varchar,
-       Tok_view, Tok_where, Tok_with, Tok_work };
-
-enum { Node_Abs, Node_Add, Node_And, Node_Avg, Node_Ceil, Node_Count,
-       Node_Divide, Node_Eq, Node_Floor, Node_GreaterEq, Node_In,
-       Node_Length, Node_LessThan, Node_Like, Node_Lower, Node_Max,
-       Node_Min, Node_Mod, Node_Multiply, Node_Not, Node_NotEq,
-       Node_Or, Node_Power, Node_Replace, Node_ResolvedField,
-       Node_ResolvedStar, Node_ResultColumnNo, Node_Sign,
-       Node_Soundex, Node_Substring, Node_Subtract, Node_Sum,
-       Node_Translate, Node_UnresolvedField, Node_UnresolvedStar,
-       Node_Upper };
-
-static QPoint NullRep( 0, 0 ); // yes, that's 'null'
-
-static QVariant resolvedField( int tableId, const QString& fieldName )
-{
-    QValueList<QVariant> f;
-    f.append( (int) Node_ResolvedField );
-    f.append( tableId );
-    f.append( fieldName );
-    return f;
-}
-
-static bool isIdent( QChar ch )
-{
-    return ch.isLetterOrNumber() || ch == QChar( '_' );
-}
-
-static QString fixedColumnName( const QString& name )
-{
-    QString out;
-    bool keepSpace = FALSE;
-    bool pendingSpace = FALSE;
-
-    for ( int i = 0; i < (int) name.length(); i++ ) {
-	QChar ch = name[i];
-	if ( ch.isSpace() ) {
-	    if ( keepSpace ) {
-		pendingSpace = TRUE;
-		keepSpace = FALSE;
-	    }
-	} else {
-	    keepSpace = isIdent( ch );
-	    if ( pendingSpace && keepSpace ) {
-		out += QChar( ' ' );
-		pendingSpace = FALSE;
-	    }
-
-	    // normalize function names to lowercase
-	    if ( ch == QChar('(') ) {
-		int j = (int) out.length() - 1;
-		while ( j >= 0 && isIdent(out[j]) ) {
-		    out[j] = out[j].lower();
-		    j--;
-		}
-	    }
-	    out += ch;
-	}
-    }
-    return out;
-}
-
-#define HASH( first, omitted, last ) \
-    ( ((((first) << 5) | (omitted)) << 7) | (last) )
-#define CHECK( target ) \
-    if ( qstricmp(target, yyLex) != 0 ) \
-	break;
 
 void Parser::startTokenizer( const QString& in )
 {
@@ -253,6 +317,16 @@ int Parser::readExponent()
     }
 }
 
+/*
+  We use a neat trick in the tokenizer to recognize keywords. The
+  reader is challenged to make sense out of the trick by herself.
+*/
+#define HASH( first, omitted, last ) \
+    ( ((((first) << 5) | (omitted)) << 7) | (last) )
+#define CHECK( target ) \
+    if ( qstricmp(target, yyLex) != 0 ) \
+	break;
+
 int Parser::getToken()
 {
     while ( TRUE ) {
@@ -275,6 +349,9 @@ int Parser::getToken()
 		readChar();
 	    } while ( isalnum(yyCh) || yyCh == '_' );
 
+	    /*
+	      The author of the following code is paid per line of code.
+	    */
 	    int h = HASH( tolower(yyLex[0]), yyLexLen - 2,
 			  tolower(yyLex[yyLexLen - 1]) );
 	    switch ( h ) {
@@ -624,6 +701,10 @@ int Parser::getToken()
     return Tok_Eoi;
 }
 
+/*
+  Returns the table id corresponding to tableName among the activated tables,
+  considering the aliases as well.
+*/
 int Parser::resolveTableId( const QString& tableName )
 {
     QMap<QString, int>::ConstIterator id = yyAliasTableMap.find( tableName );
@@ -636,6 +717,14 @@ int Parser::resolveTableId( const QString& tableName )
     return *id;
 }
 
+/*
+  Replaces all Node_UnresolvedField nodes by Node_ResolvedField.
+  Sometimes, virtual machine instructions are generated to uniquely
+  resolve the field. We have to be careful not to call this function
+  in the middle of the generation of instructions for a loop, because
+  then the resolving instructions would needlessly be executed over
+  and over.
+*/
 void Parser::resolveFieldNames( QVariant *expr )
 {
     if ( expr->type() == QVariant::List ) {
@@ -643,6 +732,10 @@ void Parser::resolveFieldNames( QVariant *expr )
 	int node = (*v).toInt();
 
 	if ( node == Node_UnresolvedField ) {
+	    /*
+	      Replace the (Node_UnresolvedField t s) by
+	      (Node_ResolvedField n s).
+	    */
 	    *v = (int) Node_ResolvedField;
 
 	    QValueList<QVariant>::Iterator updateMe = ++v;
@@ -651,12 +744,23 @@ void Parser::resolveFieldNames( QVariant *expr )
 	    QMap<QString, int>::ConstIterator id;
 
 	    if ( tableName.isEmpty() ) {
+		// no table was specified
 		int numTables = (int) yyActiveTableIds.count();
 		if ( numTables == 1 ) {
+		    // only one table, no ambiguity
 		    *updateMe = yyActiveTableIds.first();
 		} else {
 		    id = yyLookedUpColumnMap.find( columnName );
 		    if ( id == yyLookedUpColumnMap.end() ) {
+			/*
+			  We haven't resolved columnName yet. Let's
+			  generate the instructions that do that.
+			  Afterwards, we will use aliasId as an alias
+			  for the real table id. We'll aslo store the
+			  value into yyLookedUpColumnMap, so that we
+			  don't resolve the same columnName twice in
+			  the same statement.
+			*/
 			int aliasId = -( yyLookedUpColumnMap.count() + 1 );
 			id = yyLookedUpColumnMap.insert( columnName, aliasId );
 
@@ -673,9 +777,17 @@ void Parser::resolveFieldNames( QVariant *expr )
 		    *updateMe = *id;
 		}
 	    } else {
+		// a table was specified
 		*updateMe = resolveTableId( tableName );
 	    }
 	} else if ( node == Node_UnresolvedStar ) {
+	    /*
+	      Replace (Node_UnresolvedStar "") by
+	      (Node_ResolvedStar n1 n2 ... nN) where n1, n2, ..., nN
+	      are the ids of the active tables, and replace
+	      (Node_UnresolvedStar "table-name") by
+	      (Node_ResolvedStar table-id).
+	    */
 	    *v = (int) Node_ResolvedStar;
 
 	    QString tableName = (*++v).toString();
@@ -691,6 +803,7 @@ void Parser::resolveFieldNames( QVariant *expr )
 		*v = resolveTableId( tableName );
 	    }
 	} else {
+	    // recursively resolve the sub-trees
 	    ++v;
 	    while ( v != expr->asList().end() ) {
 		resolveFieldNames( &*v );
@@ -709,6 +822,10 @@ void Parser::resolveFieldNames( QValueList<QVariant> *exprs )
     }
 }
 
+/*
+  Replace all Node_ResolvedField by Node_ResultColumnNo, using
+  resultColumnNos to determine which column is in which position.
+*/
 void Parser::resolveResultColumnNos( QVariant *expr,
 	const QMap<QString, QMap<int, int> >& resultColumnNos )
 {
@@ -741,6 +858,10 @@ void Parser::resolveResultColumnNos( QValueList<QVariant> *exprs,
     }
 }
 
+/*
+  Finds all the Node_ResolvedField nodes in expr and fills in
+  usedFields.
+*/
 void Parser::computeUsedFields( const QVariant& expr,
 				QMap<int, QStringList> *usedFields )
 {
@@ -754,6 +875,7 @@ void Parser::computeUsedFields( const QVariant& expr,
 	    if ( (*usedFields)[id].contains(field) == 0 )
 		(*usedFields)[id].append( field );
 	} else {
+	    ++v;
 	    while ( v != expr.listEnd() ) {
 		computeUsedFields( *v, usedFields );
 		++v;
@@ -762,6 +884,12 @@ void Parser::computeUsedFields( const QVariant& expr,
     }
 }
 
+/*
+  Tries to find out the return type of an expression. If the returned
+  value is an int, then it represents a QVariant::Type. If the
+  returned value is a Node_ResolvedField, then the type of the
+  expression is that of the field.
+*/
 QVariant Parser::exprType( const QVariant& expr )
 {
     if ( expr.type() == QVariant::List ) {
@@ -819,6 +947,11 @@ QVariant Parser::exprType( const QVariant& expr )
     }
 }
 
+/*
+  Emits code for the scalar expression or conditional expression expr.
+  In the latter case, trueLab is the address to goto if the expression
+  is TRUE, and falseLab is the address to goto if it is FALSE.
+*/
 void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
 {
     /*
@@ -978,6 +1111,12 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
     }
 }
 
+/*
+  Emits the code for a 'where' clause. Together, cond and constants
+  specify what rows to keep; selectColumns and selectColumnNames tell
+  which columns to save. If the 'where' clause is only for marking
+  (not saving), these two lists should be empty.
+*/
 void Parser::emitWhere( QVariant *cond, QValueList<QVariant> *constants,
 			const QValueList<QVariant>& selectColumns,
 			const QStringList& selectColumnNames )
@@ -987,7 +1126,6 @@ void Parser::emitWhere( QVariant *cond, QValueList<QVariant> *constants,
 
     resolveFieldNames( cond );
 
-    // ### this could be done earlier and better
     QValueList<QVariant>::Iterator c = constants->begin();
     while ( c != constants->end() ) {
 	resolveFieldNames( &*c );
@@ -1003,6 +1141,12 @@ void Parser::emitWhere( QVariant *cond, QValueList<QVariant> *constants,
 		   selectColumnNames );
 }
 
+/*
+  Emits the nested 'where' loops. This code is very clever and tries
+  to find out when a RangeSave or RangeMark is possible. Its
+  parameters are similar to those of emitWhere(), but it also accepts
+  level to tell which loop is being processed in case of nested loops.
+*/
 void Parser::emitWhereLoop( const QVariant& cond,
 			    const QValueList<QVariant>& constants,
 			    const QValueList<QVariant>& selectColumns,
@@ -1116,6 +1260,14 @@ void Parser::emitExprList( const QValueList<QVariant>& exprs )
     yyProg->append( new MakeList );
 }
 
+/*
+  Constants are trees of the form
+
+      (Node_Eq (Node_ResolvedField table-id field-name) constant-value)
+
+   We want to generate (field-name constant-value). The table-id is
+   irrelevant because this is used only for single-table statements.
+*/
 void Parser::emitConstants( const QValueList<QVariant>& constants )
 {
     QValueList<QVariant>::ConstIterator v = constants.begin();
@@ -1135,6 +1287,9 @@ void Parser::emitConstants( const QValueList<QVariant>& constants )
     yyProg->append( new MakeList );
 }
 
+/*
+  Emits the stuff expected by CreateResult.
+*/
 void Parser::emitFieldDesc( const QString& columnName, const QVariant& column )
 {
     QVariant borrowFrom;
@@ -1163,6 +1318,9 @@ void Parser::emitFieldDesc( const QString& columnName, const QVariant& column )
     }
 }
 
+/*
+  Emits the instructions to create a result set.
+*/
 void Parser::emitCreateResult( int resultId, const QStringList& columnNames,
 			       const QValueList<QVariant>& columns )
 {
@@ -1176,6 +1334,12 @@ void Parser::emitCreateResult( int resultId, const QStringList& columnNames,
     yyProg->append( new CreateResult(resultId) );
 }
 
+/*
+  Makes tableName active. This means that the table will be open and
+  that the table will be used in resolving fields. Being open means
+  nothing, as there are special mechanisms to keep tables open as long
+  as possible to avoid repeatedly opening and closing tables.
+*/
 int Parser::activateTable( const QString& tableName )
 {
     QMap<QString, int>::ConstIterator t = yyOpenedTableMap.find( tableName );
@@ -1189,6 +1353,10 @@ int Parser::activateTable( const QString& tableName )
     return *t;
 }
 
+/*
+  Makes all tables inactive. The tables are not closed yet as an
+  optimization.
+*/
 void Parser::deactivateTables()
 {
     yyActiveTableMap.clear();
@@ -1196,14 +1364,21 @@ void Parser::deactivateTables()
     yyLookedUpColumnMap.clear();
 }
 
+/*
+  Closes all opened tables.
+*/
 void Parser::closeAllTables()
 {
+    deactivateTables();
     int n = (int) yyOpenedTableMap.count();
     for ( int i = 0; i < n; i++ )
 	yyProg->append( new Close(i) );
     yyOpenedTableMap.clear();
 }
 
+/*
+  Emits instructions to create an index on given columns in tableId.
+*/
 void Parser::createIndex( int tableId, const QStringList& columns, bool unique,
 			  bool notNull )
 {
@@ -1218,6 +1393,11 @@ void Parser::createIndex( int tableId, const QStringList& columns, bool unique,
     yyProg->append( new CreateIndex(tableId, unique, notNull) );
 }
 
+/*
+  Plugs back the constants into the condition. Constants are needed
+  equalities with constants like "id = 5" or "sex = 'male'". They are
+  parsed separately because that simplifies optimization later.
+*/
 void Parser::pourConstantsIntoCondition( QVariant *cond,
 					 QValueList<QVariant> *constants )
 {
@@ -1240,6 +1420,10 @@ void Parser::pourConstantsIntoCondition( QVariant *cond,
     constants->clear();
 }
 
+/*
+  Returns the number of the column in the result set, using
+  resultColumnNos to resolve that.
+*/
 int Parser::columnNo( const QVariant& column,
 		      const QMap<QString, QMap<int, int> >& resultColumnNos )
 {
@@ -1267,6 +1451,20 @@ int Parser::columnNo( const QVariant& column,
     }
 }
 
+/*
+  Here starts the recursive-descent parser for SQL. If you don't
+  understand that code, read sections 4.1 to 4.4 in the Dragon Book.
+
+  The grammar is not specified explicitly, but it should be fairly
+  easy to retrieve it from the parser below if you really need it.
+*/
+
+/*
+  The two following functions are basic token matchers. Both behave
+  the same when the token matches. Otherwise, matchOrSkip() eats the
+  next token, but matchOrInsert() does not. Currently, this doesn't
+  matter since we stop after the first error.
+*/
 void Parser::matchOrInsert( int target, const QString& targetStr )
 {
     if ( yyTok == target )
@@ -1936,8 +2134,6 @@ void Parser::matchTableConstraintDef()
     case Tok_primary:
 	yyTok = getToken();
 	matchOrInsert( Tok_key, "'key'" );
-//	warning( "'primary key' clause unsupported (will still create an"
-//		 " index)" );
 	matchOrInsert( Tok_LeftParen, "'('" );
 	yyNeedIndex[Unique][NotNull].append( matchColumnList() );
 	matchOrInsert( Tok_RightParen, "')'" );
@@ -1984,8 +2180,6 @@ void Parser::matchColumnDefOptions( const QString& column )
 	case Tok_primary:
 	    yyTok = getToken();
 	    matchOrInsert( Tok_key, "'key'" );
-//	    warning( "'primary key' clause unsupported (will still create an"
-//		     " index)" );
 	    yyNeedIndex[Unique][NotNull].append( column );
 	    break;
 	case Tok_references:
@@ -2010,6 +2204,8 @@ void Parser::matchColumnDefOptions( const QString& column )
 
 void Parser::matchBaseTableElement()
 {
+    bool notNull = FALSE;
+
     if ( yyTok == Tok_Name ) {
 	QString column = yyLex;
 
@@ -2017,7 +2213,12 @@ void Parser::matchBaseTableElement()
 	yyProg->append( new Push(column) );
 	yyTok = getToken();
 	matchDataType();
-	yyProg->append( new Push((int) FALSE) ); // ###
+	if ( yyTok == Tok_not ) {
+	    yyTok = getToken();
+	    matchOrSkip( Tok_null, "'null'" );
+	    notNull = TRUE;
+	}
+	yyProg->append( new Push((int) notNull) );
 	yyProg->append( new MakeList );
 
 	matchColumnDefOptions( column );
@@ -2063,7 +2264,7 @@ void Parser::matchCreateStatement()
 	tableId = activateTable( matchTable() );
 
 	matchOrInsert( Tok_LeftParen, "'('" );
-	createIndex( tableId, matchColumnList(), unique, TRUE ); // TRUE? ###
+	createIndex( tableId, matchColumnList(), unique, FALSE );
 	matchOrInsert( Tok_RightParen, "')'" );
 	break;
     case Tok_table:
@@ -2272,13 +2473,6 @@ void Parser::matchSelectStatement()
     if ( havingCond.isValid() && yyNumAggregateOccs == 0 )
 	error( "Cannot have 'having' clause in such simple queries" );
 
-#if 0 // ###
-    if ( yyNumColumnOccs * yyNumAggregateOccs != 0 ) {
-	error( "Cannot mix aggregates and columns" );
-	yyNumAggregateOccs = 0;
-    }
-#endif
-
     if ( groupByColumns.isEmpty() && yyNumAggregateOccs == 0 ) {
 	/*
 	  This is the common, easy case where one pass is enough. We
@@ -2415,13 +2609,8 @@ void Parser::matchUpdateStatement()
     while ( TRUE ) {
 	left = matchName();
 	matchOrInsert( Tok_Equal, "'='" );
-	if ( yyTok == Tok_null ) {
-	    yyTok = getToken();
-	    // ###
-	} else {
-	    right = matchScalarExpr();
-	    resolveFieldNames( &right );
-	}
+	right = matchScalarExpr();
+	resolveFieldNames( &right );
 	assignments.insert( left, right );
 
 	if ( yyTok != Tok_Comma )

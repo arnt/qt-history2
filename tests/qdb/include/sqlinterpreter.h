@@ -199,7 +199,7 @@ private:
     QMap<QString, int> yyActiveTableMap;
     QValueList<int> yyActiveTableIds;
     QMap<QString, int> yyLookedUpColumnMap;
-    int yyNumAggregateOccs; // ### needed
+    int yyNumAggregateOccs;
 
     int resolveTableId( const QString& tableName );
     void resolveFieldNames( QVariant *expr );
