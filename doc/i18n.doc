@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.15 1999/04/12 21:41:28 warwick Exp $
+** $Id: i18n.doc,v 1.16 1999/04/12 21:50:35 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -263,22 +263,42 @@ encodings - those requiring right-to-left input or complex character
 composition (eg. Arabic and Thai script) will be implemented.
 The current state of activity is:
 <dl compact>
- <dt><b>Latin1</b>
-  <dd>Fully supported, as before.
+ <dt><b>ISO standard encodings
+	ISO 8859-1,
+	ISO 8859-2,
+	ISO 8859-3,
+	ISO 8859-4,
+	ISO 8859-5,
+	ISO 8859-6-I,
+	ISO 8859-7,
+	ISO 8859-8-I,
+	ISO 8859-9, and
+	ISO 8859-15
+	</b>
+  <dd>Fully supported.
+	The Arabic (6-I) and Hebrew (8-I) encodings are not supported,
+	but are under development externally.
  <dt><b>KOI8-R</b>
   <dd>Fully supported.
  <dt><b>eucJP, JIS, and ShiftJIS</b>
-  <dd>Supported with the XIMP protocol on X11.
+  <dd>Fully supported. Uses eucJP with the XIMP protocol on X11.
 	Windows NT support under development.
 	Serika Kurusugawa is assisting with this effort.
 	<a href=ftp://ftp.sra.co.jp/pub/x11/kinput2/>kinput2</a>
 	is the tested input method.
  <dt><b>eucKR</b>
-  <dd>Under development, 
+  <dd>Under external development, 
 	Mizi Research are assisting with this effort.
 	<a href=http://www.mizi.com/>hanIM</a>
        	is the tested input method.
+ <dt><b>eucTW</b>
+  <dd>Under external development.
 </dl>
+
+If you are interested in contributing to existing efforts, or
+supporting new encodings beyond the more standard ones above, your work
+can be considered for inclusion in the official Qt distribution, or
+included with your application.
 
 Eventually, we hope to help Unix become as Unicode-oriented as
 Windows NT is becoming.
