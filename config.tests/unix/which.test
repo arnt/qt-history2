@@ -1,0 +1,29 @@
+#!/bin/sh
+
+WHICH=`which which 2>/dev/null`
+if [ -z "$WHICH" ]; then
+    if which which >/dev/null 2>&1; then
+	WHICH=which
+     else
+	for a in /usr/ucb /usr/bin /bin /usr/local/bin; do
+	    if [ -x $a/which ]; then
+		WHICH=$a/which
+		break;
+	    fi
+        done
+     fi
+fi
+
+if [ ! -z "$WHICH" ] && which $1 >/dev/null 2>&1; then
+	echo `which $1`
+	exit 0
+else
+	IFS=:
+	for a in $PATH; do
+	   if [ -x $a/$1 ]; then
+		echo "$a/$1"
+		exit 0
+           fi
+        done
+fi
+exit 1
