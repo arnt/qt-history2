@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#16 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -114,7 +114,7 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     d = new QWorkspaceData;
     d->maxhandle = 0;
     d->active = 0;
-
+    d->maxClient = 0;
     d->px = 0;
     d->py = 0;
 
