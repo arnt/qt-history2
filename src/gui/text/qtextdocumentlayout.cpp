@@ -678,6 +678,8 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
         painter->fillRect(r, context.palette.highlight());
     } else {
         QColor col = charFormat.textColor();
+        if (!col.isValid())
+            col = context.palette.text().color();
         painter->setPen(col);
     }
 
