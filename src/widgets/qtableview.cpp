@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#21 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#21 $")
 
 
 const int sbDim = 16;
@@ -1222,10 +1222,10 @@ void QTableView::setupPainter( QPainter * )
   (row,col) using \e p, which is open when paintCell() is called and
   must remain open.
 
-  The coordinate system is \link QPainter::setViewport() translated
+  The coordinate system is \link QPainter::translate() translated
   \endlink such that the origin is at the top left corner of the cell
   to be painted.  Do not scale or shear the coordinate system (or if
-  you do, restore the translation before you return).
+  you do, restore the transformation matrix before you return).
 
   By default, the painter is not clipped, which is probably not what
   you want.  Call setTableFlags(Tbl_clipCellPainting) to enable clipping.
@@ -1294,6 +1294,7 @@ void QTableView::paintEvent( QPaintEvent *e )
     QRect winR = viewRect();
     QRect cellR;
     QRect cellUR;
+    QWMatrix matrix;
 
     while ( yPos <= maxY && row < nRows ) {
 	nextY = yPos + (cellH ? cellH : cellHeight( row ));
@@ -1313,7 +1314,8 @@ void QTableView::paintEvent( QPaintEvent *e )
 	    if ( eraseInPaint )
 		paint.eraseRect( cellUR );
 
-	    paint.setViewport( xPos, yPos, width(), height() );
+	    matrix.translate( xPos, yPos );
+	    paint.setWorldMatrix( matrix );
 	    if ( testTableFlags(Tbl_clipCellPainting) ||
 		 frameWidth() > 0 && !winR.contains( cellR ) ) {
 		paint.setClipRect( cellUR );
@@ -1322,13 +1324,15 @@ void QTableView::paintEvent( QPaintEvent *e )
 	    } else {
 		paintCell( &paint, row, col );
 	    }
-	    paint.setViewXForm( FALSE );
+	    matrix.reset();
+	    paint.setWorldMatrix( matrix );
 	    col++;
 	    xPos = nextX;
 	}
 	row++;
 	yPos = nextY;
     }
+
     if ( eraseInPaint ) {
 	// If we are erasing while painting any areas in the view that
 	// are not covered by cells but are covered by the paint event
