@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#113 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#114 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -812,10 +812,10 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	mlData->isHandlingEvent = FALSE;
 	return;
     }
-    if ( e->ascii() >= 32 &&
+    if ( e->text().length() &&
 	 e->key() != Key_Delete &&
 	 e->key() != Key_Backspace ) {
-	insertChar( e->ascii() );
+	insert( e->text() );
 	if ( textDirty )
 	    emit textChanged();
 	mlData->isHandlingEvent = FALSE;
@@ -1174,6 +1174,15 @@ void QMultiLineEdit::removeLine( int line )
 
 void QMultiLineEdit::insertChar( char c )
 {
+    insert(QChar(c));
+}
+
+/*!
+  Inserts \a c at the current cursor position.
+*/
+
+void QMultiLineEdit::insert( const QString& str )
+{
     dummy = FALSE;
     bool wasMarkedText = hasMarkedText();
     if ( wasMarkedText ) {
@@ -1184,13 +1193,7 @@ void QMultiLineEdit::insertChar( char c )
 	cursorX = s->length();
     if ( overWrite && !wasMarkedText && cursorX < (int)s->length() )
 	del();                                 // ## Will flicker
-    s->insert( cursorX, c);
-    int w = textWidth( *s );
-    setWidth( QMAX( cellWidth(), w ) );
-    cursorRight( FALSE );			// will repaint
-    curXPos  = 0;
-    makeVisible();
-    textDirty = TRUE;
+    insertAt(str, cursorY, cursorX );
 }
 
 /*!

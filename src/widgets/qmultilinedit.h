@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#46 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#47 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -104,7 +104,7 @@ protected:
     QPoint	cursorPoint() const;
 
 protected:
-    virtual void insertChar( char );
+    virtual void insert( const QString& );
     virtual void newLine();
     virtual void killLine();
     virtual void pageUp( bool mark=FALSE );
@@ -130,6 +130,7 @@ private slots:
 private:
     QList<QString> *contents;
     QMultiLineData *mlData;
+    void insertChar( char );
 
     bool	readOnly;
     bool	cursorOn;
