@@ -66,19 +66,20 @@ TextEdit::TextEdit(QWidget *parent)
 void TextEdit::setupFileActions()
 {
     QToolBar *tb = new QToolBar(this);
-//    tb->setLabel("File Actions");
+    tb->setWindowTitle(tr("File Actions"));
+
     QMenu *menu = new QMenu(this);
     menuBar()->addMenu(tr("&File"), menu);
 
     QAction *a;
 
-    a = new QAction(QPixmap(":/filenew.xpm"), tr("&New..."), this);
+    a = new QAction(QPixmap(":/images/filenew.xpm"), tr("&New..."), this);
     a->setShortcut(Qt::CTRL + Qt::Key_N);
     connect(a, SIGNAL(triggered()), this, SLOT(fileNew()));
     tb->addAction(a);
     menu->addAction(a);
 
-    a = new QAction(QPixmap(":/fileopen.xpm"), tr("&Open..."), this);
+    a = new QAction(QPixmap(":/images/fileopen.xpm"), tr("&Open..."), this);
     a->setShortcut(Qt::CTRL + Qt::Key_O);
     connect(a, SIGNAL(triggered()), this, SLOT(fileOpen()));
     tb->addAction(a);
@@ -86,7 +87,7 @@ void TextEdit::setupFileActions()
 
     menu->addSeparator();
 
-    a = new QAction(QPixmap(":/filesave.xpm"), tr("&Save..."), this);
+    a = new QAction(QPixmap(":/images/filesave.xpm"), tr("&Save..."), this);
     a->setShortcut(Qt::CTRL + Qt::Key_S);
     connect(a, SIGNAL(triggered()), this, SLOT(fileSave()));
     tb->addAction(a);
@@ -97,7 +98,7 @@ void TextEdit::setupFileActions()
     menu->addAction(a);
     menu->addSeparator();
 
-    a = new QAction(QPixmap(":/fileprint.xpm"), tr("&Print..."), this);
+    a = new QAction(QPixmap(":/images/fileprint.xpm"), tr("&Print..."), this);
     a->setShortcut(Qt::CTRL + Qt::Key_P);
     connect(a, SIGNAL(triggered()), this, SLOT(filePrint()));
     tb->addAction(a);
@@ -116,30 +117,30 @@ void TextEdit::setupFileActions()
 void TextEdit::setupEditActions()
 {
     QToolBar *tb = new QToolBar(this);
+    tb->setWindowTitle(tr("Edit Actions"));
 
-//    tb->setLabel("Edit Actions");
     QMenu *menu = new QMenu(this);
     menuBar()->addMenu(tr("&Edit"), menu);
 
     QAction *a;
-    a = actionUndo = new QAction(QPixmap(":/editundo.xpm"), tr("&Undo"), this);
+    a = actionUndo = new QAction(QPixmap(":/images/editundo.xpm"), tr("&Undo"), this);
     a->setShortcut(Qt::CTRL + Qt::Key_Z);
     tb->addAction(a);
     menu->addAction(a);
-    a = actionRedo = new QAction(QPixmap(":/editredo.xpm"), tr("&Redo"), this);
+    a = actionRedo = new QAction(QPixmap(":/images/editredo.xpm"), tr("&Redo"), this);
     a->setShortcut(Qt::CTRL + Qt::Key_Y);
     tb->addAction(a);
     menu->addAction(a);
     menu->addSeparator();
-    a = actionCut = new QAction(QPixmap(":/editcut.xpm"), tr("Cu&t"), this);
+    a = actionCut = new QAction(QPixmap(":/images/editcut.xpm"), tr("Cu&t"), this);
     a->setShortcut(Qt::CTRL + Qt::Key_X);
     tb->addAction(a);
     menu->addAction(a);
-    a = actionCopy = new QAction(QPixmap(":/editcopy.xpm"), tr("&Copy"), this);
+    a = actionCopy = new QAction(QPixmap(":/images/editcopy.xpm"), tr("&Copy"), this);
     a->setShortcut(Qt::CTRL + Qt::Key_C);
     tb->addAction(a);
     menu->addAction(a);
-    a = actionPaste = new QAction(QPixmap(":/editpaste.xpm"), tr("&Paste"), this);
+    a = actionPaste = new QAction(QPixmap(":/images/editpaste.xpm"), tr("&Paste"), this);
     a->setShortcut(Qt::CTRL + Qt::Key_V);
     tb->addAction(a);
     menu->addAction(a);
@@ -149,11 +150,12 @@ void TextEdit::setupEditActions()
 void TextEdit::setupTextActions()
 {
     QToolBar *tb = new QToolBar(this);
-//    tb->setLabel("Format Actions");
+    tb->setWindowTitle(tr("Format Actions"));
+
     QMenu *menu = new QMenu(this);
     menuBar()->addMenu(tr("F&ormat"), menu);
 
-    comboStyle = new QComboBox;
+    comboStyle = new QComboBox(tb);
     tb->addWidget(comboStyle);
     comboStyle->insertItem("Standard");
     comboStyle->insertItem("Bullet List (Disc)");
@@ -165,7 +167,7 @@ void TextEdit::setupTextActions()
     connect(comboStyle, SIGNAL(activated(int)),
             this, SLOT(textStyle(int)));
 
-    comboFont = new QComboBox;
+    comboFont = new QComboBox(tb);
     tb->addWidget(comboFont);
     comboFont->setEditable(true);
     QFontDatabase db;
@@ -174,19 +176,18 @@ void TextEdit::setupTextActions()
             this, SLOT(textFamily(const QString &)));
     comboFont->lineEdit()->setText(QApplication::font().family());
 
-    comboSize = new QComboBox;
+    comboSize = new QComboBox(tb);
     tb->addWidget(comboSize);
     comboSize->setEditable(true);
 
-    QList<int> sizes = db.standardSizes();
-    for (int i = 0; i < sizes.count(); ++i)
-        comboSize->insertItem(QString::number(sizes[i]));
+    foreach(int size, db.standardSizes())
+        comboSize->insertItem(QString::number(size));
 
     connect(comboSize, SIGNAL(activated(const QString &)),
             this, SLOT(textSize(const QString &)));
     comboSize->lineEdit()->setText(QString::number(QApplication::font().pointSize()));
 
-    actionTextBold = new QAction(QPixmap(":/textbold.xpm"), tr("&Bold"), this);
+    actionTextBold = new QAction(QPixmap(":/images/textbold.xpm"), tr("&Bold"), this);
     actionTextBold->setShortcut(Qt::CTRL + Qt::Key_B);
     QFont bold;
     bold.setBold(true);
@@ -196,7 +197,7 @@ void TextEdit::setupTextActions()
     menu->addAction(actionTextBold);
     actionTextBold->setCheckable(true);
 
-    actionTextItalic = new QAction(QPixmap(":/textitalic.xpm"), tr("&Italic"), this);
+    actionTextItalic = new QAction(QPixmap(":/images/textitalic.xpm"), tr("&Italic"), this);
     actionTextItalic->setShortcut(Qt::CTRL + Qt::Key_I);
     QFont italic;
     italic.setItalic(true);
@@ -206,7 +207,7 @@ void TextEdit::setupTextActions()
     menu->addAction(actionTextItalic);
     actionTextItalic->setCheckable(true);
 
-    actionTextUnderline = new QAction(QPixmap(":/textunder.xpm"), tr("&Underline"), this);
+    actionTextUnderline = new QAction(QPixmap(":/images/textunder.xpm"), tr("&Underline"), this);
     actionTextUnderline->setShortcut(Qt::CTRL + Qt::Key_U);
     QFont underline;
     underline.setUnderline(true);
@@ -221,16 +222,16 @@ void TextEdit::setupTextActions()
     QActionGroup *grp = new QActionGroup(this);
     connect(grp, SIGNAL(triggered(QAction *)), this, SLOT(textAlign(QAction *)));
 
-    actionAlignLeft = new QAction(QPixmap(":/textleft.xpm"), tr("&Left"), grp);
+    actionAlignLeft = new QAction(QPixmap(":/images/textleft.xpm"), tr("&Left"), grp);
     actionAlignLeft->setShortcut(Qt::CTRL + Qt::Key_L);
     actionAlignLeft->setCheckable(true);
-    actionAlignCenter = new QAction(QPixmap(":/textcenter.xpm"), tr("C&enter"), grp);
+    actionAlignCenter = new QAction(QPixmap(":/images/textcenter.xpm"), tr("C&enter"), grp);
     actionAlignCenter->setShortcut(Qt::CTRL + Qt::Key_E);
     actionAlignCenter->setCheckable(true);
-    actionAlignRight = new QAction(QPixmap(":/textright.xpm"), tr("&Right"), grp);
+    actionAlignRight = new QAction(QPixmap(":/images/textright.xpm"), tr("&Right"), grp);
     actionAlignRight->setShortcut(Qt::CTRL + Qt::Key_R);
     actionAlignRight->setCheckable(true);
-    actionAlignJustify = new QAction(QPixmap(":/textjustify.xpm"), tr("&Justify"), grp);
+    actionAlignJustify = new QAction(QPixmap(":/images/textjustify.xpm"), tr("&Justify"), grp);
     actionAlignJustify->setShortcut(Qt::CTRL + Qt::Key_J);
     actionAlignJustify->setCheckable(true);
 
@@ -279,7 +280,6 @@ void TextEdit::fileSave()
 {
     if (!currentEditor)
         return;
-    QString fn;
     if (filenames.find(currentEditor) == filenames.end()) {
         fileSaveAs();
     } else {
@@ -410,17 +410,17 @@ void TextEdit::textSize(const QString &p)
     currentEditor->setFontPointSize(p.toFloat());
 }
 
-void TextEdit::textStyle(int i)
+void TextEdit::textStyle(int styleIndex)
 {
     if (!currentEditor)
         return;
 
     QTextCursor cursor = currentEditor->cursor();
 
-    if (i != 0) {
+    if (styleIndex != 0) {
         QTextListFormat::Style style = QTextListFormat::ListDisc;
 
-        switch (i) {
+        switch (styleIndex) {
             default:
             case 1:
                 style = QTextListFormat::ListDisc;
