@@ -693,7 +693,10 @@ function qdoc(packageDir, edition)
     var dir = new Dir(packageDir);
     dir.setCurrent();
     System.setenv("QTDIR", packageDir);
-    execute([qdocCommand, qdocDir + "/test/qt-" + edition + ".qdocconf"]);
+    var qdocConfigFile = qdocDir + "/test/qt-" + edition + ".qdocconf";
+    if (!File.exists(qdocConfigFile))
+	throw "Missing qdoc configuratio file: %1".arg(qdocConfigFile);
+    execute([qdocCommand, qdocConfigFile]);
 }
 
 /************************************************************
@@ -779,7 +782,7 @@ function binaryFile(fileName)
 
 
 /************************************************************
- * runs the command and throws an exception if stderror is not empty 
+ * runs the command and prints out stderror if not empty
  */
 function execute(command, stdin) {
     var start = Date().getTime();
