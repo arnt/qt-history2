@@ -8,16 +8,16 @@ class QSettings;
 class QMakeProperty 
 {
     QSettings *sett;
-    QString keyBase() const;
+    QString keyBase(bool =TRUE) const;
     bool initSettings();
-    QString value(const QString &, bool just_check); 
+    QString value(QString, bool just_check); 
 public:
     QMakeProperty();
     ~QMakeProperty();
 
-    bool hasValue(const QString &);
-    QString value(const QString &v) { return value(v, FALSE); }
-    void setValue(const QString &, const QString &);
+    bool hasValue(QString);
+    QString value(QString v) { return value(v, FALSE); }
+    void setValue(QString, const QString &);
 
     bool exec();
 };

@@ -27,14 +27,17 @@ bool QMakeProperty::initSettings()
 }
 
 QString
-QMakeProperty::keyBase() const
+QMakeProperty::keyBase(bool version) const
 {
-    return "/QMake/properties/" + QString(qmake_version()) + "/";
+    QString ret = "/QMake/properties/";
+    if(version)
+	ret += QString(qmake_version()) + "/";
+    return ret;
 }
 
 
 QString
-QMakeProperty::value(const QString &v, bool just_check)
+QMakeProperty::value(QString v, bool just_check)
 {
     if(v == "QT_INSTALL_PREFIX") {
 #ifdef QT_INSTALL_PREFIX
@@ -53,14 +56,17 @@ QMakeProperty::value(const QString &v, bool just_check)
 
     if(initSettings()) {
 	bool ok;
-	QString ret = sett->readEntry(keyBase() + v, QString::null, &ok);
+	int slash = v.findRev('/');
+	QString ret = sett->readEntry(keyBase(slash == -1) + v, QString::null, &ok);
 	if(!ok) {
-	    QStringList subs = sett->subkeyList("/QMake/properties/");
+	    if(slash != -1)
+		v = v.mid(slash+1);
+	    QStringList subs = sett->subkeyList(keyBase(FALSE));
 	    subs.sort();
 	    for(QStringList::Iterator it = subs.begin(); it != subs.end(); it++) {
 		if((*it).isEmpty())
 		    continue;
-		ret = sett->readEntry("/QMake/properties/" + (*it) + "/" + v, QString::null, &ok);
+		ret = sett->readEntry(keyBase(FALSE) + (*it) + "/" + v, QString::null, &ok);
 		if(ok) {
 		    if(!just_check)
 			debug_msg(1, "Fell back from %s -> %s for '%s'.", qmake_version(),
@@ -75,7 +81,7 @@ QMakeProperty::value(const QString &v, bool just_check)
 }
 
 bool
-QMakeProperty::hasValue(const QString &v)
+QMakeProperty::hasValue(QString v)
 {
     if(initSettings())
 	return !value(v, TRUE).isNull();
@@ -83,7 +89,7 @@ QMakeProperty::hasValue(const QString &v)
 }
 
 void
-QMakeProperty::setValue(const QString &var, const QString &val)
+QMakeProperty::setValue(QString var, const QString &val)
 {
     if(initSettings())
 	sett->writeEntry(keyBase() + var, val);
@@ -95,14 +101,14 @@ QMakeProperty::exec()
     bool ret = TRUE;
     if(Option::qmake_mode == Option::QMAKE_QUERY_PROPERTY) {
 	if(Option::prop::properties.isEmpty() && initSettings()) {
-	    QStringList subs = sett->subkeyList("/QMake/properties/");
+	    QStringList subs = sett->subkeyList(keyBase(FALSE));
 	    subs.sort();
 	    for(QStringList::Iterator it = subs.begin(); it != subs.end(); it++) {
 		if((*it).isEmpty())
 		    continue;
-		QStringList keys = sett->entryList("/QMake/properties/" + (*it));
+		QStringList keys = sett->entryList(keyBase(FALSE) + (*it));
 		for(QStringList::Iterator it2 = keys.begin(); it2 != keys.end(); it2++) {
-		    QString ret = sett->readEntry("/QMake/properties/" + (*it) + "/" + (*it2));
+		    QString ret = sett->readEntry(keyBase(FALSE) + (*it) + "/" + (*it2));
 		    if((*it) != qmake_version())
 			fprintf(stdout, "%s/", (*it).latin1());
 		    fprintf(stdout, "%s:%s\n", (*it2).latin1(), ret.latin1());
