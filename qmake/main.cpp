@@ -64,13 +64,27 @@ int main(int argc, char **argv)
 
     QDir sunworkshop42workaround = QDir::current();
     QString oldpwd = sunworkshop42workaround.currentDirPath();
-    Option::output_dir = oldpwd; //for now this is the output dir
 #ifdef Q_WS_WIN
-    if ( !(Option::output_dir.length() == 3 && Option::output_dir[0].isLetter() && Option::output_dir.endsWith(":/") ) )
+    if(!(oldpwd.length() == 3 && oldpwd[0].isLetter() && oldpwd.endsWith(":/") ) )
 #endif
     {
-	if(Option::output_dir.right(1) != QString(QChar(QDir::separator())))
-	    Option::output_dir += QDir::separator();
+	if(oldpwd.right(1) != QString(QChar(QDir::separator())))
+	    oldpwd += QDir::separator();
+    }
+    Option::output_dir = oldpwd; //for now this is the output dir
+
+    if(Option::output.name() != "-") {
+	QFileInfo fi(Option::output);
+	QString dir;
+	if(fi.isDir()) {
+	    dir = fi.filePath();
+	} else {
+	    QString tmp_dir = fi.dirPath();
+	    if(!tmp_dir.isEmpty() && QFile::exists(tmp_dir))
+		dir = tmp_dir;
+	}
+	if(!dir.isNull() && dir != ".") 
+	    Option::output_dir = dir;
     }
 
     QMakeProperty prop;
@@ -133,6 +147,7 @@ int main(int argc, char **argv)
 		} else {
 		    if(Option::output.name().isEmpty() && Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE)
 			Option::output.setName(proj.first("QMAKE_MAKEFILE"));
+		    Option::output_dir = oldpwd;
 		    if(!mkfile->openOutput(Option::output)) {
 			fprintf(stderr, "Failure to open file: %s\n",
 				Option::output.name().isEmpty() ? "(stdout)" : Option::output.name().latin1());
