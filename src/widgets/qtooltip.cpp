@@ -502,9 +502,9 @@ void QTipManager::showTip()
 
 	if ( animate && !previousTip && !preventAnimation) {
 	    if ( blend )
-		fadeEffect( label );
+		qFadeEffect( label );
 	    else
-		scrollEffect( label );
+		qScrollEffect( label );
 	} else {
 	    label->show();
 	}

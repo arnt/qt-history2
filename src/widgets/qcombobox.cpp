@@ -1372,7 +1372,7 @@ void QComboBox::popup()
 #endif
 
 	if ( animate )
-	    scrollEffect( d->listBox() );
+	    qScrollEffect( d->listBox() );
 	else
 	    d->listBox()->show();
     } else {

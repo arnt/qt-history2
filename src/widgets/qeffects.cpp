@@ -6,7 +6,7 @@
 #include "qtimer.h"
 #include "qdatetime.h"
 
-/*
+/*!
   Internal class to get access to protected QWidget-members
 */
 
@@ -19,7 +19,7 @@ public:
 	: QWidget( parent, name, f ) {}
 };
 
-/*
+/*!
   Internal class QAlphaWidget.
 
   The QAlphaWidget is shown while the animation lasts
@@ -57,16 +57,13 @@ private:
 
 static QAlphaWidget* blend = 0;
 
-/*
+/*!
   Constructs a QAlphaWidget.
 */
 QAlphaWidget::QAlphaWidget( QWidget* w, QWidget* parent, const char* name, WFlags f )
     : QWidget( parent, name,
 	       f | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WStyle_StaysOnTop | WResizeNoErase | WRepaintNoErase )
 {
-    if ( blend )
-	delete blend;
-
     setBackgroundMode( NoBackground );
     widget = (QAccessWidget*)w;
     alpha = 0;
@@ -80,7 +77,7 @@ void QAlphaWidget::paintEvent( QPaintEvent* )
     bitBlt( this, QPoint(0,0), &pm );
 }
 
-/*
+/*!
   Starts the alphablending animation.
   The animation will take about \a time ms
 */
@@ -150,7 +147,7 @@ bool QAlphaWidget::eventFilter( QObject* o, QEvent* e )
     return QWidget::eventFilter( o, e );
 }
 
-/*
+/*!
   Render alphablending for the time elapsed.
 
   Show the blended widget and free all allocated source
@@ -185,8 +182,8 @@ void QAlphaWidget::render()
     }
 }
 
-/*
-  Caluclate an alphablended image
+/*!
+  Caluclate an alphablended image.
 */
 void QAlphaWidget::alphaBlend()
 {
@@ -211,7 +208,12 @@ void QAlphaWidget::alphaBlend()
     }
 }
 
-// Internal class QRollEffect
+/*!
+  Internal class QRollEffect
+
+  The QRollEffect widget is shown while the animation lasts
+  and displays a scrolling pixmap.
+*/
 
 class QRollEffect : public QWidget
 {
@@ -249,26 +251,18 @@ private:
 
 static QRollEffect* roll = 0;
 
-/*
-  Construct a QRollEffect widget
-
-  The QRollEffect widget is shown while the animation lasts
-  and displays the pixmap shifted.
+/*!
+  Construct a QRollEffect widget.
 */
 QRollEffect::QRollEffect( QWidget* w, int orient )
     : QWidget(0, 0,
 	      WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WStyle_StaysOnTop | WResizeNoErase | WRepaintNoErase )
 , orientation(orient)
 {
-    if ( roll )
-	delete roll;
-
     widget = (QAccessWidget*) w;
     ASSERT( widget );
 
     setBackgroundMode( NoBackground );
-
-    widget->installEventFilter( this );
 
     if ( widget->testWState( WState_Resized ) ) {
 	totalWidth = widget->width();
@@ -295,7 +289,7 @@ void QRollEffect::paintEvent( QPaintEvent* )
 {
     bitBlt( this, QMIN(0, currentWidth - totalWidth),
 	    QMIN(0, currentHeight - totalHeight),
-	    &pm, 0,0, pm.width(), pm.height(), Qt::CopyROP, TRUE );
+	    &pm, 0, 0, pm.width(), pm.height(), CopyROP, TRUE );
 }
 
 /*!
@@ -321,7 +315,7 @@ bool QRollEffect::eventFilter( QObject* o, QEvent* e )
     return QWidget::eventFilter( o, e );
 }
 
-/*
+/*!
   Start the animation.
 
   The animation will take about \a time ms, or is
@@ -348,13 +342,15 @@ void QRollEffect::run( int time )
 
     show();
 
+    widget->installEventFilter( this );
+
     showWidget = TRUE;
     done = FALSE;
     anim.start( 10 );
     checkTime.start();
 }
 
-/*
+/*!
   Roll according to the time elapsed.
 */
 void QRollEffect::scroll()
@@ -370,7 +366,8 @@ void QRollEffect::scroll()
 	}
 	done = ( ( currentHeight >= totalHeight ) && 
 		 ( currentWidth >= totalWidth ) );
-	resize( QMIN( currentWidth, totalWidth ), QMIN( currentHeight, totalHeight ) );
+
+        resize( QMIN( currentWidth, totalWidth ), QMIN( currentHeight, totalHeight ) );
     }
     if ( done ) {
 	anim.stop();
@@ -395,13 +392,20 @@ void QRollEffect::scroll()
     }
 }
 
-
 #include "qeffects.moc"
 
-// global functions
-
-void scrollEffect( QWidget* w, int orient, int time )
+/*!
+  Scroll widget \a w in \a time ms.
+  \a orient may be 1 (vertical), 2 (horizontal)
+  or 3 (diagonal).
+*/
+void qScrollEffect( QWidget* w, int orient, int time )
 {
+    if ( roll ) {
+	delete roll;
+	roll = 0;
+    }
+
     qApp->sendPostedEvents( w, QEvent::Move );
     qApp->sendPostedEvents( w, QEvent::Resize );
 
@@ -409,8 +413,16 @@ void scrollEffect( QWidget* w, int orient, int time )
     roll->run( time );
 }
 
-void fadeEffect( QWidget* w, int time )
+/*!
+  Fade in widget \a w in \a time ms.
+*/
+void qFadeEffect( QWidget* w, int time )
 {
+    if ( blend ) {
+	delete blend;
+	blend = 0;
+    }
+	
     qApp->sendPostedEvents( w, QEvent::Move );
     qApp->sendPostedEvents( w, QEvent::Resize );
 

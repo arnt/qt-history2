@@ -411,12 +411,12 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 #endif
     if ( animate && !preventAnimation ) {
 	if ( blend ) {
-	    fadeEffect( this );
+	    qFadeEffect( this );
 	} else {
 	    if ( parentMenu )
-		scrollEffect( this, parentMenu->isPopupMenu ? 2 : 1 ); // 2 is horizontal, 1 is vertical
+		qScrollEffect( this, parentMenu->isPopupMenu ? 2 : 1 ); // 2 is horizontal, 1 is vertical
 	    else
-		scrollEffect( this, 3 ); // 3 is diagonal
+		qScrollEffect( this, 3 ); // 3 is diagonal
 	}
     } else {
 	show();
