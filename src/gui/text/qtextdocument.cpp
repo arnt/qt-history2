@@ -20,23 +20,43 @@ static void init(QTextDocumentPrivate *priv, QAbstractTextDocumentLayout *layout
 
 /*!
     \class QTextDocument qtextdocument.h
-    \brief A document of text that can be displayed using a QTextEditor
+    \brief The QTextDocument class holds formatted text that can be
+    viewed and edited using a QTextEdit.
 
     \ingroup text
 
-    A QTextDocument is a rich text document that can be viewed and
-    edited using a QTextEditor. Programmatic editing of the document
-    is possible using a \a QTextCursor on the document.
+    A QTextDocument can be edited programmatically using a
+    \l{QTextCursor}.
 
-    Custom layouting of the document can be achieved by creating your
-    own \a QAbstractTextDocumentLayout class and setting this as the
-    document layout for the document at construction time.
+    The layout of a document is determined by the documentLayout();
+    you can create your own QAbstractTextDocumentLayout subclass and
+    pass an instance of your subclass to the QTextDocument constructor
+    if you want to use your own layout logic.
 
+    You can retrieve the plain text content of the document using
+    plainText(); if you want the text and the format information use a
+    QTextCursor. The text can be searched using the find() functions.
+
+    The document's title is available using documentTitle(). The page
+    size can be set with setPageSize(), and the number of pages the
+    document occupies (with the current layout and page size) is given
+    by numPages(). Arbitrary HTML formatted text can be inserted using
+    setHtml(); for any other edits use a QTextCursor.
+
+    Undo/redo can be controlled using setUndoRedoEnabled(). undo() and
+    redo() slots are provided, along with contentsChanged(),
+    undoAvailable() and redoAvailable() signals.
 */
 
+/*!
+    \enum QTextDocument::FindMode
+
+    \value FindWords
+    \value FindAnything
+*/
 
 /*!
-  Constructs an empty QTextDocument.
+    Constructs an empty QTextDocument with parent \a parent.
 */
 QTextDocument::QTextDocument(QObject *parent)
     : QObject(*new QTextDocumentPrivate, parent)
@@ -45,7 +65,8 @@ QTextDocument::QTextDocument(QObject *parent)
 }
 
 /*!
-  Constructs a QTextDocument containing the (unformatted) text \a text.
+    Constructs a QTextDocument containing the plain (unformatted) text
+    \a text, and with parent \a parent.
 */
 QTextDocument::QTextDocument(const QString &text, QObject *parent)
     : QObject(*new QTextDocumentPrivate, parent)
@@ -55,7 +76,8 @@ QTextDocument::QTextDocument(const QString &text, QObject *parent)
 }
 
 /*!
-  Constructs a QTextDocument with a custom document layout \a documentLayout.
+    Constructs a QTextDocument with a custom document layout \a
+    documentLayout, and with parent \a parent.
 */
 QTextDocument::QTextDocument(QAbstractTextDocumentLayout *documentLayout, QObject *parent)
     : QObject(*new QTextDocumentPrivate, parent)
@@ -64,14 +86,15 @@ QTextDocument::QTextDocument(QAbstractTextDocumentLayout *documentLayout, QObjec
 }
 
 /*!
-  Destroys the document.
+    Destroys the document.
 */
 QTextDocument::~QTextDocument()
 {
 }
 
 /*!
-  Returns the plain text (without formatting information) contained in the document.
+  Returns the plain text contained in the document. If you want
+  formatting information use a QTextCursor instead.
 */
 QString QTextDocument::plainText() const
 {
@@ -81,7 +104,7 @@ QString QTextDocument::plainText() const
 }
 
 /*!
-  Returns true if the document is empty (ie. it doesn't contain any text).
+    Returns true if the document is empty; otherwise returns false.
 */
 bool QTextDocument::isEmpty() const
 {
@@ -91,15 +114,17 @@ bool QTextDocument::isEmpty() const
 }
 
 /*!
-  \fn void QTextDocument::undo();
+    \fn void QTextDocument::undo();
 
-  Undoes the last editing operation on the document.
+    Undoes the last editing operation on the document if
+    \link QTextDocument::isUndoAvailable() undo is available\endlink.
 */
 
 /*!
-  \fn void QTextDocument::redo();
+    \fn void QTextDocument::redo();
 
-  Redoes the last editing operation on the document.
+    Redoes the last editing operation on the document if \link
+    QTextDocument::isRedoAvailable() redo is available\endlink.
 */
 
 /*! \internal
@@ -110,6 +135,8 @@ void QTextDocument::undoRedo(bool undo)
 }
 
 /*!
+    \internal
+
     Appends a custom undo \a item to the undo stack.
 */
 void QTextDocument::appendUndoItem(QAbstractUndoItem *item)
@@ -119,11 +146,10 @@ void QTextDocument::appendUndoItem(QAbstractUndoItem *item)
 
 /*!
     \property QTextDocument::undoRedoEnabled
+    \brief Whether undo/redo are enabled for this document.
 
-    Enables the document's undo stack if \a enable is true; disables
-    it if \a enable is false. Disabling the undo stack will also
-    remove all undo items currently on the stack. The default is
-    enabled.
+    This defaults to true. If disabled the undo stack is cleared and
+    no items will be added to it.
 */
 void QTextDocument::setUndoRedoEnabled(bool enable)
 {
@@ -136,19 +162,29 @@ bool QTextDocument::isUndoRedoEnabled() const
 }
 
 /*!
-  \fn QTextDocument::undoAvailable(bool b);
+    \fn void QTextDocument::contentsChanged()
 
-  This signal is emitted whenever undo operations become available or unavailable.
+    This signal is emitted whenever the documents content changes, for
+    example, text is inserted or deleted, or formatting is applied.
+*/
+
+
+/*!
+    \fn QTextDocument::undoAvailable(bool b);
+
+    This signal is emitted whenever undo operations become available
+    (\a b is true) or unavailable (\a b is false).
 */
 
 /*!
-  \fn QTextDocument::redoAvailable(bool b);
+    \fn QTextDocument::redoAvailable(bool b);
 
-  This signal is emitted whenever redo operations become available or unavailable.
+    This signal is emitted whenever redo operations become available
+    (\a b is true) or unavailable (\a b is false).
 */
 
 /*!
-  Returns true is undo is available.
+    Returns true is undo is available; otherwise returns false.
 */
 bool QTextDocument::isUndoAvailable() const
 {
@@ -156,7 +192,7 @@ bool QTextDocument::isUndoAvailable() const
 }
 
 /*!
-  Returns true is redo is available.
+    Returns true is redo is available; otherwise returns false.
 */
 bool QTextDocument::isRedoAvailable() const
 {
@@ -165,7 +201,7 @@ bool QTextDocument::isRedoAvailable() const
 
 
 /*!
-  Returns the document layout for this document.
+    Returns the document layout for this document.
 */
 QAbstractTextDocumentLayout *QTextDocument::documentLayout() const
 {
@@ -174,29 +210,47 @@ QAbstractTextDocumentLayout *QTextDocument::documentLayout() const
 
 
 /*!
-  Returns the title of this document.
+    Returns the document's title.
 */
 QString QTextDocument::documentTitle() const
 {
     return d->pieceTable->config()->title;
 }
 
+/*!
+    Sets the page size for the current documentLayout() to \a s.
+
+    \sa pageSize()
+*/
 void QTextDocument::setPageSize(const QSize &s)
 {
     d->pieceTable->layout()->setPageSize(s);
 }
 
+/*!
+    Returns the page size for the current documentLayout().
+
+    \sa setPageSize() numPages()
+*/
 QSize QTextDocument::pageSize() const
 {
     return d->pieceTable->layout()->pageSize();
 }
 
+/*!
+    Returns the number of pages that the document occupies using the
+    current documentLayout() and pageSize().
+*/
 int QTextDocument::numPages() const
 {
     return d->pieceTable->layout()->numPages();
 }
 
 
+/*!
+    Insert the arbitrary piece of HTML formatted text in \a html into
+    the document at the current cursor position.
+*/
 void QTextDocument::setHtml(const QString &html)
 {
     QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(html);
@@ -206,6 +260,10 @@ void QTextDocument::setHtml(const QString &html)
 }
 
 
+/*!
+    Returns the name of the anchor at point \a pos, or an empty string
+    if there's no anchor at that point.
+*/
 QString QTextDocument::anchorAt(const QPoint& pos) const
 {
     int cursorPos = d->pieceTable->layout()->hitTest(pos, QText::ExactHit);
@@ -218,18 +276,20 @@ QString QTextDocument::anchorAt(const QPoint& pos) const
 }
 
 /*!
-    Finds the next occurrence of the string, \a expr. Returns a cursor
-    having the match selected if \a expr was found; otherwise returns
-    a null cursor.
+    \overload
 
-    If \a from is 0 (the default) the search begins from the beginning of
-    the document; otherwise from the specified position.
+    Finds the next occurrence of the string, \a expr, starting at
+    position \a from. Returns a cursor with the match selected if \a
+    expr was found; otherwise returns a null cursor.
 
-    If \a cs is QString::CaseSensitive (the default), the search is case sensitive; 
-    otherwise the search is case insensitive. If \a mode is FindAnything 
-    the default) the search looks for any matching; otherwise it searches
-    for whole matches only.
- */
+    If \a from is 0 (the default) the search begins from the beginning
+    of the document; otherwise from the specified position.
+
+    If \a cs is QString::CaseSensitive (the default), the search is
+    case sensitive; otherwise the search is case insensitive. If \a
+    mode is \c FindAnything the default) the search looks for any
+    matching text; otherwise it only searches for whole word matches.
+*/
 QTextCursor QTextDocument::find(const QString &expr, int from, QString::CaseSensitivity cs, FindMode mode) const
 {
     if (expr.isEmpty())
@@ -268,18 +328,18 @@ QTextCursor QTextDocument::find(const QString &expr, int from, QString::CaseSens
 }
 
 /*!
-    Finds the next occurrence of the string, \a expr. Returns a cursor
-    having the match selected if \a expr was found; otherwise returns
-    a null cursor.
+    Finds the next occurrence of the string, \a expr, starting at
+    position \a from. Returns a cursor with the match selected if \a
+    expr was found; otherwise returns a null cursor.
 
     If the \a from cursor has a selection the search begins after the
     selection; otherwise from the position of the cursor.
 
-    If \a cs is QString::CaseSensitive (the default), the search is case sensitive; 
-    otherwise the search is case insensitive. If \a mode is FindAnything 
-    the default) the search looks for any matching; otherwise it searches
-    for whole matches only.
- */
+    If \a cs is QString::CaseSensitive (the default), the search is
+    case sensitive; otherwise the search is case insensitive. If \a
+    mode is \c FindAnything the default) the search looks for any
+    matching text; otherwise it only searches for whole word matches.
+*/
 QTextCursor QTextDocument::find(const QString &expr, const QTextCursor &from, QString::CaseSensitivity cs, FindMode mode) const
 {
     const int pos = (from.isNull() ? 0 : from.selectionEnd());

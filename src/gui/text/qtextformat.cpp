@@ -130,23 +130,213 @@ QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop)
 
 /*!
     \class QTextFormat qtextformat.h
-    \brief The format of a part of a QTextDocument
+    \brief The QTextFormat class provides formatting information for a
+    QTextDocument.
 
     \ingroup text
 
     A QTextFormat is a generic class used for describing the format of
-    parts of a QTextDocument.  The derived classes QTextCharFormat,
-    QTextBlockFormat, QTextListFormat and QTextTableFormat are usually
-    more useful, and describe the formatting that gets applied to
+    parts of a QTextDocument. The derived classes QTextCharFormat,
+    QTextBlockFormat, QTextListFormat, and QTextTableFormat are usually
+    more useful, and describe the formatting that is applied to
     specific parts of the document.
+
+    A format has a \c FormatType which specifies the kinds of thing it
+    can format, e.g. a block of text, a list, a table, etc. A format
+    also has various properties (some specific to particular format
+    types), as described by the \c Property enum. Every property has a
+    \c PropertyType. A property can also have an associated object()
+    (currently the only object type that is supported is \c
+    ImageObject).
+
+    The format type is given by type(), tested with
+    isCharFormat(), isBlockFormat(), isListFormat(),
+    isTableFormat(), isFrameFormat(), and isImageFormat(), and
+    retrieved with toCharFormat(), toBlockFormat(), toListFormat(),
+    toTableFormat(), toFrameFormat(), and toImageFormat().
+
+    A format's properties can be set with the setProperty() functions,
+    and retrieved with boolProperty(), intProperty(), floatProperty(),
+    and stringProperty() as appropriate. All the property IDs used in
+    the format can be retrieved with allPropertyIds(). One format can
+    be merged into another using merge().
+
+    A format's object can be set with setObject(), and the object's
+    index set with setObjectIndex().
 */
 
+/*!
+    \enum QTextFormat::FormatType
+
+    \value InvalidFormat
+    \value BlockFormat
+    \value CharFormat
+    \value ListFormat
+    \value TableFormat
+    \value FrameFormat
+
+    \value UserFormat
+*/
+
+/*!
+    \enum QTextFormat::PropertyType
+
+    \value Undefined
+    \value Bool
+    \value Integer
+    \value Float
+    \value String
+    \value FormatObject
+*/
+
+/*!
+    \enum QTextFormat::Property
+
+    \value ObjectIndex
+
+    Paragraph and character properties
+
+    \value CssFloat
+
+    Paragraph properties
+
+    \value BlockDirection
+    \value BlockAlignment
+    \value BlockTopMargin
+    \value BlockBottomMargin
+    \value BlockLeftMargin
+    \value BlockRightMargin
+    \value BlockFirstLineMargin
+    \value BlockIndent
+    \value BlockNonBreakableLines
+    \value BlockBackgroundColor
+
+    Character properties
+
+    \value FontFamily
+    \value FontPointSize
+    \value FontSizeIncrement
+    \value FontWeight
+    \value FontItalic
+    \value FontUnderline
+    \value FontOverline
+    \value FontStrikeOut
+    \value FontFixedPitch
+
+    \value Color
+
+    \value IsAnchor
+    \value AnchorHref
+    \value AnchorName
+
+    \value NonDeletable
+
+    \value ObjectType
+
+    List properties
+
+    \value ListStyle
+    \value ListIndent
+
+    Table properties
+
+    \value TableColumns
+    \value TableBorder
+    \value Width
+    \value Height
+
+    Table cell properties
+
+    \value TableCellRowSpan
+    \value TableCellColumnSpan
+
+    Image properties
+
+    \value ImageName
+    \value ImageWidth
+    \value ImageHeight
+
+    \value UserProperty
+*/
+
+/*!
+    \enum QTextFormat::ObjectTypes
+
+    \value NoObject
+    \value ImageObject
+*/
+
+/*!
+    \fn bool QTextFormat::isValid() const
+
+    Returns true if the format is valid (i.e. is not \c
+    InvalidFormat); otherwise returns false.
+*/
+
+/*!
+    \fn bool QTextFormat::isCharFormat() const
+
+    Returns true if this text format is a \c CharFormat; otherwise
+    returns false.
+*/
+
+
+/*!
+    \fn bool QTextFormat::isBlockFormat() const
+
+    Returns true if this text format is a \c BlockFormat; otherwise
+    returns false.
+*/
+
+
+/*!
+    \fn bool QTextFormat::isListFormat() const
+
+    Returns true if this text format is a \c ListFormat; otherwise
+    returns false.
+*/
+
+
+/*!
+    \fn bool QTextFormat::isTableFormat() const
+
+    Returns true if this text format is a \c TableFormat; otherwise
+    returns false.
+*/
+
+
+/*!
+    \fn bool QTextFormat::isFrameFormat() const
+
+    Returns true if this text format is a \c FrameFormat; otherwise
+    returns false.
+*/
+
+
+/*!
+    \fn bool QTextFormat::isImageFormat() const
+
+    Returns true if this text format is an image format; otherwise
+    returns false.
+*/
+
+
+/*!
+    Creates a new text format with an \c InvalidFormat.
+
+    \sa FormatType
+*/
 QTextFormat::QTextFormat()
     : d(new QTextFormatPrivate), collection(0)
 {
     d->type = InvalidFormat;
 }
 
+/*!
+    Creates a new text format of the given \a type.
+
+    \sa FormatType
+*/
 QTextFormat::QTextFormat(int type)
     : d(new QTextFormatPrivate), collection(0)
 {
@@ -160,6 +350,10 @@ QTextFormat::QTextFormat(QTextFormatCollection *c, QTextFormatPrivate *p)
 }
 
 
+/*!
+    Creates a new text format with the same attributes at the \a rhs
+    text format.
+*/
 QTextFormat::QTextFormat(const QTextFormat &rhs)
 {
     d = rhs.d;
@@ -168,6 +362,10 @@ QTextFormat::QTextFormat(const QTextFormat &rhs)
         ++collection->ref;
 }
 
+/*!
+    Assigns the \a rhs text format to this text format and returns a
+    reference to this text format.
+*/
 QTextFormat &QTextFormat::operator=(const QTextFormat &rhs)
 {
     d = rhs.d;
@@ -180,6 +378,9 @@ QTextFormat &QTextFormat::operator=(const QTextFormat &rhs)
     return *this;
 }
 
+/*!
+    Destroys this text format.
+*/
 QTextFormat::~QTextFormat()
 {
     if (collection && !--collection->ref) {
@@ -188,6 +389,10 @@ QTextFormat::~QTextFormat()
     }
 }
 
+/*!
+    Merges the \a other format with this format; where there are
+    conflicts \a other takes precedence.
+*/
 void QTextFormat::merge(const QTextFormat &other)
 {
     if (d->type != other.d->type)
@@ -200,11 +405,17 @@ void QTextFormat::merge(const QTextFormat &other)
     }
 }
 
+/*!
+    Returns the type of this format.
+*/
 int QTextFormat::type() const
 {
     return d->type;
 }
 
+/*!
+    Returns this format as a block format.
+*/
 QTextBlockFormat QTextFormat::toBlockFormat() const
 {
     QTextBlockFormat f;
@@ -212,6 +423,9 @@ QTextBlockFormat QTextFormat::toBlockFormat() const
     return f;
 }
 
+/*!
+    Returns this format as a character format.
+*/
 QTextCharFormat QTextFormat::toCharFormat() const
 {
     QTextCharFormat f;
@@ -219,6 +433,9 @@ QTextCharFormat QTextFormat::toCharFormat() const
     return f;
 }
 
+/*!
+    Returns this format as a list format.
+*/
 QTextListFormat QTextFormat::toListFormat() const
 {
     QTextListFormat f;
@@ -226,6 +443,9 @@ QTextListFormat QTextFormat::toListFormat() const
     return f;
 }
 
+/*!
+    Returns this format as a table format.
+*/
 QTextTableFormat QTextFormat::toTableFormat() const
 {
     QTextTableFormat f;
@@ -233,6 +453,9 @@ QTextTableFormat QTextFormat::toTableFormat() const
     return f;
 }
 
+/*!
+    Returns this format as a frame format.
+*/
 QTextFrameFormat QTextFormat::toFrameFormat() const
 {
     QTextFrameFormat f;
@@ -240,6 +463,9 @@ QTextFrameFormat QTextFormat::toFrameFormat() const
     return f;
 }
 
+/*!
+    Returns this format as an image format.
+*/
 QTextImageFormat QTextFormat::toImageFormat() const
 {
     QTextImageFormat f;
@@ -247,6 +473,13 @@ QTextImageFormat QTextFormat::toImageFormat() const
     return f;
 }
 
+/*!
+    Returns the value of the property given by \a propertyId; if the
+    property isn't of \c QTextFormat::Bool type the \a defaultValue is
+    returned instead.
+
+    \sa setProperty() intProperty() floatProperty() stringProperty() PropertyType
+*/
 bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
 {
     const QTextFormatProperty prop = d->properties.value(propertyId);
@@ -255,6 +488,13 @@ bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
     return prop.data.boolValue;
 }
 
+/*!
+    Returns the value of the property given by \a propertyId; if the
+    property isn't of \c QTextFormat::Integer type the \a defaultValue is
+    returned instead.
+
+    \sa setProperty() boolProperty() floatProperty() stringProperty() PropertyType
+*/
 int QTextFormat::intProperty(int propertyId, int defaultValue) const
 {
     const QTextFormatProperty prop = d->properties.value(propertyId);
@@ -263,6 +503,13 @@ int QTextFormat::intProperty(int propertyId, int defaultValue) const
     return prop.data.intValue;
 }
 
+/*!
+    Returns the value of the property given by \a propertyId; if the
+    property isn't of \c QTextFormat::Float type the \a defaultValue is
+    returned instead.
+
+    \sa setProperty() boolProperty() intProperty() stringProperty() PropertyType
+*/
 float QTextFormat::floatProperty(int propertyId, float defaultValue) const
 {
     const QTextFormatProperty prop = d->properties.value(propertyId);
@@ -271,6 +518,13 @@ float QTextFormat::floatProperty(int propertyId, float defaultValue) const
     return prop.data.floatValue;
 }
 
+/*!
+    Returns the value of the property given by \a propertyId; if the
+    property isn't of \c QTextFormat::String type the \a defaultValue is
+    returned instead.
+
+    \sa setProperty() boolProperty() intProperty() floatProperty() PropertyType
+*/
 QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue) const
 {
     const QTextFormatProperty prop = d->properties.value(propertyId);
@@ -279,26 +533,57 @@ QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue)
     return prop.stringValue();
 }
 
+/*!
+    \overload
+
+    Sets the value of the property given by \a propertyId to \a value.
+
+    \sa boolProperty() PropertyType
+*/
 void QTextFormat::setProperty(int propertyId, bool value)
 {
     d->properties.insert(propertyId, value);
 }
 
+/*!
+    \overload
+
+    Sets the value of the property given by \a propertyId to \a value.
+
+    \sa intProperty() PropertyType
+*/
 void QTextFormat::setProperty(int propertyId, int value)
 {
     d->properties.insert(propertyId, value);
 }
 
+/*!
+    \overload
+
+    Sets the value of the property given by \a propertyId to \a value.
+
+    \sa floatProperty() PropertyType
+*/
 void QTextFormat::setProperty(int propertyId, float value)
 {
     d->properties.insert(propertyId, value);
 }
 
+/*!
+    Sets the value of the property given by \a propertyId to \a value.
+
+    \sa stringProperty() PropertyType
+*/
 void QTextFormat::setProperty(int propertyId, const QString &value)
 {
     d->properties.insert(propertyId, value);
 }
 
+/*!
+    Return's the text format's format object or 0 if there isn't one.
+
+    \sa setObject() ObjectTypes
+*/
 QTextFormatObject *QTextFormat::object() const
 {
     const QTextFormatProperty prop = d->properties.value(ObjectIndex);
@@ -307,6 +592,11 @@ QTextFormatObject *QTextFormat::object() const
     return collection->object(prop.data.intValue);
 }
 
+/*!
+    Sets the text format's format object to \a object.
+
+    \sa object() ObjectTypes
+*/
 void QTextFormat::setObject(QTextFormatObject *object)
 {
     if (!object) {
@@ -327,6 +617,12 @@ void QTextFormat::setObject(QTextFormatObject *object)
     d->properties.insert(ObjectIndex, prop);
 }
 
+/*!
+    Returns the index of the text format's format object, or -1 if
+    there isn't a format object.
+
+    \sa setObjectIndex() setObject()
+*/
 int QTextFormat::objectIndex() const
 {
     const QTextFormatProperty prop = d->properties.value(ObjectIndex);
@@ -335,6 +631,11 @@ int QTextFormat::objectIndex() const
     return prop.data.intValue;
 }
 
+/*!
+    Set's the format object's object index to \a o.
+
+    \sa objectIndex() setObject()
+*/
 void QTextFormat::setObjectIndex(int o)
 {
     QTextFormatProperty prop;
@@ -343,11 +644,22 @@ void QTextFormat::setObjectIndex(int o)
     d->properties.insert(ObjectIndex, prop);
 }
 
+/*!
+    Returns true if the text format has a property with the given \a
+    propertyId; otherwise returns false.
+
+    \sa propertyType() allPropertyIds() PropertyType
+*/
 bool QTextFormat::hasProperty(int propertyId) const
 {
     return d->properties.contains(propertyId);
 }
 
+/*!
+    Returns the property type for the given \a propertyId.
+
+    \sa hasProperty() allPropertyIds() PropertyType
+*/
 QTextFormat::PropertyType QTextFormat::propertyType(int propertyId) const
 {
     if (!d)
@@ -356,6 +668,11 @@ QTextFormat::PropertyType QTextFormat::propertyType(int propertyId) const
     return d->properties.value(propertyId).type;
 }
 
+/*!
+    Returns a list of all the property IDs for this text format.
+
+    \sa hasProperty() propertyType() PropertyType
+*/
 QList<int> QTextFormat::allPropertyIds() const
 {
     if (!d)
@@ -364,6 +681,19 @@ QList<int> QTextFormat::allPropertyIds() const
     return d->properties.keys();
 }
 
+
+/*!
+    \fn bool QTextFormat::operator!=(const QTextFormat &rhs) const
+
+    Returns true if this text format is different from the \a rhs text
+    format.
+*/
+
+
+/*!
+    Returns true if this text format is the same as the \a rhs text
+    format.
+*/
 bool QTextFormat::operator==(const QTextFormat &rhs) const
 {
     if (!d)
@@ -386,16 +716,335 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
 
 /*!
     \class QTextCharFormat qtextformat.h
-    \brief The format of a character in a QTextDocument
+    \brief The QTextCharFormat class provides formatting information for
+    characters in a QTextDocument.
 
     \ingroup text
 
-    A QTextCharFormat describes the format to be applied to characters
-    in a QTextDocument. It contains properties as font, color and
-    anchors (if the character belongs to a hyperlink.
+    The format's font can be set with setFont(), or piecemeal using
+    setFontFamily(), setFontPointSize(), setFontWeight() (for bold),
+    setFontItalic(), setFontUnderline(), setFontOverline(),
+    setFontStrikeOut(), and setFontFixedPitch(). The color is set with
+    setColor(), and the anchor (for hyperlinks) with setAnchor() and
+    setAnchorHref(). The characters can be marked as non-deletable
+    with setNonDeletable().
+
+    If the characters are in a table the cell and row spanning
+    characteristics can be set with setTableCellRowSpan() and
+    setTableCellColumnSpan().
+*/
+
+/*!
+    \fn bool QTextCharFormat::isValid() const
+
+    Returns true if this character format is valid; otherwise returns
+    false.
 */
 
 
+/*!
+    \fn void QTextCharFormat::setFontFamily(const QString &family)
+
+    Sets the text format's font family to \a family.
+
+    \sa setFont()
+*/
+
+
+/*!
+    \fn QString QTextCharFormat::fontFamily() const
+
+    Returns the text format's font family.
+
+    \sa font()
+*/
+
+
+/*!
+    \fn void QTextCharFormat::setFontPointSize(float size)
+
+    Sets the text format's font size to \a size.
+
+    \sa setFont()
+*/
+
+
+/*!
+    \fn float QTextCharFormat::fontPointSize() const
+
+    Returns the text format's font size.
+
+    \sa font()
+*/
+
+
+/*!
+    \fn void QTextCharFormat::setFontWeight(int weight)
+
+    Sets the text format's font weight to \a weight.
+
+    \sa setFont()
+*/
+
+
+/*!
+    \fn int QTextCharFormat::fontWeight() const
+
+    Returns the text format's font weight.
+
+    \sa font()
+*/
+
+
+/*!
+    \fn void QTextCharFormat::setFontItalic(bool italic)
+
+    Sets the text format's font to be italic if \a italic is true;
+    otherwise to non-italic.
+
+    \sa setFont()
+*/
+
+
+/*!
+    \fn bool QTextCharFormat::fontItalic() const
+
+    Returns true if the text format's font is italic; otherwise
+    returns false.
+
+    \sa font()
+*/
+
+
+/*!
+    \fn void QTextCharFormat::setFontUnderline(bool underline)
+
+    Sets the text format's font to be underlined if \a underline is
+    true; otherwise to non-underlined.
+
+    \sa setFont()
+*/
+
+
+/*!
+    \fn bool QTextCharFormat::fontUnderline() const
+
+    Returns true if the text format's font is underlined; otherwise
+    returns false.
+
+    \sa font()
+*/
+
+
+/*!
+    \fn void QTextCharFormat::setFontOverline(bool overline)
+
+    Sets the text format's font to be overlined if \a overline is
+    true; otherwise to non-overlined.
+
+    \sa setFont()
+*/
+
+
+/*!
+    \fn bool QTextCharFormat::fontOverline() const
+
+    Returns true if the text format's font is overlined; otherwise
+    returns false.
+
+    \sa font()
+*/
+
+
+/*!
+    \fn void QTextCharFormat::setFontStrikeOut(bool strikeOut)
+
+    Sets the text format's font to be struck out if \a strikeOut is
+    true; otherwise to non-struck out.
+
+    \sa setFont()
+*/
+
+
+/*!
+    \fn bool QTextCharFormat::fontStrikeOut() const
+
+    Returns true if the text format's font is struck out; otherwise
+    returns false.
+
+    \sa font()
+*/
+
+
+/*!
+    \fn void QTextCharFormat::setFontFixedPitch(bool fixedPitch)
+
+    Sets the text format's font to be fixed pitch if \a fixedPitch is
+    true; otherwise to non-fixed pitch.
+
+    \sa setFont()
+*/
+
+
+/*!
+    \fn bool QTextCharFormat::fontFixedPitch() const
+
+    Returns true if the text format's font is fixed pitch; otherwise
+    returns false.
+
+    \sa font()
+*/
+
+
+/*!
+    \fn void QTextCharFormat::setColor(const QColor &color)
+
+    Sets the text format's font color to \a color.
+
+    \sa color()
+*/
+
+
+/*!
+    \fn QColor QTextCharFormat::color() const
+
+    Returns the text format's font color.
+
+    \sa setColor()
+*/
+
+
+/*!
+    \fn void QTextCharFormat::setAnchor(bool anchor)
+
+    If \a anchor is true, sets the text format signify an anchor;
+    otherwise removes anchor formatting. (Anchors are hyperlinks,
+    often shown underlined and in a different color from plain text.)
+
+    This is independent of whether or not the format has an anchor.
+    Use setAnchorHref(), and optionally setAnchorName() to create a
+    hypertext link.
+
+    \sa isAnchor()
+*/
+
+
+/*!
+    \fn bool QTextCharFormat::isAnchor() const
+
+    Returns true if the text is formatted as an anchor; otherwise
+    returns false.
+
+    \sa setAnchor() setAnchorHref() setAnchorName()
+*/
+
+
+/*!
+    \fn void QTextCharFormat::setAnchorHref(const QString &value)
+
+    Sets the anchor's hypertext link to be \a value. (This is
+    typically a URL like http://www.trolltech.com/index.html.)
+
+    The anchor will be displayed using \a value as its display text;
+    if you want to display different text call setAnchorName().
+
+    To format the text as a hypertext link use setAnchor().
+*/
+
+
+/*!
+    \fn QString QTextCharFormat::anchorHref() const
+
+    Returns the text format's hypertext link, or an empty string if
+    none has been set.
+*/
+
+
+/*!
+    \fn void QTextCharFormat::setAnchorName(const QString &name)
+
+    Sets the text format's hypertext link's name to \a name. For the
+    link to work a hyperlink must be set with setAnchorHref(); use
+    setAnchor() to apply a hyperlink format.
+*/
+
+
+/*!
+    \fn QString QTextCharFormat::anchorName() const
+
+    Returns the text format's hypertext link's name, or an empty
+    string if none has been set.
+*/
+
+
+/*!
+    \fn void QTextCharFormat::setNonDeletable(bool d)
+
+    If \a d is true, the characters formatted by this character format
+    cannot be deleted by the user; otherwise they can be deleted
+    normally.
+*/
+
+
+/*!
+    \fn bool QTextCharFormat::nonDeletable() const
+
+    Returns true if characters in this character format cannot be
+    deleted; otherwise returns false.
+*/
+
+
+/*!
+    \fn void QTextCharFormat::setObjectType(int type)
+
+    \reimp
+*/
+
+
+/*!
+    \fn int QTextCharFormat::objectType() const
+
+    \reimp
+*/
+
+
+/*!
+    \fn void QTextCharFormat::setTableCellRowSpan(int tableCellRowSpan)
+
+    If this character format is applied to characters in a table cell,
+    the cell will span \a tableCellRowSpan rows.
+*/
+
+
+/*!
+    \fn int QTextCharFormat::tableCellRowSpan() const
+
+    If this character format is applied to characters in a table cell,
+    returns the number of rows spanned which may be 1. Otherwise
+    returns 1.
+*/
+
+
+/*!
+    \fn void QTextCharFormat::setTableCellColumnSpan(int tableCellColumnSpan)
+
+    If this character format is applied to characters in a table cell,
+    the cell will span \a tableCellColumnSpan columns.
+*/
+
+
+/*!
+    \fn int QTextCharFormat::tableCellColumnSpan() const
+
+    If this character format is applied to characters in a table cell,
+    returns the number of columns spanned which may be 1. Otherwise
+    returns 1.
+*/
+
+
+/*!
+    Sets the character format's font to \a font.
+*/
 void QTextCharFormat::setFont(const QFont &font)
 {
     setFontFamily(font.family());
@@ -407,6 +1056,9 @@ void QTextCharFormat::setFont(const QFont &font)
     setFontFixedPitch(font.fixedPitch());
 }
 
+/*!
+    Returns the font for this character format.
+*/
 QFont QTextCharFormat::font() const
 {
     QFont font;
@@ -440,7 +1092,8 @@ QFont QTextCharFormat::font() const
 
 /*!
     \class QTextBlockFormat qtextformat.h
-    \brief The format of a block of text in a QTextDocument
+    \brief The QTextBlockFormat class provides formatting information for
+    blocks of text in a QTextDocument.
 
     \ingroup text
 
@@ -450,12 +1103,18 @@ QFont QTextCharFormat::font() const
     indentation and possibly references to list and table formats.
 */
 
+/*!
+    Returns the list format for this character format.
+*/
 QTextListFormat QTextBlockFormat::listFormat() const
 {
     QTextFormatObject *obj = object();
     return (obj ? obj->format() : QTextFormat()).toListFormat();
 }
 
+/*!
+    Returns the table format for this character format.
+*/
 QTextTableFormat QTextCharFormat::tableFormat() const
 {
     QTextFormatObject *obj = object();
@@ -465,7 +1124,8 @@ QTextTableFormat QTextCharFormat::tableFormat() const
 
 /*!
     \class QTextListFormat qtextformat.h
-    \brief The format of a list in a QTextDocument
+    \brief The QTextListFormat class provides formatting information for
+    lists in a QTextDocument.
 
     \ingroup text
 
@@ -476,7 +1136,8 @@ QTextTableFormat QTextCharFormat::tableFormat() const
 
 /*!
     \class QTextTableFormat qtextformat.h
-    \brief The format of a table in a QTextDocument
+    \brief The QTextTableFormat class provides formatting information for
+    tables in a QTextDocument.
 
     \ingroup text
 
@@ -487,7 +1148,8 @@ QTextTableFormat QTextCharFormat::tableFormat() const
 
 /*!
     \class QTextImageFormat qtextformat.h
-    \brief The format of an image in a QTextDocument
+    \brief The QTextImageFormat class provides formatting information for
+    images in a QTextDocument.
 
     \ingroup text
 

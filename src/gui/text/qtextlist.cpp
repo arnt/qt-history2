@@ -15,14 +15,27 @@ class QTextListPrivate : public QTextBlockGroupPrivate
 
 /*!
     \class QTextList qtextlist.h
-    \brief A list in a QTextDocument
+    \brief The QTextList class provides a list in a QTextDocument.
 
     \ingroup text
 
-    QTextList represents a list object in a QTextDocument. Lists can
-    be created through QTextCursor::createList and queried with
-    QTextCursor::currentList.
+    Lists can be created by QTextCursor::createList() and queried
+    with QTextCursor::currentList().
 
+    The number of items in a list is given by count(). A cursor
+    positioned at a given list item is returned by item(), and the
+    text of a given list item is returned by itemText(). A list item
+    can be deleted with removeItem(). The list's format is set with
+    setFormat().
+
+*/
+
+/*!
+    \fn bool QTextList::isEmpty() const
+
+    Returns true if the list has no items; otherwise returns false.
+
+    \sa count()
 */
 
 /*! \internal
@@ -40,7 +53,9 @@ QTextList::~QTextList()
 }
 
 /*!
-  Returns the number of items in the list.
+    Returns the number of items in the list.
+
+    \sa isEmpty()
 */
 int QTextList::count() const
 {
@@ -48,7 +63,9 @@ int QTextList::count() const
 }
 
 /*!
-  Returns a QTextCursor positioned at the \a i 'th item in this list.
+    Returns a QTextCursor positioned at the \a{i}-th item in the list.
+
+    \sa count() item() itemText()
 */
 QTextBlockIterator QTextList::item(int i) const
 {
@@ -58,22 +75,28 @@ QTextBlockIterator QTextList::item(int i) const
 }
 
 /*!
-  \fn void QTextList::setFormat(const QTextListFormat &format)
+    \fn void QTextList::setFormat(const QTextListFormat &format)
 
-  sets the format of the list to \a format.
+    Sets the list's format to \a format.
 */
 
 /*!
-  \fn QTextListFormat QTextList::format() const
+    \fn QTextListFormat QTextList::format() const
 
-  Returns the format of the list.
+    Returns the list's format.
 */
 
+/*!
+    Returns the index of the list item at cursor position \a blockIt.
+*/
 int QTextList::itemNumber(const QTextBlockIterator &blockIt) const
 {
     return d->blocks.indexOf(blockIt);
 }
 
+/*!
+    Returns the text of the list item at cursor position \a blockIt.
+*/
 QString QTextList::itemText(const QTextBlockIterator &blockIt) const
 {
     int item = d->blocks.indexOf(blockIt) + 1;
@@ -113,6 +136,9 @@ QString QTextList::itemText(const QTextBlockIterator &blockIt) const
     return result + QChar('.');
 }
 
+/*!
+    Deletes the item at item position \a i.
+*/
 void QTextList::removeItem(int i)
 {
     if (i < 0 || i >= d->blocks.size())
