@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#83 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#82 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#83 $")
 
 
 /*----------------------------------------------------------------------------
@@ -923,6 +923,7 @@ void QObject::installEventFilter( const QObject *obj )
 	CHECK_PTR( eventFilters );
     }
     eventFilters->insert( 0, obj );
+    connect( obj, SIGNAL(destroyed()), this, SLOT(cleanupEventFilter()) );
 }
 
 /*----------------------------------------------------------------------------
@@ -940,10 +941,13 @@ void QObject::installEventFilter( const QObject *obj )
 
 void QObject::removeEventFilter( const QObject *obj )
 {
-    if ( eventFilters && eventFilters->removeRef(obj) &&
-	 eventFilters->isEmpty() ) {
-	delete eventFilters;			// last event filter removed
-	eventFilters = 0;			// reset event filter list
+    if ( eventFilters && eventFilters->removeRef(obj) ) {
+	if ( eventFilters->isEmpty() ) {	// last event filter removed
+	    delete eventFilters;
+	    eventFilters = 0;			// reset event filter list
+	}
+	disconnect( obj,  SIGNAL(destroyed()),
+		    this, SLOT(cleanupEventFilter()) );
     }
 }
 
@@ -954,7 +958,7 @@ void QObject::removeEventFilter( const QObject *obj )
 
 #if defined(CHECK_RANGE)
 
-static bool check_signal_macro( QObject *sender, const char *signal,
+static bool check_signal_macro( const QObject *sender, const char *signal,
 				const char *func, const char *op )
 {
     int sigcode = (int)(*signal) - '0';
@@ -970,8 +974,8 @@ static bool check_signal_macro( QObject *sender, const char *signal,
     return TRUE;
 }
 
-static bool check_member_code( int code, QObject *object, const char *member,
-			       const char *func )
+static bool check_member_code( int code, const QObject *object,
+			       const char *member, const char *func )
 {
     if ( code != SLOT_CODE && code != SIGNAL_CODE ) {
 	warning( "QObject::%s: Use the SLOT or SIGNAL macro to "
@@ -981,8 +985,8 @@ static bool check_member_code( int code, QObject *object, const char *member,
     return TRUE;
 }
 
-static void err_member_notfound( int code, QObject *object, const char *member,
-				 const char *func )
+static void err_member_notfound( int code, const QObject *object,
+				 const char *member, const char *func )
 {
     const char *type = 0;
     switch ( code ) {
@@ -1080,7 +1084,7 @@ static void err_member_notfound( int code, QObject *object, const char *member,
   \sa disconnect()
  ----------------------------------------------------------------------------*/
 
-bool QObject::connect( QObject *sender,		const char *signal,
+bool QObject::connect( const QObject *sender,	const char *signal,
 		       const QObject *receiver, const char *member )
 {
 #if defined(CHECK_NULL)
@@ -1113,7 +1117,10 @@ bool QObject::connect( QObject *sender,		const char *signal,
     signal = sm->name;				// use name from meta object
 
     int membcode = member[0] - '0';		// get member code
-    QObject *r = (QObject *)receiver;		// set receiver object
+
+    QObject *s = (QObject *)sender;		// we need to change them
+    QObject *r = (QObject *)receiver;		//   internally
+
 #if defined(CHECK_RANGE)
     if ( !check_member_code( membcode, r, member, "connect" ) )
 	return FALSE;
@@ -1137,27 +1144,27 @@ bool QObject::connect( QObject *sender,		const char *signal,
     if ( !checkCompatArgs(signal,member) )
 	warning( "QObject::connect: Incompatible sender/receiver arguments"
 		 "\n\t%s::%s --> %s::%s",
-		 sender->className(), signal,
+		 s->className(), signal,
 		 r->className(), member );
 #endif
-    if ( !sender->connections ) {		// create connections dict
-	sender->connections = new QSignalDict( 7, TRUE, FALSE );
-	CHECK_PTR( sender->connections );
-	sender->connections->setAutoDelete( TRUE );
+    if ( !s->connections ) {		// create connections dict
+	s->connections = new QSignalDict( 7, TRUE, FALSE );
+	CHECK_PTR( s->connections );
+	s->connections->setAutoDelete( TRUE );
     }
-    QConnectionList *clist = sender->connections->find( signal );
+    QConnectionList *clist = s->connections->find( signal );
     if ( !clist ) {				// create receiver list
 	clist = new QConnectionList;
 	CHECK_PTR( clist );
 	clist->setAutoDelete( TRUE );
-	sender->connections->insert( signal, clist );
+	s->connections->insert( signal, clist );
     }
     clist->append( new QConnection( r, rm->ptr, rm->name ) );
     if ( !r->senderObjects ) {			// create list of senders
 	r->senderObjects = new QObjectList;
 	CHECK_PTR( r->senderObjects );
     }
-    r->senderObjects->append( sender );		// add sender to list
+    r->senderObjects->append( s );		// add sender to list
     return TRUE;
 }
 
@@ -1227,7 +1234,7 @@ bool QObject::connect( QObject *sender,		const char *signal,
   \sa connect()
  ----------------------------------------------------------------------------*/
 
-bool QObject::disconnect( QObject *sender, const char *signal,
+bool QObject::disconnect( const QObject *sender,   const char *signal,
 			  const QObject *receiver, const char *member )
 {
 #if defined(CHECK_NULL)
@@ -1241,6 +1248,7 @@ bool QObject::disconnect( QObject *sender, const char *signal,
     QString signal_tmp;
     QString member_tmp;
     QMetaData *rm = 0;
+    QObject *s = (QObject *)sender;
     QObject *r = (QObject *)receiver;
     if ( member ) {
 	member_tmp.resize( strlen(member)+1 );
@@ -1270,20 +1278,20 @@ bool QObject::disconnect( QObject *sender, const char *signal,
     QConnectionList *clist;
     register QConnection *c;
     if ( signal == 0 ) {			// any/all signals
-	QSignalDictIt it(*(sender->connections));
+	QSignalDictIt it(*(s->connections));
 	while ( (clist=it.current()) ) {	// for all signals...
 	    const char *curkey = it.currentKey();
 	    ++it;
 	    c = clist->first();
 	    while ( c ) {			// for all receivers...
 		if ( r == 0 ) {			// remove all receivers
-		    removeObjFromList( c->object()->senderObjects, sender );
+		    removeObjFromList( c->object()->senderObjects, s );
 		    c = clist->next();
 		}
 		else if ( r == c->object() &&
 			  (member == 0 ||
 			   strcmp(member,c->memberName()) == 0) ) {
-		    removeObjFromList( c->object()->senderObjects, sender );
+		    removeObjFromList( c->object()->senderObjects, s );
 		    clist->remove();
 		    c = clist->current();
 		}
@@ -1291,7 +1299,7 @@ bool QObject::disconnect( QObject *sender, const char *signal,
 		    c = clist->next();
 	    }
 	    if ( r == 0 )			// disconnect all receivers
-		sender->connections->remove( curkey );
+		s->connections->remove( curkey );
 	}
     }
 
@@ -1300,31 +1308,31 @@ bool QObject::disconnect( QObject *sender, const char *signal,
 	signal_tmp = rmWS( signal );
 	signal = signal_tmp.data();
 #if defined(CHECK_RANGE)
-	if ( !check_signal_macro( sender, signal, "disconnect", "unbind" ) )
+	if ( !check_signal_macro( s, signal, "disconnect", "unbind" ) )
 	    return FALSE;
 #endif
 	signal++;
-	clist = sender->connections->find( signal );
+	clist = s->connections->find( signal );
 	if ( !clist ) {
 #if defined(CHECK_RANGE)
-	    QMetaObject *smeta = sender->queryMetaObject();
+	    QMetaObject *smeta = s->queryMetaObject();
 	    if ( !smeta )			// no meta object
 		return FALSE;
 	    if ( !smeta->signal(signal,TRUE) )
 		warning( "QObject::disconnect: No such signal %s::%s",
-			 sender->className(), signal );
+			 s->className(), signal );
 #endif
 	    return FALSE;
 	}
 	c = clist->first();
 	while ( c ) {				// for all receivers...
 	    if ( r == 0 ) {			// remove all receivers
-		removeObjFromList( c->object()->senderObjects, sender, TRUE );
+		removeObjFromList( c->object()->senderObjects, s, TRUE );
 		c = clist->next();
 	    }
 	    else if ( r == c->object() && (member == 0 ||
-					   strcmp(member,c->memberName()) == 0) ) {
-		removeObjFromList( c->object()->senderObjects, sender, TRUE );
+				       strcmp(member,c->memberName()) == 0) ) {
+		removeObjFromList( c->object()->senderObjects, s, TRUE );
 		clist->remove();
 		c = clist->current();
 	    }
@@ -1332,9 +1340,34 @@ bool QObject::disconnect( QObject *sender, const char *signal,
 		c = clist->next();
 	}
 	if ( r == 0 )				// disconnect all receivers
-	    sender->connections->remove( signal );
+	    s->connections->remove( signal );
     }
     return TRUE;
+}
+
+
+/*----------------------------------------------------------------------------
+  This signal is emitted immediately before the object is destroyed.
+
+  All the objects's children are destroyed immediately after this signal
+  is emitted.
+ ----------------------------------------------------------------------------*/
+
+void QObject::destroyed()
+{
+    activate_signal( "destroyed()" );
+}
+
+
+/*----------------------------------------------------------------------------
+  This slot is connected to the destroyed() signal of other objects
+  that have installed event filters on this object. When the other
+  object is destroyed, we want to remove its event filter.
+ ----------------------------------------------------------------------------*/
+
+void QObject::cleanupEventFilter()
+{
+    removeEventFilter( sender() );
 }
 
 
@@ -1362,9 +1395,23 @@ QMetaObject *QObject::queryMetaObject() const	// get meta object
 }
 
 
-void QObject::initMetaObject()			// initialize meta object
+void QObject::initMetaObject()
 {
-    metaObj = new QMetaObject( "QObject", "", 0, 0, 0, 0 );
+    if ( metaObj )
+	return;
+    typedef void(QObject::*m1_t0)();
+    m1_t0 v1_0 = &QObject::cleanupEventFilter;
+    QMetaData *slot_tbl = new QMetaData[1];
+    slot_tbl[0].name = "cleanupEventFilter()";
+    slot_tbl[0].ptr = *((QMember*)&v1_0);
+    typedef void(QObject::*m2_t0)();
+    m2_t0 v2_0 = &QObject::destroyed;
+    QMetaData *signal_tbl = new QMetaData[1];
+    signal_tbl[0].name = "destroyed()";
+    signal_tbl[0].ptr = *((QMember*)&v2_0);
+    metaObj = new QMetaObject( "QObject", "",
+        slot_tbl, 1,
+        signal_tbl, 1 );
 }
 
 

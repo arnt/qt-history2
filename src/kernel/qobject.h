@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#28 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#29 $
 **
 ** Definition of QObject class
 **
@@ -57,11 +57,11 @@ public:
     void	installEventFilter( const QObject * );
     void	removeEventFilter( const QObject * );
 
-    static bool connect( QObject *sender, const char *signal,
+    static bool connect( const QObject *sender, const char *signal,
 			 const QObject *receiver, const char *member );
-    bool	connect( QObject *sender, const char *signal,
+    bool	connect( const QObject *sender, const char *signal,
 			 const char *member ) const;
-    static bool disconnect( QObject *sender, const char *signal,
+    static bool disconnect( const QObject *sender, const char *signal,
 			    const QObject *receiver, const char *member );
     bool	disconnect( const char *signal=0,
 			    const QObject *receiver=0, const char *member=0 );
@@ -69,6 +69,9 @@ public:
 
     void	dumpObjectTree();		// NOTE!!! For debugging
     void	dumpObjectInfo();
+
+signals:
+    void	destroyed();
 
 protected:
     QObject	*parent() const { return parentObj; }
@@ -92,8 +95,11 @@ protected:
     uint	pendEvent  : 1;			// pending event(s)
     uint	blockSig   : 1;			// blocking signals
 
+private slots:
+    void	cleanupEventFilter();
+
 private:
-    bool	 bind( const char *, const QObject *, const char * );
+    //    bool	 bind( const char *, const QObject *, const char * );
     QMetaObject *queryMetaObject() const;
     static QMetaObject *metaObj;		// meta object for class
     char	*objname;			// object name
@@ -111,7 +117,7 @@ private:
 };
 
 
-inline bool QObject::connect( QObject *sender, const char *signal,
+inline bool QObject::connect( const QObject *sender, const char *signal,
 			      const char *member ) const
 {
     return connect( sender, signal, this, member );
@@ -132,6 +138,7 @@ inline QObject *QObject::sender()
 {
     return sigSender;
 }
+
 
 class QSenderObject : public QObject		// object for sending signals
 {
