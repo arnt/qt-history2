@@ -692,7 +692,7 @@ Q_EXPORT int qWinVersion();
 
 #if !defined(QT_NO_DEBUG) && !defined(QT_DEBUG)
 #  define QT_DEBUG				// display debug messages
-#  if !defined(QT_CLEAN_NAMESPACE)
+#  if !defined(QT_NO_COMPAT)
 // source compatibility with Qt 2.x
 #    if !defined(NO_DEBUG) && !defined(DEBUG)
 #      if !defined(Q_OS_MACX)			// clash with MacOS X headers
@@ -761,14 +761,14 @@ Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
 #endif
 #endif
 
-#if !defined(QT_CLEAN_NAMESPACE)
+#if !defined(QT_NO_COMPAT)
 // source compatibility with Qt 2.x
 #ifndef Q_OS_TEMP
 #  if !defined(ASSERT)
 #    define ASSERT(x) Q_ASSERT(x)
 #  endif
 #endif // Q_OS_TEMP
-#endif // QT_CLEAN_NAMESPACE
+#endif // QT_NO_COMPAT
 
 
 Q_EXPORT bool qt_check_pointer( bool c, const char *, int );
@@ -779,12 +779,12 @@ Q_EXPORT bool qt_check_pointer( bool c, const char *, int );
 #  define Q_CHECK_PTR(p)
 #endif
 
-#if !defined(QT_CLEAN_NAMESPACE)
+#if !defined(QT_NO_COMPAT)
 // source compatibility with Qt 2.x
 #  if !defined(CHECK_PTR)
 #    define CHECK_PTR(x) Q_CHECK_PTR(x)
 #  endif
-#endif // QT_CLEAN_NAMESPACE
+#endif // QT_NO_COMPAT
 
 
 enum QtMsgType { QtDebugMsg, QtWarningMsg, QtFatalMsg };
@@ -792,7 +792,7 @@ enum QtMsgType { QtDebugMsg, QtWarningMsg, QtFatalMsg };
 typedef void (*QtMsgHandler)(QtMsgType, const char *);
 Q_EXPORT QtMsgHandler qInstallMsgHandler( QtMsgHandler );
 
-#if !defined(QT_CLEAN_NAMESPACE)
+#if !defined(QT_NO_COMPAT)
 // source compatibility with Qt 2.x
 typedef QtMsgHandler msg_handler;
 #endif
