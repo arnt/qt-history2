@@ -15,7 +15,7 @@ public:
     void init();
 
     inline bool shouldEdit(const QModelIndex &item, QAbstractItemDelegate::StartEditAction action)
-        { return q_func()->model()->isEditable(item) && (action & startEditActions); }
+        { return q_func()->model()->isEditable(item) && (action & startEditActions) && state != QAbstractItemView::Editing; }
 
     bool createEditor(const QModelIndex &item, QAbstractItemDelegate::StartEditAction action, QEvent *event);
 //     bool sendItemEvent(const QModelIndex &data, QEvent *event);
