@@ -3,9 +3,11 @@
 
 #include <qapplicationinterface.h>
 #include <qguardedptr.h>
+#include <qobjectlist.h>
 
 class MainWindow;
 class FormList;
+class FormWindow;
 class QStatusBar;
 
 class DesignerStatusBarInterface : public QComponentInterface
@@ -34,7 +36,7 @@ class DesignerFormWindowInterface : public QComponentInterface
     Q_OBJECT
     
 public:
-    DesignerFormWindowInterface( MainWindow *mw );
+    DesignerFormWindowInterface( FormList* );
 
     QVariant requestProperty( const QCString& p );
     bool requestSetProperty( const QCString& p, const QVariant& v );
@@ -46,7 +48,8 @@ private slots:
     void reconnect();
     
 private:
-    MainWindow *mainWindow;
+    FormList *formList;
+    FormWindow *formWindow;
     struct Connect1 
     {
 	QCString signal, slot;
@@ -67,6 +70,8 @@ private:
     
     QValueList<Connect1> connects1;
     QValueList<Connect2> connects2;
+
+    QObjectList filterObjects;
 };
 
 class DesignerFormListInterface : public QComponentInterface

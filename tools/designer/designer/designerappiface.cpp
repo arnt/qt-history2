@@ -71,9 +71,8 @@ DesignerFormListInterface::DesignerFormListInterface( FormList *fl )
 
 QComponentInterface *DesignerFormListInterface::queryInterface( const QString &request )
 {
-    MainWindow* mw = (MainWindow*)qApp->mainWidget();
-    if ( request == "DesignerFormWindowInterface" && mw )
-	return fwIface ? fwIface : ( fwIface = new DesignerFormWindowInterface( mw ) );
+    if ( request == "DesignerFormWindowInterface" )
+	return fwIface ? fwIface : ( fwIface = new DesignerFormWindowInterface( (FormList*)object() ) );
     return QComponentInterface::queryInterface( request );
 }
 
@@ -85,7 +84,16 @@ QVariant DesignerFormListInterface::requestProperty( const QCString& p )
 	while ( it.current() ) {
 	    QListViewItem* item = it.current();
 	    ++it;
-	    list << item->text( 2);
+	    list << item->text( 2 );
+	}
+	return QVariant( list );
+    } else if ( p == "formList" ) {
+	QStringList list;
+	QListViewItemIterator it( (FormList*)object() );
+	while ( it.current() ) {
+	    QListViewItem* item = it.current();
+	    ++it;
+	    list << item->text( 0 );
 	}
 	return QVariant( list );
     }
@@ -95,25 +103,29 @@ QVariant DesignerFormListInterface::requestProperty( const QCString& p )
 /*
  * DesignerFormWindowInterface
 */
-DesignerFormWindowInterface::DesignerFormWindowInterface( MainWindow *mw )
-    : QComponentInterface( mw ), mainWindow( mw )
+DesignerFormWindowInterface::DesignerFormWindowInterface( FormList* fl )
+    : QComponentInterface( fl ), formList( fl ), formWindow( 0 )
 {
-    connect( mw, SIGNAL( formWindowsChanged() ),
+    connect( formList, SIGNAL( selectionChanged() ),
 	     this, SLOT( reconnect() ) );
 }
 
 QVariant DesignerFormWindowInterface::requestProperty( const QCString& p )
 {
-    if ( !mainWindow->formWindow() )
+    FormListItem* fli = (FormListItem*)(formList->currentItem());
+    if ( !fli )
 	return QVariant();
-    return mainWindow->formWindow()->property( p );
+
+    return fli->formWindow()->property( p );
 }
 
 bool DesignerFormWindowInterface::requestSetProperty( const QCString& p, const QVariant& v )
 {
-    if ( !mainWindow->formWindow() )
+    FormListItem* fli = (FormListItem*)(formList->currentItem());
+    if ( !fli )
 	return FALSE;
-    return mainWindow->formWindow()->setProperty( p, v );
+
+    return fli->formWindow()->setProperty( p, v );
 }
 
 bool DesignerFormWindowInterface::requestConnect( const char* signal, QObject* target, const char* slot )
@@ -138,31 +150,42 @@ bool DesignerFormWindowInterface::requestConnect( QObject *sender, const char* s
 
 bool DesignerFormWindowInterface::requestEvents( QObject* f )
 {
-    QObjectList *l = mainWindow->queryList( "FormWindow" );
-    if ( !l || l->isEmpty() ) {
-	delete l;
-	return FALSE;
-    }
+    filterObjects.append( f );
+    FormListItem* item = (FormListItem*)formList->currentItem();
+    if ( !item )
+	return TRUE;
 
-    for ( QObject *o = l->first(); o; o = l->next() )
-	f->installEventFilter( o );
-    delete l;
+    formWindow = item->formWindow();
+    if ( formWindow )
+	formWindow->installEventFilter( f );
+
     return TRUE;
 }
 
 void DesignerFormWindowInterface::reconnect()
 {
-    QObjectList *l = mainWindow->queryList( "FormWindow" );
-    if ( !l || l->isEmpty() ) {
-	delete l;
-	return;
-    }
+    FormWindow *oldFormWindow = formWindow;
+    FormListItem* item = (FormListItem*)formList->currentItem();
+    formWindow = item ? item->formWindow() : 0;
 
-    for ( QObject *o = l->first(); o; o = l->next() ) {
-	for ( QValueList<Connect1>::Iterator it = connects1.begin(); it != connects1.end(); ++it )
-	    connect( (FormWindow*)o, (*it).signal, (*it).target, (*it).slot );
-	for ( QValueList<Connect2>::Iterator it2 = connects2.begin(); it2 != connects2.end(); ++it2 )
-	    connect( (*it2).sender, (*it2).signal, (FormWindow*)o, (*it2).slot );
+    for ( QValueList<Connect1>::Iterator cit1 = connects1.begin(); cit1 != connects1.end(); ++cit1 ) {
+	if ( oldFormWindow )
+	    disconnect( oldFormWindow, (*cit1).signal, (*cit1).target, (*cit1).slot );
+	if ( formWindow )
+	    connect( formWindow, (*cit1).signal, (*cit1).target, (*cit1).slot );
+    }
+    for ( QValueList<Connect2>::Iterator cit2 = connects2.begin(); cit2 != connects2.end(); ++cit2 ) {
+	if ( oldFormWindow )
+	    disconnect( (*cit2).sender, (*cit2).signal, oldFormWindow, (*cit2).slot );
+	if ( formWindow )
+	    connect( (*cit2).sender, (*cit2).signal, formWindow, (*cit2).slot );
+    }
+    QObjectListIt eit( filterObjects );
+    while ( eit ) {
+	if ( oldFormWindow )
+	    oldFormWindow->removeEventFilter( *eit );
+	if ( formWindow )
+	    formWindow->installEventFilter( *eit );
+	++eit;
     }
 }
-
