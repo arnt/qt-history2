@@ -37,6 +37,7 @@ all:
 	@echo "  make aout    - creates an aout static library"
 	@echo "  make aoutdbg - creates an aout static library w/debug info"
 	@echo "  make elf     - creates an ELF dynamic library"
+	@echo "  make elf26   - creates an ELF dynamic library"
 	@echo "  make elfdbg  - creates an ELF dynamic library w/debug info"
 	@echo "  make moc     - creates the meta object compiler"
 	@echo "  make tools   - creates the tools library"
@@ -83,6 +84,12 @@ aoutdbg:
 
 elf:
 	make lib 'CFLAGS=$(CFLAGS) $(ELFCFLAGS)' 'OBJDIR=obj/elf'
+	/bin/rm -f $(ELFTARGET)
+	$(CC) -shared -Wl,-soname -Wl,$(ELFTARGETPRE) \
+		-o $(ELFTARGET) obj/elf/*/*.o -lX11 -lgcc -lc
+
+elf26:
+	make lib 'CFLAGS=$(CFLAGS) -V 2.6.3 $(ELFCFLAGS)' 'OBJDIR=obj/elf26'
 	/bin/rm -f $(ELFTARGET)
 	$(CC) -shared -Wl,-soname -Wl,$(ELFTARGETPRE) \
 		-o $(ELFTARGET) obj/elf/*/*.o -lX11 -lgcc -lc
