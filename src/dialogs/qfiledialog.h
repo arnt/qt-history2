@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#53 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#54 $
 **
 ** Definition of QFileDialog class
 **
@@ -69,13 +69,14 @@ signals:
 
 };
 
+
 class QFileListBox : public QListBox
 {
     friend class QFileDialog;
 
     Q_OBJECT
 
-public:
+private:
     QFileListBox( QWidget *parent, QFileDialog *d );
 
     void clear();
@@ -84,12 +85,12 @@ public:
     void setSelected( QListBoxItem *i, bool s );
     void setSelected( int i, bool s );
 
-protected:
+private:
     void viewportMousePressEvent( QMouseEvent *e );
     void viewportMouseDoubleClickEvent( QMouseEvent *e );
     void keyPressEvent( QKeyEvent *e );
 
-public slots:
+private slots:
     void rename();
     void cancelRename();
 
@@ -105,24 +106,25 @@ private:
 
 };
 
+
 class QFileListView : public QListView
 {
     friend class QFileDialog;
 
     Q_OBJECT
 
-public:
+private:
     QFileListView( QWidget *parent, QFileDialog *d );
 
     void clear();
     void startRename( bool check = TRUE );
 
-protected:
+private:
     void viewportMousePressEvent( QMouseEvent *e );
     void viewportMouseDoubleClickEvent( QMouseEvent *e );
     void keyPressEvent( QKeyEvent *e );
 
-public slots:
+private slots:
     void rename();
     void cancelRename();
 
@@ -137,6 +139,7 @@ private:
     QListViewItem *renameItem;
 
 };
+
 
 class Q_EXPORT QFileDialog : public QDialog
 {
@@ -241,13 +244,13 @@ private:
         PA_SortDescent,
         PA_Cancel
     };
-    
+
     void init();
     bool trySetSelection( const QFileInfo&, bool );
     void deleteFile( const QString &filename );
-    void popupContextMenu( const QString &filename, bool withSort, 
+    void popupContextMenu( const QString &filename, bool withSort,
                            PopupAction &action, const QPoint &p );
-    
+
     QDir cwd;
     QString fileName;
 
