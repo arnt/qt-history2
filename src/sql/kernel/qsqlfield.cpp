@@ -304,7 +304,6 @@ void QSqlField::setValue(const QCoreVariant& value)
 {
     if (isReadOnly())
         return;
-    detach();
     val = value;
 }
 
@@ -319,7 +318,6 @@ void QSqlField::clear()
 {
     if (isReadOnly())
         return;
-    detach();
     val = QCoreVariant(type());
 }
 
