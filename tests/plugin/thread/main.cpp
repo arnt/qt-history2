@@ -39,8 +39,8 @@ public:
     QString description() { return "Mostly harmless stuff"; }
     QString author() { return "Trolltech"; }
 
-    bool connectNotify( QApplication* );
-    bool disconnectNotify( QApplication* );
+    bool connectNotify( QApplicationInterface* );
+    bool disconnectNotify();
 
     QStringList featureList();
     QAction* create( const QString &actionname, QObject* parent = 0 );
@@ -72,20 +72,16 @@ TestInterface::~TestInterface()
     delete dialog;
 }
 
-bool TestInterface::connectNotify( QApplication* theApp )
+bool TestInterface::connectNotify( QApplicationInterface* appIface )
 {
-    if ( !theApp )
-	return FALSE;
-
-    appInterface = theApp->queryInterface();
-    if ( !appInterface )
+    if ( !( appInterface = appIface ) )
 	return FALSE;
 
     thread = new TestThread( this );
     return TRUE;
 }
 
-bool TestInterface::disconnectNotify( QApplication* )
+bool TestInterface::disconnectNotify()
 {
     thread->stop();
     thread->wait();
