@@ -165,17 +165,40 @@ QString Uic::getClassName( const QDomElement& e )
     return e.attribute( "class" );
 }
 
+/*! Extracts a named object property from \a e.
+ */
+QDomElement Uic::getObjectProperty( const QDomElement& e, const QString& name )
+{
+    QDomElement n;
+    for ( n = e.firstChild().toElement();
+	  !n.isNull();
+	  n = n.nextSibling().toElement() ) {
+	if ( n.tagName() == "property"  && n.toElement().attribute("name") == name )
+	    return n;
+    }
+    return n;
+}
+
+/*! Returns TRUE if database framework code is generated, else FALSE.
+*/
+
+bool Uic::isFrameworkCodeGenerated( const QDomElement& e )
+{
+    QDomElement n = getObjectProperty( e, "frameworkCode" );
+    if ( n.attribute("name") == "frameworkCode" &&
+	 !DomTool::elementToVariant( n.firstChild().toElement(), QVariant( TRUE, 0 ) ).toBool() )
+	return FALSE;
+    return TRUE;
+}
+
 /*! Extracts an object name from \a e. It's stored in the 'name'
  property.
  */
 QString Uic::getObjectName( const QDomElement& e )
 {
-    QDomElement n;
-    for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "property"  && n.toElement().attribute("name") == "name"
-	     && n.firstChild().toElement().tagName() == "cstring" )
-	    return n.firstChild().toElement().firstChild().toText().data();
-    }
+    QDomElement n = getObjectProperty( e, "name" );
+    if ( n.firstChild().toElement().tagName() == "cstring" )
+	return n.firstChild().toElement().firstChild().toText().data();
     return QString::null;
 }
 
@@ -190,12 +213,9 @@ QString Uic::getLayoutName( const QDomElement& e )
     if (getClassName(p) != "QLayoutWidget")
 	tail = "Layout";
 
-    QDomElement n;
-    for ( n = p.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "property"  && n.toElement().attribute("name") == "name"
-	     && n.firstChild().toElement().tagName() == "cstring" )
-	    return n.firstChild().toElement().firstChild().toText().data() + tail;
-    }
+    QDomElement n = getObjectProperty( p, "name" );
+    if ( n.firstChild().toElement().tagName() == "cstring" )
+	return n.firstChild().toElement().firstChild().toText().data() + tail;
     return e.tagName();
 }
 
@@ -214,19 +234,15 @@ QString Uic::getDatabaseInfo( const QDomElement& e, const QString& tag )
 	child = 2;
     else
 	return QString::null;
-    for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "property"
-	     && n.toElement().attribute("name") == "database"
-	     && n.firstChild().toElement().tagName() == "stringlist" ) {
+    n = getObjectProperty( e, "database" );
+    if ( n.firstChild().toElement().tagName() == "stringlist" ) {
 	    // find correct stringlist entry
 	    QDomElement n1 = n.firstChild().firstChild().toElement();
 	    for ( int i = 0; i < child && !n1.isNull(); ++i )
 		n1 = n1.nextSibling().toElement();
-	    if ( n1.isNull() ) {
+	    if ( n1.isNull() )
 		return QString::null;
-	    }
 	    return n1.firstChild().toText().data();
-	}
     }
     return QString::null;
 }
@@ -484,8 +500,10 @@ void Uic::createFormDecl( const QDomElement &e )
 	needEventHandler = needEventHandler ||
 			   !DomTool::propertiesOfType( n, "font" ).isEmpty() ;
 	QString s = getClassName( n );
-	if ( s == "QDataTable" || s == "QDataBrowser" || s == "QDataView" )
-	    needPolish = TRUE;
+	if ( s == "QDataTable" || s == "QDataBrowser" || s == "QDataView" ) {
+	    if ( isFrameworkCodeGenerated( n ) )
+		 needPolish = TRUE;
+	}
     }
 
     // actions, toolbars, menus
@@ -1074,10 +1092,14 @@ void Uic::createFormImpl( const QDomElement &e )
 	if ( !DomTool::propertiesOfType( nl.item(i).toElement() , "font" ).isEmpty() )
 	    needFontEventHandler = TRUE;
 	QString s = getClassName( nl.item(i).toElement() );
-	if ( s == "QDataTable" )
-	    needSqlTableEventHandler = TRUE;
-	if ( s == "QDataBrowser" )
-	    needSqlDataBrowserEventHandler = TRUE;
+	if ( s == "QDataTable" || s == "QDataBrowser" ) {
+	    if ( !isFrameworkCodeGenerated( nl.item(i).toElement() ) )
+		 continue;
+	    if ( s == "QDataTable" )
+		needSqlTableEventHandler = TRUE;
+	    if ( s == "QDataBrowser" )
+		needSqlDataBrowserEventHandler = TRUE;
+	}
 	if ( needFontEventHandler && needSqlTableEventHandler && needSqlDataBrowserEventHandler )
 	    break;
     }
@@ -1133,7 +1155,7 @@ void Uic::createFormImpl( const QDomElement &e )
 			out << indent << indent << indent << c << "->setCursor( cursor, FALSE, TRUE );" << endl;
 			out << indent << indent << "}" << endl;
 			out << indent << indent << "if ( !cursor->isActive() )" << endl;
-			out << indent << indent << indent << c << "->refresh( TRUE, TRUE );" << endl;
+			out << indent << indent << indent << c << "->refresh( QDataTable::RefreshAll );" << endl;
 			out << indent << "}" << endl;
 		    }
 		}

@@ -60,6 +60,7 @@ public:
     void createColorGroupImpl( const QString& cg, const QDomElement& e );
     QColorGroup loadColorGroup( const QDomElement &e );
 
+    QDomElement getObjectProperty( const QDomElement& e, const QString& name );
     QString getPixmapLoaderFunction( const QDomElement& e );
     QString getFormClassName( const QDomElement& e );
     QString getClassName( const QDomElement& e );
@@ -118,6 +119,7 @@ private:
 
     void registerDatabases( const QDomElement& e );
     bool isWidgetInTable( const QDomElement& e, const QString& connection, const QString& table );
+    bool isFrameworkCodeGenerated( const QDomElement& e );
     QString getDatabaseInfo( const QDomElement& e, const QString& tag );
     void createFormImpl( const QDomElement& e, const QString& form, const QString& connection, const QString& table );
     QStringList                  dbConnections;
