@@ -63,7 +63,7 @@ QWidget *SpinBoxDelegate::editor(QWidget *parent,
 void SpinBoxDelegate::releaseEditor(QWidget *editor)
 {
     if (editor == spinBox) {
-        delete editor;
+        spinBox->deleteLater();
         spinBox = 0;
     }
 }
@@ -76,9 +76,12 @@ void SpinBoxDelegate::releaseEditor(QWidget *editor)
 void SpinBoxDelegate::setEditorData(QWidget *editor,
     const QAbstractItemModel *model, const QModelIndex &index) const
 {
+    if (editor != spinBox)
+        return;
+
     int value = model->data(index, QAbstractItemModel::DisplayRole).toInt();
 
-    static_cast<QSpinBox *>(editor)->setValue(value);
+    spinBox->setValue(value);
 }
 
 /*!
@@ -88,7 +91,11 @@ void SpinBoxDelegate::setEditorData(QWidget *editor,
 void SpinBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
                   const QModelIndex &index) const
 {
-    int value = static_cast<QSpinBox *>(editor)->value();
+    if (editor != spinBox)
+        return;
+
+    spinBox->interpretText();
+    int value = spinBox->value();
 
     model->setData(index, QAbstractItemModel::EditRole, value);
 }
@@ -104,34 +111,4 @@ void SpinBoxDelegate::updateEditorGeometry(QWidget *editor,
     const QModelIndex & /* index */) const
 {
     editor->setGeometry(option.rect);
-}
-
-bool SpinBoxDelegate::eventFilter(QObject *object, QEvent *event)
-{
-    if (object == spinBox) {
-
-        if (event->type() == QEvent::KeyPress) {
-
-            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-
-            switch (keyEvent->key()) {
-                case Qt::Key_Return:
-                    spinBox->setValue(spinBox->cleanText().toInt());
-                    emit commitData(spinBox);
-                    emit closeEditor(spinBox, QAbstractItemDelegate::EditNextItem);
-                    return true;
-
-                case Qt::Key_Escape:
-                    emit closeEditor(spinBox, QAbstractItemDelegate::RevertModelCache);
-                    return true;
-
-                default:
-                    return false;
-            }
-        }
-        else
-            return false;
-    }
-
-    return QItemDelegate::eventFilter(object, event);
 }
