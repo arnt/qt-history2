@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.h#6 $
+** $Id: //depot/qt/main/src/widgets/qdial.h#7 $
 **
 ** Definition of something or other
 **
@@ -64,10 +64,16 @@ protected:
     void mouseReleaseEvent( QMouseEvent * );
     void mouseMoveEvent( QMouseEvent * );
     void wheelEvent( QWheelEvent * );
-
+    void focusInEvent( QFocusEvent * );
+    void focusOutEvent( QFocusEvent * );
+    
     void valueChange();
     void rangeChange();
 
+protected slots:
+    void blink();
+
+    
 private:
     QDialPrivate * d;
 

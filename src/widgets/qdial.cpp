@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#16 $
 **
 ** Implementation of something useful.
 **
@@ -27,6 +27,9 @@
 
 #include "qpainter.h"
 #include "qpointarray.h"
+#include "qtimer.h"
+#include "qcolor.h"
+#include "qapplication.h"
 
 #include <math.h> // sin(), cos(), atan()
 //### Forutsetter linking med math lib - Jfr kommentar i qpainter_x11.cpp!
@@ -39,17 +42,19 @@ class QDialPrivate
 public:
     QDialPrivate()
     {
-	wrapping = FALSE;
-	tracking = TRUE;
-	doNotEmit = FALSE;
-	target = 3.7;
+        wrapping = FALSE;
+        tracking = TRUE;
+        doNotEmit = FALSE;
+        target = 3.7;
     }
 
     bool wrapping;
     bool tracking;
     bool doNotEmit;
     double target;
-
+    QTimer *blinkTimer;
+    QColor color;
+    
     QPointArray lines;
 };
 
@@ -112,6 +117,10 @@ QDial::QDial( QWidget *parent, const char *name )
     : QWidget( parent, name ), QRangeControl()
 {
     d = new QDialPrivate;
+    d->blinkTimer = new QTimer( this );
+    connect( d->blinkTimer, SIGNAL( timeout() ),
+             this, SLOT( blink() ) );
+    d->color = colorGroup().foreground();
     setFocusPolicy( QWidget::TabFocus );
 }
 
@@ -132,6 +141,10 @@ QDial::QDial( int minValue, int maxValue, int pageStep, int value,
       QRangeControl( minValue, maxValue, 1, pageStep, value )
 {
     d = new QDialPrivate;
+    d->blinkTimer = new QTimer( this );
+    connect( d->blinkTimer, SIGNAL( timeout() ),
+             this, SLOT( blink() ) );
+    d->color = colorGroup().foreground();
     setFocusPolicy( QWidget::TabFocus );
 }
 
@@ -140,6 +153,7 @@ QDial::QDial( int minValue, int maxValue, int pageStep, int value,
 */
 QDial::~QDial()
 {
+    delete d->blinkTimer;
     delete d;
 }
 
@@ -285,8 +299,8 @@ void QDial::paintEvent( QPaintEvent * e )
 		       (int)(0.5+yc-back*sin(a+m_pi*5/6)) );
     arrow[2] = QPoint( (int)(0.5+xc+back*cos(a-m_pi*5/6)),
 		       (int)(0.5+yc-back*sin(a-m_pi*5/6)) );
-    p.setPen( colorGroup().foreground() );
-    p.setBrush( colorGroup().foreground() );
+    p.setPen( d->color );
+    p.setBrush( d->color );
     //p.setPen( red );
     //p.setBrush( green );
     p.drawPolygon( arrow );
@@ -299,6 +313,12 @@ void QDial::paintEvent( QPaintEvent * e )
 
 void QDial::keyPressEvent( QKeyEvent * e )
 {
+    if ( d->blinkTimer && d->blinkTimer->isActive() ) {
+        d->blinkTimer->stop();
+        d->color = colorGroup().foreground();
+        repaint( FALSE );
+    }
+
     switch ( e->key() ) {
     case Key_Left: case Key_Down:
         subtractLine();
@@ -322,6 +342,9 @@ void QDial::keyPressEvent( QKeyEvent * e )
         e->ignore();
         break;
     }
+
+    if ( d->blinkTimer && hasFocus() )
+        d->blinkTimer->start( QApplication::cursorFlashTime() / 2 );
 }
 
 
@@ -331,6 +354,12 @@ void QDial::keyPressEvent( QKeyEvent * e )
 
 void QDial::mousePressEvent( QMouseEvent * e )
 {
+    if ( d->blinkTimer && d->blinkTimer->isActive() ) {
+        d->blinkTimer->stop();
+        d->color = colorGroup().foreground();
+        repaint( FALSE );
+    }
+    
     setValue( valueFromPoint( e->pos() ) );
     emit dialPressed();
 }
@@ -344,6 +373,9 @@ void QDial::mouseReleaseEvent( QMouseEvent * e )
 {
     setValue( valueFromPoint( e->pos() ) );
     emit dialReleased();
+
+    if ( d->blinkTimer && hasFocus() )
+        d->blinkTimer->start( QApplication::cursorFlashTime() / 2 );
 }
 
 
@@ -354,7 +386,7 @@ void QDial::mouseReleaseEvent( QMouseEvent * e )
 void QDial::mouseMoveEvent( QMouseEvent * e )
 {
     if ( !d->tracking || (e->state() & LeftButton) == 0 )
-	return;
+        return;
     d->doNotEmit = TRUE;
     setValue( valueFromPoint( e->pos() ) );
     emit dialMoved( value() );
@@ -371,6 +403,48 @@ void QDial::wheelEvent( QWheelEvent * )
 
 }
 
+
+/*!
+
+*/
+
+void QDial::focusInEvent( QFocusEvent * )
+{
+    if ( !d->blinkTimer )
+        return;
+    
+    d->blinkTimer->start( QApplication::cursorFlashTime() / 2 );
+}
+
+
+/*!
+
+*/
+
+void QDial::focusOutEvent( QFocusEvent * )
+{
+    if ( !d->blinkTimer )
+        return;
+    
+    d->blinkTimer->stop();
+    d->color = colorGroup().foreground();
+    repaint( FALSE );
+}
+
+/*!
+
+*/
+
+void QDial::blink()
+{
+    if ( hasFocus() ) {
+        if ( d->color == colorGroup().foreground() )
+            d->color = colorGroup().highlightedText();
+        else
+            d->color = colorGroup().foreground();
+        repaint( FALSE );
+    }
+}
 
 /*!
 
