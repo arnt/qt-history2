@@ -863,9 +863,11 @@ bool QApplication::processNextEvent( bool canWait )
     if(qt_is_gui_used) {
 	sendPostedEvents();
 
+#if 0
 	/* this gives QD a chance to flush buffers, I don't like doing it! FIXME!! */
 	EventRecord ev;
 	EventAvail(everyEvent, &ev);
+#endif
 
 	if(qt_replay_event) {	//ick
 	    EventRef ev = qt_replay_event;
@@ -1611,14 +1613,17 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	}
 
 	if(ekind == kEventWindowUpdate) {
-	    int metricWidth = widget->metric (QPaintDeviceMetrics::PdmWidth );
-	    int metricHeight = widget->metric( QPaintDeviceMetrics::PdmHeight );
-	    widget->crect.setWidth( metricWidth - 1 );
-	    widget->crect.setHeight( metricHeight - 1 );
-
 	    QMacSavedPortInfo savedInfo(widget);
+
+	    RgnHandle r = NewRgn();
+	    GetWindowRegion((WindowPtr)widget->handle(), kWindowUpdateRgn, r);
+	    OffsetRgn( r, -widget->x(), -widget->y());
+	    QRegion rgn(0, 0, 1, 1);
+	    CopyRgn(r, (RgnHandle)rgn.handle());
+	    DisposeRgn(r);
+
 	    BeginUpdate((WindowPtr)widget->handle());
-	    widget->propagateUpdates();
+	    widget->propagateUpdates(rgn);
 	    EndUpdate((WindowPtr)widget->handle());
 	} else if(ekind == kEventWindowActivated) {
 	    if(widget) {
@@ -1716,11 +1721,10 @@ bool QApplication::hasPendingEvents()
 {
     if(qGlobalPostedEventsCount())
 	return TRUE;
-
-	EventRef event;
-	OSStatus ret = ReceiveNextEvent( 0, 0, 0.01, FALSE, &event );
+    EventRef event;
+    OSStatus ret = ReceiveNextEvent( 0, 0, 0.01, FALSE, &event );
     if(ret != eventLoopTimedOutErr && ret != eventLoopQuitErr)
-		return TRUE;
+	return TRUE;
     return FALSE;
 }
 
@@ -2025,6 +2029,8 @@ struct QT_smcConn {
 void QSmSocketReceiver::socketActivated(int)
 {
 }
+
+#include "qapplication_mac.moc"
 
 class QSessionManager::Data
 {
