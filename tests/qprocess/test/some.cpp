@@ -17,15 +17,21 @@ static QLabel *err;
 Some::Some( QObject *p, bool cStdout, bool cStderr, bool cExit ) : QObject( p )
 {
     proc = new QProcess( this );
-#if defined(_OS_UNIX_)
     proc->addArgument( QDir::current().absFilePath( "some" ) );
     proc->addArgument( "-cat" );
-#else
-//    QDir dir = QDir::current();
-//    dir.cd( "Debug" );
-//    proc->addArgument( dir.absFilePath( "some" ) );
-//    proc->addArgument( "-cat" );
+#if 0
+    // for windows compiled from a dsp file
+    proc = new QProcess( this );
+    QDir dir = QDir::current();
+    dir.cd( "Debug" );
+    proc->addArgument( dir.absFilePath( "some" ) );
+    proc->addArgument( "-cat" );
+#endif
+#if 0
+    // other external program
     proc->addArgument( "p4" );
+    proc->addArgument( "help" );
+    proc->addArgument( "commands" );
 #endif
 
     // io stuff

@@ -164,7 +164,7 @@ bool QProcess::start()
     args = *it;
     ++it;
     for ( ; it != arguments.end(); ++it ) {
-	args += QString( " \'" ) + (*it) + QString( "\'" );
+	args += QString( " \"" ) + (*it) + QString( "\"" );
     }
 
     // CreateProcess()
@@ -176,7 +176,8 @@ bool QProcess::start()
 	    0, 0, 0,
 	    STARTF_USESTDHANDLES,
 	    0, 0, 0,
-	    d->pipeStdin[0], d->pipeStdout[1], d->pipeStderr[1] };
+	    d->pipeStdin[0], d->pipeStdout[1], d->pipeStderr[1]
+	};
 	TCHAR *commandLine = (TCHAR*)qt_winTchar_new( args );
 	success = CreateProcess( 0, commandLine,
 		0, 0, TRUE, 0, 0,
@@ -191,7 +192,8 @@ bool QProcess::start()
 	    0, 0, 0,
 	    STARTF_USESTDHANDLES,
 	    0, 0, 0,
-	    d->pipeStdin[0], d->pipeStdout[1], d->pipeStderr[1] };
+	    d->pipeStdin[0], d->pipeStdout[1], d->pipeStderr[1]
+	};
 	success = CreateProcessA( 0, args.local8Bit().data(),
 		0, 0, TRUE, 0, 0,
 		(const char*)workingDir.absPath().local8Bit(),
