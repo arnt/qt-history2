@@ -508,11 +508,16 @@ QFontEngineData::~QFontEngineData()
 */
 QFont::QFont( QFontPrivate *data, QPaintDevice *pd )
 {
-    d = new QFontPrivate( *data );
-    d->paintdevice = pd;
+    if (pd != data->paintdevice) {
+	d = new QFontPrivate( *data );
+	d->paintdevice = pd;
 
-    // now a single reference
-    d->count = 1;
+	// now a single reference
+	d->count = 1;
+    } else {
+	d = data;
+	++d->count;
+    }
 }
 
 /*! \internal
