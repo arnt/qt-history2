@@ -3,3 +3,21 @@ before compiling this plugin.
 
 See the Qt SQL documentation for more information on compiling Qt SQL
 driver plugins.
+
+
+Notes on Unix/Linux ODBC:
+
+It is recommended that you use unixODBC. You can find the newest version
+on www.unixodbc.org.
+
+To compile the QODBC3 plugin you have to issue the following command in
+$QTDIR/src/sql/src/odbc (it is assumed that unixODBC is installed in
+/usr/local/unixODBC):
+
+qmake "INCLUDEPATH=/usr/local/unixODBC/include" 
+"LIBS=-L/usr/local/unixODBC/lib -lodbc"
+
+then run make to build the plugin. Look at the unixODBC website for
+available ODBC drivers.
+
+
