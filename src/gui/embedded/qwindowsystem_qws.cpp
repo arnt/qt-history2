@@ -2428,16 +2428,13 @@ void QWSServer::openMouse()
 	QStringList mouse = QStringList::split(" ",mice);
 	for (QStringList::Iterator m=mouse.begin(); m!=mouse.end(); ++m) {
 	    QString ms = *m;
-	    QString ms = mice; // Assume only one
-	    {
-#endif
-		QWSMouseHandler* h = newMouseHandler(ms);
-		(void)h;
-		/* XXX handle mouse cursor visibility sensibly
-		   if ( !h->inherits("QCalibratedMouseHandler") )
-		   needviscurs = TRUE;
-		 */
-	    }
+	    QWSMouseHandler* h = newMouseHandler(ms);
+	    (void)h;
+	    /* XXX handle mouse cursor visibility sensibly
+	       if ( !h->inherits("QCalibratedMouseHandler") )
+	       needviscurs = TRUE;
+	    */
+	}
     }
 #ifndef QT_NO_QWS_CURSOR
     setCursorVisible( needviscurs );
