@@ -11,7 +11,6 @@
 ****************************************************************************/
 #include "textedit.h"
 
-#include <private/qtextdocumentlayout_p.h>
 #include <qaction.h>
 #include <qapplication.h>
 #include <qclipboard.h>
@@ -32,12 +31,10 @@
 #include <qprinter.h>
 #include <qtabwidget.h>
 #include <qtextcodec.h>
-#include <qtextcursor.h>
-#include <qtextdocument.h>
-#include <qtextdocumentfragment.h>
 #include <qtextedit.h>
+#include <qabstracttextdocumentlayout.h>
+#include <qtextdocumentfragment.h>
 #include <qtextformat.h>
-#include <qtexttable.h>
 #include <qtoolbar.h>
 
 #include <limits.h>
@@ -329,8 +326,7 @@ void TextEdit::filePrint()
 
         QTextDocument doc;
         QTextCursor(&doc).insertFragment(QTextDocumentFragment(currentEditor->document()));
-        // ###
-        QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(doc.documentLayout());
+        QAbstractTextDocumentLayout *layout = doc.documentLayout();
         layout->setPageSize(QSize(body.width(), INT_MAX));
 
         QRect view(0, 0, body.width(), body.height());
@@ -351,7 +347,7 @@ void TextEdit::filePrint()
             view.moveBy(0, body.height());
             p.translate(0 , -body.height());
 
-            if (view.top() >= layout->rootFrameSize().height())
+            if (view.top() >= layout->sizeUsed().height())
                 break;
 
             printer.newPage();

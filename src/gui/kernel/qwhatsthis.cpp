@@ -185,7 +185,7 @@ QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor
         layout->adjustSize();
         r.setTop(0);
         r.setLeft(0);
-        r.setSize(layout->rootFrameSize());
+        r.setSize(layout->sizeUsed());
     }
     else
 #endif

@@ -49,6 +49,19 @@
 */
 
 /*!
+    Returns the size actually used for the document. The default implementation just
+    calls pageSize() . If for example your layout is html alike then you may want to
+    re-implement this function and return the size your document actually used, as that
+    will differ from the page size.
+
+    \sa setPageSize() pageSize()
+*/
+QSize QAbstractTextDocumentLayout::sizeUsed() const
+{
+    return pageSize();
+}
+
+/*!
     \fn void QAbstractTextDocumentLayout::draw(QPainter *painter, const PaintContext &context)
 
     Draws the layout on the given \a painter with the given \a

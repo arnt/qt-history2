@@ -616,7 +616,7 @@ QSize QLabelPrivate::sizeForWidth(int w) const
             else
                 layout->setPageSize(QSize(w-hextra, INT_MAX));
         }
-        br = QRect(QPoint(0, 0), layout->rootFrameSize());
+        br = QRect(QPoint(0, 0), layout->sizeUsed());
         layout->setPageSize(QSize(oldW, INT_MAX));
     }
 #endif
@@ -771,7 +771,7 @@ void QLabel::paintEvent(QPaintEvent *)
         QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(d->doc->documentLayout());
         Q_ASSERT(layout);
         layout->setPageSize(QSize(cr.width(), INT_MAX));
-        int rh = layout->rootFrameSize().height();
+        int rh = layout->sizeUsed().height();
         int yo = 0;
         if (d->align & Qt::AlignVCenter)
             yo = (cr.height()-rh)/2;

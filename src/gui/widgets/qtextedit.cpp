@@ -408,7 +408,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment)
     if (!doc) {
         doc = new QTextDocument(q);
         QObject::connect(doc->documentLayout(), SIGNAL(update(const QRect &)), q, SLOT(update(const QRect &)));
-        QObject::connect(doc->documentLayout(), SIGNAL(rootFrameSizeChanged()), q, SLOT(adjustScrollbars()));
+        QObject::connect(doc->documentLayout(), SIGNAL(usedSizeChanged()), q, SLOT(adjustScrollbars()));
         cursor = QTextCursor(doc);
 
         hbar->setSingleStep(20);
@@ -562,11 +562,10 @@ void QTextEditPrivate::updateCurrentCharFormatAndSelection()
 
 void QTextEditPrivate::adjustScrollbars()
 {
-    QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(doc->documentLayout());
-    Q_ASSERT(layout);
+    QAbstractTextDocumentLayout *layout = doc->documentLayout();
 
     const QSize viewportSize = viewport->size();
-    const QSize docSize = layout->rootFrameSize();
+    const QSize docSize = layout->sizeUsed();
 
     d->hbar->setRange(0, docSize.width() - viewportSize.width());
     d->hbar->setPageStep(docSize.width());

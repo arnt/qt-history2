@@ -933,7 +933,7 @@ void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
 {
     Q_UNUSED(oldLength);
 
-    const QSize oldSize = rootFrameSize();
+    const QSize oldSize = sizeUsed();
 
 //     qDebug("documentChange: from=%d, oldLength=%d, length=%d", from, oldLength, length);
 
@@ -942,9 +942,9 @@ void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
 
     d->layoutFrame(document()->rootFrame(), from, from + length);
 
-    const QSize newSize = rootFrameSize();
+    const QSize newSize = sizeUsed();
     if (newSize != oldSize)
-        emit rootFrameSizeChanged();
+        emit usedSizeChanged();
 
     emit update();
 }
@@ -1076,7 +1076,7 @@ QSize QTextDocumentLayout::pageSize() const
     return d->pageSize;
 }
 
-QSize QTextDocumentLayout::rootFrameSize() const
+QSize QTextDocumentLayout::sizeUsed() const
 {
     return data(q->document()->rootFrame())->boundingRect.size();
 }
@@ -1092,7 +1092,7 @@ void QTextDocumentLayout::adjustSize()
     int mw =  fm.width('x') * 80;
     int w = mw;
     setPageSize(QSize(w, INT_MAX));
-    QSize size = rootFrameSize();
+    QSize size = sizeUsed();
     if (size.width() != 0) {
         w = qt_int_sqrt(5 * size.height() * size.width() / 3);
         setPageSize(QSize(qMin(w, mw), INT_MAX));

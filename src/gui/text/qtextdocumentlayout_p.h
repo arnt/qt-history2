@@ -29,7 +29,7 @@ public:
 
     int numPages() const;
 
-    QSize rootFrameSize() const;
+    virtual QSize sizeUsed() const;
 
     void adjustSize();
 
@@ -44,7 +44,7 @@ public:
     void setFixedColumnWidth(int width);
 
 signals:
-    void rootFrameSizeChanged();
+    void usedSizeChanged();
 };
 
 #endif // QTEXTDOCUMENTLAYOUT_P_H

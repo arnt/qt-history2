@@ -1,14 +1,13 @@
 
 #include "introscreen.h"
 
-#include <qabstracttextdocumentlayout.h>
 #include <qdebug.h>
 #include <qevent.h>
 #include <qfile.h>
 #include <qpainter.h>
 #include <qtextdocument.h>
 #include <qtextdocumentfragment.h>
-#include <private/qtextdocumentlayout_p.h>
+#include <qabstracttextdocumentlayout.h>
 
 IntroScreen::IntroScreen(QWidget *widget)
     : DemoWidget(widget)
@@ -36,11 +35,8 @@ IntroScreen::IntroScreen(QWidget *widget)
     bottomGradient = bottom;
 
     // Initialize text...
-//     QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(text);
     textDocument = new QTextDocument(this);
     textDocument->setHtml(text);
-    textCursor = QTextCursor(textDocument);
-//     textCursor.insertFragment(QTextDocumentFragment::fromHTML(text));
 }
 
 void IntroScreen::paintEvent(QPaintEvent *)
@@ -57,15 +53,12 @@ void IntroScreen::paintEvent(QPaintEvent *)
 
     QAbstractTextDocumentLayout::PaintContext ctx;
     ctx.showCursor = false;
-    ctx.cursor = textCursor;
     ctx.palette = palette();
 
     QAbstractTextDocumentLayout *textLayout = textDocument->documentLayout();
     textLayout->setPageSize(textRect.size());
 
-    QTextDocumentLayout *layout = static_cast<QTextDocumentLayout*>(textLayout);
-
-    int blockHeight = layout->rootFrameSize().height();
+    int blockHeight = textLayout->sizeUsed().height();
     int ypos = (-animationStep % blockHeight);
 
     p.translate(textRect.x(), ypos);

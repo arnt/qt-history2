@@ -3,8 +3,6 @@
 
 #include "demowidget.h"
 
-#include <qtextcursor.h>
-
 class QTextDocument;
 
 class IntroScreen : public DemoWidget
@@ -24,7 +22,6 @@ private:
     QPixmap bottomGradient;
     QPoint oldMousePoint;
     QTextDocument *textDocument;
-    QTextCursor textCursor;
 };
 
 #endif // INTROSCREEN_H
