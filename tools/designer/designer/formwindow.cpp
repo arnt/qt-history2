@@ -2507,14 +2507,12 @@ bool FormWindow::isCentralWidget( QObject *w ) const
     return w == ( (QMainWindow*)mainContainer() )->centralWidget();
 }
 
-QObject *FormWindow::connectableObject( QObject *w, QObject *fallback )
+QObject *FormWindow::connectableObject( QObject *w, QObject * )
 {
     if ( !project() )
 	return w;
     LanguageInterface *iface = MetaDataBase::languageInterface( project()->language() );
     if ( !iface )
 	return w;
-    if ( !iface->supports( LanguageInterface::ConnectionsToCustomSlots ) && isMainContainer( w ) )
-	return fallback;
     return w;
 }

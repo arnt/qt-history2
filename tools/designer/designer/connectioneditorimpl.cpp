@@ -177,16 +177,19 @@ void ConnectionEditor::signalChanged()
 	    slotBox->insertItem( md->name );
     }
 
-    if ( formWindow->isMainContainer( (QWidget*)receiver ) ) {
-	QValueList<MetaDataBase::Slot> moreSlots = MetaDataBase::slotList( formWindow );
-	if ( !moreSlots.isEmpty() ) {
-	    for ( QValueList<MetaDataBase::Slot>::Iterator it = moreSlots.begin(); it != moreSlots.end(); ++it ) {
-		QCString s = (*it).slot;
-		if ( !s.data() )
-		    continue;
-		s = MetaDataBase::normalizeSlot( s );
-		if ( checkConnectArgs( signal.data(), receiver, s ) )
-		    slotBox->insertItem( QString( (*it).slot ) );
+    LanguageInterface *iface = MetaDataBase::languageInterface( formWindow->project()->language() );
+    if ( !iface || iface->supports( LanguageInterface::ConnectionsToCustomSlots ) ) {
+	if ( formWindow->isMainContainer( (QWidget*)receiver ) ) {
+	    QValueList<MetaDataBase::Slot> moreSlots = MetaDataBase::slotList( formWindow );
+	    if ( !moreSlots.isEmpty() ) {
+		for ( QValueList<MetaDataBase::Slot>::Iterator it = moreSlots.begin(); it != moreSlots.end(); ++it ) {
+		    QCString s = (*it).slot;
+		    if ( !s.data() )
+			continue;
+		    s = MetaDataBase::normalizeSlot( s );
+		    if ( checkConnectArgs( signal.data(), receiver, s ) )
+			slotBox->insertItem( QString( (*it).slot ) );
+		}
 	    }
 	}
     }
