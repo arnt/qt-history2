@@ -122,8 +122,8 @@ int QOCIPrivate::bindValues(QVector<QCoreVariant> &values, IndicatorArray &indic
     for (int i = 0; i < values.count(); ++i) {
         if (isOutValue(i))
             values[i].detach();
-        QCoreVariant val = values.at(i);
-        void *data = (void*)val.constData();
+        const QCoreVariant &val = values.at(i);
+        void *data = const_cast<void *>(val.constData());
 
         //qDebug("binding values: %d, %s", i, values.at(i).toString().ascii());
         OCIBind * hbnd = 0; // Oracle handles these automatically
