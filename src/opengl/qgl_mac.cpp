@@ -1,0 +1,968 @@
+/****************************************************************************
+** $Id: //depot/qt/main/extensions/opengl/src/qgl_win.cpp#4 $
+**
+** Implementation of OpenGL classes for Qt
+**
+** Created : 970112
+**
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of the opengl module of the Qt GUI Toolkit.
+**
+** Licensees holding valid Qt Enterprise Edition licenses for Windows
+** may use this file in accordance with the Qt Commercial License Agreement
+** provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
+
+
+#include <qgl.h>
+#include <qshared.h>
+#include <qarray.h>
+#include <qmap.h>
+#include <qpixmap.h>
+#include <qt_mac.h>
+
+class QGLColorMapPrivate : public QShared
+{
+public:
+    enum AllocState{ UnAllocated = 0, Allocated = 0x01, Reserved = 0x02 };
+
+    int maxSize;
+    QArray<uint> colorArray;
+    QArray<Q_UINT8> allocArray;
+    QArray<Q_UINT8> contextArray;
+    QMap<uint,int> colorMap;
+};
+
+/*****************************************************************************
+  QColorMap class - temporarily here, until it is ready for prime time
+ *****************************************************************************/
+
+/****************************************************************************
+** $Id: //depot/qt/main/src/kernel/qcolormap.h#0 $
+**
+** Definition of QColorMap class
+**
+** Created : 20000510
+**
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Trolltech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+** information about the Professional Edition licensing, or see
+** http://www.trolltech.com/qpl/ for QPL licensing information.
+**
+*****************************************************************************/
+
+
+
+#ifndef QCOLORMAP_H
+#define QCOLORMAP_H
+
+#include <qcolor.h>
+
+class QGLColorMapPrivate;
+
+class /*Q_EXPORT*/ QGLColorMap
+{
+public:
+    enum Flags { Reserved = 0x01 };
+
+    QGLColorMap( int maxSize = 256 );
+    QGLColorMap( const QGLColorMap& map );
+    ~QGLColorMap();
+
+    QGLColorMap& operator=( const QGLColorMap& map );
+
+    // isEmpty and/or isNull ?
+    int size() const;
+    int maxSize() const;
+
+    void resize( int newSize );
+
+    int find( QRgb color ) const;
+    int findNearest( QRgb color ) const;
+    int allocate( QRgb color, uint flags = 0, Q_UINT8 context = 0 );
+
+    void setEntry( int idx, QRgb color, uint flags = 0, Q_UINT8 context = 0 );
+
+    const QRgb* colors() const;
+
+private:
+    void detach();
+    QGLColorMapPrivate* d;
+};
+    
+#endif
+
+    
+QGLColorMap::QGLColorMap( int maxSize ) // add a bool prealloc?
+{
+    d = new QGLColorMapPrivate;
+    d->maxSize = maxSize;
+}
+
+
+QGLColorMap::QGLColorMap( const QGLColorMap& map )
+{
+    d = map.d;
+    d->ref();
+}
+
+
+QGLColorMap::~QGLColorMap()
+{
+    if ( d && d->deref() )
+	delete d;
+    d = 0;
+}
+
+
+QGLColorMap& QGLColorMap::operator=( const QGLColorMap& map )
+{
+    map.d->ref();
+    if ( d->deref() )
+	delete d;
+    d = map.d;
+    return *this;
+}
+
+
+int QGLColorMap::size() const
+{
+    return d->colorArray.size();
+}
+
+
+int QGLColorMap::maxSize() const
+{
+    return d->maxSize;
+}
+
+
+void QGLColorMap::detach()
+{
+    if ( d->count != 1 ) {
+	d->deref();
+	QGLColorMapPrivate* newd = new QGLColorMapPrivate;
+	newd->maxSize = d->maxSize;
+	newd->colorArray = d->colorArray.copy();
+	newd->allocArray = d->allocArray.copy();
+	newd->contextArray = d->contextArray.copy();
+	newd->colorMap = d->colorMap;
+	d = newd;
+    }
+}
+
+
+void QGLColorMap::resize( int newSize )
+{
+#if defined (QT_CHECK_RANGE)
+    if ( newSize < 0 || newSize > d->maxSize ) {
+	qWarning( "QGLColorMap::resize(): size out of range" );
+	return;
+    }
+#endif
+    int oldSize = size();
+    detach();
+    //### if shrinking; remove the lost elems from colorMap
+    d->colorArray.resize( newSize );
+    d->allocArray.resize( newSize );
+    d->contextArray.resize( newSize );
+    if ( newSize > oldSize ) {
+	memset( d->allocArray.data() + oldSize, 0, newSize - oldSize );
+	memset( d->contextArray.data() + oldSize, 0, newSize - oldSize );
+    }
+}
+
+
+int QGLColorMap::find( QRgb color ) const
+{
+    QMap<uint,int>::ConstIterator it = d->colorMap.find( color );
+    if ( it != d->colorMap.end() )
+	return *it;
+    return -1;
+}
+
+
+int QGLColorMap::findNearest( QRgb color ) const
+{
+    int idx = find( color );
+    if ( idx >= 0 )
+	return idx;
+    int mapSize = size();
+    int mindist = 200000;
+    int r = qRed( color );
+    int g = qGreen( color );
+    int b = qBlue( color );
+    int rx, gx, bx, dist;
+    for ( int i=0; i < mapSize; i++ ) {
+	if ( !(d->allocArray[i] & QGLColorMapPrivate::Allocated) )
+	    continue;
+	QRgb ci = d->colorArray[i];
+	rx = r - qRed( ci );
+	gx = g - qGreen( ci );
+	bx = b - qBlue( ci );
+	dist = rx*rx + gx*gx + bx*bx;		// calculate distance
+	if ( dist < mindist ) {			// minimal?
+	    mindist = dist;
+	    idx = i;
+	}
+    }
+    return idx;
+}
+
+
+
+
+// Does not always allocate; returns existing c idx if found
+
+int QGLColorMap::allocate( QRgb color, uint flags, Q_UINT8 context )
+{
+    int idx = find( color );
+    if ( idx >= 0 )
+	return idx;
+
+    int mapSize = d->colorArray.size();
+    int newIdx = d->allocArray.find( QGLColorMapPrivate::UnAllocated );
+
+    if ( newIdx < 0 ) {			// Must allocate more room
+	if ( mapSize < d->maxSize ) {
+	    newIdx = mapSize;
+	    mapSize++;
+	    resize( mapSize );
+	}
+	else {
+	    //# add a bool param that says what to do in case no more room -
+	    // fail (-1) or return nearest?
+	    return -1;
+	}
+    }
+
+    d->colorArray[newIdx] = color;
+    if ( flags & QGLColorMap::Reserved ) {
+	d->allocArray[newIdx] = QGLColorMapPrivate::Reserved;
+    }
+    else {
+	d->allocArray[newIdx] = QGLColorMapPrivate::Allocated;
+	d->colorMap.insert( color, newIdx );
+    }
+    d->contextArray[newIdx] = context;
+    return newIdx;
+}
+
+
+void QGLColorMap::setEntry( int idx, QRgb color, uint flags, Q_UINT8 context )
+{
+#if defined (QT_CHECK_RANGE)
+    if ( idx < 0 || idx >= d->maxSize ) {
+	qWarning( "QGLColorMap::set(): Index out of range" );
+	return;
+    }
+#endif
+    detach();
+    int mapSize = size();
+    if ( idx >= mapSize ) {
+	mapSize = idx + 1;
+	resize( mapSize );
+    }
+    d->colorArray[idx] = color;
+    if ( flags & QGLColorMap::Reserved ) {
+	d->allocArray[idx] = QGLColorMapPrivate::Reserved;
+    }
+    else {
+	d->allocArray[idx] = QGLColorMapPrivate::Allocated;
+	d->colorMap.insert( color, idx );
+    }
+    d->contextArray[idx] = context;
+}
+
+
+const QRgb* QGLColorMap::colors() const
+{
+    return d->colorArray.data();
+}
+
+
+
+/*****************************************************************************
+  QGLFormat Win32/WGL-specific code
+ *****************************************************************************/
+
+
+void qwglError( const char* method, const char* func )
+{
+#if defined(QT_CHECK_NULL)
+    qWarning( "%s : %s failed: %s", method, func, (const char *)"FIXME!?" );
+#else
+    Q_UNUSED( method );
+    Q_UNUSED( func );
+#endif
+}
+
+
+
+bool QGLFormat::hasOpenGL()
+{
+    return TRUE;
+}
+
+
+bool QGLFormat::hasOpenGLOverlays()
+{
+    static bool checkDone = FALSE;
+    static bool hasOl = FALSE;
+
+    if ( !checkDone ) {
+	checkDone = TRUE;
+	HDC dc = qt_display_dc();
+	int pfiMax = DescribePixelFormat( dc, 0, 0, NULL );
+	PIXELFORMATDESCRIPTOR pfd;
+	for ( int pfi = 1; pfi <= pfiMax; pfi++ ) {
+	    DescribePixelFormat( dc, pfi, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
+	    if ( (pfd.bReserved & 0x0f) && (pfd.dwFlags & PFD_SUPPORT_OPENGL)) {
+		// This format has overlays/underlays
+		LAYERPLANEDESCRIPTOR lpd;
+		wglDescribeLayerPlane( dc, pfi, 1,
+				       sizeof(LAYERPLANEDESCRIPTOR), &lpd );
+		if ( lpd.dwFlags & LPD_SUPPORT_OPENGL ) {
+		    hasOl = TRUE;
+		    break;
+		}
+	    }
+	}
+    }
+    return hasOl;
+}
+
+
+/*****************************************************************************
+  QGLContext Win32/WGL-specific code
+ *****************************************************************************/
+
+static uchar qgl_rgb_palette_comp( int idx, uint nbits, uint shift )
+{
+    const uchar map_3_to_8[8] = {
+	0, 0111>>1, 0222>>1, 0333>>1, 0444>>1, 0555>>1, 0666>>1, 0377
+    };
+    const uchar map_2_to_8[4] = {
+	0, 0x55, 0xaa, 0xff
+    };
+    const uchar map_1_to_8[2] = {
+	0, 255
+    };
+
+    uchar val = (uchar) (idx >> shift);
+    uchar res = 0;
+    switch ( nbits ) {
+    case 1:
+        val &= 0x1;
+        res =  map_1_to_8[val];
+	break;
+    case 2:
+        val &= 0x3;
+        res = map_2_to_8[val];
+	break;
+    case 3:
+        val &= 0x7;
+        res = map_3_to_8[val];
+	break;
+    default:
+        res = 0;
+    }
+    return res;
+}
+
+
+static QRgb* qgl_create_rgb_palette( const PIXELFORMATDESCRIPTOR* pfd )
+{
+    if ( ( pfd->iPixelType != PFD_TYPE_RGBA ) ||
+	 !(pfd->dwFlags & PFD_NEED_PALETTE) ||
+	 ( pfd->cColorBits != 8 ) )
+	return 0;
+    int numEntries = 1 << pfd->cColorBits;
+    QRgb* pal = new QRgb[numEntries];
+    for ( int i = 0; i < numEntries; i++ ) {
+	int r = qgl_rgb_palette_comp( i, pfd->cRedBits, pfd->cRedShift );
+	int g = qgl_rgb_palette_comp( i, pfd->cGreenBits, pfd->cGreenShift );
+	int b = qgl_rgb_palette_comp( i, pfd->cBlueBits, pfd->cBlueShift );
+	pal[i] = qRgb( r, g, b );
+    }
+/*  // Not used?
+    const int syscol_indices[13] = {
+	0, 3, 24, 27, 64, 67, 88, 173, 181, 236, 247, 164, 91
+    };
+*/
+    const uint syscols[20] = {
+	0x000000, 0x800000, 0x008000, 0x808000, 0x000080, 0x800080,
+	0x008080, 0xc0c0c0, 0xc0dcc0, 0xa6caf0, 0xfffbf0, 0xa0a0a4,
+	0x808080, 0xff0000, 0x00ff00, 0xffff00, 0x0000ff, 0xff00ff,
+	0x00ffff, 0xffffff
+    };
+
+    if ( ( pfd->cColorBits == 8 )				&&
+	 ( pfd->cRedBits   == 3 ) && ( pfd->cRedShift   == 0 )	&&
+	 ( pfd->cGreenBits == 3 ) && ( pfd->cGreenShift == 3 )	&&
+	 ( pfd->cBlueBits  == 2 ) && ( pfd->cBlueShift  == 6 ) ) {
+	for ( int j = 1 ; j <= 12 ; j++ )
+	    pal[j] = QRgb( syscols[j] );
+    }
+
+    return pal;
+}
+
+
+static QGLFormat pfdToQGLFormat( const PIXELFORMATDESCRIPTOR* pfd )
+{
+    QGLFormat fmt;
+    fmt.setDoubleBuffer( pfd->dwFlags & PFD_DOUBLEBUFFER );
+    fmt.setDepth( pfd->cDepthBits );
+    fmt.setRgba( pfd->iPixelType == PFD_TYPE_RGBA );
+    fmt.setAlpha( pfd->cAlphaBits );
+    fmt.setAccum( pfd->cAccumBits );
+    fmt.setStencil( pfd->cStencilBits );
+    fmt.setStereo( pfd->dwFlags & PFD_STEREO );
+    fmt.setDirectRendering( (pfd->dwFlags & PFD_GENERIC_ACCELERATED) ||
+			    !(pfd->dwFlags & PFD_GENERIC_FORMAT) );
+    fmt.setOverlay( (pfd->bReserved & 0x0f) != 0 );
+    return fmt;
+}
+
+bool QGLContext::chooseContext( const QGLContext* shareContext )
+{
+    HDC myDc;
+
+    if ( deviceIsPixmap() ) {
+	if ( glFormat.plane() )
+	    return FALSE;		// Pixmaps can't have overlay
+	win = 0;
+	myDc = paintDevice->handle();
+    }
+    else {
+	win = ((QWidget*)paintDevice)->winId();
+	myDc = GetDC( win );
+    }
+
+    if ( !myDc ) {
+#if defined(QT_CHECK_NULL)
+	qWarning( "QGLContext::chooseContext(): Paint device cannot be null" );
+#endif
+	if ( win )
+	    ReleaseDC( win, myDc );
+	return FALSE;
+    }
+
+    if ( glFormat.plane() ) {
+	pixelFormatId = ((QGLWidget*)paintDevice)->context()->pixelFormatId;
+	if ( !pixelFormatId ) {		// I.e. the glwidget is invalid
+#if defined(QT_CHECK_STATE)
+	    qWarning( "QGLContext::chooseContext(): Cannot create overlay context for invalid widget" );
+#endif
+	    if ( win )
+		ReleaseDC( win, myDc );
+	    return FALSE;
+	}
+
+	rc = wglCreateLayerContext( myDc, glFormat.plane() );
+	if ( !rc ) {
+	    qwglError( "QGLContext::chooseContext()", "CreateLayerContext" );
+	    if ( win )
+		ReleaseDC( win, myDc );
+	    return FALSE;
+	}
+
+	LAYERPLANEDESCRIPTOR lpfd;
+	wglDescribeLayerPlane( myDc, pixelFormatId, glFormat.plane(),
+			       sizeof( LAYERPLANEDESCRIPTOR ), &lpfd );
+	glFormat.setDoubleBuffer( lpfd.dwFlags & LPD_DOUBLEBUFFER );
+	glFormat.setDepth( lpfd.cDepthBits );
+	glFormat.setRgba( lpfd.iPixelType == PFD_TYPE_RGBA );
+	glFormat.setAlpha( lpfd.cAlphaBits );
+	glFormat.setAccum( lpfd.cAccumBits );
+	glFormat.setStencil( lpfd.cStencilBits );
+	glFormat.setStereo( lpfd.dwFlags & LPD_STEREO );
+	glFormat.setDirectRendering( FALSE );
+
+	if ( glFormat.rgba() ) {
+	    if ( lpfd.dwFlags & LPD_TRANSPARENT )
+		transpColor = QColor( lpfd.crTransparent & 0xff,
+				      (lpfd.crTransparent >> 8) & 0xff, 
+				      (lpfd.crTransparent >> 16) & 0xff );
+	    else
+		transpColor = QColor( 0, 0, 0 );
+	}
+	else {
+	    if ( lpfd.dwFlags & LPD_TRANSPARENT )
+		transpColor = QColor( qRgb( 1, 2, 3 ), lpfd.crTransparent );
+	    else
+		transpColor = QColor( qRgb( 1, 2, 3 ), 0 );
+
+	    cmap = new QGLColorMap( 1 << lpfd.cColorBits );
+	    cmap->setEntry( lpfd.crTransparent, qRgb( 1, 2, 3 ),
+			    QGLColorMap::Reserved );
+	}
+
+        if ( shareContext && shareContext->isValid() )
+	    sharing = ( wglShareLists( shareContext->rc, rc ) != 0 );
+
+	if ( win )
+	    ReleaseDC( win, myDc );
+	return TRUE;
+    }
+
+    PIXELFORMATDESCRIPTOR pfd;
+    PIXELFORMATDESCRIPTOR realPfd;
+    pixelFormatId = choosePixelFormat( &pfd, myDc );
+    if ( pixelFormatId == 0 ) {
+	qwglError( "QGLContext::chooseContext()", "ChoosePixelFormat" );
+	if ( win )
+	    ReleaseDC( win, myDc );
+	return FALSE;
+    }
+    DescribePixelFormat( myDc, pixelFormatId, sizeof(PIXELFORMATDESCRIPTOR),
+			 &realPfd );
+    bool overlayRequested = glFormat.hasOverlay();
+    glFormat = pfdToQGLFormat( &realPfd );
+    glFormat.setOverlay( glFormat.hasOverlay() && overlayRequested );
+
+    if ( deviceIsPixmap() && !(realPfd.dwFlags & PFD_DRAW_TO_BITMAP) ) {
+#if defined(QT_CHECK_NULL)
+	qWarning( "QGLContext::chooseContext(): Failed to get pixmap rendering context." );
+#endif
+	return FALSE;
+    }
+
+    if ( deviceIsPixmap() && 
+	 (((QPixmap*)paintDevice)->depth() != realPfd.cColorBits ) ) {
+#if defined(QT_CHECK_NULL)
+	qWarning( "QGLContext::chooseContext(): Failed to get pixmap rendering context of suitable depth." );
+#endif
+	return FALSE;
+    }
+
+    if ( !SetPixelFormat(myDc, pixelFormatId, &realPfd) ) {
+	qwglError( "QGLContext::chooseContext()", "SetPixelFormat" );
+	if ( win )
+	    ReleaseDC( win, myDc );
+	return FALSE;
+    }
+
+    if ( !(rc = wglCreateLayerContext( myDc, 0 ) ) ) { //### just createcontext() if not overlay?
+	qwglError( "QGLContext::chooseContext()", "wglCreateContext" );
+	if ( win )
+	    ReleaseDC( win, myDc );
+	return FALSE;
+    }
+
+    if ( shareContext && shareContext->isValid() )
+	sharing = ( wglShareLists( shareContext->rc, rc ) != 0 );
+
+    if ( win )
+	ReleaseDC( win, myDc );
+
+    QRgb* pal = qgl_create_rgb_palette( &realPfd );
+    if ( pal ) {
+	QColor::setPaletteEntries( pal, 256, 0 );
+	delete[] pal;
+    }
+
+    return TRUE;
+}
+
+
+
+static bool qLogEq( bool a, bool b )
+{
+    return ( ((!a) && (!b)) || (a && b) );
+}
+
+/* 
+
+<strong>Win32 only</strong>: This virtual function chooses a pixel format
+that matches the OpenGL \link setFormat() format\endlink \a
+fmt. Reimplement this function in a subclass if you need a custom context.
+
+  \warning The \a pfd pointer is really a \c PIXELFORMATDESCRIPTOR*.
+  We use \c void to avoid using Windows-specific types in our header files.
+
+  \sa chooseContext() */
+
+int QGLContext::choosePixelFormat( void* dummyPfd, HDC pdc )
+{
+    PIXELFORMATDESCRIPTOR* p = (PIXELFORMATDESCRIPTOR*)dummyPfd;
+    memset( p, 0, sizeof(PIXELFORMATDESCRIPTOR) );
+    p->nSize = sizeof(PIXELFORMATDESCRIPTOR);
+    p->nVersion = 1;
+    p->dwFlags  = PFD_SUPPORT_OPENGL;
+    if ( deviceIsPixmap() )
+	p->dwFlags |= PFD_DRAW_TO_BITMAP;
+    else
+	p->dwFlags |= PFD_DRAW_TO_WINDOW;
+    if ( glFormat.doubleBuffer() && !deviceIsPixmap() )
+	p->dwFlags |= PFD_DOUBLEBUFFER;
+    if ( glFormat.stereo() )
+	p->dwFlags |= PFD_STEREO;
+    if ( glFormat.depth() )
+	p->cDepthBits = 32;
+    if ( glFormat.rgba() ) {
+	p->iPixelType = PFD_TYPE_RGBA;
+	if ( deviceIsPixmap() )
+	    p->cColorBits = ((QPixmap*)paintDevice)->depth();
+	else
+	    p->cColorBits = 32;
+    } else {
+	p->iPixelType = PFD_TYPE_COLORINDEX;
+	p->cColorBits = 8;
+    }
+    if ( glFormat.alpha() )
+	p->cAlphaBits = 8;
+    if ( glFormat.accum() )
+	p->cAccumBits = p->cColorBits + p->cAlphaBits;
+    if ( glFormat.stencil() )
+	p->cStencilBits = 4;
+    p->iLayerType = PFD_MAIN_PLANE;
+    int chosenPfi = ChoosePixelFormat( pdc, p );
+
+    // Since the GDI function ChoosePixelFormat() does not handle
+    // overlay and direct-rendering requests, we must roll our own here 
+
+    bool doSearch = chosenPfi < 0;
+    PIXELFORMATDESCRIPTOR pfd;
+    QGLFormat fmt;
+    if ( !doSearch ) {
+	DescribePixelFormat( pdc, chosenPfi, sizeof(PIXELFORMATDESCRIPTOR), 
+			     &pfd );
+	fmt = pfdToQGLFormat( &pfd );
+	if ( glFormat.hasOverlay() && !fmt.hasOverlay() )
+	    doSearch = TRUE;
+	if ( !qLogEq( glFormat.directRendering(), fmt.directRendering() ) )
+	    doSearch = TRUE;
+    }
+
+    if ( doSearch ) {
+	int pfiMax = DescribePixelFormat( pdc, 0, 0, NULL );
+	int bestScore = -1;
+	int bestPfi = -1;
+	for ( int pfi = 1; pfi <= pfiMax; pfi++ ) {
+	    DescribePixelFormat( pdc, pfi, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
+	    if ( !(pfd.dwFlags & PFD_SUPPORT_OPENGL) )
+		continue;
+	    if ( deviceIsPixmap() && !(pfd.dwFlags & PFD_DRAW_TO_BITMAP) )
+		continue;
+	    if ( !deviceIsPixmap() && !(pfd.dwFlags & PFD_DRAW_TO_WINDOW) )
+		continue;
+
+	    fmt = pfdToQGLFormat( &pfd );
+	    if ( glFormat.hasOverlay() && !fmt.hasOverlay() )
+		continue;
+
+	    int score = pfd.cColorBits;
+	    if ( qLogEq( glFormat.doubleBuffer(), fmt.doubleBuffer() ) )
+		score += 500;
+	    if ( qLogEq( glFormat.depth(), fmt.depth() ) )
+		score += pfd.cDepthBits;
+	    if ( qLogEq( glFormat.rgba(), fmt.rgba() ) )
+		score += 10000;
+	    if ( qLogEq( glFormat.alpha(), fmt.alpha() ) )
+		score += pfd.cAlphaBits;
+	    if ( qLogEq( glFormat.accum(), fmt.accum() ) )
+		score += pfd.cAccumBits;
+	    if ( qLogEq( glFormat.stencil(), fmt.stencil() ) )
+		score += pfd.cStencilBits;
+	    if ( qLogEq( glFormat.stereo(), fmt.stereo() ) )
+		score += 1000;
+	    if ( qLogEq( glFormat.directRendering(), fmt.directRendering() ) )
+		score += 2000;
+	    
+	    if ( score > bestScore ) {
+		bestScore = score;
+		bestPfi = pfi;
+	    }
+	}
+
+	if ( bestPfi >= 0 )
+	    return bestPfi;
+    }
+    return chosenPfi;
+}
+
+
+
+void QGLContext::reset()
+{
+    if ( !valid )
+	return;
+    doneCurrent();
+    if ( rc )
+	wglDeleteContext( rc );
+    rc  = 0;
+    if ( win && dc )
+	ReleaseDC( win, dc );
+    dc  = 0;
+    win = 0;
+    pixelFormatId = 0;
+    sharing = FALSE;
+    valid = FALSE;
+    transpColor = QColor();
+    delete cmap;
+    cmap = 0;
+    initDone = FALSE;
+}
+
+
+
+//
+// NOTE: In a multi-threaded environment, each thread has a current
+// context. If we want to make this code thread-safe, we probably
+// have to use TLS (thread local storage) for keeping current contexts.
+//
+
+void QGLContext::makeCurrent()
+{
+    if ( currentCtx ) {
+	if ( currentCtx == this )		// already current
+	    return;
+	currentCtx->doneCurrent();
+    }
+    if ( !valid )
+	return;
+    if ( win )
+	dc = GetDC( win );
+    else
+	dc = paintDevice->handle();
+    if ( QColor::hPal() ) {
+	SelectPalette( dc, QColor::hPal(), FALSE );
+	RealizePalette( dc );
+    }
+    if ( glFormat.plane() ) {
+	wglRealizeLayerPalette( dc, glFormat.plane(), TRUE );
+    }
+
+    if ( !wglMakeCurrent( dc, rc ) )
+	qwglError( "QGLContext::makeCurrent()", "wglMakeCurrent" );
+    currentCtx = this;
+}
+
+
+void QGLContext::doneCurrent()
+{
+    if ( currentCtx != this )
+	return;
+    currentCtx = 0;
+    //#### should use wglRealizeLayerPalette to release colors here?
+    // depending on visibility of window?
+    wglMakeCurrent( 0, 0 );
+    if ( win && dc ) {
+	ReleaseDC( win, dc );
+	dc = 0;
+    }
+}
+
+
+void QGLContext::swapBuffers() const
+{
+    if ( dc && glFormat.doubleBuffer() && !deviceIsPixmap() ) {
+	if ( glFormat.plane() )
+	    wglSwapLayerBuffers( dc, WGL_SWAP_OVERLAY1 );  //### hardcoded ol1
+	else {
+	    if ( glFormat.hasOverlay() )
+		wglSwapLayerBuffers( dc, WGL_SWAP_MAIN_PLANE );
+	    else
+		SwapBuffers( dc );
+	}
+    }
+}
+
+
+QColor QGLContext::overlayTransparentColor() const
+{
+    return transpColor;
+}
+
+
+uint QGLContext::colorIndex( const QColor& c ) const
+{
+    if ( !isValid() )
+	return 0;
+    if ( cmap ) {
+	int idx = cmap->find( c.rgb() );
+	if ( idx >= 0 )
+	    return idx;
+	if ( dc && glFormat.plane() ) {
+	    idx = cmap->allocate( c.rgb() );
+	    if ( idx >= 0 ) {
+		COLORREF r = RGB(qRed(c.rgb()),qGreen(c.rgb()),qBlue(c.rgb()));
+		wglSetLayerPaletteEntries( dc, glFormat.plane(), idx, 1, &r );
+		wglRealizeLayerPalette( dc, glFormat.plane(), TRUE );
+		return idx;
+	    }
+	}
+	return cmap->findNearest( c.rgb() );
+    }
+    return c.pixel() & 0x00ffffff;		// Assumes standard palette
+}
+
+
+/*****************************************************************************
+  QGLWidget Win32/WGL-specific code
+ *****************************************************************************/
+
+void QGLWidget::init( const QGLFormat& fmt, const QGLWidget* shareWidget )
+{
+    glcx = 0;
+    autoSwap = TRUE;
+
+    if ( shareWidget )
+	setContext( new QGLContext( fmt, this ), shareWidget->context() );
+    else
+	setContext( new QGLContext( fmt, this ) );
+    setBackgroundMode( NoBackground );
+
+    if ( isValid() && format().hasOverlay() ) {
+	olcx = new QGLContext( QGLFormat::defaultOverlayFormat(), this );
+        if ( !olcx->create(shareWidget ? shareWidget->overlayContext() : 0) ) {
+	    delete olcx;
+	    olcx = 0;
+	    glcx->glFormat.setOverlay( FALSE );
+	}
+    }
+    else {
+	olcx = 0;
+    }
+}
+
+
+void QGLWidget::reparent( QWidget* parent, WFlags f, const QPoint& p,
+			  bool showIt )
+{
+    QWidget::reparent( parent, f, p, FALSE );
+    setContext( new QGLContext( glcx->requestedFormat(), this ) );
+    if ( showIt )
+	show();
+}
+
+
+void QGLWidget::setMouseTracking( bool enable )
+{
+    QWidget::setMouseTracking( enable );
+}
+
+
+void QGLWidget::resizeEvent( QResizeEvent * )
+{
+    if ( !isValid() )
+	return;
+    makeCurrent();
+    if ( !glcx->initialized() )
+	glInit();
+    resizeGL( width(), height() );
+    if ( olcx ) {
+	makeOverlayCurrent();
+	resizeOverlayGL( width(), height() );
+    }
+}
+
+
+
+const QGLContext* QGLWidget::overlayContext() const
+{
+    return olcx;
+}
+
+
+void QGLWidget::makeOverlayCurrent()
+{
+    if ( olcx ) {
+	olcx->makeCurrent();
+	if ( !olcx->initialized() ) {
+	    initializeOverlayGL();
+	    olcx->setInitialized( TRUE );
+	}
+    }
+}
+
+
+void QGLWidget::updateOverlayGL()
+{
+    if ( olcx ) {
+	makeOverlayCurrent();
+	paintOverlayGL();
+	if ( olcx->format().doubleBuffer() ) {
+	    if ( autoSwap )
+		olcx->swapBuffers();
+	}
+	else {
+	    glFlush();
+	}
+    }
+}
+
+
+void QGLWidget::setContext( QGLContext *context,
+			    const QGLContext* shareContext,
+			    bool deleteOldContext )
+{
+    if ( context == 0 ) {
+#if defined(QT_CHECK_NULL)
+	qWarning( "QGLWidget::setContext: Cannot set null context" );
+#endif
+	return;
+    }
+    if ( !context->deviceIsPixmap() && context->device() != this ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QGLWidget::setContext: Context must refer to this widget" );
+#endif
+	return;
+    }
+
+    if ( glcx )
+	glcx->doneCurrent();
+    QGLContext* oldcx = glcx;
+    glcx = context;
+
+    bool doShow = FALSE;
+    if ( oldcx && oldcx->win == winId() && !glcx->deviceIsPixmap() ) {
+	// We already have a context and must therefore create a new
+	// window since Windows does not permit setting a new OpenGL
+	// context for a window that already has one set.
+	doShow = isVisible();
+	QWidget::reparent( parentWidget(), 0, geometry().topLeft(), FALSE );
+    }
+
+    if ( !glcx->isValid() )
+	glcx->create( shareContext ? shareContext : oldcx );
+
+    if ( deleteOldContext )
+	delete oldcx;
+
+    if ( doShow )
+	show();
+}
+
+
+bool QGLWidget::renderCxPm( QPixmap* )
+{
+    return FALSE;
+}

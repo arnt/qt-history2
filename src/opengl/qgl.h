@@ -51,24 +51,21 @@ Q_EXPORT inline const char *qGLVersion() {
 }
 #endif
 
-#if !(defined(Q_WGL) || defined(Q_GLX))
 #if defined(Q_OS_WIN32)
-#define Q_WGL
-#else
-#define Q_GLX
-#endif
-#endif
-
-#if defined(Q_WGL)
 #include <qt_windows.h>
 #endif
 
-#include <GL/gl.h>
-#include <GL/glu.h>
+#ifdef Q_WS_MAC
+# include <gl.h>
+# include <glu.h>
+#else
+# include <GL/gl.h>
+# include <GL/glu.h>
+#endif
 
 class QGLColorMap;
 class QPixmap;
-#if defined(Q_GLX)
+#if defined(Q_WS_X11)
 class QGLOverlayWidget;
 #endif
 
@@ -181,9 +178,9 @@ protected:
     virtual bool	chooseContext( const QGLContext* shareContext = 0 );
     virtual void	doneCurrent();
     
-#if defined(Q_WGL)
+#if defined(Q_OS_WIN32)
     virtual int		choosePixelFormat( void* pfd, HDC pdc );
-#elif defined(Q_GLX)
+#elif defined(Q_WS_X11)
     virtual void*	tryVisual( const QGLFormat& f, int bufDepth = 1 );
     virtual void*	chooseVisual();
 #endif
@@ -197,13 +194,13 @@ protected:
     uint		colorIndex( const QColor& c ) const;
 
 protected:
-#if defined(Q_WGL)
+#if  defined(Q_OS_WIN32)
     HGLRC		rc;
     HDC			dc;
     WId	win;
     int			pixelFormatId;
     QGLColorMap*	cmap;
-#elif defined(Q_GLX)
+#elif defined(Q_WS_X11)
     void*		vi;
     void*		cx;
     Q_UINT32		gpm;
@@ -305,9 +302,9 @@ private:
     QGLContext*		glcx;
     bool		autoSwap;
 
-#if defined(Q_WGL)
+#if  defined(Q_OS_WIN32)
     QGLContext*		olcx;
-#elif defined(Q_GLX)
+#elif defined(Q_WS_X11)
     QGLOverlayWidget*	olw;
     friend class QGLOverlayWidget;
 #endif
