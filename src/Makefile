@@ -21,7 +21,7 @@ CC		= gcc
 ####### Targets
 
 AOUTTARGET	= $(LIBDIR)/libqt.a
-ELFTARGET	= $(LIBDIR)/libqt.so.0.9.0
+ELFTARGET	= $(LIBDIR)/libqt.so.0.9.2
 ELFTARGETPRE	= libqt.so.0
 
 ####### Misc programs used
