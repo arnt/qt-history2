@@ -173,12 +173,6 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     sep = new QAction(this);
     sep->setSeparator(true);
     m_editActions->addAction(sep);
-    
-    m_editActions->addAction(formWindowManager->actionShowResourceEditor());
-
-    sep = new QAction(this);
-    sep->setSeparator(true);
-    m_editActions->addAction(sep);
 
     m_sendToBackAction = formWindowManager->actionLower();
     m_editActions->addAction(m_sendToBackAction);
@@ -207,6 +201,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
             formEditorPlugin->action()->setCheckable(true);
         }
     }
+    m_toolActions->addAction(formWindowManager->actionShowResourceEditor());
 
     m_uiMode = new QActionGroup(this);
     m_uiMode->setExclusive(true);

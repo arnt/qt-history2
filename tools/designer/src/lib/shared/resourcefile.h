@@ -97,8 +97,9 @@ public:
     QString relativePath(const QString &path) const
         { return m_resource_file.relativePath(path); }
 
-    void reload();
-    void save();
+    virtual bool reload();
+    virtual bool save();
+    QString errorMessage() const { return m_resource_file.errorMessage(); }
 
     bool dirty() const { return m_dirty; }
     void setDirty(bool b);

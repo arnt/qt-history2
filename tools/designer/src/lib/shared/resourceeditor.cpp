@@ -1,6 +1,5 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/qdebug.h>
-#include <QtCore/QUrl>
 #include <QtGui/QTabWidget>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
@@ -225,10 +224,17 @@ void QrcView::dropEvent(QDropEvent *e)
 
 class EditableResourceModel : public ResourceModel
 {
+    Q_OBJECT
+
 public:
     EditableResourceModel(const ResourceFile &resource_file, QObject *parent = 0);
     virtual ItemFlags flags(const QModelIndex &index) const;
     virtual QModelIndex addFiles(const QModelIndex &idx, const QStringList &file_list);
+    virtual bool reload();
+    virtual bool save();
+
+private slots:
+    void showWarning(const QString &caption, const QString &message);
 };
 
 EditableResourceModel::EditableResourceModel(const ResourceFile &resource_file,
@@ -287,6 +293,37 @@ QModelIndex EditableResourceModel::addFiles(const QModelIndex &idx,
     }
 
     return result;
+}
+
+bool EditableResourceModel::reload()
+{
+    if (!ResourceModel::reload()) {
+        QMetaObject::invokeMember(this, "showWarning", Qt::QueuedConnection,
+                                    Q_ARG(QString, tr("Error loading resource file")),
+                                    Q_ARG(QString, tr("Failed to open \"%1\":\n%2")
+                                                        .arg(fileName())
+                                                        .arg(errorMessage())));
+        return false;
+    }
+    return true;
+}
+
+bool EditableResourceModel::save()
+{
+    if (!ResourceModel::save()) {
+        QMetaObject::invokeMember(this, "showWarning", Qt::QueuedConnection,
+                                    Q_ARG(QString, tr("Error saving resource file")),
+                                    Q_ARG(QString, tr("Failed to save \"%1\":\n%2")
+                                        .arg(fileName())
+                                        .arg(errorMessage())));
+        return false;
+    }
+    return true;
+}
+
+void EditableResourceModel::showWarning(const QString &caption, const QString &message)
+{
+    QMessageBox::warning(0, caption, message, QMessageBox::Ok, QMessageBox::NoButton);
 }
 
 /******************************************************************************
@@ -370,7 +407,7 @@ void ResourceEditor::insertEmptyComboItem()
     QVariant v = m_qrc_combo->itemData(0);
     if (v.type() == QVariant::Int && v.toInt() == COMBO_EMPTY_DATA)
         return;
-    m_qrc_combo->insertItem(0, QIcon(), tr("<no resource fiels>"), QVariant(COMBO_EMPTY_DATA));
+    m_qrc_combo->insertItem(0, QIcon(), tr("<no resource files>"), QVariant(COMBO_EMPTY_DATA));
     m_qrc_combo->setCurrentIndex(0);
 }
 

@@ -3,7 +3,6 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QDir>
 #include <QtCore/qdebug.h>
-#include <QtGui/QMessageBox>
 #include <QtGui/QIcon>
 
 #include "resourcefile.h"
@@ -625,30 +624,19 @@ QModelIndex ResourceModel::deleteItem(const QModelIndex &idx)
     return index(file_idx, 0, prefix_model_idx);
 }
 
-void ResourceModel::reload()
+bool ResourceModel::reload()
 {
-    if (!m_resource_file.load()) {
-        QMessageBox::warning(0, tr("Error opening resource file"),
-                                tr("Failed to open \"%1\":\n%2")
-                                    .arg(m_resource_file.fileName())
-                                    .arg(m_resource_file.errorMessage()),
-                                QMessageBox::Ok, QMessageBox::NoButton);
-        return;
-    }
-    emit reset();
-    setDirty(false);
+    bool result = m_resource_file.load();
+    if (result)
+        setDirty(false);
+    return result;
 }
 
-void ResourceModel::save()
+bool ResourceModel::save()
 {
-    if (!m_resource_file.save()) {
-        QMessageBox::warning(0, tr("Error saving resource file"),
-                                tr("Failed to save \"%1\":\n%2")
-                                    .arg(m_resource_file.fileName())
-                                    .arg(m_resource_file.errorMessage()),
-                                QMessageBox::Ok, QMessageBox::NoButton);
-        return;
-    }
-    setDirty(false);
+    bool result = m_resource_file.save();
+    if (result)
+        setDirty(false);
+    return result;
 }
 
