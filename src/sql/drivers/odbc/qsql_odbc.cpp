@@ -746,7 +746,7 @@ bool QODBCResult::fetchNext()
     r = SQLFetchScroll(d->hStmt,
                        SQL_FETCH_NEXT,
                        0);
-    if (r != SQL_SUCCESS || r != SQL_SUCCESS_WITH_INFO) {
+    if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) {
         if (r != SQL_NO_DATA)
             setLastError(qMakeError(QCoreApplication::translate("QODBCResult",
                 "Unable to fetch next"), QSqlError::ConnectionError, d));
