@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizegrip.h#1 $
+** $Id: //depot/qt/main/src/kernel/qsizegrip.h#2 $
 **
 ** Definition of QSizeGrip class
 **
@@ -39,6 +39,7 @@ public:
     ~QSizeGrip();
 
     QSize sizeHint() const;
+    QSizePolicy sizePolicy() const;
 
 protected:
     void paintEvent( QPaintEvent * );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#35 $
 **
 ** Implementation of QStatusBar class
 **
@@ -197,10 +197,9 @@ void QStatusBar::reformat()
 	d->box = 0;
     }
 
-    d->box = new QBoxLayout( this, QBoxLayout::Down );
+    d->box = new QVBoxLayout( this );
     d->box->addSpacing( 3 );
-    QBoxLayout * l = new QBoxLayout( QBoxLayout::LeftToRight );
-    d->box->addLayout( l );
+    QBoxLayout * l = new QHBoxLayout( d->box );
 
     QStatusBarPrivate::StatusBarPrivateItem * i;
     d->items.first();
@@ -212,18 +211,12 @@ void QStatusBar::reformat()
 	space = 4;
 	l->addWidget( i->w, i->s );
     }
-    QBoxLayout * vproxy;
     if ( space == 1 ) {
 	l->addStretch( 1 );
-	vproxy = new QBoxLayout( QBoxLayout::Down );
-	l->addLayout( vproxy );
-	vproxy->addSpacing( 3 + fontMetrics().height() + 3 );
+	l->addStrut( 3 + fontMetrics().height() + 3 );
     }
     l->addSpacing( 2 );
-    vproxy = new QBoxLayout( QBoxLayout::Down );
-    l->addLayout( vproxy );
-    vproxy->addStretch( 1 );
-    vproxy->addWidget( d->resizer, 0 );
+    l->addWidget( d->resizer, 0, AlignBottom );
     d->box->addSpacing( 2 );
     d->box->activate();
 }

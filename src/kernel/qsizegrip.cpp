@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#2 $
 **
 ** Implementation of QSizeGrip class
 **
@@ -153,3 +153,13 @@ void QSizeGrip::mouseMoveEvent( QMouseEvent * e )
     QApplication::syncX();
 }
 
+
+
+/*!
+  The size grip has a fixed height, but can grow horizontally.
+*/
+
+QSizePolicy QSizeGrip::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
+}
