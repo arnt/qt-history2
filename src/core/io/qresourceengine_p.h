@@ -45,8 +45,6 @@ public:
 
     virtual bool isRelativePath() const;
 
-    virtual int handle() const;
-
     virtual uchar *map(Q_LONG len);
 
     virtual bool mkdir(const QString &dirName, QDir::Recursion recurse) const;

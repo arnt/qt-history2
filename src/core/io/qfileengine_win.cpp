@@ -255,12 +255,6 @@ QFSFileEngine::size() const
     return st.st_size;
 }
 
-uchar
-*QFSFileEngine::map(Q_LONG /*len*/)
-{
-    return 0;
-}
-
 bool
 QFSFileEngine::mkdir(const QString &name, QDir::Recursion recurse) const
 {
@@ -807,33 +801,33 @@ QFSFileEnginePrivate::getPermissions() const
                     if (ptrGetEffectiveRightsFromAclW(pDacl, &currentUserTrusteeW, &access_mask) != ERROR_SUCCESS)
                         access_mask = (ACCESS_MASK)-1;
 		    if(access_mask & ReadMask)
-			ret |= QFileEngine::ReadUser;
+			ret |= QFileEngine::ReadUserPerm;
 		    if(access_mask & WriteMask)
-			ret |= QFileEngine::WriteUser;
+			ret |= QFileEngine::WriteUserPerm;
 		    if(access_mask & ExecMask)
-			ret |= QFileEngine::ExeUser;
+			ret |= QFileEngine::ExeUserPerm;
                 }
                 { //owner
                     ptrBuildTrusteeWithSidW(&trustee, pOwner);
                     if (ptrGetEffectiveRightsFromAclW(pDacl, &trustee, &access_mask) != ERROR_SUCCESS)
                         access_mask = (ACCESS_MASK)-1;
 		    if(access_mask & ReadMask)
-			ret |= QFileEngine::ReadOwner;
+			ret |= QFileEngine::ReadOwnerPerm;
 		    if(access_mask & WriteMask)
-			ret |= QFileEngine::WriteOwner;
+			ret |= QFileEngine::WriteOwnerPerm;
 		    if(access_mask & ExecMask)
-			ret |= QFileEngine::ExeOwner;
+			ret |= QFileEngine::ExeOwnerPerm;
                 }
                 { //group
                     ptrBuildTrusteeWithSidW(&trustee, pGroup);
                     if (ptrGetEffectiveRightsFromAclW(pDacl, &trustee, &access_mask) != ERROR_SUCCESS)
                         access_mask = (ACCESS_MASK)-1;
 		    if(access_mask & ReadMask)
-			ret |= QFileEngine::ReadGroup;
+			ret |= QFileEngine::ReadGroupPerm;
 		    if(access_mask & WriteMask)
-			ret |= QFileEngine::WriteGroup;
+			ret |= QFileEngine::WriteGroupPerm;
 		    if(access_mask & ExecMask)
-			ret |= QFileEngine::ExeGroup;
+			ret |= QFileEngine::ExeGroupPerm;
                 }
                 { //other (world)
                     // Create SID for Everyone (World)
@@ -844,11 +838,11 @@ QFSFileEnginePrivate::getPermissions() const
                         if (ptrGetEffectiveRightsFromAclW(pDacl, &trustee, &access_mask) != ERROR_SUCCESS)
                             access_mask = (ACCESS_MASK)-1; // ###
 			if(access_mask & ReadMask)
-			    ret |= QFileEngine::ReadOther;
+			    ret |= QFileEngine::ReadOtherPerm;
 			if(access_mask & WriteMask)
-			    ret |= QFileEngine::WriteOther;
+			    ret |= QFileEngine::WriteOtherPerm;
 			if(access_mask & ExecMask)
-			    ret |= QFileEngine::ExeOther;
+			    ret |= QFileEngine::ExeOtherPerm;
                     }
                     ptrFreeSid(pWorld);
                 }
@@ -856,19 +850,19 @@ QFSFileEnginePrivate::getPermissions() const
             }
         }
     }
-    if(ret & (QFileEngine::WriteOwner | QFileEngine::WriteUser |
-	      QFileEngine::WriteGroup | QFileEngine::WriteOther)) {
+    if(ret & (QFileEngine::WriteOwnerPerm | QFileEngine::WriteUserPerm |
+	      QFileEngine::WriteGroupPerm | QFileEngine::WriteOtherPerm)) {
 	QT_WA({
 	    DWORD attr = GetFileAttributes((TCHAR*)file.utf16());
 	    if(attr & FILE_ATTRIBUTE_READONLY)
 		if (attr & FILE_ATTRIBUTE_READONLY)
-		    ret &= ~(QFileEngine::WriteOwner | QFileEngine::WriteUser |
-			      QFileEngine::WriteGroup | QFileEngine::WriteOther);
+		    ret &= ~(QFileEngine::WriteOwnerPerm | QFileEngine::WriteUserPerm |
+			      QFileEngine::WriteGroupPerm | QFileEngine::WriteOtherPerm);
 	} , {
 	    DWORD attr = GetFileAttributesA(file.local8Bit());
 	    if (attr & FILE_ATTRIBUTE_READONLY)
-		ret &= ~(QFileEngine::WriteOwner | QFileEngine::WriteUser |
-			 QFileEngine::WriteGroup | QFileEngine::WriteOther);
+		ret &= ~(QFileEngine::WriteOwnerPerm | QFileEngine::WriteUserPerm |
+			 QFileEngine::WriteGroupPerm | QFileEngine::WriteOtherPerm);
 	});
     }
     return ret;
@@ -879,27 +873,27 @@ QFSFileEngine::fileFlags(uint type) const
 {
     uint ret = 0;
     if(type & PermsMask)
-	ret = d->getPermissions();
-    if(type & TypeMask) {
+	ret |= d->getPermissions();
+    if(type & TypesMask) {
 	if(d->doStat()) {
 	    if((d->st.st_mode & S_IFMT) == S_IFREG)
-		ret |= File;
+		ret |= FileType;
 	    if((d->st.st_mode & S_IFMT) == S_IFDIR)
-		ret |= Directory;
+		ret |= DirectoryType;
 	    if (d->file.endsWith(".lnk"))
-		ret |= Link;
+		ret |= LinkType;
 	}
     }
     if(type & FlagsMask) {
 	if(d->doStat()) {
-	    ret |= Exists;
+	    ret |= ExistsFlag;
 	    if(fileName(BaseName)[0] == QChar('.')) {
 		QT_WA({
 		    if(GetFileAttributesW((TCHAR*)d->file.utf16()) & FILE_ATTRIBUTE_HIDDEN)
-			ret |= Hidden;
+			ret |= HiddenFlag;
 		} , {
 		    if(GetFileAttributesA(d->file.local8Bit()) & FILE_ATTRIBUTE_HIDDEN)
-			ret |= Hidden;
+			ret |= HiddenFlag;
 		});
 	    }
 	}
@@ -1019,7 +1013,7 @@ QFSFileEngine::owner(FileOwner own) const
 
 	if (ptrGetNamedSecurityInfoW && ptrLookupAccountSidW) {
 	    if (ptrGetNamedSecurityInfoW((wchar_t*)d->file.utf16(), SE_FILE_OBJECT,
-					 own == Group ? GROUP_SECURITY_INFORMATION : OWNER_SECURITY_INFORMATION,
+					 own == OwnerGroup ? GROUP_SECURITY_INFORMATION : OWNER_SECURITY_INFORMATION,
 					 NULL, &pOwner, NULL, NULL, &pSD) == ERROR_SUCCESS) {
 		DWORD lowner = 0, ldomain = 0;
 		SID_NAME_USE use;

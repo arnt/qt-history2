@@ -1111,7 +1111,7 @@ QDir::isReadable() const
 {
     if(!d->data->fileEngine)
         return false;
-    return d->data->fileEngine->fileFlags(QFileEngine::PermsMask) & QFileEngine::ReadUser;
+    return d->data->fileEngine->fileFlags(QFileEngine::PermsMask) & QFileEngine::ReadUserPerm;
 }
 
 /*!
@@ -1129,7 +1129,7 @@ QDir::exists() const
 {
     if(!d->data->fileEngine)
         return false;
-    return d->data->fileEngine->fileFlags(QFileEngine::FlagsMask) & QFileEngine::Exists;
+    return d->data->fileEngine->fileFlags(QFileEngine::FlagsMask) & QFileEngine::ExistsFlag;
 }
 
 /*!
@@ -1211,7 +1211,7 @@ QDir::makeAbsolute() // ### What do the return values signify?
     d->detach();
     d->data->path = absolutePath;
     d->data->fileEngine->setFileName(absolutePath);
-    if(!(d->data->fileEngine->fileFlags(QFileEngine::TypeMask) & QFileEngine::Directory))
+    if(!(d->data->fileEngine->fileFlags(QFileEngine::TypesMask) & QFileEngine::DirectoryType))
         return false;
     return true;
 }

@@ -23,7 +23,6 @@ class Q_CORE_EXPORT QFileEngine : public QIOEngine
 {
     Q_DECLARE_PRIVATE(QFileEngine)
 public:
-    QFileEngine(QFileEnginePrivate &);
     virtual ~QFileEngine();
 
     static QFileEngine *createFileEngine(const QString &file);
@@ -31,10 +30,6 @@ public:
 
     virtual bool remove() = 0;
     virtual bool rename(const QString &newName) = 0;
-
-    virtual int handle() const = 0;
-
-    virtual uchar *map(Q_LONG len) = 0; //can we implement an mmap?
 
     virtual bool mkdir(const QString &dirName, QDir::Recursion recurse) const = 0;
     virtual bool rmdir(const QString &dirName, QDir::Recursion recurse) const = 0;
@@ -49,37 +44,41 @@ public:
 
     enum FileInfo { 
         //perms (overlaps the QFileInfo permissions)
-        ReadOwner = 0x4000, WriteOwner = 0x2000, ExeOwner = 0x1000,
-        ReadUser  = 0x0400, WriteUser  = 0x0200, ExeUser  = 0x0100,
-        ReadGroup = 0x0040, WriteGroup = 0x0020, ExeGroup = 0x0010,
-        ReadOther = 0x0004, WriteOther = 0x0002, ExeOther = 0x0001,
+        ReadOwnerPerm = 0x4000, WriteOwnerPerm = 0x2000, ExeOwnerPerm = 0x1000,
+        ReadUserPerm  = 0x0400, WriteUserPerm  = 0x0200, ExeUserPerm  = 0x0100,
+        ReadGroupPerm = 0x0040, WriteGroupPerm = 0x0020, ExeGroupPerm = 0x0010,
+        ReadOtherPerm = 0x0004, WriteOtherPerm = 0x0002, ExeOtherPerm = 0x0001,
 
         //types
-        Link      = 0x10000, 
-        File      = 0x20000, 
-        Directory = 0x40000,
+        LinkType      = 0x10000, 
+        FileType      = 0x20000, 
+        DirectoryType = 0x40000,
 
         //flags
-        Hidden     = 0x0100000,
-        Exists     = 0x0400000,
+        HiddenFlag     = 0x0100000,
+        ExistsFlag     = 0x0400000,
 
         //masks
         PermsMask  = 0x0000FFFF,
-        TypeMask   = 0x000F0000,
+        TypesMask  = 0x000F0000,
         FlagsMask  = 0x0FF00000,
-        FileInfoAll = FlagsMask | PermsMask | TypeMask
+        FileInfoAll = FlagsMask | PermsMask | TypesMask
     };
     virtual uint fileFlags(uint type=FileInfoAll) const = 0;
 
     enum FileName { DefaultName, BaseName, PathName, AbsoluteName, AbsolutePathName, LinkName, CanonicalName };
     virtual QString fileName(FileName file=DefaultName) const = 0;
 
-    enum FileOwner { User, Group };
+    enum FileOwner { OwnerUser, OwnerGroup };
     virtual uint ownerId(FileOwner) const = 0;
     virtual QString owner(FileOwner) const = 0;
 
     enum FileTime { CreationTime, ModificationTime, AccessTime };
     virtual QDateTime fileTime(FileTime time) const = 0;
+
+protected:
+    QFileEngine();
+    QFileEngine(QFileEnginePrivate &);
 };
 
 class QFileEngineHandler
@@ -123,10 +122,6 @@ public:
 
     virtual bool isSequential() const;
 
-    virtual int handle() const;
-
-    virtual uchar *map(Q_LONG len);
-
     virtual bool mkdir(const QString &dirName, QDir::Recursion recurse) const;
     virtual bool rmdir(const QString &dirName, QDir::Recursion recurse) const;
 
@@ -149,6 +144,7 @@ public:
 
     //FS only!!
     bool open(int flags, int fd); 
+    int handle() const;
     static bool setCurrentPath(const QString &path);
     static QString currentPath(const QString &path=QString::null);
     static QString homePath();

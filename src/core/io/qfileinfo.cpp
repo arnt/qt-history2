@@ -110,9 +110,9 @@ void QFileInfoPrivate::detach()
 uint QFileInfoPrivate::getFileInfo(QFileEngine::FileInfo request) const
 {
     uint masks = 0;
-    if((request & QFileEngine::TypeMask) && !data->getCached(CachedTypes)) {
+    if((request & QFileEngine::TypesMask) && !data->getCached(CachedTypes)) {
         data->setCached(CachedTypes);
-        masks |= QFileEngine::TypeMask;
+        masks |= QFileEngine::TypesMask;
     }
     if((request & QFileEngine::PermsMask) && !data->getCached(CachedPerms)) {
         data->setCached(CachedPerms);
@@ -520,7 +520,7 @@ QFileInfo::exists() const
 {
     if(!d->data->fileEngine)
         return false;
-    return d->getFileInfo(QFileEngine::Exists);
+    return d->getFileInfo(QFileEngine::ExistsFlag);
 }
 
 /*!
@@ -708,7 +708,7 @@ QFileInfo::isReadable() const
 {
     if(!d->data->fileEngine)
         return false;
-    return d->getFileInfo(QFileEngine::ReadUser);
+    return d->getFileInfo(QFileEngine::ReadUserPerm);
 }
 
 /*!
@@ -723,7 +723,7 @@ QFileInfo::isWritable() const
 {
     if(!d->data->fileEngine)
         return false;
-    return d->getFileInfo(QFileEngine::WriteUser);
+    return d->getFileInfo(QFileEngine::WriteUserPerm);
 }
 
 /*!
@@ -737,7 +737,7 @@ QFileInfo::isExecutable() const
 {
     if(!d->data->fileEngine)
         return false;
-    return d->getFileInfo(QFileEngine::ExeUser);
+    return d->getFileInfo(QFileEngine::ExeUserPerm);
 }
 
 bool
@@ -745,7 +745,7 @@ QFileInfo::isHidden() const
 {
     if(!d->data->fileEngine)
         return false;
-    return d->getFileInfo(QFileEngine::Hidden);
+    return d->getFileInfo(QFileEngine::HiddenFlag);
 }
 
 /*!
@@ -761,7 +761,7 @@ QFileInfo::isFile() const
 {
     if(!d->data->fileEngine)
         return false;
-    return d->getFileInfo(QFileEngine::File);
+    return d->getFileInfo(QFileEngine::FileType);
 }
 
 /*!
@@ -776,7 +776,7 @@ QFileInfo::isDir() const
 {
     if(!d->data->fileEngine)
         return false;
-    return d->getFileInfo(QFileEngine::Directory);
+    return d->getFileInfo(QFileEngine::DirectoryType);
 }
 
 /*!
@@ -791,7 +791,7 @@ QFileInfo::isSymLink() const
 {
     if(!d->data->fileEngine)
         return false;
-    return d->getFileInfo(QFileEngine::Link);
+    return d->getFileInfo(QFileEngine::LinkType);
 }
 
 /*!
@@ -829,7 +829,7 @@ QFileInfo::owner() const
 {
     if(!d->data->fileEngine)
         return QString("");
-    return d->data->fileEngine->owner(QFileEngine::User);
+    return d->data->fileEngine->owner(QFileEngine::OwnerUser);
 }
 
 /*!
@@ -846,7 +846,7 @@ QFileInfo::ownerId() const
 {
     if(!d->data->fileEngine)
         return 0;
-    return d->data->fileEngine->ownerId(QFileEngine::User);
+    return d->data->fileEngine->ownerId(QFileEngine::OwnerUser);
 }
 
 /*!
@@ -865,7 +865,7 @@ QFileInfo::group() const
 {
     if(!d->data->fileEngine)
         return QString("");
-    return d->data->fileEngine->owner(QFileEngine::Group);
+    return d->data->fileEngine->owner(QFileEngine::OwnerGroup);
 }
 
 /*!
@@ -882,7 +882,7 @@ QFileInfo::groupId() const
 {
     if(!d->data->fileEngine)
         return 0;
-    return d->data->fileEngine->ownerId(QFileEngine::Group);
+    return d->data->fileEngine->ownerId(QFileEngine::OwnerGroup);
 }
 
 /*!

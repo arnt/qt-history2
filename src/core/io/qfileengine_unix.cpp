@@ -65,12 +65,6 @@ QFSFileEngine::size() const
     return st.st_size;
 }
 
-uchar
-*QFSFileEngine::map(Q_LONG /*len*/)
-{
-    return 0;
-}
-
 bool
 QFSFileEngine::mkdir(const QString &name, QDir::Recursion recurse) const
 {
@@ -292,42 +286,42 @@ QFSFileEngine::fileFlags(uint type) const
         return ret;
     if(type & PermsMask) {
         if (d->st.st_mode & S_IRUSR)
-            ret |= ReadOwner;
+            ret |= ReadOwnerPerm;
         if (d->st.st_mode & S_IWUSR)
-            ret |= WriteOwner;
+            ret |= WriteOwnerPerm;
         if (d->st.st_mode & S_IXUSR)
-            ret |= ExeOwner;
+            ret |= ExeOwnerPerm;
         if (d->st.st_mode & S_IRUSR)
-            ret |= ReadUser;
+            ret |= ReadUserPerm;
         if (d->st.st_mode & S_IWUSR)
-            ret |= WriteUser;
+            ret |= WriteUserPerm;
         if (d->st.st_mode & S_IXUSR)
-            ret |= ExeUser;
+            ret |= ExeUserPerm;
         if (d->st.st_mode & S_IRGRP)
-            ret |= ReadGroup;
+            ret |= ReadGroupPerm;
         if (d->st.st_mode & S_IWGRP)
-            ret |= WriteGroup;
+            ret |= WriteGroupPerm;
         if (d->st.st_mode & S_IXGRP)
-            ret |= ExeGroup;
+            ret |= ExeGroupPerm;
         if (d->st.st_mode & S_IROTH)
-            ret |= ReadOther;
+            ret |= ReadOtherPerm;
         if (d->st.st_mode & S_IWOTH)
-            ret |= WriteOther;
+            ret |= WriteOtherPerm;
         if (d->st.st_mode & S_IXOTH)
-            ret |= ExeOther;
+            ret |= ExeOtherPerm;
     }
-    if(type & TypeMask) {
+    if(type & TypesMask) {
         if((d->st.st_mode & S_IFMT) == S_IFREG)
-            ret |= File;
+            ret |= FileType;
         if((d->st.st_mode & S_IFMT) == S_IFLNK)
-            ret |= Link;
+            ret |= LinkType;
         if((d->st.st_mode & S_IFMT) == S_IFDIR)
-            ret |= Directory;
+            ret |= DirectoryType;
     }
     if(type & FlagsMask) {
-        ret |= Exists;
+        ret |= ExistsFlag;
         if(fileName(BaseName)[0] == QChar('.'))
-            ret |= Hidden;
+            ret |= HiddenFlag;
     }
     return ret;
 }
@@ -410,7 +404,7 @@ QFSFileEngine::ownerId(FileOwner own) const
 {
     static const uint nobodyID = (uint) -2;
     if(d->doStat()) {
-        if(own == User)
+        if(own == OwnerUser)
             return d->st.st_uid;
         else
             return d->st.st_gid;
@@ -421,11 +415,11 @@ QFSFileEngine::ownerId(FileOwner own) const
 QString
 QFSFileEngine::owner(FileOwner own) const
 {
-    if(own == User) {
+    if(own == OwnerUser) {
         passwd *pw = getpwuid(ownerId(own));
         if (pw)
             return QFile::decodeName(QByteArray(pw->pw_name));
-    } else if(own == Group) {
+    } else if(own == OwnerGroup) {
         struct group *gr = getgrgid(ownerId(own));
         if (gr)
             return QFile::decodeName(QByteArray(gr->gr_name));

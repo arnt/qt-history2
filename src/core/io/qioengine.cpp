@@ -135,6 +135,26 @@ QIODevice::Status QIOEngine::errorStatus() const
     ###
 
  */
+uchar *QIOEngine::map(QIODevice::Offset /*offset*/, Q_LONG /*len*/)
+{
+    return 0;
+}
+
+/*!
+
+    ###
+
+ */
+void QIOEngine::unmap(uchar */*data*/)
+{
+
+}
+
+/*!
+
+    ###
+
+ */
 QString QIOEngine::errorString() const
 {
     return QString::null;
