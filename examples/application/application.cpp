@@ -112,6 +112,7 @@ ApplicationWindow::ApplicationWindow()
     e->setFocus();
     setCentralWidget( e );
     statusBar()->message( "Ready", 2000 );
+    resize( 450, 600 );
 }
 
 
