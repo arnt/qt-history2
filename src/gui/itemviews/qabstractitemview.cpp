@@ -528,9 +528,9 @@ bool QAbstractItemView::startEdit(const QModelIndex &index,
                                   QAbstractItemDelegate::StartEditAction action,
                                   QEvent *event)
 {
-    QAbstractItemDelegate::EditType editType = d->delegate->editType(index);
+    QAbstractItemDelegate::EditType editType = itemDelegate()->editType(index);
     if (d->shouldEdit(action, index) || editType == QAbstractItemDelegate::PersistentWidget) {
-        if (editType == QAbstractItemDelegate::NoWidget && d->delegate->event(event, index))
+        if (editType == QAbstractItemDelegate::NoWidget && itemDelegate()->event(event, index))
             d->state = Editing;
         else if (d->createEditor(action, event, index))
             d->state = Editing;
@@ -545,7 +545,7 @@ void QAbstractItemView::endEdit(const QModelIndex &index, bool accept)
 
     setState(NoState);
 
-    QAbstractItemDelegate::EditType editType = d->delegate->editType(index);
+    QAbstractItemDelegate::EditType editType = itemDelegate()->editType(index);
     if (editType == QAbstractItemDelegate::PersistentWidget
         || editType == QAbstractItemDelegate::NoWidget) {
         // No editor to remove
@@ -554,11 +554,11 @@ void QAbstractItemView::endEdit(const QModelIndex &index, bool accept)
     }
 
     if (accept) {
-        d->delegate->setContentFromEditor(d->currentEditor, index);
-        d->delegate->removeEditor(QAbstractItemDelegate::Accepted,
+        itemDelegate()->setContentFromEditor(d->currentEditor, index);
+        itemDelegate()->removeEditor(QAbstractItemDelegate::Accepted,
                                   d->currentEditor, index);
     } else {
-        d->delegate->removeEditor(QAbstractItemDelegate::Cancelled,
+        itemDelegate()->removeEditor(QAbstractItemDelegate::Cancelled,
                                   d->currentEditor, index);
     }
     setFocus();
@@ -663,7 +663,7 @@ QSize QAbstractItemView::itemSizeHint(const QModelIndex &item) const
 {
     QItemOptions options;
     getViewOptions(&options);
-    return d->delegate->sizeHint(fontMetrics(), options, item);
+    return itemDelegate()->sizeHint(fontMetrics(), options, item);
 }
 
 void QAbstractItemView::updateItem(const QModelIndex &item)
