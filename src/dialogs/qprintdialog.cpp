@@ -57,7 +57,6 @@
 #include "qspinbox.h"
 #include "qapplication.h"
 #include "qheader.h"
-#include "qcleanuphandler.h"
 #include "qstyle.h"
 
 #include "qstring.h"
@@ -585,7 +584,12 @@ static char * parseCupsOutput( QListView * printers )
 
 static QPrintDialog * globalPrintDialog = 0;
 
-static QCleanupHandler<QPrintDialog> qpd_cleanup_globaldialog;
+static void qpd_cleanup_globaldialog()
+{
+    if ( globalPrintDialog != 0 )
+	delete globalPrintDialog;
+    globalPrintDialog = 0;
+}
 
 /*!
   \class QPrintDialog qprintdialog.h
@@ -747,7 +751,7 @@ void QPrintDialog::setGlobalPrintDialog( QPrintDialog *pd )
     if ( oldPd )
 	delete oldPd;
     else
-	qpd_cleanup_globaldialog.add( &globalPrintDialog );
+	qAddPostRoutine( qpd_cleanup_globaldialog );
     globalPrintDialog->adjustSize();
 }
 
@@ -1144,7 +1148,7 @@ bool QPrintDialog::getPrinterSetup( QPrinter * p, QWidget* w  )
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	globalPrintDialog->setCaption( QPrintDialog::tr( "Setup Printer" ) );
 #endif
-	qpd_cleanup_globaldialog.add( &globalPrintDialog );
+	qAddPostRoutine( qpd_cleanup_globaldialog );
 	globalPrintDialog->setPrinter( p, TRUE );
 	globalPrintDialog->adjustSize();
     } else {
