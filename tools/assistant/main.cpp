@@ -141,6 +141,51 @@ void ServerSocket::dataReceived()
     mainWindow->raise();
 }
 
+class StdInParser : public QSocket
+{
+    Q_OBJECT
+public:
+    StdInParser( MainWindow *aWindow, QObject *parent=0, const char * name = 0 );
+
+public slots:
+    void readIn();
+
+private:
+    MainWindow *mw;
+};
+
+StdInParser::StdInParser( MainWindow *aWindow, QObject *parent=0, const char * name = 0 )
+    :QSocket( parent, name )
+{
+    mw = aWindow;
+    connect( this, SIGNAL(readyRead()), this, SLOT(readIn()) );
+    setSocket(0);
+}
+
+void StdInParser::readIn() {
+    QString data = readLine().simplifyWhiteSpace();
+    if ( '/' != data[0] )
+	mw->showLink( data, "" );
+    else {
+	if ( -1 != data.find("find") ) mw->find();
+	else if ( -1 != data.find("goHome") )             mw->goHome();
+	else if ( -1 != data.find("hide") ) {             mw->hide(); return; }
+	else if ( -1 != data.find("print") )              mw->print();
+	else if ( -1 != data.find("raise") )              mw->raise();
+	else if ( -1 != data.find("saveSettings") )       mw->saveSettings();
+	else if ( -1 != data.find("setupBookmarkMenu") )  mw->setupBookmarkMenu();
+	else if ( -1 != data.find("show") )               mw->show();
+	else if ( -1 != data.find("showBookmark") )       mw->showBookmark( data.remove(0, data.findRev(' ')).toInt() );
+	else if ( -1 != data.find("showDesignerHelp") )   mw->showDesignerHelp();
+	else if ( -1 != data.find("showLinguistHelp") )   mw->showLinguistHelp();
+	else if ( -1 != data.find("showQtHelp") )         mw->showQtHelp();
+	else if ( -1 != data.find("showSettingsDialog") ) mw->showSettingsDialog();
+	else if ( -1 != data.find("updateBookmarkMenu") ) mw->updateBookmarkMenu();
+    }
+    mw->show();
+    mw->raise();
+}
+
 #ifdef Q_OS_MACX
 #include <stdlib.h>
 #include <qdir.h>
@@ -149,6 +194,7 @@ void ServerSocket::dataReceived()
 int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
+    StdInParser *commandInput = 0;
 
 #ifdef Q_OS_MACX
     QString qdir = QDir::cleanDirPath(QDir::currentDirPath() + QDir::separator() +
@@ -172,13 +218,18 @@ int main( int argc, char ** argv )
 	    s = QString( argv[1] );
 	if ( s.left( 2 ) == "d:" )
 	    s.remove( 0, 2 );
-	if ( !s.isEmpty() )
+	if ( s == "stdin" )
+	    commandInput = new StdInParser(mw, &a);
+	else if ( !s.isEmpty() )
 	    mw->showLink( s, "" );
     } else {
 	Socket *s = new Socket( 0 );
 	s->start();
     }
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
+
+    // Now we need to setup read from stdin...
+
     return a.exec();
 }
 

@@ -85,6 +85,7 @@
 #include <stdlib.h>
 #include "qcategorywidget.h"
 #include "widgetaction.h"
+#include "assistproc.h"
 
 static bool mblockNewForms = FALSE;
 extern QMap<QWidget*, QString> *qwf_functions;
@@ -243,6 +244,8 @@ MainWindow::MainWindow( bool asClient, bool single )
 
     setAppropriate( (QDockWindow*)actionEditor->parentWidget(), FALSE );
     actionEditor->parentWidget()->hide();
+
+    assistant = new AssistProc( this, "Internal Assistant", assistantPath() );
 
     statusBar()->setSizeGripEnabled( TRUE );
     set_splash_status( "Initialization Done." );
@@ -534,7 +537,7 @@ QObjectList *MainWindow::runProject( bool execMain )
 	else
 	    qwf_form_object = 0;
 	QWidget *w = QWidgetFactory::create( currentProject->makeAbsolute( (*it)->fileName() ), 0, invisibleGroupLeader );
-	
+
 	if ( w ) {
 	    if ( !(*it)->isFake() )
 		w->hide();
@@ -949,21 +952,13 @@ void MainWindow::helpContents()
 	source = QString( WidgetFactory::classNameOf( propertyEditor->widget() ) ).lower() + ".html#details";
     }
 
-    if ( !source.isEmpty() ) {
-	QStringList lst;
-	lst << assistantPath() << QString( "d:" + source );
-	QProcess proc( lst );
-	proc.start();
-    }
-
+    if ( !source.isEmpty() )
+	if ( assistant ) assistant->sendRequest( source+'\n' );
 }
 
 void MainWindow::helpManual()
 {
-    QStringList lst;
-    lst << assistantPath() << "d:designer-manual.html";
-    QProcess proc( lst );
-    proc.start();
+    if ( assistant ) assistant->sendRequest( "designer-manual.html\n" );
 }
 
 void MainWindow::helpAbout()
@@ -1472,7 +1467,7 @@ void MainWindow::activeWindowChanged( QWidget *w )
 		actionEditor->setWantToBeShown( !actionEditor->parentWidget()->isHidden() );
 	    actionEditor->parentWidget()->hide();
 	}
-	
+
 	actionEditor->setFormWindow( lastActiveFormWindow );
 	if ( wspace && fw->project() && fw->project() != currentProject ) {
 	    for ( QMap<QAction*, Project *>::Iterator it = projects.begin(); it != projects.end(); ++it ) {
@@ -1827,7 +1822,7 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 							      currentPage + 1, QString::null, QString::null );
 	    cmd->execute();
 	    formWindow()->commandHistory()->addCommand( cmd );
-	    MetaDataBase::setPropertyChanged( w, "currentPage", TRUE );	
+	    MetaDataBase::setPropertyChanged( w, "currentPage", TRUE );
 	} else if ( id == commands[ "prevpage" ] ) {
 	    int currentPage = w->property( "currentPage" ).toInt();
 	    QString pn( tr( "Raise previous page of '%2'" ).arg( w->name() ) );
@@ -1836,7 +1831,7 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 							      currentPage -1, QString::null, QString::null );
 	    cmd->execute();
 	    formWindow()->commandHistory()->addCommand( cmd );
-	    MetaDataBase::setPropertyChanged( w, "currentPage", TRUE );	
+	    MetaDataBase::setPropertyChanged( w, "currentPage", TRUE );
 	}
     }
     if ( WidgetFactory::hasSpecialEditor( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) ) ) {
@@ -2425,7 +2420,7 @@ void MainWindow::closeEvent( QCloseEvent *e )
 	e->ignore();
 	return;
     }
-	
+
     QWidgetList windows = qWorkspace()->windowList();
     QWidgetListIt wit( windows );
     while ( wit.current() ) {
@@ -2768,10 +2763,7 @@ void MainWindow::showDialogHelp()
 	return;
     }
 
-    QStringList lst;
-    lst << assistantPath() << (QString( "d:" ) + link);
-    QProcess proc( lst );
-    proc.start();
+    if ( assistant ) assistant->sendRequest( link+'\n');
 }
 
 void MainWindow::setupActionManager()
@@ -3543,7 +3535,7 @@ Project *MainWindow::setSingleProject( const QString &lang, const QString &proje
 	MainWindow::self->editSource( f );
 	f->setModified( TRUE );
     }
-	
+
     return eProject;
 }
 

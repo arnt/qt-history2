@@ -67,6 +67,7 @@ class ReplaceDialog;
 class GotoLineDialog;
 class SourceFile;
 class FormFile;
+class AssistProc;
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 #include <qtoolbar.h>
@@ -453,6 +454,7 @@ private:
     QCategoryWidget *toolBox;
     int toolsMenuId, toolsMenuIndex;
     bool guiStuffVisible;
+    AssistProc *assistant;
 
 public:
     QString lastSaveFilter;
