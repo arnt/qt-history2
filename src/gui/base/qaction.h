@@ -96,14 +96,14 @@ public:
     void activate(ActionEvent event);
 
 #ifdef QT_COMPAT
-    inline bool isOn() const { return isChecked(); }
-    inline void setOn(bool b) { setChecked(b); }
-    inline bool isToggleAction() const { return isCheckable(); }
-    inline void setToggleAction(bool b) { setCheckable(b); }
-    inline void setIconSet(const QIconSet &i) { setIcon(i); }
-    inline QIconSet iconSet() const { return icon(); }
-    inline bool addTo(QWidget *w) { w->addAction(this); return true; }
-    inline bool removeFrom(QWidget *w) { w->removeAction(this); return true; }
+    inline QT_COMPAT bool isOn() const { return isChecked(); }
+    inline QT_COMPAT void setOn(bool b) { setChecked(b); }
+    inline QT_COMPAT bool isToggleAction() const { return isCheckable(); }
+    inline QT_COMPAT void setToggleAction(bool b) { setCheckable(b); }
+    inline QT_COMPAT void setIconSet(const QIconSet &i) { setIcon(i); }
+    inline QT_COMPAT QIconSet iconSet() const { return icon(); }
+    inline QT_COMPAT bool addTo(QWidget *w) { w->addAction(this); return true; }
+    inline QT_COMPAT bool removeFrom(QWidget *w) { w->removeAction(this); return true; }
 #endif
 
 protected:
@@ -155,6 +155,17 @@ public:
     bool isExclusive() const;
     bool isEnabled() const;
     bool isVisible() const;
+
+#ifdef QT_COMPAT
+    inline QT_COMPAT void add(QAction* a) { addAction(a); }
+    inline QT_COMPAT void addSeparator() { QAction *act = new QAction(this); act->setSeparator(true); addAction(act); }
+    inline QT_COMPAT bool addTo(QWidget *w) {
+	QList<QAction*> acts = actionList();
+	for(int i = 0; i < acts.size(); i++)
+	    w->addAction(acts.at(i));
+	return true;
+    }
+#endif
 
 public slots:
     void setEnabled(bool);
