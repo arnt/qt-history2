@@ -231,8 +231,10 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     isPopupMenu	  = TRUE;
     parentMenu	  = 0;
     selfItem	  = 0;
+#ifndef QT_NO_ACCEL
     autoaccel	  = 0;
     accelDisabled = FALSE;
+#endif
     popupActive	  = -1;
     snapToMouse	  = TRUE;
     tab = 0;
@@ -311,7 +313,9 @@ bool QPopupMenu::isCheckable() const
 void QPopupMenu::menuContentsChanged()
 {
     badSize = TRUE;				// might change the size
+#ifndef QT_NO_ACCEL
     updateAccel( 0 );
+#endif
     if ( isVisible() ) {
 	if ( tornOff )
 	    return;
@@ -332,7 +336,9 @@ void QPopupMenu::menuContentsChanged()
 
 void QPopupMenu::menuStateChanged()
 {
+#ifndef QT_NO_ACCEL
     updateAccel( 0 ); // ### when we have a good solution for the accel vs. focus widget problem, remove that. That is only a workaround
+#endif
     updateSize();
     update();
     if ( QMenuData::d->aWidget )
@@ -407,8 +413,10 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     // to aboutToShow which will change the size of the menu
     bool s = supressAboutToShow;
     supressAboutToShow = TRUE;
-    if ( !s)
+    if ( !s) {
 	emit aboutToShow();
+	updateSize();
+    }
 
     QWidget *desktop = QApplication::desktop();
     int sw = desktop->width();			// screen width
@@ -428,7 +436,7 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	if ( x < 0 )
 	    x = mouse.x();
 	if ( y < 0 )
-	    y = mouse.y();
+	    y = sh - h;
     } else {
 	if ( x+w > sw )				// the complete widget must
 	    x = sw - w;				//   be visible
@@ -518,6 +526,7 @@ void QPopupMenu::subHighlighted( int id )
     emit highlightedRedirect( id );
 }
 
+#ifndef QT_NO_ACCEL
 void QPopupMenu::accelActivated( int id )
 {
     QMenuItem *mi = findItem( id );
@@ -532,7 +541,7 @@ void QPopupMenu::accelDestroyed()		// accel about to be deleted
 {
     autoaccel = 0;				// don't delete it twice!
 }
-
+#endif //QT_NO_ACCEL
 
 void QPopupMenu::actSig( int id, bool inwhatsthis )
 {
@@ -555,7 +564,9 @@ void QPopupMenu::actSig( int id, bool inwhatsthis )
 	emit activated( id );
     else {
 	QRect r( itemGeometry( indexOf( id ) ) );
+#ifndef QT_NO_WHATSTHIS
 	QWhatsThis::leaveWhatsThisMode( findItem( id )->whatsThis(), mapToGlobal( r.bottomLeft() ) );
+#endif
     }
 
     emit activatedRedirect( id );
@@ -755,7 +766,9 @@ QRect QPopupMenu::itemGeometry( int index )
 void QPopupMenu::updateSize()
 {
     polish();
+#ifndef QT_NO_ACCEL
     updateAccel( 0 );
+#endif
     int height = 0;
     int max_width = 0;
     QFontMetrics fm = fontMetrics();
@@ -890,7 +903,7 @@ void QPopupMenu::updateSize()
 }
 
 
-
+#ifndef QT_NO_ACCEL
 /*!
   \internal
   The \e parent is 0 when it is updated when a menu item has
@@ -938,7 +951,9 @@ void QPopupMenu::updateAccel( QWidget *parent )
 	int k = mi->key();
 	if ( k ) {
 	    int id = autoaccel->insertItem( k, mi->id() );
+#ifndef QT_NO_WHATSTHIS	    
 	    autoaccel->setWhatsThis( id, mi->whatsThis() );
+#endif
 	}
 	if ( !mi->text().isNull() || mi->custom() ) {
 	    QString s = mi->text();
@@ -995,7 +1010,7 @@ void QPopupMenu::enableAccel( bool enable )
 	    mi->popup()->enableAccel( enable );
     }
 }
-
+#endif
 
 /*!\reimp
 */
@@ -1215,14 +1230,20 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 	    }
 	}
 	QPopupMenu *popup = mi->popup();
-	bool b = QWhatsThis::inWhatsThisMode();
+#ifndef QT_NO_WHATSTHIS
+	    bool b = QWhatsThis::inWhatsThisMode();
+#else
+	    const bool b = FALSE;
+#endif	    
 	if ( !mi->isEnabled() ) {
+#ifndef QT_NO_WHATSTHIS
 	    if ( b ) {
 		actItem = -1;
 		updateItem( mi->id() );
 		byeMenuBar();
 		actSig( mi->id(), b);
 	    }
+#endif	    
 	} else 	if ( popup ) {
 	    popup->setFirstItemActive();
 	} else {				// normal menu item
@@ -1404,7 +1425,11 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    actItem = -1;
 	    updateItem( mi->id() );
 	    byeMenuBar();
+#ifndef QT_NO_WHATSTHIS
 	    bool b = QWhatsThis::inWhatsThisMode();
+#else
+	    const bool b = FALSE;
+#endif	    
 	    if ( mi->isEnabled() || b ) {
 		active_popup_menu = this;
 		actSig( mi->id(), b );
@@ -1414,7 +1439,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    }
 	}
 	break;
-
+#ifndef QT_NO_WHATSTHIS
     case Key_F1:
 	if ( actItem < 0 || e->state() != ShiftButton)
 	    break;
@@ -1425,6 +1450,8 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    QRect r( itemGeometry( actItem) );
 	    QWhatsThis::leaveWhatsThisMode( mi->whatsThis(), mapToGlobal( r.bottomLeft()) );
 	}
+	//fall-through!
+#endif	
     default:
 	ok_key = FALSE;
 
@@ -1459,7 +1486,11 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		popup->setFirstItemActive();
 	    } else {
 		byeMenuBar();
+#ifndef QT_NO_WHATSTHIS
 		bool b = QWhatsThis::inWhatsThisMode();
+#else
+		const bool b = FALSE;
+#endif	    
 		if ( mi->isEnabled() || b ) {
 		    active_popup_menu = this;
 		    actSig( mi->id(), b );
@@ -1978,14 +2009,21 @@ void QPopupMenu::activateItemAt( int index )
 	    }
 	} else {
 	    byeMenuBar();			// deactivate menu bar
+
+#ifndef QT_NO_WHATSTHIS
 	    bool b = QWhatsThis::inWhatsThisMode();
+#else
+	    const bool b = FALSE;
+#endif	    
 	    if ( !mi->isEnabled() ) {
+#ifndef QT_NO_WHATSTHIS
 		if ( b ) {
 		    actItem = -1;
 		    updateItem( mi->id() );
 		    byeMenuBar();
 		    actSig( mi->id(), b);
 		}
+#endif
 	    } else {
 		byeMenuBar();			// deactivate menu bar
 		if ( mi->isEnabled() ) {
