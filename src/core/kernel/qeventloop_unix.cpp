@@ -20,6 +20,7 @@
 #include "qthread.h"
 #include <private/qthread_p.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <errno.h>
 
 #include <signal.h>
