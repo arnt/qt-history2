@@ -220,6 +220,11 @@ public:
     //frame
     QT_COMPAT int frameWidth() const;
 
+    //menubar
+    enum Separator { Never=0, InWindowsStyle=1 };
+    inline QT_COMPAT Separator separator() const { return InWindowsStyle; }
+    inline QT_COMPAT void setSeparator(Separator) { }
+
 signals:
     QT_MOC_COMPAT void activated(int itemId);
     QT_MOC_COMPAT void highlighted(int itemId);

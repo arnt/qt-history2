@@ -87,7 +87,7 @@ static const char * p3_xpm[] = {
 "                ",
 "                "};
 
-
+#if 0
 /*
   Auxiliary class to provide fancy menu items with different
   fonts. Used for the "bold" and "underline" menu items in the options
@@ -114,7 +114,7 @@ private:
     QString string;
     QFont font;
 };
-
+#endif
 
 MenuExample::MenuExample( QWidget *parent, const char *name )
     : QWidget( parent, name )
@@ -156,6 +156,7 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     options->insertItem( "&Normal Font", this, SLOT(normal()) );
     options->insertSeparator();
 
+#if 0
     QFont f = options->font();
     f.setBold( TRUE );
     boldID = options->insertItem( new MyMenuItem( "Bold", f ) );
@@ -166,6 +167,9 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     underlineID = options->insertItem( new MyMenuItem( "Underline", f ) );
     options->setAccel( CTRL+Key_U, underlineID );
     options->connectItem( underlineID, this, SLOT(underline()) );
+#else
+#warning "Do we want something like this?!"    
+#endif
 
     isBold = FALSE;
     isUnderline = FALSE;
@@ -215,10 +219,6 @@ void MenuExample::contextMenuEvent( QContextMenuEvent * )
 {
     QPopupMenu*	contextMenu = new QPopupMenu( this );
     Q_CHECK_PTR( contextMenu );
-    QLabel *caption = new QLabel( "<font color=darkblue><u><b>"
-	"Context Menu</b></u></font>", this );
-    caption->setAlignment( Qt::AlignCenter );
-    contextMenu->insertItem( caption );
     contextMenu->insertItem( "&New",  this, SLOT(news()), CTRL+Key_N );
     contextMenu->insertItem( "&Open...", this, SLOT(open()), CTRL+Key_O );
     contextMenu->insertItem( "&Save", this, SLOT(save()), CTRL+Key_S );
