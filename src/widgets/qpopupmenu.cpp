@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#8 $
 **
 ** Implementation of QButton class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#8 $";
 #endif
 
 
@@ -435,7 +435,7 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
 {
     int item = itemAtPos( e->pos() );
     if ( item == -1 ) {
-	if ( !tryMenuBar( e ) )	{		// menu bar didn't want it
+	if ( !clientRect().contains( e->pos() ) && !tryMenuBar( e ) ) {
 	    hide();
 	    byeMenuBar();
 	}
@@ -469,7 +469,7 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 {
     int item = itemAtPos( e->pos() );
     if ( item == -1 ) {
-	if ( tryMenuBar( e ) )			// menu bar wants it
+	if ( !clientRect().contains( e->pos() ) && tryMenuBar( e ) )
 	    return;
     }
     actItem = item;
@@ -497,16 +497,13 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 {
     int  item = itemAtPos( e->pos() );
-    bool mouseInClientRect = clientRect().contains( e->pos() );
     if ( item == -1 ) {				// no valid item
 	if ( popupActive == -1 ) {		// no active popup sub menu
 	    actItem = -1;
 	    repaint( FALSE );
 	}
-	if ( !tryMenuBar( e ) ) {		// menu bar didn't want it
-	    if ( mouseInClientRect )
-		hidePopups();
-	}
+	if ( !clientRect().contains( e->pos() ) && !tryMenuBar( e ) )
+	    hidePopups();
     }
     else {					// mouse on valid item
 	register QMenuItem *mi = mitems->at( item );
