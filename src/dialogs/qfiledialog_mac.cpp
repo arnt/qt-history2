@@ -384,7 +384,7 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString *,
 
 QString QFileDialog::macGetSaveFileName( const QString &start, const QString &, 
 					 QString *, QWidget *parent, const char* /*name*/,
-					 const QString& caption )
+					 const QString& caption, const QString *)
 {
     OSErr err;
     QString retstr;

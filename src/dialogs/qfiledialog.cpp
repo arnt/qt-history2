@@ -3582,7 +3582,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 #elif defined(Q_WS_MAC)
     if( qt_use_native_dialogs && ( qApp->style().inherits(QMAC_DEFAULT_STYLE) || qApp->style().inherits("QMacStyle") ) )
 	return macGetSaveFileName( initialSelection.isNull() ? startWith : initialSelection, filter, workingDirectory,
-				   parent, name, caption );
+				   parent, name, caption, selectedFilter );
 #endif
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name ? name : "qt_filedlg_gsfn", TRUE );
