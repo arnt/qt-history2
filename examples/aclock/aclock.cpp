@@ -109,7 +109,7 @@ void AnalogClock::drawClock( QPainter *paint )
 void AnalogClock::setAutoMask(bool b)
 {
     if (b)
-	setBackgroundMode( PaletteText );
+	setBackgroundMode( PaletteForeground );
     else
 	setBackgroundMode( PaletteBackground );
     QWidget::setAutoMask(b);
