@@ -1919,7 +1919,7 @@ void QHttp::slotReadyRead()
 	d->chunkedSize = -1;
     }
 
-    if ( d->readHeader ) {
+    while ( d->readHeader ) {
 	bool end = FALSE;
 	QString tmp;
 	while ( !end && d->socket.canReadLine() ) {
@@ -1930,26 +1930,33 @@ void QHttp::slotReadyRead()
 		d->headerStr += tmp;
 	}
 
-	if ( end ) {
+	if ( !end )
+	    return;
+
 #if defined(QHTTP_DEBUG)
-	    qDebug( "QHttp: read response header:\n---{\n%s}---", d->headerStr.latin1() );
+	qDebug( "QHttp: read response header:\n---{\n%s}---", d->headerStr.latin1() );
 #endif
+	d->response = QHttpResponseHeader( d->headerStr );
+	d->headerStr = "";
+#if defined(QHTTP_DEBUG)
+	qDebug( "QHttp: read response header:\n---{\n%s}---", d->response.toString().latin1() );
+#endif
+	// Check header
+	if ( !d->response.isValid() ) {
+	    finishedWithError( tr("Invalid HTTP response header"), InvalidResponseHeader );
+	    closeConn();
+	    return;
+	}
+
+	// The 100-continue header is ignored, because when using the
+	// POST method, we send both the request header and data in
+	// one chunk.
+	if (d->response.statusCode() != 100) {
 	    d->readHeader = FALSE;
-	    d->response = QHttpResponseHeader( d->headerStr );
-	    d->headerStr = "";
-#if defined(QHTTP_DEBUG)
-	    qDebug( "QHttp: read response header:\n---{\n%s}---", d->response.toString().latin1() );
-#endif
-	    // Check header
-	    if ( !d->response.isValid() ) {
-		finishedWithError( tr("Invalid HTTP response header"), InvalidResponseHeader );
-		closeConn();
-		return;
-	    }
 	    if ( d->response.hasKey( "transfer-encoding" ) && d->response.value( "transfer-encoding" ).contains( "chunked" ) )
 		d->chunkedSize = 0;
-	    emit responseHeaderReceived( d->response );
 
+	    emit responseHeaderReceived( d->response );
 	}
     }
 
