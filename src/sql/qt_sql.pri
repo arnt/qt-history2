@@ -6,7 +6,8 @@ sql {
 		message(table must be enabled for sql support)
 		REQUIRES += table
 	}
-
+	
+	SQL_P	    = sql
 	HEADERS     += $$SQL_H/qsql.h \
 		    $$SQL_H/qsqlquery.h \
 		    $$SQL_H/qsqldatabase.h \
@@ -23,7 +24,7 @@ sql {
 		    $$SQL_H/qsqlindex.h \
 		    $$SQL_H/qsqlpropertymap.h \
 		    $$SQL_H/qdatetimeedit.h \
-		    $$SQL_H/qsqlmanager_p.h \
+		    $$SQL_P/qsqlmanager_p.h \
 		    $$SQL_H/qdatatable.h \
 		    $$SQL_H/qdataview.h \
 		    $$SQL_H/qdatabrowser.h 
