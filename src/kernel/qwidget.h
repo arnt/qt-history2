@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#60 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#61 $
 **
 ** Definition of QWidget class
 **
@@ -95,6 +95,7 @@ public:
 
   // Keyboard input focus functions
 
+    void	 setActiveWindow();
     bool	 hasFocus() const;
     void	 setFocus();
 
