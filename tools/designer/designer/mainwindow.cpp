@@ -4652,7 +4652,7 @@ void MainWindow::showSourceLine( QObject *o, int line, bool error )
 	    fw->setFocus();
 	    lastActiveFormWindow = fw;
 	    qApp->processEvents();
-	    editSource( FALSE );
+	    editSource( (bool)FALSE );
 	    if ( error )
 		eiface->setError( line );
 	    else
