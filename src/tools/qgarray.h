@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.h#14 $
+** $Id: //depot/qt/main/src/tools/qgarray.h#15 $
 **
 ** Definition of QGArray class
 **
@@ -69,16 +69,21 @@ protected:
     virtual void	deleteData( array_data *p ) { delete p; }
 
 private:
+    static void	msg_index( uint );
     array_data *shd;
 };
 
 
-#if !defined(CHECK_RANGE) && !defined(QGARRAY_CPP)
 inline char *QGArray::at( uint index ) const
 {
+#if defined(CHECK_RANGE)
+    if ( index >= size() ) {
+	msg_index( index );
+	index = 0;
+    }
+#endif
     return &shd->data[index];
 }
-#endif
 
 
 #endif // QGARRAY_H
