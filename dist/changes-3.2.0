@@ -64,6 +64,10 @@ The print dialog now supports "selection" as a print range as well as
 the possibility to enable/disable all different printer options
 individually.
 
+On Windows, the Qt installation includes a toolbar for Visual Studio.NET 
+that provides an integration of the Qt tools (ie. Qt Designer) with the 
+IDE.
+
 Many classes were improved; see the detailed overview that follows.
 
 Qt Motif Extension
