@@ -802,8 +802,8 @@ bool QWMatrix::isIdentity() const
 
 QWMatrix &QWMatrix::translate( double dx, double dy )
 {
-    _dx += dx;
-    _dy += dy;
+    _dx += dx*_m11;
+    _dy += dy*_m22;
     return *this;
 }
 
@@ -885,7 +885,7 @@ QWMatrix &QWMatrix::rotate( double a )
 */
 
 /*! \fn double QWMatrix::det() const
-  
+
   Returns the determinant of the matrix.
 */
 
