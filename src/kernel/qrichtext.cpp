@@ -2784,7 +2784,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    lastFormat = chr->format();
 	    lastY = cy;
 	    startX = chr->x;
-	    if ( !chr->isCustom )
+	    if ( !chr->isCustom && chr->c != '\n' )
 		buffer += chr->c;
 	    bw = cw;
 	    if ( !chr->isCustom )
@@ -2817,7 +2817,10 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		}
 	    }
 	    if ( !chr->isCustom ) {
-		buffer = chr->c;
+		if ( chr->c != '\n' )
+		    buffer = chr->c;
+		else 
+		    buffer = QString::null;
 		lastFormat = chr->format();
 		lastY = cy;
 		startX = chr->x;
@@ -2840,7 +2843,8 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		}
 	    }
 	} else {
-	    buffer += chr->c;
+	    if ( chr->c != '\n' )
+		buffer += chr->c;
 	    bw += cw;
 	}
 	lastBaseLine = baseLine;
@@ -3895,7 +3899,9 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	}
 
 	if ( isWrapEnabled() &&
-	     wrapAtColumn() == -1 && x + ww > w || wrapAtColumn() != -1 && col >= wrapAtColumn() ) {
+	     ( wrapAtColumn() == -1 && x + ww > w || 
+	       wrapAtColumn() != -1 && col >= wrapAtColumn() || 
+	       c->c == '\n' ) ) {
 	    x = doc ? parag->document()->flow()->adjustLMargin( y + parag->rect().y(), left, 4 ) : left;
 	    if ( x != left )
 		fullWidth = FALSE;
@@ -4035,7 +4041,10 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	if ( c->c != '\t' )
 	    minw = QMAX( ww, minw );
 	
-	if ( isWrapEnabled() && wrapAtColumn() == -1 && x + ww > w || wrapAtColumn() != -1 && col >= wrapAtColumn() ) {
+	if ( isWrapEnabled() && 
+	     ( wrapAtColumn() == -1 && x + ww > w || 
+	       wrapAtColumn() != -1 && col >= wrapAtColumn() ||
+	       c->c == '\n' ) ) {
 	    if ( lastBreak == -1 ) {
 		if ( lineStart ) {
 		    lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );
