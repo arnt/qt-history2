@@ -100,7 +100,7 @@ static int getFontWeight( const QString &weightString )
 #ifdef Q_WS_X11
 struct QtFontEncoding
 {
-    int encoding : 16;
+    signed int encoding : 16;
 
     uint xpoint   : 16;
     uint xres     : 8;
@@ -159,8 +159,8 @@ struct QtFontStyle
 			      weight( o.weight ), stretch( o.stretch ) { }
 	uint italic : 1;
 	uint oblique : 1;
-	int  weight : 8;
-	int stretch : 12;
+	uint  weight : 8;
+	uint stretch : 12;
 
 	bool operator==( const Key & other ) {
 	    return ( italic == other.italic &&
