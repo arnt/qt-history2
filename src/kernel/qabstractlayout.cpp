@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#63 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -347,7 +347,7 @@ static QSize smartMaxSize( QWidget *w, int align = 0 )
 	if ( !w->sizePolicy().mayGrowVertically() )
 	    s.setHeight( w->sizeHint().height() );
 
-    //s = s.expandedTo( w->minimumSize() ); //### ???
+    s = s.expandedTo( w->minimumSize() );
 
     if (align & HorAlign )
 	s.setWidth( QWIDGETSIZE_MAX );
