@@ -4,8 +4,8 @@
 const qtDir = System.getenv("QTDIR");
 const qmakeCommand = qtDir + "/bin/qmake";
 
-const qdocDir = qtDir + "/util/qdoc";
-const qdocCommand = qdocDir + "/qdoc";
+const qdocDir = qtDir + "/util/qdoc3";
+const qdocCommand = qdocDir + "/qdoc3";
 
 const outputDir = System.getenv("PWD");
 
@@ -86,6 +86,7 @@ platformRemove["win"] = [ new RegExp("^gif"),
 			  new RegExp("^configure"),
 			  new RegExp("^bin/syncqt"),
 			  new RegExp("^Makefile.win32-g++"),
+			  new RegExp("^LICENSE.PREVIEW"),
 			  new RegExp("^install.exe") ];
 platformKeep["win"] = [ new RegExp(".") ];
 
@@ -103,6 +104,7 @@ platformRemove["x11"] = [ new RegExp("^gif"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
 			  new RegExp("^bin/syncqt"),
+			  new RegExp("^.LICENSE"),
 			  new RegExp("^bin/configure.exe") ];
 platformKeep["x11"] = [ new RegExp(".") ];
 
@@ -120,6 +122,7 @@ platformRemove["mac"] = [ new RegExp("^gif"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
 			  new RegExp("^bin/syncqt"),
+			  new RegExp("^.LICENSE"),
 			  new RegExp("^bin/configure.exe") ];
 platformKeep["mac"] = [ new RegExp(".") ];
 
@@ -349,7 +352,7 @@ function buildQdoc()
 {
     var dir = new Dir(qdocDir);
     dir.setCurrent();
-    execute("%1 qdoc.pro".arg(qmakeCommand));
+    execute("%1 qdoc3.pro".arg(qmakeCommand));
     if (execute("make") != 0)
 	throw "Failed to build qdoc:\n %1".arg(Process.stderr);
     // test qdoc
@@ -603,6 +606,8 @@ function copyDist(packageDir, platform, edition)
     var dir = new Dir(packageDir);
     dir.rename("LICENSE", ".LICENSE");
     dir.rename("LICENSE-US", ".LICENSE-US");
+    if (edition == "preview")
+	dir.rename("LICENSE-COMBINED", "LICENSE.PREVIEW");
 
     // populate licenseHeaders with all files found in dist/licenses
     var licenseFiles = getFileList(packageDir + "/dist/licenses");
@@ -619,8 +624,9 @@ function copyDist(packageDir, platform, edition)
 		    ".LICENSE-US",
 		    "INSTALL",
 		    "PLATFORMS",
-		    "MANIFEST",
-		    "changes-" + options["version"]];
+		    "MANIFEST"];
+    if (edition != "preview")
+	keyFiles.push("changes-" + options["version"]);
     for (var i in keyFiles) {
 	if (!File.exists(packageDir + "/" + keyFiles[i]))
 	    warning("Missing %1 in package.".arg(packageDir + "/" + keyFiles[i]));
@@ -650,7 +656,7 @@ function qdoc(packageDir)
     var dir = new Dir(packageDir);
     dir.setCurrent();
     System.setenv("QTDIR", packageDir);
-    execute([qdocCommand, qtDir + "/util/qdoc/qdoc.conf"]);
+    execute([qdocCommand, qdocDir + "/test/qt.qdoc"]);
 }
 
 /************************************************************
@@ -741,7 +747,11 @@ function binaryFile(fileName)
  * runs the command and throws an exception if stderror is not empty 
  */
 function execute(command, stdin) {
+    var start = Date().getTime();
     var error = Process.execute(command, stdin);
+    var runTime = Math.floor((Date().getTime() - start)/1000);
+    if (runTime > 0)
+	print("...took %1 second(s)".arg(runTime));
     if (Process.stderr.length > 0)
 	warning("Running %1 stderr: %2".arg(command).arg(Process.stderr.left(40)))
     return error;
