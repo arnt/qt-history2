@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#39 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,15 +22,13 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#38 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#39 $";
 #endif
 
 
 /*!
   \class QPainter qpainter.h
-
   \brief The QPainter class paints on paint devices.
-
   \ingroup uiclasses
   \ingroup drawing
 
@@ -39,7 +37,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#38 $";
   Graphics can be transformed using view transformation, world transformation
   or a combination of these two.
   View transformation is a window/viewport transformation with translation
-  and scaling.  World transformation is a full 2D transformation including
+  and scaling.	World transformation is a full 2D transformation including
   rotation and shearing.
 
   The typical use of a painter is:
@@ -58,7 +56,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#38 $";
 	paint.begin( &this );			// start painting widget
 	paint.setPen( blue );			// set blue pen
 	paint.drawText( rect(),			// draw a text, centered
-	                AlignCenter,		//   in the widget
+			AlignCenter,		//   in the widget
 			"The Text" );
 	paint.end();				// painting done
     }
@@ -628,10 +626,9 @@ void QPainter::drawShadePanel( int x, int y, int w, int h,
 
 void QPainter::fillRect( int x, int y, int w, int h, const QColor &color )
 {
-    QPen oldPen = pen();			// save pen
-    QPen pen( black, 0, NoPen );
-    setPen( pen );
+    QPen   oldPen   = pen();			// save pen
     QBrush oldBrush = brush();			// save brush
+    setPen( NoPen );
     setBrush( color );
     drawRect( x, y, w, h );			// draw filled rect
     setBrush( oldBrush );			// restore brush
@@ -948,10 +945,8 @@ QDataStream &operator>>( QDataStream &s, QBrush &b )
 
 /*!
   \class QPen qpen.h
-
   \brief The QPen class defines how the QPainter should draw lines and outlines
   of shapes.
-
   \ingroup drawing
 
   A pen has a style, a width and a color.
@@ -961,7 +956,7 @@ QDataStream &operator>>( QDataStream &s, QBrush &b )
   outlines.
 
   The pen width defines the line width. The default line width is 0, which
-  draws a 1-pixel line very fast, but not so accurate.  Setting the line
+  draws a 1-pixel line very fast, but not so accurate.	Setting the line
   width to 1 or more draws lines that are precise, but drawing is slower.
 
   The pen color defines the color of lines and text. The default line
@@ -975,9 +970,9 @@ QDataStream &operator>>( QDataStream &s, QBrush &b )
     QPen     pen( red, 2 );		// red solid line, 2 pixel width
     painter.begin( &anyPaintDevice );	// paint something
     painter.setPen( pen );		// set the red, fat pen
-    painter.drawRect( 40,30, 200,100 );	// draw rectangle
+    painter.drawRect( 40,30, 200,100 ); // draw rectangle
     painter.setPen( blue );		// set blue pen, 0 pixel width
-    painter.drawLine( 40,30, 240,130 );	// draw diagonal in rectangle
+    painter.drawLine( 40,30, 240,130 ); // draw diagonal in rectangle
     painter.end();			// painting done
   \endcode
 
@@ -1004,7 +999,7 @@ QPen::QPen()
 }
 
 /*!
-  Constructs a  pen black with 0 width and a specified style.
+  Constructs a	pen black with 0 width and a specified style.
   \sa setStyle().
 */
 
@@ -1183,10 +1178,8 @@ bool QPen::operator==( const QPen &p ) const
 
 /*!
   \class QBrush qbrush.h
-
   \brief The QBrush class defines the fill pattern of shapes drawn using the
   QPainter.
-
   \ingroup drawing
 
   A brush has a style and a color.  One of the brush styles is a custom
@@ -1209,7 +1202,7 @@ bool QPen::operator==( const QPen &p ) const
     painter.begin( &anyPaintDevice );	// paint something
     painter.setBrush( brush );		// set the yellow brush
     painter.setPen( NoPen );		// do not draw outline
-    painter.drawRect( 40,30, 200,100 );	// draw filled rectangle
+    painter.drawRect( 40,30, 200,100 ); // draw filled rectangle
     painter.setBrush( NoBrush );	// do not fill
     painter.setPen( black );		// set black pen, 0 pixel width
     painter.drawRect( 10,10, 30,20 );	// draw rectangle outline
@@ -1332,7 +1325,7 @@ QBrush QBrush::copy() const
 	QBrush b( data->color, *data->pixmap );
 	return b;
     }
-    else {                                    // brush has std pattern
+    else {				      // brush has std pattern
 	QBrush b( data->color, data->style );
 	return b;
     }
@@ -1415,7 +1408,7 @@ void QBrush::setColor( const QColor &c )	// set brush color
   \sa pixmap()
 */
 
-void QBrush::setPixmap( const QPixmap &pixmap )	// set brush pixmap
+void QBrush::setPixmap( const QPixmap &pixmap ) // set brush pixmap
 {
     detach();
     data->style = CustomPattern;

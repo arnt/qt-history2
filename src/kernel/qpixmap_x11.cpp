@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#30 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#29 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#30 $";
 #endif
 
 
@@ -251,14 +251,14 @@ QPixmap::~QPixmap()
 
 QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 {
-    pixmap.data->ref();				// avoid 'x = x'    
+    pixmap.data->ref();				// avoid 'x = x'
     if ( data->deref() ) {			// last reference lost
 	if ( data->ximage )
 	    XDestroyImage( (XImage*)data->ximage );
 	if ( hd )
 	    XFreePixmap( dpy, hd );
 	delete data;
-    }    
+    }
     data = pixmap.data;
     devFlags = pixmap.devFlags;			// copy QPaintDevice flags
     dpy = pixmap.dpy;				// copy QPaintDevice display
@@ -879,7 +879,7 @@ bool QPixmap::convertFromImage( const QImage &img )
   \e (w,h) specify the width and height of the area to be copied.
 
   If \e w is negative, the function copies everything to the right
-  border of the window.  If \e h is negative, the function copies
+  border of the window.	 If \e h is negative, the function copies
   everything to the bottom of the window.
 */
 
@@ -928,7 +928,7 @@ static inline int d2i_round( double d )		// double -> int, rounded
     char    *str = "Trolls R Qt";	// text to be drawn
     QFont    f( "Charter", 24 );	// use Charter 24pt font
     QFontMetrics fm( f );		// get font metrics
-    QRect    r = fm.boundingRect(str);  // get text rectangle
+    QRect    r = fm.boundingRect(str);	// get text rectangle
 
     QPixmap  pm( r.size() );		// pixmap to be rotated
     QPoint   bl = -r.topLeft();		// baseline position
@@ -950,12 +950,12 @@ static inline int d2i_round( double d )		// double -> int, rounded
     t.map( bl.x(),bl.y(), &x,&y );	// get pm's baseline pos in rp
 
     bitBlt( &w, 100-x, 200-y,		// blt rp into the widget
-            &rp, 0, 0, -1, -1 );
+	    &rp, 0, 0, -1, -1 );
   \endcode
 
-  \bug 2 and 4 bits pixmaps not supported.
-
   \sa trueMatrix(), Q2DMatrix, QPainter::setWorldMatrix()
+
+  \bug 2 and 4 bits pixmaps not supported.
 */
 
 QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
@@ -1253,7 +1253,6 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
 
   This function returns the modified matrix, which maps points
   correctly from the original pixmap into the new pixmap.
-
   \sa xForm(), Q2DMatrix
 */
 
