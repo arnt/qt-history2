@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#30 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#29 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#30 $";
 #endif
 
 
@@ -47,8 +47,12 @@ void qDrawWinButton( QPainter *p, int x1, int y1, int w, int h,
 
 /*!
 \class QScrollBar qscrbar.h
+
 \brief The QScrollBar widget class provides a vertical or horizontal scroll
 bar.
+
+\ingroup realwidgets
+
 */
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#8 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#9 $
 **
 ** Implementation of QMessageBox class
 **
@@ -17,13 +17,16 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#9 $";
 #endif
 
 
 /*!
   \class QMessageBox qmsgbox.h
+
   \brief The QMessageBox widget provides a modal message box.
+
+  \ingroup realwidgets
 
   A message box is a modal dialog that displays a text and a push button.
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#43 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#42 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#43 $";
 #endif
 
 
@@ -88,7 +88,8 @@ static const motifTabSpacing	= 12;		// space between text and tab
 /*!
   \class QPopupMenu qpopmenu.h
   \brief The QPopupMenu class provides a popup menu widget.
-  \group menus
+  \ingroup menus
+  \ingroup realwidgets
 
   This popup widget is different from other widgets in the way it relates to
   the parent widget.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#36 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,12 +18,14 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#35 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#36 $";
 #endif
 
 /*! \class QMenuBar qmenubar.h
 
   \brief The QMenuBar class provides a horizontal menu bar.
+
+  \ingroup realwidgets
 
   This class is not yet documented.  Our <a
   href=http://www.troll.no/>home page</a> contains a pointer to the

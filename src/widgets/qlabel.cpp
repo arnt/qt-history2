@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#21 $
 **
 ** Implementation of QLabel widget class
 **
@@ -14,13 +14,16 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#21 $";
 #endif
 
 
 /*!
 \class QLabel qlabel.h
+
 \brief The QLabel widget displays a static text.
+
+\ingroup realwidgets
 
 A label is a text field that can have an optional frame (since QLabel
 inherits QFrame).

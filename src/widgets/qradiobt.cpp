@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#29 $
 **
 ** Implementation of QRadioButton class
 **
@@ -16,13 +16,16 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobt.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobt.cpp#29 $";
 #endif
 
 
 /*!
 \class QRadioButton qradiobt.h
+
 \brief The QRadioButton widget provides a radio button with a text label.
+
+\ingroup realwidgets
 
 QRadioButton and QCheckBox are both toggle buttons, that is, they can be
 switched on (checked) or off (unchecked).  Unlike check boxes, radio

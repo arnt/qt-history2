@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#31 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,13 +17,16 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#30 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#31 $";
 #endif
 
 
 /*!
 \class QLineEdit qlined.h
+
 \brief The QLineEdit widget is a simple line editor for inputting text.
+
+\ingroup realwidgets
 
 The default key bindings are described in keyPressEvent(); they cannot
 be customized except by inheriting the class.
