@@ -13,7 +13,6 @@
 #include "parser.h"
 #include <qobject.h>
 #include <qstringlist.h>
-#include <qcstring.h>
 
 QString Parser::cleanArgs( const QString &func )
 {

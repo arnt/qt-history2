@@ -20,7 +20,6 @@
 #include <qpalette.h>
 #include <qvariant.h>
 #include <qbytearray.h>
-#include <qvaluelist.h>
 
 class Uic : public Qt
 {

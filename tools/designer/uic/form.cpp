@@ -15,7 +15,6 @@
 #include "widgetdatabase.h"
 #include "domtool.h"
 #include <qstringlist.h>
-#include <qvaluelist.h>
 #include <qfile.h>
 #include <qfileinfo.h>
 #include <qdir.h>
