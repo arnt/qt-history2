@@ -363,23 +363,23 @@ QStringList QSqlDatabase::drivers()
     }
 
 #ifdef QT_SQL_POSTGRES
-    if ( !l.contains( "QPSQL7" )
+    if ( !l.contains( "QPSQL7" ) )
 	l << "QPSQL7";
 #endif
 #ifdef QT_SQL_MYSQL
-    if ( !l.contains( "QMYSQL3" )
+    if ( !l.contains( "QMYSQL3" ) )
 	l << "QMYSQL3";
 #endif
 #ifdef QT_SQL_ODBC
-    if ( !l.contains( "QODBC3" )
+    if ( !l.contains( "QODBC3" ) )
 	l << "QODBC3";
 #endif
 #ifdef QT_SQL_OCI
-    if ( !l.contains( "QOCI8" )
+    if ( !l.contains( "QOCI8" ) )
 	l << "QOCI8";
 #endif
 #ifdef QT_SQL_TDS
-    if ( !l.contains( "QTDS7" )
+    if ( !l.contains( "QTDS7" ) )
 	l << "QTDS7";
 #endif
 
