@@ -11,5 +11,11 @@ SOURCES		= frame.cpp \
 		  textdrawing/textedit.cpp \
 		  textdrawing/helpwindow.cpp \
 		  main.cpp
+
+opengl:HEADERS += opengl/globjwin.h \
+		  opengl/gltexobj.h
+opengl:SOURCES += opengl/globjwin.cpp \
+		  opengl/gltexobj.cpp
+
 TARGET		= demo
 DEPENDPATH	= ../../include

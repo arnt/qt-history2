@@ -204,7 +204,7 @@ void TextEdit::load( const QString &f )
 	fl.open( IO_ReadOnly );
 	QByteArray array = fl.readAll();
 	array.resize( array.size() +1 );
-	array[ array.size() - 1 ] = '\0';
+	array[ (int)array.size() - 1 ] = '\0';
 	QString text = QString::fromUtf8( array.data() );
 	edit->setText( text );
     }
