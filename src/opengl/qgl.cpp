@@ -242,11 +242,6 @@ QGLFormat::QGLFormat( int options, int plane )
 
 void QGLFormat::setDoubleBuffer( bool enable )
 {
-#if defined(Q_WS_MAC) && defined(QMAC_OPENGL_DOUBLEBUFFER)
-    /* When the mac internally double buffers double buffering (GL_BACK) cannot be turned on
-       this is due to windowing system problems. */
-    enable = FALSE;
-#endif
     setOption( enable ? DoubleBuffer : SingleBuffer );
 }
 
@@ -516,6 +511,11 @@ void QGLFormat::setOption( FormatOption opt )
 
 bool QGLFormat::testOption( FormatOption opt ) const
 {
+#if defined(Q_WS_MAC) && defined(QMAC_OPENGL_DOUBLEBUFFER)
+    /* When the mac internally double buffers double buffering (GL_BACK) cannot be turned on
+       this is due to windowing system problems. */
+    opt &= ~(DoubleBuffer);
+#endif
     if ( opt & 0xffff )
        return ( opts & opt ) != 0;
     else
