@@ -918,23 +918,33 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
 
     \ingroup text
 
-    The format's font can be set with setFont(), or piecemeal using
-    setFontFamily(), setFontPointSize(), setFontWeight() (for bold),
-    setFontItalic(), setFontUnderline(), setFontOverline(),
-    setFontStrikeOut(), and setFontFixedPitch(). The color is set with
-    setTextColor(), and the anchor (for hyperlinks) with setAnchor(),
-    setAnchorHref(), setAnchorName(). The characters can be marked as
-    non-deletable with setNonDeletable().
+    The character format of text in a document specifies the visual properties
+    of the text, as well as information about its role in a hypertext document.
 
-    If the characters are in a table the cell and row spanning
-    characteristics can be set with setTableCellRowSpan() and
-    setTableCellColumnSpan().
+    The font used can be set by supplying a font to the setFont() function, and
+    each aspect of its appearance can be adjusted to give the desired effect.
+    setFontFamily() and setFontPointSize() define the font's family (e.g. Times)
+    and printed size; setFontWeight() and setFontItalic() provide control over
+    the style of the font. setFontUnderline(), setFontOverline(),
+    setFontStrikeOut(), and setFontFixedPitch() provide additional effects for
+    text.
+
+    The color is set with setTextColor(). If the text is intended to be used
+    as an anchor (for hyperlinks), this can be enabled with setAnchor(). The
+    setAnchorHref() and setAnchorName() functions are used to specify the
+    information about the hyperlink's destination and the anchor's name.
+
+    If the text is written within a table, it can be made to span a number of
+    rows and columns with the setTableCellRowSpan() and setTableCellColumnSpan()
+    functions.
+
+    \sa QTextFormat QTextBlockFormat QTextTableFormat QTextListFormat
 */
 
 /*!
     \fn QTextCharFormat::QTextCharFormat()
 
-    Constructs a new QTextCharFormat.
+    Constructs a new character format object.
 */
 
 
@@ -949,7 +959,7 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
 /*!
     \fn void QTextCharFormat::setFontFamily(const QString &family)
 
-    Sets the text format's font family to \a family.
+    Sets the text format's font \a family.
 
     \sa setFont()
 */
@@ -967,7 +977,7 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
 /*!
     \fn void QTextCharFormat::setFontPointSize(float size)
 
-    Sets the text format's font size to \a size.
+    Sets the text format's font \a size.
 
     \sa setFont()
 */
@@ -976,7 +986,7 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
 /*!
     \fn float QTextCharFormat::fontPointSize() const
 
-    Returns the text format's font size.
+    Returns the font size used to display text in this format.
 
     \sa font()
 */
@@ -1003,8 +1013,8 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
 /*!
     \fn void QTextCharFormat::setFontItalic(bool italic)
 
-    Sets the text format's font to be italic if \a italic is true;
-    otherwise to non-italic.
+    If \a italic is true, sets the text format's font to be italic; otherwise
+    the font will be non-italic.
 
     \sa setFont()
 */
@@ -1023,8 +1033,8 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
 /*!
     \fn void QTextCharFormat::setFontUnderline(bool underline)
 
-    Sets the text format's font to be underlined if \a underline is
-    true; otherwise to non-underlined.
+    If \a underline is true, sets the text format's font to be underlined;
+    otherwise it is displayed non-underlined.
 
     \sa setFont()
 */
@@ -1043,8 +1053,8 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
 /*!
     \fn void QTextCharFormat::setFontOverline(bool overline)
 
-    Sets the text format's font to be overlined if \a overline is
-    true; otherwise to non-overlined.
+    If \a overline is true, sets the text format's font to be overlined;
+    otherwise the font is displayed non-overlined.
 
     \sa setFont()
 */
@@ -1063,8 +1073,9 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
 /*!
     \fn void QTextCharFormat::setFontStrikeOut(bool strikeOut)
 
-    Sets the text format's font to be struck out if \a strikeOut is
-    true; otherwise to non-struck out.
+    If \a strikeOut is true, sets the text format's font with strike-out
+    enabled (with a horizontal line through it); otherwise it is displayed
+    without strikeout.
 
     \sa setFont()
 */
@@ -1073,8 +1084,8 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
 /*!
     \fn bool QTextCharFormat::fontStrikeOut() const
 
-    Returns true if the text format's font is struck out; otherwise
-    returns false.
+    Returns true if the text format's font is struck out (has a horizontal line
+    drawn through it); otherwise returns false.
 
     \sa font()
 */
@@ -1083,8 +1094,8 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
 /*!
     \fn void QTextCharFormat::setFontFixedPitch(bool fixedPitch)
 
-    Sets the text format's font to be fixed pitch if \a fixedPitch is
-    true; otherwise to non-fixed pitch.
+    If \a fixedPitch is true, sets the text format's font to be fixed pitch;
+    otherwise a non-fixed pitch font is used.
 
     \sa setFont()
 */
@@ -1121,13 +1132,14 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
 /*!
     \fn void QTextCharFormat::setAnchor(bool anchor)
 
-    If \a anchor is true, sets the text format signify an anchor;
-    otherwise removes anchor formatting. (Anchors are hyperlinks,
-    often shown underlined and in a different color from plain text.)
+    If \a anchor is true, text with this format represents an anchor, and is
+    formatted in the appropriate way; otherwise the text is formatted normally.
+    (Anchors are hyperlinks which are often shown underlined and in a different
+    color from plain text.)
 
-    This is independent of whether or not the format has an anchor.
-    Use setAnchorHref(), and optionally setAnchorName() to create a
-    hypertext link.
+    The way the text is rendered is independent of whether or not the format
+    has a valid anchor defined. Use setAnchorHref(), and optionally
+    setAnchorName() to create a hypertext link.
 
     \sa isAnchor()
 */
@@ -1146,10 +1158,10 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
 /*!
     \fn void QTextCharFormat::setAnchorHref(const QString &value)
 
-    Sets the anchor's hypertext link to be \a value. (This is
-    typically a URL like http://www.trolltech.com/index.html.)
+    Sets the hypertext link for the text format to the given \a value.
+    This is typically a URL like "http://www.trolltech.com/index.html".
 
-    The anchor will be displayed using \a value as its display text;
+    The anchor will be displayed with the \a value as its display text;
     if you want to display different text call setAnchorName().
 
     To format the text as a hypertext link use setAnchor().
@@ -1167,17 +1179,18 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
 /*!
     \fn void QTextCharFormat::setAnchorName(const QString &name)
 
-    Sets the text format's hypertext link's name to \a name. For the
-    link to work a hyperlink must be set with setAnchorHref(); use
-    setAnchor() to apply a hyperlink format.
+    Sets the text format's anchor \a name. For the anchor to work as a
+    hyperlink, the destination must be set with setAnchorHref() and
+    the anchor must be enabled with setAnchor().
 */
 
 
 /*!
     \fn QString QTextCharFormat::anchorName() const
 
-    Returns the text format's hypertext link's name, or an empty
-    string if none has been set.
+    Returns the anchor name associated with this text format, or an empty
+    string if none has been set. If the anchor name is set, text with this
+    format can be the destination of a hypertext link.
 */
 
 
@@ -1193,8 +1206,8 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
     \fn int QTextCharFormat::tableCellRowSpan() const
 
     If this character format is applied to characters in a table cell,
-    returns the number of rows spanned which may be 1. Otherwise
-    returns 1.
+    this function returns the number of rows spanned by the text (this may
+    be 1); otherwise it returns 1.
 */
 
 
@@ -1210,13 +1223,13 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
     \fn int QTextCharFormat::tableCellColumnSpan() const
 
     If this character format is applied to characters in a table cell,
-    returns the number of columns spanned which may be 1. Otherwise
-    returns 1.
+    this function returns the number of columns spanned by the text (this
+    may be 1); otherwise it returns 1.
 */
 
 
 /*!
-    Sets the character format's font to \a font.
+    Sets the text format's \a font.
 */
 void QTextCharFormat::setFont(const QFont &font)
 {
