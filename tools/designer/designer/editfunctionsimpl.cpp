@@ -268,7 +268,7 @@ void EditFunctions::functionAdd( const QString &access, const QString &type )
     fui.oldName = i->text( 0 );
     fui.newName = fui.oldName;
     fui.oldRetTyp = i->text( 1 );
-    fui.retTyp = fui.oldName;
+    fui.retTyp = fui.oldRetTyp;
     fui.oldSpec = i->text ( 2 );
     fui.spec = fui.oldSpec;
     fui.oldAccess = i->text( 3 );
