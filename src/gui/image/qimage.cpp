@@ -28,7 +28,7 @@
 #ifdef Q_WS_WIN
 #include <private/qpaintengine_raster_p.h>
 #else
-#include <private/qpaintengine.h>
+#include <qpaintengine.h>
 #endif
 
 #ifdef Q_WS_QWS
