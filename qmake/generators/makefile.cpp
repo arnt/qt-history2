@@ -232,12 +232,13 @@ MakefileGenerator::generateMocList(QString fn_target)
 
     QString fn_local = Option::fixPathToLocalOS(fn_target);
     QFile file(fn_local);
+    QRegExp regexpObj("Q_OBJECT");
     if ( file.open(IO_ReadOnly) ) {
 	QTextStream t( &file );
 	QString s;
 	while ( !t.eof() ) {
 	    s = t.readLine();
-	    if(s.find(QRegExp("Q_OBJECT")) != -1) {
+	    if(s.find(regexpObj) != -1) {
 		QString mocFile;
 		QFileInfo fi(fn_local);
 
@@ -470,6 +471,8 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 
     QStringList::Iterator oit = objl.begin();
     QStringList::Iterator sit = srcl.begin();
+    QRegExp regexpSrc("\\$src");
+    QRegExp regexpObj("\\$obj");
     for( ;oit != objl.end(); oit++, sit++) {
 	if((*sit).isEmpty())
 	    continue;
@@ -487,8 +490,8 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 	}
 	if ( !project->variables()["OBJECTS_DIR"].isEmpty() || project->variables()[cimp].isEmpty()) {
 	    QString p = var(comp);
-	    p.replace(QRegExp("\\$src"), (*sit));
-	    p.replace(QRegExp("\\$obj"), (*oit));
+	    p.replace(regexpSrc, (*sit));
+	    p.replace(regexpObj, (*oit));
 	    t << "\n\t" << p;
 	}
 	t << endl << endl;
@@ -527,6 +530,8 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString
 
     QStringList::Iterator oit = objl.begin();
     QStringList::Iterator sit = srcl.begin();
+    QRegExp regexpSrc("\\$src");
+    QRegExp regexpObj("\\$obj");
     for( ;oit != objl.end(); oit++, sit++) {
 	if((*sit).isEmpty())
 	    continue;
@@ -539,8 +544,8 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString
 	     !project->variables()["MOC_DIR"].isEmpty() ||
 	     project->variables()["QMAKE_RUN_CXX_IMP"].isEmpty()) {
 	    QString p = var("QMAKE_RUN_CXX");
-	    p.replace(QRegExp("\\$src"), (*sit));
-	    p.replace(QRegExp("\\$obj"), (*oit));
+	    p.replace( regexpSrc, (*sit));
+	    p.replace( regexpObj, (*oit));
 	    t << "\n\t" << p;
 	}
 	t << endl << endl;
