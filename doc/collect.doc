@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: collect.doc,v 2.12 1999/06/15 12:58:12 weis Exp $
+** $Id: collect.doc,v 2.13 1999/09/25 14:45:45 ettrich Exp $
 **
 ** Qt collection classes documentation
 **
@@ -46,6 +46,7 @@ Qt has many collection classes:
 <li> \link QStack QStack\endlink; a LIFO (last in, first out) stack structure.
 <li> \link QVector QVector\endlink; a vector structure.
 <li> \link QValueList QValueList\endlink; a value based list
+<li> \link QValueStack QValueStack\endlink; a value based stack structure
 <li> \link QMap QMap\endlink; a value based dictionary structure
 <li> \link QArray QArray\endlink;
 </ul>
@@ -54,11 +55,11 @@ Some of these classes have corresponding iterators.  An iterator
 is a class for safely traversing the items in a collection:
 <ul>
 <li> \link QCacheIterator QCacheIterator\endlink and
-	\link QIntCacheIterator QIntCacheIterator\endlink 
+	\link QIntCacheIterator QIntCacheIterator\endlink
 <li> \link QDictIterator QDictIterator\endlink,
 	\link QIntDictIterator QIntDictIterator\endlink, and
-	\link QPtrDictIterator QPtrDictIterator\endlink 
-<li> \link QListIterator QListIterator\endlink 
+	\link QPtrDictIterator QPtrDictIterator\endlink
+<li> \link QListIterator QListIterator\endlink
 <li> \link QValueListIterator QValueListIterator\endlink, and
 	\link QValueListConstIterator QValueListConstIterator\endlink
 <li> \link QMapIterator QMapIterator\endlink, and
@@ -78,7 +79,7 @@ to and from \c void*.
 
 This strategy allows Qt's templates to be very economical on space
 (instantiating one of these templates adds only inline-able calls to
-the base classes), while it does not hurt performance too much. 
+the base classes), while it does not hurt performance too much.
 The Qt Template Library in contrast is more like the STL. It does not store
 pointers, instead it stores real copies. This is faster for small
 values like integers or QRect for example. But the value based containers

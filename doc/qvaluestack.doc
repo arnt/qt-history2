@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qvaluestack.doc,v 1.1 1999/09/25 14:22:11 ettrich Exp $
+** $Id: qvaluestack.doc,v 1.2 1999/09/25 14:45:46 ettrich Exp $
 **
 ** QValueList and QValueListIterator class documentation
 **
@@ -27,7 +27,7 @@
  *****************************************************************************/
 
 /*!
-  \class QValueStack qvaluestacl.h
+  \class QValueStack qvaluestack.h
   \brief The QValueStack class is a value based template class that provides a stack.
 
   \ingroup qtl
