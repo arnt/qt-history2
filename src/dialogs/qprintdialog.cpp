@@ -429,63 +429,73 @@ static void parseSpoolInterface( QListView * printers )
 {
     QDir lp( QString::fromLatin1("/usr/spool/lp/interface") );
     if ( !lp.exists() )
-        return;
+	return;
     const QFileInfoList * files = lp.entryInfoList();
     if( !files )
-        return;
+	return;
 
     QFileInfoListIterator it( *files );
     QFileInfo *printer;
     while ( (printer = it.current()) != 0) {
-        ++it;
+	++it;
 
-        if ( !printer->isFile() )
-            continue;
+	if ( !printer->isFile() )
+	    continue;
 
-        // parse out some information
-        QFile configFile( printer->filePath() );
-        if ( !configFile.open( IO_ReadOnly ) )
-            continue;
+	// parse out some information
+	QFile configFile( printer->filePath() );
+	if ( !configFile.open( IO_ReadOnly ) )
+	    continue;
 
-        QCString line( 1025 );
-        QString hostName;
-        QString hostPrinter;
-        QString printerType;
+	QCString line( 1025 );
+	QString namePrinter;
+	QString hostName;
+	QString hostPrinter;
+	QString printerType;
 
-        QRegExp typeKey( QString::fromLatin1("^TYPE=") );
-        QRegExp hostKey( QString::fromLatin1("^HOSTNAME=") );
-        QRegExp hostPrinterKey( QString::fromLatin1("^HOSTPRINTER=") );
+	QRegExp nameKey( QString::fromLatin1("^NAME=") );
+	QRegExp typeKey( QString::fromLatin1("^TYPE=") );
+	QRegExp hostKey( QString::fromLatin1("^HOSTNAME=") );
+	QRegExp hostPrinterKey( QString::fromLatin1("^HOSTPRINTER=") );
 
-        while( !configFile.atEnd() &&
-               configFile.readLine(line.data(), 1024) > 0 ) {
-            if ( typeKey.search(line) == 0 ) {
-                printerType = line.mid( typeKey.matchedLength() );
-                printerType = printerType.simplifyWhiteSpace();
-            } else if ( hostKey.search(line) == 0 ) {
-                hostName = line.mid( hostKey.matchedLength() );
-                hostName = hostName.simplifyWhiteSpace();
-            } else if ( hostPrinterKey.search(line) == 0 ) {
-                hostPrinter = line.mid( hostPrinterKey.matchedLength() );
-                hostPrinter = hostPrinter.simplifyWhiteSpace();
-            }
-        }
-        configFile.close();
+	while( !configFile.atEnd() &&
+	       (configFile.readLine( line.data(), 1024 )) > 0 ) {
 
-        printerType = printerType.stripWhiteSpace();
-        if ( !printerType.isEmpty() && qstricmp( printerType.ascii(), "postscript" ))
-            continue;
+	    if ( typeKey.search(line) == 0 ) {
+		printerType = line.mid( typeKey.matchedLength() );
+		printerType = printerType.simplifyWhiteSpace();
+	    } else if ( hostKey.search(line) == 0 ) {
+		hostName = line.mid( hostKey.matchedLength() );
+		hostName = hostName.simplifyWhiteSpace();
+	    } else if ( hostPrinterKey.search(line) == 0 ) {
+		hostPrinter = line.mid( hostPrinterKey.matchedLength() );
+		hostPrinter = hostPrinter.simplifyWhiteSpace();
+	    } else if (nameKey.search(line) == 0 ) {
+		namePrinter = line.mid(nameKey.matchedLength());
+		namePrinter = namePrinter.simplifyWhiteSpace();
+	    }
+	}
+	configFile.close();
 
-        if(hostName.isEmpty() || hostPrinter.isEmpty())
-        {
-            perhapsAddPrinter( printers, printer->fileName(),
-                QString::fromLatin1(""), QString::fromLatin1(""));
-        } else
-        {
-            QString comment = QString::fromLatin1("Remote name: ");
-            comment += hostPrinter;
-            perhapsAddPrinter( printers, printer->fileName(),
-                hostName, comment);
-        }
+	printerType = printerType.stripWhiteSpace();
+	if (printerType.find("postscript", 0, FALSE) < 0)
+	    continue;
+
+	int ii = 0;
+	while ((ii = namePrinter.find('"', ii)) >= 0) namePrinter.remove(ii, 1);
+
+	if(hostName.isEmpty() || hostPrinter.isEmpty()) {
+	    perhapsAddPrinter( printers, printer->fileName(),
+			       QString::fromLatin1(""), namePrinter);
+	} else {
+	    QString comment; 
+	    comment = namePrinter;
+	    comment += " (";
+	    comment += hostPrinter;
+	    comment += ")";
+	    perhapsAddPrinter( printers, printer->fileName(),
+			       hostName, comment);
+	}
     }
 }
 
