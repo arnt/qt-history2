@@ -75,6 +75,8 @@ public:
     bool    setPoints( int nPoints, int firstx, int firsty, ... );
     bool    putPoints( int index, int nPoints, const QCOORD *points );
     bool    putPoints( int index, int nPoints, int firstx, int firsty, ... );
+    bool    putPoints( int index, int nPoints,
+		       const QPointArray & from, int fromIndex=0 );
 
     void    makeArc( int x, int y, int w, int h, int a1, int a2 );
     void    makeEllipse( int x, int y, int w, int h );

@@ -309,18 +309,18 @@ bool QPointArray::putPoints( int index, int nPoints, const QCOORD *points )
 
   The example code creates an array with three points (1,2), (3,4) and
   (5,6), by expanding the array from 1 to 3 points:
-  
+
   \code
     QPointArray a( 1 );
     a[0] = QPoint( 1, 2 );
     a.putPoints( 1, 2, 3,4, 5,6 );
   \endcode
-  
+
   This has the same result, but here putPoints overwrites rather than
   extends:
   \code
     QPointArray a( 3 );
-    a.putPoints( 0, 3, 1,2, 0.0, 5,6 );
+    a.putPoints( 0, 3, 1,2, 0,0, 5,6 );
     a.putPoints( 1, 1, 3,4 );
   \endcode
 
@@ -347,6 +347,42 @@ bool QPointArray::putPoints( int index, int nPoints, int firstx, int firsty,
 	setPoint( i++, x, y );
     }
     va_end( ap );
+    return TRUE;
+}
+
+
+/*! \overload
+
+  This version of the function copies \a nPoints from \a from into
+  this array, starting at \a index in this array and \a fromIndex in
+  \a from.  \a fromIndex is 0 by default.
+
+  \code
+    QPointArray a;
+    a.putPoints( 0, 3, 1,2, 0,0, 5,6 );
+    // a is now the three-point array ( 1,2, 0,0, 5,6 );
+    QPointArray b;
+    b.putPoints( 0, 3, 4,4, 5,5, 6,6 );
+    // b is now ( 4,4, 5,5, 6,6 );
+    a.putPoints( 2, 3, b );
+    // a is now ( 1,2, 0,0, 4,4, 5,5, 6,6 );
+  \endcode
+*/
+
+bool QPointArray::putPoints( int index, int nPoints,
+			     const QPointArray & from, int fromIndex )
+{
+    if ( index + nPoints > (int)size() ) {	// extend array
+	if ( !resize(index + nPoints) )
+	    return FALSE;
+    }
+    if ( nPoints <= 0 )
+	return TRUE;
+    int n = 0;
+    while( n < nPoints ) {
+	setPoint( index+n, from[fromIndex+n] );
+	n++;
+    }
     return TRUE;
 }
 
