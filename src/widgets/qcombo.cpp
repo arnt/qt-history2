@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#23 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#23 $";
 #endif
 
 /*!
@@ -519,12 +519,12 @@ void QComboBox::paintEvent( QPaintEvent * )
     int dist, buttonH, buttonW;
 
     if ( getMetrics( width(), height(), &dist, &buttonW, &buttonH ) ) {
-	int xPos = width() - 2 - dist - buttonW - 1;
+	int xPos = width() - dist - buttonW - 1;
 	p.drawShadePanel( xPos, height() - 2 - dist - buttonH,
 			 buttonW, buttonH,
 			 g.light(), g.dark(), 2 );
 	QFontMetrics fm = p.fontMetrics();
-	QRect clip( 2, 2, xPos - 2 - 3, height() - 4 );
+	QRect clip( 4, 2, xPos - 2 - 4, height() - 4 );
 	const char *tmp = d->popup->string( d->current );
 	if ( tmp ) {
 	    p.drawText( clip, AlignCenter | SingleLine, tmp );
@@ -532,7 +532,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	    QPixmap *pix = d->popup->pixmap( d->current );
 	    if ( pix ) {
 		p.setClipRect( clip );
-		p.drawPixmap( 2, (height()-pix->height())/2, *pix );
+		p.drawPixmap( 4, (height()-pix->height())/2, *pix );
 		p.setClipping( FALSE );
 	    }
 	}
