@@ -21,11 +21,13 @@
 #include "mainwindow.h"
 #include "config.h"
 #include "splashloader.h"
+#include "formwindow.h"
 
 #include "designerapp.h"
 
 #include <qlabel.h>
 #include <qtextstream.h>
+#include <qobjectlist.h>
 
 #include <stdlib.h>
 #include <signal.h>
