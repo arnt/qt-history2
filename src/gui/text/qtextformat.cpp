@@ -1866,6 +1866,23 @@ QFont QTextCharFormat::font() const
     between adjacent cells.
 */
 
+/*!
+    \fn void QTextTableFormat::setAlignment(Qt::Alignment alignment)
+
+    Sets the table's \a alignment.
+
+    \sa alignment()
+*/
+
+/*!
+    \fn Qt::Alignment QTextTableFormat::alignment() const
+
+    Returns the table's alignment.
+
+    \sa setAlignment()
+*/
+
+
 
 /*!
     \class QTextImageFormat qtextformat.h

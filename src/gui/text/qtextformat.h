@@ -472,6 +472,11 @@ public:
     { return intProperty(TableCellSpacing, 0); }
     inline void setCellSpacing(int spacing)
     { setProperty(TableCellSpacing, spacing, 0); }
+
+    inline void setAlignment(Qt::Alignment alignment)
+    { setProperty(BlockAlignment, int(alignment)); }
+    inline Qt::Alignment alignment() const
+    { return QFlag(intProperty(BlockAlignment)); }
 };
 
 #endif
