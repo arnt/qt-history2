@@ -115,9 +115,6 @@ class Q_GUI_EXPORT QListWidget : public QListView
 
     friend class QListWidgetItem;
 public:
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QListWidget(QWidget *parent, const char* name);
-#endif
     QListWidget(QWidget *parent = 0);
     ~QListWidget();
 
@@ -158,7 +155,7 @@ signals:
     void pressed(QListWidgetItem *item, int button);
     void clicked(QListWidgetItem *item, int button);
     void doubleClicked(QListWidgetItem *item, int button);
-    void keyPressed(QListWidgetItem *item, Qt::Key, Qt::ButtonState state);
+    void keyPressed(QListWidgetItem *item, Qt::Key key, Qt::ButtonState state);
     void returnPressed(QListWidgetItem *item);
     void currentChanged(QListWidgetItem *current, QListWidgetItem *previous);
     void selectionChanged();

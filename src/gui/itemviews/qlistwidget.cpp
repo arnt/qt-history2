@@ -527,18 +527,6 @@ void QListWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
         emit q->itemChanged(model()->at(topLeft.row()));
 }
 
-#ifdef QT_COMPAT
-/*!
-    Use the single-argument overload and call setObjectName() instead.
-*/
-QListWidget::QListWidget(QWidget *parent, const char* name)
-    : QListView(*new QListWidgetPrivate(), parent)
-{
-    setObjectName(name);
-    setup();
-}
-#endif
-
 /*!
     \class QListWidget
     \brief The QListWidget class provides an item-based list or icon view using
@@ -555,7 +543,16 @@ QListWidget::QListWidget(QWidget *parent, const char* name)
     For a more flexible list view widget, use the QListView class with a
     standard model.
 
-    The number of items in the list can be found using the row() function
+    The number of items in the list can be found using the count() function
+*/
+
+/*!
+    \fn void pressed(QListWidgetItem *item, int button)
+
+    This signal is emitted when a item has been pressed (mouse click
+    and release). The \a item may be 0 if the mouse was not pressed on
+    an item. The button clicked is specified by \a button (see
+    \l{Qt::ButtonState}).
 */
 
 /*!
@@ -575,9 +572,65 @@ QListWidget::QListWidget(QWidget *parent, const char* name)
     \l{Qt::ButtonState}).
 */
 
+/*!
+    \fn void keyPressed(QListWidgetItem *item, Qt::Key key, Qt::ButtonState state)
+
+    This signal is emitted if keyTracking is turned on an a key was
+    pressed. The \item is the current item as the key was pressed, the
+    \a key tells which key was pressed and \a state which modifier
+    keys (see \l{Qt::ButtonState}).
+*/
 
 /*!
-    Constructs a new QListWidget with the given \a parent.
+    \fn void returnPressed(QListWidgetItem *item)
+
+    This signal is emitted when return has been pressed on an \a item.
+*/
+
+/*!
+    \fn void currentChanged(QListWidgetItem *current, QListWidgetItem *previous)
+
+    This signal is emitted whenever the current item changes. The \a
+    previous item is the item that previously had the focus, \a
+    current is the new current item.
+*/
+
+/*!
+    \fn void selectionChanged()
+
+    This signal is emitted whenever the selection changes. \sa selectedItems().
+
+*/
+
+/*!
+    \fn void itemEntered(QListWidgetItem *item, Qt::ButtonState state)
+
+    This signal is emitted the mouse cursor enters an item. The \a
+    item is the item entered and \a state specifies the mouse button
+    and any modifiers pressed as the item was entered (see
+    \l{Qt::ButtonState}). This signal is only emitted when
+    mouseTracking is turned on, or when a mouse button is pressed
+    while moving into an item.
+*/
+
+/*!
+    \fn void aboutToShowContextMenu(QMenu *menu, QListWidgetItem *item)
+
+    This signal is emitted when the widget is about to show a context
+    menu. The \menu is the menu about to be shown, and the item is the
+    clicked item as the context menu was called for.
+
+    \sa QMenu::addAction()
+*/
+
+/*!
+    \fn void itemChanged(QListWidgetItem *item)
+
+    This signal is emitted whenever the data of \a item is changed.
+*/
+
+/*!
+    Constructs an empty QListWidget with the given \a parent.
 */
 
 QListWidget::QListWidget(QWidget *parent)
@@ -588,7 +641,7 @@ QListWidget::QListWidget(QWidget *parent)
 }
 
 /*!
-    Destroys the list widget.
+    Destroys the list widget and all its items.
 */
 
 QListWidget::~QListWidget()
@@ -598,7 +651,7 @@ QListWidget::~QListWidget()
 /*!
     Returns the \a{row}-th item.
 
-    \sa setItem() row()
+    \sa row()
 */
 
 QListWidgetItem *QListWidget::item(int row) const
@@ -669,24 +722,35 @@ int QListWidget::count() const
 }
 
 /*!
-  ###
+  Returns the current item.
 */
-
 QListWidgetItem *QListWidget::currentItem() const
 {
     return d->model()->at(currentIndex().row());
 }
 
+
+/*!
+  Sets the current item to \a item.
+*/
 void QListWidget::setCurrentItem(QListWidgetItem *item)
 {
     setCurrentIndex(d->model()->index(item));
 }
 
+/*!
+  Sorts all the items in the list widget according to \a order.
+*/
 void QListWidget::sortItems(Qt::SortOrder order)
 {
     d->model()->sort(0, QModelIndex::Null, order);
 }
 
+/*!
+  Opens an editor for the give \a item. The editor remains open after editing.
+
+  \sa closePersistentEditor()
+*/
 void QListWidget::openPersistentEditor(QListWidgetItem *item)
 {
     Q_ASSERT(item);
@@ -694,6 +758,11 @@ void QListWidget::openPersistentEditor(QListWidgetItem *item)
     QAbstractItemView::openPersistentEditor(index);
 }
 
+/*!
+  Closes the persistent editor for \a item.
+
+  \sa openPersistentEditor()
+*/
 void QListWidget::closePersistentEditor(QListWidgetItem *item)
 {
     Q_ASSERT(item);
@@ -701,6 +770,9 @@ void QListWidget::closePersistentEditor(QListWidgetItem *item)
     QAbstractItemView::closePersistentEditor(index);
 }
 
+/*!
+  Returns true if \a item is selected.
+*/
 bool QListWidget::isSelected(const QListWidgetItem *item) const
 {
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
@@ -708,7 +780,7 @@ bool QListWidget::isSelected(const QListWidgetItem *item) const
 }
 
 /*!
-  ###
+  Selects or deselects \a item depending on \a select.
 */
 void QListWidget::setSelected(const QListWidgetItem *item, bool select)
 {
@@ -787,11 +859,17 @@ void QListWidget::removeItem(QListWidgetItem *item)
     d->model()->remove(item);
 }
 
+/*!
+  \intern
+*/
 void QListWidget::setModel(QAbstractItemModel *model)
 {
     QListView::setModel(model);
 }
 
+/*!
+  \intern
+*/
 void QListWidget::setup()
 {
     setModel(new QListModel(this));
