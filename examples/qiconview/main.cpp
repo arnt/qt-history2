@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qiconview/main.cpp#2 $
+** $Id: //depot/qt/main/examples/qiconview/main.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -27,7 +27,7 @@ public:
     {}
 
 public slots:
-    void dropped( QMimeSource *mime ) {
+    void dropped( QDropEvent *mime ) {
         printf( "Dropped Mimesource %p into the view %p\n", mime, view );
         printf( "  Formats:\n" );
         int i = 0;
@@ -62,7 +62,7 @@ int main( int argc, char **argv )
     qiconview.setCaption( "Iconview" );
 
     ListenDND listen_dnd( &qiconview );
-    QObject::connect( &qiconview, SIGNAL( dropped( QMimeSource * ) ), &listen_dnd, SLOT( dropped( QMimeSource * ) ) );
+    QObject::connect( &qiconview, SIGNAL( dropped( QDropEvent * ) ), &listen_dnd, SLOT( dropped( QDropEvent * ) ) );
     QObject::connect( &qiconview, SIGNAL( moved() ), &listen_dnd, SLOT( moved() ) );
 
     a.setMainWidget( &qiconview );
