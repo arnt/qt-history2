@@ -772,26 +772,21 @@ QPointF QPainterPath::currentPosition() const
 
     \overload
 
-    Adds a rectangle at position (\a{x}, \a{y}), with the given \a width and
-    \a height. The rectangle is added as a clockwise set of lines. An empty
-    subpath with current position at (0, 0) is in use after this function
-    returns.
+    Adds a rectangle at position (\a{x}, \a{y}), with the given \a
+    width and \a height. The rectangle is added as a clockwise set of
+    lines. Current position after the rect has been added is (\a{x}, \a{y}).
 */
 
 /*!
     \fn void QPainterPath::addRect(const QRectF &rectangle)
 
-    Adds the \a rectangle to this path as a closed subpath. The rectangle
-    is added as a clockwise set of lines. An empty subpath with current
-    position at (0, 0) is in use after this function returns. The rectangle
-    is oriented clockwise starting at topleft.
+    Adds the \a rectangle to this path as a closed subpath. The
+    rectangle is added as a clockwise set of lines. Current position
+    after the rect has been added is (\a{x}, \a{y}).
 */
 void QPainterPath::addRect(const QRectF &r)
 {
-    if (d->isClosed())
-        moveTo(r.x(), r.y());
-    else
-        lineTo(r.x(), r.y());
+    moveTo(r.x(), r.y());
     lineTo(r.x() + r.width(), r.y());
     lineTo(r.x() + r.width(), r.y() + r.height());
     lineTo(r.x(), r.y() + r.height());
@@ -799,20 +794,15 @@ void QPainterPath::addRect(const QRectF &r)
 }
 
 /*!
-    Adds the \a polygon to path as a new subpath. If the current
-    subpath is closed, a new subpath is started at the polygons first
-    point.
+    Adds the \a polygon to path as a new subpath. Current position
+    after the rect has been added is the last point in \a polygon.
 */
 void QPainterPath::addPolygon(const QPolygonF &polygon)
 {
     if (polygon.isEmpty())
         return;
 
-    if (d->isClosed())
-        moveTo(polygon.first());
-    else
-        lineTo(polygon.first());
-
+    moveTo(polygon.first());
     for (int i=1; i<polygon.size(); ++i) {
         Element elm = { polygon.at(i).x(), polygon.at(i).y(), LineToElement };
         elements << elm;
@@ -829,13 +819,7 @@ void QPainterPath::addPolygon(const QPolygonF &polygon)
 */
 void QPainterPath::addEllipse(const QRectF &boundingRect)
 {
-    if (d->isClosed())
-        moveTo(boundingRect.x() + boundingRect.width(), boundingRect.y() + boundingRect.height() / 2);
-    else
-        lineTo(boundingRect.x() + boundingRect.width(), boundingRect.y() + boundingRect.height() / 2);
-
-
-
+    moveTo(boundingRect.x() + boundingRect.width(), boundingRect.y() + boundingRect.height() / 2);
     arcTo(boundingRect, 0, -360);
 }
 
@@ -893,15 +877,13 @@ void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &
         }
         x += si.width;
     }
-
 }
 
 #define d d_func()
 
 /*!
 
-  Adds the path \a other to this path. If the current subpath is
-  path is unclosed, \a other is joined with it.
+  Adds the path \a other to this path.
 */
 void QPainterPath::addPath(const QPainterPath &other)
 {
@@ -918,11 +900,7 @@ void QPainterPath::addPath(const QPainterPath &other)
         Q_ASSERT(other.elements.first().type == MoveToElement);
         elements += other.elements;
     } else {
-        int otherFirst = elements.size();
         elements += other.elements;
-        // Since elements are to be connected, we replace the others first moveto with
-        // a lineto
-        elements[otherFirst].type = QPainterPath::LineToElement;
     }
 
     d->cStart = cStart;
@@ -931,6 +909,9 @@ void QPainterPath::addPath(const QPainterPath &other)
 /*!
     Adds the region \a region to the path. This is done by converting
     the region into a set of lines which enclose it.
+
+    Current point after the region is added is the last point in the
+    last rectangle of the region.
 */
 void QPainterPath::addRegion(const QRegion &region)
 {
