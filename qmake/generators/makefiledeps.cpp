@@ -51,7 +51,8 @@ struct SourceDependChildren {
 };
 class SourceFiles {
     struct SourceFileNode {
-        const char *key;
+        ~SourceFileNode() { free(key); }
+        char *key;
         SourceFileNode *next;
         SourceFile *file;
     } **nodes;
