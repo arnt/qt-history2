@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#76 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#75 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#76 $");
 
 
 const int sbDim = 16;
@@ -154,6 +154,8 @@ QTableView::QTableView( QWidget *parent, const char *name, WFlags f )
     horSnappingOff	 = FALSE;
     coveringCornerSquare = FALSE;
     inSbUpdate		 = FALSE;
+    setFontPropagation( SamePalette );
+    setPalettePropagation( SamePalette );
 }
 
 /*!
@@ -1415,7 +1417,7 @@ const QScrollBar *QTableView::verticalScrollBar() const
     QTableView *that = (QTableView*)this; // semantic const
     if ( !vScrollBar ) {
 	QScrollBar *sb = new QScrollBar( QScrollBar::Vertical, that );
-	sb->resize( 32, 16 ); // 16 is the important bit
+	sb->resize( sbDim, 16 ); // 16 is irrelevant
 	CHECK_PTR(sb);
 	sb->setTracking( FALSE );
 	sb->setFocusPolicy( NoFocus );
@@ -1443,7 +1445,7 @@ const QScrollBar *QTableView::horizontalScrollBar() const
     QTableView *that = (QTableView*)this; // semantic const
     if ( !hScrollBar ) {
 	QScrollBar *sb = new QScrollBar( QScrollBar::Horizontal, that );
-	sb->resize( 16, 32 ); // 16 is the important bit
+	sb->resize( 16, sbDim ); // 16 is irrelevant
 	sb->setFocusPolicy( NoFocus );
 	CHECK_PTR(sb);
 	sb->setTracking( FALSE );
@@ -1469,18 +1471,7 @@ void QTableView::setHorScrollBar( bool on, bool update )
 {
     if ( on ) {
 	tFlags |= Tbl_hScrollBar;
-	if ( !hScrollBar ) {
-	    hScrollBar = new QScrollBar( QScrollBar::Horizontal, this );
-	    hScrollBar->setFocusPolicy( NoFocus );
-	    hScrollBar->setTracking( FALSE );
-	    connect( hScrollBar, SIGNAL(valueChanged(int)),
-		     SLOT(horSbValue(int)));
-	    connect( hScrollBar, SIGNAL(sliderMoved(int)),
-		     SLOT(horSbSliding(int)));
-	    connect( hScrollBar, SIGNAL(sliderReleased()),
-		     SLOT(horSbSlidingDone()));
-	    hScrollBar->hide();
-	}
+	horizontalScrollBar(); // created
 	if ( update )
 	    updateScrollBars( horMask | verMask );
 	else
@@ -1518,18 +1509,7 @@ void QTableView::setVerScrollBar( bool on, bool update )
 {
     if ( on ) {
 	tFlags |= Tbl_vScrollBar;
-	if ( !vScrollBar ) {
-	    vScrollBar = new QScrollBar( QScrollBar::Vertical, this );
-	    vScrollBar->setTracking( FALSE );
-	    vScrollBar->setFocusPolicy( NoFocus );
-	    connect( vScrollBar, SIGNAL(valueChanged(int)),
-		     SLOT(verSbValue(int)));
-	    connect( vScrollBar, SIGNAL(sliderMoved(int)),
-		     SLOT(verSbSliding(int)));
-	    connect( vScrollBar, SIGNAL(sliderReleased()),
-		     SLOT(verSbSlidingDone()));
-	    vScrollBar->hide();
-	}
+	horizontalScrollBar(); // created
 	if ( update )
 	    updateScrollBars( verMask | horMask );
 	else
