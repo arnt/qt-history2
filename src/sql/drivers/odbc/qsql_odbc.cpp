@@ -1074,7 +1074,7 @@ bool QODBCResult::exec()
                                       qParamType[(QFlag)(bindValueType(i)) & QSql::InOut],
                                       SQL_C_TIMESTAMP,
                                       SQL_TIMESTAMP,
-                                      0,
+                                      19,
                                       0,
                                       (void *) dt,
                                       0,
