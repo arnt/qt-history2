@@ -44,7 +44,7 @@ QDesignerFormWindow::QDesignerFormWindow(QDesignerWorkbench *workbench, QWidget 
 
     m_action = new QAction(this);
     m_action->setCheckable(true);
-    connect(m_action, SIGNAL(checked(bool)), this, SIGNAL(activated(bool)));
+    connect(m_action, SIGNAL(checked(bool)), this, SLOT(activated(bool)));
 
     updateWindowTitle(m_editor->fileName());
     connect(m_editor->commandHistory(), SIGNAL(commandExecuted()), this, SLOT(updateChanged()));
@@ -64,7 +64,7 @@ QDesignerFormWindow::QDesignerFormWindow(AbstractFormWindow *editor, QDesignerWo
     m_action = new QAction(this);
     m_action->setText(windowTitle());
     m_action->setCheckable(true);
-    connect(m_action, SIGNAL(checked(bool)), this, SIGNAL(activated(bool)));
+    connect(m_action, SIGNAL(checked(bool)), this, SLOT(activated(bool)));
     connect(m_editor->commandHistory(), SIGNAL(commandExecuted()), this, SLOT(updateChanged()));
 }
 
@@ -72,6 +72,14 @@ QDesignerFormWindow::~QDesignerFormWindow()
 {
     if (workbench())
         workbench()->removeFormWindow(this);
+}
+
+void QDesignerFormWindow::activated(bool active)
+{
+    if (active == true) {
+        raise();
+        activateWindow();
+    }
 }
 
 QAction *QDesignerFormWindow::action() const

@@ -38,12 +38,10 @@ public:
 
     virtual QRect geometryHint() const;
 
-signals:
-    void activated(bool active);
-
 private slots:
     void updateWindowTitle(const QString &fileName);
     void updateChanged();
+    void activated(bool active);
 
 protected:
     virtual void changeEvent(QEvent *e);
