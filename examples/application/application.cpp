@@ -99,7 +99,7 @@ ApplicationWindow::ApplicationWindow()
 			   this, SLOT(save()), CTRL+Key_S );
     file->setWhatsThis( id, fileSaveText );
 
-    id = file->insertItem( "Save &as...", this, SLOT(saveAs()) );
+    id = file->insertItem( "Save &As...", this, SLOT(saveAs()) );
     file->setWhatsThis( id, fileSaveText );
 
     file->insertSeparator();
@@ -222,7 +222,7 @@ void ApplicationWindow::print()
 	statusBar()->message( "Printing..." );
 	QPainter p;
 	if( !p.begin( printer ) )               // paint on printer
-	    return;				
+	    return;
 
 	p.setFont( e->font() );
 	int yPos	= 0;			// y-position for each line
