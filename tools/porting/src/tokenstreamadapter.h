@@ -62,7 +62,7 @@ struct TokenStream
     {
        if(index >= m_tokenKindList.count())
             return false;
-        Type type = m_tokenKindList.at(index);
+        ::Type type = m_tokenKindList.at(index);
         return (type == Token_whitespaces || type == 10 /*newline*/ ||
                 type == Token_comment || type == Token_preproc );
     }
