@@ -4257,7 +4257,7 @@ bool QWidget::event( QEvent *e )
 	case QEvent::ParentFontChange:
 	    if ( isTopLevel() )
 		break;
-	    // FALL THROUGH
+	    // fall through
 	case QEvent::ApplicationFontChange:
 	    if ( !own_font ) {
 		own_font = TRUE;
@@ -4269,7 +4269,7 @@ bool QWidget::event( QEvent *e )
 	case QEvent::ParentPaletteChange:
 	    if ( isTopLevel() )
 		break;
-	    // FALL THROUGH
+	    // fall through
 	case QEvent::ApplicationPaletteChange:
 	    if ( !own_palette && !isDesktop() ) {
 		own_palette = TRUE;
@@ -5323,7 +5323,7 @@ void QWidget::showFullScreen()
 
   If FALSE, the widget uses its parent widget's cursor.
 
-  \sa setCursor(), unsetCursor()
+  \sa cursor
 */
 
 /*! \property QWidget::ownFont
@@ -5331,7 +5331,7 @@ void QWidget::showFullScreen()
 
   If FALSE, the widget uses its parent widget's font.
 
-  \sa setFont(), unsetFont()
+  \sa font
 */
 
 /*! \property QWidget::ownPalette
@@ -5339,7 +5339,7 @@ void QWidget::showFullScreen()
 
   If FALSE, the widget uses its parent widget's palette.
 
-  \sa setPalette(), unsetPalette()
+  \sa palette
 */
 
 
