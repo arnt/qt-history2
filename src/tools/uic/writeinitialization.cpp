@@ -151,7 +151,7 @@ void WriteInitialization::accept(DomWidget *node)
     } else if (uic->customWidgetsInfo()->extends(className, "QDataBrowser")) {
         initializeSqlDataBrowser(node);
     }
-    
+
     if (uic->customWidgetsInfo()->extends(className, "QRadioButton")
         || uic->customWidgetsInfo()->extends(className, "QCheckBox")
         || uic->customWidgetsInfo()->extends(className, "QPushButton")) {
@@ -1058,8 +1058,9 @@ void WriteInitialization::initializeMenu(DomWidget *w, const QString &parentWidg
     if (action && action->hasAttributeMenu()) {
         output << option.indent << menuAction << " = new QAction("
             << trCall(title, w->attributeClass())
-            << ", " << menuName
             << ", " << parentWidget << ");\n";
+
+        output << option.indent << menuAction << "->setMenu(" << menuName << ");\n";
     }
 }
 
