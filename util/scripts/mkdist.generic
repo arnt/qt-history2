@@ -145,6 +145,10 @@ if [ "${platform}" = "win" ]; then
   mv tools/q*.h kernel/q*.h widgets/q*.h dialogs/q*.h ../include
   mkdir win
   mv tools/*.cpp kernel/*.cpp widgets/*.cpp dialogs/*.cpp win
+  echo "Doing the sed thing with qcombo..." >&2
+  cd win
+  sed -e '/QEditableCombobox:/,/^};/ d' < qcombo.h > a && mv a qcombo.h
+  sed -e '/QEditableComboBox:/,$ d' < qcombo.cpp > a && mv a qcombo.cpp
   echo "Removing X11-only files..." >&2
   rm -rf tools kernel widgets dialogs Makefile*
   cd win
@@ -153,6 +157,7 @@ if [ "${platform}" = "win" ]; then
   rm ${x11onlyhdr}
   cd ${DISTDIR}/qt
   rm -rf makefiles
+  find . -name Makefile | xargs rm -vf
   echo "Converting Unix text files to DOS..." >&2
   cd ${DISTDIR}
   find qt -type f -a ! -name '*.exe' | xargs ${curdir}/unix_to_dos

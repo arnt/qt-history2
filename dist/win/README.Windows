@@ -1,0 +1,33 @@
+		      NOTES ABOUT QT AND WINDOWS
+
+QApplication::setColorMode() is a new function.  Because of the color
+allocation design of Windows (for 8-bit displays), a general purpose
+library such as Qt has to provide several color allocation strategies.
+
+setColorMode() provides two, which together cover most applications'
+needs.  NormalColors uses the default Windows colors, CustomColors
+allocates a custom color map.  There is no difference between the two
+modes on X, or on 15, 16 and 24-bit displays on Windows.
+
+See qt\examples\widgets or chapter nine of the Qt Tutorial for
+examples of how to use QApplication::setColorMode().
+
+Qt now works well on Windows NT.  There are still a few problems on
+Windows 95 due to limitations of its drawing engine.  We believe this
+list to be complete:
+
+* Rotation and shearing of text and pixmaps does not work on Windows
+  95.  It works very well on Windows NT.  Rotation of all other
+  drawing primitives works on both.
+
+* QPixmap::setClipMask() does not work on Windows 95.  Any workaround
+  is likely to be much slower than on Windows NT.
+
+There are also glitches in two of the example programs:
+
+* Dragging windows in tetris doesn't work.  They seem to caused by
+  bugs in tetris rather than Qt or Windows, but we aren't sure yet.
+
+* The timestamp example does not work on Windows; it uses stdout and
+  /home, both of which are unix-specific.  The fix is left as an
+  exercise for the reader :)
