@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcommonstyle.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qcommonstyle.cpp#3 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -216,20 +216,20 @@ void QCommonStyle::drawTabMask( QPainter* p,  const  QTabBar* /* tb*/ , QTab* t,
  */
 QStyle::ScrollControl QCommonStyle::scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p)
 {
-        if ( !sb->rect().contains( p ) )
-	return NONE;
+    if ( !sb->rect().contains( p ) )
+	return NoScroll;
     int sliderMin, sliderMax, sliderLength, buttonDim, pos;
     scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
     pos = (sb->orientation() == QScrollBar::Horizontal)? p.x() : p.y();
     if ( pos < sliderMin )
-	return SUB_LINE;
+	return SubLine;
     if ( pos < sliderStart )
-	return SUB_PAGE;
+	return SubPage;
     if ( pos < sliderStart + sliderLength )
-	return SLIDER;
+	return Slider;
     if ( pos < sliderMax + sliderLength )
-	return ADD_PAGE;
-    return ADD_LINE;
+	return AddPage;
+    return AddLine;
 }
 
 /*!\reimp

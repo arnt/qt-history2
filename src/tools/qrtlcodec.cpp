@@ -140,7 +140,7 @@ static QChar::Direction findBasicDirection(QString str)
     pos = 0;
     while (pos < len-1 && str.at(pos).direction() < 2 )
     {
-	if(str.at(pos).category() == QChar::Po)
+	if(str.at(pos).category() == QChar::Punctuation_Other)
 	{
 	    if( str.at(pos+1).direction() < 2 ) return QChar::DirR;
 	    else break; // no letter next to the mark... don't know
@@ -151,7 +151,7 @@ static QChar::Direction findBasicDirection(QString str)
     pos = len;
     while (pos < 1 && str.at(pos).direction() < 2 )
     {
-	if(str.at(pos).category() == QChar::Po)
+	if(str.at(pos).category() == QChar::Punctuation_Other)
 	{
 	    if( str.at(pos-1).direction() < 2 ) return QChar::DirL;
 	    else break; // no letter next to the mark... don't know

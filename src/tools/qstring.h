@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#128 $
+** $Id: //depot/qt/main/src/tools/qstring.h#129 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -71,17 +71,47 @@ public:
     QT_STATIC_CONST QChar byteOrderSwapped;     // FFFE
 
     // Unicode information
+
     enum Category
     {
       NoCategory,
-      Mn, Mc, Me,
-      Nd, Nl, No,
-      Zs, Zl, Zp,
-      Cc, Cf, Cs, Co, Cn,
 
-      Lu, Ll, Lt, Lm, Lo,
-      Pc, Pd, Ps, Pe, Pi, Pf, Po,
-      Sm, Sc, Sk, So
+      Mark_NonSpacing,	    //   Mn
+      Mark_SpacingCombining,//   Mc
+      Mark_Enclosing,	    //   Me
+
+      Number_DecimalDigit,   //   Nd
+      Number_Letter,	    //   Nl
+      Number_Other,	    //   No
+
+      Separator_Space,	    //   Zs
+      Separator_Line,	    //   Zl
+      Separator_Paragraph,  //   Zp
+
+      Other_Control,	    //   Cc
+      Other_Format,	    //   Cf
+      Other_Surrogate,	    //   Cs
+      Other_PrivateUse,	    //   Co
+      Other_NotAssigned,    //   Cn
+
+      Letter_Uppercase,	    //   Lu
+      Letter_Lowercase,	    //   Ll
+      Letter_Titlecase,	    //   Lt
+      Letter_Modifier,	    //   Lm
+      Letter_Other,	    //   Lo
+
+      Punctuation_Connector,//   Pc
+      Punctuation_Dask,	    //   Pd
+      Punctuation_Open,	    //   Ps
+      Punctuation_Close,    //   Pe
+      Punctuation_InitialQuote,	//   Pi
+      Punctuation_FinalQuote,	//   Pf
+      Punctuation_Other,    //   Po
+
+      Symbol_Math,	    //   Sm
+      Symbol_Currency,	    //   Sc
+      Symbol_Modifier,	    //   Sk
+      Symbol_Other,	    //   So
     };
 
     enum Direction

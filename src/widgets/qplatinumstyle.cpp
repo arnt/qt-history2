@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qplatinumstyle.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qplatinumstyle.cpp#4 $
 **
 ** Implementation of Platinum-like style class
 **
@@ -626,7 +626,7 @@ void QPlatinumStyle::drawScrollBarBackground( QPainter *p, int x, int y, int w, 
 QStyle::ScrollControl QPlatinumStyle::scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p )
 {
         if ( !sb->rect().contains( p ) )
-	return NONE;
+	return NoScroll;
     int sliderMin, sliderMax, sliderLength, buttonDim, pos;
     scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
 
@@ -636,25 +636,25 @@ QStyle::ScrollControl QPlatinumStyle::scrollBarPointOver( const QScrollBar* sb, 
 	pos = p.y();
 
     if (pos < sliderStart)
-	return SUB_PAGE;
+	return SubPage;
     if (pos < sliderStart + sliderLength)
-	return SLIDER;
+	return Slider;
     if (pos < sliderMax + sliderLength)
-	return ADD_PAGE;
+	return AddPage;
     if (pos < sliderMax + sliderLength + buttonDim)
-	return SUB_LINE;
-    return ADD_LINE;
+	return SubLine;
+    return AddLine;
 
 /*
     if (pos < buttonDim)
-	return SUB_LINE;
+	return SubLine;
     if (pos < 2 * buttonDim)
-	return ADD_LINE;
+	return AddLine;
     if (pos < sliderStart)
-	return SUB_PAGE;
+	return SubPage;
     if (pos > sliderStart + sliderLength)
-	return ADD_PAGE;
-    return SLIDER;
+	return AddPage;
+    return Slider;
 
 */
 }
@@ -663,8 +663,8 @@ QStyle::ScrollControl QPlatinumStyle::scrollBarPointOver( const QScrollBar* sb, 
 
 void QPlatinumStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
 {
-#define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )
-#define SUB_LINE_ACTIVE ( activeControl == SUB_LINE )
+#define ADD_LINE_ACTIVE ( activeControl == AddLine )
+#define SUB_LINE_ACTIVE ( activeControl == SubLine )
     QColorGroup g  = sb->colorGroup();
 
     int sliderMin, sliderMax, sliderLength, buttonDim;
@@ -721,7 +721,7 @@ void QPlatinumStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, i
     }
 
     bool maxedOut = (sb->maxValue() == sb->minValue());
-    if ( controls & ADD_LINE ) {
+    if ( controls & AddLine ) {
  	drawBevelButton( p, addB.x(), addB.y(),
  			 addB.width(), addB.height(), g,
  			 ADD_LINE_ACTIVE);
@@ -733,7 +733,7 @@ void QPlatinumStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, i
 		   ADD_LINE_ACTIVE ? &g.brush( QColorGroup::Mid )    :
            		             &g.brush( QColorGroup::Button ));
     }
-    if ( controls & SUB_LINE ) {
+    if ( controls & SubLine ) {
 	drawBevelButton( p, subB.x(), subB.y(),
 			 subB.width(), subB.height(), g,
 			 SUB_LINE_ACTIVE );
@@ -747,15 +747,15 @@ void QPlatinumStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, i
     }
 
 
-    if ( controls & SUB_PAGE )
+    if ( controls & SubPage )
 	drawScrollBarBackground( p, subPageR.x(), subPageR.y(), subPageR.width(),
 				 subPageR.height(),
 				 g, HORIZONTAL );
-    if ( controls & ADD_PAGE )
+    if ( controls & AddPage )
 	drawScrollBarBackground( p, addPageR.x(), addPageR.y(), addPageR.width(),
 				 addPageR.height(),
 				 g, HORIZONTAL );
-    if ( controls & SLIDER ) {
+    if ( controls & Slider ) {
 	QPoint bo = p->brushOrigin();
 	p->setBrushOrigin(sliderR.topLeft());
 	drawBevelButton( p, sliderR.x(), sliderR.y(),
@@ -769,7 +769,7 @@ void QPlatinumStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, i
     }
 
     // ### perhaps this should not be able to accept focus if maxedOut?
-    if ( sb->hasFocus() && (controls & SLIDER) )
+    if ( sb->hasFocus() && (controls & Slider) )
 	p->drawWinFocusRect( sliderR.x()+2, sliderR.y()+2,
 			     sliderR.width()-5, sliderR.height()-5,
 			     sb->backgroundColor() );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#131 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#132 $
 **
 ** Implementation of QScrollBar class
 **
@@ -224,7 +224,7 @@ void QScrollBar::init()
 {
     track = TRUE;
     sliderPos = 0;
-    pressedControl = QStyle::NONE;
+    pressedControl = QStyle::NoScroll;
     clickedAt = FALSE;
     setFocusPolicy( NoFocus );
 
@@ -289,7 +289,7 @@ void QScrollBar::setOrientation( Orientation orientation )
 
 bool QScrollBar::draggingSlider() const
 {
-    return pressedControl == QStyle::SLIDER;
+    return pressedControl == QStyle::Slider;
 }
 
 
@@ -347,7 +347,7 @@ void QScrollBar::valueChange()
     int tmp = sliderPos;
     positionSliderFromValue();
     if ( tmp != sliderPos )
-	drawControls( QStyle::ADD_PAGE | QStyle::SLIDER | QStyle::SUB_PAGE , pressedControl );
+	drawControls( QStyle::AddPage | QStyle::Slider | QStyle::SubPage , pressedControl );
     emit valueChanged(value());
 }
 
@@ -369,8 +369,8 @@ void QScrollBar::stepChange()
 void QScrollBar::rangeChange()
 {
     positionSliderFromValue();
-    drawControls( QStyle::ADD_LINE | QStyle::ADD_PAGE | QStyle::SLIDER |
-		  QStyle::SUB_PAGE | QStyle::SUB_LINE,
+    drawControls( QStyle::AddLine | QStyle::AddPage | QStyle::Slider |
+		  QStyle::SubPage | QStyle::SubLine,
 		  pressedControl );
 }
 
@@ -504,7 +504,7 @@ void QScrollBar::paintEvent( QPaintEvent * )
 	    p.drawRect(  1, 1, width() - 2, height() - 2 );
 	}
     }
-    drawControls( QStyle::ADD_LINE | QStyle::SUB_LINE | QStyle::ADD_PAGE | QStyle::SUB_PAGE | QStyle::SLIDER,
+    drawControls( QStyle::AddLine | QStyle::SubLine | QStyle::AddPage | QStyle::SubPage | QStyle::Slider,
 			pressedControl, &p );
 }
 
@@ -527,9 +527,9 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
     clickedAt	   = TRUE;
     pressedControl = pointOver( e->pos() );
 
-    if ( (pressedControl == QStyle::ADD_PAGE ||
-	  pressedControl == QStyle::SUB_PAGE ||
-	  pressedControl == QStyle::SLIDER ) &&
+    if ( (pressedControl == QStyle::AddPage ||
+	  pressedControl == QStyle::SubPage ||
+	  pressedControl == QStyle::Slider ) &&
 	 /*style() == MotifStyle &&*/
 	 e->button() == MidButton ) {
 	int dummy1, dummy2, dummy3, sliderLength;
@@ -538,16 +538,16 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 			   - sliderLength/2;
 	setValue( sliderPosToRangeValue(newSliderPos) );
 	sliderPos = newSliderPos;
-	pressedControl = QStyle::SLIDER;
+	pressedControl = QStyle::Slider;
     }
 
-    if ( pressedControl == QStyle::SLIDER ) {
+    if ( pressedControl == QStyle::Slider ) {
 	clickOffset = (QCOORD)( (HORIZONTAL ? e->pos().x() : e->pos().y())
 				- sliderPos );
 	slidePrevVal   = value();
 	sliderStartPos = sliderPos;
 	emit sliderPressed();
-    } else if ( pressedControl != QStyle::NONE ) {
+    } else if ( pressedControl != QStyle::NoScroll ) {
 	drawControls( pressedControl, pressedControl );
 	action( (QStyle::ScrollControl) pressedControl );
 	startAutoRepeat();
@@ -568,9 +568,9 @@ void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
     clickedAt = FALSE;
     stopAutoRepeat();
     mouseMoveEvent( e );  // Might have moved since last mouse move event.
-    pressedControl = QStyle::NONE;
+    pressedControl = QStyle::NoScroll;
 
-    if (tmp == QStyle::SLIDER) {
+    if (tmp == QStyle::Slider) {
 	directSetValue( calculateValueFromSlider() );
 	emit sliderReleased();
 	if ( value() != prevValue() )
@@ -596,7 +596,7 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 			  style() == MotifStyle*/)) )
 	return;
     int newSliderPos;
-    if ( pressedControl == QStyle::SLIDER ) {
+    if ( pressedControl == QStyle::Slider ) {
 	int sliderMin, sliderMax;
 	sliderMinMax( sliderMin, sliderMax );
 	QRect r = rect();
@@ -631,13 +631,13 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	}
 	slidePrevVal = newVal;
 	sliderPos = (QCOORD)newSliderPos;
-	drawControls( QStyle::ADD_PAGE | QStyle::SLIDER | QStyle::SUB_PAGE, pressedControl );
+	drawControls( QStyle::AddPage | QStyle::Slider | QStyle::SubPage, pressedControl );
     }
     else if ( style() == WindowsStyle ) {
 	// stop scrolling when the mouse pointer leaves a control
 	// similar to push buttons
 	if ( (int)pressedControl != pointOver( e->pos() ) ) {
-	    drawControls( pressedControl, QStyle::NONE );
+	    drawControls( pressedControl, QStyle::NoScroll );
 	    stopAutoRepeat();
 	} else if ( !repeater ) {
 	    drawControls( pressedControl, pressedControl );
@@ -725,19 +725,19 @@ int QScrollBar::sliderPosToRangeValue( int pos ) const
 void QScrollBar::action( QStyle::ScrollControl control )
 {
     switch( control ) {
-	case QStyle::ADD_LINE:
+	case QStyle::AddLine:
 	    emit nextLine();
 	    addLine();
 	    break;
-	case QStyle::SUB_LINE:
+	case QStyle::SubLine:
 	    emit prevLine();
 	    subtractLine();
 	    break;
-	case QStyle::ADD_PAGE:
+	case QStyle::AddPage:
 	    emit nextPage();
 	    addPage();
 	    break;
-	case QStyle::SUB_PAGE:
+	case QStyle::SubPage:
 	    emit prevPage();
 	    subtractPage();
 	    break;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#237 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#238 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -9609,64 +9609,65 @@ int ucstrnicmp( const QChar *a, const QChar *b, int l )
 bool QChar::isPrint() const
 {
     Category c = category();
-    return !(c == Cc || c == Cn);
+    return !(c == Other_Control || c == Other_NotAssigned);
 }
 
 /*!
-  Returns whether the character is a whitespace character.
+  Returns whether the character is a separator
+  character (Separator_* categories).
 */
 bool QChar::isSpace() const
 {
     if( !row() )
 	if( cell() >= 9 && cell() <=13 ) return TRUE;
     Category c = category();
-    return c >= Zs && c <= Zp;
+    return c >= Separator_Space && c <= Separator_Paragraph;
 }
 
 /*!
-  Returns whether the character is a mark (category Mn or Mc).
+  Returns whether the character is a mark (Mark_* categories).
 */
 bool QChar::isMark() const
 {
     Category c = category();
-    return c >= Mn && c <= Me;
+    return c >= Mark_NonSpacing && c <= Mark_Enclosing;
 }
 
 /*!
-  Returns whether the character is puntuation (categories Pd, Ps, Pe, or Po).
+  Returns whether the character is puntuation (Punctuation_* categories).
 */
 bool QChar::isPunct() const
 {
     Category c = category();
-    return (c >= Pc && c <= Po);
+    return (c >= Punctuation_Connector && c <= Punctuation_Other);
 }
 
 /*!
-  Returns whether the character is a letter.
+  Returns whether the character is a letter (Letter_* categories).
 */
 bool QChar::isLetter() const
 {
     Category c = category();
-    return (c == Lu || c == Ll || c == Lo || c == Lt || c == Lm );
+    return (c >= Letter_Uppercase && c <= Letter_Other);
 }
 
 /*!
-  Returns whether the character is a number (of any sort).
+  Returns whether the character is a number (of any sort - Number_* categories).
 
   \sa isDigit()
 */
 bool QChar::isNumber() const
 {
     Category c = category();
-    return c >= Nd && c <= Nl;
+    return c >= Number_DecimalDigit && c <= Number_Other;
 }
 
 /*!
-  Returns whether the character is a decimal digit.
+  Returns whether the character is a decimal digit (Number_DecimalDigit).
   */
 bool QChar::isDigit() const
 {
-    return (category() == Nd);
+    return (category() == Number_DecimalDigit);
 }
 
 /*!
@@ -9767,7 +9768,7 @@ QChar::Decomposition QChar::decompositionTag() const
 */
 QChar QChar::lower() const
 {
-    if(category() != Lu) return *this;
+    if(category() != Letter_Uppercase) return *this;
     Q_UINT16 lower = *(case_info[row()]+cell());
     if(lower == 0) return *this;
     return lower;
@@ -9779,7 +9780,7 @@ QChar QChar::lower() const
 */
 QChar QChar::upper() const
 {
-    if(category() != Ll) return *this;
+    if(category() != Letter_Lowercase) return *this;
     Q_UINT16 upper = *(case_info[row()]+cell());
     if(upper == 0) return *this;
     return upper;

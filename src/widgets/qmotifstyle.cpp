@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#7 $
 **
 ** Implementation of Motif-like style class
 **
@@ -628,8 +628,8 @@ void QMotifStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int &s
 
 void QMotifStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
 {
-#define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )
-#define SUB_LINE_ACTIVE ( activeControl == SUB_LINE )
+#define ADD_LINE_ACTIVE ( activeControl == AddLine )
+#define SUB_LINE_ACTIVE ( activeControl == SubLine )
     QColorGroup g  = sb->colorGroup();
 
     int sliderMin, sliderMax, sliderLength, buttonDim;
@@ -677,11 +677,11 @@ void QMotifStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int 
 	sliderR .setRect( b, sliderStart, sliderW, sliderLength );
     }
 
-    if ( controls & ADD_LINE )
+    if ( controls & AddLine )
 	drawArrow( p, VERTICAL ? DownArrow : RightArrow,
 		   ADD_LINE_ACTIVE, addB.x(), addB.y(),
 		   addB.width(), addB.height(), g, sb->value()<sb->maxValue() );
-    if ( controls & SUB_LINE )
+    if ( controls & SubLine )
 	drawArrow( p, VERTICAL ? UpArrow : LeftArrow,
 		   SUB_LINE_ACTIVE, subB.x(), subB.y(),
 		   subB.width(), subB.height(), g, sb->value()>sb->minValue() );
@@ -691,13 +691,13 @@ void QMotifStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int 
 	fill = QBrush( g.mid(), *sb->backgroundPixmap() );
     }
 
-    if ( controls & SUB_PAGE )
+    if ( controls & SubPage )
 	p->fillRect( subPageR, fill );
 	
-    if ( controls & ADD_PAGE )
+    if ( controls & AddPage )
 	p->fillRect( addPageR, fill );
 
-    if ( controls & SLIDER ) {
+    if ( controls & Slider ) {
 	QPoint bo = p->brushOrigin();
 	p->setBrushOrigin(sliderR.topLeft());
 	drawBevelButton( p, sliderR.x(), sliderR.y(),

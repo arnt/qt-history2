@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#8 $
 **
 ** Implementation of Windows-like style class
 **
@@ -613,8 +613,8 @@ void QWindowsStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int 
  */
 void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
 {
-#define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )
-#define SUB_LINE_ACTIVE ( activeControl == SUB_LINE )
+#define ADD_LINE_ACTIVE ( activeControl == AddLine )
+#define SUB_LINE_ACTIVE ( activeControl == SubLine )
     QColorGroup g  = sb->colorGroup();
 
     int sliderMin, sliderMax, sliderLength, buttonDim;
@@ -663,7 +663,7 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
     }
 
     bool maxedOut = (sb->maxValue() == sb->minValue());
-    if ( controls & ADD_LINE ) {
+    if ( controls & AddLine ) {
 	drawBevelButton( p, addB.x(), addB.y(),
 			 addB.width(), addB.height(), g,
 			 ADD_LINE_ACTIVE, &g.brush( QColorGroup::Button ) );
@@ -671,7 +671,7 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
 		   ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
 		   addB.width()-4, addB.height()-4, g, !maxedOut );
     }
-    if ( controls & SUB_LINE ) {
+    if ( controls & SubLine ) {
 	drawBevelButton( p, subB.x(), subB.y(),
 			 subB.width(), subB.height(), g,
 			 SUB_LINE_ACTIVE );
@@ -689,22 +689,22 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
     if ( maxedOut ) {
 	p->drawRect( sliderR );
     } else {
-	if ( (controls & SUB_PAGE && SUB_PAGE == activeControl) ||
-	     (controls  & ADD_PAGE && ADD_PAGE == activeControl) ) {
+	if ( (controls & SubPage && SubPage == activeControl) ||
+	     (controls  & AddPage && AddPage == activeControl) ) {
 	    QBrush b = p->brush();	
 	    QColor c = p->backgroundColor();
-// 	    p->fillRect( ADD_PAGE == activeControl? addPageR : subPageR, g.fillDark() );
+// 	    p->fillRect( AddPage == activeControl? addPageR : subPageR, g.fillDark() );
 	    p->setBackgroundColor( g.dark() );
  	    p->setBrush( QBrush(g.shadow(), Dense4Pattern) );
- 	    p->drawRect( ADD_PAGE == activeControl? addPageR : subPageR );
+ 	    p->drawRect( AddPage == activeControl? addPageR : subPageR );
 	    p->setBackgroundColor( c );
 	    p->setBrush( b );
 	}
-	if ( controls & SUB_PAGE && SUB_PAGE != activeControl)
+	if ( controls & SubPage && SubPage != activeControl)
 	    p->drawRect( subPageR );
-	if ( controls & ADD_PAGE && ADD_PAGE != activeControl)
+	if ( controls & AddPage && AddPage != activeControl)
 	    p->drawRect( addPageR );
-	if ( controls & SLIDER ) {
+	if ( controls & Slider ) {
 	    if ( !maxedOut ) {
 		QPoint bo = p->brushOrigin();
 		p->setBrushOrigin(sliderR.topLeft());
@@ -716,7 +716,7 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
 	}
     }
     // ### perhaps this should not be able to accept focus if maxedOut?
-    if ( sb->hasFocus() && (controls & SLIDER) )
+    if ( sb->hasFocus() && (controls & Slider) )
 	drawFocusRect(p, QRect(sliderR.x()+2, sliderR.y()+2,
 			       sliderR.width()-5, sliderR.height()-5), g,
 		      &sb->backgroundColor());
