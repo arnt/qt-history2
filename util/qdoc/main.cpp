@@ -99,7 +99,7 @@ int main( int argc, char **argv )
 	parseCppHeaderFile( &steering, *s );
 	++s;
     }
-    
+
     steering.nailDownDecls();
 
     // then read the .cpp and .doc files, sorted strictly by

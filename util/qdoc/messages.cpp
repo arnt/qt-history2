@@ -81,6 +81,16 @@ void warning( int level, const Location& loc, const char *message, ... )
     QString filenameBase = loc.filePath();
     filenameBase
 	= filenameBase.left( filenameBase.length() - filename.length() - 1 );
+    if ( currentDirectory.length() > 8 &&
+	 currentDirectory.length() < filenameBase.length() &&
+	 filenameBase.left( currentDirectory.length() ) == currentDirectory &&
+	 filenameBase.length() < currentDirectory.length() + 8 ) {
+	// If we can avoid two lines of directory changes by adding at
+	// most 8 characters to each line, we'll do it.
+	QString extra = filenameBase.mid( currentDirectory.length() );
+	filenameBase = currentDirectory;
+	filename.prepend( extra.mid( 1 ) + extra[0] );
+    }
     if ( !filenameBase.isEmpty() &&
 	 currentDirectory != filenameBase ) {
 	if ( currentDirectory.length() )
@@ -94,7 +104,7 @@ void warning( int level, const Location& loc, const char *message, ... )
     va_list ap;
 
     va_start( ap, message );
-    fprintf( stderr, "%s:%d: ", loc.shortFilePath().latin1(), loc.lineNum() );
+    fprintf( stderr, "%s:%d: ", filename.latin1(), loc.lineNum() );
     vfprintf( stderr, message, ap );
     fprintf( stderr, "\n" );
     va_end( ap );
@@ -135,17 +145,15 @@ void warnAboutOmitted()
     int omitted = 0;
     if ( msgMap ) {
 	int types = 0;
-	int total = 0;
 	QMap<QString, int>::ConstIterator it = msgMap->begin();
 	while( it != msgMap->end() ) {
-	    total += it.data();
 	    types++;
 	    if ( it.data() > maxSame )
 		omitted++;
 	    ++it;
 	}
 	fprintf( stderr, "qdoc warning: gave %d warning%s of %d type%s\n",
-		 total, total == 1 ? "" : "s",
+		 numAll - numOmitted, (numAll - numOmitted) == 1 ? "" : "s",
 		 types, types == 1 ? "" : "s" );
     }
     if ( numOmitted > 0 )
