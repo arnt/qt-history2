@@ -38,13 +38,13 @@
 
 \title Qt Template library
 
-Thq Qt Template Library is a set of templates within Qt dealing with
+The Qt Template Library is a set of templates within Qt dealing with
 containers of objects.  It provides a list of objects, a stack of
 objects, a map (or dictionary) from one type to another, and
 associated iterators and algorithms.
 
 Qt also contains similar classes that deal with pointers to objects;
-\l QValueList vs. \l QList, etc.  Compared to the pointer-based
+QValueList vs. QList, etc.  Compared to the pointer-based
 templates, the QTL offers easy copying of the container, real support
 for classes that e.g. require constructors, expand to much more object
 code, can often be a bit faster, require that the objects stored can
