@@ -246,10 +246,10 @@ bool QKernelApplication::notify( QObject *receiver, QEvent *e )
 	       "QKernelApplication::sendEvent",
 	       QString("Cannot send events to objects owned by a different thread (%1).  "
 		       "Receiver '%2' (of type '%3') was created in thread %4")
-	       .arg(QString::number(QThread::currentThread(), 16))
+	       .arg(QString::number((ulong) QThread::currentThread(), 16))
 	       .arg(receiver->objectName())
 	       .arg(receiver->className())
-	       .arg(QString::number(receiver->thread(), 16)));
+	       .arg(QString::number((ulong) receiver->thread(), 16)));
 #endif
 
 #ifndef QT_NO_COMPAT
