@@ -72,7 +72,7 @@ void View::setInitialInput(IProperty *initialInput)
     setSelectionBehavior(QTreeView::SelectRows);
     setRootIsDecorated(true);
 
-    setEditTriggers(QAbstractItemView::CurrentChanged);
+    setEditTriggers(QAbstractItemView::CurrentChanged|QAbstractItemView::SelectedClicked);
     setRoot(m_model->indexOf(initialInput));
 
     int rc = m_model->rowCount(root());
