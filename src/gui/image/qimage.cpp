@@ -4134,128 +4134,212 @@ struct Qargb {
     uint b;
 };
 
-static QImage shearX(const QImage &image, double scale, double shear)
+static void scaleX(QImage *image, int height, int iwidth, int owidth)
 {
-    qDebug("---> shearX: scale=%f, shear=%f", scale, shear);
-    QImage result(qRound(image.width()*scale + QABS(shear*image.height())), image.height(), 32);
+    qDebug("scaleX: height=%d, iwidth=%d, owidth=%d", height, iwidth, owidth);
+    if (iwidth == owidth)
+        return;
 
-    if (result.isNull())
-        return result;
+    Q_ASSERT(image->width() >= qMax(iwidth, owidth));
+    Q_ASSERT(height <= image->height());
 
-    result.setAlphaBuffer(true);
-    result.fill(0);
-
-    const int height = image.height();
-    int width = image.width();
-
-    const uchar * const *ibits = image.jumpTable();
-    uchar **obits = result.jumpTable();
-
-    if (scale != 1.) {
-        qDebug("trying to scale");
-        int owidth = qRound(image.width()*scale);
-        uint p0 = owidth;
-        while (p0 >= 1024)
-            p0 /= 2;
-        uint q0 = width;
-        while (q0 >= 1024)
-            q0 /= 2;
-        const int area = p0*q0;
-
+    uchar **bits = image->jumpTable();
+    if (owidth > iwidth) {
         for (int y = 0; y < height; ++y) {
-            qDebug("y = %d", y);
-            const QRgb *iline = reinterpret_cast<const QRgb *>(ibits[y]);
-            QRgb *oline = reinterpret_cast<QRgb *>(obits[y]);
+            QRgb *line = reinterpret_cast<QRgb *>(bits[y]);
 
-            int p = p0; // owidth
-            int q = q0; // width
+            int p = owidth;
+            int q = iwidth;
+            Qargb argb;
+            int ix = iwidth - 1;
+            int ox = owidth - 1;
+            while (ox >= 0) {
+                if (p > q) {
+                    if (q)
+                        argb += Qargb(line[ix], q);
+                    line[ox] = argb.toPixel(iwidth);
+                    argb = Qargb();
+                    --ox;
+                    p -= q;
+                    q = iwidth;
+                } else {
+                    argb += Qargb(line[ix], p);
+                    q -= p;
+                    p = owidth;
+                    --ix;
+                }
+            }
+        }
+    } else {
+        const uint bytes = (iwidth - owidth)*sizeof(QRgb);
+        for (int y = 0; y < height; ++y) {
+            QRgb *line = reinterpret_cast<QRgb *>(bits[y]);
+
+            int p = owidth;
+            int q = iwidth;
             Qargb argb;
             int ix = 0;
             int ox = 0;
             while (ox < owidth) {
-                Qargb pargb(iline[ix], p);
                 if (p > q) {
-                    argb += pargb * q;
-                    oline[ox] = argb.toPixel(area);
+                    if (q)
+                        argb += Qargb(line[ix], q);
+                    line[ox] = argb.toPixel(iwidth);
                     argb = Qargb();
                     ++ox;
                     p -= q;
-                    q = q0;
+                    q = iwidth;
                 } else {
-                    argb += pargb * p;
+                    argb += Qargb(line[ix], p);
                     q -= p;
-                    p = p0;
+                    p = owidth;
                     ++ix;
                 }
             }
-        }
-        width = owidth;
-        ibits = obits;
-    }
-
-    {
-        const double skewoffset = shear < 0 ? -shear*(height-1) : 0;
-
-        for (int y = 0; y < height; ++y) {
-            const double skew = shear*y + skewoffset;
-            int skewi = (int(skew*256.));
-            int fraction = 0x100 - skewi & 0xff;
-            skewi >>= 8;
-            const QRgb *iline = reinterpret_cast<const QRgb *>(ibits[y]);
-            QRgb *oline = reinterpret_cast<QRgb *>(obits[y]);
-
-            uint lastPixel = 0;
-            for (int x = width - 1; x >= 0; --x) {
-                QRgb pixel = iline[x];
-                QRgb next = pixel;
-                next = //next & 0x00ffffff + ((fraction*qAlpha(next))>>8 <<24);
-                    qRgba(
-                        (fraction * qRed(pixel)) >> 8, (fraction * qGreen(pixel)) >> 8,
-                        (fraction * qBlue(pixel)) >> 8, fraction * qAlpha(pixel) >> 8);
-
-                oline[x+skewi] = pixel - next + lastPixel;
-                lastPixel = next;
-            }
+            memset(line + owidth, 0, bytes);
         }
     }
-    return result;
 }
 
-static QImage shearY(const QImage &image, double scale, double shear)
+static void scaleY(QImage *image, int width, int iheight, int oheight)
 {
-    qDebug("---> shearY: scale=%f, shear=%f", scale, shear);
-    QImage result(image.width(), qRound(image.height()*scale + QABS(shear*image.width())), 32);
-    if (result.isNull())
-        return result;
-    result.setAlphaBuffer(true);
-    result.fill(0);
+    qDebug("scaleY: width=%d, iheight=%d, oheight=%d", width, iheight, oheight);
+    if (iheight == oheight)
+        return;
 
-    int height = image.height();
-    int width = image.width();
-    double skewoffset = shear < 0 ? -shear*(width-1) : 0;
+    Q_ASSERT(image->height() >= qMax(iheight, oheight));
+    Q_ASSERT(width <= image->width());
 
-    const QRgb *const *obits = reinterpret_cast<const QRgb * const *>(image.jumpTable());
-    QRgb **rbits = reinterpret_cast<QRgb **>(result.jumpTable());
-    for (int x = 0; x < width; ++x) {
-        const double skew = shear*x + skewoffset;
+    QRgb **bits = reinterpret_cast<QRgb **>(image->jumpTable());
+    if (oheight > iheight) {
+        for (int x = 0; x < width; ++x) {
+            int p = oheight;
+            int q = iheight;
+            Qargb argb;
+            int iy = iheight - 1;
+            int oy = oheight - 1;
+            while (oy >= 0) {
+                if (p > q) {
+                    if (q)
+                        argb += Qargb(bits[iy][x], q);
+                    bits[oy][x] = argb.toPixel(iheight);
+                    argb = Qargb();
+                    --oy;
+                    p -= q;
+                    q = iheight;
+                } else {
+                    argb += Qargb(bits[iy][x], p);
+                    q -= p;
+                    p = oheight;
+                    --iy;
+                }
+            }
+        }
+    } else {
+        for (int x = 0; x < width; ++x) {
+            int p = oheight;
+            int q = iheight;
+            Qargb argb;
+            int iy = 0;
+            int oy = 0;
+            while (oy < oheight) {
+                if (p > q) {
+                    if (q)
+                        argb += Qargb(bits[iy][x], q);
+                    bits[oy][x] = argb.toPixel(iheight);
+                    argb = Qargb();
+                    ++oy;
+                    p -= q;
+                    q = iheight;
+                } else {
+                    argb += Qargb(bits[iy][x], p);
+                    q -= p;
+                    p = oheight;
+                    ++iy;
+                }
+            }
+            for (; oy < oheight; ++oy)
+                bits[oy][x] = 0;
+        }
+    }
+}
+
+
+static void shearX(QImage *image, int height, int iwidth, double shear)
+{
+    qDebug("shearX: height=%d, iwidth=%d, shear=%f", height, iwidth, shear);
+    if (shear == 0)
+        return;
+
+    Q_ASSERT(image->width() >= iwidth + qRound(QABS(shear*(height-1))));
+    Q_ASSERT(height <= image->height());
+
+    const double skewoffset = shear < 0 ? -shear*(height-1) : 0;
+
+    uchar **bits = image->jumpTable();
+    for (int y = 0; y < height; ++y) {
+        const double skew = shear*y + skewoffset;
         int skewi = (int(skew*256.));
-        int fraction = skewi & 0xff;
+        int fraction = 0xff - skewi & 0xff;
         skewi >>= 8;
-//         qDebug("x=%d, skew=%f, skewi=%d, fraction=%d", x, skew, skewi, fraction);
+        QRgb *line = reinterpret_cast<QRgb *>(bits[y]);
 
         uint lastPixel = 0;
-        for (int y = 0; y < height; ++y) {
-            QRgb pixel = obits[y][x];
+        for (int x = iwidth - 1; x >= 0; --x) {
+            QRgb pixel = line[x];
             QRgb next = pixel;
-            next = //next & 0x00ffffff + ((fraction*qAlpha(next))>>8 <<24
+            next = //next & 0x00ffffff + ((fraction*qAlpha(next))>>8 <<24);
                 qRgba(
                     (fraction * qRed(pixel)) >> 8, (fraction * qGreen(pixel)) >> 8,
                     (fraction * qBlue(pixel)) >> 8, fraction * qAlpha(pixel) >> 8);
-            rbits[y+skewi][x] = pixel - next + lastPixel;
+
+            line[x+skewi] = pixel - next + lastPixel;
             lastPixel = next;
         }
+        if (skewi > 0) {
+            line[skewi - 1] = lastPixel;
+            if (skewi > 1)
+                memset(line, 0, (skewi-1)*sizeof(QRgb));
+        }
     }
-    return result;
+}
+
+
+static void shearY(QImage *image, int width, int iheight, double shear)
+{
+    qDebug("shearX: width=%d, iheight=%d, shear=%f", width, iheight, shear);
+    if (shear == 0)
+        return;
+
+    Q_ASSERT(image->height() >= iheight + qRound(QABS(shear*(width-1))));
+    Q_ASSERT(width <= image->width());
+
+    const double skewoffset = shear < 0 ? -shear*(width-1) : 0;
+
+    QRgb **bits = reinterpret_cast<QRgb **>(image->jumpTable());
+    for (int x = 0; x < width; ++x) {
+        const double skew = shear*x + skewoffset;
+        int skewi = (int(skew*256.));
+        int fraction = 0xff - skewi & 0xff;
+        skewi >>= 8;
+        uint lastPixel = 0;
+        for (int y = iheight - 1; y >= 0; --y) {
+            QRgb pixel = bits[y][x];
+            QRgb next = pixel;
+            next = //next & 0x00ffffff + ((fraction*qAlpha(next))>>8 <<24);
+                qRgba(
+                    (fraction * qRed(pixel)) >> 8, (fraction * qGreen(pixel)) >> 8,
+                    (fraction * qBlue(pixel)) >> 8, fraction * qAlpha(pixel) >> 8);
+
+            bits[y+skewi][x] = pixel - next + lastPixel;
+            lastPixel = next;
+        }
+        if (skewi > 0) {
+            bits[skewi - 1][x] = lastPixel;
+            while (skewi > 1)
+                bits[--skewi][x] = 0;
+        }
+    }
 }
 
 
@@ -4342,18 +4426,21 @@ QImage QImage::smoothXForm(const QMatrix &matrix) const
     // #### optimise and don't do a deep copy if !rotate && !mirror.
 
     bool swapAxes = rotate & 0x1;
-    QImage rotated(swapAxes ? data->h : data->w, swapAxes ? data->w : data->h, depth());
-    rotated.setAlphaBuffer(hasAlphaBuffer());
-    rotated.fill(0);
+    QImage result(swapAxes ? data->h : data->w, swapAxes ? data->w : data->h, depth());
+    result.setAlphaBuffer(hasAlphaBuffer());
 
     QMatrix mat;
     switch(rotate) {
     case 0:
         if (!mirror) {
-            memcpy(rotated.bits(), bits(), data->nbytes);
+            const uchar * const *slines = jumpTable();
+            uchar **dlines = result.jumpTable();
+            const int bpl = data->nbytes/data->h;
+            for (int i = 0; i < data->h; ++i)
+                memcpy(dlines[i], slines[i], bpl);
         } else {
             const uchar * const *slines = jumpTable() + data->h - 1;
-            uchar **dlines = rotated.jumpTable();
+            uchar **dlines = result.jumpTable();
             const int bpl = data->nbytes/data->h;
             for (int i = data->h; i > 0; --i) {
                 memcpy(*dlines, *slines, bpl);
@@ -4365,7 +4452,7 @@ QImage QImage::smoothXForm(const QMatrix &matrix) const
         break;
     case 1: {
         const uchar * const * slines = data->bits;
-        uchar **dlines = rotated.data->bits;
+        uchar **dlines = result.data->bits;
         int dlinesi = 1;
         if (mirror) {
             dlines += data->w - 1;
@@ -4393,7 +4480,7 @@ QImage QImage::smoothXForm(const QMatrix &matrix) const
         }
         for (int sy = 0; sy < data->h; sy++, dy += dyi) {
             const Q_UINT32* sl = (Q_UINT32*)(data->bits[sy]);
-            Q_UINT32* dl = (Q_UINT32*)(rotated.data->bits[dy]) + data->w - 1;
+            Q_UINT32* dl = (Q_UINT32*)(result.data->bits[dy]) + data->w - 1;
             for (int sx = 0; sx < data->w; sx++) {
                 *dl = *sl;
                 ++sl;
@@ -4405,7 +4492,7 @@ QImage QImage::smoothXForm(const QMatrix &matrix) const
     }
     case 3: {
         const uchar * const * slines = data->bits;
-        uchar **dlines = rotated.data->bits;
+        uchar **dlines = result.data->bits;
         int dlinesi = 1;
         if (!mirror) {
             dlines += data->w - 1;
@@ -4435,11 +4522,40 @@ QImage QImage::smoothXForm(const QMatrix &matrix) const
     Q_ASSERT(mat.det() > 0);
 
 
-    QImage result = rotated.smoothScale(rotated.width(), qRound(rotated.height()*mat.m22()));
-    mat = QMatrix(mat.m11(), mat.m12(), mat.m21()/mat.m22(), 1., 0., 0.);
+    double scale_x = mat.m11();
+    double scale_y = mat.m22() - mat.m12()*mat.m21()/mat.m11();
+    double shear_y = mat.m12()/scale_x;
+    double shear_x = mat.m21()/scale_y;
 
-    result = shearX(result, mat.m11(), mat.m12());
-    result = shearY(result, 1., mat.m21());
+    qDebug("scale_x=%f,scale_y=%f, shear_x=%f, shear_y=%f", scale_x,scale_y,shear_x,shear_y);
 
-    return result;
+    int iwidth = result.width();
+    int owidth = qRound(iwidth*scale_x);
+
+    int iheight = result.height();
+    int oheight = qRound(iheight*scale_y);
+
+    QSize s = result.size();
+    s = s.expandedTo(QSize(owidth, oheight));
+    int sheared_width = owidth + QABS(qRound(shear_x*oheight));
+    int sheared_height = oheight + QABS(qRound(shear_y*sheared_width));
+    s = s.expandedTo(QSize(sheared_width, sheared_height));
+    QImage result2(s, 32);
+    qDebug("result2: width %d height %d", result2.width(), result2.height());
+    for (int y = 0; y < result.height(); ++y)
+        memcpy(result2.jumpTable()[y], result.jumpTable()[y], result.bytesPerLine());
+
+    scaleX(&result2, result.height(), iwidth, owidth);
+    scaleY(&result2, owidth, iheight, oheight);
+    shearX(&result2, oheight, owidth, shear_x);
+    shearY(&result2, sheared_width, oheight, shear_y);
+
+    QImage final(qRound(QABS(v1x*data->w) + QABS(v2x*data->h)),
+                 qRound(QABS(v1y*data->w) + QABS(v2y*data->h)), 32);
+    final.setAlphaBuffer(true);
+    int yoff = (result2.height() - final.height())/2;
+    for (int y = 0; y < final.height(); ++y)
+        memcpy(final.jumpTable()[y], result2.jumpTable()[y+yoff], final.bytesPerLine());
+
+    return final;
 }
