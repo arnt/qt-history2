@@ -581,8 +581,8 @@ bool QWidgetPrivate::qt_create_root_win() {
     Rect r;
     int w = 0, h = 0;
     for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g)) {
-        w = QMAX(w, (*g)->gdRect.right);
-        h = QMAX(h, (*g)->gdRect.bottom);
+        w = qMax(w, (*g)->gdRect.right);
+        h = qMax(h, (*g)->gdRect.bottom);
     }
     SetRect(&r, 0, 0, w, h);
     qt_mac_create_window(kOverlayWindowClass, kWindowNoAttributes, &r, &qt_root_win);

@@ -2195,7 +2195,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                         c = QTextCodec::codecForName("Apple Roman");
                     accel_str = c->toUnicode(&chr, 1);
                 }
-                QKeyEvent accel_ev(QEvent::AccelOverride, mychar, modifiers,
+                QKeyEvent accel_ev(QEvent::ShortcutOverride, mychar, modifiers,
                                    accel_str, ekind == kEventRawKeyRepeat,
                                    qMax(1, accel_str.length()));
                 if(static_cast<QApplicationPrivate*>(qApp->d_ptr)->qt_tryAccelEvent(widget, &accel_ev)) {

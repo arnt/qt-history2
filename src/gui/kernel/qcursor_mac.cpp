@@ -371,7 +371,7 @@ void QCursor::update() const
         break; }
     case Qt::SplitVCursor: {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-        if(qMacVersion() >= Qt::MV_PANTHER) {
+        if(qMacVersion() >= QSysInfo::MV_PANTHER) {
             d->type = QCursorData::TYPE_ThemeCursor;
             d->curs.tc.curs = kThemeResizeUpDownCursor;
             break;
@@ -423,7 +423,7 @@ void QCursor::update() const
         break; }
     case Qt::SplitHCursor: {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-        if(qMacVersion() >= Qt::MV_PANTHER) {
+        if(qMacVersion() >= QSysInfo::MV_PANTHER) {
             d->type = QCursorData::TYPE_ThemeCursor;
             d->curs.tc.curs = kThemeResizeLeftRightCursor;
             break;

@@ -709,7 +709,8 @@ QList<QByteArray> QMacMimeFileUri::convertFromMime(QByteArray data, const char* 
         buffer[len++] = data[i];
     }
     if(!qstrncmp(buffer, "file:///", 8)) { //Mac likes localhost to be in it!
-        QByteArray ar(len + 9);
+        QByteArray ar;
+        ar.resize(len + 9);
         memcpy(ar.data(), buffer, 7);
         memcpy(ar.data()+7, "localhost", 9);
         memcpy(ar.data()+16, buffer + 7, len - 7);
