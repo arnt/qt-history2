@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#197 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#198 $
 **
 ** Implementation of QListView widget class
 **
@@ -36,6 +36,8 @@
 #include "qdatetime.h"
 #include "qptrdict.h"
 #include "qvector.h"
+
+#include "qpixmapcache.h"
 
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
@@ -700,6 +702,9 @@ void QListViewItem::sortChildItems( int column, bool ascending )
   Note that e.g. a font change causes this height to be overwritten
   unless you reimplement setup().
 
+  For best results in Windows style, we suggest using an even number
+  of pixels.
+
   \sa ownHeight() totalHeight() isOpen();
 */
 
@@ -793,7 +798,8 @@ void QListViewItem::setup()
     widthChanged();
     QListView * v = listView();
     int h = v->d->fontMetricsHeight + 2*v->itemMargin();
-    // ### add one here?  conditionally?  debug( "h %d", h );
+    if ( h % 2 > 0 )
+	h++;
     setHeight( h );
 }
 
@@ -1219,13 +1225,12 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	    // dotlinery
 	    dotlines[c++] = QPoint( bx, linetop );
 	    dotlines[c++] = QPoint( bx, linebot - 5 );
-	    dotlines[c++] = QPoint( bx + 6, linebot );
+	    dotlines[c++] = QPoint( bx + 5, linebot );
 	    dotlines[c++] = QPoint( w, linebot );
-	    linebot += 6;
-	    linetop = linebot;
+	    linetop = linebot + 5;
 	} else {
 	    // just dotlinery
-	    dotlines[c++] = QPoint( bx + 2, linebot ); // ### +2? +1?
+	    dotlines[c++] = QPoint( bx+1, linebot );
 	    dotlines[c++] = QPoint( w, linebot );
 	}
 
@@ -1253,7 +1258,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	    p.begin( verticalLine );
 	    int i;
 	    for( i=0; i<64; i++ )
-		a.setPoint( i, 0, i*2 );
+		a.setPoint( i, 0, i*2+1 );
 	    p.setPen( color1 );
 	    p.drawPoints( a );
 	    p.end();
@@ -1261,7 +1266,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	    verticalLine->setMask( *verticalLine );
 	    p.begin( horizontalLine );
 	    for( i=0; i<64; i++ )
-		a.setPoint( i, i*2, 0 );
+		a.setPoint( i, i*2+1, 0 );
 	    p.setPen( color1 );
 	    p.drawPoints( a );
 	    p.end();
@@ -1661,7 +1666,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		p->restore();
 	    }
 	}
-	
+
 	// does current need focus indication?
 	if ( current->i == d->focusItem && hasFocus() &&
 	     d->allColumnsShowFocus ) {
