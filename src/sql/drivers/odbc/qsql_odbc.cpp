@@ -328,7 +328,7 @@ QByteArray qGetBinaryData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndica
 
 int qGetIntData( SQLHANDLE hStmt, int column, bool& isNull  )
 {
-    SQLINTEGER intbuf;
+    SQLINTEGER intbuf = 0;
     isNull = FALSE;
     SQLINTEGER lengthIndicator = 0;
     SQLRETURN r = SQLGetData( hStmt,
