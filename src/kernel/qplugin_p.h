@@ -4,34 +4,83 @@
 #ifdef _OS_WIN32_
 // Windows
 #   include <qt_windows.h>
-#   define QT_LOAD_LIBRARY( x ) LoadLibrary( x )
-#   define QT_FREE_LIBRARY( x ) FreeLibrary( x )
-#   define QT_RESOLVE_SYMBOL( x ) GetProcAddress( x )
-#elif defined(_OS_LINUX_) ||defined (_OS_FREEBSD_) || defined(_OS_OPENBSD_) || defined(_OS_NETBSD_)
-// Linux
-// FreeBSD and OpenBSD
-#   include <dlfcn.h>
-#   define QT_LOAD_LIBRARY( x ) dlopen( x )
-#   define QT_FREE_LIBRARY( x ) dlclose( x )
-#   define QT_RESOLVE_SYMBOL( x ) dlsym( x )
-#elif defined(_OS_OSF_)
-// Digital UNIX
-#   error "Tell qt-bugs@trolltech.com what's the header file!"
-#elif defined(_OS_AIX_)
-// AIX
-#   error "Tell qt-bugs@trolltech.com what's the header file!"
+#   include "qapplication_p.h"
+
+HINSTANCE qt_load_library( const QString& lib )
+{
+    if ( qt_winver & Qt::WV_NT_based )
+	return LoadLibraryW( (TCHAR*)qt_winTchar(lib, TRUE) );
+    return LoadLibraryA( (const char*)lib.local8Bit() );
+}
+
+bool qt_free_library( HINSTANCE handle )
+{
+    return FreeLibrary( handle );
+}
+
+void* qt_resolve_symbol( HINSTANCE handle, const char* f )
+{
+    return GetProcAddress( handle, f );
+}
+
 #elif defined(_OS_HPUX_)
-// HP/UX
-#   error "Tell qt-bugs@trolltech.com what's the header file!"
-#elif defined(_OS_SOLARIS_) || defined(_OS_SUN_)
-// Solaris
-#   error "Tell qt-bugs@trolltech.com what's the header file!"
-#elif defined(_OS_IRIX_)
-// Irix
-#   error "Tell qt-bugs@trolltech.com what's the header file!"
+// for HP-UX < 11.x and 32 bit
+#   include <dl.h>
+
+void* qt_load_library( const QString& lib )
+{
+    shl_load( lib, BIND_IMMEDIATE | BIND_NONFATAL | DYNAMIC_PATH, 0 );
+}
+
+bool qt_free_library( void* handle )
+{
+    return shl_unload( x );
+}
+
+void* qt_resolve_symbol( const QString& symbol, void* handle )
+{
+    void* address;
+    if ( !shl_findsym( symbol, handle, TYPE_UNDFINED, address ) )
+	return 0;
+    return address;
+}
+
 #elif defined(_OS_MAC_)
+// Mac
+void* qt_load_library( const QString& lib )
+{
+    qWarning( "Tell vohi@trolltech.com what dl-loader implementation to use!" );
+    return 0;
+}
+
+bool qt_free_library( void* handle )
+{
+    return FALSE;
+}
+
+void* qt_resolve_symbol( void* handle, const char* f )
+{
+    return 0;
+}
+
 #else
-#   error "Plugin support has not been implemented for this OS - talk to qt-bugs@trolltech.com"
+// Something else, assuming POSIX
+#   include <dlfcn.h>
+
+void* qt_load_library( const QString& lib )
+{
+    return dlopen( lib );
+}
+
+bool qt_free_library( void* handle )
+{
+    return dlclose( handle );
+}
+
+void* qt_resolve_symbol( void* handle, const char* f )
+{
+    return dlsym( h, f );
+}
 #endif
 
 #endif //QPLUGIN_P_H

@@ -192,11 +192,8 @@ bool QPlugIn::load()
 	return FALSE;
 
     if ( !pHnd ) {
-#if defined(_WS_WIN_)
-	pHnd = LoadLibraryA( libfile );  //### use LoadLibrary for NT_based systems
-#elif defined(_WS_X11_)
-	pHnd = dlopen( libfile, RTLD_NOW );
-#endif
+	pHnd = qt_load_library( libfile );
+
 	if ( !pHnd )
 	    return FALSE;
     }
@@ -232,11 +229,8 @@ bool QPlugIn::unload( bool force )
 	    delete ifc;
 	    ifc = 0;
 
-#if defined(_WS_WIN_)
-	    FreeLibrary( pHnd );
-#elif defined(_WS_X11_)
-	    dlclose( pHnd );
-#endif	
+	    if ( !qt_free_library( pHnd ) )
+		return FALSE;
 	}
     }
     pHnd = 0;
@@ -317,11 +311,8 @@ bool QPlugIn::loadInterface()
     }
 
     LoadInterfaceProc proc;
-#ifdef _WS_WIN_
-    proc = (LoadInterfaceProc) GetProcAddress( pHnd, function );
-#else
-    proc = (LoadInterfaceProc) dlsym( pHnd, function );
-#endif
+    proc = (LoadInterfaceProc) qt_resolve_symbol( pHnd, function );
+
     if ( !proc )
 	return FALSE;
     ifc = proc();
