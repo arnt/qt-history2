@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#162 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#163 $
 **
 ** Implementation of QListView widget class
 **
@@ -1896,7 +1896,11 @@ QListView::WidthMode QListView::columnWidthMode( int c ) const
 
 
 /*!
+  Configures the logical columne \a column to have alignment \a align.
+  The alignment is ultimately passed to QListViewItem::paintCell()
+  for each item in the view.
 
+  The display is automatically scheduled to be updated.
 */
 
 void QListView::setColumnAlignment( int column, int align )
@@ -1920,7 +1924,7 @@ void QListView::setColumnAlignment( int column, int align )
 
 
 /*!
-
+  Returns the alignment of logical column \a column.
 */
 
 int QListView::columnAlignment( int column ) const
