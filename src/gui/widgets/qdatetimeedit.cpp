@@ -529,6 +529,11 @@ bool QDateTimeEdit::setFormat(const QString &format)
     if (d->parseFormat(format)) {
         d->sizehintdirty = true;
 	d->update();
+	if ((d->sections.front().pos == 0 && d->sections.front().section != QDateTimeEditPrivate::NoSection)
+	    || d->sections.front().pos > 0)
+	    d->currentsection = QDateTimeEditPrivate::FirstSection;
+	else
+	    d->sections.front().section;
         d->edit->setCursorPosition(0);
 	return true;
     }
