@@ -1,8 +1,6 @@
-
-#include "qapplication.h"
-
 #ifndef QT_NO_PLUGIN
 #include "qapplicationinterface.h"
+#include "qapplication.h"
 #include "qplugin.h"
 #include "qplugin_p.h"
 
