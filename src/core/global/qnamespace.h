@@ -82,7 +82,7 @@ public:
         XButton2         = 0x00000010,
         MouseButtonMask  = 0x000000ff
     };
-    Q_DECLARE_FLAGS(MouseButtons, MouseButton);
+    Q_DECLARE_FLAGS(MouseButtons, MouseButton)
 
 #if defined(QT_COMPAT)
     enum {
@@ -1182,12 +1182,12 @@ public:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::MouseButtons)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::KeyboardModifiers)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WState);
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WFlags);
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WState)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Alignment)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ImageConversionFlags)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DockWindowAreas);
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ToolBarAreas);
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DockWindowAreas)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ToolBarAreas)
 
 class Q_CORE_EXPORT QInternal {
 public:
