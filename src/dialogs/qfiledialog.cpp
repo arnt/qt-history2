@@ -3435,7 +3435,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     // hm... isn't that problem exactly the documented behaviour? the
     // documented behaviour sounds meaningful.
     if ( !startWith.isEmpty() ) {
-	QUrlOperator u( startWith );
+	QUrlOperator u( QFileDialogPrivate::encodeFileName( startWith ) );
 	if ( u.isLocalFile() && QFileInfo( u.path() ).isDir() ) {
 	    *workingDirectory = startWith;
 	} else {
@@ -3553,7 +3553,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
     makeVariables();
     QString initialSelection;
     if ( !startWith.isEmpty() ) {
-	QUrlOperator u( startWith );
+	QUrlOperator u( QFileDialogPrivate::encodeFileName( startWith ) );
 	if ( u.isLocalFile() && QFileInfo( u.path() ).isDir() ) {
 	    *workingDirectory = startWith;
 	} else {
