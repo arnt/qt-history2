@@ -72,7 +72,7 @@ int QPaintDevice::fontInf(QFont *, int) const
 
 void bitBlt(QPaintDevice *dst, int dx, int dy,
             const QPaintDevice *src, int sx, int sy, int sw, int sh,
-            Qt::RasterOp rop, bool imask)
+            bool imask)
 {
     if(dst->devType() == QInternal::Pixmap && src->devType() == QInternal::Widget) {
         *((QPixmap*)dst) = QPixmap::grabWidget((QWidget*)src, sx, sy, sw, sh);
@@ -80,11 +80,9 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
               (dst->devType() == QInternal::Widget || dst->devType() == QInternal::Printer)) {
         QPixmap pm = QPixmap::grabWidget((QWidget*)src, sx, sy, sw, sh);
         QPainter p(dst);
-        p.setRasterOp(rop);
         p.drawPixmap(dx, dy, sw, sh, pm);
     } else if(src->devType() == QInternal::Pixmap) {
         QPainter p(dst);
-        p.setRasterOp(rop);
         p.drawPixmap(QRect(dx, dy, sw, sh), *((QPixmap*)src), QRect(sx, sy, sw, sh), imask);
     } else {
         qWarning("bitBlt: Cannot bitBlt from/to device!");

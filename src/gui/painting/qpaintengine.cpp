@@ -68,8 +68,6 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
             updateBrush(s->brush, s->bgOrigin);
         if (testDirty(DirtyFont))
             updateFont(s->font);
-        if (testDirty(DirtyRasterOp))
-            updateRasterOp(s->rasterOp);
         if (testDirty(DirtyBackground))
             updateBackground(s->bgMode, s->bgBrush);
         if (testDirty(DirtyTransform))
@@ -85,8 +83,6 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
             updateBrush(s->brush, s->bgOrigin);
         if ((changeFlag&DirtyFont)!=0)
             updateFont(s->font);
-        if ((changeFlag&DirtyRasterOp)!=0)
-            updateRasterOp(s->rasterOp);
         if ((changeFlag&DirtyBackground)!=0)
             updateBackground(s->bgMode, s->bgBrush);
         if ((changeFlag&DirtyTransform)!=0)
@@ -100,7 +96,6 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
         updatePen(s->pen);
         updateBrush(s->brush, s->bgOrigin);
         updateFont(s->font);
-        updateRasterOp(s->rasterOp);
         updateBackground(s->bgMode, s->bgBrush);
         updateXForm(s->matrix);
         updateClipRegion(s->clipRegion, s->clipEnabled);
@@ -186,7 +181,6 @@ void QWrapperPaintEngine::updatePen(const QPen &pen) { wrap->updatePen(pen); }
 void QWrapperPaintEngine::updateBrush(const QBrush &brush, const QPoint &pt)
 { wrap->updateBrush(brush, pt); }
 void QWrapperPaintEngine::updateFont(const QFont &font) { wrap->updateFont(font); }
-void QWrapperPaintEngine::updateRasterOp(Qt::RasterOp rop) { wrap->updateRasterOp(rop); }
 void QWrapperPaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
 { wrap->updateBackground(bgMode, bgBrush); }
 void QWrapperPaintEngine::updateXForm(const QWMatrix &matrix) { wrap->updateXForm(matrix); }

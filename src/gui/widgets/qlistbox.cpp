@@ -4118,7 +4118,7 @@ void QListBox::drawRubber()
     if (!d->rubber->width() && !d->rubber->height())
         return;
     QPainter p(viewport());
-    p.setRasterOp(NotROP);
+    // p.setRasterOp(NotROP); // ### fix - use qrubberband instead
     style().drawPrimitive(QStyle::PE_RubberBand, &p, d->rubber->normalize(), palette());
     p.end();
 }

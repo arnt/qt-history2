@@ -235,7 +235,6 @@ void QDockWindowResizeHandle::startLineDraw()
 #endif
     unclippedPainter = new QPainter(paint_on, true);
     unclippedPainter->setPen(QPen(gray, orientation() == Horizontal ? height() : width()));
-    unclippedPainter->setRasterOp(XorROP);
 }
 
 void QDockWindowResizeHandle::endLineDraw()
@@ -1450,7 +1449,6 @@ void QDockWindow::startRectDraw(const QPoint &so, bool drawRect)
 #endif
     unclippedPainter = new QPainter(paint_on, true);
     unclippedPainter->setPen(QPen(gray, curPlace == OutsideDock ? 3 : 1));
-    unclippedPainter->setRasterOp(XorROP);
     currRect = QRect(realWidgetPos(this), size());
     if (drawRect) {
         QRect dr(currRect);

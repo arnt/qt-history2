@@ -232,44 +232,6 @@
 */
 
 /*!
-    \enum Qt::RasterOp
-
-    \keyword raster operation
-    \keyword raster op
-
-    This enum type is used to describe the way things are written to
-    the paint device. Each bit of the \e src (what you write)
-    interacts with the corresponding bit of the \e dst pixel.
-
-    \value CopyROP  dst = src
-    \value OrROP   dst = src OR dst
-    \value XorROP   dst = src XOR dst
-    \value NotAndROP  dst = (NOT src) AND dst
-    \value EraseROP  an alias for \c NotAndROP
-    \value NotCopyROP  dst = NOT src
-    \value NotOrROP  dst = (NOT src) OR dst
-    \value NotXorROP  dst = (NOT src) XOR dst
-    \value AndROP  dst = src AND dst
-    \value NotEraseROP  an alias for \c AndROP
-    \value NotROP  dst = NOT dst
-    \value ClearROP  dst = 0
-    \value SetROP  dst = 1
-    \value NopROP  dst = dst
-    \value AndNotROP  dst = src AND (NOT dst)
-    \value OrNotROP  dst = src OR (NOT dst)
-    \value NandROP  dst = NOT (src AND dst)
-    \value NorROP  dst = NOT (src OR dst)
-
-    By far the most useful ones are \c CopyROP and \c XorROP.
-
-    On Qt/Mac, only \c CopyROP, \c OrROP, \c XorROP, \c NotAndROP,
-    \c NotCopyROP, \c NotOrROP, \c NotXorROP, and \c AndROP are
-    supported.
-
-    On Qt/Embedded, only \c CopyROP, \c XorROP, and \c NotROP are supported.
-*/
-
-/*!
     \enum Qt::ConnectionType
 
     \internal

@@ -3309,9 +3309,9 @@ void QIconView::doAutoScroll()
     QRect r = *d->rubber;
     *d->rubber = oldRubber;
 
+    // ### fix this and use qrubberband instead
     QPainter p;
     p.begin(viewport());
-    p.setRasterOp(NotROP);
     p.setPen(QPen(color0, 1));
     p.setBrush(NoBrush);
     drawRubber(&p);
@@ -3330,7 +3330,6 @@ void QIconView::doAutoScroll()
     ensureVisible(pos.x(), pos.y());
 
     p.begin(viewport());
-    p.setRasterOp(NotROP);
     p.setPen(QPen(color0, 1));
     p.setBrush(NoBrush);
     drawRubber(&p);
@@ -4341,7 +4340,6 @@ void QIconView::contentsMousePressEventEx(QMouseEvent *e)
     if (d->rubber) {
         QPainter p;
         p.begin(viewport());
-        p.setRasterOp(NotROP);
         p.setPen(QPen(color0, 1));
         p.setBrush(NoBrush);
 
@@ -4536,7 +4534,6 @@ void QIconView::contentsMouseReleaseEvent(QMouseEvent *e)
     if (d->rubber) {
         QPainter p;
         p.begin(viewport());
-        p.setRasterOp(NotROP);
         p.setPen(QPen(color0, 1));
         p.setBrush(NoBrush);
 
@@ -5501,7 +5498,6 @@ void QIconView::drawDragShapes(const QPoint &pos)
     QPainter p;
     p.begin(viewport());
     p.translate(-contentsX(), -contentsY());
-    p.setRasterOp(NotROP);
     p.setPen(QPen(color0));
 
     if (d->isIconDrag) {

@@ -134,16 +134,6 @@ void QPicturePaintEngine::updateFont(const QFont &font)
     writeCmdLength(pos, QRect(), false);
 }
 
-void QPicturePaintEngine::updateRasterOp(Qt::RasterOp rop)
-{
-    pic_d->trecs++;
-    d->s << (Q_UINT8) PdcSetROP;
-    d->s << (Q_UINT8) 0;
-    int pos = pic_d->pictb.at();
-    d->s << (Q_INT8) rop;
-    writeCmdLength(pos, QRect(), false);
-}
-
 void QPicturePaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
 {
     int pos;

@@ -719,7 +719,7 @@ Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
     }
 
     // copy pixel data
-    bitBlt(dst, dx, dy, src, sx, sy, sw, sh, Qt::CopyROP, true);
+    bitBlt(dst, dx, dy, src, sx, sy, sw, sh, true);
 
     // copy mask data
     if (src->data->mask) {
@@ -731,7 +731,7 @@ Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
         }
 
         bitBlt(dst->data->mask, dx, dy,
-                src->data->mask, sx, sy, sw, sh, Qt::CopyROP, true);
+	       src->data->mask, sx, sy, sw, sh, true);
     }
 
 #ifdef QMAC_PIXMAP_ALPHA
@@ -762,7 +762,7 @@ Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
     }
 
     bitBlt(dst->data->alphapm, dx, dy,
-            src->data->alphapm, sx, sy, sw, sh, Qt::CopyROP, true);
+            src->data->alphapm, sx, sy, sw, sh, true);
 #endif // QMAC_PIXMAP_ALPHA
 }
 

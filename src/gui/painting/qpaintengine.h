@@ -68,7 +68,6 @@ public:
         DirtyBackground         = 0x0008,
         DirtyTransform          = 0x0010,
         DirtyClip               = 0x0020,
-        DirtyRasterOp           = 0x0040,
 
         AllDirty                = 0xffff
     };
@@ -85,7 +84,6 @@ public:
     virtual void updatePen(const QPen &pen) = 0;
     virtual void updateBrush(const QBrush &brush, const QPoint &origin) = 0;
     virtual void updateFont(const QFont &font) = 0;
-    virtual void updateRasterOp(Qt::RasterOp rop) = 0;
     virtual void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush) = 0;
     virtual void updateXForm(const QWMatrix &matrix) = 0;
     virtual void updateClipRegion(const QRegion &region, bool enabled) = 0;
@@ -222,7 +220,6 @@ public:
     void updatePen(const QPen &pen);
     void updateBrush(const QBrush &brush, const QPoint &brushOrigin);
     void updateFont(const QFont &font);
-    void updateRasterOp(Qt::RasterOp rop);
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     void updateXForm(const QWMatrix &matrix);
     void updateClipRegion(const QRegion &region, bool enabled);

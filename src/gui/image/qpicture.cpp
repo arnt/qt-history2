@@ -585,9 +585,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
                 s >> i_8;
                 painter->setBackgroundMode((Qt::BGMode)i_8);
                 break;
-            case PdcSetROP:
-                s >> i_8;
-                painter->setRasterOp((Qt::RasterOp)i_8);
+	    case PdcSetROP: // NOP
                 break;
             case PdcSetBrushOrigin:
                 s >> p;

@@ -18,7 +18,6 @@ public:
     QPainterState() {
         bgBrush = Qt::white;
         bgMode = QPainter::TransparentMode;
-        rasterOp = Qt::CopyROP;
         clipEnabled = false;
         WxF = false;
         VxF = false;
@@ -38,7 +37,6 @@ public:
         bgBrush = QBrush(s->bgBrush);
         clipRegion = QRegion(s->clipRegion);
         clipEnabled = s->clipEnabled;
-        rasterOp = s->rasterOp;
         bgMode = s->bgMode;
         VxF = s->VxF;
         WxF = s->WxF;
@@ -84,7 +82,6 @@ public:
     uint         WxF:1;                        // World transformation
     uint            VxF:1;                        // View transformation
 
-    Qt::RasterOp rasterOp;
     Qt::BGMode bgMode;
     QPainter *painter;
 };

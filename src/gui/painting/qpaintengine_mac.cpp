@@ -213,14 +213,6 @@ QQuickDrawPaintEngine::updateFont(const QFont &)
     updatePen(d->current.pen);
 }
 
-
-void
-QQuickDrawPaintEngine::updateRasterOp(Qt::RasterOp rop)
-{
-    Q_ASSERT(isActive());
-    d->current.rop = rop;
-}
-
 void
 QQuickDrawPaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 {
@@ -251,16 +243,6 @@ QQuickDrawPaintEngine::updateClipRegion(const QRegion &region, bool enable)
 {
     Q_ASSERT(isActive());
     setClippedRegionInternal(enable ? const_cast<QRegion *>(&region) : 0);
-}
-
-void QQuickDrawPaintEngine::setRasterOp(RasterOp r)
-{
-    Q_ASSERT(isActive());
-    if((uint)r > LastROP) {
-        qWarning("QQuickDrawPaintEngine::setRasterOp: Invalid ROP code");
-        return;
-    }
-    d->current.rop = r;
 }
 
 void
@@ -712,17 +694,6 @@ QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const Q
     }
 
     short copymode = srcCopy;
-    switch(d->current.rop) {
-    default:
-    case Qt::CopyROP:   copymode = srcCopy; break;
-    case Qt::OrROP:     copymode = notSrcBic; break;
-    case Qt::XorROP:    copymode = srcXor; break;
-    case Qt::NotAndROP: copymode = notSrcOr; break;
-    case Qt::NotCopyROP:copymode = notSrcCopy; break;
-    case Qt::NotOrROP:  copymode = srcBic; break;
-    case Qt::NotXorROP: copymode = notSrcXor; break;
-    case Qt::AndROP:    copymode = srcOr; break;
-    }
 
     Rect srcr;
     SetRect(&srcr, sr.x(), sr.y(), sr.x()+sr.width()+1, sr.y()+sr.height()+1);
@@ -798,14 +769,7 @@ QQuickDrawPaintEngine::setupQDPen()
     RGBBackColor(&b);
 
     //penmodes
-    //Throw away a desktop when you paint into it non copy mode (xor?) I do this because
-    //xor doesn't really work on an overlay widget FIXME
-    if(d->current.rop != CopyROP && d->pdev->devType() == QInternal::Widget && ((QWidget *)d->pdev)->isDesktop())
-        QWidgetPrivate::qt_recreate_root_win();
-    int penmode = ropCodes[d->current.rop];
-    PenMode(penmode);
-    if(penmode == subPin || penmode == addPin)
-        OpColor(&b);
+    PenMode(patCopy);
 }
 
 /*!
@@ -849,15 +813,7 @@ QQuickDrawPaintEngine::setupQDBrush()
     RGBBackColor(&b);
 
     //penmodes
-    //Throw away a desktop when you paint into it non copy mode (xor?) I do this because
-    //xor doesn't really work on an overlay widget FIXME
-    if(d->current.rop != CopyROP && d->pdev->devType() == QInternal::Widget && ((QWidget *)d->pdev)->isDesktop())
-        QWidgetPrivate::qt_recreate_root_win();
-
-    int penmode = ropCodes[d->current.rop];
-    PenMode(penmode);
-    if(penmode == subPin || penmode == addPin)
-        OpColor(&b);
+    PenMode(patCopy);
 }
 
 /*!
@@ -997,16 +953,6 @@ static void qt_mac_dispose_pattern(void *info)
     if(pat->image)
         CGImageRelease(pat->image);
     delete pat;
-}
-
-//just so I don't see a million of these
-static void qt_mac_cg_no_rasterop()
-{
-    static bool first = true;
-    if(first) {
-        qWarning("QCoreGraphics: Cannot support any raster ops other than Copy!");
-        first = false;
-    }
 }
 
 //gradiant callback
@@ -1255,15 +1201,6 @@ QCoreGraphicsPaintEngine::updateFont(const QFont &)
 }
 
 void
-QCoreGraphicsPaintEngine::updateRasterOp(Qt::RasterOp rop)
-{
-    Q_ASSERT(isActive());
-    d->current.rop = rop;
-    if(rop != CopyROP)
-        qt_mac_cg_no_rasterop();
-}
-
-void
 QCoreGraphicsPaintEngine::updateBackground(Qt::BGMode mode, const QBrush &brush)
 {
     Q_ASSERT(isActive());
@@ -1300,14 +1237,6 @@ QCoreGraphicsPaintEngine::updateClipRegion(const QRegion &clipRegion, bool clipE
     }
     if(clipEnabled || old_clipEnabled)
         setupCGClip(clipEnabled ? &clipRegion : 0);
-}
-
-void
-QCoreGraphicsPaintEngine::setRasterOp(RasterOp r)
-{
-    Q_ASSERT(isActive());
-    if(r != CopyROP)
-        qt_mac_cg_no_rasterop();
 }
 
 void

@@ -75,7 +75,7 @@ int QPaintDevice::fontInf(QFont *, int) const
 
 void bitBlt(QPaintDevice *dst, int dx, int dy,
              const QPaintDevice *src, int sx, int sy, int sw, int sh,
-             Qt::RasterOp rop, bool ignoreMask)
+             bool ignoreMask)
 {
     if (!src || !dst) {
         /*
@@ -123,11 +123,11 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
             if (sx != 0 || sy != 0 ||
                  sw != pm->width() || sh != pm->height() || ignoreMask) {
                 QPixmap *tmp = new QPixmap(sw, sh, pm->depth());
-                bitBlt(tmp, 0, 0, pm, sx, sy, sw, sh, Qt::CopyROP, true);
+                bitBlt(tmp, 0, 0, pm, sx, sy, sw, sh, true);
                 if (pm->mask() && !ignoreMask) {
                     QBitmap mask(sw, sh);
                     bitBlt(&mask, 0, 0, pm->mask(), sx, sy, sw, sh,
-                            Qt::CopyROP, true);
+                            true);
                     tmp->setMask(mask);
                 }
                 pm = tmp;
@@ -169,11 +169,6 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
         default:
             qWarning("bitBlt: Cannot bitBlt to device type %x", td);
             return;
-    }
-
-    if (rop > Qt::LastROP) {
-        qWarning("bitBlt: Invalid ROP code");
-        return;
     }
 
     bool mono_src;
@@ -250,7 +245,6 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
     }
     mygfx->setSource(src);
     mygfx->setAlphaType(QGfx::IgnoreAlpha);
-    mygfx->setRop(rop);
     if(mymask) {
         if(!(mymask->isNull())) {
             unsigned char * thebits=mymask->scanLine(0);

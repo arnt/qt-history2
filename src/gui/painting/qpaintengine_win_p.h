@@ -101,7 +101,6 @@ public:
         forceGdiplus(false),
         penAlphaColor(false),
         brushAlphaColor(false),
-        rasterOp(Qt::CopyROP),
         pStyle(Qt::SolidLine),
         pWidth(0),
         pColor(0),
@@ -135,7 +134,6 @@ public:
     uint penAlphaColor:1;       // Set if pen has alpha color
     uint brushAlphaColor:1;     // Set if brush has alpha color
 
-    Qt::RasterOp rasterOp;
     Qt::PenStyle pStyle;
     int pWidth;
     COLORREF pColor;

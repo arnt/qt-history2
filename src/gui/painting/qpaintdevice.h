@@ -104,7 +104,7 @@ protected:
 #if !defined(Q_WS_MAC)
     friend Q_GUI_EXPORT void bitBlt(QPaintDevice *, int, int,
                                      const QPaintDevice *,
-                                     int, int, int, int, Qt::RasterOp, bool);
+                                     int, int, int, int, bool);
 #endif
 #if defined(Q_WS_X11)
     friend void qt_init(QApplicationPrivate *, int, Display *, Qt::HANDLE, Qt::HANDLE);
@@ -152,7 +152,7 @@ public:
 Q_GUI_EXPORT
 void bitBlt(QPaintDevice *dst, int dx, int dy,
              const QPaintDevice *src, int sx=0, int sy=0, int sw=-1, int sh=-1,
-             Qt::RasterOp = Qt::CopyROP, bool ignoreMask=false);
+             bool ignoreMask=false);
 
 Q_GUI_EXPORT
 void bitBlt(QPaintDevice *dst, int dx, int dy,
@@ -175,9 +175,9 @@ inline bool QPaintDevice::paintingActive() const
 Q_GUI_EXPORT
 inline void bitBlt(QPaintDevice *dst, const QPoint &dp,
                     const QPaintDevice *src, const QRect &sr =QRect(0,0,-1,-1),
-                    Qt::RasterOp rop=Qt::CopyROP, bool ignoreMask=false)
+                    bool ignoreMask=false)
 {
     bitBlt(dst, dp.x(), dp.y(), src, sr.x(), sr.y(), sr.width(), sr.height(),
-            rop, ignoreMask);
+	   ignoreMask);
 }
 #endif // QPAINTDEVICE_H

@@ -395,7 +395,7 @@ QPixmap QPixmap::copy(bool ignoreMask) const
 
     if (!pm.isNull()) {                        // copy the bitmap
         if (ignoreMask) {
-            bitBlt(&pm, 0, 0, this, 0, 0, data->w, data->h, Qt::CopyROP, true);
+            bitBlt(&pm, 0, 0, this, 0, 0, data->w, data->h, true);
         } else {
             copyBlt(&pm, 0, 0, this, 0, 0, data->w, data->h);
         }
@@ -598,7 +598,7 @@ void QPixmap::resize(int w, int h)
     if (!data->uninit && !isNull())                // has existing pixmap
         bitBlt(&pm, 0, 0, this, 0, 0,                // copy old pixmap
                 qMin(width(), w),
-                qMin(height(),h), CopyROP, true);
+                qMin(height(),h), true);
 #if defined(Q_WS_MAC)
     if(data->alphapm) {
         data->alphapm->resize(w, h);

@@ -5732,11 +5732,6 @@ void QPSPrinter::updateFont(const QFont &font)
     d->currentSet.setStrikeOut(false);
 }
 
-void QPSPrinter::updateRasterOp(Qt::RasterOp rop)
-{
-    qWarning("raster ops not supported on Postscript driver");
-}
-
 void QPSPrinter::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
 {
     d->bkColor = bgBrush;

@@ -261,11 +261,6 @@ void QWSPaintEngine::updateFont(const QFont &font)
 {
 //    qDebug("QWSPaintEngine::updateFont");
 }
-void QWSPaintEngine::updateRasterOp(Qt::RasterOp rop)
-{
-//    qDebug("QWSPaintEngine::updateRasterOp");
-        d->gfx->setRop(rasterOp);
-}
 void QWSPaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 {
 //    qDebug("QWSPaintEngine::updateBackground");
@@ -307,12 +302,6 @@ void QWSPaintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEnable
         setf(ClipOn);
     else
         clearf(ClipOn);
-}
-
-void QWSPaintEngine::setRasterOp(RasterOp r)
-{
-    d->gfx->setRop(r);
-//    qDebug("QWSPaintEngine::setRasterOp");
 }
 
 void QWSPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)

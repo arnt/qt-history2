@@ -20,12 +20,6 @@
 /*****************************************************************************
   QuickDraw Private data
  *****************************************************************************/
-static int ropCodes[] = {                        // ROP translation table
-    patCopy, subPin, patXor, patBic, notPatCopy,
-    notPatOr, notPatXor, notPatBic,
-    666, 666, 666, 666, 666, 666, 666, 666, 666
-};
-
 class paintevent_item;
 class QQuickDrawPaintEnginePrivate : public QPaintEnginePrivate
 {
@@ -46,7 +40,6 @@ public:
     struct {
         QPen pen;
         QBrush brush;
-        Qt::RasterOp rop;
         QRegion clip;
         struct {
             QPoint origin;

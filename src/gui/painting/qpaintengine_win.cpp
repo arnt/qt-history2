@@ -44,74 +44,6 @@ static bool qt_resolved_gdiplus = false;
 
 static void qt_resolve_gdiplus();
 
-static const short qt_rop_codes_pen[] = {
-    R2_COPYPEN,        // CopyROP
-    R2_MERGEPEN,       // OrROP
-    R2_XORPEN,         // XorROP
-    R2_MASKNOTPEN,     // NotAndROP
-    R2_NOTCOPYPEN,     // NotCopyROP
-    R2_MERGENOTPEN,    // NotOrROP
-    R2_NOTXORPEN,      // NotXorROP
-    R2_MASKPEN,        // AndROP
-    R2_NOT,            // NotROP
-    R2_BLACK,          // ClearROP
-    R2_WHITE,          // SetROP
-    R2_NOP,            // NopROP
-    R2_MASKPENNOT,     // AndNotROP
-    R2_MERGEPENNOT,    // OrNotROP
-    R2_NOTMASKPEN,     // NandROP
-    R2_NOTMERGEPEN     // NorROP
-};
-
-static const uint qt_rop_codes_blt[] = {  // ROP translation table
-    SRCCOPY,                    // CopyROP
-    SRCPAINT,                   // OrROP
-    SRCINVERT,                  // XorROP
-    0x00220326 /* DSna */,      // NotAndROP
-    NOTSRCCOPY,                 // NotCopyROP
-    MERGEPAINT,                 // NotOrROP
-    0x00990066 /* DSnx */,      // NotXorROP
-    SRCAND,                     // AndROP
-    DSTINVERT,                  // NotROP
-    BLACKNESS,                  // ClearROP
-    WHITENESS,                  // SetROP
-    0x00AA0029 /* D */,         // NopROP
-    SRCERASE,                   // AndNotROP
-    0x00DD0228 /* SDno */,      // OrNotROP
-    0x007700E6 /* DSan */,      // NandROP
-    NOTSRCERASE                 // NorROP
-};
-
-/*
-  This function adjusts the raster operations for painting into a QBitmap on
-  Windows.
-
-  For bitmaps und Windows, color0 is 0xffffff and color1 is 0x000000 -- so we
-  have to use adjusted ROPs in this case to get the same effect as on Unix.
-*/
-Qt::RasterOp qt_map_rop_for_bitmaps(Qt::RasterOp op) {
-    static const Qt::RasterOp ropCodes[] = {
-        Qt::CopyROP,        // CopyROP
-        Qt::AndROP,         // OrROP
-        Qt::NotXorROP,      // XorROP
-        Qt::NotOrROP,       // NotAndROP
-        Qt::NotCopyROP,     // NotCopyROP
-        Qt::NotAndROP,      // NotOrROP
-        Qt::XorROP,         // NotXorROP
-        Qt::OrROP,          // AndROP
-        Qt::NotROP,         // NotROP
-        Qt::SetROP,         // ClearROP
-        Qt::ClearROP,       // SetROP
-        Qt::NopROP,         // NopROP
-        Qt::OrNotROP,       // AndNotROP
-        Qt::AndNotROP,      // OrNotROP
-        Qt::NorROP,         // NandROP
-        Qt::NandROP         // NorROP
-    };
-    return ropCodes[op];
-};
-
-
 static QSysInfo::WinVersion qt_winver = QSysInfo::WV_NT;
 
 /*****************************************************************************
@@ -760,15 +692,12 @@ void QWin32PaintEngine::drawArc(const QRect &r, int a, int alen)
         }
     }
 #ifndef Q_OS_TEMP
-    if (d->rasterOp == CopyROP) {
-        Arc(d->hdc, r.x(), r.y(), r.x()+w, r.y()+h, xS, yS, xE, yE);
-    } else
+    Arc(d->hdc, r.x(), r.y(), r.x()+w, r.y()+h, xS, yS, xE, yE);
+#else
+    QPointArray pa;
+    pa.makeArc(r.x(), r.y(), w, h, a, alen);        // arc polyline
+    drawPolyInternal(pa, false);
 #endif
-    {
-        QPointArray pa;
-        pa.makeArc(r.x(), r.y(), w, h, a, alen);        // arc polyline
-        drawPolyInternal(pa, false);
-    }
 }
 
 void QWin32PaintEngine::drawPie(const QRect &r, int a, int alen)
@@ -1063,7 +992,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
     if (d->tryGdiplus()) {
         d->gdiplusEngine->drawPixmap(r, pixmap, sr, imask);
         return;
-    } else if (!d->forceGdi 
+    } else if (!d->forceGdi
                && (pixmap.hasAlphaChannel()
                    || (pixmap.hasAlpha() && d->txop > QPainter::TxScale)
                    || stretch)) {
@@ -1114,23 +1043,23 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
             updateState(state);
             StretchBlt(d->hdc, r.x(), r.y(), r.width(), r.height(),
                        pixmap.handle(), sr.x(), sr.y(), sr.width(), sr.height(),
-                       qt_rop_codes_blt[d->rasterOp]);
+                       SRCCOPY);
             state->painter->restore();
         } else {
             MaskBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
                     pm_dc, sr.x(), sr.y()+pm_offset,
                     mask->hbm(), sr.x(), sr.y()+pm_offset,
-                    MAKEROP4(0x00aa0000, qt_rop_codes_blt[d->rasterOp]));
+                    MAKEROP4(0x00aa0000, SRCCOPY));
         }
     } else {
         if (stretch)
             StretchBlt(d->hdc, r.x(), r.y(), r.width(), r.height(),
                        pixmap.handle(), sr.x(), sr.y(), sr.width(), sr.height(),
-                       qt_rop_codes_blt[d->rasterOp]);
+                       SRCCOPY);
         else
             BitBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
                    pixmap.handle(), sr.x(), sr.y(),
-                   qt_rop_codes_blt[d->rasterOp]);
+                   SRCCOPY);
     }
 }
 
@@ -1433,18 +1362,6 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPoint &bgOrigin)
             DeleteObject(hbrushbm_old);        // delete last brush pixmap
     }
 }
-
-void QWin32PaintEngine::updateRasterOp(Qt::RasterOp rasterOp)
-{
-    if (d->tryGdiplus()) {
-        d->gdiplusEngine->updateRasterOp(rasterOp);
-        return;
-    }
-    Q_ASSERT(isActive());
-    SetROP2(d->hdc, qt_rop_codes_pen[rasterOp]);
-    d->rasterOp = rasterOp;
-}
-
 
 void QWin32PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 {
@@ -2026,10 +1943,6 @@ void QGdiplusPaintEngine::updateBrush(const QBrush &brush, const QPoint &)
 }
 
 void QGdiplusPaintEngine::updateFont(const QFont &)
-{
-}
-
-void QGdiplusPaintEngine::updateRasterOp(Qt::RasterOp)
 {
 }
 

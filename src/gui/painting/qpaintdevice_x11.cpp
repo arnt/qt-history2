@@ -251,14 +251,10 @@ static GC cache_mask_gc(Display *dpy, Drawable hd, int mask_no, Pixmap mask)
 /*!
     \relates QPaintDevice
 
-    Copies a block of pixels from \a src to \a dst, perhaps merging
-    each pixel according to the raster operation \a rop. \a sx, \a sy
+    Copies a block of pixels from \a src to \a dst. \a sx, \a sy
     is the top-left pixel in \a src (0, 0) by default, \a dx, \a dy is
     the top-left position in \a dst and \a sw, \a sh is the size of
     the copied block (all of \a src by default).
-
-    The most common values for \a rop are CopyROP and XorROP; the \l
-    Qt::RasterOp documentation defines all the possible values.
 
     If \a ignoreMask is false (the default) and \a src is a
     masked QPixmap, the entire blit is masked by \a{src}->mask().
@@ -279,7 +275,7 @@ static GC cache_mask_gc(Display *dpy, Drawable hd, int mask_no, Pixmap mask)
 
 void bitBlt(QPaintDevice *dst, int dx, int dy,
              const QPaintDevice *src, int sx, int sy, int sw, int sh,
-             Qt::RasterOp rop, bool ignoreMask)
+             bool ignoreMask)
 {
     if (!src || !dst) {
         Q_ASSERT(src != 0);
@@ -385,17 +381,6 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
         return;
     }
 
-    static const short ropCodes[] = {                        // ROP translation table
-        GXcopy, GXor, GXxor, GXandInverted,
-        GXcopyInverted, GXorInverted, GXequiv, GXand,
-        GXinvert, GXclear, GXset, GXnoop,
-        GXandReverse, GXorReverse, GXnand, GXnor
-    };
-    if (rop > Qt::LastROP) {
-        qWarning("bitBlt: Invalid ROP code");
-        return;
-    }
-
     if (dst->handle() == 0) {
         qWarning("bitBlt: Cannot bitBlt to device");
         return;
@@ -496,8 +481,6 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
             }
         }
         XSetClipOrigin(dpy, gc, dx-sx, dy-sy);
-        if (rop != Qt::CopyROP)                // use non-default ROP code
-            XSetFunction(dpy, gc, ropCodes[rop]);
         if (include_inferiors) {
             XSetSubwindowMode(dpy, gc, IncludeInferiors);
             XCopyArea(dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh,
@@ -510,15 +493,11 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
 
         if (temp_gc)                                // delete temporary GC
             XFreeGC(dpy, gc);
-        else if (rop != Qt::CopyROP)                // restore ROP
-            XSetFunction(dpy, gc, GXcopy);
         return;
     }
 
     gc = qt_xget_temp_gc(dst_xf->screen(), mono_dst);                // get a reusable GC
 
-    if (rop != Qt::CopyROP)                        // use non-default ROP code
-        XSetFunction(dpy, gc, ropCodes[rop]);
 
     if (mono_src && mono_dst && src == dst) { // dst and src are the same bitmap
         XCopyArea(dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh, dx, dy);
@@ -592,16 +571,13 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
         if (graphics_exposure)                // reset graphics exposure
             XSetGraphicsExposures(dpy, gc, False);
     }
-
-    if (rop != Qt::CopyROP)                        // restore ROP
-        XSetFunction(dpy, gc, GXcopy);
 }
 
 
 /*!
     \relates QPaintDevice
 
-    \fn void bitBlt(QPaintDevice *dst, const QPoint &dp, const QPaintDevice *src, const QRect &sr, RasterOp rop)
+    \fn void bitBlt(QPaintDevice *dst, const QPoint &dp, const QPaintDevice *src, const QRect &sr)
     \overload
 
     Overloaded bitBlt() with the destination point \a dp and source

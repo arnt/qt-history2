@@ -115,9 +115,6 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
     and pen() is a stipple. In that case, it describes the color of
     the background pixels in the stipple.
 
-    \i rasterOp() is how pixels drawn interact with the pixels already
-    there.
-
     \i brushOrigin() is the origin of the tiled brushes, normally the
     origin of the window.
 
@@ -1167,9 +1164,9 @@ void QPainter::drawRect(const QRect &r)
 	&& !d->engine->hasFeature(QPaintEngine::SolidAlphaFill)) {
 	const int BUFFERSIZE = 16;
 	QImage image(BUFFERSIZE, BUFFERSIZE, 32);
-	image.fill(d->state->brush.color().rgb());	
+	image.fill(d->state->brush.color().rgb());
 	image.setAlphaBuffer(true);
-	QPixmap pm(image);	
+	QPixmap pm(image);
 	drawTiledPixmap(r, pm);
 	if (d->state->pen.style() != NoPen) {
 	    save();
@@ -1440,30 +1437,6 @@ void QPainter::setBackground(const QBrush &bg)
     d->state->bgBrush = bg;
     if (d->engine && d->engine->isActive())
         d->engine->setDirty(QPaintEngine::DirtyBackground);
-}
-
-/*!
-    Sets the raster operation to \a op. The default is \c CopyROP.
-
-    \sa rasterOp() Qt::RasterOp
-*/
-
-void QPainter::setRasterOp(RasterOp op)
-{
-    d->state->rasterOp = op;
-    if (d->engine)
-        d->engine->setDirty(QPaintEngine::DirtyRasterOp);
-}
-
-/*!
-    Returns the current raster operation.
-
-    \sa setRasterOp() RasterOp
-*/
-
-Qt::RasterOp QPainter::rasterOp() const
-{
-    return d->state->rasterOp;
 }
 
 /*!

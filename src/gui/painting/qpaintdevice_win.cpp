@@ -157,7 +157,7 @@ static void cleanup_msimg32Lib()
    Try to do an AlphaBlend(). If it fails for some reasons, use BitBlt()
    instead. The arguments are like in the BitBlt() call.
 */
-void qt_AlphaBlend(HDC dst_dc, int dx, int dy, int sw, int sh, HDC src_dc, int sx, int sy, DWORD rop)
+void qt_AlphaBlend(HDC dst_dc, int dx, int dy, int sw, int sh, HDC src_dc, int sx, int sy)
 {
 #ifndef Q_OS_TEMP
     BLENDFUNCTION blend = {
@@ -181,20 +181,18 @@ void qt_AlphaBlend(HDC dst_dc, int dx, int dy, int sw, int sh, HDC src_dc, int s
             }
         }
         if (loadAlphaBlendFailed)
-            BitBlt(dst_dc, dx, dy, sw, sh, src_dc, sx, sy, rop);
+            BitBlt(dst_dc, dx, dy, sw, sh, src_dc, sx, sy, SRCCOPY);
         else
             alphaBlend(dst_dc, dx, dy, sw, sh, src_dc, sx, sy, sw, sh, blend);
     }
 #else
-    BitBlt(dst_dc, dx, dy, sw, sh, src_dc, sx, sy, rop);
+    BitBlt(dst_dc, dx, dy, sw, sh, src_dc, sx, sy, SRCCOPY);
 #endif
 }
 
-extern Qt::RasterOp qt_map_rop_for_bitmaps(Qt::RasterOp); // defined in qpainter_win.cpp
-
 void bitBlt(QPaintDevice *dst, int dx, int dy,
              const QPaintDevice *src, int sx, int sy, int sw, int sh,
-             Qt::RasterOp rop, bool ignoreMask )
+             bool ignoreMask )
 {
     if (!src || !dst) {
         Q_ASSERT(src != 0);
@@ -279,29 +277,6 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
             return;
     }
 
-    static uint ropCodes[] = {                        // ROP translation table
-        SRCCOPY,                // CopyROP
-        SRCPAINT,                // OrROP
-        SRCINVERT,                // XorROP
-        0x00220326 /* DSna */,        // NotAndROP
-        NOTSRCCOPY,                // NotCopyROP
-        MERGEPAINT,                // NotOrROP
-        0x00990066 /* DSnx */,        // NotXorROP
-        SRCAND,                        // AndROP
-        DSTINVERT,                // NotROP
-        BLACKNESS,                // ClearROP
-        WHITENESS,                // SetROP
-        0x00AA0029 /* D */,        // NopROP
-        SRCERASE,                // AndNotROP
-        0x00DD0228 /* SDno */,        // OrNotROP
-        0x007700E6 /* DSan */,        // NandROP
-        NOTSRCERASE                // NorROP
-    };
-    if (rop > Qt::LastROP) {
-        qWarning("bitBlt: Invalid ROP code");
-        return;
-    }
-
     if (dst->isExtDev()) {
         qWarning("bitBlt: Cannot bitBlt to device");
         return;
@@ -353,7 +328,7 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
         if (td == QInternal::Pixmap && ((QPixmap *)dst)->data->realAlphaBits)
             QPixmap::bitBltAlphaPixmap(((QPixmap *)dst), dx, dy, src_pm, sx, sy, sw, sh, true);
         else
-            qt_AlphaBlend(dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop]);
+            qt_AlphaBlend(dst_dc, dx, dy, sw, sh, src_dc, sx, sy);
     } else if (mask) {
         if (src_pm && td==QInternal::Pixmap && ((QPixmap *)dst)->data->realAlphaBits) {
             src_pm->convertToAlphaPixmap();
@@ -361,30 +336,13 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
         } else if (src_pm->data->selfmask) {
             uint   c = dst->paintingActive() ? qt_bitblt_foreground
                                              : QColor(Qt::black).pixel();
-            DWORD ropCodes[] = {
-                0x00b8074a, // PSDPxax,  CopyROP,
-                0x00ba0b09, // DPSnao,   OrROP,
-                0x009a0709, // DPSnax,   XorROP,
-                0x008a0e06, // DSPnoa,   EraseROP=NotAndROP,
-                0x008b0666, // DSPDxoxn, NotCopyROP,
-                0x00ab0889, // DPSono,   NotOrROP,
-                0x00a90189, // DPSoxn,   NotXorROP,
-                0x00a803a9, // DPSoa,    NotEraseROP=AndROP,
-                0x00990066, // DSxn,     NotROP,
-                0x008800c6, // DSa,      ClearROP,
-                0x00bb0226, // DSno,     SetROP,
-                0x00aa0029, // D,        NopROP,
-                0x00981888, // SDPSonoxn,AndNotROP,
-                0x00b906e6, // DSPDaoxn, OrNotROP,
-                0x009b07a8, // SDPSoaxn, NandROP,
-                0x00891b08  // SDPSnaoxn,NorROP,
-            };
+	    const int rop_srccopy = 0x00b8074a;
             HBRUSH b = CreateSolidBrush(c);
             COLORREF tc, bc;
             b = (HBRUSH)SelectObject(dst_dc, b);
             tc = SetTextColor(dst_dc, QColor(Qt::black).pixel());
             bc = SetBkColor(dst_dc, QColor(Qt::white).pixel());
-            BitBlt(dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop]);
+            BitBlt(dst_dc, dx, dy, sw, sh, src_dc, sx, sy, rop_srccopy);
             SetBkColor(dst_dc, bc);
             SetTextColor(dst_dc, tc);
             DeleteObject(SelectObject(dst_dc, b));
@@ -418,7 +376,7 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
             // are not used under NT.
             if (td==QInternal::Pixmap && ((QPixmap *)dst)->isQBitmap()) {
                 MaskBlt(dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
-                        sx, sy, MAKEROP4(0x00aa0000,ropCodes[qt_map_rop_for_bitmaps(rop)]));
+                        sx, sy, MAKEROP4(0x00aa0000,SRCCOPY));
 #ifdef Q_OS_TEMP
             } else if ((GetTextColor(dst_dc) & 0xffffff) != 0 &&
                         ts==QInternal::Pixmap && ((QPixmap *)src)->isQBitmap()) {
@@ -427,13 +385,13 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
                 HGDIOBJ oldsrc = SelectObject(bsrc_dc, bsrc);
                 BitBlt(bsrc_dc, 0, 0, sw, sh, src_dc, 0, 0, SRCCOPY);
                 MaskBlt(dst_dc, dx, dy, sw, sh, bsrc_dc, sx, sy, mask->hbm(),
-                         sx, sy, MAKEROP4(0x00aa0000,ropCodes[rop]));
+                         sx, sy, MAKEROP4(0x00aa0000,SRCCOPY);
                 DeleteObject(SelectObject(bsrc_dc, oldsrc));
                 DeleteDC(bsrc_dc);
 #endif
             } else {
                 MaskBlt(dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
-                        sx, sy, MAKEROP4(0x00aa0000,ropCodes[rop]));
+                        sx, sy, MAKEROP4(0x00aa0000,SRCCOPY));
             }
         }
     } else {
@@ -450,9 +408,9 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
                     int width = qMin(dst_pm->mask()->width()-dx, sw);
                     int height = qMin(dst_pm->mask()->height()-dy, sh);
                     MaskBlt(dst_dc, dx, dy, width, height, src_pm->hdc, sx, sy, dst_pm->mask()->hbm(),
-                            dx, dy, MAKEROP4(0x00aa0000,ropCodes[rop]));
+                            dx, dy, MAKEROP4(0x00aa0000,SRCCOPY));
                 } else {
-                    BitBlt(dst_dc, dx, dy, sw, sh, src_pm->hdc, sx, sy, ropCodes[rop]);
+                    BitBlt(dst_dc, dx, dy, sw, sh, src_pm->hdc, sx, sy, SRCCOPY);
                 }
             }
 #ifdef Q_OS_TEMP

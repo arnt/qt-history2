@@ -240,7 +240,7 @@ private:
     static Optimization defOptim;
     friend Q_GUI_EXPORT void bitBlt(QPaintDevice *, int, int,
                                  const QPaintDevice *,
-                                 int, int, int, int, RasterOp, bool);
+                                 int, int, int, int, bool);
     friend Q_GUI_EXPORT void bitBlt(QPaintDevice *, int, int,
                                  const QImage* src,
                                  int, int, int, int, int conversion_flags);

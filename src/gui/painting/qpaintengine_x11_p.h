@@ -22,25 +22,6 @@
 #include "qx11info_x11.h"
 #include <private/qt_x11_p.h>
 
-static const short ropCodes[] = {                     // ROP translation table
-    GXcopy, // CopyROP
-    GXor, // OrROP
-    GXxor, // XorROP
-    GXandInverted, // NotAndROP EraseROP
-    GXcopyInverted, // NotCopyROP
-    GXorInverted, // NotOrROP
-    GXequiv, // NotXorROP
-    GXand, // AndROP
-    GXinvert, // NotROP
-    GXclear, // ClearROP
-    GXset, // SetROP
-    GXnoop, // NopROP
-    GXandReverse, // AndNotROP
-    GXorReverse, // OrNotROP
-    GXnand, // NandROP
-    GXnor // NorROP
-};
-
 class QX11PaintEnginePrivate : public QPaintEnginePrivate {
 
 public:
@@ -53,7 +34,6 @@ public:
         //              flags = Qt::IsStartingUp;
         bg_col = Qt::white;                             // default background color
         bg_mode = Qt::TransparentMode;                  // default background mode
-        rop = Qt::CopyROP;                                // default ROP
         tabstops = 0;                               // default tabbing
         tabarray = 0;
         tabarraylen = 0;
@@ -77,7 +57,6 @@ public:
 
     QColor bg_col;
     uchar bg_mode;
-    Qt::RasterOp rop;
     QPen cpen;
     QBrush cbrush;
     QBrush bg_brush;

@@ -27,7 +27,6 @@ class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
 public:
     QOpenGLPaintEnginePrivate()
     {
-        rop = Qt::CopyROP;
         dev = 0;
     }
 
@@ -35,7 +34,6 @@ public:
     QPen cpen;
     QBrush cbrush;
     QBrush bgbrush;
-    Qt::RasterOp rop;
     Qt::BGMode bgmode;
 };
 
@@ -351,12 +349,6 @@ void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPoint &)
 
 void QOpenGLPaintEngine::updateFont(const QFont &)
 {
-}
-
-void QOpenGLPaintEngine::updateRasterOp(Qt::RasterOp rop)
-{
-    Q_ASSERT(isActive());
-    d->rop = rop;
 }
 
 void QOpenGLPaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
@@ -739,7 +731,7 @@ void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRe
         double x2 = x1 + sr.width() / (double) pm.width();
         double y1 = sr.y() / (double) pm.height();
         double y2 = y1 + sr.height() / (double) pm.height();
-	
+
         glTexCoord2f(x1, y2); glVertex2i(r.x(), r.y());
         glTexCoord2f(x2, y2); glVertex2i(r.x()+r.width(), r.y());
         glTexCoord2f(x2, y1); glVertex2i(r.x()+r.width(), r.y()+r.height());

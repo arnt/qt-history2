@@ -38,12 +38,9 @@ public:
     void updatePen(const QPen &pen);
     void updateBrush(const QBrush &brush, const QPoint &pt);
     void updateFont(const QFont &font);
-    void updateRasterOp(Qt::RasterOp rop);
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     void updateXForm(const QWMatrix &matrix);
     void updateClipRegion(const QRegion &region, bool clipEnabled);
-
-    void setRasterOp(RasterOp r);
 
     void drawLine(const QPoint &p1, const QPoint &p2);
     void drawRect(const QRect &r);

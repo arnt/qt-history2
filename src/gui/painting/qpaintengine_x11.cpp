@@ -729,7 +729,7 @@ void QX11PaintEngine::updatePen(const QPen &pen)
     int ps = pen.style();
     bool cacheIt = !testf(ClipOn|MonoDev|NoCache) &&
                    (ps == NoPen || ps == SolidLine) &&
-                   pen.width() == 0 && d->rop == CopyROP;
+                   pen.width() == 0;
 
     bool obtained = false;
     bool internclipok = hasClipping();
@@ -879,7 +879,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
     int x = 0, y = 0;
     bool cacheIt = !testf(ClipOn|MonoDev|NoCache) &&
                    (bs == NoBrush || bs == SolidPattern) &&
-                   x == 0 && y == 0 && d->rop == CopyROP;
+                   x == 0 && y == 0;
 
     bool obtained = false;
     bool internclipok = hasClipping();
@@ -948,26 +948,6 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
         XSetTSOrigin(d->dpy, d->gc_brush, origin.x(), origin.y());
     }
     XSetFillStyle(d->dpy, d->gc_brush, s);
-}
-
-void QX11PaintEngine::setRasterOp(RasterOp r)
-{
-    if (!isActive()) {
-        qWarning("QX11PaintEngine::setRasterOp: Call begin() first");
-        return;
-    }
-    if ((uint)r > LastROP) {
-        qWarning("QX11PaintEngine::setRasterOp: Invalid ROP code");
-        return;
-    }
-    d->rop = r;
-
-    if (d->penRef)
-        updatePen(d->cpen);                            // get non-cached pen GC
-    if (d->brushRef)
-        updateBrush(d->cbrush, d->bg_origin);                          // get non-cached brush GC
-    XSetFunction(d->dpy, d->gc, ropCodes[d->rop]);
-    XSetFunction(d->dpy, d->gc_brush, ropCodes[d->rop]);
 }
 
 void QX11PaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
@@ -1295,7 +1275,7 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
                 }
             }
         } else {
-            bitBlt(d->pdev, x, y, &pixmap, sx, sy, sw, sh, d->rop);
+            bitBlt(d->pdev, x, y, &pixmap, sx, sy, sw, sh);
         }
         return;
     }
@@ -1368,18 +1348,6 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
         XSetClipRectangles(d->dpy, d->gc, 0, 0, rects, num, Unsorted);
         delete mask;                            // delete comb, created above
     }
-}
-
-void QX11PaintEngine::updateRasterOp(Qt::RasterOp rop)
-{
-    Q_ASSERT(isActive());
-    d->rop = rop;
-    if (d->penRef)
-        updatePen(d->cpen);                            // get non-cached pen GC
-    if (d->brushRef)
-        updateBrush(d->cbrush, d->bg_origin);                        // get non-cached brush GC
-    XSetFunction(d->dpy, d->gc, ropCodes[d->rop]);
-    XSetFunction(d->dpy, d->gc_brush, ropCodes[d->rop]);
 }
 
 void QX11PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)

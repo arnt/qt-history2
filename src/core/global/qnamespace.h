@@ -684,26 +684,6 @@ public:
     };
 
     // documented in qnamespace.doc
-    enum RasterOp { // raster op mode
-        CopyROP,
-        OrROP,
-        XorROP,
-        NotAndROP, EraseROP=NotAndROP,
-        NotCopyROP,
-        NotOrROP,
-        NotXorROP,
-        AndROP,        NotEraseROP=AndROP,
-        NotROP,
-        ClearROP,
-        SetROP,
-        NopROP,
-        AndNotROP,
-        OrNotROP,
-        NandROP,
-        NorROP,        LastROP=NorROP
-    };
-
-    // documented in qnamespace.doc
     enum PenStyle { // pen style
         NoPen,
         SolidLine,

@@ -1617,7 +1617,7 @@ Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
         }
 
         bitBlt(dst->data->mask, dx, dy,
-                src->data->mask, sx, sy, sw, sh, Qt::CopyROP, true);
+                src->data->mask, sx, sy, sw, sh, true);
     }
 
     if (src->data->realAlphaBits) {
@@ -1626,7 +1626,7 @@ Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
         QPixmap::bitBltAlphaPixmap(dst, dx, dy, src, sx, sy, sw, sh, false);
     } else {
         // copy pixel data
-        bitBlt(dst, dx, dy, src, sx, sy, sw, sh, Qt::CopyROP, true);
+        bitBlt(dst, dx, dy, src, sx, sy, sw, sh, true);
     }
 }
 
