@@ -589,9 +589,6 @@ bool QMainWindow::event(QEvent *event)
 */
 void QMainWindow::contextMenuEvent(QContextMenuEvent *event)
 {
-    if (QWidget *w = childAt(event->pos()))
-        if (!qt_cast<QToolBar*>(w) && !qt_cast<QDockWindow*>(w))
-            return;
     QMenu *popup = createPopupMenu();
     if (!popup)
 	return;
@@ -602,10 +599,10 @@ void QMainWindow::contextMenuEvent(QContextMenuEvent *event)
 
 /*!
     This function is called to create a popup menu when the user
-    right-clicks a toolbar or dock window. If you want to create a
-    custom popup menu, reimplement this function and return the
-    created popup menu. Ownership of the popup menu is transferred to
-    the caller.
+    right-clicks on the menubar, a toolbar or a dock window. If you
+    want to create a custom popup menu, reimplement this function and
+    return the created popup menu. Ownership of the popup menu is
+    transferred to the caller.
 */
 QMenu *QMainWindow::createPopupMenu()
 {
