@@ -333,6 +333,9 @@ private:
 
     bool parseProlog();
     bool parseElement();
+    bool parseElementEmptyTag( bool &t, QString &uri, QString &lname );
+    bool parseElementETagBegin2();
+    bool parseElementAttribute( QString &prefix, QString &uri, QString &lname );
     bool parseMisc();
     bool parseContent();
 
