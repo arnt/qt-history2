@@ -1,6 +1,7 @@
 #include "helpview.h"
 #include <qfile.h>
 #include <qurl.h>
+#include <qmessagebox.h>
 
 HelpView::HelpView( QWidget *parent, const QString &dd )
     : QTextBrowser( parent )
@@ -27,6 +28,12 @@ void HelpView::showLink( const QString &link , const QString& title )
 
 void HelpView::setSource( const QString &name )
 {
+    QUrl u( name );
+    if ( !u.isLocalFile() ) {
+	QMessageBox::critical( this, tr( "Error" ), tr( "Can't load and display non-local files!" ) );
+	return;
+    }
+
     emit newSource( name );
     QTextBrowser::setSource( name );
 }
