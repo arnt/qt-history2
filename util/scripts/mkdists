@@ -36,7 +36,6 @@ LOCAL_TREE=
 LOG=/dev/null #by default we do not log
 QDOC_PATH=$QTDIR/util/qdoc/qdoc
 QPKG_PATH=$QTDIR/util/install/package/package
-EXPORTS_PATH=$QTDIR/util/scripts/exports.sh
 QMAKE_PATH=$QTDIR/bin/qmake
 MANIFEST_FILE=${TMP_FILE}-manifest
 #editions
@@ -59,7 +58,6 @@ DO_BZIP=auto
 DO_STUFF=no
 DO_ID=auto
 DO_DOC=auto
-DO_EXPORTS=auto
 TYPE=auto
 
 die()
@@ -108,7 +106,6 @@ showhelp()
     echo "  -qdoc <executable>   : Where qdoc lives (default $QDOC_PATH)"
     echo "  -qmake <executable>  : Where qmake lives (default $QMAKE_PATH)"
     echo "  -qpkg <executable>   : Where qpkg lives (default $QPKG_PATH)"
-    echo "  -exports <executable>: Where the exports.sh script lives (default $EXPORTS_PATH)"
     echo
 
     echo "Editions:"
@@ -133,7 +130,6 @@ showhelp()
     echo "  -no-gzip    / -do-gzip    : Toggle whether to add a gzip package"
     echo "  -no-bzip    / -do-bzip    : Toggle whether to add a bzip package"
     echo "  -no-stuff   / -do-stuff   : Toggle whether to add a stuffit package"
-    echo "  -no-exports / -do-exports : Toggle whether to generate libqt.map"
 
     echo "=-________________________________________________________________-="
     echo "All options can be in long form --option=value as well (where value "
@@ -191,11 +187,6 @@ while [ -n "$1" ]; do
 	VAR=qpkg_path
 	VAL=$1
 	;;
-   -exports)
-        shift
-	VAR=exports_path
-	VAL=$1
-	;;
    -qdoc)
 	shift
 	VAR=qdoc_path
@@ -239,7 +230,6 @@ while [ -n "$1" ]; do
    qnx6) DO_QNX6=$VAL ;;
    embedded) DO_EMBEDDED=$VAL ;;
    #paths
-   exports_path) EXPORTS_PATH=$VAL ;;
    log) LOG=$VAL; rm -f $LOG ;;
    qpkg_path)  QPKG_PATH=$VAL  ;;
    qmake_path) QMAKE_PATH=$VAL ;;
@@ -266,7 +256,6 @@ while [ -n "$1" ]; do
        fi
        ;;
    #other
-   exports) DO_EXPORTS=$VAL ;;
    qmake) DO_QMAKE=$VAL ;;
    stuff) DO_STUFF=$VAL ;;
    doc) DO_DOC=$VAL ;;
@@ -311,13 +300,6 @@ if [ "$DO_STUFF" = "auto" ]; then
 	DO_STUFF=yes
     else
 	DO_STUFF=no
-    fi
-fi
-if [ "$DO_EXPORTS" = "auto" ]; then
-    if [ -x "$EXPORTS_PATH" ]; then
-        DO_EXPORTS=yes
-    else
-        DO_EXPORTS=no
     fi
 fi
 if [ "$BRANCH" = "auto" ]; then
@@ -424,14 +406,6 @@ make moc_yacc.cpp >>$LOG
 
 rm -f Makefile
 popd >>$LOG 2>&1
-
-#generate libqt.map
-if [ "$DO_EXPORTS" = "yes" ]; then
-  status "Creating libqt.map.."
-  pushd $DISTDIR/qt/src >>$LOG 2>&1
-  $EXPORTS_PATH $DISTDIR/qt/src
-  popd >>$LOG 2>&1
-fi
 
 #cleanup documentation directories
 mkdir -p "$DISTDIR/qt/doc"
