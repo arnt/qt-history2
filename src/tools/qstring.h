@@ -240,7 +240,7 @@ inline QChar::QChar( uchar c )
 }
 inline QChar::QChar( uchar c, uchar r )
 {
-    ucs = r << 8 | c;
+    ucs = (r << 8) | c;
 #ifdef QT_QSTRING_UCS_4
     grp = 0;
 #endif
