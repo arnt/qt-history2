@@ -538,8 +538,6 @@ static void distributeMultiBox( QMemArray<QLayoutStruct> &chain, int spacing,
 				int minSize, int sizeHint,
 				QMemArray<int> &stretchArray, int stretch )
 {
-    //distribute the sizes and stretch somehow.
-
     int i;
     int w = 0;
     int wh = 0;
@@ -1111,9 +1109,9 @@ void QGridLayout::setGeometry( const QRect &r )
 {
     if ( data->isDirty() || r != geometry() ) {
 	QLayout::setGeometry( r );
-	QRect cr = alignment() ? alignmentRect(r) : r;
-	QRect s( cr.x()+margin(), cr.y()+margin(),
-		 cr.width()-2*margin(), cr.height()-2*margin() );
+	QRect cr = alignment() ? alignmentRect( r ) : r;
+	QRect s( cr.x() + margin(), cr.y() + margin(),
+		 cr.width() - 2 * margin(), cr.height() - 2 * margin() );
 	data->distribute( s, spacing() );
     }
 }
@@ -2269,7 +2267,7 @@ void QBoxLayout::setupGeom()
 	    a[i].expansive = expand;
 	    a[i].stretch = box->stretch ? box->stretch : box->hStretch();
 	} else {
-	    bool expand = exp & QSizePolicy::Vertically || box->stretch > 0;
+	    bool expand = ( exp & QSizePolicy::Vertically || box->stretch > 0 );
 	    verexp = verexp || expand;
 	    maxh += max.height() + space;
 	    minh += min.height() + space;

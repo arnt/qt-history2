@@ -1779,33 +1779,45 @@ QRect QLayout::alignmentRect( const QRect &r ) const
 {
     QSize s = sizeHint();
     int a = alignment();
+
+    /*
+      This is a hack to obtain the real maximum size, not
+      QSize(QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX), the value consistently
+      returned by QLayoutItems that have an alignment.
+    */
+    QLayout *that = (QLayout *) this;
+    that->setAlignment( 0 );
+    QSize ms = maximumSize();
+    that->setAlignment( a );
+
     if ( (expanding() & QSizePolicy::Horizontally) ||
 	 !(a & Qt::AlignHorizontal_Mask ) ) {
-	s.setWidth( r.width() );
+	s.setWidth( QMIN(r.width(), ms.width()) );
     }
     if ( (expanding() & QSizePolicy::Vertically) ||
 	 !(a & Qt::AlignVertical_Mask) ) {
-	s.setHeight( r.height() );
+	s.setHeight( QMIN(r.height(), ms.height()) );
     } else if ( hasHeightForWidth() ) {
-	s.setHeight( QMIN( s.height(), heightForWidth(s.width()) ) );
+	int hfw = heightForWidth( s.width() );
+	if ( hfw < s.height() )
+	    s.setHeight( QMIN(hfw, ms.height()) );
     }
 
     int x = r.x();
     int y = r.y();
 
     if ( a & Qt::AlignBottom )
-	y = y + ( r.height() - s.height() );
+	y += ( r.height() - s.height() );
     else if ( !(a & Qt::AlignTop) )
-	y = y + ( r.height() - s.height() ) / 2;
+	y += ( r.height() - s.height() ) / 2;
 
     a = QApplication::horizontalAlignment( a );
     if ( a & Qt::AlignRight )
-	x = x + ( r.width() - s.width() );
+	x += ( r.width() - s.width() );
     else if ( !(a & Qt::AlignLeft) )
-	x = x + ( r.width() - s.width() ) / 2;
+	x += ( r.width() - s.width() ) / 2;
 
     return QRect( x, y, s.width(), s.height() );
-
 }
 
 /*!
