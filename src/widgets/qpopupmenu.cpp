@@ -584,8 +584,8 @@ void QPopupMenu::actSig( int id, bool inwhatsthis )
 	QAccessible::updateAccessibility( this, id, QAccessible::MenuCommand );
 #endif
     } else {
-	QRect r( itemGeometry( indexOf( id ) ) );
 #ifndef QT_NO_WHATSTHIS
+	QRect r( itemGeometry( indexOf( id ) ) );
 	QWhatsThis::leaveWhatsThisMode( findItem( id )->whatsThis(), mapToGlobal( r.bottomLeft() ) );
 #endif
     }

@@ -183,27 +183,47 @@ QWSWindowsDecoration::~QWSWindowsDecoration()
 
 const char **QWSWindowsDecoration::menuPixmap()
 {
+#ifndef QT_NO_IMAGEIO_XPM
     return (const char **)win_menu_xpm;
+#else
+    return 0;
+#endif
 }
 
 const char **QWSWindowsDecoration::closePixmap()
 {
+#ifndef QT_NO_IMAGEIO_XPM
     return (const char **)win_close_xpm;
+#else
+    return 0;
+#endif
 }
 
 const char **QWSWindowsDecoration::minimizePixmap()
 {
+#ifndef QT_NO_IMAGEIO_XPM
     return (const char **)win_minimize_xpm;
+#else
+    return 0;
+#endif
 }
 
 const char **QWSWindowsDecoration::maximizePixmap()
 {
+#ifndef QT_NO_IMAGEIO_XPM
     return (const char **)win_maximize_xpm;
+#else
+    return 0;
+#endif
 }
 
 const char **QWSWindowsDecoration::normalizePixmap()
 {
+#ifndef QT_NO_IMAGEIO_XPM
     return (const char **)win_normalize_xpm;
+#else
+    return 0;
+#endif
 }
 
 int QWSWindowsDecoration::getTitleWidth(const QWidget *widget)

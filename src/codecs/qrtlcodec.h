@@ -41,7 +41,7 @@
 #include "qtextcodec.h"
 #endif // QT_H
 
-#ifndef QT_NO_CODECS
+#ifndef QT_NO_CODEC_HEBREW
 
 class Q_EXPORT QHebrewCodec : public QTextCodec {
 public:

@@ -179,7 +179,9 @@ public:
 
     virtual bool acceptDrop( const QMimeSource *mime ) const;
 
+#ifndef QT_NO_TEXTEDIT
     void rename();
+#endif
 
     virtual int compare( QIconViewItem *i ) const;
 
@@ -196,7 +198,9 @@ public:
     static int RTTI;
 
 protected:
+#ifndef QT_NO_TEXTEDIT
     virtual void removeRenameBox();
+#endif
     virtual void calcRect( const QString &text_ = QString::null );
     virtual void paintItem( QPainter *p, const QColorGroup &cg );
     virtual void paintFocus( QPainter *p, const QColorGroup &cg );
@@ -216,8 +220,10 @@ private:
 	       , QPicture *pic = 0
 #endif
 	       );
+#ifndef QT_NO_TEXTEDIT
     void renameItem();
     void cancelRenameItem();
+#endif
     void checkRect();
 
     QIconView *view;
@@ -236,7 +242,9 @@ private:
     uint dirty : 1;
     uint wordWrapDirty : 1;
     QRect itemRect, itemTextRect, itemIconRect;
+#ifndef QT_NO_TEXTEDIT
     QIconViewItemLineEdit *renameBox;
+#endif
     QRect oldRect;
 
     QIconViewItemPrivate *d;

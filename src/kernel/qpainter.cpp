@@ -3450,7 +3450,11 @@ QDataStream &operator<<( QDataStream &s, const QBrush &b )
 {
     s << (Q_UINT8)b.style() << b.color();
     if ( b.style() == Qt::CustomPattern )
+#ifndef QT_NO_IMAGEIO
 	s << *b.pixmap();
+#else
+	qWarning("No Image Brush I/O");
+#endif
     return s;
 }
 
@@ -3468,9 +3472,13 @@ QDataStream &operator>>( QDataStream &s, QBrush &b )
     s >> style;
     s >> color;
     if ( style == Qt::CustomPattern ) {
+#ifndef QT_NO_IMAGEIO
 	QPixmap pm;
 	s >> pm;
 	b = QBrush( color, pm );
+#else
+	qWarning("No Image Brush I/O");
+#endif
     }
     else
 	b = QBrush( color, (Qt::BrushStyle)style );

@@ -691,27 +691,47 @@ QWSHydroDecoration::~QWSHydroDecoration()
 
 const char **QWSHydroDecoration::menuPixmap()
 {
+#ifndef QT_NO_IMAGEIO_XPM
     return (const char **)hydro_menu_xpm;
+#else
+    return 0;
+#endif
 }
 
 const char **QWSHydroDecoration::closePixmap()
 {
+#ifndef QT_NO_IMAGEIO_XPM
     return (const char **)hydro_close_xpm;
+#else
+    return 0;
+#endif
 }
 
 const char **QWSHydroDecoration::minimizePixmap()
 {
+#ifndef QT_NO_IMAGEIO_XPM
     return (const char **)hydro_minimize_xpm;
+#else
+    return 0;
+#endif
 }
 
 const char **QWSHydroDecoration::maximizePixmap()
 {
+#ifndef QT_NO_IMAGEIO_XPM
     return (const char **)hydro_maximize_xpm;
+#else
+    return 0;
+#endif
 }
 
 const char **QWSHydroDecoration::normalizePixmap()
 {
+#ifndef QT_NO_IMAGEIO_XPM
     return (const char **)hydro_maximize_xpm;
+#else
+    return 0;
+#endif
 }
 
 int QWSHydroDecoration::getTitleHeight(const QWidget *)
@@ -802,12 +822,6 @@ void QWSHydroDecoration::paint(QPainter *painter, const QWidget *widget)
 
     QRect rect(widget->rect());
 
-    // Border rect
-    QRect br( rect.left() - BORDER_WIDTH,
-                rect.top() - BORDER_WIDTH - titleHeight,
-                rect.width() + 2 * BORDER_WIDTH,
-                rect.height() + BORDER_WIDTH + BOTTOM_BORDER_WIDTH + titleHeight );
-
     // title bar rect
     QRect tr( 0, -titleHeight,  titleWidth - 1, titleHeight - 1);
 
@@ -819,6 +833,12 @@ void QWSHydroDecoration::paint(QPainter *painter, const QWidget *widget)
 //    const QColorGroup &cg = widget->palette().active();
 
 #if !defined(QT_NO_DRAWUTIL)
+    // Border rect
+    QRect br( rect.left() - BORDER_WIDTH,
+                rect.top() - BORDER_WIDTH - titleHeight,
+                rect.width() + 2 * BORDER_WIDTH,
+                rect.height() + BORDER_WIDTH + BOTTOM_BORDER_WIDTH + titleHeight );
+
     qDrawWinPanel(painter, br.x(), br.y(), br.width(),
 		  br.height() - 4, cg, FALSE,
 		  &cg.brush(QColorGroup::Background));
@@ -851,10 +871,12 @@ void QWSHydroDecoration::paint(QPainter *painter, const QWidget *widget)
 	    painter->fillRect( rect.left() - 1, rect.top() - titleHeight - 2,
 			    rect.width() + 2, titleHeight + 2,  QBrush( c1 ));
 
+#ifndef QT_NO_IMAGEIO_XPM
 	    QPixmap lc((const char **)hydro_left_corner_xpm);
 	    QPixmap rc((const char **)hydro_right_corner_xpm);
 	    painter->drawPixmap( rect.left() - 2, rect.top() - titleHeight - 3, lc);
 	    painter->drawPixmap( rect.right() - 2, rect.top() - titleHeight - 3, rc);
+#endif
 
 	painter->setPen(titlePen);
 	painter->setFont(widget->font());

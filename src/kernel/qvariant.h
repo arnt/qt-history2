@@ -202,11 +202,9 @@ public:
 #endif
     QSizePolicy toSizePolicy() const;
 
-#ifndef QT_NO_STRINGLIST
+#ifndef QT_NO_TEMPLATE_VARIANT
     QValueListConstIterator<QString> stringListBegin() const;
     QValueListConstIterator<QString> stringListEnd() const;
-#endif
-#ifndef QT_NO_TEMPLATE_VARIANT
     QValueListConstIterator<QVariant> listBegin() const;
     QValueListConstIterator<QVariant> listEnd() const;
     QMapConstIterator<QString,QVariant> mapBegin() const;
@@ -297,7 +295,7 @@ inline bool QVariant::isValid() const
     return (d->typ != Invalid);
 }
 
-#ifndef QT_NO_STRINGLIST
+#ifndef QT_NO_TEMPLATE_VARIANT
 inline QValueListConstIterator<QString> QVariant::stringListBegin() const
 {
     if ( d->typ != StringList )
@@ -311,8 +309,7 @@ inline QValueListConstIterator<QString> QVariant::stringListEnd() const
 	return QValueListConstIterator<QString>();
     return ((const QStringList*)d->value.ptr)->end();
 }
-#endif
-#ifndef QT_NO_TEMPLATE_VARIANT
+
 inline QValueListConstIterator<QVariant> QVariant::listBegin() const
 {
     if ( d->typ != List )

@@ -2022,6 +2022,7 @@ void QLineEdit::redo()
 
 QPopupMenu *QLineEdit::createPopupMenu()
 {
+#ifndef QT_NO_POPUPMENU
     QPopupMenu *popup = new QPopupMenu( this, "qt_edit_menu" );
     d->id[ IdUndo ] = popup->insertItem( tr( "Undo" ) );
     d->id[ IdRedo ] = popup->insertItem( tr( "Redo" ) );
@@ -2051,6 +2052,9 @@ QPopupMenu *QLineEdit::createPopupMenu()
     popup->setItemEnabled( d->id[ IdSelectAll ], (bool)text().length() && !allSelected );
 
     return popup;
+#else
+    return 0;
+#endif
 }
 
 void QLineEdit::setDragEnabled( bool b )

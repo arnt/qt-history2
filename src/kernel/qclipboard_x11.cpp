@@ -35,17 +35,13 @@
 **
 **********************************************************************/
 
-#ifndef QT_H
-#include <qfeatures.h>
-#endif // QT_H
-
-#ifndef QT_NO_CLIPBOARD
-
 // #define QCLIPBOARD_DEBUG
 // #define QCLIPBOARD_DEBUG_VERBOSE
 
 #include "qplatformdefs.h"
 #include "qclipboard.h"
+
+#ifndef QT_NO_CLIPBOARD
 
 #include "qapplication.h"
 #include "qbitmap.h"

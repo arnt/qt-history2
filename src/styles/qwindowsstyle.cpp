@@ -900,6 +900,7 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
     switch (contents) {
     case CT_PushButton:
 	{
+#ifndef QT_NO_PUSHBUTTON
 	    const QPushButton *button = (const QPushButton *) widget;
 	    sz = QCommonStyle::sizeFromContents(contents, widget, contentsSize, data);
 	    int w = sz.width(), h = sz.height();
@@ -915,11 +916,13 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 	    }
 
 	    sz = QSize(w, h);
+#endif
 	    break;
 	}
 
     case CT_PopupMenuItem:
 	{
+#ifndef QT_NO_POPUPMENU
 	    if (! widget || ! data)
 		break;
 
@@ -965,6 +968,7 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 	    w += windowsRightBorder;
 
 	    sz = QSize(w, h);
+#endif
 	    break;
 	}
 

@@ -35,13 +35,10 @@
 **
 **********************************************************************/
 
-#ifndef QT_H
-#include <qfeatures.h>
-#endif // QT_H
+#include "qsocketdevice.h"
 
 #ifndef QT_NO_NETWORK
 
-#include "qsocketdevice.h"
 #include "qwindowdefs.h"
 #include "qplatformdefs.h"
 

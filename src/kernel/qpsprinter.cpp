@@ -4679,6 +4679,8 @@ QString QPSPrinterFontAsian::emitDef( QTextStream &stream, const QString &ps, co
 
 }
 
+#ifndef QT_NO_TEXTCODEC
+
 // ----------- Japanese --------------
 
 class QPSPrinterFontJapanese
@@ -4810,6 +4812,8 @@ void QPSPrinterFontJapanese::drawText( QTextStream &stream, uint spaces, const Q
         }
     }
 }
+
+#endif
 
 // ----------- Korean --------------
 
@@ -5191,9 +5195,12 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
         case NONE:
         default:
 
+#ifndef QT_NO_TEXTCODEC
             if ( script == QFont::Hiragana || script == QFont::Katakana ) {
                 p = new QPSPrinterFontJapanese( f );
-            } else if ( script == QFont::Hangul) {
+            } else
+#endif
+	    if ( script == QFont::Hangul) {
                 p = new QPSPrinterFontKorean( f );
             } else if ( script == QFont::Han ) {
                 // #####

@@ -472,6 +472,73 @@ class QDataStream;
 extern bool qt_winunicode;
 #endif
 
+//
+// feature seubsetting
+//
+// Note that disabling some features will produce a libqt that is not
+// compatible with other libqt builds. Such modifications are only
+// supported on Qt/Embedded where reducing the library size is important
+// and where the application-suite is often a fixed set.
+//
+#if !defined(QT_MOC)
+#if defined(QCONFIG_LOCAL)
+#include <qconfig-local.h>
+#elif defined(QCONFIG_MINIMAL)
+#include <qconfig-minimal.h>
+#elif defined(QCONFIG_SMALL)
+#include <qconfig-small.h>
+#elif defined(QCONFIG_MEDIUM)
+#include <qconfig-medium.h>
+#elif defined(QCONFIG_LARGE)
+#include <qconfig-large.h>
+#else // everything...
+#include <qconfig.h>
+#endif
+#endif
+
+// prune to local config
+#include "qmodules.h"
+#ifndef QT_MODULE_ICONVIEW
+# define QT_NO_ICONVIEW
+#endif
+#ifndef QT_MODULE_WORKSPACE
+# define QT_NO_WORKSPACE
+#endif
+#ifndef QT_MODULE_NETWORK
+#define QT_NO_NETWORK
+#endif
+#ifndef QT_MODULE_CANVAS
+# define QT_NO_CANVAS
+#endif
+#ifndef QT_MODULE_TABLE
+#define QT_NO_TABLE
+#endif
+#ifndef QT_MODULE_XML
+# define QT_NO_XML
+#endif
+#ifndef QT_MODULE_OPENGL
+# define QT_NO_OPENGL
+#endif
+#if !defined(QT_MODULE_SQL)
+# define QT_NO_SQL
+#endif
+
+#ifdef Q_WS_MAC9
+//No need for menu merging
+#  ifndef QMAC_QMENUBAR_NO_MERGE
+#    define QMAC_QMENUBAR_NO_MERGE
+#  endif
+//Mac9 does not use quartz
+#  ifndef QMAC_NO_QUARTZ
+#    define QMAC_NO_QUARTZ
+#  endif
+#endif
+#ifdef Q_WS_MACX //for no nobody uses quartz, just putting in first level hooks
+#  ifndef QMAC_NO_QUARTZ
+#    define QMAC_NO_QUARTZ
+#  endif
+#endif
+
 #ifndef QT_H
 #include <qfeatures.h>
 #endif // QT_H

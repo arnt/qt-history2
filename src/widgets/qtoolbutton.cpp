@@ -59,9 +59,11 @@ class QToolButtonPrivate
 {
     // ### add tool tip magic here
 public:
+#ifndef QT_NO_POPUPMENU
     QGuardedPtr<QPopupMenu> popup;
     QTimer* popupTimer;
     int delay;
+#endif
     Qt::ArrowType arrow;
     uint instantPopup	    : 1;
     uint autoraise	    : 1;
@@ -123,6 +125,7 @@ QToolButton::QToolButton( QWidget * parent, const char *name )
     : QButton( parent, name )
 {
     init();
+#ifndef QT_NO_TOOLBAR
     if ( parent && parent->inherits( "QToolBar" ) ) {
 	setAutoRaise( TRUE );
 	QToolBar* tb = (QToolBar*)parent;
@@ -136,7 +139,9 @@ QToolButton::QToolButton( QWidget * parent, const char *name )
 	} else {
 	    setUsesBigPixmap( FALSE );
 	}
-    } else {
+    } else
+#endif
+    {
 	setUsesBigPixmap( FALSE );
     }
 }
@@ -167,9 +172,11 @@ QToolButton::QToolButton( ArrowType type, QWidget *parent, const char *name )
 void QToolButton::init()
 {
     d = new QToolButtonPrivate;
+#ifndef QT_NO_POPUPMENU
     d->delay = 600;
     d->popup = 0;
     d->popupTimer = 0;
+#endif
     d->autoraise = FALSE;
     d->arrow = LeftArrow;
     d->instantPopup = FALSE;
@@ -188,6 +195,7 @@ void QToolButton::init()
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
 }
 
+#ifndef QT_NO_TOOLBAR
 
 /*!  Constructs a tool button that is a child of \a parent (which must be
   a QToolBar) and named \a name.
@@ -230,13 +238,17 @@ QToolButton::QToolButton( const QIconSet& iconSet, const QString &textLabel,
 #endif
 }
 
+#endif
+
 
 /*! Destroys the object and frees any allocated resources. */
 
 QToolButton::~QToolButton()
 {
+#ifndef QT_NO_POPUPMENU
     d->popupTimer = 0;
     d->popup = 0;
+#endif
     delete d;
     delete s;
     threeDeeButton = 0;
@@ -295,8 +307,10 @@ QSize QToolButton::sizeHint() const
      	    w = tw;
     }
 
+#ifndef QT_NO_POPUPMENU
     if ( popup() && ! popupDelay() )
      	w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
+#endif
 
     return (style().sizeFromContents(QStyle::CT_ToolButton, this, QSize(w, h)).
 	    expandedTo(QApplication::globalStrut()));
@@ -401,11 +415,13 @@ void QToolButton::drawButton( QPainter * p )
     if (isDown())
 	active |= QStyle::SC_ToolButton;
 
+#ifndef QT_NO_POPUPMENU
     if (d->popup && !d->delay) {
 	controls |= QStyle::SC_ToolButtonMenu;
 	if (d->instantPopup || isDown())
 	    active |= QStyle::SC_ToolButtonMenu;
     }
+#endif
 
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
@@ -796,10 +812,12 @@ void QToolButton::popupTimerDone()
     setAutoRepeat( FALSE );
     bool horizontal = TRUE;
     bool topLeft = TRUE;
+#ifndef QT_NO_TOOLBAR
     if ( parentWidget() && parentWidget()->inherits("QToolBar") ) {
 	if ( ( (QToolBar*) parentWidget() )->orientation() == Vertical )
 	    horizontal = FALSE;
     }
+#endif
     if ( horizontal ) {
 	if ( topLeft ) {
 	    if ( mapToGlobal( QPoint( 0, rect().bottom() ) ).y() + d->popup->sizeHint().height() <= qApp->desktop()->height() )

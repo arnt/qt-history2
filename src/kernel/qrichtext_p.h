@@ -1029,13 +1029,31 @@ struct Q_EXPORT QTextParagSelection
 
 struct Q_EXPORT QTextParagLineStart
 {
-    QTextParagLineStart() : y( 0 ), baseLine( 0 ), h( 0 ), bidicontext( 0 ) {  }
+    QTextParagLineStart() : y( 0 ), baseLine( 0 ), h( 0 )
+#ifndef QT_NO_COMPLEXTEXT
+	, bidicontext( 0 )
+#endif
+    {  }
     QTextParagLineStart( ushort y_, ushort bl, ushort h_ ) : y( y_ ), baseLine( bl ), h( h_ ),
-	w( 0 ), bidicontext( 0 )  {  }
+	w( 0 )
+#ifndef QT_NO_COMPLEXTEXT
+	, bidicontext( 0 )
+#endif
+    {  }
+#ifndef QT_NO_COMPLEXTEXT
     QTextParagLineStart( QBidiContext *c, QBidiStatus s ) : y(0), baseLine(0), h(0),
 	status( s ), bidicontext( c ) { if ( bidicontext ) bidicontext->ref(); }
-    virtual ~QTextParagLineStart() { if ( bidicontext && bidicontext->deref() ) delete bidicontext; }
+#endif
 
+    virtual ~QTextParagLineStart()
+    {
+#ifndef QT_NO_COMPLEXTEXT
+	if ( bidicontext && bidicontext->deref() )
+	    delete bidicontext;
+#endif
+    }
+
+#ifndef QT_NO_COMPLEXTEXT
     void setContext( QBidiContext *c ) {
 	if ( c == bidicontext )
 	    return;
@@ -1046,15 +1064,19 @@ struct Q_EXPORT QTextParagLineStart
 	    bidicontext->ref();
     }
     QBidiContext *context() const { return bidicontext; }
+#endif
 
 public:
     ushort y, baseLine, h;
+#ifndef QT_NO_COMPLEXTEXT
     QBidiStatus status;
+#endif
     int w;
 
 private:
+#ifndef QT_NO_COMPLEXTEXT
     QBidiContext *bidicontext;
-
+#endif
 };
 
 #if defined(Q_TEMPLATEDLL)
@@ -1298,8 +1320,10 @@ public:
 protected:
     virtual QTextParagLineStart *formatLine( QTextParag *parag, QTextString *string, QTextParagLineStart *line, QTextStringChar *start,
 					       QTextStringChar *last, int align = Qt::AlignAuto, int space = 0 );
+#ifndef QT_NO_COMPLEXTEXT
     virtual QTextParagLineStart *bidiReorderLine( QTextParag *parag, QTextString *string, QTextParagLineStart *line, QTextStringChar *start,
 						    QTextStringChar *last, int align, int space );
+#endif
     virtual bool isBreakable( QTextString *string, int pos ) const;
     void insertLineStart( QTextParag *parag, int index, QTextParagLineStart *ls );
 

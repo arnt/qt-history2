@@ -69,7 +69,9 @@ public:
 #endif
     bool	 isIp4Addr()	 const;
     Q_UINT32	 ip4Addr()	 const;
+#ifndef QT_NO_SPRINTF
     QString	 toString() const;
+#endif
 
     bool	 operator==( const QHostAddress & ) const;
 

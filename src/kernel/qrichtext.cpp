@@ -4601,8 +4601,10 @@ QTextFormatter::QTextFormatter()
 QTextParagLineStart *QTextFormatter::formatLine( QTextParag *parag, QTextString *string, QTextParagLineStart *line,
 						   QTextStringChar *startChar, QTextStringChar *lastChar, int align, int space )
 {
+#ifndef QT_NO_COMPLEXTEXT
     if( string->isBidi() )
 	return bidiReorderLine( parag, string, line, startChar, lastChar, align, space );
+#endif
     space = QMAX( space, 0 ); // #### with nested tables this gets negative because of a bug I didn't find yet, so workaround for now. This also means non-left aligned nested tables do not work at the moment
     int start = (startChar - &string->at(0));
     int last = (lastChar - &string->at(0) );
@@ -4638,6 +4640,8 @@ QTextParagLineStart *QTextFormatter::formatLine( QTextParag *parag, QTextString 
 
     return new QTextParagLineStart();
 }
+
+#ifndef QT_NO_COMPLEXTEXT
 
 #ifdef BIDI_DEBUG
 #include <iostream>
@@ -4763,6 +4767,7 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextSt
     delete runs;
     return ls;
 }
+#endif
 
 bool QTextFormatter::isBreakable( QTextString *string, int pos ) const
 {

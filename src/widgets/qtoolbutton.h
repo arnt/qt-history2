@@ -68,10 +68,12 @@ class Q_EXPORT QToolButton : public QButton
 
 public:
     QToolButton( QWidget * parent, const char* Q_NAME );
+#ifndef QT_NO_TOOLBAR
     QToolButton( const QIconSet& s, const QString &textLabel,
 		 const QString& grouptext,
 		 QObject * receiver, const char* slot,
 		 QToolBar * parent, const char* Q_NAME );
+#endif
     QToolButton( ArrowType type, QWidget *parent, const char* Q_NAME );
     ~QToolButton();
 
@@ -92,6 +94,7 @@ public:
     bool usesTextLabel() const { return utl; }
     QString textLabel() const { return tl; }
 
+#ifndef QT_NO_POPUPMENU
     void setPopup( QPopupMenu* popup );
     QPopupMenu* popup() const;
 
@@ -99,6 +102,7 @@ public:
     int popupDelay() const;
 
     void openPopup();
+#endif
 
     void setAutoRaise( bool enable );
     bool autoRaise() const;

@@ -952,7 +952,9 @@ void QVariant::load( QDataStream& s )
     case Bitmap:
 	{
 	    QBitmap* x = new QBitmap;
+#ifndef QT_NO_IMAGEIO
 	    s >> *x;
+#endif
 	    d->value.ptr = x;
 	}
 	break;
@@ -1003,14 +1005,18 @@ void QVariant::load( QDataStream& s )
     case Pixmap:
 	{
 	    QPixmap* x = new QPixmap;
+#ifndef QT_NO_IMAGEIO
 	    s >> *x;
+#endif
 	    d->value.ptr = x;
 	}
 	break;
     case Image:
 	{
 	    QImage* x = new QImage;
+#ifndef QT_NO_IMAGEIO
 	    s >> *x;
+#endif
 	    d->value.ptr = x;
 	}
 	break;
@@ -1157,7 +1163,9 @@ void QVariant::save( QDataStream& s ) const
 	s << *((QCursor*)d->value.ptr);
 	break;
     case Bitmap:
+#ifndef QT_NO_IMAGEIO
 	s << *((QBitmap*)d->value.ptr);
+#endif
 	break;
     case PointArray:
 	s << *((QPointArray*)d->value.ptr);
@@ -1188,10 +1196,14 @@ void QVariant::save( QDataStream& s ) const
 	s << *((QFont*)d->value.ptr);
 	break;
     case Pixmap:
+#ifndef QT_NO_IMAGEIO
 	s << *((QPixmap*)d->value.ptr);
+#endif
 	break;
     case Image:
+#ifndef QT_NO_IMAGEIO
 	s << *((QImage*)d->value.ptr);
+#endif
 	break;
     case Brush:
 	s << *((QBrush*)d->value.ptr);
@@ -1418,6 +1430,7 @@ const QStringList QVariant::toStringList() const
 {
     if ( d->typ == StringList )
 	return *((QStringList*)d->value.ptr);
+#ifndef QT_NO_TEMPLATE_VARIANT
     if ( d->typ == List ) {
 	QStringList lst;
 	QValueList<QVariant>::ConstIterator it = listBegin();
@@ -1429,6 +1442,7 @@ const QStringList QVariant::toStringList() const
 	}
 	return lst;
     }
+#endif
 
     return QStringList();
 }

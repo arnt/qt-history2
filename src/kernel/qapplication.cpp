@@ -2374,11 +2374,13 @@ QString QApplication::translate( const char * context, const char * sourceText,
 		return result;
 	}
     }
+#ifndef QT_NO_TEXTCODEC
     if ( utf8 )
 	return QString::fromUtf8( sourceText );
     else if ( default_codec != 0 )
 	return default_codec->toUnicode( sourceText );
     else
+#endif
 	return QString::fromLatin1( sourceText );
 }
 

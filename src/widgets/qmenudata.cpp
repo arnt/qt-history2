@@ -177,12 +177,14 @@ QMenuData::QMenuData()
 
 QMenuData::~QMenuData()
 {
+#ifndef QT_NO_POPUPMENU
     register QMenuItem *mi = mitems->first();
     while ( mi ) {
 	if ( mi->popup_menu )			// reset parent pointer for all
 	    mi->popup_menu->parentMenu = 0;	//   child menus
 	mi = mitems->next();
     }
+#endif
     delete mitems;				// delete menu item list
     delete d;
 }
@@ -1075,8 +1077,10 @@ void QMenuData::setItemChecked( int id, bool check )
     QMenuItem *mi = findItem( id, &parent );
     if ( mi && (bool)mi->is_checked != check ) {
 	mi->is_checked = check;
+#ifndef QT_NO_POPUPMENU
 	if ( parent->isPopupMenu && !((QPopupMenu *)parent)->isCheckable() )
 	    ((QPopupMenu *)parent)->setCheckable( TRUE );
+#endif
 	parent->menuStateChanged();
     }
 }
@@ -1121,11 +1125,13 @@ QMenuItem * QMenuData::findItem( int id, QMenuData ** parent ) const
     it.toFirst();
     while ( (mi=it.current()) ) {		// search submenus
 	++it;
+#ifndef QT_NO_POPUPMENU
 	if ( mi->popup_menu ) {
 	    mi = mi->popup_menu->findItem( id, parent );
 	    if ( mi )				// found item
 		return mi;
 	}
+#endif
     }
     return 0;					// not found
 }
@@ -1413,8 +1419,10 @@ void QMenuData::activateItemAt( int index )
 	( (QMenuBar*)this )->activateItemAt( index );
     else
 #endif
+#ifndef QT_NO_POPUPMENU
     if ( isPopupMenu )
 	( (QPopupMenu*)this )->activateItemAt( index );
+#endif
 }
 
 #endif

@@ -251,12 +251,19 @@ void QSqlDatabaseManager::removeDatabase( const QString& name )
 class QSqlDatabasePrivate
 {
 public:
-    QSqlDatabasePrivate(): driver(0), plugIns(0), port(-1) {}
+    QSqlDatabasePrivate():
+	driver(0),
+#ifndef QT_NO_COMPONENT
+	plugIns(0),
+#endif
+	port(-1) {}
     ~QSqlDatabasePrivate()
     {
     }
     QSqlDriver* driver;
+#ifndef QT_NO_COMPONENT
     QPluginManager<QSqlDriverFactoryInterface> *plugIns;
+#endif
     QString dbname;
     QString uname;
     QString pword;
@@ -521,7 +528,9 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 QSqlDatabase::~QSqlDatabase()
 {
     delete d->driver;
+#ifndef QT_NO_COMPONENT
     delete d->plugIns;
+#endif
     delete d;
 }
 

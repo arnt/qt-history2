@@ -38,10 +38,6 @@
 #include <qsocket.h>
 #endif // QT_H
 
-#if defined(QT_NO_NETWORK) || defined(QT_NO_DNS)
-#define QT_NO_SOUNDSERVER
-#endif
-
 #ifndef QT_NO_SOUND
 
 class QWSSoundServer : public QObject {
@@ -56,7 +52,7 @@ private:
     Data* d;
 };
 
-#ifndef QT_NO_SOUNDSERVER
+#ifndef QT_NO_QWS_SOUNDSERVER
 class QWSSoundClient : public QSocket {
     Q_OBJECT
 public:

@@ -116,7 +116,9 @@ QErrorMessage::QErrorMessage( QWidget * parent, const char * name )
 {
     QGridLayout * grid = new QGridLayout( this, 3, 2, 7 );
     icon = new QLabel( this, "qt_icon_lbl" );
+#ifndef QT_NO_MESSAGEBOX
     icon->setPixmap( QMessageBox::standardIcon( QMessageBox::Information) );
+#endif
     grid->addWidget( icon, 0, 0, AlignTop );
     errors = new QTextView( this, "errors" );
     grid->addWidget( errors, 0, 1, AlignTop );

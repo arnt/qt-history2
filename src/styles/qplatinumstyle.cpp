@@ -729,6 +729,7 @@ void QPlatinumStyle::drawControl( ControlElement element,
     switch( element ) {
     case CE_PushButton:
 	{
+#ifndef QT_NO_PUSHBUTTON
 	    QColorGroup myCg( cg );
 	    const QPushButton *btn;
 	    int x1, y1, x2, y2;
@@ -832,9 +833,11 @@ void QPlatinumStyle::drawControl( ControlElement element,
 	    if ( p->brush().style() != NoBrush )
 		p->setBrush( NoBrush );
 	    break;
+#endif
 	}
     case CE_PushButtonLabel:
 	{
+#ifndef QT_NO_PUSHBUTTON
 	    const QPushButton *btn;
 	    bool on;
 	    int x, y, w, h;
@@ -895,6 +898,7 @@ void QPlatinumStyle::drawControl( ControlElement element,
 			       subRect(SR_PushButtonFocusRect, widget),
 			       cg, flags );
 	    break;
+#endif
 	}
     default:
 	QWindowsStyle::drawControl( element, p, widget, r, cg, how, data );
@@ -1050,6 +1054,7 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 		p->drawPoint( a[6] );
 
 	    }
+#ifndef QT_NO_COMBOBOX
 	    if ( sub & SC_ComboBoxEditField ) {
 		const QComboBox *cmb;
 		cmb = (const QComboBox*)widget;
@@ -1096,6 +1101,7 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 		    qDrawShadePanel( p, ir, cg, TRUE, 2, 0 );
 		}
 	    }
+#endif
 	    break;
 	}
     case CC_Slider:
@@ -1300,6 +1306,7 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
     QRect rect;
     switch( control ) {
     case CC_ComboBox:
+#ifndef QT_NO_COMBOBOX
 	const QComboBox *cb;
 	cb = (const QComboBox *)widget;
 	switch( sc ) {
@@ -1326,6 +1333,7 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 							  data );
 	    break;
 	}
+#endif
 	break;
     case CC_ScrollBar:
 	{

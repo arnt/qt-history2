@@ -1711,7 +1711,9 @@ void QMainWindow::triggerLayout( bool deleteLayout )
  */
 void QMainWindow::whatsThis()
 {
+#ifndef QT_WHATSTHIS
     QWhatsThis::enterWhatsThisMode();
+#endif
 }
 
 

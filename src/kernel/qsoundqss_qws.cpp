@@ -51,7 +51,7 @@
 #define QT_QWS_SOUND_STEREO 1 // or 0, or undefined for always 0
 
 static int sound_speed = 44100;
-#ifndef QT_NO_SOUNDSERVER
+#ifndef QT_NO_QWS_SOUNDSERVER
 static int sound_port = 4992;
 #endif
 
@@ -76,7 +76,7 @@ static bool sound_16bit=QT_QWS_SOUND_16BIT;
 static const bool sound_16bit=FALSE;
 #endif
 
-#ifndef QT_NO_SOUNDSERVER
+#ifndef QT_NO_QWS_SOUNDSERVER
 QWSSoundServerClient::QWSSoundServerClient(int s, QObject* parent) :
     QSocket(parent)
 {
@@ -238,7 +238,7 @@ private:
     int samples_due;
 };
 
-#ifndef QT_NO_SOUNDSERVER
+#ifndef QT_NO_QWS_SOUNDSERVER
 QWSSoundServerSocket::QWSSoundServerSocket(QObject* parent, const char* name) :
     QServerSocket(sound_port, 0, parent, name)
 {
@@ -260,7 +260,7 @@ public:
     Data(QObject* parent=0, const char* name=0) :
 	QObject(parent, name)
     {
-#ifndef QT_NO_SOUNDSERVER
+#ifndef QT_NO_QWS_SOUNDSERVER
 	server = new QWSSoundServerSocket(this);
 	connect(server, SIGNAL(playFile(const QString&)),
 		this, SLOT(playFile(const QString&)));
@@ -419,7 +419,7 @@ private:
     char* cursor;
     short d16[sound_buffer_size*2];
     signed char d8[sound_buffer_size*2];
-#ifndef QT_NO_SOUNDSERVER
+#ifndef QT_NO_QWS_SOUNDSERVER
     QWSSoundServerSocket *server;
 #endif
 };
@@ -439,7 +439,7 @@ QWSSoundServer::~QWSSoundServer()
 {
 }
 
-#ifndef QT_NO_SOUNDSERVER
+#ifndef QT_NO_QWS_SOUNDSERVER
 QWSSoundClient::QWSSoundClient( QObject* parent ) :
     QSocket(parent)
 {
@@ -449,7 +449,11 @@ QWSSoundClient::QWSSoundClient( QObject* parent ) :
 void QWSSoundClient::play( const QString& filename )
 {
     QFileInfo fi(filename);
+#ifndef QT_NO_TEXTCODEC
     QCString u = ("PLAY " + fi.absFilePath() + "\n").utf8();
+#else
+    QCString u = ("PLAY " + fi.absFilePath() + "\n").latin1();
+#endif
     writeBlock(u.data(), u.length());
 }
 #endif

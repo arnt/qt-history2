@@ -839,8 +839,10 @@ void QLabel::acceleratorSlot()
 	 w->isVisible() &&
 	 w->focusPolicy() != NoFocus ) {
 	w->setFocus();
+#ifndef QT_NO_LINEEDIT
 	if ( w->inherits( "QLineEdit" ) )
 	    ( (QLineEdit*)w )->selectAll();
+#endif
     }
 }
 #endif

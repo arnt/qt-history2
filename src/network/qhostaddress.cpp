@@ -290,7 +290,7 @@ Q_UINT32 QHostAddress::ip4Addr() const
     return d->a;
 }
 
-
+#ifndef QT_NO_SPRINTF
 /*!
   Returns the address as a string.
 
@@ -320,6 +320,7 @@ QString QHostAddress::toString() const
 	return s;
     }
 }
+#endif
 
 
 /*!

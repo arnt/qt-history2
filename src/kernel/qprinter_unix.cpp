@@ -35,14 +35,11 @@
 **
 **********************************************************************/
 
-#ifndef QT_H
-#  include <qfeatures.h>
-#endif // QT_H
+#include "qplatformdefs.h"
+#include "qprinter.h"
 
 #ifndef QT_NO_PRINTER
 
-#include "qplatformdefs.h"
-#include "qprinter.h"
 #include "qpaintdevicemetrics.h"
 #include "qpsprinter_p.h"
 #include "qprintdialog.h"
@@ -214,7 +211,11 @@ static void deleteGlobalPrinterDefaults()
 
 bool QPrinter::setup( QWidget * /*parent*/ )
 {
+#ifndef QT_NO_PRINTDIALOG
     bool result = QPrintDialog::getPrinterSetup( this );
+#else
+    bool result = FALSE;
+#endif
     if ( result ) {
 	if ( !globalPrinterDefaults ) {
 	    globalPrinterDefaults = new PrinterDefaults;

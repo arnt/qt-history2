@@ -370,9 +370,8 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint& off,
     // Convert to pixmap and paste that onto myself
     QPixmap lines;
 
-    if (frameperiod < 0 && loop == -1)
-        lines.convertFromImage( img );
-    else {
+#ifndef QT_NO_SPRINTF
+    if (!(frameperiod < 0 && loop == -1)) {
         // its an animation, lets see if we converted
         // this frame already.
         QString key;
@@ -382,6 +381,10 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint& off,
             QPixmapCache::insert( key, lines );
             dirty_cache = TRUE;
         }
+    } else
+#endif
+    {
+        lines.convertFromImage( img );
     }
 
     bitBlt(&mypixmap, area.left(), area.top(),

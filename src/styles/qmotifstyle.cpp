@@ -684,6 +684,7 @@ void QMotifStyle::drawControl( ControlElement element,
     switch( element ) {
     case CE_PushButton:
 	{
+#ifndef QT_NO_PUSHBUTTON
  	    int diw, x1, y1, x2, y2;
  	    const QPushButton *btn;
 	    QColorGroup newCg = cg;
@@ -736,11 +737,13 @@ void QMotifStyle::drawControl( ControlElement element,
 	    }
  	    if ( p->brush().style() != NoBrush )
  		p->setBrush( NoBrush );
+#endif
 	    break;
 	}
 
     case CE_TabBarTab:
 	{
+#ifndef QT_NO_TABBAR
 	    if ( !widget || !widget->parentWidget() )
 		break;
 
@@ -843,6 +846,7 @@ void QMotifStyle::drawControl( ControlElement element,
 	    } else {
 		QCommonStyle::drawControl( element, p, widget, r, cg, flags, data );
 	    }
+#endif
 	    break;
 	}
 
@@ -1163,6 +1167,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	}
 
     case CC_ComboBox:
+#ifndef QT_NO_COMBOBOX
 	if ( sub & SC_ComboBoxArrow ) {
 	    const QComboBox * cb = (const QComboBox *) widget;
 	    int awh, ax, ay, sh, sy, dh, ew;
@@ -1201,7 +1206,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 				 &cg.brush( QColorGroup::Button ));
 	    }
 	}
-
+#endif
 	p->setPen(cg.buttonText());
 	break;
 
@@ -1548,6 +1553,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	}
 
     case CC_ComboBox:
+#ifndef QT_NO_COMBOBOX
 	switch ( sc ) {
 	case SC_ComboBoxArrow:
 	    {
@@ -1576,6 +1582,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	default:
 	    break;
 	}
+#endif
 	break;
 
     default:
@@ -1597,16 +1604,19 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
     switch(contents) {
     case CT_PushButton:
 	{
+#ifndef QT_NO_PUSHBUTTON
 	    const QPushButton *button = (const QPushButton *) widget;
 	    sz = QCommonStyle::sizeFromContents(contents, widget, contentsSize, data);
 	    if ((button->isDefault() || button->autoDefault()) &&
 		sz.width() < 80 && ! button->pixmap())
 		sz.setWidth(80);
+#endif
 	    break;
 	}
 
     case CT_PopupMenuItem:
 	{
+#ifndef QT_NO_POPUPMENU
 	    if (! widget || ! data)
 		break;
 
@@ -1648,6 +1658,7 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
 		w += motifCheckMarkHMargin;
 
 	    sz = QSize(w, h);
+#endif
 	    break;
 	}
 
@@ -1685,6 +1696,7 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 
     case SR_DockWindowHandleRect:
 	{
+#ifndef QT_NO_MAINWINDOW
 	    if ( !widget || !widget->parent() )
 		break;
 
@@ -1697,6 +1709,7 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 		else
 		    rect.setRect(0, 2, widget->width() - 15, widget->height() - 2);
 	    }
+#endif
 	    break;
 	}
 
@@ -1750,11 +1763,14 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 */
 void QMotifStyle::polishPopupMenu( QPopupMenu* p)
 {
+#ifndef QT_NO_POPUPMENU
     if ( !p->testWState( WState_Polished ) )
         p->setCheckable( FALSE );
+#endif
 }
 
 
+#ifndef QT_NO_IMAGEIO_XPM
 static const char * const qt_close_xpm[] = {
 "12 12 2 1",
 "       s None  c None",
@@ -2014,7 +2030,7 @@ static const char* const critical_xpm[]={
 ".........aa********aaaaa........",
 "...........aaaaaaaaaaa..........",
 ".............aaaaaaa............"};
-
+#endif
 
 /*!
  \reimp
@@ -2023,6 +2039,7 @@ QPixmap QMotifStyle::stylePixmap(StylePixmap sp,
 				 const QWidget *widget,
 				 void **data) const
 {
+#ifndef QT_NO_IMAGEIO_XPM
     switch (sp) {
     case SP_TitleBarShadeButton:
 	return QPixmap((const char **)qt_shade_xpm);
@@ -2090,6 +2107,7 @@ QPixmap QMotifStyle::stylePixmap(StylePixmap sp,
     default:
 	break;
     }
+#endif
 
     return QCommonStyle::stylePixmap(sp, widget, data);
 }

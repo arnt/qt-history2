@@ -32,7 +32,12 @@
 #include <qapplication.h>
 #include <qwidget.h>
 #include <qpainter.h>
+#include <qdrawutil.h>
 #include "qwskde2decoration_qws.h"
+
+#ifndef QT_NO_STYLE
+#define QT_NO_STYLE // ##### this file uses old style API
+#endif
 
 #ifndef QT_NO_QWS_KDE2_WM_STYLE
 

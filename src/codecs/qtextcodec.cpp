@@ -2417,9 +2417,11 @@ static void setupBuiltinCodecs()
 	(void)new QSimpleTextCodec( i );
     } while( unicodevalues[i++].mib != LAST_MIB );
 
-    (void)new QHebrewCodec;
     (void)new QTsciiCodec;
 #endif // QT_NO_CODECS
+#ifndef QT_NO_CODEC_HEBREW
+    (void)new QHebrewCodec;
+#endif
 #ifndef QT_NO_BIG_CODECS
     (void)new QBig5Codec;
     (void)new QEucJpCodec;

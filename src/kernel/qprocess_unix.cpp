@@ -35,12 +35,6 @@
 **
 **********************************************************************/
 
-#ifndef QT_H
-# include <qfeatures.h>
-#endif // QT_H
-
-#ifndef QT_NO_PROCESS
-
 #include "qplatformdefs.h"
 
 // Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
@@ -49,6 +43,8 @@
 #endif
 
 #include "qprocess.h"
+
+#ifndef QT_NO_PROCESS
 
 #include "qapplication.h"
 #include "qptrqueue.h"

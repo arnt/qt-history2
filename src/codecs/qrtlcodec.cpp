@@ -38,7 +38,7 @@
 #include "qrtlcodec.h"
 #include "private/qcomplextext_p.h"
 
-#ifndef QT_NO_CODECS
+#ifndef QT_NO_CODEC_HEBREW
 
 // NOT REVISED
 

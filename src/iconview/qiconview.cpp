@@ -352,12 +352,11 @@ public:
     QIconViewPrivate::ItemContainer *container1, *container2;
 };
 
+#ifndef QT_NO_TEXTEDIT
 
 class QIconViewItemLineEdit : public QTextEdit
 {
     friend class QIconViewItem;
-
-    Q_OBJECT
 
 public:
     QIconViewItemLineEdit( const QString &text, QWidget *parent, QIconViewItem *theItem, const char* Q_NAME );
@@ -415,6 +414,7 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent *e )
     if ( e->reason() != QFocusEvent::Popup )
 	item->cancelRenameItem();
 }
+#endif
 
 #ifndef QT_NO_DRAGANDDROP
 
@@ -880,7 +880,9 @@ void QIconViewItem::init( QIconViewItem *after
     allow_drop = TRUE;
     selected = FALSE;
     selectable = TRUE;
+#ifndef QT_NO_TEXTEDIT
     renameBox = 0;
+#endif
 #ifndef QT_NO_PICTURE
     itemPic = pic;
 #endif
@@ -1600,6 +1602,7 @@ bool QIconViewItem::acceptDrop( const QMimeSource * ) const
     return FALSE;
 }
 
+#ifndef QT_NO_TEXTEDIT
 /*!
   Starts in-place renaming of an icon, if allowed.
 
@@ -1626,6 +1629,7 @@ void QIconViewItem::rename()
     renameBox->setFocus();
     renameBox->show();
 }
+#endif
 
 /*!
   Compares this icon view item to \a i. Returns -1 if this item
@@ -1652,6 +1656,7 @@ int QIconViewItem::compare( QIconViewItem *i ) const
     return key().localeAwareCompare( i->key() );
 }
 
+#ifndef QT_NO_TEXTEDIT
 /*!
   This private function is called when the user pressed Return during
   in-place renaming.
@@ -1712,6 +1717,7 @@ void QIconViewItem::removeRenameBox()
 	view->setFocus();
     }
 }
+#endif
 
 /*! This virtual function is responsible for calculating the
   rectangles returned by rect(), textRect() and pixmapRect().
@@ -4122,8 +4128,10 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
     if ( item )
 	d->selectAnchor = item;
 
+#ifndef QT_NO_TEXTEDIT
     if ( d->currentItem )
 	d->currentItem->renameItem();
+#endif
 
     if ( !d->currentItem && !item && d->firstItem ) {
 	d->currentItem = d->firstItem;
@@ -4138,11 +4146,13 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 
 	if ( !item->renameEnabled() ) {
 	    d->mousePressed = TRUE;
+#ifndef QT_NO_TEXTEDIT
 	} else {
 	    ensureItemVisible( item );
 	    setCurrentItem( item );
 	    item->rename();
 	    goto emit_signals;
+#endif
 	}
     }
 
@@ -4623,6 +4633,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
     case Key_Escape:
 	e->ignore();
 	break;
+#ifndef QT_NO_TEXTEDIT
     case Key_F2: {
 	if ( d->currentItem->renameEnabled() ) {
 	    d->currentItem->renameItem();
@@ -4630,6 +4641,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	    return;
 	}
     } break;
+#endif
     case Key_Home: {
 	d->currInputString = QString::null;
 	if ( !d->firstItem )
@@ -5929,7 +5941,5 @@ void QIconView::windowActivationChange( bool )
     if ( acg != icg )
 	viewport()->update();
 }
-
-#include "qiconview.moc"
 
 #endif // QT_NO_ICONVIEW

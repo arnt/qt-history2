@@ -1769,6 +1769,7 @@ void QTextEdit::contentsContextMenuEvent( QContextMenuEvent *e )
     clearUndoRedo();
 
     e->accept();
+#ifndef QT_NO_POPUPMENU
     if ( !isReadOnly() ) {
 	QPopupMenu *popup = createPopupMenu();
 	int r = popup->exec( e->globalPos() );
@@ -1791,6 +1792,7 @@ void QTextEdit::contentsContextMenuEvent( QContextMenuEvent *e )
 	    paste();
 #endif
     }
+#endif
 }
 
 void QTextEdit::doAutoScroll()
@@ -3556,6 +3558,7 @@ void QTextEdit::pasteSpecial( const QPoint& pt )
 QCString QTextEdit::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint& pt )
 {
     if ( ms )  {
+#ifndef QT_NO_POPUPMENU
 	QPopupMenu popup( this, "qt_pickspecial_menu" );
 	QString fmt;
 	int n = 0;
@@ -3578,6 +3581,18 @@ QCString QTextEdit::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint&
 	    if ( i >= 0 )
 		return popup.text(i).latin1();
 	}
+#else
+	QString fmt;
+	for (int i = 0; !( fmt = ms->format( i ) ).isNull(); i++) {
+	    int semi = fmt.find( ";" );
+	    if ( semi >= 0 )
+		fmt = fmt.left( semi );
+	    if ( fmt.left( 5 ) == "text/" ) {
+		fmt = fmt.mid( 5 );
+		return fmt.latin1();
+	    }
+	}
+#endif
     }
     return QCString();
 }
@@ -3880,6 +3895,7 @@ bool QTextEdit::getParagraphFormat( int para, QFont *font, QColor *color,
 
 QPopupMenu *QTextEdit::createPopupMenu()
 {
+#ifndef QT_NO_POPUPMENU
     QPopupMenu *popup = new QPopupMenu( this, "qt_edit_menu" );
     d->id[ IdUndo ] = popup->insertItem( tr( "Undo" ) );
     d->id[ IdRedo ] = popup->insertItem( tr( "Redo" ) );
@@ -3902,6 +3918,9 @@ QPopupMenu *QTextEdit::createPopupMenu()
     popup->setItemEnabled( d->id[ IdClear ], !isReadOnly() && !text().isEmpty() );
     popup->setItemEnabled( d->id[ IdSelectAll ], (bool)text().length() );
     return popup;
+#else
+    return 0;
+#endif
 }
 
 /*! \reimp */

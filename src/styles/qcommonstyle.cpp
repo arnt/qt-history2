@@ -512,6 +512,7 @@ void QCommonStyle::drawControl( ControlElement element,
     switch (element) {
     case CE_PushButton:
 	{
+#ifndef QT_NO_PUSHBUTTON
 	    const QPushButton *button = (const QPushButton *) widget;
 	    QRect br = r;
 	    int dbi = pixelMetric(PM_ButtonDefaultIndicator, widget);
@@ -527,11 +528,13 @@ void QCommonStyle::drawControl( ControlElement element,
 	    }
 
 	    drawPrimitive(PE_ButtonCommand, p, br, cg, flags);
+#endif
 	    break;
 	}
 
     case CE_PushButtonLabel:
 	{
+#ifndef QT_NO_PUSHBUTTON
 	    const QPushButton *button = (const QPushButton *) widget;
 	    QRect ir = r;
 
@@ -573,6 +576,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    if (flags & Style_HasFocus)
 		drawPrimitive(PE_FocusRect, p, subRect(SR_PushButtonFocusRect, widget),
 			      cg, flags);
+#endif
 	    break;
 	}
 
@@ -740,6 +744,7 @@ void QCommonStyle::drawControl( ControlElement element,
 
     case CE_MenuBarItem:
 	{
+#ifndef QT_NO_MENUDATA
 	    if (! data)
 		break;
 
@@ -747,6 +752,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    drawItem( p, r, AlignCenter|ShowPrefix|DontClip|SingleLine, cg,
 		      flags & Style_Enabled, mi->pixmap(), mi->text(), -1,
 		      &cg.buttonText() );
+#endif
 	    break;
 	}
 
@@ -874,6 +880,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
     switch (r) {
     case SR_PushButtonContents:
 	{
+#ifndef QT_NO_PUSHBUTTON
 	    const QPushButton *button = (const QPushButton *) widget;
 	    int dx1, dx2;
 
@@ -886,11 +893,13 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 			 wrect.y()      + dx1,
 			 wrect.width()  - dx2,
 			 wrect.height() - dx2);
+#endif
 	    break;
 	}
 
     case SR_PushButtonFocusRect:
 	{
+#ifndef QT_NO_PUSHBUTTON
 	    const QPushButton *button = (const QPushButton *) widget;
 	    int dbw1 = 0, dbw2 = 0;
 	    if (button->isDefault() || button->autoDefault()) {
@@ -905,6 +914,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 			 wrect.y()      + dfw1 + dbw1,
 			 wrect.width()  - dfw2 - dbw2,
 			 wrect.height() - dfw2 - dbw2);
+#endif
 	    break;
 	}
 
@@ -1860,6 +1870,7 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
 
     case CC_TitleBar:
 	{
+#ifndef QT_NO_TITLEBAR
 	    const QTitleBar *titlebar = (QTitleBar*)widget;
 	    QRect r;
 	    uint ctrl = SC_TitleBarLabel;
@@ -1883,7 +1894,7 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
 			ret = QStyle::SC_TitleBarNormalButton;
 		}
 	    }
-	    
+#endif 
 	    break;
 	}
 
@@ -2068,6 +2079,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
     switch (contents) {
     case CT_PushButton:
 	{
+#ifndef QT_NO_PUSHBUTTON
 	    const QPushButton *button = (const QPushButton *) widget;
 	    int w = contentsSize.width(),
 		h = contentsSize.height(),
@@ -2084,6 +2096,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	    }
 
 	    sz = QSize(w, h);
+#endif
 	    break;
 	}
 
@@ -2122,6 +2135,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 
     case CT_PopupMenuItem:
 	{
+#ifndef QT_NO_POPUPMENU
 	    if (! data)
 		break;
 
@@ -2159,6 +2173,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	    w += 12;
 
 	    sz = QSize(w, h);
+#endif
 	    break;
 	}
 

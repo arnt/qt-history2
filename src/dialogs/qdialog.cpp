@@ -256,7 +256,7 @@ QDialog::~QDialog()
 
 void QDialog::setDefault( QPushButton *pushButton )
 {
-#ifndef QT_NO_DIALOG
+#ifndef QT_NO_PUSHBUTTON
     QObjectList *list = queryList( "QPushButton" );
     Q_ASSERT(list);
     QObjectListIt it( *list );
@@ -286,7 +286,7 @@ void QDialog::setDefault( QPushButton *pushButton )
  */
 void QDialog::hideDefault()
 {
-#ifndef QT_NO_DIALOG
+#ifndef QT_NO_PUSHBUTTON
     QObjectList *list = queryList( "QPushButton" );
     QObjectListIt it( *list );
     QPushButton *pb;
@@ -414,10 +414,10 @@ bool QDialog::eventFilter( QObject *o, QEvent *e )
 /*! \reimp */
 void QDialog::contextMenuEvent( QContextMenuEvent *e )
 {
+#if !defined(QT_NO_WHATSTHIS) && !defined(QT_NO_POPUPMENU)
     QWidget* w = childAt( e->pos(), TRUE );
     if ( !w )
 	return;
-#ifndef QT_NO_WHATSTHIS
     QString s = QWhatsThis::textFor( w, e->pos(), TRUE );
     if ( !s.isEmpty() ) {
 	QPopupMenu p(0,"qt_whats_this_menu");
@@ -438,7 +438,7 @@ void QDialog::keyPressEvent( QKeyEvent *e )
 	switch ( e->key() ) {
 	case Key_Enter:
 	case Key_Return: {
-#ifndef QT_NO_DIALOG
+#ifndef QT_NO_PUSHBUTTON
 	    QObjectList *list = queryList( "QPushButton" );
 	    QObjectListIt it( *list );
 	    QPushButton *pb;
@@ -530,6 +530,7 @@ void QDialog::show()
 {
     if ( testWState(WState_Visible) )
 	return;
+#ifndef QT_NO_PUSHBUTTON
     if ( !d->mainDef ) {
 	QObjectList *pbs = queryList( "QPushButton" );
 	if ( pbs && !pbs->isEmpty() ) {
@@ -545,6 +546,7 @@ void QDialog::show()
 	}
 	delete pbs;
     }
+#endif
     if ( !did_resize )
 	adjustSize();
     if ( !did_move ) {

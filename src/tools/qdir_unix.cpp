@@ -35,14 +35,11 @@
 **
 **********************************************************************/
 
-#ifndef QT_H
-#include <qfeatures.h>
-#endif // QT_H
+#include "qplatformdefs.h"
+#include "qdir.h"
 
 #ifndef QT_NO_DIR
 
-#include "qplatformdefs.h"
-#include "qdir.h"
 #include "qdir_p.h"
 #include "qfileinfo.h"
 #include "qregexp.h"

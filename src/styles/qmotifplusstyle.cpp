@@ -763,6 +763,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
     switch (element) {
     case CE_PushButton:
 	{
+#ifndef QT_NO_PUSHBUTTON
 	    const QPushButton *button = (const QPushButton *) widget;
 	    QRect br = r;
 	    int dbi = pixelMetric(PM_ButtonDefaultIndicator, widget);
@@ -781,6 +782,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 	    if (flags & Style_HasFocus)
 		br.addCoords(1, 1, -1, -1);
 	    drawPrimitive(PE_ButtonCommand, p, br, cg, flags);
+#endif
 	    break;
 	}
 
@@ -817,6 +819,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 
     case CE_MenuBarItem:
 	{
+#ifndef QT_NO_MENUDATA
 	    if (! data)
 		break;
 
@@ -829,6 +832,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 	    drawItem(p, r, AlignCenter | ShowPrefix | DontClip | SingleLine,
 		     cg, flags & Style_Enabled, mi->pixmap(), mi->text(), -1,
 		     &cg.buttonText());
+#endif
 	    break;
 	}
 
@@ -975,6 +979,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 
     case CE_TabBarTab:
 	{
+#ifndef QT_NO_TABBAR
 	    const QTabBar *tabbar = (const QTabBar *) widget;
 	    bool selected = flags & Style_Selected;
 
@@ -1070,6 +1075,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 		QMotifStyle::drawControl(element, p, widget, r, cg, flags, data);
 
 	    p->setPen(oldpen);
+#endif
 	    break;
 	}
 
@@ -1089,13 +1095,14 @@ QRect QMotifPlusStyle::subRect(SubRect r, const QWidget *widget) const
     switch (r) {
     case SR_PushButtonFocusRect:
 	{
+#ifndef QT_NO_PUSHBUTTON
 	    const QPushButton *button = (const QPushButton *) widget;
 	    int dfi = pixelMetric(PM_ButtonDefaultIndicator, widget);
 
 	    rect = button->rect();
 	    if (button->isDefault() || button->autoDefault())
 		rect.addCoords(dfi, dfi, -dfi, -dfi);
-
+#endif
 	    break;
 	}
 
@@ -1124,6 +1131,7 @@ QRect QMotifPlusStyle::subRect(SubRect r, const QWidget *widget) const
 
     case SR_ComboBoxFocusRect:
 	{
+#ifndef QT_NO_COMBOBOX
 	    const QComboBox *combobox = (const QComboBox *) widget;
 
 	    if (combobox->editable()) {
@@ -1132,6 +1140,7 @@ QRect QMotifPlusStyle::subRect(SubRect r, const QWidget *widget) const
 		rect.addCoords(-3, -3, 3, 3);
 	    } else
 		rect = combobox->rect();
+#endif
 	    break;
 	}
 
@@ -1298,6 +1307,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 
     case CC_ComboBox:
 	{
+#ifndef QT_NO_COMBOBOX
 	    const QComboBox *combobox = (const QComboBox *) widget;
 
 	    QRect editfield, arrow;
@@ -1350,7 +1360,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 		QRect fr = visualRect(subRect(SR_ComboBoxFocusRect, widget), widget);
 		drawPrimitive(PE_FocusRect, p, fr, cg, flags);
 	    }
-
+#endif
 	    break;
 	}
 
@@ -1501,6 +1511,7 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 
     case CC_ComboBox:
 	{
+#ifndef QT_NO_COMBOBOX
 	    const QComboBox *combobox = (const QComboBox *) widget;
 
 	    if (combobox->editable()) {
@@ -1543,7 +1554,7 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 		    break;
 		}
 	    }
-
+#endif
 	    break;
 	}
 

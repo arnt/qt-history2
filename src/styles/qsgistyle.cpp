@@ -850,6 +850,7 @@ void QSGIStyle::drawControl( ControlElement element,
     switch ( element ) {
     case CE_PushButton:
 	{
+#ifndef QT_NO_PUSHBUTTON
 	    const QPushButton *btn = (QPushButton*)widget;
 	    int x1, y1, x2, y2;
 	    r.coords( &x1, &y1, &x2, &y2 );
@@ -888,11 +889,13 @@ void QSGIStyle::drawControl( ControlElement element,
 
 	    if ( p->brush().style() != Qt::NoBrush )
 		p->setBrush( Qt::NoBrush );
+#endif
 	}
     break;
 
     case CE_PopupMenuItem:
 	{
+#ifndef QT_NO_MENUDATA
 	    if (! widget || ! data)
 		break;
 	    QMenuItem *mi = (QMenuItem *) data[0];
@@ -1027,11 +1030,13 @@ void QSGIStyle::drawControl( ControlElement element,
 		int dim = (h-2*sgiItemFrame) / 2;
 		drawPrimitive( PE_ArrowRight, p, QRect( x+w-sgiArrowHMargin-sgiItemFrame-dim, y+h/2-dim/2, dim, dim ), cg, flags );
 	    }
+#endif
 	}
 	break;
 
     case CE_MenuBarItem:
 	{
+#ifndef QT_NO_MENUDATA
 	    if (! data)
 		break;
 
@@ -1064,6 +1069,7 @@ void QSGIStyle::drawControl( ControlElement element,
 		p->drawText( x, y-2, w+1, h, AlignCenter|DontClip|SingleLine, *text, text->length() );
 		delete text;
 	    }
+#endif
 	}
 	break;
 
@@ -1158,6 +1164,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 	}
     case CC_ComboBox:
 	{
+#ifndef QT_NO_COMBOBOX
 	    const QComboBox * cb = (QComboBox *) widget;
 
 	    if (sub & SC_ComboBoxFrame) {
@@ -1188,6 +1195,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 				     cg, TRUE, 1, &cg.brush( QColorGroup::Button ) );
 		}
 	    }
+#endif
 	    break;
 	}
 
