@@ -810,7 +810,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    if ( flags & Style_Selected && tb->currentPage() )
 		p->setBrush( tb->currentPage()->paletteBackgroundColor() );
 	    else
-		p->setBrush( tb->paletteBackgroundColor() );
+		p->setBrush( cg.background() );
 
 	    p->setPen( cg.mid().dark( 150 ) );
 	    p->drawPolygon( a );

@@ -80,7 +80,7 @@ class QToolBoxButton : public QToolButton
 public:
     QToolBoxButton( QWidget *parent, const char *name ) :
 	QToolButton( parent, name ), selected( FALSE )
-    {}
+    { setBackgroundMode( PaletteBackground ); }
 
     void setSelected( bool b ) { selected = b; update(); }
     virtual void setIcon( const QIconSet &is ) { ic = is; }
@@ -161,11 +161,11 @@ void QToolBoxPrivate::updateTabs( QToolBox *tb )
     bool after = FALSE;
     for ( QValueList<Page>::ConstIterator i = pageList.constBegin();
 	  i != pageList.constEnd(); ++i ) {
-	Qt::BackgroundMode bm = pageBackgroundMode == Qt::NoBackground ?
-				real_page( currentPage )->backgroundMode() :
-				pageBackgroundMode;
-	(*i).button->setBackgroundMode( after ? bm : tb->backgroundMode() );
-	(*i).button->update();
+	Qt::BackgroundMode bm = ( after ? tb->backgroundMode() : Qt::PaletteBackground  );
+	if ( (*i).button->backgroundMode() != bm ) {
+	    (*i).button->setBackgroundMode( bm );
+	    (*i).button->update();
+	}
 	after = (*i).button == lastButton;
     }
 }
@@ -233,14 +233,14 @@ void QToolBoxButton::drawButton( QPainter *p )
 		       icon().pixmap( QIconSet::Small, QIconSet::Normal ) );
     QToolBox *tb = (QToolBox*)parentWidget();
 
-    QColor c = tb->paletteForegroundColor();
+    const QColor* fill = 0;
     if ( selected &&
 	 style().styleHint( QStyle::SH_ToolBox_SelectedPageTitleBold ) &&
-	 tb->pageBackgroundMode() != NoBackground )
-	c = cg.color( QPalette::foregroundRoleFromMode( tb->pageBackgroundMode() ) );
+	 tb->backgroundMode() != NoBackground )
+	fill = &cg.color( QPalette::foregroundRoleFromMode( tb->backgroundMode() ) );
 
     style().drawItem( p, tr, AlignLeft | AlignVCenter | ShowPrefix, cg,
-		      isEnabled(), 0, txt, -1, &c );
+		      isEnabled(), 0, txt, -1, fill );
 
     if ( !txt.isEmpty() && hasFocus() )
 	style().drawPrimitive( QStyle::PE_FocusRect, p, tr, cg );
@@ -292,6 +292,7 @@ QToolBox::QToolBox( QWidget *parent, const char *name )
 {
     d = new QToolBoxPrivate;
     d->layout = new QVBoxLayout( this );
+    QWidget::setBackgroundMode( PaletteButton );
 }
 
 /*! \reimp */
@@ -439,6 +440,14 @@ void QToolBox::buttonClicked()
 	    } else if ( direction != 0 ) {
 		buttons.append( (*i).button );
 	    }
+	}
+
+	{
+	    // fix background more for animation
+	    QToolBoxButton* lb = d->lastButton;
+	    d->lastButton = tb;
+	    d->updateTabs( this );
+	    d->lastButton = lb;
 	}
 
 	int dist = 0;
@@ -771,7 +780,8 @@ void QToolBox::setPageBackgroundMode( BackgroundMode bm )
 {
     if ( d->pageBackgroundMode == bm )
 	return;
-    d->pageBackgroundMode = (bm == NoBackground ? PaletteButton : bm);
+    d->pageBackgroundMode = (bm == NoBackground ? backgroundMode() : bm);
+    setBackgroundMode( d->pageBackgroundMode );
     d->updatePageBackgroundMode();
     d->updateTabs( this );
     d->pageBackgroundMode = bm;
