@@ -55,10 +55,10 @@ QString Q_EXPORT qacc_stripAmp(const QString &text)
     const QChar *ch = text.unicode();
     int length = text.length();
     QString str;
-    str.reserve(length);
     while (length > 0) {
 	if (*ch == '&') {
 	    ++ch;
+	    --length;
 	    if (!ch)
 		--ch;
 	}
@@ -84,7 +84,7 @@ QString Q_EXPORT qacc_hotKey(const QString &text)
     }
     if (ac.isNull())
 	return QString();
-    return QAccel::keyToString(Qt::Key_Alt) + QString(ac.lower());
+    return QAccel::keyToString(Qt::ALT) + ac.upper();
 }
 
 class QAccessibleWidgetPrivate : public QAccessible
