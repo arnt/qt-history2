@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#70 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -338,15 +338,12 @@ QPoint QDragObject::pixmapHotSpot() const
   Starts a drag operation using the contents of this object,
   using DragDefault mode.
 
-  The function returns TRUE if thje caller should delete the
+  The function returns TRUE if the caller should delete the
   original copy of the dragged data (but also note target()).
 */
 bool QDragObject::drag()
 {
-    if ( manager )
-	return manager->drag( this, DragDefault );
-    else
-	return FALSE;
+    return drag( DragDefault );
 }
 
 
@@ -356,10 +353,7 @@ bool QDragObject::drag()
 */
 bool QDragObject::dragMove()
 {
-    if ( manager )
-	return manager->drag( this, DragMove );
-    else
-	return FALSE;
+    return drag( DragMove );
 }
 
 
@@ -371,8 +365,7 @@ bool QDragObject::dragMove()
 */
 void QDragObject::dragCopy()
 {
-    if ( manager )
-	manager->drag( this, DragCopy );
+    (void)drag( DragCopy );
 }
 
 
