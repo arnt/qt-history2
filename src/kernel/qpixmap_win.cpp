@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#26 $
 **
 ** Implementation of QPixmap class for Windows
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#25 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#26 $")
 
 
 bool QPixmap::optimAll = TRUE;
@@ -200,7 +200,7 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 #if defined(CHECK_STATE)
 	warning("QPixmap::operator=: Cannot assign to pixmap during painting");
 #endif
-	return;
+	return *this;
     }
     pixmap.data->ref();				// avoid 'x = x'
     if ( data && data->deref() ) {		// last reference lost
