@@ -45,14 +45,14 @@ static bool qws_read_command( QSocket *socket, char *&simpleData, int &simpleLen
 			      int &bytesRead )
 {
     if ( rawLen == -1 ) {
-	if ( (uint)socket->bytesAvailable() < sizeof( rawLen ) )
+	if ( socket->size() < sizeof( rawLen ) )
 	    return FALSE;
 	rawLen = qws_read_uint( socket );
     }
 
     if ( !bytesRead ) {
 	if ( simpleLen ) {
-	    if ( socket->bytesAvailable() < simpleLen )
+	    if ( socket->size() < uint(simpleLen) )
 		return FALSE;
 	    bytesRead = socket->readBlock( simpleData, simpleLen );
 	} else
@@ -62,7 +62,7 @@ static bool qws_read_command( QSocket *socket, char *&simpleData, int &simpleLen
     if ( bytesRead ) {
 	if ( !rawLen )
 	    return TRUE;
-	if ( socket->bytesAvailable() < rawLen )
+	if ( socket->size() < uint(rawLen) )
 	    return FALSE;
 	rawData = new char[ rawLen ];
 	bytesRead += socket->readBlock( rawData, rawLen );
@@ -95,7 +95,8 @@ struct QWSCommand
 	RemoveProperty,
 	GetProperty,
 	SetSelectionOwner,
-	ConvertSelection
+	ConvertSelection,
+	RegionAck
     };
 
     // data
@@ -120,6 +121,8 @@ struct QWSCommand
 	    rawLen = 0;
 	    return;
 	}
+	if ( len < 0 )
+	    return;
 	if ( allocateMem )
 	    rawDataPtr = new char[ len ];
 	memcpy( rawDataPtr, data, len );
@@ -167,6 +170,18 @@ struct QWSRegionCommand : public QWSCommand
     } *rectangles;
 
 };
+
+struct QWSRegionAckCommand : public QWSCommand
+{
+    QWSRegionAckCommand() :
+	QWSCommand( QWSCommand::RegionAck, sizeof( simpleData ), (char*)&simpleData ) {}
+
+    struct SimpleData {
+	int eventid;
+    } simpleData;
+
+};
+
 
 struct QWSAddPropertyCommand : public QWSCommand
 {

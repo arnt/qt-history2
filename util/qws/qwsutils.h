@@ -31,7 +31,7 @@
 
 static int qws_read_uint( QSocket *socket )
 {
-    if ( !socket || (uint)socket->bytesAvailable() < sizeof( int ) )
+    if ( !socket || socket->size() < sizeof( int ) )
 	return -1;
 
     int i;

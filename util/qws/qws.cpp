@@ -30,19 +30,6 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
-#define LINUX_MOUSE
-#ifdef LINUX_MOUSE
-//mouse stuff:
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
-static const char *mouseDev = "/dev/mouse";
-static const int mouseBufSize = 100;
-#endif
-
 static int get_object_id()
 {
     static int next=1000;
@@ -114,6 +101,13 @@ void QWSClient::writeRegion( QRegion reg )
 	rectangle.width = r[i].width();
 	rectangle.height = r[i].height();
 	writeBlock( (char*)&rectangle, sizeof(rectangle) );
+#if 1//DEBUG
+     qDebug( "   writeRegion rect[%d] = (%d,%d) %dx%d", i,
+	     rectangle.x,rectangle.y,rectangle.width,rectangle.height);
+
+     
+#endif
+	
     }
     flush();
 }
@@ -169,6 +163,14 @@ void QWSClient::sendSelectionRequestEvent( QWSConvertSelectionCommand *cmd, int 
  *
  *********************************************************************/
 
+
+struct QWSCommandStruct
+{
+    QWSCommandStruct( QWSCommand *c, QWSClient *cl ) :command(c),client(cl){}
+    QWSCommand *command;
+    QWSClient *client;
+};
+
 QWSServer::QWSServer( int sw, int sh, QObject *parent=0, const char *name=0 ) :
     QServerSocket(QTFB_PORT,16,parent,name),
     mouseBuf(0), pending_region_acks(0)
@@ -189,23 +191,7 @@ QWSServer::QWSServer( int sw, int sh, QObject *parent=0, const char *name=0 ) :
 	    perror("shmctl IPC_RMID");
     } else {
 	shmid = -1; //let client do all FB handling.
-#ifdef LINUX_MOUSE
-	if ((mouseFD = open( mouseDev, O_RDWR | O_NDELAY)) < 0) {
-	    printf( "Cannot open %s (%s)\n", (const char*)mouseDev,
-		    strerror(errno));
-	    exit(1);
-	}
-	mouseBuf = new uchar[mouseBufSize];
-	mouseIdx = 0;
-	mouseX = 500;
-	mouseY = 300;
-	QSocketNotifier *sn = new QSocketNotifier( mouseFD,
-						   QSocketNotifier::Read,
-						   this );
-	connect( sn, SIGNAL(activated(int)),this, SLOT(readMouseData()) );
-#endif
-
-
+	initIO(); //device specific init
     }
 
     // no selection yet
@@ -257,6 +243,9 @@ QWSCommand* QWSClient::readMoreCommand()
 	    case QWSCommand::SetSelectionOwner:
 		command = new QWSSetSelectionOwnerCommand;
 		break;
+	    case QWSCommand::RegionAck:
+		command = new QWSRegionAckCommand;
+		break;
 	    default:
 		qDebug( "QWSClient::readMoreCommand() : Protocol error - got %08x!", command_type );
 	    }
@@ -278,44 +267,102 @@ QWSCommand* QWSClient::readMoreCommand()
 
 void QWSServer::doClient()
 {
+    static bool active = FALSE;
+    if (active) { 
+	qDebug( "QWSServer::doClient() reentrant call, ignoring" ); 
+	return;
+    }
+    active = TRUE;
     QWSClient* client = (QWSClient*)sender();
     QWSCommand* command=client->readMoreCommand();
+
+
     while ( command ) {
-	switch ( command->type ) {
-	case QWSCommand::Create:
-	    invokeCreate( (QWSCreateCommand*)command, client );
-	    break;
-	case QWSCommand::Region:
-	    invokeRegion( (QWSRegionCommand*)command, client );
-	    break;
-	case QWSCommand::AddProperty:
-	    invokeAddProperty( (QWSAddPropertyCommand*)command );
-	    break;
-	case QWSCommand::SetProperty:
-	    invokeSetProperty( (QWSSetPropertyCommand*)command );
-	    break;
-	case QWSCommand::RemoveProperty:
-	    invokeRemoveProperty( (QWSRemovePropertyCommand*)command );
-	    break;
-	case QWSCommand::GetProperty:
-	    invokeGetProperty( (QWSGetPropertyCommand*)command, client );
-	    break;
-	case QWSCommand::SetSelectionOwner:
-	    invokeSetSelectionOwner( (QWSSetSelectionOwnerCommand*)command );
-	    break;
+	if ( command->type == QWSCommand::RegionAck ) {
+	    pending_region_acks--;
+	    qDebug( "QWSCommand::RegionAck from %p pending:%d", 
+		    client, pending_region_acks);
+	    if ( pending_region_acks == 0 )
+		givePendingRegion();
+	    delete command;
+	} else {
+	    if ( command->type == QWSCommand::Region ) {
+		QWSRegionCommand *cmd = (QWSRegionCommand*)command;
+		QWSWindow* w = findWindow(cmd->simpleData.windowid, client);
+		w->region_request_count++;
+		qDebug( "Window %p, region_request_count %d", w, 
+			w->region_request_count); 
+	    }
+	    QWSCommandStruct *cs = new QWSCommandStruct( command, client );
+	    commandQueue.enqueue( cs );
 	}
-
-	delete command;
-
 	// Try for some more...
 	command=client->readMoreCommand();
     }
+    
+    
+    while ( pending_region_acks == 0 && !commandQueue.isEmpty() ) {
+	QWSCommandStruct *cs = commandQueue.dequeue();
+	switch ( cs->command->type ) {
+	case QWSCommand::Create:
+	    invokeCreate( (QWSCreateCommand*)cs->command, cs->client );
+	    break;
+	case QWSCommand::Region:
+	    {
+		QWSRegionCommand *cmd = (QWSRegionCommand*)cs->command;
+		QWSWindow* w = findWindow(cmd->simpleData.windowid,
+					  cs->client);
+		if ( --w->region_request_count == 0 )
+		    invokeRegion( cmd, cs->client );
+	    }
+	    break;
+	case QWSCommand::AddProperty:
+	    invokeAddProperty( (QWSAddPropertyCommand*)cs->command );
+	    break;
+	case QWSCommand::SetProperty:
+	    invokeSetProperty( (QWSSetPropertyCommand*)cs->command );
+	    break;
+	case QWSCommand::RemoveProperty:
+	    invokeRemoveProperty( (QWSRemovePropertyCommand*)cs->command );
+	    break;
+	case QWSCommand::GetProperty:
+	    invokeGetProperty( (QWSGetPropertyCommand*)cs->command, cs->client );
+	    break;
+	case QWSCommand::SetSelectionOwner:
+	    invokeSetSelectionOwner( (QWSSetSelectionOwnerCommand*)cs->command );
+	    break;
+	case QWSCommand::RegionAck:
+	    qWarning( "QWSServer::doClient() uncaught RegionAck" );
+	    break;
+	}
+
+	delete cs->command;
+	delete cs;
+    }
+    active = FALSE;
 }
 
 void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 {
     for (ClientIterator it = client.begin(); it != client.end(); ++it )
 	(*it)->sendMouseEvent(pos,state);
+}
+
+void QWSServer::sendKeyEvent(int unicode, int modifiers, bool isPress, 
+  bool autoRepeat)
+{
+    QWSKeyEvent event;
+    event.type = QWSEvent::Key;
+    event.window = 0; //##### not used yet
+    event.unicode = unicode;
+    event.modifiers = modifiers;
+    event.is_press = isPress;
+    event.is_auto_repeat = autoRepeat;
+    
+    for (ClientIterator it = client.begin(); it != client.end(); ++it ) {
+	(*it)->writeBlock((char*)&event,sizeof(event));
+	(*it)->flush();
+    }
 }
 
 void QWSServer::sendPropertyNotifyEvent( int property, int state )
@@ -350,10 +397,6 @@ void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
     QWSWindow* changingw = findWindow(cmd->simpleData.windowid, client);
     if ( !changingw ) {
 	qWarning("Invalue window handle %08x",cmd->simpleData.windowid);
-	return;
-    }
-    if ( !changingw->forClient(client) ) {
-	qWarning("Disabled: clients changing other client's window region");
 	return;
     }
     setWindowRegion( changingw, region );
@@ -460,8 +503,10 @@ void QWSWindow::addAllocation(QRegion r)
     event.window = id;
     event.nrectangles = r.rects().count(); // XXX MAJOR WASTAGE
     c->writeBlock( (char*)&event, sizeof(event)-sizeof(event.rectangles) );
+#if 1//DEBUG
+qDebug("Add region (%d rects) to %p",event.nrectangles, c);
+#endif
     c->writeRegion( r );
-qDebug("Add to %p",c);
 }
 
 bool QWSWindow::removeAllocation(QRegion r)
@@ -478,9 +523,13 @@ bool QWSWindow::removeAllocation(QRegion r)
 	event.window = id;
 	event.nrectangles = r.rects().count(); // XXX MAJOR WASTAGE
 	c->writeBlock( (char*)&event, sizeof(event)-sizeof(event.rectangles) );
-	c->writeRegion( r );
 
-qDebug("Remove from %p",c);
+#if 1 //DEBUG
+qDebug("Remove region (%d rects) from %p", event.nrectangles, c);
+
+#endif 
+	
+	c->writeRegion( r );
 	return TRUE; // ack required
     }
     return FALSE;
@@ -544,124 +593,36 @@ void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
 	}
     }
 
-    // Give the region to the window...
-    changingw->addAllocation(allocation);
+    // The region to give to the window:
+    pendingAllocation = allocation;
 
-    // Wait for acknowledgements
+    // Wait for acknowledgements if pending_region_acks > 0
+    // otherwise do it straight away.
+    
+    pendingWindex = windex;
+    changingw->addAllocation(allocation); 
+    
+    if ( pending_region_acks == 0 ) {
+	pendingRegion = QRegion();
+	givePendingRegion(); //slightly slower, but easier to maintain.
+    } else {
+	pendingRegion = exposed;
+    }
+}
 
-    // Then, give anything exposed...
-    for (uint i=windex+1; i<windows.count(); i++) {
+void QWSServer::givePendingRegion()
+{    
+    QRegion exposed = pendingRegion;
+    // Finally, give anything exposed...
+    
+    QWSWindow* changingw = windows.at( pendingWindex );
+    changingw->addAllocation(pendingAllocation); 
+    
+    for (uint i=pendingWindex+1; i<windows.count(); i++) {
+	if ( exposed.isEmpty() )
+	    return; // Nothing left for deeper windows
 	QWSWindow* w = windows.at(i);
 	w->addAllocation(exposed);
 	exposed -= w->allocation();
-	if ( exposed.isEmpty() )
-	    return; // Nothing left for deeper windows
     }
 }
-
-/*
-  mouseIdx is the number of bytes in the buffer (aka the first free
-  position). handleMouseData() moves any data it doesn't use to
-  the beginning of the buffer, and updates mouseIdx.
- */
-
-void QWSServer::readMouseData()
-{
-#ifdef LINUX_MOUSE
-    int n;
-    do {
-	n = read(mouseFD, mouseBuf+mouseIdx, mouseBufSize-mouseIdx );
-	if ( n > 0 ) {
-	    mouseIdx += n;
-	    handleMouseData();
-	}
-    } while ( n > 0 );
-#endif
-}
-
-
-
-
-/*
-  This implements the Logitech MouseMan(Plus) protocol,
-  wheel not yet supported.
-*/
-
-void QWSServer::handleMouseData()
-{
-    static const int screen_width = 1024; //#####
-    static const int screen_height = 768; //#####
-    static const int accel_limit = 5;
-    static const int accel = 2;
-
-
-    //    printf( "handleMouseData mouseIdx=%d\n", mouseIdx );
-
-
-    int idx = 0;
-
-    while ( mouseIdx-idx >= 3 ) {
-	int bstate = 0;
-	uchar *mb = mouseBuf+idx;
-
-	if (mb[0] & 0x01)
-	    bstate |= Qt::LeftButton;
-	if (mb[0] & 0x02)
-	    bstate |= Qt::RightButton;
-	if (mb[0] & 0x04)
-	    bstate |= Qt::MidButton;
-
-	int overflow = (mb[0]>>6 )& 0x03;
-	//### wheel events signalled with overflow bit, ignore for now
-	int dx,dy;
-	if ( !overflow ) {
-	    bool xs = mb[0] & 0x10;
-	    bool ys = mb[0] & 0x20;
-
-	    dx = xs ? mb[1]-256 : mb[1];
-	    dy = ys ? mb[2]-256 : mb[2];
-	    if ( QABS(dx) > accel_limit || QABS(dy) > accel_limit ) {
-		dx *= accel;
-		dy *= accel;
-	    }
-	    mouseX += dx;
-	    mouseY -= dy; // swap coordinate system
-
-	    mouseX = QMIN( QMAX( mouseX, 0 ), screen_width );
-	    mouseY = QMIN( QMAX( mouseY, 0 ), screen_height );
-
-
-	    sendMouseEvent( QPoint(mouseX,mouseY), bstate );
-	}
-	idx += 3;
-
-
-#if 0 //debug
-	const char *b1 = (mb[0] & 0x01) ? "b1":"  ";//left
-	const char *b2 = (mb[0] & 0x02) ? "b2":"  ";//right
-	const char *b3 = (mb[0] & 0x04) ? "b3":"  ";//mid
-
-
-	printf( "(%2d) %02x %02x %02x ", idx, mb[0],mb[1],mb[2] );
-
-
-	if ( overflow )
-	    printf( "Overflow%d %s %s %s  (%4d,%4d)\n", overflow,
-		    b1, b2, b3, mouseX, mouseY );
-	else
-	    printf( "%s %s %s (%+3d,%+3d)  (%4d,%4d)\n",
-		    b1, b2, b3, dx, dy, mouseX, mouseY );
-#endif
-    }
-
-    int surplus = mouseIdx - idx;
-    for ( int i = 0; i < surplus; i++ )
-	mouseBuf[i] = mouseBuf[idx+i];
-    mouseIdx = surplus;
-
-
-    //printf( "exit handleMouseData mouseIdx=%d\n", mouseIdx );
-
-
-}
-

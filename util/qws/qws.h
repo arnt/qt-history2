@@ -24,6 +24,7 @@
 #include <qserversocket.h>
 #include <qmap.h>
 #include <qdatetime.h>
+#include <qqueue.h>
 
 #include "qwsproperty.h"
 #include "qwscommand.h"
@@ -36,7 +37,8 @@ class QWSWindow
 {
     friend class QWSServer;
 public:
-    QWSWindow(int i, QWSClient* client) : id(i), c(client) { }
+    QWSWindow(int i, QWSClient* client) : id(i), c(client), 
+	region_request_count(0) { }
 
     int winId() const { return id; }
     bool forClient(const QWSClient* cl) const { return cl==c; }
@@ -50,6 +52,7 @@ private:
     int id;
     QWSClient* c;
 
+    int region_request_count;
     QRegion requested_region;
     QRegion allocated_region;
 };
@@ -59,6 +62,8 @@ private:
  * Class: QWSServer
  *
  *********************************************************************/
+
+struct QWSCommandStruct;
 
 class QWSServer : public QServerSocket
 {
@@ -71,6 +76,8 @@ public:
 
     uchar* frameBuffer() { return framebuffer; }
 
+    void sendKeyEvent(int unicode, int modifiers, bool isPress, 
+		      bool autoRepeat);
     void sendMouseEvent(const QPoint& pos, int state);
     void sendPropertyNotifyEvent( int property, int state );
     QWSPropertyManager *properties() {
@@ -90,12 +97,16 @@ private:
     void invokeSetSelectionOwner( QWSSetSelectionOwnerCommand *cmd );
     void invokeConvertSelection( QWSConvertSelectionCommand *cmd );
 
+    void initIO();
+    void handleMouseData();
+    void givePendingRegion();
+
 private slots:
     void doClient();
     void readMouseData();
+    void readKeyboardData();
 
 private:
-    void handleMouseData();
     typedef QMapIterator<int,QWSClient*> ClientIterator;
     typedef QMap<int,QWSClient*> ClientMap;
 
@@ -115,10 +126,16 @@ private:
 
     int swidth, sheight;
     int mouseFD;
+    int kbdFD;
     int mouseIdx;
     uchar *mouseBuf;
     int mouseX, mouseY;
 
+    QQueue<QWSCommandStruct> commandQueue;
+    QRegion pendingAllocation;
+    QRegion pendingRegion;
+    int pendingWindex;
+    
     // Window management
     QList<QWSWindow> windows; // first=topmost
     QWSWindow* newWindow(int id, QWSClient* client);

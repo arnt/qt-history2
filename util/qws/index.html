@@ -178,6 +178,7 @@
     <p>
     The <i>rectangles</i> are in <a href=#yxbanded>YXBanded</a> format.
     </p>
+  <a name="region_remove_event"></a>
   <dt>QWSRegionRemoveEvent
     <dd>
     <pre>
@@ -190,8 +191,9 @@
     } rectangles[nrectangles]; </pre>
     This event is sent to the client whenever the set of rectangles allocated
     to the window shrinks. The client must acknowledge receipt of this event
-    as soon as possible by sending a QWSRegionAck command with the same
-    <i>eventid</i>. Once acknowledged,,
+    as soon as possible by sending a 
+    <a href=#region_ack_command>QWSRegionAckCommand</a> 
+    command with the same <i>eventid</i>. Once acknowledged,
     the client must not paint on the given rectangles.
     <p>
     The <i>rectangles</i> are in <a href=#yxbanded>YXBanded</a> format.
@@ -302,7 +304,7 @@ During processing, clients may send the following commands.
     <pre>
     struct SimpleData {
         int objectid;
-    } simleData;</pre>
+    } simpleData;</pre>
     This command is sent by the client to destroy an object identifier,
     including any object (such as a window) so identified.
     </p>
@@ -332,7 +334,7 @@ During processing, clients may send the following commands.
     <pre>
     struct SimpleData {
         int windowid, property;
-    } simleData;</pre>
+    } simpleData;</pre>
     This command is sent by the client to add a property identified by <i>property</i>
     on the window with the id <i>windowid</i>.
     </p>
@@ -342,7 +344,7 @@ During processing, clients may send the following commands.
     <pre>
     struct SimpleData {
         int windowid, property, mode;
-    } simleData;
+    } simpleData;
     char *data;</pre>
     This command is sent by the client to set a property identified by <i>property</i>
     on the window with the id <i>windowid</i>. The property has to be added first,
@@ -364,7 +366,7 @@ During processing, clients may send the following commands.
     <pre>
     struct SimpleData {
         int windowid, property;
-    } simleData;</pre>
+    } simpleData;</pre>
     This command is sent by the client to remove the property identified by <i>property</i>
     from the window with the id <i>windowid</i>.
     </p>
@@ -375,12 +377,28 @@ During processing, clients may send the following commands.
     <pre>
     struct SimpleData {
         int windowid, property;
-    } simleData;</pre>
+    } simpleData;</pre>
     This command is sent by the client to get the data of the property identified by <i>property</i>
     from the window with the id <i>windowid</i>.
     As result of this a <a href="#property_reply_event">QWSPropertyReplyEvent</a> is sent to the client,
     which requested the data of the property.
     </p>
+
+
+
+  <a name="region_ack_command">
+  <dt>QWSRegionAckCommand
+    <dd>
+    Type: <i>QWSCommand::RegionAck</i>
+    <pre>
+    struct SimpleData {
+        int eventid;
+    } simpleData;</pre>
+    This command is sent by the client to acknowledge receipt of the
+    <a href="#region_remove_event">QWSRegionRemoveEvent</a>
+     with id <i>eventid</i>.
+    </p>
+
 </dl>
 
 <h2>Glossary</h2>

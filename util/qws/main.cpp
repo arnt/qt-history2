@@ -27,8 +27,11 @@
 
 main(int argc, char** argv)
 {
+#ifdef _WS_X11_
     bool useGUI = getenv( "DISPLAY" ) != 0;
-
+#else
+    bool useGUI = FALSE;
+#endif
     QApplication app(argc, argv, useGUI);
 
     if ( useGUI ) {
