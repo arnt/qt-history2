@@ -63,7 +63,7 @@ QMakeProperty::value(QString v, bool just_check)
 		v = v.mid(slash+1);
 	    QStringList subs = sett->subkeyList(keyBase(FALSE));
 	    subs.sort();
-	    for(QStringList::Iterator it = subs.begin(); it != subs.end(); it++) {
+	    for(QStringList::Iterator it = subs.fromLast(); it != subs.end(); --it) {
 		if((*it).isEmpty())
 		    continue;
 		ret = sett->readEntry(keyBase(FALSE) + (*it) + "/" + v, QString::null, &ok);
@@ -103,7 +103,7 @@ QMakeProperty::exec()
 	if(Option::prop::properties.isEmpty() && initSettings()) {
 	    QStringList subs = sett->subkeyList(keyBase(FALSE));
 	    subs.sort();
-	    for(QStringList::Iterator it = subs.begin(); it != subs.end(); it++) {
+	    for(QStringList::Iterator it = subs.fromLast(); it != subs.end(); --it) {
 		if((*it).isEmpty())
 		    continue;
 		QStringList keys = sett->entryList(keyBase(FALSE) + (*it));
