@@ -15,8 +15,8 @@
 **********************************************************************/
 
 /*! \page linguist_translator.html
-
-<h1><a name="Chapter_2:_Translators">Chapter 2: Translators</a></h1>
+\title Chapter 2: Translators
+<a name="Chapter_2:_Translators"></a>
 
 <center><img src="images/linguist.png" alt="Linguist Main Window">
 <h5>Linguist Main Window</h5></center>

@@ -15,8 +15,8 @@
 **********************************************************************/
 
 /*! \page linguist_programmer.html
-
-<h1><a name="Chapter_3:_Programmers">Chapter 3: Programmers</a></h1>
+\title Chapter 3: Programmers
+<a name="Chapter_3:_Programmers">
 
 Support for multiple languages is extremely simple in Qt applications
 and adds little overhead to the programmer's workload. 
@@ -57,7 +57,7 @@ accelerators in an application and translations of that text.
 Translation files are created as follows: 
 
 <ol>
-<li><a href="#lupdate">lupdate</a> is run initially to generate the
+<li><a href="linguist_manager.html#lupdate">lupdate</a> is run initially to generate the
 first set of \c .ts translation source files with all the user-visible
 text but no translations.
 <li>The \c .ts files are given to the translator who adds translations
@@ -68,7 +68,7 @@ application. \e lupdate synchronises the user-visible text from the
 application with the translations; it does not destroy any data.
 <li>Steps 2 and 3 are repeated as often as necessary. 
 <li>When a release of the application is needed <a
-href="#lrelease">lrelease</a> is run to read the \c .ts files and
+href="linguist_manager.html#lrelease">lrelease</a> is run to read the \c .ts files and
 produce the \c .qm files used by the application at runtime.
 </ol>
 
@@ -80,8 +80,8 @@ files to produce. The files are simply listed in the application's \c
 \printline TRANSLATIONS
 \printline
 
-See the <a href="#lupdate">"lupdate"</a> and
-<a href="#lrelease">"lrelease"</a> sections.
+See the <a href="linguist_manager.html#lupdate">"lupdate"</a> and
+<a href="linguist_manager.html#lrelease">"lrelease"</a> sections.
 
 <h3><a name="Loading_Translations">Loading Translations</a></h3>
 
@@ -309,14 +309,14 @@ namely Latin.
 Note that the file extension is \c .ts, <i>not</i> \c .qm.  The \c .ts
 translation source format is designed for use during the application's
 development. Programmers or release managers run the 
-<a href="#lupdate">lupdate</a> program to generate and update \c .ts
+<a href="linguist_manager.html#lupdate">lupdate</a> program to generate and update \c .ts
 files with the source text that is extracted from the source code.
 Translators read and update the \c .ts files using <em>Qt Linguist</em>
 adding and editing their translations. The \c .ts format is
 human-readable XML that can be emailed directly and is easy to put
 under version control. 
 
-Once the translations are complete the <a href="#lrelease">lrelease</a>
+Once the translations are complete the <a href="linguist_manager.html#lrelease">lrelease</a>
 program is used to convert the \c .ts files into the \c .qm Qt message
 file format. The \c .qm format is a compact binary format designed to
 deliver very fast lookup performance. Both \e lupdate and \e lrelease

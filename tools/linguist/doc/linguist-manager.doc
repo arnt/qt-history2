@@ -15,8 +15,8 @@
 **********************************************************************/
 
 /*! \page linguist_manager.html
-
-<h1><a name="Chapter_1:_Release_Manager">Chapter 1: Release Manager</a></h1>
+\title Chapter 1: Release Manager
+<a name="Chapter_1:_Release_Manager">
 
 Two tools are provided for the release manager, \e lupdate and \e lrelease.
 
