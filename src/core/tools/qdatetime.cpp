@@ -103,9 +103,9 @@ static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* d
 
     Note that QDate should not be used for date calculations for dates
     prior to the introduction of the Gregorian calendar. This calendar
-    was adopted by England from the 14<sup><small>th</small></sup>
-    September 1752 (hence this is the earliest valid QDate), and
-    subsequently by most other Western countries, by 1923.
+    was adopted by England from the 14th September 1752 (hence this is
+    the earliest valid QDate), and subsequently by most other Western
+    countries, by 1923.
 
     The latest valid year within this scheme is the year 8000.
 

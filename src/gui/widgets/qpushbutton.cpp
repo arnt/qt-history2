@@ -73,7 +73,7 @@ public:
         QPushButton *pb = new QPushButton("&Download", this);
     \endcode
     In this example the shortcut is \e{Alt+D}, and the label text
-    will be displayed as <b><u>D</u>ownload</b>.
+    will be displayed as \bold{\underline{D}ownload}.
 
     Push buttons can display a textual label or a pixmap, and
     optionally a small icon. These can be set using the constructors

@@ -974,7 +974,7 @@ int Q3StyleSheetItem::lineSpacing() const
             of the image. If the pixmap does not fit the specified
             size it will be scaled automatically (by using
             QImage::smoothScale()).
-            <br>
+
             The \c align attribute determines where the image is
             placed. By default, an image is placed inline just like a
             normal character. Specify \c left or \c right to place the
