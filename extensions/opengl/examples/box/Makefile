@@ -10,7 +10,6 @@
 CC	=	gcc
 CFLAGS	=	-Wall -W -O1
 INCPATH	=	-I$(QTDIR)/include -I/usr/X11R6/include
-LINK	=	gcc
 LFLAGS	=	
 LIBS	=	-L$(QTDIR)/lib -lqgl -lqt -L/usr/X11R6/lib -lMesaGL -lMesaGLU -lXext -lm -lX11
 MOC	=	moc
@@ -54,7 +53,7 @@ TARGET	=	box
 all: $(TARGET) 
 
 $(TARGET): $(OBJECTS) $(OBJMOC)
-	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)
+	$(CC) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)
 
 moc: $(SRCMOC)
 
