@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#48 $
 **
 ** Implementation of QToolButton class
 **
@@ -369,7 +369,7 @@ void QToolButton::drawButton( QPainter * p )
 	p->drawPolyline( a );
 #else
 	style().drawBevelButton( p, 0, 0, width(), height(), colorGroup(), isOn()||isDown(),
-				&colorGroup().fillButton() );
+				&colorGroup().brush( QColorGroup::Button ) );
 #endif	
     }
     drawButtonLabel( p );

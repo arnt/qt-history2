@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#185 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#186 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1237,7 +1237,8 @@ void QListBox::paintCell( QPainter *p, int row, int col )
 
     QColorGroup g = colorGroup();
     if ( isSelected( row ) ) {
-	p->fillRect( 0, 0, cellWidth(col), cellHeight(row), g.fillHighlight() );
+	p->fillRect( 0, 0, cellWidth(col), cellHeight(row),
+		     g.brush( QColorGroup::Highlight ) );
 	p->setPen( g.highlightedText() );
 	p->setBackgroundColor( g.highlight() );
     } else {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#74 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#75 $
 **
 ** Implementation of QSlider class
 **
@@ -371,7 +371,7 @@ QRect QSlider::sliderRect() const
 //####### should this one be removed? private? non-virtual?
 void QSlider::paintSlider( QPainter *p, const QColorGroup &g, const QRect &r )
 {
-    QBrush fill = g.fillButton();
+    QBrush fill = g.brush( QColorGroup::Button );
 
     QPoint bo = p->brushOrigin();
     p->setBrushOrigin(r.topLeft());

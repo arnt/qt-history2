@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#200 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#201 $
 **
 ** Implementation of QApplication class
 **
@@ -1115,13 +1115,9 @@ void QApplication::syncX()	{}		// do nothing
 
 void QApplication::setWinStyleHighlightColor( const QColor &c )
 {
-    QColorGroup normal = palette()->normal();
-    QColorGroup disabled = palette()->disabled();
-    QColorGroup active = palette()->active();
-    normal.setHighlight(c);
-    disabled.setHighlight(c);
-    active.setHighlight(c);
-    setPalette(QPalette(normal, disabled, active), TRUE);
+    QPalette p( *palette() );
+    p.setColor( QColorGroup::Highlight, c );
+    setPalette( p, TRUE);
 }
 
 

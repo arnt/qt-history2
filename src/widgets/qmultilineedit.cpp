@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#6 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -402,7 +402,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 	p.setClipRect( fillxpos1 - updateR.left(), 0,
 		       fillxpos2 - fillxpos1, cellHeight(row) );
 	    p.fillRect( fillxpos1, 0, fillxpos2 - fillxpos1, cellHeight(row),
-			g.fillHighlight() );
+			g.brush( QColorGroup::Highlight ) );
 	    p.setPen( g.highlightedText() );	
 	p.drawText( BORDER, yPos, xpos2 + 1 - BORDER, cellHeight( row ),
 		    ExpandTabs, *s );

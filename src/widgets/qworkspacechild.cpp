@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#7 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -300,8 +300,8 @@ void QWorkspaceChildTitelBar::setActive( bool active )
 	    closeB->show();
 	}
 	QColorGroup g = colorGroup();
-	g.setBackground( darkBlue );
-	g.setText( white );
+	g.setColor( QColorGroup::Background,  darkBlue  );
+	g.setColor( QColorGroup::Text,  white  );
 	titleL->setPalette( QPalette( g, g, g), TRUE );
 	titleL->setFrameStyle( QFrame::Panel | QFrame::Sunken );
     }

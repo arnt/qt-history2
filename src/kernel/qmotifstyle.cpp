@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#22 $
 **
 ** Implementation of Motif-like style class
 **
@@ -122,15 +122,18 @@ void QMotifStyle::polish( QPalette& pal)
 // 	active.setHighlightedText( active.base() );
 //     }
 
-    normal.setHighlight( normal.text() );
-    normal.setHighlightedText( normal.base() );
-    disabled.setHighlight( disabled.text() );
-    disabled.setHighlightedText( disabled.base() );
-    active.setHighlight( active.text() );
-    active.setHighlightedText( active.base() );
-    pal.setNormal( normal );
-    pal.setDisabled( normal );
-    pal.setActive( normal );
+    pal.setColor( QPalette::Normal, QColorGroup::Highlight,
+		  normal.text() );
+    pal.setColor( QPalette::Normal, QColorGroup::HighlightedText,
+		  normal.base());
+    pal.setColor( QPalette::Disabled, QColorGroup::Highlight,
+		  disabled.text() );
+    pal.setColor( QPalette::Disabled, QColorGroup::HighlightedText,
+		  disabled.base() );
+    pal.setColor( QPalette::Active, QColorGroup::Highlight,
+		  active.text() );
+    pal.setColor( QPalette::Active, QColorGroup::HighlightedText,
+		  active.base() );
 }
 
 
@@ -145,7 +148,7 @@ void QMotifStyle::drawIndicator( QPainter* p,
     bool on = s != QButton::Off;
     bool showUp = !(down ^ on);
     QBrush fill =  showUp || s == QButton::NoChange
-		    ? g.fillButton() : g.fillMid();
+		? g.brush( QColorGroup::Button ) : g.brush( QColorGroup::Mid );
     if ( s == QButton::NoChange ) {
 	qDrawPlainRect( p, x, y, w, h, g.text(), 1, &fill );
 	p->drawLine(x+w-1,y,x,y+h-1);
@@ -180,7 +183,8 @@ void QMotifStyle::drawExclusiveIndicator( QPainter* p,
     QPointArray a( QCOORDARRLEN(inner_pts), inner_pts );
     p->eraseRect( x, y, w, h );
     p->setPen( NoPen );
-    p->setBrush( showUp?  g.fillButton() : g.fillMid() );
+    p->setBrush( showUp ? g.brush( QColorGroup::Button ) : 
+                          g.brush( QColorGroup::Mid ) )  ;
     a.translate( x, y );
     p->drawPolygon( a );			// clear inner area
     p->setPen( showUp ? g.light() : g.dark() );
@@ -322,7 +326,7 @@ QMotifStyle::drawArrow( QPainter *p, ArrowType type, bool down,
     QBrush   saveBrush = p->brush();		// save current brush
     QWMatrix wxm = p->worldMatrix();
     QPen     pen( NoPen );
-    QBrush brush = g.fillButton();
+    QBrush brush = g.brush( QColorGroup::Button );
 
     p->setPen( pen );
     p->setBrush( brush );
@@ -355,8 +359,10 @@ QMotifStyle::drawArrow( QPainter *p, ArrowType type, bool down,
 void QMotifStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 				const QColorGroup &g, bool sunken, const QBrush* fill)
 {
-    qDrawShadePanel( p, x, y, w, h, g, sunken,
-		     defaultFrameWidth(), fill?fill:(sunken?&g.fillMid():&g.fillButton()));
+    qDrawShadePanel( p, x, y, w, h, g, sunken, defaultFrameWidth(),
+		     fill ? fill : (sunken ?
+				    &g.brush( QColorGroup::Mid )      : 
+				    &g.brush( QColorGroup::Button ) ));
 }
 
 /*! \reimp */
@@ -407,11 +413,11 @@ QMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
 
     QBrush fill;
     if ( btn->isDown() )
-	fill = g.fillMid();
+	fill = g.brush( QColorGroup::Mid );
     else if ( btn->isOn() )
 	fill = QBrush( g.mid(), Dense4Pattern );
     else
-	fill = g.fillButton();	
+	fill = g.brush( QColorGroup::Button );	
 
     if ( btn->isDefault() ) {
 	QPointArray a;
@@ -541,7 +547,7 @@ void QMotifStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int 
 		   SUB_LINE_ACTIVE, subB.x(), subB.y(),
 		   subB.width(), subB.height(), g, sb->value()>sb->minValue() );
 
-    QBrush fill = g.fillMid();
+    QBrush fill = g.brush( QColorGroup::Mid );
     if (sb->backgroundPixmap() ){
 	fill = QBrush( g.mid(), *sb->backgroundPixmap() );
     }
@@ -557,7 +563,7 @@ void QMotifStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int 
 	p->setBrushOrigin(sliderR.topLeft());
 	drawBevelButton( p, sliderR.x(), sliderR.y(),
 			 sliderR.width(), sliderR.height(), g,
-			 FALSE, &g.fillButton() );
+			 FALSE, &g.brush( QColorGroup::Button ) );
 
 	//	qDrawShadePanel( p, sliderR, g, FALSE, 2, &g.fillButton() );
 	p->setBrushOrigin(bo);
@@ -580,7 +586,7 @@ void QMotifStyle::drawSlider( QPainter *p,
 			     const QColorGroup &g,
 			      Orientation orient, bool, bool )
 {
-    drawBevelButton( p, x, y, w, h, g, FALSE, &g.fillButton() );
+    drawBevelButton( p, x, y, w, h, g, FALSE, &g.brush( QColorGroup::Button) );
     if ( orient == Horizontal ) {
 	QCOORD mid = x + w / 2;
 	qDrawShadeLine( p, mid,  y , mid,  y + h - 2,

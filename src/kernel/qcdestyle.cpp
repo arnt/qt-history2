@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcdestyle.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qcdestyle.cpp#6 $
 **
 ** Implementation of CDE-like style class
 **
@@ -162,7 +162,7 @@ void QCDEStyle::drawArrow( QPainter *p, ArrowType type, bool down,
     QBrush   saveBrush = p->brush();		// save current brush
     QWMatrix wxm = p->worldMatrix();
     QPen     pen( NoPen );
-    QBrush brush = g.fillButton();
+    QBrush brush = g.brush( QColorGroup::Button );
 
     p->setPen( pen );
     p->setBrush( brush );
@@ -195,7 +195,8 @@ void QCDEStyle::drawIndicator( QPainter* p,
 			       int s, bool down, bool /* enabled */ )
 {
     bool showUp = !down && s == QButton::Off;
-    QBrush fill =  down ? g.fillMid() : g.fillButton();
+    QBrush fill =  down ? g.brush( QColorGroup::Mid )   : 
+                          g.brush( QColorGroup::Button );
     qDrawShadePanel( p, x, y, w, h, g, !showUp, defaultFrameWidth(), &fill );
 
     if (s != QButton::Off) {
@@ -252,7 +253,8 @@ void QCDEStyle::drawExclusiveIndicator( QPainter* p,
     a.translate( x, y );
     QColor fillColor = on ? g.dark() : g.background();
     p->setPen( fillColor );
-    p->setBrush( on ?  g.fillDark() : g.fillBackground() );
+    p->setBrush( on ?  g.brush( QColorGroup::Dark )        : 
+                       g.brush( QColorGroup::Background ) );
     p->drawPolygon( a );
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#352 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#353 $
 **
 ** Implementation of QWidget class
 **
@@ -1409,80 +1409,93 @@ void QWidget::setBackgroundFromMode()
       case NoBackground:
 	break;
       case PaletteForeground:
-	  if ( colorGroup().fillForeground().pixmap() )
-	      setBackgroundPixmapDirect( *colorGroup().fillForeground().pixmap() );
+	  if ( colorGroup().brush( QColorGroup::Foreground ).pixmap() )
+	      setBackgroundPixmapDirect( 
+                    *colorGroup().brush( QColorGroup::Foreground ).pixmap() );
 	  else
 	      setBackgroundColorDirect( colorGroup().foreground() );
 	break;
       case PaletteButton:
-	  if ( colorGroup().fillButton().pixmap() )
-	      setBackgroundPixmapDirect( *colorGroup().fillButton().pixmap() );
+	  if ( colorGroup().brush( QColorGroup::Button ).pixmap() )
+	      setBackgroundPixmapDirect( 
+                    *colorGroup().brush( QColorGroup::Button ).pixmap() );
 	  else
 	      setBackgroundColorDirect( colorGroup().button() );
 	break;
       case PaletteLight:
-	  if ( colorGroup().fillLight().pixmap() )
-	      setBackgroundPixmapDirect( *colorGroup().fillLight().pixmap() );
+	  if ( colorGroup().brush( QColorGroup::Light ).pixmap() )
+	      setBackgroundPixmapDirect( 
+                    *colorGroup().brush( QColorGroup::Light ).pixmap() );
 	  else
 	      setBackgroundColorDirect( colorGroup().light() );
 	break;
       case PaletteMidlight:
-	  if ( colorGroup().fillMidlight().pixmap() )
-	      setBackgroundPixmapDirect( *colorGroup().fillMidlight().pixmap() );
+	  if ( colorGroup().brush( QColorGroup::Midlight ).pixmap() )
+	      setBackgroundPixmapDirect( 
+                    *colorGroup().brush( QColorGroup::Midlight ).pixmap() );
 	  else
 	      setBackgroundColorDirect( colorGroup().midlight() );
 	break;
       case PaletteDark:
-	  if ( colorGroup().fillDark().pixmap() )
-	      setBackgroundPixmapDirect( *colorGroup().fillDark().pixmap() );
+	  if ( colorGroup().brush( QColorGroup::Dark ).pixmap() )
+	      setBackgroundPixmapDirect(
+                    *colorGroup().brush( QColorGroup::Dark ).pixmap() );
 	  else
 	      setBackgroundColorDirect( colorGroup().dark() );
 	break;
       case PaletteMid:
-	  if ( colorGroup().fillMid().pixmap() )
-	      setBackgroundPixmapDirect( *colorGroup().fillMid().pixmap() );
+	  if ( colorGroup().brush( QColorGroup::Mid ).pixmap() )
+	      setBackgroundPixmapDirect(
+		    *colorGroup().brush( QColorGroup::Mid ).pixmap() );
 	  else
 	      setBackgroundColorDirect( colorGroup().mid() );
 	break;
       case PaletteText:
-	  if ( colorGroup().fillText().pixmap() )
-	      setBackgroundPixmapDirect( *colorGroup().fillText().pixmap() );
+	  if ( colorGroup().brush( QColorGroup::Text ).pixmap() )
+	      setBackgroundPixmapDirect(
+		    *colorGroup().brush( QColorGroup::Text ).pixmap() );
 	  else
 	      setBackgroundColorDirect( colorGroup().text() );
 	break;
       case PaletteBrightText:
-	  if ( colorGroup().fillBrightText().pixmap() )
-	      setBackgroundPixmapDirect( *colorGroup().fillBrightText().pixmap() );
+	  if ( colorGroup().brush( QColorGroup::BrightText ).pixmap() )
+	      setBackgroundPixmapDirect(
+                    *colorGroup().brush( QColorGroup::BrightText ).pixmap() );
 	  else
 	      setBackgroundColorDirect( colorGroup().brightText() );
 	break;
       case PaletteBase:
-	  if ( colorGroup().fillBase().pixmap() )
-	      setBackgroundPixmapDirect( *colorGroup().fillBase().pixmap() );
+	  if ( colorGroup().brush( QColorGroup::Base ).pixmap() )
+	      setBackgroundPixmapDirect(
+		    *colorGroup().brush( QColorGroup::Base ).pixmap() );
 	  else
 	      setBackgroundColorDirect( colorGroup().base() );
 	break;
       case PaletteBackground:
-	  if ( colorGroup().fillBackground().pixmap() )
-	      setBackgroundPixmapDirect( *colorGroup().fillBackground().pixmap() );
+	  if ( colorGroup().brush( QColorGroup::Background ).pixmap() )
+	      setBackgroundPixmapDirect(
+		    *colorGroup().brush( QColorGroup::Background ).pixmap() );
 	  else
 	      setBackgroundColorDirect( colorGroup().background() );
 	break;
       case PaletteShadow:
-	  if ( colorGroup().fillShadow().pixmap() )
-	      setBackgroundPixmapDirect( *colorGroup().fillShadow().pixmap() );
+	  if ( colorGroup().brush( QColorGroup::Shadow ).pixmap() )
+	      setBackgroundPixmapDirect(
+		    *colorGroup().brush( QColorGroup::Shadow ).pixmap() );
 	  else
 	      setBackgroundColorDirect( colorGroup().shadow() );
 	break;
       case PaletteHighlight:
-	  if ( colorGroup().fillHighlight().pixmap() )
-	      setBackgroundPixmapDirect( *colorGroup().fillHighlight().pixmap() );
+	  if ( colorGroup().brush( QColorGroup::Highlight ).pixmap() )
+	      setBackgroundPixmapDirect(
+		    *colorGroup().brush( QColorGroup::Highlight ).pixmap() );
 	  else
 	      setBackgroundColorDirect( colorGroup().highlight() );
 	break;
       case PaletteHighlightedText:
-	  if ( colorGroup().fillHighlightedText().pixmap() )
-	      setBackgroundPixmapDirect( *colorGroup().fillHighlightedText().pixmap() );
+	  if ( colorGroup().brush( QColorGroup::HighlightedText ).pixmap() )
+	      setBackgroundPixmapDirect(
+		   *colorGroup().brush(QColorGroup::HighlightedText).pixmap());
 	  else
 	      setBackgroundColorDirect( colorGroup().highlightedText() );
 	break;

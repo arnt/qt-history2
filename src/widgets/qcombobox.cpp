@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#180 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#181 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -927,7 +927,8 @@ void QComboBox::paintEvent( QPaintEvent *event )
     QColorGroup g  = colorGroup();
 
     if ( width() < 5 || height() < 5 ) {
-	qDrawShadePanel( &p, rect(), g, FALSE, 2, &g.fillButton() );
+	qDrawShadePanel( &p, rect(), g, FALSE, 2,
+			 &g.brush( QColorGroup::Button ) );
 	return;
     }
 
@@ -935,7 +936,8 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	int dist, buttonH, buttonW;
 	getMetrics( &dist, &buttonW, &buttonH );
 	int xPos = width() - dist - buttonW - 1;
-	qDrawShadePanel( &p, rect(), g, FALSE, style().defaultFrameWidth(), &g.fillButton() );
+	qDrawShadePanel( &p, rect(), g, FALSE, style().defaultFrameWidth(),
+			 &g.brush( QColorGroup::Button ) );
 	qDrawShadePanel( &p, xPos, (height() - buttonH)/2,
 			 buttonW, buttonH, g, FALSE, style().defaultFrameWidth() );
 	QRect clip( 4, 2, xPos - 2 - 4, height() - 4 );
@@ -956,7 +958,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 
     } else if ( style() == MotifStyle ) {	// motif 2.0 style
 	int awh, ax, ay, sh, sy;
-	QBrush fill = g.fillButton();
+	QBrush fill = g.brush( QColorGroup::Button );
 
 	if ( height() < 6 ) {
 	    awh = height();
@@ -1054,7 +1056,8 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	if ( hasFocus()) {
 	    if (!d->ed) {
  		p.fillRect( textR.x(), textR.y(),
- 			    textR.width(), textR.height(), g.fillHighlight() );
+ 			    textR.width(), textR.height(),
+			    g.brush( QColorGroup::Highlight ) );
 		
 	    }
 	    style().drawFocusRect(&p, style().comboButtonFocusRect(0,0,width(),height()), g, &g.highlight());

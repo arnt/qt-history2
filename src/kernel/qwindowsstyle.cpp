@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#20 $
 **
 ** Implementation of Windows-like style class
 **
@@ -71,9 +71,9 @@ void QWindowsStyle::drawIndicator( QPainter* p,
 	p->setBackgroundColor( c );
 	p->setBrush( b );
     } else if ( down )
-	fill = g.fillButton();
+	fill = g.brush( QColorGroup::Button );
     else
-	fill = g.fillBase();
+	fill = g.brush( QColorGroup::Base );
     qDrawWinPanel( p, x, y, w, h, g, TRUE, &fill );
     if ( s != QButton::Off ) {
 	QPointArray a( 7*2 );
@@ -214,7 +214,7 @@ QWindowsStyle::drawArrow( QPainter *p, ArrowType type, bool down,
     QPen savePen = p->pen();			// save current pen
     if (down)
 	p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
-    p->fillRect( x, y, w, h, fill?*fill:g.fillButton() );
+    p->fillRect( x, y, w, h, fill?*fill:g.brush( QColorGroup::Button ) );
     if (down)
 	p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
     if ( enabled ) {
@@ -285,7 +285,8 @@ void QWindowsStyle::drawExclusiveIndicator( QPainter* p,
     a.translate( x, y );
     QColor fillColor = down ? g.button() : g.base();
     p->setPen( fillColor );
-    p->setBrush( down ?  g.fillButton() : g.fillBase() );
+    p->setBrush( down ?  g.brush( QColorGroup::Button ) : 
+                         g.brush( QColorGroup::Base ) ) ;
     p->drawPolygon( a );
     if ( on ) {
 	p->setPen( NoPen );
@@ -329,10 +330,12 @@ void QWindowsStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 {
     if (sunken)
 	drawWinShades( p, x, y, w, h,
-		       g.shadow(), g.light(), g.dark(), g.button(), fill?fill:&g.fillButton() );
+		       g.shadow(), g.light(), g.dark(), g.button(), 
+                       fill?fill: &g.brush( QColorGroup::Button ) );
     else
 	drawWinShades( p, x, y, w, h,
-		       g.light(), g.shadow(), g.midlight(), g.dark(), fill?fill:&g.fillButton() );
+		       g.light(), g.shadow(), g.midlight(), g.dark(),
+		       fill?fill:&g.brush( QColorGroup::Button ) );
 
 }
 
@@ -368,7 +371,8 @@ QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
 	    p->setPen( g.dark() );
 	    p->drawRect( x1+1, y1+1, x2-x1-1, y2-y1-1 );
 	} else {
-	    drawButton( p, x1, y1, w, h, g, TRUE, &g.fillButton() );
+	    drawButton( p, x1, y1, w, h, g, TRUE,
+			&g.brush( QColorGroup::Button ) );
 	}
     } else {
 	if ( btn->isDefault() ) {
@@ -382,13 +386,15 @@ QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
 	    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, &fill );
 	    clearButton = FALSE;
 	} else {
-	    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn(), &g.fillButton() );
+	    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn(),
+			&g.brush( QColorGroup::Button ) );
 	}
     }
     if ( clearButton ) {
 	if (btn->isDown())
 	    p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
-	p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3, g.fillButton() );
+	p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3,
+		     g.brush( QColorGroup::Button ) );
 	if (btn->isDown())
 	    p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
     }
@@ -421,7 +427,9 @@ void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 				     bool enabled,
 				     const QBrush *fill )
 {
-    drawPanel(p, x, y, w, h, g, TRUE, 2, fill?fill:(enabled?&g.fillBase():&g.fillBackground()));
+    drawPanel(p, x, y, w, h, g, TRUE, 2,
+                   fill?fill:(enabled?&g.brush( QColorGroup::Base ):
+                                      &g.brush( QColorGroup::Background )));
     drawPanel(p, w-2-16,2,16,h-4, g, sunken );
     drawArrow( p, QStyle::DownArrow, sunken,
 	       w-2-16+ 2, 2+ 2, 16- 4, h-4- 4, g, enabled, fill );
@@ -537,7 +545,7 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
     if ( controls & ADD_LINE ) {
 	drawBevelButton( p, addB.x(), addB.y(),
 			 addB.width(), addB.height(), g,
-			 ADD_LINE_ACTIVE, &g.fillButton() );
+			 ADD_LINE_ACTIVE, &g.brush( QColorGroup::Button ) );
 	drawArrow( p, VERTICAL ? DownArrow : RightArrow,
 		   ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
 		   addB.width()-4, addB.height()-4, g, !maxedOut );
@@ -550,7 +558,9 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
 		   SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
 		   subB.width()-4, subB.height()-4, g, !maxedOut );
     }
-    p->setBrush( g.fillLight().pixmap()?g.fillLight():QBrush(g.light(), Dense4Pattern) );
+    p->setBrush( g.brush( QColorGroup::Light ).pixmap() ?
+                 g.brush( QColorGroup::Light )     : 
+                 QBrush(g.light(), Dense4Pattern) );
     p->setPen( NoPen );
     p->setBackgroundMode( OpaqueMode );
     if ( maxedOut ) {
@@ -577,7 +587,7 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
 		p->setBrushOrigin(sliderR.topLeft());
 		drawBevelButton( p, sliderR.x(), sliderR.y(),
 				 sliderR.width(), sliderR.height(), g,
-				 FALSE, &g.fillButton() );
+				 FALSE, &g.brush( QColorGroup::Button ) );
 		p->setBrushOrigin(bo);
 	    }
 	}
@@ -629,12 +639,13 @@ void QWindowsStyle::drawSlider( QPainter *p,
     int y2 = y+h-1;
 
     if ( tickAbove && tickBelow || !tickAbove && !tickBelow ) {
-	qDrawWinButton( p, QRect(x,y,w,h), g, FALSE, &g.fillButton() );
+	qDrawWinButton( p, QRect(x,y,w,h), g, FALSE,
+			&g.brush( QColorGroup::Button ) );
 	return;
     }
 
     QBrush oldBrush = p->brush();
-    p->setBrush( g.fillButton() );
+    p->setBrush( g.brush( QColorGroup::Button ) );
     p->setPen( NoPen );
     p->drawRect( x,y,w,h );
     p->setBrush( oldBrush );

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#178 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#179 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -637,7 +637,7 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 		int xpos2 =  xpos1 + fm.width( marked ) - 1;
 		p.fillRect( xpos1, ypos - fm.ascent(),
 			    xpos2 - xpos1, fm.height(),
-			    g.fillHighlight());
+			    g.brush( QColorGroup::Highlight ));
 		p.setPen(  g.highlightedText() );
 		p.drawText( xpos1, ypos, marked );
 	    }

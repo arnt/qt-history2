@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#37 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#38 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -48,36 +48,35 @@ public:
 
    ~QColorGroup();
 
-    const QColor &foreground()	const	{ return foreground_brush.color(); }
-    const QColor &button()	const	{ return button_brush.color(); }
-    const QColor &light()	const	{ return light_brush.color(); }
-    const QColor &midlight()	const	{ return midlight_brush.color(); }
-    const QColor &dark()	const	{ return dark_brush.color(); }
-    const QColor &mid()		const	{ return mid_brush.color(); }
-    const QColor &text()	const	{ return text_brush.color(); }
-    const QColor &brightText()	const	{ return bright_text_brush.color(); }
-    const QColor &buttonText()	const	{ return button_text_brush.color(); }
-    const QColor &base()	const	{ return base_brush.color(); }
-    const QColor &background()	const	{ return background_brush.color(); }
-    const QColor &shadow()	const	{ return shadow_brush.color(); }
-    const QColor &highlight()	const	{ return highlight_brush.color(); }
-    const QColor &highlightedText()	const	{ return highlighted_text_brush.color(); }
 
-    const QBrush &fillForeground() const {return foreground_brush; }
-    const QBrush &fillButton() const {return button_brush; }
-    const QBrush &fillLight() const {return light_brush; }
-    const QBrush &fillMidlight() const {return midlight_brush; }
-    const QBrush &fillDark() const {return dark_brush; }
-    const QBrush &fillMid() const {return mid_brush; }
-    const QBrush &fillText() const {return text_brush; }
-    const QBrush &fillBrightText() const {return bright_text_brush; }
-    const QBrush &fillButtonText() const {return button_text_brush; }
-    const QBrush &fillBase() const {return base_brush; }
-    const QBrush &fillBackground() const {return background_brush; }
-    const QBrush &fillShadow() const {return shadow_brush; }
-    const QBrush &fillHighlight() const {return highlight_brush; }
-    const QBrush &fillHighlightedText() const {return highlighted_text_brush; }
+    // Do not change the order, the serialization format depends on it
+    enum ColorRole { Foreground, Button, Light, Midlight, Dark, Mid,
+                     Text, BrightText, ButtonText, Base, Background, Shadow,
+                     Highlight, HighlightedText,
+		     MaxColorRole = HighlightedText };
 
+    const QColor &color( ColorRole ) const;
+    const QBrush &brush( ColorRole ) const;
+    void setColor( ColorRole, const QColor & );
+    void setBrush( ColorRole, const QBrush & );
+
+    const QColor &foreground()	const	{ return br[Foreground].color(); }
+    const QColor &button()	const	{ return br[Button].color(); }
+    const QColor &light()	const	{ return br[Light].color(); }
+    const QColor &dark()	const	{ return br[Dark].color(); }
+    const QColor &mid()		const	{ return br[Mid].color(); }
+    const QColor &text()	const	{ return br[Text].color(); }
+    const QColor &base()	const	{ return br[Base].color(); }
+    const QColor &background()	const	{ return br[Background].color(); }
+
+    const QColor &midlight()	const	{ return br[Midlight].color(); }
+    const QColor &brightText()	const	{ return br[BrightText].color(); }
+    const QColor &buttonText()	const	{ return br[ButtonText].color(); }
+    const QColor &shadow()	const	{ return br[Shadow].color(); }
+    const QColor &highlight()	const	{ return br[Highlight].color(); }
+    const QColor &highlightedText() const{return br[HighlightedText].color(); }
+
+#if 0
     void setForeground( const QBrush& b) { foreground_brush = b; }
     void setButton( const QBrush& b) { button_brush = b; }
     void setLight( const QBrush& b) { light_brush = b; }
@@ -92,26 +91,16 @@ public:
     void setShadow( const QBrush& b) { shadow_brush = b; }
     void setHighlight( const QBrush& b) { highlight_brush = b; }
     void setHighlightedText( const QBrush& b) { highlighted_text_brush = b; }
+#endif
 
     bool	operator==( const QColorGroup &g ) const;
     bool	operator!=( const QColorGroup &g ) const
 	{ return !(operator==(g)); }
 
 private:
-    QBrush foreground_brush;
-    QBrush button_brush;
-    QBrush light_brush;
-    QBrush dark_brush;
-    QBrush mid_brush;
-    QBrush text_brush;
-    QBrush bright_text_brush;
-    QBrush button_text_brush;
-    QBrush base_brush;
-    QBrush background_brush;
-    QBrush midlight_brush;
-    QBrush shadow_brush;
-    QBrush highlight_brush;
-    QBrush highlighted_text_brush;
+    QBrush br[MaxColorRole + 1];
+
+    friend class QPalette;
 };
 
 
@@ -126,6 +115,16 @@ public:
     QPalette( const QPalette & );
    ~QPalette();
     QPalette &operator=( const QPalette & );
+
+    enum ColorGroup { Normal, Disabled, Active, MaxColorGroup = Active };
+
+    const QColor &color( ColorGroup, QColorGroup::ColorRole ) const;
+    const QBrush &brush( ColorGroup, QColorGroup::ColorRole ) const;
+    void setColor( ColorGroup, QColorGroup::ColorRole, const QColor & );
+    void setBrush( ColorGroup, QColorGroup::ColorRole, const QBrush & );
+
+    void setColor( QColorGroup::ColorRole, const QColor & );
+    void setBrush( QColorGroup::ColorRole, const QBrush & );
 
     QPalette	copy() const;
 
@@ -146,6 +145,7 @@ public:
 
 private:
     void	detach();
+    QBrush &directBrush( ColorGroup, QColorGroup::ColorRole ) const;
 
     struct QPalData : public QShared {
 	QColorGroup normal;

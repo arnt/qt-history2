@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#200 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#201 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -192,7 +192,8 @@ static void qDrawCheckMark( QPainter *p, int x, int y, int w, int h,
 			     style.defaultFrameWidth());
     }
     else {
-	qDrawShadePanel( p, posX, posY, markW, markH, g, TRUE, style.defaultFrameWidth(), &g.fillMid() );
+	qDrawShadePanel( p, posX, posY, markW, markH, g, TRUE,
+		    style.defaultFrameWidth(), &g.brush( QColorGroup::Mid ) );
     }
 
 }
@@ -1066,14 +1067,15 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	if ( mi->isChecked() ) {
 	    if ( gs == WindowsStyle && act && !dis ) {
 		qDrawShadePanel( p, cm, cm, cellw-2*cm, cellh-2*cm,
-				 g, TRUE, 1, &g.fillMid() );
+				 g, TRUE, 1, &g.brush( QColorGroup::Mid ) );
 	    } else if ( gs == WindowsStyle ||
 			mi->iconSet() ) {
 		qDrawShadePanel( p, cm, cm, cellw-2*cm, cellh-2*cm,
-				 g, TRUE, 1, &g.fillButton() );
+				 g, TRUE, 1, &g.brush( QColorGroup::Button ) );
 	    }
 	} else if ( !act ) {
- 	    p->fillRect(cm, cm, cellw - 2*cm, cellh - 2*cm, g.fillButton());
+ 	    p->fillRect(cm, cm, cellw - 2*cm, cellh - 2*cm,
+			g.brush( QColorGroup::Button ));
 	}		
 
 	if ( mi->iconSet() ) {		// draw iconset
@@ -1088,12 +1090,15 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    if ( gs == MotifStyle ) {
 		if ( act && !dis ) {			// active item frame
 		    if (style().defaultFrameWidth() > 1)
-			qDrawShadePanel( p, 0, 0, rw, cellh, g, FALSE, motifItemFrame, &g.fillButton() );
+			qDrawShadePanel( p, 0, 0, rw, cellh, g, FALSE, 
+					 motifItemFrame,
+					 &g.brush( QColorGroup::Button ) );
 		    else
-			qDrawShadePanel( p, 1, 1, rw-2, cellh-2, g, TRUE, 1, &g.fillButton() );
+			qDrawShadePanel( p, 1, 1, rw-2, cellh-2, g, TRUE, 1,
+					 &g.brush( QColorGroup::Button ) );
 		}
 		else				// incognito frame
-		    p->fillRect(0,0,rw, cellh, g.fillButton() );
+		    p->fillRect(0,0,rw, cellh, g.brush( QColorGroup::Button ));
 // 		    qDrawPlainRect( p, 0, 0, rw, cellh, g.button(),
 // 				    motifItemFrame, &g.fillButton() );
 	    } else {
@@ -1108,7 +1113,8 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    p->setPen( itemg.text() );
 	    p->drawPixmap( pmr.topLeft(), pixmap );
 	    if ( gs == WindowsStyle ) {
-		QBrush fill = act? g.fillHighlight(): g.fillButton();
+		QBrush fill = act? g.brush( QColorGroup::Highlight ) :
+      			           g.brush( QColorGroup::Button );
 		p->fillRect( cellw + 1, 0, rw - cellw - 1, cellh, fill);
 	    }
 	    return;
@@ -1118,7 +1124,8 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	if ( gs != MotifStyle )
 	    pw = 1;
 	if ( gs == WindowsStyle ) {
-	    QBrush fill = act? g.fillHighlight() : g.fillButton();
+	    QBrush fill = act? g.brush( QColorGroup::Highlight ) : 
+			       g.brush( QColorGroup::Button );
 	    if ( mi->isChecked() )
 		p->fillRect( cellw + 1, 0, rw - cellw - 1, cellh, fill);
 	    else
@@ -1126,12 +1133,14 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	} else if ( gs == MotifStyle ) {
 	    if ( act && !dis ) {			// active item frame
 		if (style().defaultFrameWidth() > 1)
-		    qDrawShadePanel( p, 0, 0, rw, cellh, g, FALSE, pw, &g.fillButton() );
+		    qDrawShadePanel( p, 0, 0, rw, cellh, g, FALSE, pw,
+				     &g.brush( QColorGroup::Button ) );
 		else
-		    qDrawShadePanel( p, 1, 1, rw-2, cellh-2, g, TRUE, 1, &g.fillButton() );
+		    qDrawShadePanel( p, 1, 1, rw-2, cellh-2, g, TRUE, 1,
+				     &g.brush( QColorGroup::Button ) );
 	    }
 	    else				// incognito frame
-		p->fillRect(0, 0, rw, cellh, g.fillButton());
+		p->fillRect(0, 0, rw, cellh, g.brush( QColorGroup::Button ));
 	}
 
 	if ( isCheckable() ) {	// just "checking"...
