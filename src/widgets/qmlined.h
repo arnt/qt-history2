@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.h#3 $
+** $Id: //depot/qt/main/src/widgets/qmlined.h#4 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -60,6 +60,7 @@ protected:
     bool	hasMarkedText() const;
     QString	markedText() const;
     int		textWidth( int );
+    int		textWidth( QString * );
 
 private slots:
     void	clipboardChanged();
@@ -71,10 +72,11 @@ private:
 
     int		cursorX;
     int		cursorY;
-
+    int		curXPos;	// cell coord of cursor
     enum { BORDER = 3 };
 
-
+    int		mapFromView( int xPos, int row );
+    int		mapToView( int xIndex, int row );
     int		lineLength( int row );
     QString	*getString( int row );
 
@@ -92,6 +94,8 @@ private:
     void	home( bool mark=FALSE );
     void	end( bool mark=FALSE );
 
+    void	updateCellWidth();
+    bool 	partiallyInvisible( int row );
     void	makeVisible();
 
 private:	// Disabled copy constructor and operator=
