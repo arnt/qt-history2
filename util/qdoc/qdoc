@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#6 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#7 $
 #
 # this is a massive hack, written very quickly
 #
@@ -110,7 +110,7 @@ sub processdocs {
 		<p><strong>Arguments:</strong>\n<ul>\n\\arg -sx;
 	    $doc =~ s-\n\\arg\s+(.*?)(?=\n\s*\\arg\s+)-<li>$1-gs;
 	    $doc =~ s-\n\\arg\s+(.*?)
-		(?:(?:\n\s*?\n\s*)|(?:$ ))-<li>$1\n</ul>\n-sx;
+		(?:(?:\n\s*?\n\s*)|(?:$ ))-<li>$1\n</ul><p>\n-sx;
 	}
 
 	$_ = "<strong>To do:</strong>\n<ul>\n";
@@ -531,7 +531,7 @@ sub printout {
 	    print O "<html><head>\n<title>Qt toolkit - ", 
 	    $name{$url}, 
 	    " class</title>\n</head><body>\n",
-	    "<h1>Documentation for the ", $name{$url}, " class</h1>\n<hr>\n";
+	    "<h1>", $name{$url}, " class reference</h1>\n<hr>\n";
 	}
 	if ($type{$url} eq "class") {
 	    my ($i);
