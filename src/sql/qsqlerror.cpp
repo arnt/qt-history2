@@ -22,7 +22,7 @@
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QSqlError &s)
 {
-    dbg.nospace() << "QSqlError("<< s.number() << ", \"" << s.driverText() << 
+    dbg.nospace() << "QSqlError("<< s.number() << ", \"" << s.driverText() <<
 		     "\", \"" << s.databaseText() << "\")";
     return dbg.space();
 }
@@ -194,19 +194,4 @@ QString QSqlError::text() const
 	return databaseError + " " + driverError;
 }
 
-/*!
-    This is a convenience function that pops up a QMessageBox
-    containing the message returned by text(). An additional string
-    can be passed in via the \a msg parameter, which will be
-    concatenated with the text() message.
-
-    \sa text(), driverText(), databaseText()
-*/
-void QSqlError::showMessage( const QString& msg ) const
-{
-#ifndef QT_NO_MESSAGEBOX
-    QMessageBox::warning( NULL, "SQL Error", msg + text(), 
-			  QMessageBox::Ok, QMessageBox::NoButton ); 
-#endif // QT_NO_MESSAGEBOX
-}
 #endif // QT_NO_SQL

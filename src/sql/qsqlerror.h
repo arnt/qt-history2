@@ -54,8 +54,7 @@ public:
     int		number() const;
     virtual void setNumber( int number );
     QString 	text() const;
-    void 	showMessage( const QString& msg = QString() ) const;
-    
+
 private:
     QString	driverError;
     QString	databaseError;
