@@ -292,20 +292,27 @@ public:
     int translate;
     QRect layoutBounds;
     QSize contentsSize;
+
     // used for intersecting set
     mutable QVector<QModelIndex> intersectVector;
+
     // used when items are movable
     BinTree<QListViewItem> tree;
+
     // used when items are static
     QVector<int> xposVector;
     QVector<int> yposVector;
     QVector<int> wrapVector;
     int layoutWraps;
     int layoutTimer;
+
     // used when dragging
     QVector<QModelIndex> draggedItems; // indices to the tree.itemVector
     mutable QPoint draggedItemsPos;
     QRubberBand *rubberBand;
+
+    // used for hidden items
+    QVector<int> hiddenRows;
 };
 
 #endif //QLISTVIEW_P_H

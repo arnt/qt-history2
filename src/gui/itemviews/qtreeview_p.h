@@ -86,6 +86,9 @@ public:
     QVector<QModelIndex> opened;
     int reopen;
 
+    // used when hiding and showing items
+    QVector<QPersistentModelIndex> hidden;
+
     // used for hidden items
     int hiddenItemsCount;
 

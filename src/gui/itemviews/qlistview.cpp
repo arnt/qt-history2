@@ -499,6 +499,41 @@ void QListView::clearPropertyFlags()
 }
 
 /*!
+  Returns true if the \a row is hidden, otherwise returns false.
+*/
+
+bool QListView::isRowHidden(int row) const
+{
+    return d->hiddenRows.contains(row);
+}
+
+/*!
+  If \a hide is true the \a row will be hidden, otherwise the \a row will be shown.
+*/
+
+void QListView::setRowHidden(int row, bool hide)
+{
+    if (hide)
+        d->hiddenRows.append(row);
+    else
+        d->hiddenRows.remove(row);
+
+    if (isVisible())
+        doItemsLayout(); // FIXME: start from the hidden item row
+    else
+        d->doDelayedItemsLayout();
+}
+
+/*!
+  Returns true if the item refered to by the given \a index is hidden, otherwise returns false.
+*/
+
+bool QListView::isItemHidden(const QModelIndex &index) const
+{       
+    return d->hiddenRows.contains(index.row()) && (model()->parent(index) == root());
+}
+
+/*!
   \reimp
 */
 QRect QListView::itemViewportRect(const QModelIndex &index) const
@@ -1145,6 +1180,7 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
     QAbstractItemModel *model = this->model();
+    QVector<int> hiddenRows = d->hiddenRows;
 
     if (d->movement == QListView::Static && !wrap)
         if (d->flow == QListView::LeftToRight)
@@ -1156,6 +1192,8 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
         int w = bounds.width();
         int dx, dy = grid.isValid() ? grid.height() : d->translate;
         for (int i = first; i <= last ; ++i) {
+            if (hiddenRows.contains(i))
+                continue;
             index = model->index(i, 0, root());
             if (!grid.isValid())
                 hint = delegate->sizeHint(option, model, index);
@@ -1175,6 +1213,8 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
         int h = bounds.height();
         int dy, dx = grid.isValid() ? grid.width() : d->translate;
         for (int i = first; i <= last ; ++i) {
+            if (hiddenRows.contains(i))
+                continue;
             index = model->index(i, 0, root());
             if (!grid.isValid())
                 hint = delegate->sizeHint(option, model, index);
@@ -1216,7 +1256,7 @@ void QListView::doDynamicLayout(const QRect &bounds, int first, int last)
     if (first == 0) {
         x = bounds.x() + spacing;
         y = bounds.y() + spacing;
-        d->tree.reserve(d->model->rowCount(root()));
+        d->tree.reserve(d->model->rowCount(root()) - d->hiddenRows.count());
     } else {
         int p = first - 1;
         const QListViewItem item = d->tree.item(p);
@@ -1233,23 +1273,31 @@ void QListView::doDynamicLayout(const QRect &bounds, int first, int last)
     QRect rect(QPoint(0, 0), d->contentsSize);
     QModelIndex bottomRight = model()->index(0, 0, root());
     QListViewItem *item = 0;
+    QVector<int> hiddenRows = d->hiddenRows;
 
     if (d->flow == LeftToRight) {
         int w = bounds.width();
         int dy = (grid.isValid() ? grid.height() : d->translate);
         for (int i = first; i <= last; ++i) {
             item = d->tree.itemPtr(i);
-            int dx = (grid.isValid() ? grid.width() : item->w);
-            // create new layout row
-            if (wrap && (x + spacing + dx >= w)) {
-                x = bounds.x() + spacing;
-                y += spacing + dy;
+            if (hiddenRows.contains(i)) {
+                item->x = -1;
+                item->y = -1;
+                item->w = 0;
+                item->h = 0;
+            } else {
+                int dx = (grid.isValid() ? grid.width() : item->w);
+                // create new layout row
+                if (wrap && (x + spacing + dx >= w)) {
+                    x = bounds.x() + spacing;
+                    y += spacing + dy;
+                }
+                item->x = x;
+                item->y = y;
+                x += spacing + dx;
+                dy = (item->h > dy ? item->h : dy);
+                rect |= item->rect();
             }
-            item->x = x;
-            item->y = y;
-            x += spacing + dx;
-            dy = (item->h > dy ? item->h : dy);
-            rect |= item->rect();
         }
         d->translate = dy;
     } else { // TopToBottom
@@ -1257,16 +1305,23 @@ void QListView::doDynamicLayout(const QRect &bounds, int first, int last)
         int dx = (grid.isValid() ? grid.width() : d->translate);
         for (int i = first; i <= last; ++i) {
             item = d->tree.itemPtr(i);
-            int dy = (grid.isValid() ? grid.height() : item->h);
-            if (wrap && (y + spacing + dy >= h)) {
-                y = bounds.y() + spacing;
-                x += spacing + dx;
+            if (hiddenRows.contains(i)) {
+                item->x = -1;
+                item->y = -1;
+                item->w = 0;
+                item->h = 0;
+            } else {
+                int dy = (grid.isValid() ? grid.height() : item->h);
+                if (wrap && (y + spacing + dy >= h)) {
+                    y = bounds.y() + spacing;
+                    x += spacing + dx;
+                }
+                item->x = x;
+                item->y = y;
+                y += spacing + dy;
+                dx = (item->w > dx ? item->w : dx);
+                rect |= item->rect();
             }
-            item->x = x;
-            item->y = y;
-            y += spacing + dy;
-            dx = (item->w > dx ? item->w : dx);
-            rect |= item->rect();
         }
         d->translate = dx;
     }
@@ -1352,8 +1407,8 @@ void QListViewPrivate::init()
 void QListViewPrivate::prepareItemsLayout()
 {
     // initailization of data structs
-    int colCount = model->columnCount(q->root()); // no columns means no contents
-    int rowCount = colCount > 0 ? model->rowCount(q->root()) : 0;
+    int rowCount = model->columnCount(q->root()) > 0 // no columns means no contents
+                   ? qMax(model->rowCount(q->root()) - hiddenRows.count(), 0) : 0;
     if (movement == QListView::Static) {
         tree.destroy();
         if (flow == QListView::LeftToRight) {
@@ -1580,7 +1635,7 @@ void QListViewPrivate::createStaticColumn(int &x, int &y, int &dx, int &wraps, i
 }
 
 void QListViewPrivate::initStaticLayout(int &x, int &y, int first,
-                                               const QRect &bounds, int spacing)
+                                        const QRect &bounds, int spacing)
 {
     if (first == 0) {
         x = bounds.left() + spacing;

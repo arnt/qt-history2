@@ -40,11 +40,19 @@ public:
     int rowViewportPosition(int row) const;
     int rowHeight(int row) const;
     int rowAt(int y) const;
+
     int columnViewportPosition(int column) const;
     int columnWidth(int column) const;
     int columnAt(int x) const;
+
     bool isRowHidden(int row) const;
+    void setRowHidden(int row, bool hide);
+
     bool isColumnHidden(int column) const;
+    void setColumnHidden(int column, bool hide);
+
+    bool isItemHidden(const QModelIndex &index) const;
+
     bool showGrid() const;
 
     QRect itemViewportRect(const QModelIndex &index) const;

@@ -101,9 +101,10 @@ public:
     virtual QModelIndex itemAt(int x, int y) const = 0;
 
     QSize itemSizeHint(const QModelIndex &index) const;
-
     virtual int rowSizeHint(int row) const;
     virtual int columnSizeHint(int column) const;
+
+    virtual bool isItemHidden(const QModelIndex &index) const = 0;
 
     void openPersistentEditor(const QModelIndex &index);
     void closePersistentEditor(const QModelIndex &index);

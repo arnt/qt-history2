@@ -753,12 +753,43 @@ bool QTableView::isRowHidden(int row) const
 }
 
 /*!
+  If \a hide is true \a row will be hidden, otherwise it will be shown.
+*/
+void QTableView::setRowHidden(int row, bool hide)
+{
+    if (hide)
+        hideRow(row);
+    else
+        showRow(row);
+}
+
+/*!
     Returns true if the given \a column is hidden; otherwise returns false.
 */
 
 bool QTableView::isColumnHidden(int column) const
 {
     return d->horizontalHeader->isSectionHidden(column);
+}
+
+/*!
+  If \a hide is true \a row will be hidden, otherwise it will be shown.
+*/
+void QTableView::setColumnHidden(int column, bool hide)
+{
+    if (hide)
+        hideColumn(column);
+    else
+        showColumn(column);
+}
+
+/*!
+  Returns true if the item refered to by the given \a index is hidden, otherwise returns false.
+*/
+
+bool QTableView::isItemHidden(const QModelIndex &index) const
+{
+    return isRowHidden(index.row()) || isColumnHidden(index.column());
 }
 
 // ### DOC: What is the default?

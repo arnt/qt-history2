@@ -133,9 +133,11 @@ protected:
     virtual QSize sectionSizeFromContents(int section) const;
 
     QModelIndex itemAt(int x, int y) const;
+    bool isItemHidden(const QModelIndex &index) const;
 
     int horizontalOffset() const;
     int verticalOffset() const;
+    
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state);
     void setSelection(const QRect&, QItemSelectionModel::SelectionFlags) {}
     QRect selectionViewportRect(const QItemSelection &selection) const;

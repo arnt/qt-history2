@@ -279,6 +279,16 @@ void QTreeView::setColumnHidden(int column, bool hide)
 }
 
 /*!
+  Returns true if the item refered to by the given \a index is hidden, otherwise returns false.
+*/
+
+bool QTreeView::isItemHidden(const QModelIndex &index) const
+{
+    // FIXME: update this
+    return isColumnHidden(index.column());
+}
+
+/*!
   Hides the \a column given.
 
   \sa showColumn() */

@@ -51,6 +51,7 @@ public:
 
     bool isColumnHidden(int column) const;
     void setColumnHidden(int column, bool hide);
+    bool isItemHidden(const QModelIndex &index) const;
 
     bool isOpen(const QModelIndex &index) const;
 
