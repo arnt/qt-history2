@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#137 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#138 $
 **
 ** Definition of QApplication class
 **
@@ -88,10 +88,6 @@ public:
     static QPalette  palette( const QWidget* = 0 );
     static void	     setPalette( const QPalette &, bool updateAllWidgets=FALSE,
 				 const char* className = 0 );
-#ifdef QT_BUILDER
-    static QPalette  palette( const QWidget*, const char* className  );
-#endif // QT_BUILDER
-
     static QFont     font( const QWidget* = 0 );
     static void	     setFont( const QFont &, bool updateAllWidgets=FALSE,
 			      const char* className = 0 );

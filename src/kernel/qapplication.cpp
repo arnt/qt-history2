@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#293 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#294 $
 **
 ** Implementation of QApplication class
 **
@@ -303,6 +303,7 @@ void qt_create_std_palette()
 
 static void qt_fix_tooltips()
 {
+    qDebug("qt_fix_tooltips");
     // No resources for this yet (unlike on Windows).
     QColorGroup cg( Qt::black, QColor(255,255,220),
 		    QColor(96,96,96), Qt::black, Qt::black,
@@ -519,19 +520,16 @@ void QApplication::initialize( int argc, char **argv )
     app_argv = argv;
     quit_now = FALSE;
     quit_code = 0;
-    if ( !app_pal ) {				// palette not already set
-	qt_create_std_palette();
-	app_pal = new QPalette( *qt_std_pal );
-	CHECK_PTR( app_pal );
-    }
-    QWidget::createMapper();			// create widget mapper
-    is_app_running = TRUE;			// no longer starting up
+    QWidget::createMapper(); // create widget mapper
+    (void) palette();  // trigger creation of application palette
+    is_app_running = TRUE; // no longer starting up
+    
 
     if (!app_style) {
 #if defined(_WS_WIN_)
-	app_style = new QWindowsStyle;		// default style for Windows
+	app_style = new QWindowsStyle; // default style for Windows
 #elif defined(_WS_X11_)
-	app_style = new QMotifStyle;		// default style for X Windows
+	app_style = new QMotifStyle; // default style for X Windows
 #elif defined(_WS_MAC_)
 	app_style = new QPlatinumStyle;
 #else
@@ -853,6 +851,7 @@ QPalette QApplication::palette(const QWidget* w)
 	if ( !qt_std_pal )
 	    qt_create_std_palette();
 	app_pal = new QPalette( *qt_std_pal );
+	qt_fix_tooltips();
     }
 
     if ( w && app_palettes ) {
@@ -870,45 +869,6 @@ QPalette QApplication::palette(const QWidget* w)
     return *app_pal;
 }
 
-
-#ifdef QT_BUILDER
-/*!
-  Returns a pointer to the default application palette.	 There is
-  always an application palette, i.e. the returned pointer is
-  guaranteed to be non-null.
-
-  If a widget is passed as argument, the default palette for the
-  widget's class is returned. This may or may not be the application
-  palette, but in most cases there won't be a special palette for
-  certain types of widgets. An exception is the popup menu under
-  Windows, when the user defined a special background color for menus
-  in the display settings. Instead of a widget, you may also define the
-  \a className directly.
-
-  \sa setPalette(), QWidget::palette()
-*/
-
-QPalette QApplication::palette( const QWidget* w, const char* className  )
-{
-    if ( w )
-	return palette( w );
-    if ( !app_pal ) {
-	if ( !qt_std_pal )
-	    qt_create_std_palette();
-	app_pal = new QPalette( *qt_std_pal );
-    }
-    if ( w && app_palettes ) {
-	QAsciiDictIterator<QPalette> it( *app_palettes );
-	const char* name;
-	while ( (name=it.currentKey()) != 0 ) {
-	    if ( qstrcmp( className, name ) == 0 )
-		return *it.current();
-	    ++it;
-	}
-    }
-    return *app_pal;
-}
-#endif // QT_BUILDER
 
 
 /*!
