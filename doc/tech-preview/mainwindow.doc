@@ -1,6 +1,6 @@
 /*!
 \page mainwindow-overview.html
-\title Main Window Overview
+\title The Main Window Classes
 
 Qt 4 introduces a new set of main window classes that will replace the
 Qt 3 main window classes, providing a more efficient implementation
@@ -346,5 +346,7 @@ In the \c QToolBar class:
    This class may either become public, or be merged with \c
    QToolButton.
 \endlist
+
+\link tech-preview.html [Back to the Technology Preview page] \endlink
 
 */

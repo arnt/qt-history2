@@ -12,7 +12,7 @@
 
 /*!
 \page scribe-overview.html
-\title Scribe Overview
+\title The Scribe Classes
 
 Scribe introduces a set of text layout classes to Qt 4. These classes
 replace the old rich text engine found in Qt 3, and provide new features
@@ -343,5 +343,7 @@ others might not. Feedback is welcome and encouraged.
 \i Multiple views onto documents
 \i Improved layout of rich text documents
 \endlist
+
+\link tech-preview.html [Back to the Technology Preview page] \endlink
 
 */

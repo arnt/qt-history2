@@ -1,5 +1,5 @@
 /*!
-    \page painting.html
+    \page arthur-overview.html
 
     \title The Qt 4.0 Paint Subsystem
 
@@ -76,9 +76,9 @@
     Qt to take advantage of the features in GDI+ the gdiplus.dll
     library must be in the PATH.
 
-    \section1 New Features in the Qt 4 Paint Subsystem
+    \section1 New features in the Qt 4 paint subsystem
 
-    \section2 Linear Gradient Brushes
+    \section2 Linear gradient brushes
 
     With Qt 4 it is possible to fill shapes using a linear gradient
     brush. A gradient in this case is used to describe the transition
@@ -257,5 +257,7 @@
        alpha filling at the moment. These will be made more consistent
        in the time to come.
     \endlist
+
+    \link tech-preview.html [Back to the Technology Preview page] \endlink
 
 */

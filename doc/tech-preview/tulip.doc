@@ -1,18 +1,19 @@
 /*!
-\page tulip.html
+\page tulip-overview.html
 
 \title The Tulip Container Classes
-
-\tableofcontents
-
-\section1 General Overview
 
 Qt 4 introduces a new set of containers that will replace both the old
 \c QCollection pointer-based containers and the newer "QTL" value-based
 containers.
 
-These containers are similar to Qt 3's QTL containers (\c QValueList,
-\c QValueVector, \c QMap), but have the following advantages:
+\tableofcontents
+
+\section1 General overview
+
+The Tulip containers are similar to Qt 3's QTL containers (\c
+QValueList, \c QValueVector, \c QMap), but have the following
+advantages:
 
 \list
 \i The containers provide new iterators with a nicer, less
@@ -197,9 +198,11 @@ doesn't exist:
     QMap<QString, int> map;
     ...
     map.value("TIMEOUT", 30);  // returns 30 if "TIMEOUT" isn't in the map
+\endcode
 
 Getting all the values for a particular key in a \c QMultiMap or \c QMultiHash:
 
+\code
     QMultiMap<QString, int> map;
     ...
     QList<int> values = map.values("TIMEOUT");
@@ -226,5 +229,7 @@ lists with thousands of items.
 
 If you use \c QValueVector or \c QMap in Qt 3, the corresponding Qt 4
 classes (\c QVector, \c QMap) are very similar to use.
+
+\link tech-preview.html [Back to the Technology Preview page] \endlink
 
 */
