@@ -239,7 +239,6 @@
     extern const char* PM_str_wrn2;
     extern const char* PM_str_wrn3;
     extern const char* PM_str_wrn4;
-    extern PM globalPM;
     extern I64 perf_ms;
     extern I64 perf_delta;
     extern void PM_Debug( const char *msg, ... );
