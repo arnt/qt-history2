@@ -48,8 +48,8 @@ sql {
 		    $$SQL_CPP/qdatatable.cpp \
 		    $$SQL_CPP/qdataview.cpp \
 		    $$SQL_CPP/qdatabrowser.cpp \
-		    $$SQL_CPP/qsqlselectcursor.cpp
-#		    $$SQL_CPP/drivers/cache/qsqlcachedresult.cpp
+		    $$SQL_CPP/qsqlselectcursor.cpp \
+		    $$SQL_CPP/drivers/cache/qsqlcachedresult.cpp
 
 	contains(sql-drivers, all ) {
 		sql-driver += psql mysql odbc oci tds db2 sqlite ibase
