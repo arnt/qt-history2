@@ -16,6 +16,7 @@
 
 // Standard Qt widgets
 
+#include <qtoolbar.h>
 #include <qmenubar.h>
 #include <qpopupmenu.h>
 #include <qbuttongroup.h>
@@ -34,7 +35,6 @@
 #include <qtooltip.h>
 #include <qspinbox.h>
 #include <qstatusbar.h>
-#include <qtoolbar.h>
 #include <qwhatsthis.h>
 #include <qtoolbutton.h>
 #include <qvbox.h>

@@ -8,10 +8,10 @@
 **
 *****************************************************************************/
 
+#include "helpwindow.h"
 #include <qapplication.h>
 #include <qwindowsstyle.h>
 #include <qstylesheet.h>
-#include "helpwindow.h"
 #include <stdlib.h>
 
 

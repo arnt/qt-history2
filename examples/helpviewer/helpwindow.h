@@ -11,8 +11,8 @@
 #ifndef HELPWINDOW_H
 #define HELPWINDOW_H
 
-#include <qtextbrowser.h>
 #include <qmainwindow.h>
+#include <qtextbrowser.h>
 #include <qstringlist.h>
 #include <qmap.h>
 #include <qdir.h>
