@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#14 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#15 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -155,7 +155,7 @@ bool QSVGDevice::play( QPainter *painter )
 
     // 'play' all elements recursively starting with 'svg' as root
     pt = painter;
-    pt->setPen( Qt::NoPen );
+    pt->setPen( QPen( Qt::black, 1, Qt::NoPen ));
     return play( svg );
 }
 
@@ -297,10 +297,17 @@ bool QSVGDevice::play( const QDomNode &node )
 		    double dy = sl[2*i+1].toDouble();
 		    ptarr.setPoint( i, int(dx), int(dy) );
 		}
-  		if ( t == PolylineElement )
-  		    pt->drawPolyline( ptarr ); // ### can be filled in SVG
-  		else
+  		if ( t == PolylineElement ) {
+		    if ( pt->brush().style() != Qt::NoBrush ) {
+			QPen pn = pt->pen();
+			pt->setPen( Qt::NoPen );
+			pt->drawPolygon( ptarr );
+			pt->setPen( pn );
+		    }
+		    pt->drawPolyline( ptarr ); // ### closes when filled. bug ?
+  		} else {
 		    pt->drawPolygon( ptarr );
+		}
 	    }
 	    break;
 	case GroupElement:
@@ -450,17 +457,17 @@ void QSVGDevice::setStyle( const QString &s )
 	    QString val = (*it).right( (*it).length() - col - 1 );
 	    val = val.lower().stripWhiteSpace();
 	    if ( prop == "stroke" ) {
-		if ( val == "none" )
+		if ( val == "none" ) {
 		    pen.setStyle( Qt::NoPen );
-		else {
+		} else {
 		    pen.setColor( parseColor( val ));
-		    if ( pen.style() == Qt::NoPen )
-			pen.setStyle( Qt::SolidLine );
+ 		    if ( pen.style() == Qt::NoPen )
+ 			pen.setStyle( Qt::SolidLine );
+		    if ( pen.width() == 0 )
+ 			pen.setWidth( 1 );
 		}
 	    } else if ( prop == "stroke-width" ) {
 		pen.setWidth( int(parseLen( val )) );
-		if ( pen.style() == Qt::NoPen )
-		    pen.setStyle( Qt::SolidLine );
 	    } else if ( prop == "stroke-linecap" ) {
 		if ( val == "butt" )
 		    pen.setCapStyle( Qt::FlatCap );
