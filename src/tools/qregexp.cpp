@@ -1209,7 +1209,7 @@ public:
     int *mmSlideTab; // bump-along slide table for bad-character heuristic
     int mmSlideTabSize; // size of slide table
 #ifndef QT_NO_REGEXP_BACKREF
-    QMap<int, QVector<int> > mmSleeping; // dictionary of back-reference sleepers
+    QList<QVector<int> > mmSleeping; // list of back-reference sleepers
 #endif
     int mmMatchLen; // length of match
     int mmOneTestMatchedLen; // length of partial match
@@ -1811,8 +1811,7 @@ bool QRegExpEngine::matchHere()
 #ifndef QT_NO_REGEXP_BACKREF
     QVector<int> zzZ;
 
-    while ((ncur > 0 || !mmSleeping.isEmpty()) && i <= mmLen - mmPos &&
-	    !stop)
+    while ((ncur > 0 || !mmSleeping.isEmpty()) && i <= mmLen - mmPos && !stop)
 #else
     while (ncur > 0 && i <= mmLen - mmPos && !stop)
 #endif
@@ -2061,14 +2060,15 @@ bool QRegExpEngine::matchHere()
 		      mmNextStack.
 		    */
 		    if (needSomeSleep > 0) {
-			zzZ.resize(1 + 2 * ncap);
-			zzZ[0] = next;
+			zzZ.resize(2 + 2 * ncap);
+			zzZ[0] = i + needSomeSleep;
+			zzZ[1] = next;
 			if (ncap > 0) {
-			    memcpy(zzZ.data() + 1, capBegin, ncap * sizeof(int));
-			    memcpy(zzZ.data() + 1 + ncap, capEnd, ncap * sizeof(int));
+			    memcpy(zzZ.data() + 2, capBegin, ncap * sizeof(int));
+			    memcpy(zzZ.data() + 2 + ncap, capEnd, ncap * sizeof(int));
 			}
 			mmInNextStack[mmNextStack[--nnext]] = -1;
-			mmSleeping.insert(i + needSomeSleep, zzZ);
+			mmSleeping.append(zzZ);
 		    }
 #endif
 #endif
@@ -2088,16 +2088,17 @@ bool QRegExpEngine::matchHere()
 	/*
 	  It's time to wake up the sleepers.
 	*/
-	if (!mmSleeping.isEmpty()) {
-	    while (mmSleeping.contains(i)) {
-		zzZ = mmSleeping[i];
-		mmSleeping.remove(i);
-		int next = zzZ[0];
-		const int *capBegin = zzZ.data() + 1;
-		const int *capEnd = zzZ.data() + 1 + ncap;
+	j = 0;
+	while (j < mmSleeping.count()) {
+	    if (mmSleeping[j][0] == i) {
+		zzZ = mmSleeping[j];
+		mmSleeping.removeAt(j);
+		int next = zzZ[1];
+		const int *capBegin = zzZ.data() + 2;
+		const int *capEnd = zzZ.data() + 2 + ncap;
 		bool copyOver = true;
 
-		if ((m = mmInNextStack[zzZ[0]]) == -1) {
+		if ((m = mmInNextStack[next]) == -1) {
 		    m = nnext++;
 		    mmNextStack[m] = next;
 		    mmInNextStack[next] = m;
@@ -2113,6 +2114,8 @@ bool QRegExpEngine::matchHere()
 			    ncap * sizeof(int));
 		}
 		zzZ.clear();
+	    } else {
+		++j;
 	    }
 	}
 #endif
