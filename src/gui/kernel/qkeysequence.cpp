@@ -31,7 +31,7 @@
 #endif
 
 /*!
-    \class QKeySequence qkeysequence.h
+    \class QKeySequence
     \brief The QKeySequence class encapsulates a key sequence as used
     by shortcuts.
 

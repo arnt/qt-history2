@@ -177,8 +177,11 @@ void QRegion::exec(const QByteArray &buffer, int ver)
         } else if (id >= QRGN_OR && id <= QRGN_XOR) {
             QByteArray bop1, bop2;
             QRegion r1, r2;
-            s >> bop1;        r1.exec(bop1);
-            s >> bop2;        r2.exec(bop2);
+            s >> bop1;
+            r1.exec(bop1);
+            s >> bop2;
+            r2.exec(bop2);
+
             switch (id) {
                 case QRGN_OR:
                     rgn = r1.unite(r2);
@@ -229,20 +232,17 @@ QDataStream &operator<<(QDataStream &s, const QRegion &r)
     } else {
         if (s.version() == 1) {
             int i;
-            for (i=(int)a.size()-1; i>0; i--) {
-                s << (Q_UINT32)(12+i*24);
+            for (i = a.size() - 1; i > 0; --i) {
+                s << (Q_UINT32)(12 + i * 24);
                 s << (int)QRGN_OR;
             }
-            for (i=0; i<(int)a.size(); i++) {
+            for (i = 0; i < a.size(); ++i) {
                 s << (Q_UINT32)(4+8) << (int)QRGN_SETRECT << a[i];
             }
-        }
-        else {
-            s << (Q_UINT32)(4+4+16*a.size()); // 16: storage size of QRect
+        } else {
+            s << (Q_UINT32)(4 + 4 + 16 * a.size()); // 16: storage size of QRect
             s << (Q_INT32)QRGN_RECTS;
-            s << (Q_UINT32)a.size();
-            for (int i=0; i<(int)a.size(); i++)
-                s << a[i];
+            s << a;
         }
     }
     return s;

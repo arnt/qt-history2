@@ -653,56 +653,6 @@ QPointArray QPointArray::cubicBezier() const
 }
 #endif //QT_NO_BEZIER
 
-/*****************************************************************************
-  QPointArray stream functions
- *****************************************************************************/
-#ifndef QT_NO_DATASTREAM
-/*!
-    \relates QPointArray
-
-    Writes the point array, \a a to the stream \a s and returns a
-    reference to the stream.
-
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
-*/
-
-QDataStream &operator<<(QDataStream &s, const QPointArray &a)
-{
-    Q_UINT32 len = a.size();
-    uint i;
-
-    s << len;
-    for (i = 0; i < len; ++i)
-        s << a.point(i);
-    return s;
-}
-
-/*!
-    \relates QPointArray
-
-    Reads a point array, \a a from the stream \a s and returns a
-    reference to the stream.
-
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
-*/
-
-QDataStream &operator>>(QDataStream &s, QPointArray &a)
-{
-    Q_UINT32 len;
-    uint i;
-
-    s >> len;
-    a.resize((int)len);
-    QPoint p;
-    for (i = 0; i < len; ++i) {
-        s >> p;
-        a.setPoint(i, p);
-    }
-    return s;
-}
-#endif //QT_NO_DATASTREAM
-
-
 struct QShortPoint {                        // Binary compatible with XPoint
     short x, y;
 };

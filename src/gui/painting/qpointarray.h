@@ -67,14 +67,6 @@ Q_GUI_EXPORT QDebug operator<<(QDebug, const QPointArray &);
 #endif
 
 /*****************************************************************************
-  QPointArray stream functions
- *****************************************************************************/
-#ifndef QT_NO_DATASTREAM
-Q_GUI_EXPORT QDataStream &operator<<(QDataStream &stream, const QPointArray &array);
-Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QPointArray &array);
-#endif
-
-/*****************************************************************************
   Misc. QPointArray functions
  *****************************************************************************/
 
