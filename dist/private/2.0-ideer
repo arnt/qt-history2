@@ -71,6 +71,9 @@ Completely rework "modality".
     - Remove "parent widget is window to centre wrt if modal"
 	- add real "widget to centre wrt" functionality.
 Provide virtual functions for all new Event_* types.
+All QApplication statics should be virtual methods - use qApp->... to
+ access them.  This allows for overriding, and paves the way for supporting
+ multiple QApplication objects.
 
 
 GERMAN THINGS:
