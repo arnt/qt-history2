@@ -171,7 +171,12 @@ in popupmenus that are not in the Mac native menubar.
 (QKeySequence) will not be honored, and the first key will be used.
 
 \endlist
+
+\section1 File Dialog
+
+The static functions of QFileDialog use Mac OS X's Navigation Services.
+Navigation Services takes care of saving the location to look for saving and
+opening files (storing this in $HOME/Library/Preferences/<appname>.plist).
+There appears to be no way to programmically set them.  Therefore, the
+"startWith" variable is ignored by these functions.
 */
-
-
-
