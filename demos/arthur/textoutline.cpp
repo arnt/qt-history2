@@ -139,13 +139,13 @@ void TextOutline::showEvent(QShowEvent *)
 
 QPointF TextOutline::mapPoint(float x, float y)
 {
-    float dx = x / basePathBounds.width();
+    float dx = (x-basePathBounds.x()) / basePathBounds.width();
 
     QLineF topLine(pul, pur);
     QLineF bottomLine(pbl, pbr);
     QLineF vertLine(topLine.pointAt(dx), bottomLine.pointAt(dx));
 
-    float dy = y / basePathBounds.height();
+    float dy = (y-basePathBounds.y()) / basePathBounds.height();
     QLineF leftLine(pul, pbl);
     QLineF rightLine(pur, pbr);
     QLineF horLine(leftLine.pointAt(dy), rightLine.pointAt(dy));
