@@ -153,7 +153,7 @@ static QMAC_PASCAL Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
     }
     QStringList reg = fn->regxp.split(";");
     for(QStringList::Iterator it = reg.begin(); it != reg.end(); ++it) {
-        QRegExp rg(*it);//QRegExp rg((*it), false, true); // not case sensitive, with wildcard
+        QRegExp rg(*it, Qt::CaseInsensitive, QRegExp::Wildcard);
 #ifdef DEBUG_FILEDIALOG_FILTERS
         qDebug("QFileDialog:%d, asked to filter.. %s (%s)", __LINE__,
                file.latin1(), (*it).latin1());
