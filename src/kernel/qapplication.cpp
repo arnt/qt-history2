@@ -1508,7 +1508,7 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 	// if this is a child remove event and the child insert hasn't been
 	// dispatched yet, kill that insert and return.
 	QPostEventList * l = postedEvents;
-	if ( receiver->isWidgetType() && 
+	if ( receiver->isWidgetType() &&
 	     ((QWidget*)receiver)->extra &&
 	     ((QWidget*)receiver)->extra->posted_events )
 	    l = (QPostEventList*)(((QWidget*)receiver)->extra->posted_events);
@@ -1901,8 +1901,7 @@ void QApplication::sendPostedEvents()
 
 void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 {
-    if ( !postedEvents || receiver && !receiver->pendEvent ||
-	 postedEventReceivers )
+    if ( !postedEvents || receiver && !receiver->pendEvent )
 	return;
 
     // illegal combination:
@@ -1924,8 +1923,12 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	l = (QPostEventList**)&(((QWidget*)receiver)->extra->posted_events);
 
     QPostEventListIt it( **l );
-    postedEventReceivers 
-	= new QPtrDict<QObject>( postedEvents->count() * 3 / 2 );
+    if ( !postedEventReceivers )
+	postedEventReceivers
+	    = new QPtrDict<QObject>( postedEvents->count() * 3 / 2 );
+    else if ( postedEventReceivers->size() > postedEvents->count() * 4 ||
+	      postedEventReceivers->size() < postedEvents->count() )
+	postedEventReceivers->resize( postedEvents->count() * 3 / 2 );
 
     QPostEvent *pe;
     bool morePostedEvents = FALSE; // applies iff receiver != 0
@@ -1975,11 +1978,13 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	    }
 	}
     }
-    delete postedEventReceivers;
-    postedEventReceivers = 0;
+    if ( postedEventReceivers )
+	postedEventReceivers->clear();
 
-    if ( !receiver )
-	postedEvents->clear();
+    if ( *l && !receiver ) {
+	postedEvents = 0;
+	delete *l;
+    }
 }
 
 
@@ -2053,8 +2058,16 @@ void QApplication::removePostedEvents( QObject *receiver )
 
 void QApplication::removePostedEvent( QEvent *  event )
 {
-    if ( !event || !event->posted || !postedEvents )
+    if ( !event || !event->posted )
 	return;
+
+    if ( !postedEvents ) {
+#if defined(DEBUG)
+	debug( "QApplication::removePostedEvent: %p %d is, impossibly, posted",
+	       event, event->type() );
+	return;
+#endif	
+    }
 
     QPostEventListIt it( *postedEvents );
     QPostEvent * pe;
