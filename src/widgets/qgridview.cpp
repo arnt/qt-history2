@@ -43,50 +43,51 @@
 #include "qpainter.h"
 
 /*!
-  \class QGridView qgridview.h
-  \brief The QGridView class provides an abstract base for fixed-size
-  grids.
+    \class QGridView qgridview.h
+    \brief The QGridView class provides an abstract base for
+    fixed-size grids.
 
-  \ingroup abstractwidgets
+    \ingroup abstractwidgets
 
-  A grid view consists of a number of abstract cells organized in rows
-  and columns. The cells have a fixed size and are identified with a
-  row index and a column index. The top-left cell is in row 0, column
-  0. The bottom-right cell is in row numRows()-1, column numCols()-1.
+    A grid view consists of a number of abstract cells organized in
+    rows and columns. The cells have a fixed size and are identified
+    with a row index and a column index. The top-left cell is in row
+    0, column 0. The bottom-right cell is in row numRows()-1, column
+    numCols()-1.
 
-  You can define \l numRows, \l numCols, \l cellWidth and
-  \l cellHeight. Reimplement the pure virtual function paintCell() to
-  draw the content of a cell.
+    You can define \l numRows, \l numCols, \l cellWidth and \l
+    cellHeight. Reimplement the pure virtual function paintCell() to
+    draw the contents of a cell.
 
-  With ensureCellVisible(), you can ensure a certain cell is
-  visible. With rowAt() and columnAt() you can find a cell based on
-  the given x- and y-coordinates.
+    With ensureCellVisible(), you can ensure a certain cell is
+    visible. With rowAt() and columnAt() you can find a cell based on
+    the given x- and y-coordinates.
 
-  If you need to monitor changes to the grid's dimensions (i.e. when
-  numRows or numCols is changed), reimplement the dimensionChange()
-  change handler.
+    If you need to monitor changes to the grid's dimensions (i.e. when
+    numRows or numCols is changed), reimplement the dimensionChange()
+    change handler.
 
-  Note: the row, column indices are always given in the order, row
-  (vertical offset) then column (horizontal offset). This order is the
-  opposite of all pixel operations, which are given in the order x
-  (horizontal offset), y (vertical offset).
+    Note: the row and column indices are always given in the order,
+    row (vertical offset) then column (horizontal offset). This order
+    is the opposite of all pixel operations, which are given in the
+    order x (horizontal offset), y (vertical offset).
 
-  QGridView is a very simple abstract class based on QScrollView. It
-  is designed to simplify the task of drawing many cells of the same
-  size in a potentially scrollable canvas. If you need rows and
-  columns in different sizes, use a QTable instead. If you need a
-  simple list of items, use a QListBox. If you need to present
-  hierachical data use a QListView, and if you need random objects at
-  random positions, consider using either a QIconView or a QCanvas.
-
+    QGridView is a very simple abstract class based on QScrollView. It
+    is designed to simplify the task of drawing many cells of the same
+    size in a potentially scrollable canvas. If you need rows and
+    columns with different sizes, use a QTable instead. If you need a
+    simple list of items, use a QListBox. If you need to present
+    hierachical data use a QListView, and if you need random objects
+    at random positions, consider using either a QIconView or a
+    QCanvas.
 */
 
 
 /*!
-  Constructs a grid view.
+    Constructs a grid view.
 
-  The \a parent, \a name and widget flag, \a f, arguments are passed to the
-  QScrollView constructor.
+    The \a parent, \a name and widget flag, \a f, arguments are passed
+    to the QScrollView constructor.
 */
 QGridView::QGridView( QWidget *parent, const char *name, WFlags f )
     :QScrollView( parent, name, f | WStaticContents ),
@@ -98,7 +99,7 @@ QGridView::QGridView( QWidget *parent, const char *name, WFlags f )
 }
 
 /*!
-  Destroys the grid view.
+    Destroys the grid view.
 */
 QGridView::~QGridView()
 {
@@ -109,10 +110,11 @@ void QGridView::updateGrid()
     resizeContents( ncols * cellw, nrows * cellh );
 }
 
-/*! \property QGridView::numRows
-  \brief The number of rows in the grid
+/*!
+    \property QGridView::numRows
+    \brief The number of rows in the grid
 
-  \sa numCols
+    \sa numCols
 */
 void QGridView::setNumRows( int numRows )
 {
@@ -122,10 +124,11 @@ void QGridView::setNumRows( int numRows )
     updateGrid();
 }
 
-/*! \property QGridView::numCols
-  \brief The number of columns in the grid
+/*!
+    \property QGridView::numCols
+    \brief The number of columns in the grid
 
-  \sa numRows
+    \sa numRows
 */
 void QGridView::setNumCols( int numCols )
 {
@@ -135,12 +138,13 @@ void QGridView::setNumCols( int numCols )
     updateGrid();
 }
 
-/*! \property QGridView::cellWidth
-  \brief The width of a grid column
+/*!
+    \property QGridView::cellWidth
+    \brief The width of a grid column
 
-  All columns in a grid view have the same width.
+    All columns in a grid view have the same width.
 
-  \sa cellHeight
+    \sa cellHeight
 */
 void QGridView::setCellWidth( int cellWidth )
 {
@@ -149,12 +153,13 @@ void QGridView::setCellWidth( int cellWidth )
     updateContents();
 }
 
-/*! \property QGridView::cellHeight
-  \brief The height of a grid row
+/*!
+    \property QGridView::cellHeight
+    \brief The height of a grid row
 
-  All rows in a grid view have the same height.
+    All rows in a grid view have the same height.
 
-  \sa cellWidth
+    \sa cellWidth
 */
 void QGridView::setCellHeight( int cellHeight )
 {
@@ -164,10 +169,10 @@ void QGridView::setCellHeight( int cellHeight )
 }
 
 /*!
-  Returns the geometry of cell (\a row, \a column) in the content
-  coordinate system.
+    Returns the geometry of cell (\a row, \a column) in the content
+    coordinate system.
 
-  \sa cellRect()
+    \sa cellRect()
  */
 QRect QGridView::cellGeometry( int row, int column )
 {
@@ -177,43 +182,46 @@ QRect QGridView::cellGeometry( int row, int column )
     return r;
 }
 
-/*!  Repaints cell (\a row, \a column).
+/*!
+    Repaints cell (\a row, \a column).
 
-  If \a erase is TRUE, Qt erases the area of the cell before the
-  paintCell() call; otherwise no erasing takes place.
+    If \a erase is TRUE, Qt erases the area of the cell before the
+    paintCell() call; otherwise no erasing takes place.
 
-  \sa QWidget::repaint()
- */
+    \sa QWidget::repaint()
+*/
 void QGridView::repaintCell( int row, int column, bool erase )
 {
     repaintContents( cellGeometry( row, column ), erase );
 }
 
-/*!  Updates cell (\a row, \a column).
+/*!
+    Updates cell (\a row, \a column).
 
-  \sa QWidget::update()
- */
+    \sa QWidget::update()
+*/
 void QGridView::updateCell( int row, int column )
 {
     updateContents( cellGeometry( row, column ) );
 }
 
 /*!
-  Ensure cell (\a row, \a column) is visible, scrolling the grid view
-  if necessary.
- */
+    Ensures cell (\a row, \a column) is visible, scrolling the grid
+    view if necessary.
+*/
 void QGridView::ensureCellVisible( int row, int column )
 {
     QRect r = cellGeometry( row, column );
     ensureVisible( r.x(), r.y(), r.width(), r.height() );
 }
 
-/*! This function fills the \a cw pixels wide and \a ch pixels high
-  rectangle starting at position (\a cx, \a cy) with the
-  background color using the painter \a p.
+/*!
+    This function fills the \a cw pixels wide and \a ch pixels high
+    rectangle starting at position (\a cx, \a cy) with the background
+    color using the painter \a p.
 
-  paintEmptyArea() is invoked by drawContents() to erase
-  or fill unused areas.
+    paintEmptyArea() is invoked by drawContents() to erase or fill
+    unused areas.
 */
 
 void QGridView::paintEmptyArea( QPainter *p, int cx ,int cy, int cw, int ch)
@@ -275,79 +283,84 @@ void QGridView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 }
 
 /*!
-  \reimp
+    \reimp
 
-  (Implemented to get rid of a compiler warning.)
+    (Implemented to get rid of a compiler warning.)
 */
 void QGridView::drawContents( QPainter * )
 {
 }
 
-/*! \fn void QGridView::dimensionChange( int oldNumRows, int oldNumCols )
+/*!
+    \fn void QGridView::dimensionChange( int oldNumRows, int oldNumCols )
 
-  This change handler is called whenever any of the grid's dimensions
-  changes. \a oldNumRows and \a oldNumCols contain the old dimensions,
-  numRows() and numCols() contain the new dimensions.
- */
+    This change handler is called whenever any of the grid's
+    dimensions change. \a oldNumRows and \a oldNumCols contain the
+    old dimensions, numRows() and numCols() contain the new
+    dimensions.
+*/
 void QGridView::dimensionChange( int, int ) {}
 
 
 
-/*! \fn int QGridView::rowAt( int y ) const
+/*!
+    \fn int QGridView::rowAt( int y ) const
 
-  Returns the number of the row at position \a y. \a y must be given in
-  content coordinates.
+    Returns the number of the row at position \a y. \a y must be given
+    in content coordinates.
 
-  \sa columnAt()
- */
-
-/*! \fn int QGridView::columnAt( int x ) const
-
-  Returns the number of the column at position \a x. \a x must be
-  given in content coordinates.
-
-  \sa rowAt()
- */
+    \sa columnAt()
+*/
 
 /*!
-  \fn void QGridView::paintCell( QPainter *p, int row, int col )
+    \fn int QGridView::columnAt( int x ) const
 
-  This pure virtual function is called to paint the single cell at
-  (\a row, \a col) using painter \a p. The painter must be open when
-  paintCell() is called and must remain open.
+    Returns the number of the column at position \a x. \a x must be
+    given in content coordinates.
 
-  The coordinate system is \link QPainter::translate() translated \endlink
-  so that the origin is at the top-left corner of the cell to be
-  painted, i.e. \e cell coordinates.  Do not scale or shear the coordinate
-  system (or if you do, restore the transformation matrix before you
-  return).
+    \sa rowAt()
+*/
 
-  The painter is not clipped by default in order to get maximum
-  efficiency. If you want clipping, use
+/*!
+    \fn void QGridView::paintCell( QPainter *p, int row, int col )
 
-  \code
+    This pure virtual function is called to paint the single cell at
+    (\a row, \a col) using painter \a p. The painter must be open when
+    paintCell() is called and must remain open.
+
+    The coordinate system is \link QPainter::translate() translated
+    \endlink so that the origin is at the top-left corner of the cell
+    to be painted, i.e. \e cell coordinates. Do not scale or shear
+    the coordinate system (or if you do, restore the transformation
+    matrix before you return).
+
+    The painter is not clipped by default in order to get maximum
+    efficiency. If you want clipping, use
+
+    \code
     p->setClipRect( cellRect(), QPainter::CoordPainter );
     //... your drawing code
     p->setClipping( FALSE );
 
- \endcode
+    \endcode
+*/
+
+/*!
+    \fn  QRect QGridView::cellRect() const
+
+    Returns the geometry of a cell in a cell's coordinate system. This
+    is a convenience function useful in paintCell(). It is equivalent
+    to QRect( 0, 0, cellWidth(), cellHeight() ).
+
+    \sa cellGeometry()
 
 */
 
-/*! \fn  QRect QGridView::cellRect() const
+/*!
+    \fn  QSize QGridView::gridSize() const
 
-  Returns the geometry of a cell in a cell's coordinate system. This
-  is a convenience function useful in paintCell(). It is equivalent to
-  QRect( 0, 0, cellWidth(), cellHeight() ).
+    Returns the size of the grid in pixels.
 
-  \sa cellGeometry()
-
- */
-
-/*!\fn  QSize QGridView::gridSize() const
-
-  Returns the size of the grid in pixels.
-
- */
+*/
 
 #endif // QT_NO_GRIDVIEW

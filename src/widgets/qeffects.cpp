@@ -605,9 +605,8 @@ void QRollEffect::goodBye()
 #include "qeffects.moc"
 
 /*!
-  Scroll widget \a w in \a time ms.
-  \a orient may be 1 (vertical), 2 (horizontal)
-  or 3 (diagonal).
+    Scroll widget \a w in \a time ms. \a orient may be 1 (vertical), 2
+    (horizontal) or 3 (diagonal).
 */
 void qScrollEffect( QWidget* w, QEffects::DirFlags orient, int time )
 {
@@ -626,7 +625,7 @@ void qScrollEffect( QWidget* w, QEffects::DirFlags orient, int time )
 }
 
 /*!
-  Fade in widget \a w in \a time ms.
+    Fade in widget \a w in \a time ms.
 */
 void qFadeEffect( QWidget* w, int time )
 {

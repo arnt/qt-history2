@@ -83,62 +83,66 @@ public:
 };
 
 
-/*! \class QDial qdial.h
+/*!
+    \class QDial qdial.h
 
-  \brief The QDial class provides a rounded range control (like a speedometer or potentiometer).
+    \brief The QDial class provides a rounded range control (like a speedometer or potentiometer).
 
-  \ingroup basic
-  \mainclass
+    \ingroup basic
+    \mainclass
 
-  QDial is used when the user needs to control a value within a
-  program-definable range, and the range either wraps around
-  (typically, 0..359 degrees) or the dialog layout needs a square widget.
+    QDial is used when the user needs to control a value within a
+    program-definable range, and the range either wraps around
+    (typically, 0..359 degrees) or the dialog layout needs a square
+    widget.
 
-  Both API- and UI-wise, the dial is very similar to a \link QSlider
-  slider. \endlink Indeed, when wrapping() is FALSE (the default)
-  there is no real difference between a slider and a dial.  They have
-  the same signals, slots and member functions, all of which do the
-  same things.	Which one you use depends only on your taste and
-  on the application.
+    Both API- and UI-wise, the dial is very similar to a \link QSlider
+    slider. \endlink Indeed, when wrapping() is FALSE (the default)
+    there is no real difference between a slider and a dial. They
+    have the same signals, slots and member functions, all of which do
+    the same things. Which one you use depends only on your taste
+    and on the application.
 
-  The dial initially emits valueChanged() signals continuously while
-  the slider is being moved; you can make it emit the signal less
-  often by calling setTracking(FALSE).  dialMoved() is emitted
-  continuously even when tracking() is FALSE.
+    The dial initially emits valueChanged() signals continuously while
+    the slider is being moved; you can make it emit the signal less
+    often by calling setTracking(FALSE). dialMoved() is emitted
+    continuously even when tracking() is FALSE.
 
-  The slider also emits dialPressed() and dialReleased() signals when
-  the mouse button is pressed and released.  But note that the dial's
-  value can change without these signals being emitted; the keyboard
-  and wheel can be used to change the value.
+    The slider also emits dialPressed() and dialReleased() signals
+    when the mouse button is pressed and released. But note that the
+    dial's value can change without these signals being emitted; the
+    keyboard and wheel can be used to change the value.
 
-  Unlike the slider, QDial attempts to draw a "nice" number of notches
-  rather than one per lineStep().  If possible, the number of notches
-  drawn is one per lineStep(), but if there aren't enough pixels to draw
-  every one, QDial will draw every second, third etc., notch.
-  notchSize() returns the number of units per notch, hopefully a
-  multiple of lineStep(); setNotchTarget() sets the target distance
-  between neighbouring notches in pixels.  The default is 3.75 pixels.
+    Unlike the slider, QDial attempts to draw a "nice" number of
+    notches rather than one per lineStep(). If possible, the number
+    of notches drawn is one per lineStep(), but if there aren't enough
+    pixels to draw every one, QDial will draw every second, third
+    etc., notch. notchSize() returns the number of units per notch,
+    hopefully a multiple of lineStep(); setNotchTarget() sets the
+    target distance between neighbouring notches in pixels. The
+    default is 3.75 pixels.
 
-  Like the slider, the dial makes the QRangeControl functions
-  setValue(), addLine(), subtractLine(), addPage() and subtractPage()
-  available as slots.
+    Like the slider, the dial makes the QRangeControl functions
+    setValue(), addLine(), subtractLine(), addPage() and
+    subtractPage() available as slots.
 
-  The dial's keyboard interface is fairly simple: The left/up and right/down
-  arrow keys move by lineStep(), page up and page down by pageStep()
-  and Home and End to minValue() and maxValue().
+    The dial's keyboard interface is fairly simple: The left/up and
+    right/down arrow keys move by lineStep(), page up and page down by
+    pageStep() and Home and End to minValue() and maxValue().
 
-  <img src=qdial-m.png> <img src=qdial-w.png>
+    <img src=qdial-m.png> <img src=qdial-w.png>
 
-  \sa QScrollBar QSpinBox
-  \link guibooks.html#fowler GUI Design Handbook: Slider\endlink
+    \sa QScrollBar QSpinBox
+    \link guibooks.html#fowler GUI Design Handbook: Slider\endlink
 */
 
 
 
 
-/*!  Constructs a dial called \a name with parent \a parent.
-    \a f is propagated to the QWidget constructor.
-    It has the default range of a QRangeControl.
+/*!
+    Constructs a dial called \a name with parent \a parent. \a f is
+    propagated to the QWidget constructor. It has the default range of
+    a QRangeControl.
 */
 
 QDial::QDial( QWidget *parent, const char *name, WFlags f )
@@ -159,7 +163,7 @@ QDial::QDial( QWidget *parent, const char *name, WFlags f )
     maxValue. Its page step size is \a pageStep, and its initial value
     is \a value.
 
-  \a value is forced to be within the legal range.
+    \a value is forced to be within the legal range.
 */
 
 QDial::QDial( int minValue, int maxValue, int pageStep, int value,
@@ -175,7 +179,7 @@ QDial::QDial( int minValue, int maxValue, int pageStep, int value,
 }
 
 /*!
-  Destroys the dial.
+    Destroys the dial.
 */
 QDial::~QDial()
 {
@@ -190,12 +194,12 @@ void QDial::setTracking( bool enable )
 
 
 /*!
-  \property QDial::tracking
-  \brief whether tracking is enabled
+    \property QDial::tracking
+    \brief whether tracking is enabled
 
-  If TRUE (the default), tracking is enabled. This means that the arrow
-  can be moved using the mouse; otherwise the arrow cannot be moved with
-  the mouse.
+    If TRUE (the default), tracking is enabled. This means that the
+    arrow can be moved using the mouse; otherwise the arrow cannot be
+    moved with the mouse.
 */
 
 bool QDial::tracking() const
@@ -209,7 +213,9 @@ void QDial::setValue( int newValue )
 }
 
 
-/*!  Increments the dial's value() by one lineStep(). */
+/*!
+    Increments the dial's value() by one lineStep().
+*/
 
 void QDial::addLine()
 {
@@ -217,7 +223,9 @@ void QDial::addLine()
 }
 
 
-/*!  Decrements the dial's value() by one lineStep(). */
+/*!
+    Decrements the dial's value() by one lineStep().
+*/
 
 void QDial::subtractLine()
 {
@@ -244,7 +252,7 @@ void QDial::paintEvent( QPaintEvent * e )
 }
 
 /*!
-  Paints the dial using clip region \a cr.
+    Paints the dial using clip region \a cr.
 */
 
 void QDial::repaintScreen( const QRect *cr )
@@ -487,8 +495,8 @@ void QDial::focusOutEvent( QFocusEvent * )
 }
 
 /*!
-  Reimplemented to ensure the display is correct and to emit
-  the valueChanged(int) signal when appropriate.
+    Reimplemented to ensure the display is correct and to emit the
+    valueChanged(int) signal when appropriate.
 */
 
 void QDial::valueChange()
@@ -505,7 +513,7 @@ void QDial::valueChange()
 
 
 /*!
-  Reimplemented to ensure tick-marks are consistent with the new range.
+    Reimplemented to ensure tick-marks are consistent with the new range.
 */
 
 void QDial::rangeChange()
@@ -597,14 +605,14 @@ void QDial::setWrapping( bool enable )
 
 
 /*!
-  \property QDial::wrapping
-  \brief whether wrapping is enabled
+    \property QDial::wrapping
+    \brief whether wrapping is enabled
 
-  If TRUE, wrapping is enabled. This means that the arrow can be turned
-  around 360°. Otherwise there is some space at the bottom of the dial
-  which is skipped by the arrow.
+    If TRUE, wrapping is enabled. This means that the arrow can be
+    turned around 360°. Otherwise there is some space at the bottom of
+    the dial which is skipped by the arrow.
 
-  This property's default is FALSE.
+    This property's default is FALSE.
 */
 
 bool QDial::wrapping() const
@@ -614,14 +622,14 @@ bool QDial::wrapping() const
 
 
 /*!
-  \property QDial::notchSize
-  \brief the current notch size
+    \property QDial::notchSize
+    \brief the current notch size
 
-  The notch size is in range control units, not pixels, and if possible it
-  is a multiple of lineStep() that results in an on-screen notch size near
-  notchTarget().
+    The notch size is in range control units, not pixels, and if
+    possible it is a multiple of lineStep() that results in an
+    on-screen notch size near notchTarget().
 
-  \sa notchTarget() lineStep()
+    \sa notchTarget() lineStep()
 */
 
 int QDial::notchSize() const
@@ -657,13 +665,13 @@ void QDial::setNotchTarget( double target )
 
 
 /*!
-  \property QDial::notchTarget
-  \brief the target number of pixels between notches
+    \property QDial::notchTarget
+    \brief the target number of pixels between notches
 
-  The notch target is the number of pixels QDial attempts to put between
-  each notch.
+    The notch target is the number of pixels QDial attempts to put
+    between each notch.
 
-  The actual size may differ from the target size.
+    The actual size may differ from the target size.
 */
 
 double QDial::notchTarget() const
@@ -672,7 +680,9 @@ double QDial::notchTarget() const
 }
 
 
-/*!  Increments the dial's value() by one pageStep() of steps. */
+/*!
+    Increments the dial's value() by one pageStep() of steps.
+*/
 
 void QDial::addPage()
 {
@@ -680,7 +690,9 @@ void QDial::addPage()
 }
 
 
-/*!  Decrements the dial's value() by one pageStep() of steps. */
+/*!
+    Decrements the dial's value() by one pageStep() of steps.
+*/
 
 void QDial::subtractPage()
 {
@@ -689,37 +701,37 @@ void QDial::subtractPage()
 
 
 /*!
-  \fn void QDial::valueChanged( int value )
+    \fn void QDial::valueChanged( int value )
 
-  This signal is emitted whenever the dial's \a value changes.  The frequency
-  of this signal is influenced by setTracking().
+    This signal is emitted whenever the dial's \a value changes. The
+    frequency of this signal is influenced by setTracking().
 */
 
 /*!
-  \fn void QDial::dialPressed()
+    \fn void QDial::dialPressed()
 
-  This signal is emitted when the use begins mouse interaction with
-  the dial.
+    This signal is emitted when the user begins mouse interaction with
+    the dial.
 
-  \sa dialReleased()
+    \sa dialReleased()
 */
 
 /*!
-  \fn void QDial::dialMoved( int value )
+    \fn void QDial::dialMoved( int value )
 
-  This signal is emitted whenever the dial \a value changes.  The frequency
-  of this signal is \e not influenced by setTracking().
+    This signal is emitted whenever the dial \a value changes. The
+    frequency of this signal is \e not influenced by setTracking().
 
-  \sa valueChanged()
+    \sa valueChanged()
 */
 
 /*!
-  \fn void QDial::dialReleased()
+    \fn void QDial::dialReleased()
 
-  This signal is emitted when the use ends mouse interaction with
-  the dial.
+    This signal is emitted when the user ends mouse interaction with
+    the dial.
 
-  \sa dialPressed()
+    \sa dialPressed()
 */
 
 void QDial::setNotchesVisible( bool b )
@@ -732,11 +744,11 @@ void QDial::setNotchesVisible( bool b )
 }
 
 /*!
-  \property QDial::notchesVisible
-  \brief whether the notches are shown
+    \property QDial::notchesVisible
+    \brief whether the notches are shown
 
-  If TRUE, the notches are shown. If FALSE (the default) notches are
-  not shown.
+    If TRUE, the notches are shown. If FALSE (the default) notches are
+    not shown.
 */
 bool QDial::notchesVisible() const
 {
@@ -865,13 +877,13 @@ void QDial::calcLines()
 }
 
 /*!
-  \property QDial::minValue
-  \brief the current minimum value
+    \property QDial::minValue
+    \brief the current minimum value
 
-  When setting this property, the \l QDial::maxValue is adjusted so that the
-  range remains valid if necessary.
+    When setting this property, the \l QDial::maxValue is adjusted if
+    necessary to ensure that the range remains valid.
 
-  \sa setRange()
+    \sa setRange()
 */
 int QDial::minValue() const
 {
@@ -879,13 +891,13 @@ int QDial::minValue() const
 }
 
 /*!
-  \property QDial::maxValue
-  \brief the current maximum value
+    \property QDial::maxValue
+    \brief the current maximum value
 
-  When setting this property, the \l QDial::minValue is adjusted so that the
-  range remains valid if necessary.
+    When setting this property, the \l QDial::minValue is adjusted if
+    necessary to ensure that the range remains valid.
 
-  \sa setRange()
+    \sa setRange()
 */
 int QDial::maxValue() const
 {
@@ -903,13 +915,13 @@ void QDial::setMaxValue( int maxVal )
 }
 
 /*!
-  \property QDial::lineStep
-  \brief the current line step
+    \property QDial::lineStep
+    \brief the current line step
 
-  setLineStep() calls the virtual stepChange() function if the new line
-  step is different from the previous setting.
+    setLineStep() calls the virtual stepChange() function if the new
+    line step is different from the previous setting.
 
-  \sa QRangeControl::setSteps() pageStep setRange()
+    \sa QRangeControl::setSteps() pageStep setRange()
 */
 
 int QDial::lineStep() const
@@ -918,13 +930,13 @@ int QDial::lineStep() const
 }
 
 /*!
-  \property QDial::pageStep
-  \brief the current page step
+    \property QDial::pageStep
+    \brief the current page step
 
-  setPageStep() calls the virtual stepChange() function if the new page
-  step is different from the previous setting.
+    setPageStep() calls the virtual stepChange() function if the new
+    page step is different from the previous setting.
 
-  \sa stepChange()
+    \sa stepChange()
 */
 int QDial::pageStep() const
 {
@@ -942,13 +954,13 @@ void QDial::setPageStep( int i )
 }
 
 /*!
-  \property QDial::value
-  \brief the current dial value
+    \property QDial::value
+    \brief the current dial value
 
-  This is guaranteed to be within the range
-  \l{QDial::minValue}..\l{QDial::maxValue}.
+    This is guaranteed to be within the range
+    \l{QDial::minValue}..\l{QDial::maxValue}.
 
-  \sa minValue maxValue
+    \sa minValue maxValue
 */
 
 int QDial::value() const

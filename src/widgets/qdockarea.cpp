@@ -455,105 +455,110 @@ int QDockAreaLayout::widthForHeight( int h ) const
 
 
 
-/*! \class QDockArea qdockarea.h
+/*!
+    \class QDockArea qdockarea.h
+    \brief The QDockArea class manages and lays out QDockWindows.
 
-  \brief The QDockArea class manages and lays out QDockWindows.
+    \ingroup application
 
-  \ingroup application
+    A QDockArea is a container which manages a list of
+    \l{QDockWindow}s which it lays out within its area. In cooperation
+    with the \l{QDockWindow}s it is responsible for the docking and
+    undocking of \l{QDockWindow}s and moving them inside the dock
+    area. QDockAreas also handle the wrapping of \l{QDockWindow}s to
+    fill the available space as compactly as possible. QDockAreas can
+    contain QToolBars since QToolBar is a QDockWindow subclass.
 
-  A QDockArea is a container which manages a list of QDockWindows which
-  it lays out within its area. In cooperation with the QDockWindows it
-  is responsible for the docking and undocking of QDockWindows and
-  moving them inside the dock area. QDockAreas also handle the wrapping
-  of QDockWindows to fill the available space as compactly as possible.
-  QDockAreas can contain QToolBars since QToolBar is a QDockWindow
-  subclass.
+    QMainWindow contains four QDockAreas which you can use for your
+    QToolBars and QDockWindows, so in most situations you do not need
+    to use the QDockArea class directly. Although QMainWindow contains
+    support for its own dock areas it isn't convenient for adding new
+    QDockAreas. If you need to create your own dock areas we suggest
+    that you create a subclass of QWidget and add your QDockAreas to
+    your subclass.
 
-  QMainWindow contains four QDockAreas which you can use for your
-  QToolBars and QDockWindows, so in most situations you do not need to
-  use the QDockArea class directly. Although QMainWindow contains support for
-  its own dock areas but isn't convenient for adding new QDockAreas. If you
-  need to create your own dock areas we suggest that you create a subclass of
-  QWidget and add your QDockAreas to your subclass.
+    \img qmainwindow-qdockareas.png QMainWindow's QDockAreas
 
-  \img qmainwindow-qdockareas.png QMainWindow's QDockAreas
+    \target lines
+    \e Lines. QDockArea uses the concept of lines. A line is a
+    horizontal region which may contain dock windows side-by-side. A
+    dock area may have room for more than one line. When dock windows
+    are docked into a dock area they are usually added at the right
+    hand side of the top-most line that has room (unless manually
+    placed by the user). When users move dock windows they may leave
+    empty lines or gaps in non-empty lines. Dock windows can be lined
+    up to minimize wasted space using the lineUp() function.
 
-  \target lines
-  \e Lines. QDockArea uses the concept of lines. A line
-  is a horizontal region which may contain dock windows side-by-side. A dock
-  area may have room for more than one line. When dock windows are docked into
-  a dock area they are usually added at the right hand side of the top-most
-  line that has room (unless manually placed by the user). When users move
-  dock windows they may leave empty lines or gaps in non-empty lines. Dock
-  windows can be lined up to minimize wasted space using the lineUp()
-  function.
+    The QDockArea class maintains a position list of all its child
+    dock windows. Dock windows are added to a dock area from position
+    0 onwards. Dock windows are laid out sequentially in position
+    order from left to right, and in the case of multiple lines of
+    dock windows, from top to bottom. If a dock window is floated it
+    still retains its position since this is where the window will
+    return if the user double clicks its caption. A dock window's
+    position can be determined with hasDockWindow(). The position can
+    be changed with moveDockWindow().
 
-  The QDockArea class maintains a position list of all its child dock
-  windows. Dock windows are added to a dock area from position 0
-  onwards. Dock windows are laid out sequentially in position order from left
-  to right, and in the case of multiple lines of dock windows, from top to
-  bottom. If a dock window is floated it still retains its position since this
-  is where the window will return if the user double clicks its caption. A
-  dock window's position can be determined with hasDockWindow(). The position
-  can be changed with moveDockWindow().
+    To dock or undock a dock window use QDockWindow::dock() and
+    QDockWindow::undock() respectively. If you want to control which
+    dock windows can dock in a dock area use setAcceptDockWindow(). To
+    see if a dock area contains a particular dock window use
+    \l{hasDockWindow()}; to see how many dock windows a dock area
+    contains use count().
 
-  To dock or undock a dock window use QDockWindow::dock() and
-  QDockWindow::undock() respectively. If you want to control which dock
-  windows can dock in a dock area use setAcceptDockWindow(). To see if a dock
-  area contains a particular dock window use \l{hasDockWindow()}; to see how
-  many dock windows a dock area contains use count().
-
-  The streaming operators can write the positions of the dock windows in
-  the dock area to a QTextStream. The positions can be read back later
-  to restore the saved positions.
+    The streaming operators can write the positions of the dock
+    windows in the dock area to a QTextStream. The positions can be
+    read back later to restore the saved positions.
 
     Save the positions to a QTextStream:
-  \code
+    \code
     ts << *myDockArea;
-  \endcode
+    \endcode
 
-  Restore the positions from a QTextStream:
-  \code
+    Restore the positions from a QTextStream:
+    \code
     ts >> *myDockArea;
-  \endcode
-
-
+    \endcode
 */
 
-/*! \property QDockArea::handlePosition
+/*!
+    \property QDockArea::handlePosition
     \brief where the dock window splitter handle is placed in the dock
     area
 
     The default position is \c Normal.
 */
 
-/*! \property QDockArea::orientation
+/*!
+    \property QDockArea::orientation
     \brief the dock area's orientation
 
-    There is no default value; the orientation is specified in the constructor.
+    There is no default value; the orientation is specified in the
+    constructor.
 */
 
 /*!
-  \enum QDockArea::HandlePosition
+    \enum QDockArea::HandlePosition
 
-    A dock window has two kinds of handles, the dock window handle used
-    for dragging the dock window, and the splitter handle used to resize
-    the dock window in relation to other dock windows using a splitter.
-    (The splitter handle is only visible for docked windows.)
+    A dock window has two kinds of handles, the dock window handle
+    used for dragging the dock window, and the splitter handle used to
+    resize the dock window in relation to other dock windows using a
+    splitter. (The splitter handle is only visible for docked
+    windows.)
 
-  This enum specifies where the dock window splitter handle is placed in
-  the dock area.
+    This enum specifies where the dock window splitter handle is
+    placed in the dock area.
 
-  \value Normal The splitter handles of dock windows are placed at the
-  right or bottom.
+    \value Normal The splitter handles of dock windows are placed at
+    the right or bottom.
 
-  \value Reverse The splitter handles of dock windows are placed at the
-  left or top.
-
+    \value Reverse The splitter handles of dock windows are placed at
+    the left or top.
 */
 
-/*! Constructs a QDockArea with orientation \a o, HandlePosition \a
-    h, parent \a parent and name \a name.
+/*!
+    Constructs a QDockArea with orientation \a o, HandlePosition \a h,
+    parent \a parent and called \a name.
 */
 
 QDockArea::QDockArea( Orientation o, HandlePosition h, QWidget *parent, const char *name )
@@ -564,15 +569,17 @@ QDockArea::QDockArea( Orientation o, HandlePosition h, QWidget *parent, const ch
     installEventFilter( this );
 }
 
-/*!  Destroys the dock area and all the dock windows docked
- in the dock area.
+/*!
+    Destroys the dock area and all the dock windows docked in the dock
+    area.
 
-    Does not affect any floating dock windows or dock windows in other dock
-    areas, even if they first appeared in this dock area. Floating dock
-    windows are effectively top level windows and are not child windows
-    of the dock area. When a floating dock window is docked (dragged
-    into a dock area) its parent becomes the dock area.
- */
+    Does not affect any floating dock windows or dock windows in other
+    dock areas, even if they first appeared in this dock area.
+    Floating dock windows are effectively top level windows and are
+    not child windows of the dock area. When a floating dock window is
+    docked (dragged into a dock area) its parent becomes the dock
+    area.
+*/
 
 QDockArea::~QDockArea()
 {
@@ -581,10 +588,11 @@ QDockArea::~QDockArea()
     dockWindows = 0;
 }
 
-/*! Moves the QDockWindow \a w within the dock area. If \a w is not
-  already docked in this area, \a w is docked first. If \a index is
-  -1 or larger than the number of docked widgets, \a w is appended at
-  the end, otherwise it is inserted at the position \a index.
+/*!
+    Moves the QDockWindow \a w within the dock area. If \a w is not
+    already docked in this area, \a w is docked first. If \a index is
+    -1 or larger than the number of docked widgets, \a w is appended
+    at the end, otherwise it is inserted at the position \a index.
 */
 
 void QDockArea::moveDockWindow( QDockWindow *w, int index )
@@ -619,10 +627,11 @@ void QDockArea::moveDockWindow( QDockWindow *w, int index )
     }
 }
 
-/*! Returns TRUE if the dock area contains the dock window \a w,
- otherwise returns FALSE. If a non-null pointer is passed as \a index it
- will be set as follows: if the dock area contains the dock window \a
- index is set to \a w's position; otherwise \a index is set to -1.
+/*!
+    Returns TRUE if the dock area contains the dock window \a w;
+    otherwise returns FALSE. If \a index is not 0 it will be set as
+    follows: if the dock area contains the dock window \a *index is
+    set to \a w's index position; otherwise \a *index is set to -1.
 */
 
 bool QDockArea::hasDockWindow( QDockWindow *w, int *index )
@@ -648,12 +657,12 @@ int QDockArea::lineOf( int index )
     \overload
 
     Moves the dock window \a w inside the dock area where \a p is the
-  new position (in global screen coordinates), \a r is the suggested
-  rectangle of the dock window and \a swap specifies whether or not the
-  orientation of the docked widget needs to be changed.
+    new position (in global screen coordinates), \a r is the suggested
+    rectangle of the dock window and \a swap specifies whether or not
+    the orientation of the docked widget needs to be changed.
 
-  This function is used internally by QDockWindow. You shouldn't need
-  to call it yourself.
+    This function is used internally by QDockWindow. You shouldn't
+    need to call it yourself.
 */
 
 void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r, bool swap )
@@ -872,13 +881,14 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 				orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Minimum ) );
 }
 
-/*! Removes the dock window \a w from the dock area. If \a
-  makeFloating is TRUE, \a w gets floated, and if \a swap is TRUE, the
-  orientation of \a w gets swapped. If \a fixNewLines is TRUE (the
-  default) newlines in the area will be fixed.
+/*!
+    Removes the dock window \a w from the dock area. If \a
+    makeFloating is TRUE, \a w gets floated, and if \a swap is TRUE,
+    the orientation of \a w gets swapped. If \a fixNewLines is TRUE
+    (the default) newlines in the area will be fixed.
 
-  You should never need to call this function yourself.
-  Use QDockWindow::dock() and QDockWindow::undock() instead.
+    You should never need to call this function yourself. Use
+    QDockWindow::dock() and QDockWindow::undock() instead.
 */
 
 void QDockArea::removeDockWindow( QDockWindow *w, bool makeFloating, bool swap, bool fixNewLines )
@@ -944,7 +954,8 @@ void QDockArea::invalidNextOffset( QDockWindow *dw )
 	dw->setOffset( 0 );
 }
 
-/*! \property QDockArea::count
+/*!
+    \property QDockArea::count
     \brief the number of dock windows in the dock area
 */
 int QDockArea::count() const
@@ -952,7 +963,8 @@ int QDockArea::count() const
     return dockWindows->count();
 }
 
-/*! \property QDockArea::empty
+/*!
+    \property QDockArea::empty
     \brief whether the dock area is empty
 */
 
@@ -962,8 +974,9 @@ bool QDockArea::isEmpty() const
 }
 
 
-/*! Returns a list of the dock windows in the dock area.
- */
+/*!
+    Returns a list of the dock windows in the dock area.
+*/
 
 QPtrList<QDockWindow> QDockArea::dockWindowList() const
 {
@@ -971,9 +984,10 @@ QPtrList<QDockWindow> QDockArea::dockWindowList() const
 }
 
 /*!
-    Lines up the dock windows in this dock area to minimize wasted space. If
-    \a keepNewLines is TRUE, only space within lines is cleaned up. If \a
-    keepNewLines is FALSE the number of lines might be changed.
+    Lines up the dock windows in this dock area to minimize wasted
+    space. If \a keepNewLines is TRUE, only space within lines is
+    cleaned up. If \a keepNewLines is FALSE the number of lines might
+    be changed.
 */
 
 void QDockArea::lineUp( bool keepNewLines )
@@ -1063,10 +1077,10 @@ void QDockArea::dockWindow( QDockWindow *dockWindow, DockWindowData *data )
 }
 
 /*!
-  Returns TRUE if dock window \a dw could be docked into the dock area;
-  otherwise returns FALSE.
+    Returns TRUE if dock window \a dw could be docked into the dock
+    area; otherwise returns FALSE.
 
-  \sa setAcceptDockWindow()
+    \sa setAcceptDockWindow()
 */
 
 bool QDockArea::isDockWindowAccepted( QDockWindow *dw )
@@ -1088,10 +1102,11 @@ bool QDockArea::isDockWindowAccepted( QDockWindow *dw )
 }
 
 /*!
-    If \a accept is TRUE dock window \a dw can be docked in the dock area. If
-    \a accept is FALSE dock window \a dw cannot be docked in the dock area.
+    If \a accept is TRUE, dock window \a dw can be docked in the dock
+    area. If \a accept is FALSE, dock window \a dw cannot be docked in
+    the dock area.
 
-  \sa isDockWindowAccepted()
+    \sa isDockWindowAccepted()
 */
 
 void QDockArea::setAcceptDockWindow( QDockWindow *dw, bool accept )
@@ -1206,13 +1221,12 @@ bool QDockArea::isLastDockWindow( QDockWindow *dw )
 #ifndef QT_NO_TEXTSTREAM
 
 /*!
-
     \relates QDockArea
 
-    Writes the layout of the dock windows in dock area \a dockArea to the
-   text stream \a ts.
+    Writes the layout of the dock windows in dock area \a dockArea to
+    the text stream \a ts.
 
-   \sa operator>>()
+    \sa operator>>()
 */
 
 QTextStream &operator<<( QTextStream &ts, const QDockArea &dockArea )
@@ -1230,14 +1244,14 @@ QTextStream &operator<<( QTextStream &ts, const QDockArea &dockArea )
 }
 
 /*!
-
     \relates QDockArea
 
-    Reads the layout description of the dock windows in dock area \a dockArea
-    from the text stream \a ts and restores it. The layout description must
-    have been previously written by the operator<<() function.
+    Reads the layout description of the dock windows in dock area \a
+    dockArea from the text stream \a ts and restores it. The layout
+    description must have been previously written by the operator<<()
+    function.
 
-   \sa operator<<()
+    \sa operator<<()
 */
 
 QTextStream &operator>>( QTextStream &ts, QDockArea &dockArea )
