@@ -301,7 +301,7 @@ void Generator::generateCode()
              qualifiedClassNameIdentifier.constData(), qualifiedClassNameIdentifier.constData());
     fprintf(out, "};\n");
 
-    if (isQt)
+    if (isQt || !cdef->hasQObject)
         return;
 
 //

@@ -184,6 +184,7 @@ static const Keyword keywords[] = {
     { "goto", "GOTO" },
     { "return", "RETURN" },
     { "Q_OBJECT", "Q_OBJECT_TOKEN" },
+    { "Q_GADGET", "Q_GADGET_TOKEN" },
     { "Q_PROPERTY", "Q_PROPERTY_TOKEN" },
     { "Q_OVERRIDE", "Q_OVERRIDE_TOKEN" },
     { "Q_ENUMS", "Q_ENUMS_TOKEN" },

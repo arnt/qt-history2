@@ -531,6 +531,11 @@ void Moc::parse()
                     if (def.classname != "Qt" && def.classname != "QObject" && def.superclassList.isEmpty())
                         error("Class contains Q_OBJECT macro but does not inherit from QObject");
                     break;
+                case Q_GADGET_TOKEN:
+                    def.hasQGadget = true;
+                    if (templateClass)
+                        error("Template classes not supported by Q_GADGET");
+                    break;
                 case Q_PROPERTY_TOKEN:
                     parseProperty(&def, false);
                     break;
@@ -588,7 +593,7 @@ void Moc::parse()
                 continue; // no meta object code required
 
 
-            if (!def.hasQObject)
+            if (!def.hasQObject && !def.hasQGadget)
                 error("Class declarations lacks Q_OBJECT macro.");
 
             classList += def;

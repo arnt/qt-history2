@@ -79,13 +79,14 @@ struct ClassInfoDef
 
 struct ClassDef {
     ClassDef():
-        hasQObject(false){}
+        hasQObject(false), hasQGadget(false){}
     QByteArray classname;
     QByteArray qualified;
     QList<QByteArray> superclassList;
     QList<QList<QByteArray> >interfaceList;
 
     bool hasQObject;
+    bool hasQGadget;
 
     QList<FunctionDef> signalList, slotList, methodList, publicList;
     QList<PropertyDef> propertyList;
