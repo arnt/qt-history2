@@ -2283,7 +2283,7 @@ void Parser::matchCreateStatement()
 	    for ( int j = 0; j < 2; j++ ) {
 		while ( !yyNeedIndex[i][j].isEmpty() ) {
 		    createIndex( tableId, yyNeedIndex[i][j].first(),
-				 i == Unique, i == NotNull );
+				 i == Unique, j == NotNull );
 		    yyNeedIndex[i][j].remove( yyNeedIndex[i][j].begin() );
 		}
 	    }
