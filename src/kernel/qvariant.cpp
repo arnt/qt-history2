@@ -2243,8 +2243,7 @@ bool QVariant::canCast( Type t ) const
 	return TRUE;
 #endif
 #ifndef QT_NO_TEMPLATE_VARIANT
-    if ( t == StringList && d->typ == List )   {
-	QValueList<QVariant> vl = toList();
+    if ( t == StringList && d->typ == List ) {
 	QValueList<QVariant>::ConstIterator it = listBegin();
 	QValueList<QVariant>::ConstIterator end = listEnd();
 	for( ; it != end; ++it ) {
