@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#156 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#157 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#156 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#157 $");
 
 
 /*!
@@ -1860,7 +1860,7 @@ bool QWidget::event( QEvent *e )
 	    mouseDoubleClickEvent( (QMouseEvent*)e );
 	    break;
 
-    case Event_KeyPress: {
+	case Event_KeyPress: {
 	    QKeyEvent *k = (QKeyEvent *)e;
 	    bool res = FALSE;
 	    if ( k->key() == Key_Tab )
@@ -1869,12 +1869,26 @@ bool QWidget::event( QEvent *e )
 		res = focusNextPrevChild( FALSE );
 	    if ( res )
 		break;
-	    keyPressEvent( k );
+	    QWidget *w = this;
+	    while ( w ) {
+		w->keyPressEvent( k );
+		if ( k->isAccepted() || w->isTopLevel() )
+		    break;
+		w = w->parentWidget();
+	    }
 	    }
 	    break;
 
-	case Event_KeyRelease:
-	    keyReleaseEvent( (QKeyEvent*)e );
+	case Event_KeyRelease: {
+	    QKeyEvent *k = (QKeyEvent *)e;
+	    QWidget *w = this;
+	    while ( w ) {
+		w->keyReleaseEvent( k );
+		if ( k->isAccepted() || w->isTopLevel() )
+		    break;
+		w = w->parentWidget();
+	    }
+	    }
 	    break;
 
 	case Event_FocusIn:
