@@ -518,7 +518,7 @@ MakefileGenerator::init()
 			path.prepend(Option::output_dir + Option::dir_sep);
 		}
 		QString path = project->first(dirs[x]); //not to be changed any further
-		Option::fixPathToTargetOS(path);
+		path = Option::fixPathToTargetOS(path);
 
 		QDir d;
 		if ( !QDir::isRelativePath( path ) )
