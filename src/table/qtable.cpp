@@ -2189,7 +2189,6 @@ void QTable::swapCells( int row1, int col1, int row2, int col2 )
     widgets.setAutoDelete( TRUE );
 }
 
-#if defined(Q_WS_WIN)
 static bool is_child_of( QWidget *child, QWidget *parent )
 {
     while ( child ) {
@@ -2199,7 +2198,6 @@ static bool is_child_of( QWidget *child, QWidget *parent )
     }
     return FALSE;
 }
-#endif
 
 /*! Draws the table contents on the painter \a p. This function is
   optimized so that it only draws the cells inside the \a cw pixels wide
