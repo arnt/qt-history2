@@ -1353,8 +1353,8 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
 
     if ( checkable ) {
 #if defined(Q_WS_WIN)
-        if ( qWinVersion() == Qt::WV_2000 || 
-	     qWinVersion() == Qt::WV_98 || 
+        if ( qWinVersion() == Qt::WV_2000 ||
+	     qWinVersion() == Qt::WV_98 ||
 	     qWinVersion() == Qt::WV_XP )
 
             maxpmw = QMAX( maxpmw, 16 );
@@ -1588,7 +1588,7 @@ void QWindowsStyle::drawProgressBar( QPainter *p, int x, int y, int w, int h, co
  */
 void QWindowsStyle::drawProgressChunk( QPainter *p, int x, int y, int w, int h, const QColorGroup &g )
 {
-    p->fillRect( x + 1, y + 1, w - 2, h - 2, 
+    p->fillRect( x + 1, y + 1, w - 2, h - 2,
 	g.brush( QColorGroup::Highlight ) );
 }
 
@@ -1603,8 +1603,8 @@ void QWindowsStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
 
     const QBrush *thefill = fill;
 #if defined(Q_WS_WIN)
-    if ( !thefill && on && !d->hotWidget && 
-	( qWinVersion() == WV_2000 || 
+    if ( !thefill && on && !d->hotWidget &&
+	( qWinVersion() == WV_2000 ||
 	  qWinVersion() == WV_98 ||
 	  qWinVersion() == WV_XP ) )
 	thefill = &onfill;
@@ -1619,7 +1619,7 @@ void QWindowsStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
 	drawPanel( p, x, y, w, h, g, on || down, 1, thefill );
 
 #if defined(Q_WS_WIN)
-    if ( on && 
+    if ( on &&
 	( qWinVersion() == WV_2000 ||
 	  qWinVersion() == WV_98 ||
 	  qWinVersion() == WV_XP ) ) {
@@ -1641,7 +1641,7 @@ void QWindowsStyle::drawDropDownButton( QPainter *p, int x, int y, int w, int h,
 	drawPanel( p, x, y, w, h, g, down, 1, fill );
 
 #if defined(Q_WS_WIN)
-    if ( down && 
+    if ( down &&
 	( qWinVersion() == WV_2000 ||
 	  qWinVersion() == WV_98 ||
 	  qWinVersion() == WV_XP ) ) {
@@ -1664,15 +1664,20 @@ bool QWindowsStyle::eventFilter( QObject *o, QEvent *e )
     switch ( e->type() )
     {
     case QEvent::Enter:
-	d->hotWidget = (QWidget*)o;
-	d->hotWidget->update();
+	if ( d->hotWidget ) {
+	    d->hotWidget = (QWidget*)o;
+	    d->hotWidget->update();
+	}
 	break;
     case QEvent::Leave:
 	{
 	    QWidget *old = d->hotWidget;
 	    d->hotWidget = 0;
-	    old->update();
+	    if ( old )
+		old->update();
 	}
+	break;
+    default:
 	break;
     }
 
