@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#132 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#133 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#132 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#133 $");
 
 
 /*!
@@ -224,7 +224,7 @@ static void removeObjFromList( QObjectList *objList, const QObject *obj,
 /*!
   \relates QObject
 
-  Returns a pointer to the child named \name of QObject \a parent
+  Returns a pointer to the child named \a name of QObject \a parent
   which inherits type \a type.
 
   Returns 0 if there is no such child.
