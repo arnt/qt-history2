@@ -126,10 +126,10 @@ static const char *printer_text =
 "so adding those directories is not needed.</p>";
 
 static const char *about_text =
-"<h2>About Qt Configuration</h2>"
+"<p><b><font size=+2>Qt Configuration</font></b></p>"
 "<p>A graphical configuration tool for programs using Qt</p>"
 "<p>Version 1.0</p>"
-"<p>Copyright (C) 2001-2002 Trolltech AS</p>"
+"<p>Copyright (C) 2001-2002 Trolltech AS. All rights reserved.</p>"
 "<p></p>"
 "<p>This program is licensed to you under the terms of the GNU General "
 "Public License Version 2 as published by the Free Software Foundation. This "
