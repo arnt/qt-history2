@@ -387,8 +387,8 @@ bool qVariantGet(const QCoreVariant &v, T &t)
     t = *reinterpret_cast<const T *>(v.constData());
     return true;
 }
-
 #endif
+
 inline QCoreVariant::QCoreVariant() {}
 inline bool QCoreVariant::isValid() const { return d.type != Invalid; }
 
@@ -443,6 +443,7 @@ Q_CORE_EXPORT QDataStream& operator<< (QDataStream& s, const QCoreVariant::Type 
 inline bool QCoreVariant::isDetached() const
 { return !d.is_shared || d.data.shared->ref == 1; }
 
+#ifndef QT_MOC
 #if defined Q_CC_MSVC && _MSC_VER < 1300
 
 template<typename T> T qVariant_to(const QCoreVariant &v, T * = 0)
@@ -474,7 +475,7 @@ template<typename T> T qVariant_to(const QCoreVariant &v)
 }
 
 #endif
-
+#endif
 Q_DECLARE_SHARED(QCoreVariant);
 Q_DECLARE_TYPEINFO(QCoreVariant, Q_MOVABLE_TYPE);
 
