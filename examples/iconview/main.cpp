@@ -28,18 +28,18 @@ public:
 
 public slots:
     void dropped( QDropEvent *mime ) {
-        printf( "Dropped Mimesource %p into the view %p\n", mime, view );
-        printf( "  Formats:\n" );
+        qDebug( "Dropped Mimesource %p into the view %p", mime, view );
+        qDebug( "  Formats:" );
         int i = 0;
         const char *str = mime->format( i );
-        printf( "    %s\n", str );
+        qDebug( "    %s", str );
         while ( str ) {
-            printf( "    %s\n", str );
+            qDebug( "    %s", str );
             str = mime->format( ++i );
         }
     };
     void moved() {
-        printf( "All selected items were moved to another widget\n" );
+        qDebug( "All selected items were moved to another widget" );
     }
 
 protected:

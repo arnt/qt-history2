@@ -1,0 +1,57 @@
+@Include { flyer.lout }
+@Doc @Text @Begin
+@CD @Heading { How to Install Qt for Windows }
+@I { If you intend building the SQL drivers, please update the
+environment variable @F{%LIB%} to include the path to your SQL libraries
+@Underline before starting the installation. }
+@PP
+Run the @F{qt-win-commercial-3.0.0.exe} program and go through all the
+steps of the installation wizard:
+@NumberedList
+@LI { Enter in your license key as it appears on the CD cover. }
+@LI { Read the license.  You are only able to continue the installation
+if you accept the license. }
+@LI { Select where you want to install Qt and which parts of Qt you want
+to install. 
+@PP
+You must also choose which development tool you want to
+use with Qt. The wizard will only allow you to choose one, but you
+can set the system up to use any other development tools later. }
+@LI { Choose which program menu folder Qt should install its icons into.
+@PP
+The checkbox for setting @F QTDIR is to choose whether or not the
+environment variable @F QTDIR should be set or modified.  If checked,
+@F QTDIR will be set to point to the directory where you installed Qt.
+If @F QTDIR is already set, (if Qt is already installed, which may be
+another version) this checkbox will be cleared by default, to avoid
+accidental modifications to your setup.  If you have chosen to use
+Microsoft Visual Studio then you must also specify the path to the
+installation of Microsoft Visual Studio. This allows Qt to integrate
+itself into the development environment. }
+@LI { Configure the library. 
+@PP
+You can choose several options and configurations for building the Qt
+library. The default options should be sufficient for most cases. The
+library can also be reconfigured later with the @F{configure.exe} program.
+After this, the wizard unpacks the files into the installation
+directory and compiles the toolkit. Logs of both the installation and
+building are saved to the installation directory. If you selected
+Microsoft Visual Studio as your development environment, the wizard
+also integrates the Qt tools into Visual Studio.
+}
+@EndList
+@B Note: When installing the toolkit on a Windows 9x system, the
+compilation step is skipped, due to technical limitations in the
+operating system. The installation program writes the steps needed to
+build the toolkit into a batch file and puts a shortcut to this in the
+start menu. To build it, just click on this shortcut.  
+@PP
+Some Windows versions may require a reboot before all environment
+variables are activated.
+@PP
+If you wish to customize how you install Qt or if you encounter
+problems with installing Qt then refer to the @F INSTALL file in
+@F{%QTDIR%} for more information.
+@CD { That's all! Qt and Qt's tools are now installed. }
+@End @Text
+

@@ -400,19 +400,6 @@ if [ "x$DO_EMBEDDED" != "xyes" ]; then
    rm -f "$DISTDIR/qt/include/qt.h"
 fi
 
-#qgif.h
-qgif="$DISTDIR/src/kernel/qgif.h"
-if [ -e  "$qgif" ]; then
-    sed "s,^\(\#define QT_BUILTIN_GIF_READER[ ]*\).*$,\1 0,g" $qgif >${TMP_FILE}
-    mv ${TMP_FILE} $qgif
-fi
-#qgif.h
-qgif="$DISTDIR/include/qgif.h"
-if [ -e  "$qgif" ]; then
-    sed "s,^\(\#define QT_BUILTIN_GIF_READER[ ]*\).*$,\1 0,g" $qgif >${TMP_FILE}
-    mv ${TMP_FILE} $qgif
-fi
-
 # changes files
 [ ! -f "$DISTDIR/qt/dist/changes-$REL_VERSION" ] && status "!! Warning: qt/dist/changes-$REL_VERSION does not exist !!"
 for a in `find $DISTDIR/qt/dist/ -name "changes-$REL_VERSION*"`; do
@@ -646,10 +633,15 @@ copy_platform_files() {
 	    echo $o_file | grep '.qws$' >/dev/null 2>&1 && continue
 	fi
 	case $edition in
-	commercial-US)
-	   [ `basename $a` = "LICENSE" ] && continue
-	   [ `basename $a` = "LICENSE-US" ] && o_file="LICENSE"
-	   ;;
+	commercial|commercial-US)
+	    if [ "$platform" = "win" ]; then
+		[ `basename $a` = "LICENSE" ] && continue
+		[ `basename $a` = "LICENSE-US" ] && continue
+	    else
+		[ `basename $a` = "LICENSE" ] && o_file=".LICENSE"
+		[ `basename $a` = "LICENSE-US" ] && o_file=".LICENSE-US"
+	    fi
+	    ;;
 	*) [ `basename $a` = "LICENSE-US" ] && continue ;;
 	esac
 

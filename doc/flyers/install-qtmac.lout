@@ -1,0 +1,48 @@
+@Include { flyer.lout }
+@Doc @Text @Begin
+@CD @Heading { How to Install Qt for Mac OS X }
+@NumberedList
+@LI { Run the @F{qt-mac-commercial-3.0.0} program. }
+@LI { Choose the folder where you wish to install Qt and enter your
+license key as it appears on the CD cover. }
+@LI { Click on @B Unpack, and read the license.  You are only able to
+continue the installation if you accept the license. }
+@LI { You must set up certain environment variables for Qt:
+@PP
+In @F{.profile} (if your shell is bash, ksh, zsh or sh), add the following lines:
+@LD @F @Verbatim {
+QTDIR=/usr/local/qt
+PATH=$QTDIR/bin:$PATH
+MANPATH=$QTDIR/doc/man:$MANPATH
+DYLD_LIBRARY_PATH=$QTDIR/lib:$DYLD_LIBRARY_PATH
+export QTDIR PATH MANPATH DYLD_LIBRARY_PATH
+}
+In @F{.login} (if your shell is csh or tcsh), add the following lines:
+@LD @F @Verbatim {
+setenv QTDIR /usr/local/qt
+setenv PATH $QTDIR/bin:$PATH
+setenv MANPATH $QTDIR/doc/man:$MANPATH
+setenv DYLD_LIBRARY_PATH $QTDIR/lib:$DYLD_LIBRARY_PATH
+}
+After you have done this, you must either login again, or re-source
+the file you've just edited before continuing, so that @F{$QTDIR} is set.
+}
+@LI { Execute the configure tool at the command prompt with your
+preferred options.  
+@PP
+For example, use @F "./configure -release -shared" to
+build Qt as a shared library, without debug information.  Type
+@F "./configure -help" to get a list of all available options.  When
+prompted, enter in your license key as it appears on the CD cover.
+You must accept the license to continue. The configure tool will scan
+all the Qt sub-directories and generate makefiles appropriate to your
+configuration.
+}
+@LI { Type @F make }
+@EndList
+If you wish to customize how you install Qt or if you encounter
+problems with installing Qt then refer to the @F INSTALL file in
+@F{$QTDIR} for more information.
+@CD { That's all!  Qt and Qt's tools are now installed. }
+@End @Text
+
