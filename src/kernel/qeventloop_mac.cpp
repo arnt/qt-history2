@@ -489,8 +489,6 @@ static QMAC_PASCAL void qt_mac_select_timer_callbk(EventLoopTimerRef, void *me)
 
 int QEventLoop::macHandleSelect(timeval *tm)
 {
-    emit aboutToBlock();
-
     if ( qt_preselect_handler ) {
 	QVFuncList::Iterator end = qt_preselect_handler->end();
 	for ( QVFuncList::Iterator it = qt_preselect_handler->begin();
@@ -815,10 +813,13 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	} else {
 	    tm = qt_wait_timer();
 	}
-	if(!(flags & ExcludeSocketNotifiers))
+	if(!(flags & ExcludeSocketNotifiers)) {
+	    emit aboutToBlock();
 	    nevents += macHandleSelect(tm);
+	}
 	nevents += qt_activate_timers();
     } else if(canWait && !zero_timer_count) {
+	emit aboutToBlock();
 	RunApplicationEventLoop();
     }
 
