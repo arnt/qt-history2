@@ -30,10 +30,7 @@ ABCentralWidget::ABCentralWidget( QWidget *parent, const char *name )
 
     setupTabWidget();
     setupListView();
-    if ( !setupOutlook() ) {
-	delete outlook;
-	outlook = 0;
-    }
+    setupOutlook();
 
     mainGrid->setRowStretch( 0, 0 );
     mainGrid->setRowStretch( 1, 1 );
@@ -206,41 +203,27 @@ void ABCentralWidget::setupListView()
     listView->setAllColumnsShowFocus( TRUE );
 }
 
-#include <qmetaobject.h>
-
-void dumpMetaObject( QObject *object )
+void ABCentralWidget::setupOutlook()
 {
-    const QMetaObject *mo = object->metaObject();
+    outlook = new QAxObject( "Outlook.Application", this );
 
-    for ( int propindex = 0; propindex < mo->numProperties( FALSE ); propindex++ ) {
-	const QMetaProperty * property = mo->property( propindex, FALSE );
-	qDebug( "%s (%s) = %s", property->name(), property->type(), object->property( property->name() ) );
-    }
-}
-
-bool ABCentralWidget::setupOutlook()
-{
-    outlook = new QAxObject( "Outlook.Application" );
-    QAxObject *nameSpace = outlook->querySubObject( "GetNamespace", "MAPI" );
-    if ( !nameSpace )
-	return FALSE;
-
-    // Login; doesn't hurt if you are already running and logged on...
-    nameSpace->dynamicCall( "Logon()" );
-    // Get the current session, and the default folder for "contacts"
+    // Get a session object
     QAxObject *session = outlook->querySubObject( "Session" );
     if ( !session )
-	return FALSE;
+	return;
+    // Login; doesn't hurt if you are already running and logged on...
+    session->dynamicCall( "Logon()" );
+
+    // Get the default folder for contacts
     QAxObject *defFolder = session->querySubObject( "GetDefaultFolder(OlDefaultFolders)", "olFolderContacts" );
     if ( !defFolder )
-	return FALSE;
+	return;
 
     // Get all items
     QAxObject *items = defFolder->querySubObject( "Items" );
     if ( items ) {
-	int count = items->property( "Count" ).toInt();
 	QAxObject *item = items->querySubObject( "GetFirst" );
-	if ( item && !item->isNull() ) do {
+	while ( item ) {
 	    QString firstName = item->property( "FirstName" ).toString();
 	    QString lastName = item->property( "LastName" ).toString();
 	    QString address = item->property( "HomeAddress" ).toString();
@@ -249,10 +232,10 @@ bool ABCentralWidget::setupOutlook()
 	    (void)new QListViewItem( listView, firstName, lastName, address, email );
 	    delete item;
 	    item = items->querySubObject( "GetNext" );
-	} while ( item && !item->isNull() );
+	};
     }
-
-    return TRUE;
+    session->dynamicCall( "Logoff()" );
+    delete session;
 }
 
 void ABCentralWidget::addEntry()
@@ -264,15 +247,17 @@ void ABCentralWidget::addEntry()
         item->setText( 1, iLastName->text() );
         item->setText( 2, iAddress->text() );
         item->setText( 3, iEMail->text() );
-    }
 
-    QAxObject *contactItem = outlook->querySubObject( "CreateItem", 2 );
-    contactItem->setProperty( "FirstName", iFirstName->text() );
-    contactItem->setProperty( "LastName", iLastName->text() );
-    contactItem->setProperty( "HomeAddress", iAddress->text() );
-    contactItem->setProperty( "Email1Address", iEMail->text() );
-    contactItem->dynamicCall( "Save()" );
-    delete contactItem;
+	QAxObject *contactItem = outlook->querySubObject( "CreateItem(OlItemType)", "olContactItem" );
+	if ( contactItem ) {
+	    contactItem->setProperty( "FirstName", iFirstName->text() );
+	    contactItem->setProperty( "LastName", iLastName->text() );
+	    contactItem->setProperty( "HomeAddress", iAddress->text() );
+	    contactItem->setProperty( "Email1Address", iEMail->text() );
+	    contactItem->dynamicCall( "Save()" );
+	}
+	delete contactItem;
+    }
 
     iFirstName->setText( "" );
     iLastName->setText( "" );
@@ -287,10 +272,41 @@ void ABCentralWidget::changeEntry()
     if ( item &&
          ( !iFirstName->text().isEmpty() || !iLastName->text().isEmpty() ||
            !iAddress->text().isEmpty() || !iEMail->text().isEmpty() ) ) {
-        item->setText( 0, iFirstName->text() );
-        item->setText( 1, iLastName->text() );
-        item->setText( 2, iAddress->text() );
-        item->setText( 3, iEMail->text() );
+
+	// Get a session object
+	QAxObject *session = outlook->querySubObject( "Session" );
+	if ( !session )
+	    return;
+	// Login; doesn't hurt if you are already running and logged on...
+	session->dynamicCall( "Logon()" );
+	
+	// Get the default folder for contacts
+	QAxObject *defFolder = session->querySubObject( "GetDefaultFolder(OlDefaultFolders)", "olFolderContacts" );
+	if ( !defFolder )
+	    return;
+
+	// Get all items
+	QAxObject *items = defFolder->querySubObject( "Items" );
+	if ( !items )
+	    return;
+
+	QAxObject *contactItem = items->querySubObject( "Find(const QString&)", 
+	    "[LastName] = " + item->text( 1 ) +
+	    "AND [FirstName] = " + item->text( 0 ) );
+	if ( contactItem ) {
+	    contactItem->setProperty( "FirstName", iFirstName->text() );
+	    contactItem->setProperty( "LastName", iLastName->text() );
+	    contactItem->setProperty( "HomeAddress", iAddress->text() );
+	    contactItem->setProperty( "Email1Address", iEMail->text() );
+	    contactItem->dynamicCall( "Save()" );
+
+	    item->setText( 0, iFirstName->text() );
+	    item->setText( 1, iLastName->text() );
+	    item->setText( 2, iAddress->text() );
+	    item->setText( 3, iEMail->text() );
+	}
+	session->dynamicCall( "Logoff()" );
+	delete session;
     }
 }
 

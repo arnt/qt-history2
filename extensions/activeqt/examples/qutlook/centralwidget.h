@@ -47,7 +47,7 @@ protected slots:
 protected:
     void setupTabWidget();
     void setupListView();
-    bool setupOutlook();
+    void setupOutlook();
 
     QGridLayout *mainGrid;
     QTabWidget *tabWidget;
