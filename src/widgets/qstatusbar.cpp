@@ -33,9 +33,9 @@
 #include "qapplication.h"
 #include "qsizegrip.h"
 
-// BEGIN REVISED: warwick
+// REVISED: warwick
 /*!
- \class QStatusBar qstatusbar.h
+  \class QStatusBar qstatusbar.h
 
   \brief The QStatusBar class provides a horizontal bar suitable for
   presenting status information.
