@@ -572,7 +572,8 @@ static struct {
 };
 
 #ifdef Q_WS_MAC
-#define QMAC_PROPELLER (QChar(0x2318))
+#define QMAC_CTRL (QString(QChar(0x2318)))
+#define QMAC_ALT  (QString(QChar(0x2325)))
 #endif
 
 /*!
@@ -586,8 +587,8 @@ QString QAccel::keyToString( int k )
 {
     QString s;
     if ( (k & CTRL) == CTRL ) {
-#ifdef QMAC_PROPELLER
-	s += QMAC_PROPELLER;
+#ifdef QMAC_CTRL
+	s += QMAC_CTRL;
 #else
 	s += tr( "Ctrl" );
 #endif
@@ -595,7 +596,11 @@ QString QAccel::keyToString( int k )
     if ( (k & ALT) == ALT ) {
 	if ( !s.isEmpty() )
 	    s += tr( "+" );
+#ifdef QMAC_ALT
+	s += QMAC_ALT;
+#else
 	s += tr( "Alt" );
+#endif
     }
     if ( (k & SHIFT) == SHIFT ) {
 	if ( !s.isEmpty() )
@@ -678,17 +683,23 @@ int QAccel::stringToKey( const QString & s )
 done:
     if ( p > 0 ) {
 	QString sl = s.lower();
-#ifdef QMAC_PROPELLER
-	if ( sl.contains(QMAC_PROPELLER) )
+#ifdef QMAC_CTRL
+	if ( sl.contains(QMAC_CTRL) || sl.contains(QMAC_CTRL+"+") )
 	    k |= CTRL;
 #else
 	if ( sl.contains("ctrl+") || sl.contains(tr("ctrl")+"+") )
 	    k |= CTRL;
 #endif
-	if ( sl.contains("shift+") || sl.contains(tr("shift")+"+") )
-	    k |= SHIFT;
+#ifdef QMAC_ALT
+	if ( sl.contains(QMAC_ALT) || sl.contains(QMAC_ALT+"+") )
+	    k |= ALT;
+#else
 	if ( sl.contains("alt+") || sl.contains(tr("alt")+"+") )
 	    k |= ALT;
+#endif
+
+	if ( sl.contains("shift+") || sl.contains(tr("shift")+"+") )
+	    k |= SHIFT;
     }
     return k;
 }
