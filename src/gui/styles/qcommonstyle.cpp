@@ -2591,12 +2591,11 @@ QPixmap QCommonStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
 {
     switch(pixmaptype) {
     case PT_Disabled: {
-        QImage img;
         QBitmap pixmapMask;
         if (pixmap.mask()) {
             pixmapMask = *pixmap.mask();
         } else {
-            img = pixmap.convertToImage();
+            QImage img = pixmap.convertToImage();
             pixmapMask.convertFromImage(img.createHeuristicMask(),
                                          Qt::MonoOnly | Qt::ThresholdDither);
         }
@@ -2605,7 +2604,7 @@ QPixmap QCommonStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
 
         QPainter painter;
         painter.begin(&ret);
-        painter.setPen(pal.color(QPalette::Disabled, QPalette::Base));
+        painter.setPen(pal.color(QPalette::Disabled, QPalette::Light));
         painter.drawPixmap(1, 1, pixmapMask);
         painter.setPen(pal.color(QPalette::Disabled, QPalette::Foreground));
         painter.drawPixmap(0, 0, pixmapMask);
