@@ -105,6 +105,7 @@ public:
     }
     
 protected:
+    bool winEvent(MSG *msg);
     bool event(QEvent *e);
     void resizeEvent(QResizeEvent *e);
     void focusInEvent(QFocusEvent *e);
@@ -140,7 +141,7 @@ QAxHostWidget::~QAxHostWidget()
 class QAxHostWindow : public IDispatch,
                     public IOleClientSite,
                     public IOleControlSite,
-                    public IOleInPlaceSite,
+                    public IOleInPlaceSiteWindowless,
                     public IOleInPlaceFrame,
                     public IAdviseSink
 {
@@ -210,7 +211,75 @@ public:
     STDMETHOD(DiscardUndoState)();
     STDMETHOD(DeactivateAndUndo)();
     STDMETHOD(OnPosRectChange)(LPCRECT lprcPosRect);
-    
+
+// IOleInPlaceSiteEx ###
+    STDMETHOD(OnInPlaceActivateEx)(BOOL *pfNoRedraw, DWORD dwFlags)
+    {
+        return S_OK;
+    }
+    STDMETHOD(OnInPlaceDeactivateEx)(BOOL fNoRedraw)
+    {
+        return S_OK;
+    }
+    STDMETHOD(RequestUIActivate)()
+    {
+        return S_OK;
+    }
+
+// IOleInPlaceSiteWindowless ###
+    STDMETHOD(CanWindowlessActivate)()
+    {
+        return S_OK;
+    }
+    STDMETHOD(GetCapture)()
+    {
+        return S_FALSE;
+    }
+    STDMETHOD(SetCapture)(BOOL fCapture)
+    {
+        return S_FALSE;
+    }
+    STDMETHOD(GetFocus)()
+    {
+        return S_FALSE;
+    }
+    STDMETHOD(SetFocus)(BOOL fCapture)
+    {
+        return S_FALSE;
+    }
+    STDMETHOD(GetDC)(LPCRECT pRect, DWORD grfFlags, HDC *phDC)
+    {
+        *phDC = 0;
+        return S_OK;
+    }
+    STDMETHOD(ReleaseDC)(HDC hDC)
+    {
+        ::ReleaseDC(widget->winId(), hDC);
+        return S_OK;
+    }
+    STDMETHOD(InvalidateRect)(LPCRECT pRect, BOOL fErase)
+    {
+        ::InvalidateRect(host->winId(), pRect, fErase);
+        return S_OK;
+    }
+    STDMETHOD(InvalidateRgn)(HRGN hRGN, BOOL fErase)
+    {
+        ::InvalidateRgn(host->winId(), hRGN, fErase);
+        return S_OK;
+    }
+    STDMETHOD(ScrollRect)(int dx, int dy, LPCRECT pRectScroll, LPCRECT pRectClip)
+    {
+        return S_OK;
+    }
+    STDMETHOD(AdjustRect)(LPRECT prc)
+    {
+        return S_OK;
+    }
+    STDMETHOD(OnDefWindowMessage)(UINT msg, WPARAM wPara, LPARAM lParam, LRESULT *plResult)
+    {
+        return S_FALSE;
+    }
+
     // IOleInPlaceFrame
     STDMETHOD(InsertMenus(HMENU hmenuShared, LPOLEMENUGROUPWIDTHS lpMenuWidths));
     STDMETHOD(SetMenu(HMENU hmenuShared, HOLEMENU holemenu, HWND hwndActiveObject));
@@ -271,11 +340,12 @@ private:
     
     IOleObject *m_spOleObject;
     IOleControl *m_spOleControl;
-    IOleInPlaceObject *m_spInPlaceObject;
+    IOleInPlaceObjectWindowless *m_spInPlaceObject;
     IOleInPlaceActiveObject *m_spInPlaceActiveObject;
     
     QAxAggregated *aggregatedObject;
 
+    bool inPlaceObjectWindowless :1;
     bool inPlaceModelessEnabled :1;
     
     DWORD m_dwOleObject;
@@ -359,7 +429,8 @@ QAxHostWindow::QAxHostWindow(QAxWidget *c, bool bInited)
     m_spOleControl = 0;
     m_spInPlaceObject = 0;
     m_spInPlaceActiveObject = 0;
-    
+
+    inPlaceObjectWindowless = false;
     inPlaceModelessEnabled = true;
     m_dwOleObject = 0;
     m_menuOwner = 0;
@@ -737,8 +808,15 @@ HRESULT WINAPI QAxHostWindow::CanInPlaceActivate()
 HRESULT WINAPI QAxHostWindow::OnInPlaceActivate()
 {
     OleLockRunning(m_spOleObject, true, false);
-    if (!m_spInPlaceObject)
-        m_spOleObject->QueryInterface(IID_IOleInPlaceObject, (void**) &m_spInPlaceObject);
+    if (!m_spInPlaceObject) {
+        m_spOleObject->QueryInterface(IID_IOleInPlaceObjectWindowless, (void**) &m_spInPlaceObject);
+        if (m_spInPlaceObject) {
+            inPlaceObjectWindowless = true;
+        } else {
+            inPlaceObjectWindowless = false;
+            m_spOleObject->QueryInterface(IID_IOleInPlaceObject, (void**) &m_spInPlaceObject);
+        }
+    }
     
     return S_OK;
 }
@@ -793,13 +871,9 @@ HRESULT WINAPI QAxHostWindow::DiscardUndoState()
 
 HRESULT WINAPI QAxHostWindow::DeactivateAndUndo()
 {
-    IOleInPlaceObject *inPlace = 0;
-    widget->queryInterface(IID_IOleInPlaceObject, (void**)&inPlace);
-    if (inPlace) {
-        inPlace->UIDeactivate();
-        inPlace->Release();
-    }
-    
+    if (m_spInPlaceObject)
+        m_spInPlaceObject->UIDeactivate();
+
     return S_OK;
 }
 
@@ -1200,6 +1274,19 @@ void QAxHostWidget::resizeEvent(QResizeEvent *e)
         RECT rcPos = { x(), y(), x()+width(), y()+height() };
         axhost->m_spInPlaceObject->SetObjectRects(&rcPos, &rcPos);
     }
+}
+
+bool QAxHostWidget::winEvent(MSG *msg)
+{
+    if (axhost->inPlaceObjectWindowless) {
+        IOleInPlaceObjectWindowless *windowless = (IOleInPlaceObjectWindowless*)axhost->m_spInPlaceActiveObject;
+        Q_ASSERT(windowless);
+        LRESULT lres;
+        HRESULT hres = windowless->OnWindowMessage(msg->message, msg->wParam, msg->lParam, &lres);
+        if (hres == S_OK)
+            return TRUE;
+    }
+    return false; // ###
 }
 
 bool QAxHostWidget::event(QEvent *e)
