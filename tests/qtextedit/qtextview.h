@@ -51,7 +51,7 @@ class QTextViewData;
 class QStyleSheet;
 class QMimeSourceFactory;
 
-class Q_EXPORT QTextView : public QTextEdit
+class QTextView : public QTextEdit
 {
     Q_OBJECT
 //     Q_PROPERTY( QString text READ text WRITE setText )

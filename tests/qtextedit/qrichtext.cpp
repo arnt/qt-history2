@@ -3178,8 +3178,8 @@ QTextParag::LineStart *QTextFormatter::formatLine( QTextString *string, QTextPar
 	    }
 	}
 	int toAdd = 0;
-	for ( int j = start + 1; j <= last; ++j ) {
-	    if( isBreakable( string, j ) && numSpaces ) {
+	for ( int k = start + 1; k <= last; ++k ) {
+	    if( isBreakable( string, k ) && numSpaces ) {
 		int s = space / numSpaces;
 		toAdd += s;
 		space -= s;
