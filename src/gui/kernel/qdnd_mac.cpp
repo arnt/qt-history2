@@ -521,16 +521,6 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
         AddDragItemFlavor(dragRef, 1, qt_mac_mime_type, &t, 1, 0);
     }
 
-    //so we must fake an event
-    EventRecord fakeEvent;
-    GetGlobalMouse(&(fakeEvent.where));
-    fakeEvent.message = 0;
-    fakeEvent.what = mouseDown;
-    fakeEvent.when = EventTimeToTicks(GetCurrentEventTime());
-    fakeEvent.modifiers = GetCurrentKeyModifiers();
-    if(GetCurrentEventButtonState() & 2)
-        fakeEvent.modifiers |= controlKey;
-
     QPoint hotspot;
     QPixmap pix = o->d->pixmap;
     if(pix.isNull()) {
@@ -564,6 +554,16 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
         hotspot = o->d->hotspot;
     }
 
+    //so we must fake an event
+    EventRecord fakeEvent;
+    GetGlobalMouse(&(fakeEvent.where));
+    fakeEvent.message = 0;
+    fakeEvent.what = mouseDown;
+    fakeEvent.when = EventTimeToTicks(GetCurrentEventTime());
+    fakeEvent.modifiers = GetCurrentKeyModifiers();
+    if(GetCurrentEventButtonState() & 2)
+        fakeEvent.modifiers |= controlKey;
+
     //find the hotspot in relation to the pixmap
     Point boundsPoint;
     boundsPoint.h = fakeEvent.where.h - hotspot.x();
@@ -572,13 +572,13 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
     SetRect(&boundsRect, boundsPoint.h, boundsPoint.v, boundsPoint.h + pix.width(), boundsPoint.v + pix.height());
 
     //set the drag image
-    SetDragItemBounds(dragRef, (ItemReference)1 , &boundsRect);
     QRegion dragRegion(boundsPoint.h, boundsPoint.v, pix.width(), pix.height()), pixRegion;
     if(!pix.isNull()) {
         pixRegion = QRegion(0, 0, pix.width(), pix.height());
         SetDragImage(dragRef, GetGWorldPixMap((GWorldPtr)pix.handle()), pixRegion.handle(true), boundsPoint, 0);
     }
 
+    SetDragItemBounds(dragRef, (ItemReference)1 , &boundsRect);
     { //do the drag
         qt_mac_in_drag = true;
         QMacBlockingFunction block;
