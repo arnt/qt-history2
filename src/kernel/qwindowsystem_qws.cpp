@@ -888,12 +888,6 @@ static void ignoreSignal( int )
 */
 
 /*!
-    \enum QWSServer::KeyMap
-
-    \internal
-*/
-
-/*!
     \enum QWSServer::KeyOverride
 
     \internal
