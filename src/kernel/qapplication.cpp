@@ -54,10 +54,10 @@
 #include "private/qcomponentfactory_p.h"
 #include <stdlib.h>
 
-#if defined(QT_REMOTE_CONTROL)
+#ifndef QT_NO_REMOTE
 #include "private/qremoteinterface_p.h"
 #include "qremotefactory.h"
-#endif
+#endif //QT_NO_REMOTE
 
 #if defined(QT_THREAD_SUPPORT)
 #include "qmutex.h"
@@ -321,10 +321,10 @@ bool	  QApplication::fade_tooltip	= FALSE;
 QApplication::Type qt_appType=QApplication::Tty;
 QStringList *QApplication::app_libpaths = 0;
 
-#if defined(QT_REMOTE_CONTROL)
+#ifndef QT_NO_REMOTE
 QUuid application_id = QUuid(0,0,0,0,0,0,0,0,0,0,0);
 static QRemoteInterface *remoteControl = 0;
-#endif
+#endif //QT_NO_REMOTE
 
 void qt_setMaxWindowRect(const QRect& r)
 {
@@ -818,7 +818,7 @@ void QApplication::initialize( int argc, char **argv )
 }
 
 
-#if defined (QT_REMOTE_CONTROL)
+#ifndef QT_NO_REMOTE
 /*!
     Enables remote access to the application if \a enable is set to TRUE.
     You can use the \a appId to give your application a unique identification that can be used
@@ -906,7 +906,7 @@ QUuid QApplication::applicationId() const
 {
     return application_id;
 }
-#endif
+#endif //QT_NO_REMOTE
 
 
 
@@ -962,11 +962,9 @@ QWidget *QApplication::activeModalWidget()
 
 QApplication::~QApplication()
 {
-#if defined(QT_REMOTE_CONTROL)
-//    if (remoteControl != 0)
-//    	remoteControl->release();
-    remoteControl = 0;
-#endif // QT_REMOTE_CONTROL
+#ifndef QT_NO_REMOTE
+    remoteControl = 0; // The actual instance is in a plugin and will be destroyed automatically
+#endif // QT_NO_REMOTE
 
     delete desktopWidget;
     desktopWidget = 0;
@@ -1893,12 +1891,12 @@ void QApplication::closeAllWindows()
 
 bool QApplication::notify( QObject *receiver, QEvent *e )
 {
-#if defined(QT_REMOTE_CONTROL)
+#ifndef QT_NO_REMOTE
     if (remoteControl != 0) {
 	if (remoteControl->handleNotification(receiver, e))
 	    return TRUE;
     }
-#endif
+#endif //QT_NO_REMOTE
 
     // no events are delivered after ~QApplication() has started
     if ( is_app_closing )

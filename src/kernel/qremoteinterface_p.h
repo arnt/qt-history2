@@ -54,7 +54,7 @@
 #include <private/qcom_p.h>
 #endif // QT_H
 
-#ifdef QT_REMOTE_CONTROL
+#ifndef QT_NO_REMOTE
 #ifndef QT_NO_COMPONENT
 
 #include <qobject.h>
@@ -157,6 +157,6 @@ struct Q_EXPORT QRemoteFactoryInterface : public QFeatureListInterface
 };
 
 #endif //QT_NO_COMPONENT
-#endif //QT_REMOTE_CONTROL
+#endif //QT_NO_REMOTE
 
 #endif //QREMOTEINTERFACE_P_H

@@ -5,7 +5,7 @@
 #include "qstringlist.h"
 #endif // QT_H
 
-#ifdef QT_REMOTE_CONTROL
+#ifndef QT_NO_REMOTE
 
 class QString;
 class QRemoteInterface;
@@ -19,6 +19,6 @@ public:
     static QRemoteInterface *create( const QString& );
 };
 
-#endif //QT_REMOTE_CONTROL
+#endif //QT_NO_REMOTE
 
 #endif //QREMOTEFACTORY_H

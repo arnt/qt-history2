@@ -37,7 +37,7 @@
 #include "qremoteinterface_p.h" // up here for GCC 2.7.* compatibility
 #include "qremotefactory.h"
 
-#ifdef QT_REMOTE_CONTROL
+#ifndef QT_NO_REMOTE
 
 #include "qapplication.h"
 #include <private/qpluginmanager_p.h>
@@ -135,4 +135,4 @@ QStringList QRemoteFactory::keys()
 }
 #endif // QT_NO_STRINGLIST
 
-#endif // QT_REMOTE_CONTROL
+#endif // QT_NO_REMOTE

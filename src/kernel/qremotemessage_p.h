@@ -54,7 +54,7 @@
 #include "qpixmap.h"
 #endif // QT_H
 
-#if defined(QT_REMOTE_CONTROL)
+#ifndef QT_NO_REMOTE
 
 class QString;
 class QSocket;
@@ -105,6 +105,6 @@ protected:
     QByteArray	internal_bytearray;
 };
 
-#endif //QT_REMOTE_CONTROL
+#endif //QT_NO_REMOTE
 
 #endif
