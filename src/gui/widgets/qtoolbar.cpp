@@ -72,10 +72,12 @@ void QToolBarPrivate::init()
     extension->hide();
 
 #ifdef Q_WS_MAC
-    // Make sure that the window has the "toolbar" button.
-    extern WindowPtr qt_mac_window_for(const QWidget *); // qwidget_mac.cpp
-    ChangeWindowAttributes(qt_mac_window_for(q->parentWidget()), kWindowToolbarButtonAttribute,
-                           kWindowNoAttributes);
+    if (q->parentWidget()) {
+        // Make sure that the window has the "toolbar" button.
+        extern WindowPtr qt_mac_window_for(const QWidget *); // qwidget_mac.cpp
+        ChangeWindowAttributes(qt_mac_window_for(q->parentWidget()), kWindowToolbarButtonAttribute,
+                               kWindowNoAttributes);
+    }
 #endif
 
     toggleViewAction = new QAction(q);
