@@ -135,7 +135,7 @@ public:
     }
 
     void worse(int by=1) { badness+=by; }
-    bool reliable() const { return goodness >= 5 && badness < 20; }
+    bool reliable() const { return goodness >= 5 && badness < 50; }
     int buttonState() const { return bstate; }
     bool motionPending() const { return motion!=QPoint(0,0); }
     QPoint takeMotion() { QPoint r=motion; motion=QPoint(0,0); return r; }
@@ -162,10 +162,10 @@ public:
     }
 };
 
-class QAutoMouseSubHandler_psaux : public QAutoMouseSubHandler {
+class QAutoMouseSubHandler_intellimouse : public QAutoMouseSubHandler {
     int packetsize;
 public:
-    QAutoMouseSubHandler_psaux(int f) : QAutoMouseSubHandler(f)
+    QAutoMouseSubHandler_intellimouse(int f) : QAutoMouseSubHandler(f)
     {
 	init();
     }
@@ -468,7 +468,7 @@ QAutoMouseHandler::QAutoMouseHandler()
 
     fd = open( "/dev/psaux", O_RDWR | O_NDELAY );
     if ( fd >= 0 ) {
-	sub[nsub++] = new QAutoMouseSubHandler_psaux(fd);
+	sub[nsub++] = new QAutoMouseSubHandler_intellimouse(fd);
 	notify(fd);
     }
 
@@ -477,6 +477,7 @@ QAutoMouseHandler::QAutoMouseHandler()
 	fn[9] = ch;
 	fd = open( fn, O_RDWR | O_NDELAY );
 	if ( fd >= 0 ) {
+	    //sub[nsub++] = new QAutoMouseSubHandler_intellimouse(fd);
 	    sub[nsub++] = new QAutoMouseSubHandler_mousesystems(fd);
 	    sub[nsub++] = new QAutoMouseSubHandler_ms(fd);
 	    notify(fd);
