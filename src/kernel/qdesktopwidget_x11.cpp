@@ -220,7 +220,7 @@ const QRect& QDesktopWidget::availableGeometry( int screen ) const
     if ( d->workareas[screen].isValid() )
 	return d->workareas[screen];
 
-    if ( ! isVirtualDesktop() && qt_net_supports( ATOM(Net_Workarea) ) ) {
+    if ( ! isVirtualDesktop() && qt_net_supports( ATOM(_NET_WORKAREA) ) ) {
 	Atom ret;
 	int format, e;
 	unsigned char *data = 0;
@@ -228,7 +228,7 @@ const QRect& QDesktopWidget::availableGeometry( int screen ) const
 
 	e = XGetWindowProperty( QPaintDevice::x11AppDisplay(),
 				QPaintDevice::x11AppRootWindow( screen ),
-				ATOM(Net_Workarea), 0, 4, False, XA_CARDINAL,
+				ATOM(_NET_WORKAREA), 0, 4, False, XA_CARDINAL,
 				&ret, &format, &nitems, &after, &data );
 
 	if (e == Success && ret == XA_CARDINAL &&

@@ -98,7 +98,7 @@ QSizeGrip::QSizeGrip( QWidget * parent, const char* name )
     if ( !qt_sizegrip_workspace( this ) ) {
 	WId id = winId();
 	XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
-			ATOM(Qt_Sizegrip), XA_WINDOW, 32, PropModeReplace,
+			ATOM(_QT_SIZEGRIP), XA_WINDOW, 32, PropModeReplace,
 			(unsigned char *)&id, 1);
     }
 #endif
@@ -118,7 +118,7 @@ QSizeGrip::~QSizeGrip()
     if ( !QApplication::closingDown() && parentWidget() ) {
 	WId id = None;
  	XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
- 			ATOM(Qt_Sizegrip), XA_WINDOW, 32, PropModeReplace,
+ 			ATOM(_QT_SIZEGRIP), XA_WINDOW, 32, PropModeReplace,
  			(unsigned char *)&id, 1);
     }
 #endif

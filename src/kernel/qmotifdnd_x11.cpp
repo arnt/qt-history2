@@ -313,7 +313,7 @@ static void DndReadSourceProperty(Display * dpy,
     unsigned long bytesafter, lengthRtn;
 
     if ((XGetWindowProperty (dpy, window, dnd_selection, 0L, 100000L,
-			     False, ATOM(Motif_Drag_Initiator_Info), &type,
+			     False, ATOM(_MOTIF_DRAG_INITIATOR_INFO), &type,
 			     &format, &lengthRtn, &bytesafter,
 			     (unsigned char **) &src_prop) != Success)
 	|| (type == None)) {
@@ -348,7 +348,7 @@ static void DndWriteReceiverProperty(Display * dpy, Window window,
     receiver_prop.total_size = sizeof(DndReceiverProp);
 
     /* write the buffer to the property */
-    XChangeProperty (dpy, window, ATOM(Motif_Drag_Receiver_Info), ATOM(Motif_Drag_Receiver_Info),
+    XChangeProperty (dpy, window, ATOM(_MOTIF_DRAG_RECEIVER_INFO), ATOM(_MOTIF_DRAG_RECEIVER_INFO),
 		     8, PropModeReplace,
 		     (unsigned char *)&receiver_prop,
 		     sizeof(DndReceiverProp));
@@ -375,7 +375,7 @@ static void DndFillClientMessage(Display * dpy, Window window,
     cm->send_event = True;
     cm->window = window;
     cm->format = 8;
-    cm->message_type = ATOM(Motif_Drag_And_Drop_Message);
+    cm->message_type = ATOM(_MOTIF_DRAG_AND_DROP_MESSAGE);
 
     dnd_message->reason = dnd_data->reason | DND_SET_EVENT_TYPE(receiver);
 
@@ -420,7 +420,7 @@ static Bool DndParseClientMessage(XClientMessageEvent *cm, DndData * dnd_data,
 {
     DndMessage * dnd_message = (DndMessage*)&cm->data.b[0] ;
 
-    if (cm->message_type != ATOM(Motif_Drag_And_Drop_Message)) {
+    if (cm->message_type != ATOM(_MOTIF_DRAG_AND_DROP_MESSAGE)) {
 	return False ;
     }
 
@@ -493,7 +493,7 @@ static Window MotifWindow(Display *display )
     /* this version does no caching, so it's slow: round trip each time */
 
     if ((XGetWindowProperty (display, DefaultRootWindow(display),
-			     ATOM(Motif_Drag_Window),
+			     ATOM(_MOTIF_DRAG_WINDOW),
 			     0L, 100000L, False, AnyPropertyType,
 			     &type, &format, &size, &bytes_after,
 			     (unsigned char **) &property) == Success) &&
@@ -543,8 +543,8 @@ static DndTargetsTable TargetsTable(Display *display)
        atom and update when necessary only */
 
     if ((XGetWindowProperty (display, motif_window,
-			     ATOM(Motif_Drag_Targets), 0L, 100000L,
-			     False, ATOM(Motif_Drag_Targets),
+			     ATOM(_MOTIF_DRAG_TARGETS), 0L, 100000L,
+			     False, ATOM(_MOTIF_DRAG_TARGETS),
 			     &type, &format,	&size, &bytes_after,
 			     (unsigned char **) &target_prop) != Success) ||
 	type == None) {
@@ -655,9 +655,9 @@ const char *qt_motifdnd_format( int n )
 
     Atom target = src_targets[n];
 
-    Atom xa_utf8_string = ATOM(Utf8_String);
-    Atom xa_text = ATOM(Text);
-    Atom xa_compound_text = ATOM(Compound_Text);
+    Atom xa_utf8_string = ATOM(UTF8_STRING);
+    Atom xa_text = ATOM(TEXT);
+    Atom xa_compound_text = ATOM(COMPOUND_TEXT);
 
     if ( target == XA_STRING )
 	return "text/plain;charset=ISO-8859-1";
@@ -733,7 +733,7 @@ QByteArray qt_motifdnd_obtain_data( const char *mimeType )
     }
 
     //   we have to convert selection in order to indicate success to the initiator
-    XConvertSelection (qt_xdisplay(), Dnd_selection, ATOM(Xm_Transfer_Success),
+    XConvertSelection (qt_xdisplay(), Dnd_selection, ATOM(XmTRANSFER_SUCCESS),
 		       Dnd_selection, tw->winId(), Dnd_selection_time);
 
     // wait again for SelectionNotify event
@@ -890,7 +890,7 @@ void qt_motifdnd_handle_msg( QWidget * /* w */ , const XEvent * xe, bool /* pass
     case DND_DROP_START:
 	if (!in_drop_site) {
 	    // we have to convert selection in order to indicate failure to the initiator
-	    XConvertSelection (qt_xdisplay(), dnd_data.property, ATOM(Xm_Transfer_Failure),
+	    XConvertSelection (qt_xdisplay(), dnd_data.property, ATOM(XmTRANSFER_FAILURE),
 			       dnd_data.property, cur_window, dnd_data.time);
 
 	    if (drop_widget) {

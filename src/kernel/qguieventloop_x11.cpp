@@ -82,10 +82,10 @@ bool QGuiEventLoop::processEvents( ProcessEventsFlags flags )
 		    if ( event.xclient.format != 32 )
 			continue;
 
-		    if ( event.xclient.message_type == ATOM(Wm_Protocols) ||
-			 (Atom) event.xclient.data.l[0] == ATOM(Wm_Take_Focus) )
+		    if (event.xclient.message_type == ATOM(WM_PROTOCOLS) ||
+			(Atom) event.xclient.data.l[0] == ATOM(WM_TAKE_FOCUS))
 			break;
-		    if ( event.xclient.message_type == ATOM(Qt_Scroll_Done) )
+		    if (event.xclient.message_type == ATOM(_QT_SCROLL_DONE))
 			break;
 		}
 

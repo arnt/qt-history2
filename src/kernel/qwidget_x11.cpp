@@ -132,7 +132,7 @@ static void qt_insert_sip( QWidget* scrolled_widget, int dx, int dy )
     client_message.type = ClientMessage;
     client_message.window = scrolled_widget->winId();
     client_message.format = 32;
-    client_message.message_type = ATOM(Qt_Scroll_Done);
+    client_message.message_type = ATOM(_QT_SCROLL_DONE);
     client_message.data.l[0] = sip.id;
 
     XSendEvent(X11->display, scrolled_widget->winId(), False, NoEventMask,
@@ -164,7 +164,7 @@ static void create_wm_client_leader()
 
     // set client leader property to itself
     XChangeProperty( QPaintDevice::x11AppDisplay(),
-		     X11->wm_client_leader, ATOM(Wm_Client_Leader),
+		     X11->wm_client_leader, ATOM(WM_CLIENT_LEADER),
 		     XA_WINDOW, 32, PropModeReplace,
 		     (unsigned char *)&X11->wm_client_leader, 1 );
 
@@ -172,7 +172,7 @@ static void create_wm_client_leader()
     QByteArray session = qApp->sessionId().toLatin1();
     if ( !session.isEmpty() ) {
 	XChangeProperty( QPaintDevice::x11AppDisplay(),
-			 X11->wm_client_leader, ATOM(Sm_Client_Id),
+			 X11->wm_client_leader, ATOM(SM_CLIENT_ID),
 			 XA_STRING, 8, PropModeReplace,
 			 (unsigned char *)session.data(), session.size() );
     }
@@ -221,7 +221,7 @@ static void qt_net_change_wm_state(const QWidget* w, bool set, Atom one, Atom tw
 	// managed by WM
         XEvent e;
         e.xclient.type = ClientMessage;
-        e.xclient.message_type = ATOM(Net_Wm_State);
+        e.xclient.message_type = ATOM(_NET_WM_STATE);
         e.xclient.display = w->x11Display();
         e.xclient.window = w->winId();
         e.xclient.format = 32;
@@ -239,7 +239,7 @@ static void qt_net_change_wm_state(const QWidget* w, bool set, Atom one, Atom tw
 	unsigned long nitems = 0, after = 0;
 	Atom *old_states = 0;
 	status = XGetWindowProperty(w->x11Display(), w->winId(),
-				    ATOM(Net_Wm_State), 0, 1024, False,
+				    ATOM(_NET_WM_STATE), 0, 1024, False,
 				    XA_ATOM, &ret, &format, &nitems,
 				    &after, &data);
 	if (status == Success && ret == XA_ATOM && format == 32 && nitems > 0)
@@ -260,10 +260,10 @@ static void qt_net_change_wm_state(const QWidget* w, bool set, Atom one, Atom tw
 	}
 
 	if (j)
-	    XChangeProperty(w->x11Display(), w->winId(), ATOM(Net_Wm_State), XA_ATOM, 32,
+	    XChangeProperty(w->x11Display(), w->winId(), ATOM(_NET_WM_STATE), XA_ATOM, 32,
 			    PropModeReplace, (uchar *) new_states, j);
 	else
-	    XDeleteProperty(w->x11Display(), w->winId(), ATOM(Net_Wm_State));
+	    XDeleteProperty(w->x11Display(), w->winId(), ATOM(_NET_WM_STATE));
 
 	delete [] new_states;
 	if (data) XFree(data);
@@ -501,9 +501,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	ulong wsa_mask = 0;
 
 	if ( testWFlags(WStyle_Splash) ) {
-            if (qt_net_supports(ATOM(Net_Wm_Window_Type_Splash))) {
+            if (qt_net_supports(ATOM(_NET_WM_WINDOW_TYPE_SPLASH))) {
                 clearWFlags( WX11BypassWM );
-                net_wintypes[curr_wintype++] = ATOM(Net_Wm_Window_Type_Splash);
+                net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_SPLASH);
 	    } else {
 		setWFlags( WX11BypassWM | WStyle_Tool | WStyle_NoBorder );
 	    }
@@ -514,7 +514,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
 	    if ( testWFlags( WStyle_NoBorder ) ) {
 		// override netwm type - quick and easy for KDE noborder
-		net_wintypes[curr_wintype++] = ATOM(Kde_Net_Wm_Window_Type_Override);
+		net_wintypes[curr_wintype++] = ATOM(_KDE_NET_WM_WINDOW_TYPE_OVERRIDE);
 	    } else {
 		if ( testWFlags( WStyle_NormalBorder | WStyle_DialogBorder ) ) {
 		    mwmhints.decorations |= (1L << 1); // MWM_DECOR_BORDER
@@ -539,48 +539,46 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 		wsa_mask |= CWSaveUnder;
 
 		// utility netwm type
-		net_wintypes[curr_wintype++] = ATOM(Net_Wm_Window_Type_Utility);
+		net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_UTILITY);
 	    }
 	} else if (testWFlags(WType_Dialog)) {
-	    setWFlags(WStyle_NormalBorder | WStyle_Title |
-		      WStyle_SysMenu | WStyle_ContextHelp);
+	    setWFlags(WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu | WStyle_ContextHelp);
 
 	    // dialog netwm type
-            net_wintypes[curr_wintype++] = ATOM(Net_Wm_Window_Type_Dialog);
+            net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_DIALOG);
 	} else {
-	    setWFlags(WStyle_NormalBorder | WStyle_Title |
-		      WStyle_MinMax | WStyle_SysMenu);
+	    setWFlags(WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu);
 
 	    // maximized netwm state
 	    if (testWState(WState_Maximized)) {
-		net_winstates[curr_winstate++] = ATOM(Net_Wm_State_Maximized_Vert);
-		net_winstates[curr_winstate++] = ATOM(Net_Wm_State_Maximized_Horz);
+		net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_MAXIMIZED_HORZ);
+		net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_MAXIMIZED_VERT);
 	    }
 	}
 
 	// ### need a better way to do this
 	if (inherits("QPopupMenu")) {
 	    // menu netwm type
-	    net_wintypes[curr_wintype++] = ATOM(Net_Wm_Window_Type_Menu);
+	    net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_MENU);
 	} else if (inherits("QToolBar")) {
 	    // toolbar netwm type
-	    net_wintypes[curr_wintype++] = ATOM(Net_Wm_Window_Type_Toolbar);
+	    net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_TOOLBAR);
 	}
 
 	// normal netwm type - default
-	net_wintypes[curr_wintype++] = ATOM(Net_Wm_Window_Type_Normal);
+	net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_NORMAL);
 
 	// stays on top
 	if (testWFlags(WStyle_StaysOnTop)) {
-	    net_winstates[curr_winstate++] = ATOM(Net_Wm_State_Above);
-	    net_winstates[curr_winstate++] = ATOM(Net_Wm_State_Stays_On_Top);
+	    net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_ABOVE);
+	    net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_STAYS_ON_TOP);
 }
 
         if (testWFlags(WShowModal)) {
             mwmhints.input_mode = 3L; // MWM_INPUT_FULL_APPLICATION_MODAL
             mwmhints.flags |= (1L << 2); // MWM_HINTS_INPUT_MODE
 
-            net_winstates[curr_winstate++] = ATOM(Net_Wm_State_Modal);
+            net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_MODAL);
         }
 
         if ( testWFlags( WX11BypassWM ) ) {
@@ -650,31 +648,31 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	XStoreName( dpy, id, qAppName() );
 	Atom protocols[4];
 	int n = 0;
-	protocols[n++] = ATOM(Wm_Delete_Window);	// support del window protocol
-	protocols[n++] = ATOM(Wm_Take_Focus);	// support take focus window protocol
-	protocols[n++] = ATOM(Net_Wm_Ping);	// support _NET_WM_PING protocol
+	protocols[n++] = ATOM(WM_DELETE_WINDOW);	// support del window protocol
+	protocols[n++] = ATOM(WM_TAKE_FOCUS);		// support take focus window protocol
+	protocols[n++] = ATOM(_NET_WM_PING);		// support _NET_WM_PING protocol
 	if ( testWFlags( WStyle_ContextHelp ) )
-	    protocols[n++] = ATOM(Net_Wm_Context_Help);
+	    protocols[n++] = ATOM(_NET_WM_CONTEXT_HELP);
 	XSetWMProtocols( dpy, id, protocols, n );
 
         // set mwm hints
         if ( mwmhints.flags != 0l )
-            XChangeProperty(dpy, id, ATOM(Motif_Wm_Hints), ATOM(Motif_Wm_Hints), 32,
+            XChangeProperty(dpy, id, ATOM(_MOTIF_WM_HINTS), ATOM(_MOTIF_WM_HINTS), 32,
                             PropModeReplace, (unsigned char *) &mwmhints, 5);
 
 	// set _NET_WM_WINDOW_TYPE
 	if (curr_wintype > 0)
-	    XChangeProperty(dpy, id, ATOM(Net_Wm_Window_Type), XA_ATOM, 32, PropModeReplace,
+	    XChangeProperty(dpy, id, ATOM(_NET_WM_WINDOW_TYPE), XA_ATOM, 32, PropModeReplace,
 			    (unsigned char *) net_wintypes, curr_wintype);
 
 	// set _NET_WM_WINDOW_STATE
 	if (curr_winstate > 0)
-	    XChangeProperty(dpy, id, ATOM(Net_Wm_State), XA_ATOM, 32, PropModeReplace,
+	    XChangeProperty(dpy, id, ATOM(_NET_WM_STATE), XA_ATOM, 32, PropModeReplace,
 			    (unsigned char *) net_winstates, curr_winstate);
 
 	// set _NET_WM_PID
 	long curr_pid = getpid();
-	XChangeProperty(dpy, id, ATOM(Net_Wm_Pid), XA_CARDINAL, 32, PropModeReplace,
+	XChangeProperty(dpy, id, ATOM(_NET_WM_PID), XA_CARDINAL, 32, PropModeReplace,
 			(unsigned char *) &curr_pid, 1);
 
 	// when we create a toplevel widget, the frame strut should be dirty
@@ -682,11 +680,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
 	// declare the widget's object name as window role
 	XChangeProperty( dpy, id,
-			 ATOM(Wm_Window_Role), XA_STRING, 8, PropModeReplace,
+			 ATOM(WM_WINDOW_ROLE), XA_STRING, 8, PropModeReplace,
 			 (unsigned char *)name(), qstrlen( name() ) );
 
 	// set client leader property
-	XChangeProperty( dpy, id, ATOM(Wm_Client_Leader),
+	XChangeProperty( dpy, id, ATOM(WM_CLIENT_LEADER),
 			 XA_WINDOW, 32, PropModeReplace,
 			 (unsigned char *)&X11->wm_client_leader, 1 );
     } else {
@@ -1106,7 +1104,7 @@ void QWidget::setWindowTitle( const QString &caption )
     XSetWMName( x11Display(), winId(), qstring_to_xtp(caption) );
 
     QByteArray net_wm_name = caption.toUtf8();
-    XChangeProperty(x11Display(), winId(), ATOM(Net_Wm_Name), ATOM(Utf8_String), 8,
+    XChangeProperty(x11Display(), winId(), ATOM(_NET_WM_NAME), ATOM(UTF8_STRING), 8,
 		    PropModeReplace, (unsigned char *)net_wm_name.data(), net_wm_name.size());
 
     QEvent e( QEvent::WindowTitleChange );
@@ -1157,7 +1155,7 @@ void QWidget::setWindowIconText( const QString &iconText )
     XSetWMIconName( x11Display(), winId(), qstring_to_xtp(iconText) );
 
     QByteArray icon_name = iconText.toUtf8();
-    XChangeProperty(x11Display(), winId(), ATOM(Net_Wm_Icon_Name), ATOM(Utf8_String), 8,
+    XChangeProperty(x11Display(), winId(), ATOM(_NET_WM_ICON_NAME), ATOM(UTF8_STRING), 8,
 		    PropModeReplace, (unsigned char *) icon_name.data(), icon_name.size());
 
     QEvent e( QEvent::IconTextChange );
@@ -1635,11 +1633,11 @@ void QWidget::setWindowState(uint newstate)
     uint oldstate = windowState();
     if (isTopLevel()) {
 	if ((oldstate & WindowMaximized) != (newstate & WindowMaximized)) {
-	    if (qt_net_supports(ATOM(Net_Wm_State_Maximized_Horz))
-		&& qt_net_supports(ATOM(Net_Wm_State_Maximized_Vert))) {
+	    if (qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))
+		&& qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT))) {
 		qt_net_change_wm_state(this, (newstate & WindowMaximized),
-				       ATOM(Net_Wm_State_Maximized_Horz),
-				       ATOM(Net_Wm_State_Maximized_Vert));
+				       ATOM(_NET_WM_STATE_MAXIMIZED_HORZ),
+				       ATOM(_NET_WM_STATE_MAXIMIZED_VERT));
 	    } else if (isVisible()) {
 		QRect maxRect = QApplication::desktop()->availableGeometry(this);
 
@@ -1657,9 +1655,9 @@ void QWidget::setWindowState(uint newstate)
 	}
 
 	if ((oldstate & WindowFullScreen) != (newstate & WindowFullScreen)) {
-	    if (qt_net_supports(ATOM(Net_Wm_State_FullScreen))) {
+	    if (qt_net_supports(ATOM(_NET_WM_STATE_FULLSCREEN))) {
 		qt_net_change_wm_state(this, (newstate & WindowFullScreen),
-				       ATOM(Net_Wm_State_FullScreen));
+				       ATOM(_NET_WM_STATE_FULLSCREEN));
 	    } else {
 		needShow = isVisible();
 
@@ -1693,7 +1691,7 @@ void QWidget::setWindowState(uint newstate)
 		if (newstate & WindowMinimized) {
 		    XEvent e;
 		    e.xclient.type = ClientMessage;
-		    e.xclient.message_type = ATOM(Wm_Change_State);
+		    e.xclient.message_type = ATOM(WM_CHANGE_STATE);
 		    e.xclient.display = x11Display();
 		    e.xclient.window = winid;
 		    e.xclient.format = 32;
@@ -1750,7 +1748,7 @@ void QWidget::showWindow()
 	    XFree( (char *)h );
 
 	if (qt_x_user_time != CurrentTime) {
-	    XChangeProperty(x11Display(), winId(), ATOM(Net_Wm_User_Time), XA_CARDINAL,
+	    XChangeProperty(x11Display(), winId(), ATOM(_NET_WM_USER_TIME), XA_CARDINAL,
 			    32, PropModeReplace, (unsigned char *) &qt_x_user_time, 1);
 	}
 
@@ -1761,8 +1759,8 @@ void QWidget::showWindow()
 	    return;
 	}
 
-	if (isMaximized() && !(qt_net_supports(ATOM(Net_Wm_State_Maximized_Horz))
-			       && qt_net_supports(ATOM(Net_Wm_State_Maximized_Vert)))) {
+	if (isMaximized() && !(qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))
+			       && qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT)))) {
 	    QRect maxRect = QApplication::desktop()->availableGeometry(this);
 
 	    // save original geometry
@@ -2411,7 +2409,7 @@ void QWidget::setName( const char *name )
     QObject::setName( name );
     if ( isTopLevel() ) {
 	XChangeProperty( x11Display(), winId(),
-			 ATOM(Wm_Window_Role), XA_STRING, 8, PropModeReplace,
+			 ATOM(WM_WINDOW_ROLE), XA_STRING, 8, PropModeReplace,
 			 (unsigned char *)name, qstrlen( name ) );
     }
 }
@@ -2455,7 +2453,7 @@ void QWidget::updateFrameStrut() const
 	data_ret = 0;
 	if (p == r ||
 	    (XGetWindowProperty(QPaintDevice::x11AppDisplay(), p,
-				ATOM(Enlightenment_Desktop), 0, 1, False, XA_CARDINAL,
+				ATOM(ENLIGHTENMENT_DESKTOP), 0, 1, False, XA_CARDINAL,
 				&type_ret, &i_unused, &l_unused, &l_unused,
 				&data_ret) == Success &&
 	     type_ret == XA_CARDINAL)) {
@@ -2463,7 +2461,7 @@ void QWidget::updateFrameStrut() const
 		XFree(data_ret);
 
 	    break;
-	} else if (qt_net_supports(ATOM(Net_Virtual_Roots)) && X11->net_virtual_root_list) {
+	} else if (qt_net_supports(ATOM(_NET_VIRTUAL_ROOTS)) && X11->net_virtual_root_list) {
 	    int i = 0;
 	    while (X11->net_virtual_root_list[i] != 0) {
 		if (X11->net_virtual_root_list[i++] == p)

@@ -279,97 +279,118 @@ struct QX11Data
 
 
     /* Warning: if you modify this list, modify the names of atoms in qapplication_x11.cpp as well! */
-    enum X11Atoms {
-	Wm_Protocols,
-	Wm_Delete_Window,
-	Wm_State,
-	Wm_Change_State,
-	Wm_Take_Focus,
-	Wm_Client_Leader,
-	Wm_Window_Role,
-	Sm_Client_Id,
-	Clipboard,
-	Resource_Manager,
-	Incr,
-	Xsetroot_Id,
-	Qt_Selection,
-	Qt_Clipboard_Sentinel,
-	Qt_Selection_Sentinel,
-	Qt_Scroll_Done,
-	Qt_Input_Encoding,
-	Qt_Sizegrip,
-	Net_Wm_Context_Help,
-	Net_Wm_Ping,
-	Motif_Wm_Hints,
-	Dtwm_Is_Running,
-	Kwin_Running,
-	Kwm_Running,
-	Gnome_Background_Properties,
-	Net_Supported,
-	Net_Virtual_Roots,
-	Net_Workarea,
-	Net_Wm_State,
-	Net_Wm_State_Modal,
-	Net_Wm_State_Maximized_Vert,
-	Net_Wm_State_Maximized_Horz,
-	Net_Wm_State_FullScreen,
-	Net_Wm_State_Above,
-	Net_Wm_Window_Type,
-	Net_Wm_Window_Type_Normal,
-	Net_Wm_Window_Type_Dialog,
-	Net_Wm_Window_Type_Toolbar,
-	Net_Wm_Window_Type_Menu,
-	Net_Wm_Window_Type_Utility,
-	Net_Wm_Window_Type_Splash,
-	Kde_Net_Wm_Window_Type_Override,
-	Kde_Net_Wm_Frame_Strut,
-	Net_Wm_State_Stays_On_Top,
-	Net_Wm_Pid,
-	Net_Wm_User_Time,
-	Enlightenment_Desktop,
-	Net_Wm_Name,
-	Net_Wm_Icon_Name,
-	Utf8_String,
-	Text,
-	Compound_Text,
-	Targets,
-	Multiple,
-	Timestamp,
-	Clip_Temporary,
+    enum X11Atom {
+	// window-manager <-> client protocols
+	WM_PROTOCOLS,
+	WM_DELETE_WINDOW,
+	WM_TAKE_FOCUS,
+	_NET_WM_PING,
+	_NET_WM_CONTEXT_HELP,
+
+	// ICCCM window state
+	WM_STATE,
+	WM_CHANGE_STATE,
+
+	// Session management
+	WM_CLIENT_LEADER,
+	WM_WINDOW_ROLE,
+	SM_CLIENT_ID,
+
+	// Clipboard
+	CLIPBOARD,
+	INCR,
+	TARGETS,
+	MULTIPLE,
+	TIMESTAMP,
+	CLIP_TEMPORARY,
+	_QT_SELECTION,
+	_QT_CLIPBOARD_SENTINEL,
+	_QT_SELECTION_SENTINEL,
+
+	RESOURCE_MANAGER,
+
+	_XSETROOT_ID,
+
+	_QT_SCROLL_DONE,
+	_QT_INPUT_ENCODING,
+	_QT_SIZEGRIP,
+
+	_MOTIF_WM_HINTS,
+
+	DTWM_IS_RUNNING,
+	KWIN_RUNNING,
+	KWM_RUNNING,
+	GNOME_BACKGROUND_PROPERTIES,
+	ENLIGHTENMENT_DESKTOP,
+
+	// EWMH (aka NETWM)
+	_NET_SUPPORTED,
+	_NET_VIRTUAL_ROOTS,
+	_NET_WORKAREA,
+
+	_NET_WM_NAME,
+	_NET_WM_ICON_NAME,
+
+	_NET_WM_PID,
+
+	_NET_WM_STATE,
+	_NET_WM_STATE_ABOVE,
+	_NET_WM_STATE_FULLSCREEN,
+	_NET_WM_STATE_MAXIMIZED_HORZ,
+	_NET_WM_STATE_MAXIMIZED_VERT,
+	_NET_WM_STATE_MODAL,
+	_NET_WM_STATE_STAYS_ON_TOP,
+
+	_NET_WM_USER_TIME,
+
+	_NET_WM_WINDOW_TYPE,
+	_NET_WM_WINDOW_TYPE_DIALOG,
+	_NET_WM_WINDOW_TYPE_MENU,
+	_NET_WM_WINDOW_TYPE_NORMAL,
+	_KDE_NET_WM_WINDOW_TYPE_OVERRIDE,
+	_NET_WM_WINDOW_TYPE_SPLASH,
+	_NET_WM_WINDOW_TYPE_TOOLBAR,
+	_NET_WM_WINDOW_TYPE_UTILITY,
+
+	_KDE_NET_WM_FRAME_STRUT,
+
+	// Property formats
+	COMPOUND_TEXT,
+	TEXT,
+	UTF8_STRING,
 
 	// Xdnd
-	Xdnd_Enter,
-	Xdnd_Position,
-	Xdnd_Status,
-	Xdnd_Leave,
-	Xdnd_Drop,
-	Xdnd_Finished,
-	Xdnd_Typelist,
+	XdndEnter,
+	XdndPosition,
+	XdndStatus,
+	XdndLeave,
+	XdndDrop,
+	XdndFinished,
+	XdndTypelist,
 
-	Xdnd_Selection,
+	XdndSelection,
 
-	Xdnd_Aware,
-	Xdnd_Proxy,
+	XdndAware,
+	XdndProxy,
 
+	XdndActionCopy,
+	XdndActionLink,
+	XdndActionMove,
+	XdndActionPrivate,
 
-	Xdnd_Action_Copy,
-	Xdnd_Action_Link,
-	Xdnd_Action_Move,
-	Xdnd_Action_Private,
+	// Motif DND
+	_MOTIF_DRAG_AND_DROP_MESSAGE,
+	_MOTIF_DRAG_INITIATOR_INFO,
+	_MOTIF_DRAG_RECEIVER_INFO,
+	_MOTIF_DRAG_WINDOW,
+	_MOTIF_DRAG_TARGETS,
 
-	// Motif Dnd
-	Motif_Drag_And_Drop_Message,
-	Motif_Drag_Initiator_Info,
-	Motif_Drag_Receiver_Info,
-	Motif_Drag_Window,
-	Motif_Drag_Targets,
-
-	Xm_Transfer_Success,
-	Xm_Transfer_Failure,
+	XmTRANSFER_SUCCESS,
+	XmTRANSFER_FAILURE,
 
 	NPredefinedAtoms,
 
-	Qt_Settings_Timestamp = NPredefinedAtoms,
+	_QT_SETTINGS_TIMESTAMP = NPredefinedAtoms,
 	NAtoms
     };
     Atom atoms[NAtoms];
