@@ -411,14 +411,13 @@ NORWAY<br>
 
 \title Qt Free Edition License Agreement
 
-<p>Qt Free Edition version 3.0 is distributed under the Q Public
-License (QPL). It allows free use of Qt Free Edition for running
-software developed by others, and free use of Qt Free Edition for
-development of free/Open Source software. There is <a
-href="http://www.trolltech.com/qpl/">more information about the QPL</a> at
-the Trolltech web site.
+<p>The Qt Free Edition is distributed under the Q Public License (QPL).
+It allows free use of Qt Free Edition for running software developed by
+others, and free use of Qt Free Edition for development of free/Open Source
+software. There is <a href="http://www.trolltech.com/qpl/">more information
+about the QPL</a> at the Trolltech web site.
 
-<p> Note that the Qt/Embedded Free Edition is <b>not</b> distributed
+<p>Note that the Qt/Embedded Free Edition is <b>not</b> distributed
 under the QPL, but under the <a href="gpl.html">GNU General Public
 License (GPL)</a>.
 
