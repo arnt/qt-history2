@@ -1154,6 +1154,9 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
 #endif // QT_NO_XRENDER
 
     if (trucol) {                                // truecolor display
+        if (image.format() == QImage::Format_ARGB32_Premultiplied)
+            image = image.convertToFormat(QImage::Format_ARGB32);
+
         const QImage &cimage = image;
         QRgb  pix[256];                                // pixel translation table
         const bool  d8 = (d == 8);
@@ -1661,7 +1664,8 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     pixmap.data->h = h;
     pixmap.data->d = dd;
 
-    if (image.format() != QImage::Format_RGB32) {
+    if (image.format() == QImage::Format_ARGB32
+        || image.format() == QImage::Format_ARGB32_Premultiplied) {
         QBitmap m = QBitmap::fromImage(image.createAlphaMask(flags));
         pixmap.setMask(m);
     }
