@@ -522,17 +522,6 @@ public:
 // Solaris threads
 // ***************************************************************************
 
-// Function usleep() is in C library but not in header files on Solaris 2.5.1.
-// Not really a surprise, usleep() is specified by XPG4v2 and XPG4v2 is only
-// supported by Solaris 2.6 and better.
-// So we are trying to detect Solaris 2.5.1 using macro _XOPEN_UNIX which is
-// not defined by <unistd.h> when XPG4v2 is not supported.
-#  if !defined(_XOPEN_UNIX)
-typedef unsigned int useconds_t;
-extern "C" int usleep(useconds_t);
-#  endif // _XOPEN_UNIX
-
-
 class QMutexPrivate {
 public:
     mutex_t mutex;

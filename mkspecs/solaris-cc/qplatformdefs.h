@@ -75,12 +75,25 @@
 #define QT_SIGNAL_ARGS		int
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
+#if !defined(_XOPEN_UNIX)
+// Function usleep() is in C library but not in header files on Solaris 2.5.1.
+// Not really a surprise, usleep() is specified by XPG4v2 and XPG4v2 is only
+// supported by Solaris 2.6 and better.
+// So we are trying to detect Solaris 2.5.1 using macro _XOPEN_UNIX which is
+// not defined by <unistd.h> when XPG4v2 is not supported.
+typedef unsigned int useconds_t;
+extern "C" int usleep(useconds_t);
+#endif
+
 #if defined(_XOPEN_UNIX)
-// SUSv2/XPG5 explicitly specified or SUS/XPG4v2 explicitly specified
-// but with socklen_t typedef'ed to size_t except in 64-bit mode.
-// What about Solaris 2.6?
+// Even though XPG4v2 is specified sockets use socklen_t not size_t because
+// size_t breaks 64-bit platforms and Solaris 7 is a 64-bit platform. In the
+// end both socklen_t and size_t are correct because socklen_t is typedef'ed
+// to size_t except of course in 64-bit mode.
+// What about Solaris 2.6 which is not a 64-bit platform?
 #define QT_SOCKLEN_T socklen_t
 #else
+// Solaris 2.5.1.
 #define QT_SOCKLEN_T int
 #endif
 
