@@ -738,7 +738,7 @@ void QGLWidget::init( QGLContext *context, const QGLWidget *shareWidget )
     setBackgroundMode( NoBackground );
 
     if ( isValid() && context->format().hasOverlay() ) {
-	QCString olwName( name() );
+	QByteArray olwName( name() );
 	olwName += "-QGL_internal_overlay_widget";
 	olw = new QGLOverlayWidget( QGLFormat::defaultOverlayFormat(),
 				    this, olwName, shareWidget );
