@@ -35,14 +35,15 @@
 **
 **********************************************************************/
 
-#include "qapplication.h"
+// uncomment this to get error messages
+//#define QT_DEBUG_COMPONENT 1 
+// uncomment this to get error and success messages
+//#define QT_DEBUG_COMPONENT 2
+
+#include <private/qlibrary_p.h>
 
 #ifndef QT_NO_COMPONENT
-#include "private/qlibrary_p.h"
-#ifndef QT_H
-#include "qwindowdefs.h"
-#include "qfile.h"
-#endif // QT_H
+
 
 // KAI C++ has at the moment problems with unloading the Qt plugins. So don't
 // unload them as a workaround for now.
@@ -53,6 +54,68 @@
 #if defined(Q_WS_WIN) && !defined(QT_MAKEDLL)
 #define QT_NO_LIBRARY_UNLOAD
 #endif
+
+/* Platform independent QLibraryPrivate implementations */
+#ifndef QT_LITE_COMPONENT
+extern Q_EXPORT QApplication *qApp;
+
+QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
+    : QObject( 0, lib->library().latin1() ), pHnd( 0 ), libIface( 0 ), unloadTimer( 0 ), library( lib )
+{
+}
+
+QLibraryPrivate::~QLibraryPrivate()
+{
+    if ( libIface )
+	libIface->release();
+    killTimer();
+}
+
+/*
+  Only components that implement the QLibraryInterface can
+  be unloaded automatically.
+*/
+void QLibraryPrivate::tryUnload()
+{
+    if ( library->policy() == QLibrary::Manual || !pHnd || !libIface )
+	return;
+
+    if ( !libIface->canUnload() )
+	return;
+
+#if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
+    if ( library->unload() )
+	qDebug( "%s has been automatically unloaded", library->library().latin1() );
+#else
+    library->unload();
+#endif
+}
+
+#else // QT_LITE_COMPOINENT
+
+QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
+    : pHnd( 0 ), libIface( 0 ), library( lib )
+{
+}
+
+#endif // QT_LITE_COMPOINENT
+
+void QLibraryPrivate::startTimer()
+{
+#ifndef QT_LITE_COMPONENT
+    unloadTimer = new QTimer( this );
+    connect( unloadTimer, SIGNAL( timeout() ), this, SLOT( tryUnload() ) );
+    unloadTimer->start( 5000, FALSE );
+#endif
+}
+
+void QLibraryPrivate::killTimer()
+{
+#ifndef QT_LITE_COMPONENT
+    delete unloadTimer;
+    unloadTimer = 0;
+#endif
+}
 
 /*!
   \class QLibrary qlibrary.h
@@ -187,19 +250,57 @@ void QLibrary::createInstanceInternal()
 
     if ( d->pHnd && !entry ) {
 #if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
-	qDebug( "%s has been loaded.", library().latin1() );
+	qWarning( "%s has been loaded.", library().latin1() );
 #endif
 #ifndef QT_LITE_COMPONENT
 #  ifdef Q_CC_BOR
-	typedef void __stdcall (*UCMInitProc)(QApplication*);
+	typedef int __stdcall (*UCMInitProc)(QApplication*, bool*);
 #  else
-	typedef void (*UCMInitProc)(QApplication*);
+	typedef int (*UCMInitProc)(QApplication*, bool*);
 #  endif
+#else
+#  ifdef Q_CC_BOR
+	typedef int __stdcall (*UCMInitProc)(void*, bool*);
+#  else
+	typedef int (*UCMInitProc)(void*, bool*);
+#  endif
+#endif
 	UCMInitProc ucmInitProc;
 	ucmInitProc = (UCMInitProc) resolve( "ucm_initialize" );
-	if ( ucmInitProc )
-	    ucmInitProc( qApp );
+
+	bool ucm_init = TRUE;
+	if ( ucmInitProc ) {
+#if defined(QT_THREAD_SUPPORT)
+	    bool qtThreaded = TRUE;
+#else
+	    bool qtThreaded = FALSE;
 #endif
+	    bool plugQtThreaded;
+#ifndef QT_LITE_COMPONENT
+	    int plugQtVersion = ucmInitProc( qApp, &plugQtThreaded );
+#else
+	    int plugQtVersion = ucmInitProc( 0, &plugQtThreaded );
+#endif
+	    if ( QABS(plugQtVersion - QT_VERSION ) > 99 ) {
+#if defined(QT_DEBUG_COMPONENT)
+		qWarning( "%s: Plugin links against incompatible Qt library (%d)!", library().latin1(), plugQtVersion );
+#endif
+		ucm_init = FALSE;
+	    }
+	    if ( plugQtThreaded != qtThreaded ) {
+#if defined(QT_DEBUG_COMPONENT)
+		qWarning( "%s: Plugin uses Qt library with different threading model!", library().latin1() );
+#endif
+		// the plugin is threaded, but the application is not. If we live long enough to cancel the load, do it...
+		if ( plugQtThreaded )
+		    ucm_init = FALSE;
+	    }
+	}
+	if ( !ucm_init ) {
+	    unload();
+	    return;
+	}
+
 #ifdef Q_CC_BOR
 	typedef QUnknownInterface* __stdcall (*UCMInstanceProc)();
 #else
@@ -213,7 +314,7 @@ void QLibrary::createInstanceInternal()
 	    if ( d->libIface ) {
 		if ( !d->libIface->init() ) {
 #if defined(QT_DEBUG_COMPONENT)
-		    qDebug( "%s: QLibraryInterface::init() failed.", library().latin1() );
+		    qWarning( "%s: QLibraryInterface::init() failed.", library().latin1() );
 #endif
 		    unload();
 		    return;
@@ -224,8 +325,8 @@ void QLibrary::createInstanceInternal()
 		    d->startTimer();
 	    }
 	} else {
-#if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONTENT == 2
-	    qDebug( "%s: No interface implemented.", library().latin1() );
+#if defined(QT_DEBUG_COMPONENT)
+	    qWarning( "%s: No interface implemented.", library().latin1() );
 #endif
 	    unload();
 	}
@@ -258,7 +359,7 @@ void *QLibrary::resolve( const char* symb )
 
     void *address = d->resolveSymbol( symb );
     if ( !address ) {
-#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
+#if defined(QT_DEBUG_COMPONENT)
 	// resolveSymbol() might give a warning; so let that warning look so fatal
 	qWarning( QString("Trying to resolve symbol \"_%1\" instead").arg( symb ) );
 #endif
@@ -339,8 +440,8 @@ bool QLibrary::unload( bool force )
 	}
 
 	if ( entry->release() ) {
-#if defined(QT_DEBUG_COMPONENT) || defined(QT_CHECK_RANGE)
-	    qDebug( "%s is still in use!", library().latin1() );
+#if defined(QT_DEBUG_COMPONENT)
+	    qWarning( "%s is still in use!", library().latin1() );
 #endif
 	    if ( force ) {
 		delete entry;
@@ -358,8 +459,8 @@ bool QLibrary::unload( bool force )
 // (other compilers may have the same problem)
 #if !defined(QT_NO_LIBRARY_UNLOAD)
     if ( !d->freeLibrary() ) {
-#if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
-	qDebug( "%s could not be unloaded.", library().latin1() );
+#if defined(QT_DEBUG_COMPONENT)
+	qWarning( "%s could not be unloaded.", library().latin1() );
 #endif
 	return FALSE;
 #else
@@ -369,7 +470,7 @@ bool QLibrary::unload( bool force )
     }
 
 #if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
-    qDebug( "%s has been unloaded.", library().latin1() );
+    qWarning( "%s has been unloaded.", library().latin1() );
 #endif
 
     d->pHnd = 0;

@@ -61,8 +61,6 @@
 #endif
 #endif // QT_H
 
-//#define QT_DEBUG_COMPONENT 1
-
 /*
   Private helper class that saves the platform dependent handle
   and does the unload magic using a QTimer.
@@ -72,29 +70,11 @@ class QLibraryPrivate : public QObject
 {
     Q_OBJECT
 public:
-    QLibraryPrivate( QLibrary *lib )
-	: QObject( 0, lib->library().latin1() ), pHnd( 0 ), libIface( 0 ), unloadTimer( 0 ), library( lib )
-    {}
-
-    ~QLibraryPrivate()
-    {
-	if ( libIface )
-	    libIface->release();
-	killTimer();
-    }
+    QLibraryPrivate( QLibrary *lib );
+    ~QLibraryPrivate();
  
-    void startTimer()
-    {
-	unloadTimer = new QTimer( this );
-	connect( unloadTimer, SIGNAL( timeout() ), this, SLOT( tryUnload() ) );
-	unloadTimer->start( 5000, FALSE );
-    }
-
-    void killTimer()
-    {
-	delete unloadTimer;
-	unloadTimer = 0;
-    }
+    void startTimer();
+    void killTimer();
 
 #ifdef Q_WS_WIN
     HINSTANCE pHnd;
@@ -108,26 +88,8 @@ public:
     bool freeLibrary();
     void *resolveSymbol( const char * );
 
-public slots:
-    /*
-      Only components that implement the QLibraryInterface can
-      be unloaded automatically.
-    */
-    void tryUnload()
-    {
-	if ( library->policy() == QLibrary::Manual || !pHnd || !libIface )
-	    return;
-
-	if ( !libIface->canUnload() )
-	    return;
-
-#if QT_DEBUG_COMPONENT == 1
-	if ( library->unload() )
-	    qDebug( "%s has been automatically unloaded", library->library().latin1() );
-#else
-	library->unload();
-#endif
-    }
+private slots:
+    void tryUnload();
 
 private:
     QTimer *unloadTimer;
@@ -138,17 +100,10 @@ private:
 class QLibraryPrivate
 {
 public:
-    QLibraryPrivate( QLibrary *lib )
-	: pHnd( 0 ), libIface( 0 ), library( lib )
-    {}
+    QLibraryPrivate( QLibrary *lib );
 
-    void startTimer()
-    {
-    }
-
-    void killTimer()
-    {
-    }
+    void startTimer();
+    void killTimer();
 
 #ifdef Q_WS_WIN
     HINSTANCE pHnd;
