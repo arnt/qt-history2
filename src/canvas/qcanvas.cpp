@@ -1091,6 +1091,7 @@ void QCanvas::drawViewArea( QCanvasView* view, QPainter* p, const QRect& vr, boo
 	dbp.translate(-vr.x()-tl.x(),-vr.y()-tl.y());
 #endif
 	dbp.setClipRect(0,0,vr.width(), vr.height());
+	dbp.setBrushOrigin(-vr.x(), -vr.y());
 	drawCanvasArea(ivr,&dbp,FALSE);
 	p->drawPixmap(vr.x(), vr.y(), offscr, 0, 0, vr.width(), vr.height());
     } else {
