@@ -23,39 +23,32 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
     Q_ASSERT(startPos < cursor.selectionEnd());
 
     const QString originalText = pieceTable->buffer();
-
     QVarLengthArray<int> usedFormats;
-
     int pos = startPos;
-    QTextBlockIterator currentBlock = pieceTable->blocksFind(pos);
-    int charsLeftInCurrentBlock = qMin(currentBlock.length() - 1 - (pos - currentBlock.position()), endPos - pos);
-
-    QTextPieceTable::FragmentIterator fragIt = pieceTable->find(pos);
 
     while (pos < endPos) {
+        QTextPieceTable::FragmentIterator fragIt = pieceTable->find(pos);
         const QTextFragment * const frag = fragIt.value();
 
-        const QChar * const fragText = originalText.constData() + frag->stringPosition;
-
-        int inFragmentOffset = qMax(0, pos - fragIt.position());
+        const int inFragmentOffset = qMax(0, pos - fragIt.position());
         int charsToCopy = qMin(int(frag->size - inFragmentOffset), endPos - pos);
 
-        // if the current fragment spans over the current block boundary we
-        // need to create a new block. it's a loop actually as the fragment
-        // may be larger than only one block
-        while (charsToCopy > charsLeftInCurrentBlock) {
-            appendText(QString::fromRawData(fragText + inFragmentOffset, charsLeftInCurrentBlock), frag->format);
+        QTextBlockIterator currentBlock = pieceTable->blocksFind(pos);
 
-            pos += charsLeftInCurrentBlock;
-            charsToCopy -= charsLeftInCurrentBlock;
-            inFragmentOffset += charsLeftInCurrentBlock;
-
-            ++currentBlock;
-
-            Q_ASSERT(currentBlock.position() == pos + 1);
-            ++pos;
+        bool lastFragmentInBlock = false;
+        if (pos + charsToCopy == currentBlock.position() + currentBlock.length()) {
+            // skip the block separator character
             --charsToCopy;
-            ++inFragmentOffset;
+            lastFragmentInBlock = true;
+        }
+
+        appendText(QString::fromRawData(originalText.constData() + frag->stringPosition + inFragmentOffset, charsToCopy), frag->format);
+        usedFormats.append(frag->format);
+        pos += charsToCopy;
+
+        if (pos < endPos && lastFragmentInBlock) {
+            ++currentBlock;
+            Q_ASSERT(!currentBlock.atEnd());
 
             const int blockFormat = pieceTable->formatCollection()->indexForFormat(currentBlock.blockFormat());
             const int charFormat = pieceTable->formatCollection()->indexForFormat(currentBlock.charFormat());
@@ -66,33 +59,9 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
             usedFormats[idx] = charFormat;
 
             appendBlock(blockFormat, charFormat);
-
-            charsLeftInCurrentBlock = qMin(currentBlock.length() - 1, endPos - pos);
-        }
-
-        usedFormats.append(frag->format);
-
-        appendText(QString::fromRawData(fragText + inFragmentOffset, charsToCopy), frag->format);
-        pos += charsToCopy;
-
-        if (charsToCopy == charsLeftInCurrentBlock && pos < endPos) {
-            ++currentBlock;
             ++pos;
-
-            const int blockFormat = pieceTable->formatCollection()->indexForFormat(currentBlock.blockFormat());
-            const int charFormat = pieceTable->formatCollection()->indexForFormat(currentBlock.charFormat());
-
-            int idx =  usedFormats.size();
-            usedFormats.resize(idx + 2);
-            usedFormats[idx++] = blockFormat;
-            usedFormats[idx] = charFormat;
-
-            appendBlock(blockFormat, charFormat);
-
-            charsLeftInCurrentBlock = qMin(currentBlock.length() - 1, endPos - pos);
+            Q_ASSERT(pos == currentBlock.position());
         }
-
-        ++fragIt;
     }
 
     readFormatCollection(pieceTable->formatCollection(), usedFormats);
