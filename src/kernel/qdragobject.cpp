@@ -837,6 +837,12 @@ void QImageDrag::setImage( QImage image )
     // PNG is best of all
     if ( ofmts.remove("PNG") ) // move to front
 	ofmts.insert(0,"PNG");
+
+    if(cacheType == QMimeSource::NoCache) { //cache it
+	cacheType = QMimeSource::Graphics;
+	cache.gfx.img = new QImage( img );
+	cache.gfx.pix = 0;
+    }
 }
 
 /*!
@@ -920,7 +926,7 @@ bool QImageDrag::decode( const QMimeSource* e, QImage& img )
 	QCString format = fileFormats.current();
 	QCString type = "image/" + format.lower();
 	payload = e->encodedData( type.data() );
-	if ( !payload.isEmpty() )
+	if ( !payload.isEmpty() ) 
 	    break;
 	fileFormats.next();
     }

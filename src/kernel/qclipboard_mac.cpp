@@ -209,6 +209,7 @@ const char* QClipboardWatcher::format( int n ) const
 QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
 {
     QByteArray ret;
+    int buffersize = 0;
     char *buffer = NULL;
     ScrapFlavorInfo *infos = NULL;
     Size flavorsize=0;
@@ -221,7 +222,7 @@ QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
     //special case again..
     if(!strcmp(fmt, "text/plain")) {
 	GetScrapFlavorSize(scrap, kScrapFlavorTypeText, &flavorsize);
-	buffer = (char *)malloc(flavorsize);
+	buffer = (char *)malloc(buffersize = flavorsize);
 	GetScrapFlavorData(scrap, kScrapFlavorTypeText, &flavorsize, buffer);
 	ret.assign(buffer, flavorsize);
 	return ret;
@@ -235,13 +236,18 @@ QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
 
     for(UInt32 x = 0; x < cnt; x++) {
 	GetScrapFlavorSize(scrap, infos[x].flavorType, &flavorsize);
-	buffer = (char *)realloc(buffer, flavorsize);
+	if(buffersize < flavorsize) 
+	    buffer = (char *)realloc(buffer, buffersize = flavorsize);
 	GetScrapFlavorData(scrap, infos[x].flavorType, &flavorsize, buffer);
 	
 	UInt32 mimesz;
 	memcpy(&mimesz, buffer, sizeof(mimesz));
-	if(!strncasecmp(buffer+sizeof(mimesz), fmt, mimesz))
-	    ret.assign(buffer+mimesz+sizeof(mimesz), flavorsize-(mimesz+sizeof(mimesz)));
+	if(!strncasecmp(buffer+sizeof(mimesz), fmt, mimesz)) {
+	    int len = flavorsize-(mimesz+sizeof(mimesz));
+	    memcpy(buffer, buffer+(mimesz+sizeof(mimesz)), len);
+	    ret.assign(buffer, len);
+	    break;
+	}
     }
 
  encode_end:
@@ -300,25 +306,24 @@ void QClipboard::setData( QMimeSource *src )
     QByteArray ar;
     QClipboardData *d = clipboardData();
     d->setSource( src );
-
     ClearCurrentScrap();
     hasScrapChanged();
 
     //handle text/plain specially so other apps can get it
-    if ( d->source()->provides("text/plain") ) {
-	ar = d->source()->encodedData("text/plain");
+    if ( src->provides("text/plain") ) {
+	ar = src->encodedData("text/plain");
 	PutScrapFlavor(scrap, kScrapFlavorTypeText, 0, ar.size(), ar.data());
     }
 	
     //now the other formats
     ScrapFlavorType mactype;
     const char *fmt;
-    for(int i = 0; (fmt = d->source()->format(i)); i++) {
+    for(int i = 0; (fmt = src->format(i)); i++) {
 	if(!strcmp(fmt, "text/plain"))
 	    continue; //already did that
 
 	//encode it..
-	ar = d->source()->encodedData(fmt);
+	ar = src->encodedData(fmt);
 	mactype = ('Q' << 24) | ('T' << 16) | (i & 0xFFFF);
 	UInt32 mimelen = strlen(fmt);
 	char *buffer = (char *)malloc(ar.size() + mimelen + sizeof(mimelen));

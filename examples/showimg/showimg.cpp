@@ -607,8 +607,7 @@ void ImageViewer::paste()
 {
 #ifndef QT_NO_MIMECLIPBOARD
     QImage p = QApplication::clipboard()->image();
-
-    if ( !image.isNull() ) {
+    if ( !p.isNull() ) {
 	filename = "pasted";
 	setImage(p);
     }
@@ -624,7 +623,6 @@ void ImageViewer::setImage(const QImage& newimage)
     setCaption( filename );			// set window caption
     int w = image.width();
     int h = image.height();
-
     if ( !w )
 	return;
 
