@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/newlayout/lw.cpp#3 $
+** $Id: //depot/qt/main/tests/newlayout/lw.cpp#4 $
 **
 ** QGridLayout example
 **
@@ -18,10 +18,10 @@
 #include <qhbox.h>
 #include <qvbox.h>
 
-RCSTAG("$Id: //depot/qt/main/tests/newlayout/lw.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/tests/newlayout/lw.cpp#4 $");
 
 
-#include "lw.moc"
+//#include "lw.moc"
 
 int main( int argc, char **argv )
 {
@@ -58,7 +58,7 @@ int main( int argc, char **argv )
 	    f = new QVBox(g);
 	    break;
 	default:
-	    f = new QGrid( 2, QGrid::Horizontal, g );
+	    f = new QGrid( 2, QGrid::Vertical, g );
 	    break;
 	}
 	QLabel* l1 = new QLabel(f);
@@ -86,12 +86,6 @@ int main( int argc, char **argv )
 	l->setBackgroundColor( green );
     }
     
-
-
-
-
-
-
     g->show();
     a.setMainWidget(g);
     a.exec();
