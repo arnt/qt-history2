@@ -560,49 +560,49 @@ QSqlDatabase &QSqlDatabase::operator=(const QSqlDatabase &other)
   Create the actual driver instance \a type.
 */
 
-void QSqlDatabasePrivate::init(const QString& type)
+void QSqlDatabasePrivate::init(const QString &type)
 {
     drvName = type;
 
     if (!driver) {
 
 #ifdef QT_SQL_POSTGRES
-        if (type == "QPSQL7")
+        if (type == QLatin1String("QPSQL7"))
             driver = new QPSQLDriver();
 #endif
 
 #ifdef QT_SQL_MYSQL
-        if (type == "QMYSQL3")
+        if (type == QLatin1String("QMYSQL3"))
             driver = new QMYSQLDriver();
 #endif
 
 #ifdef QT_SQL_ODBC
-        if (type == "QODBC3")
+        if (type == QLatin1String("QODBC3"))
             driver = new QODBCDriver();
 #endif
 
 #ifdef QT_SQL_OCI
-        if (type == "QOCI8")
+        if (type == QLatin1String("QOCI8"))
             driver = new QOCIDriver();
 #endif
 
 #ifdef QT_SQL_TDS
-        if (type == "QTDS7")
+        if (type == QLatin1String("QTDS7"))
             driver = new QTDSDriver();
 #endif
 
 #ifdef QT_SQL_DB2
-        if (type == "QDB2")
+        if (type == QLatin1String("QDB2"))
             driver = new QDB2Driver();
 #endif
 
 #ifdef QT_SQL_SQLITE
-        if (type == "QSQLITE")
+        if (type == QLatin1String("QSQLITE"))
             driver = new QSQLiteDriver();
 #endif
 
 #ifdef QT_SQL_IBASE
-        if (type == "QIBASE")
+        if (type == QLatin1String("QIBASE"))
             driver = new QIBaseDriver();
 #endif
 
