@@ -1916,14 +1916,12 @@ void QTextEdit::mergeCurrentCharFormat(const QTextCharFormat &modifier)
     if (d->readOnly)
         return;
 
-    if (d->cursor.hasSelection()) {
-	d->cursor.mergeCharFormat(modifier);
-    } else {
+    if (!d->cursor.hasSelection()) {
         QTextCursor word = d->cursor;
         word.select(QTextCursor::WordUnderCursor);
         word.mergeCharFormat(modifier);
     }
-
+    d->cursor.mergeCharFormat(modifier);
     d->lastCharFormat = d->cursor.charFormat();
 }
 
