@@ -47,10 +47,6 @@ QDate:
  	static const char *weekdayNames[];
 	uint  	 jd;
 
-  These were virtual, now static:
-       static const char *monthName( int month ) const;
-       static const char *dayName( int weekday ) const;
-
 QListBox:
 ---------
   The internals of QListBox are completely reworked. Definition of custom

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#134 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#135 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#134 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#135 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -846,6 +846,16 @@ void QWidget::show()
 {
     if ( testWFlags(WState_Visible) )
 	return;
+    if ( extra ) {    
+	int w = crect.width();
+	int h = crect.height();
+	if ( w < extra->minw || h < extra->minh || 
+	     w > extra->maxw || h > extra->maxh ) {
+	    w = QMAX( extra->minw, QMIN( w, extra->maxw ));
+	    h = QMAX( extra->minh, QMIN( h, extra->maxh ));
+	    resize( w, h );
+	}
+    }
     if ( children() ) {
 	QObjectListIt it(*children());
 	register QObject *object;
@@ -1052,8 +1062,8 @@ void QWidget::resize( int w, int h )
 	do_size_hints( dpy, winid, extra, &size_hints );
     }
     XResizeWindow( dpy, winid, w, h );
-    QResizeEvent * e = new QResizeEvent( s, olds );
-    QApplication::postEvent( this, e );
+    QResizeEvent e( s, olds );
+    QApplication::sendEvent( this, &e );	// send resize event immediatly
 }
 
 
@@ -1141,7 +1151,7 @@ void QWidget::setMinimumSize( int w, int h )
     extra->minh = h;
     int minw = QMIN(w,crect.width());
     int minh = QMIN(h,crect.height());
-    if ( minw < w || minh < h ) {
+    if ( isVisible() && ( minw < w || minh < h )) {
 	resize( minw, minh );
     } else if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;
@@ -1175,7 +1185,7 @@ void QWidget::setMaximumSize( int w, int h )
     extra->maxh = h;
     int maxw = QMAX(w,crect.width());
     int maxh = QMAX(h,crect.height());
-    if ( maxw > w || maxh > h ) {
+    if ( isVisible() && maxw > w || maxh > h ) {
 	resize( maxw, maxh );
     } else if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;

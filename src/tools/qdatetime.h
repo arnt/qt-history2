@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.h#19 $
+** $Id: //depot/qt/main/src/tools/qdatetime.h#20 $
 **
 ** Definition of date and time classes
 **
@@ -37,8 +37,8 @@ public:
     int	   daysInMonth() const;			// 28..31
     int	   daysInYear()	 const;			// 365 or 366
 
-    static const char *monthName( int month ) const;
-    static const char *dayName( int weekday ) const;
+    virtual const char *monthName( int month ) const;
+    virtual const char *dayName( int weekday ) const;
 
     QString toString()	 const;
 
