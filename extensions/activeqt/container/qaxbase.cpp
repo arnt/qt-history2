@@ -967,8 +967,16 @@ static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<Q
 	case VT_UINT:
 	    str += "&";
 	    break;
+	case VT_PTR:
+	    if ( str == "QFont" || str == "QPixmap" ) {
+		str += "&";
+		break;
+	    }
+	    // FALLTHROUGH
 	default:
 	    if ( str == "QColor" )
+		str += "&";
+	    else if ( str == "QDateTime" )
 		str += "&";
 	    else if ( !str.isEmpty() && str != "QFont" && str != "QPixmap" )
 		str += "*";
@@ -1014,6 +1022,8 @@ static inline QString constRefify( const QString& type )
 	crtype = "const QColor&";
     else if ( type == "QFont" )
 	crtype = "const QFont&";
+    else if ( type == "QPixmap" )
+	crtype = "const QPixmap&";
     else
 	crtype = type;
 
@@ -1041,6 +1051,15 @@ static inline void QStringToQUType( const QString& type, QUParameter *param, con
     } else if ( type == "QColor" || type == "const QColor&" || type == "QColor&" ) {
 	param->type = &static_QUType_varptr;
 	param->typeExtra = new int(QVariant::Color);
+    } else if ( type == "QDateTime" || type == "const QDateTime&" || type == "QDateTime&" ) {
+	param->type = &static_QUType_varptr;
+	param->typeExtra = new int(QVariant::DateTime);
+    } else if ( type == "QFont" || type == "const QFont&" || type == "QFont&" ) {
+	param->type = &static_QUType_varptr;
+	param->typeExtra = new int(QVariant::Font);
+    } else if ( type == "QPimap" || type == "const QPixmap&" || type == "QPixmap&" ) {
+	param->type = &static_QUType_varptr;
+	param->typeExtra = new int(QVariant::Pixmap);
     } else if ( (enumData = enumDict.find( type )) != 0 ) {
 	param->type = &static_QUType_enum;
 	QUEnum *uEnum = new QUEnum;
@@ -1678,6 +1697,10 @@ QMetaObject *QAxBase::metaObject() const
 		// get variable type
 		TYPEDESC typedesc = vardesc->elemdescVar.tdesc;
 		QString variableType = guessTypes( typedesc, info, enumDict, variableName );
+		
+		// trim any '&' added to types dispatched by pointers, e.g. QFont and QPixmap (IFont* resp. IPicture*)
+		if ( variableType.right(1) == "&" )
+		    variableType = variableType.left( variableType.length() - 1 );
 
 		if ( !(vardesc->wVarFlags & VARFLAG_FHIDDEN) ) {
 		    // generate meta property
@@ -2121,10 +2144,13 @@ QString QAxBase::generateDocumentation()
 		if ( !returnType )
 		    stream << "void";
 		else if ( QUType::isEqual( &static_QUType_ptr, param->type ) )
-		    stream << (const char*)param->typeExtra << " ";
+		    stream << (const char*)param->typeExtra;
 		else if ( QUType::isEqual( &static_QUType_enum, param->type ) )
-		    stream << ((QUEnum*)param->typeExtra)->name << " ";
-		else 
+		    stream << ((QUEnum*)param->typeExtra)->name;
+		else if ( QUType::isEqual( &static_QUType_varptr, param->type ) ) {
+		    QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
+		    stream << QVariant::typeToName( vartype );
+		} else 
 		    stream << param->type->desc();
 	    }
 	    stream << " " << slot->name << ";</li>" << endl;
