@@ -229,8 +229,7 @@ void MainWindow::fileSave()
 	settings.writeEntry("/qt/Palette/active", actcg);
 	settings.writeEntry("/qt/Palette/inactive", inactcg);
 	settings.writeEntry("/qt/Palette/disabled", discg);
-	settings.writeEntry("/qt/libraryPath",
-					     QApplication::libraryPaths(), ':');
+	settings.writeEntry("/qt/libraryPath", QApplication::libraryPaths(), ':');
 	settings.writeEntry("/qt/style", gstylecombo->currentText());
 	settings.writeEntry("/qt/useXft", xftcheckbox->isChecked());
 	settings.writeEntry("/qt/doubleClickInterval",
