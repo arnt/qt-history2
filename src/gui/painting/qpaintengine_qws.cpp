@@ -164,7 +164,7 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev)
         // they change the clip region.  Bug or feature?
 #ifndef QT_NO_QWS_MANAGER
          if (w->d->extra && w->d->extra->topextra && w->d->extra->topextra->qwsManager)
-            d->gfx->setClipRegion(w->rect());
+            d->gfx->setClipRegion(w->rect(), Qt::ReplaceClip);
 #endif
     } else if (d->pdev->devType() == QInternal::Pixmap) {
         QPixmap *p = static_cast<QPixmap*>(d->pdev);
@@ -180,6 +180,7 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev)
             memorymanager->findPixmap(data->id,data->rw,p->depth(),&mydata,&xoffset,&linestep);
 
             d->gfx = QGfx::createGfx(p->depth(), mydata, data->w,data->h, linestep);
+            d->gfx->setClipRegion(QRect(0,0,data->w,data->h), Qt::ReplaceClip); //### default for gfx?????
             if(depth <= 8) {
                 if(depth==1 && !(data->clut)) {
                     data->clut=new QRgb[2];
@@ -323,7 +324,7 @@ void QWSPaintEngine::updateMatrix(const QMatrix &)
 }
 void QWSPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation op)
 {
-    bool clipEnabled = !clipRegion.isEmpty();
+    bool clipEnabled = op != Qt::NoClip;
 //    qDebug("QWSPaintEngine::updateClipRegion");
 
     Q_ASSERT(isActive());
@@ -347,7 +348,7 @@ void QWSPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperati
             crgn = *paintEventClipRegion;
         }
         //note that gfx is already translated by redirection_offset
-        d->gfx->setClipRegion(crgn);
+        d->gfx->setClipRegion(crgn, op);
     } else {
         d->gfx->setClipping(false);
     }

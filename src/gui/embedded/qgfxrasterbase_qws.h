@@ -187,8 +187,7 @@ public:
     virtual void setBrushOrigin(int x, int y);
     virtual void setBrush(const QBrush &);
 
-    virtual void setClipRect(int, int, int, int);
-    virtual void setClipRegion(const QRegion &);
+    virtual void setClipRegion(const QRegion &, Qt::ClipOperation);
     virtual void setClipDeviceRegion(const QRegion &);
     virtual void setClipping(bool);
 

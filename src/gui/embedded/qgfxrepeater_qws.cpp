@@ -73,8 +73,7 @@ public:
     virtual void setBrush(const QBrush &);
     virtual void setBrushPixmap(const QPixmap *);
     virtual void setBrushOrigin (int, int);
-    virtual void setClipRect (int, int, int, int);
-    virtual void setClipRegion (const QRegion &);
+    virtual void setClipRegion (const QRegion &, Qt::ClipOperation);
     virtual void setClipping (bool);
     virtual void setOffset (int, int);
     virtual void setWidgetRect (int, int, int, int);
@@ -208,19 +207,7 @@ void QRepeaterGfx::setBrushOrigin (int x, int y)
     }
 }
 
-void QRepeaterGfx::setClipRect (int x, int y, int w, int h)
-{
-    for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-        QRect r2(walker->xoffs,walker->yoffs,walker->w,walker->h);
-        QRect r1(x,y,w,h);
-        r1.moveBy(xoffs,yoffs);
-        r1=r1.intersect(r2);
-        r1.moveBy(-xoffs,-yoffs);
-        walker->gfx->setClipRect(r1.left(),r1.top(),r1.width(),r1.height());
-    }
-}
-
-void QRepeaterGfx::setClipDeviceRegion (const QRegion & r)
+void QRepeaterGfx::setClipDeviceRegion (const QRegion & r, Qt::ClipOperation op)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
         QRegion r1(QRect(walker->xoffs,walker->yoffs,walker->w,walker->h));
@@ -228,7 +215,7 @@ void QRepeaterGfx::setClipDeviceRegion (const QRegion & r)
         r2.translate(xoffs,yoffs);
         r2=r1.intersect(r2);
         r2.translate(-xoffs,-yoffs);
-        walker->gfx->setClipDeviceRegion(r2);
+        walker->gfx->setClipDeviceRegion(r2, op);
     }
 }
 

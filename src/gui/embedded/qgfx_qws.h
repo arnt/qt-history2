@@ -38,8 +38,7 @@ public:
     virtual void setBrush(const QBrush &)=0;
     virtual void setBrushPixmap(const QPixmap *)=0;
     virtual void setBrushOrigin(int, int) = 0;
-    virtual void setClipRect(int,int,int,int)=0;
-    virtual void setClipRegion(const QRegion &)=0;
+    virtual void setClipRegion(const QRegion &, Qt::ClipOperation)=0;
     virtual void setClipDeviceRegion(const QRegion &)=0;
     virtual void setClipping (bool)=0;
     // These will be called from qwidget_qws or qwidget_mac

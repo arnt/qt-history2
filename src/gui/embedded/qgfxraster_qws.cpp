@@ -375,7 +375,7 @@ void QScreenCursor::init(SWCursorData *da, bool init)
 {
     // initialise our gfx
     gfx = (QGfxRasterBase*)qt_screen->screenGfx();
-    gfx->setClipRect(0, 0, qt_screen->width(), qt_screen->height());
+    gfx->setClipRegion(QRect(0, 0, qt_screen->width(), qt_screen->height()), Qt::ReplaceClip);
 
     data = da;
     save_under = false;
@@ -471,7 +471,7 @@ void QScreenCursor::show()
             QWSDisplay::grab(true);
         data->enable = true;
         gfx = (QGfxRasterBase*)qt_screen->screenGfx();
-        gfx->setClipRect(0, 0, qt_screen->width(), qt_screen->height());
+        gfx->setClipRegion(QRect(0, 0, qt_screen->width(), qt_screen->height()), Qt::ReplaceClip);
         fb_start = qt_screen->base();
         fb_end = fb_start + qt_screen->deviceHeight() * gfx->linestep();
         clipWidth = qt_screen->deviceWidth();

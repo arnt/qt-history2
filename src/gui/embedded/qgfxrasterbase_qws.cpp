@@ -204,18 +204,6 @@ void QGfxRasterBase::setPen(const QPen &p)
 /*!
     \internal
 
-    This is a simplified case of setClipRegion, setting a clip region consisting
-    of one rectangle defined by position \a (x, y), width \a w and height
-    \a h.
-*/
-void QGfxRasterBase::setClipRect(int x, int y, int w, int h)
-{
-    setClipRegion(QRegion(x,y,w,h));
-}
-
-/*!
-    \internal
-
     This sets the clipping region for the QGfx to region \a r. All
     drawing outside of the region is not displayed. The clip region is
     defined relative to the QGfx's origin at the time the clip region
@@ -227,12 +215,28 @@ void QGfxRasterBase::setClipRect(int x, int y, int w, int h)
     as set by QPainter; it is combined (via an intersection) with the
     widget clip region to provide the actual clipping region.
 */
-void QGfxRasterBase::setClipRegion(const QRegion &r)
+void QGfxRasterBase::setClipRegion(const QRegion &r, Qt::ClipOperation op)
 {
-    regionClip=true;
-    cliprgn=r;
-    cliprgn.translate(xoffs,yoffs);
-    cliprgn = qt_screen->mapToDevice(cliprgn, QSize(width, height));
+    regionClip= op != Qt::NoClip;
+    QRegion mr = r;
+    mr.translate(xoffs,yoffs);
+    mr = qt_screen->mapToDevice(mr, QSize(width, height));
+
+    switch (op) {
+    case Qt::ReplaceClip:
+        cliprgn=mr;
+        break;
+    case Qt::IntersectClip:
+        cliprgn &= mr;
+        break;
+    case Qt::UniteClip:
+        cliprgn |= mr;
+    case Qt::NoClip:
+        break;
+    default:
+        cliprgn = mr;
+        break;
+    }
     update_clip();
 
 #ifdef QWS_EXTRA_DEBUG
@@ -240,7 +244,7 @@ void QGfxRasterBase::setClipRegion(const QRegion &r)
     for (int i=0; i< ncliprect; i++) {
         QRect r = cliprect[i];
         qDebug("   cliprect[%d] %d,%d %dx%d", i, r.x(), r.y(),
-                r.width(), r.height());
+               r.width(), r.height());
     }
 #endif
 }
