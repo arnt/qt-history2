@@ -25,18 +25,12 @@ HEADERS		= $$DIALOGS_H/qfiledlg.h \
 		  $$KERNEL_H/qasyncio.h \
 		  $$KERNEL_H/qbitmap.h \
 		  $$KERNEL_H/qbrush.h \
-		  $$WIDGETS_H/qstatusbar.h \
-		  $$WIDGETS_H/qtoolbar.h \
-		  $$WIDGETS_H/qmainwindow.h \
-		  $$WIDGETS_H/qtoolbutton.h \
-		  $$WIDGETS_H/qwidgetstack.h \
 		  $$KERNEL_H/qclipbrd.h \
 		  $$KERNEL_H/qcolor.h \
 		  $$KERNEL_H/qconnect.h \
 		  $$KERNEL_H/qcursor.h \
 		  $$KERNEL_H/qdialog.h \
 		  $$KERNEL_H/qdragobject.h \
-		  $$WIDGETS_H/qwhatsthis.h \
 		  $$KERNEL_H/qdrawutl.h \
 		  $$KERNEL_H/qevent.h \
 		  $$KERNEL_H/qfont.h \
@@ -44,6 +38,7 @@ HEADERS		= $$DIALOGS_H/qfiledlg.h \
 		  $$KERNEL_H/qfontinf.h \
 		  $$KERNEL_H/qfontmet.h \
 		  $$KERNEL_H/qgmanagr.h \
+		  $$KERNEL_H/qiconset.h \
 		  $$KERNEL_H/qimage.h \
 		  $$KERNEL_H/qkeycode.h \
 		  $$KERNEL_H/qlayout.h \
@@ -125,6 +120,7 @@ HEADERS		= $$DIALOGS_H/qfiledlg.h \
 		  $$WIDGETS_H/qlined.h \
 		  $$WIDGETS_H/qlistbox.h \
 		  $$WIDGETS_H/qlistview.h \
+		  $$WIDGETS_H/qmainwindow.h \
 		  $$WIDGETS_H/qmenubar.h \
 		  $$WIDGETS_H/qmenudta.h \
 		  $$WIDGETS_H/qmlined.h \
@@ -138,12 +134,17 @@ HEADERS		= $$DIALOGS_H/qfiledlg.h \
 		  $$WIDGETS_H/qslider.h \
 		  $$WIDGETS_H/qspinbox.h \
 		  $$WIDGETS_H/qsplitter.h \
+		  $$WIDGETS_H/qstatusbar.h \
 		  $$WIDGETS_H/qtabbar.h \
 		  $$WIDGETS_H/qtablevw.h \
+		  $$WIDGETS_H/qtoolbar.h \
+		  $$WIDGETS_H/qtoolbutton.h \
 		  $$WIDGETS_H/qtooltip.h \
 		  $$WIDGETS_H/qvalidator.h \
 		  $$WIDGETS_H/qvbox.h \
-		  $$WIDGETS_H/qwellarray.h
+		  $$WIDGETS_H/qwellarray.h \
+		  $$WIDGETS_H/qwhatsthis.h \
+		  $$WIDGETS_H/qwidgetstack.h
 
 SOURCES		= dialogs/qfiledlg.cpp \
 		  dialogs/qmsgbox.cpp \
@@ -152,11 +153,6 @@ SOURCES		= dialogs/qfiledlg.cpp \
 		  kernel/qaccel.cpp \
 		  kernel/qapp.cpp \
 		  kernel/qasyncimageio.cpp \
-		  widgets/qstatusbar.cpp \
-		  widgets/qtoolbar.cpp \
-		  widgets/qmainwindow.cpp \
-		  widgets/qtoolbutton.cpp \
-		  widgets/qwidgetstack.cpp \
 		  kernel/qasyncio.cpp \
 		  kernel/qbitmap.cpp \
 		  kernel/qclipbrd.cpp \
@@ -169,6 +165,7 @@ SOURCES		= dialogs/qfiledlg.cpp \
 		  kernel/qevent.cpp \
 		  kernel/qfont.cpp \
 		  kernel/qgmanagr.cpp \
+		  kernel/qiconset.cpp \
 		  kernel/qimage.cpp \
 		  kernel/qlayout.cpp \
 		  kernel/qmetaobj.cpp \
@@ -215,7 +212,6 @@ SOURCES		= dialogs/qfiledlg.cpp \
 		  widgets/qbutton.cpp \
 		  widgets/qbuttonrow.cpp \
 		  widgets/qchkbox.cpp \
-		  widgets/qwhatsthis.cpp \
 		  widgets/qcombo.cpp \
 		  widgets/qframe.cpp \
 		  widgets/qgrpbox.cpp \
@@ -228,6 +224,7 @@ SOURCES		= dialogs/qfiledlg.cpp \
 		  widgets/qlined.cpp \
 		  widgets/qlistbox.cpp \
 		  widgets/qlistview.cpp \
+		  widgets/qmainwindow.cpp \
 		  widgets/qmenubar.cpp \
 		  widgets/qmenudta.cpp \
 		  widgets/qmlined.cpp \
@@ -241,12 +238,17 @@ SOURCES		= dialogs/qfiledlg.cpp \
 		  widgets/qslider.cpp \
 		  widgets/qspinbox.cpp \
 		  widgets/qsplitter.cpp \
+		  widgets/qstatusbar.cpp \
 		  widgets/qtabbar.cpp \
 		  widgets/qtablevw.cpp \
+		  widgets/qtoolbar.cpp \
+		  widgets/qtoolbutton.cpp \
 		  widgets/qtooltip.cpp \
 		  widgets/qvalidator.cpp \
 		  widgets/qvbox.cpp \
-		  widgets/qwellarray.cpp
+		  widgets/qwellarray.cpp \
+		  widgets/qwhatsthis.cpp \
+		  widgets/qwidgetstack.cpp
 
 win32:SOURCES  += kernel/qapp_win.cpp \
 		  kernel/qclb_win.cpp \
