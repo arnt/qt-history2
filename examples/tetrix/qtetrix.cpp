@@ -158,9 +158,9 @@ QTetrix::QTetrix( QWidget *parent, const char *name )
     showLevel->setNum( 0 );
     showLines->setNum( 0 );
 #endif    
-    startButton->setGeometry( 50, 288, 80, 30 );
-    quitButton->setGeometry( 375, 265, 80, 30 );
-    pauseButton->setGeometry( 375, 310, 80, 30 );
+    startButton->setGeometry( 46, 288, 90, 30 );
+    quitButton->setGeometry( 370, 265, 90, 30 );
+    pauseButton->setGeometry( 370, 310, 90, 30 );
     board->revealNextPiece(TRUE);
 
     resize( 550, 370 );
