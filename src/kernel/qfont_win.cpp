@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#75 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -278,7 +278,7 @@ HANDLE QFont::handle( HANDLE output_hdc ) const
 QString QFont::rawName() const
 {
     return family();
-} 
+}
 
 
 bool QFont::dirty() const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#61 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -458,10 +458,10 @@ QWidget * QDragObject::source()
   and decode() to decode incoming data.
 
   <h3>Inter-operating with existing applications</h3>
-  On X11, the public 
+  On X11, the public
   <a href=http://www.cco.caltech.edu/~jafl/xdnd/>XDND protocol</a>
   is used, while on Windows Qt uses the OLE standard.  On X11,
-  XDND uses MIME, so no translation is necessary.  On Windows, 
+  XDND uses MIME, so no translation is necessary.  On Windows,
   MIME-aware applications can communicate by using clipboard
   format names that are MIME types. Internally, Qt has facilities
   for translating all proprietary clipboard formats to and from
@@ -600,7 +600,7 @@ bool QTextDrag::decode( QDropEvent* e, QString& str )
     }
     if ( !codec )
 	return FALSE;
-    str = codec->toUnicode(payload);
+    str = codec->toUnicode(payload, payload.size());
     return TRUE;
 }
 
@@ -745,7 +745,7 @@ bool QImageDrag::decode( QDropEvent* e, QPixmap& pm )
 {
     QImage img;
     if ( decode( e, img ) )
-	return pm.convertFromImage( img ); 
+	return pm.convertFromImage( img );
     return FALSE;
 }
 
