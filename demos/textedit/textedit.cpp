@@ -523,6 +523,8 @@ void TextEdit::editorChanged()
     if (currentEditor) {
         disconnect(currentEditor->document(), SIGNAL(modificationChanged(bool)),
                    actionSave, SLOT(setEnabled(bool)));
+        disconnect(currentEditor->document(), SIGNAL(modificationChanged(bool)),
+                   this, SLOT(updateModified(bool)));
         disconnect(currentEditor->document(), SIGNAL(undoAvailable(bool)),
                    actionUndo, SLOT(setEnabled(bool)));
         disconnect(currentEditor->document(), SIGNAL(redoAvailable(bool)),
@@ -550,11 +552,14 @@ void TextEdit::editorChanged()
 
     connect(currentEditor->document(), SIGNAL(modificationChanged(bool)),
             actionSave, SLOT(setEnabled(bool)));
+    connect(currentEditor->document(), SIGNAL(modificationChanged(bool)),
+            this, SLOT(updateModified(bool)));
     connect(currentEditor->document(), SIGNAL(undoAvailable(bool)),
             actionUndo, SLOT(setEnabled(bool)));
     connect(currentEditor->document(), SIGNAL(redoAvailable(bool)),
             actionRedo, SLOT(setEnabled(bool)));
 
+    setWindowModified(currentEditor->document()->isModified());
     actionSave->setEnabled(currentEditor->document()->isModified());
     actionUndo->setEnabled(currentEditor->document()->isUndoAvailable());
     actionRedo->setEnabled(currentEditor->document()->isRedoAvailable());
@@ -587,3 +592,7 @@ QTextEdit *TextEdit::createNewEditor(const QString &title)
     return edit;
 }
 
+void TextEdit::updateModified(bool isDirty)
+{
+    setWindowModified(isDirty);
+}
