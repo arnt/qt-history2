@@ -200,7 +200,7 @@ void I18nDemo::closeAllSlot()
 {
     QWidget *w;
     while ((w = workspace->activeWindow()))
-	delete w;
+	w->close(TRUE);
 }
 
 
