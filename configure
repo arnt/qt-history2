@@ -16,6 +16,7 @@ if [ "$relpath" != `pwd` ]; then
     echo "Producing build tree.."
     for a in `find $relpath`; do
        my_a=`echo $a | sed "s,^${relpath}/,,"`
+       [ -f $my_a ] && continue
        echo "Creating $my_a.."
        if [ -d $a ]; then
 	    mkdir -p $my_a
@@ -469,23 +470,21 @@ then
 	# This is a Qt/Embedded distribution
 	SM=no
 	MODULES=`echo $MODULES | sed -e 's/\<opengl\>//'`
-	PLATFORMS="linux-generic-g++ linux-mips-g++ linux-x86-g++ linux-arm-g++"
+	PLATFORMS=`find $QTDIR/mkspecs/qws | sed "s,$QTDIR/mkspecs/qws/,,"`
 	case "$UNAME_MACHINE" in
 	 *86) ARCH=x86-
 	;; *) ARCH=generic-
 	esac
     else
-	##### Generate?  Look in mkspecs/?
-	PLATFORMS="aix-g++ aix-xlc bsdi-g++ dgux-g++ freebsd-g++ gnu-g++ hpux-acc
-	    hpux-cc hpux-g++ hpux-n64 hpux-o64 irix-64 irix-dcc irix-g++ irix-n32
-	    irix-o32 linux-g++ netbsd-g++ openbsd-g++ osf1-cxx osf1-g++ qnx-g++
-	    sco-g++ solaris-cc-gcc solaris-cc solaris-64 solaris-g++ sunos-g++
-	    ultrix-g++ unixware-g++ unixware7-cc unixware7-g++"
+	PLATFORMS=`find $QTDIR/mkspecs/ -type f | xargs grep -v qws | sed "s,$QTDIR/mkspecs/qws/,,"`
     fi
 
     PLATFORM_NOTES=""
 
     case "$UNAME_SYSTEM:$UNAME_RELEASE" in
+     Darwin:*)
+	PLATFORM=macx-g++
+	;;
      AIX*)
         #PLATFORM=aix-g++
 	PLATFORM=aix-xlc
