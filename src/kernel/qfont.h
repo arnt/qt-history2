@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#60 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#61 $
 **
 ** Definition of QFont class
 **
@@ -63,7 +63,7 @@ public:
 		     Set_Th_TH,
 		     Set_Zh,
 		     Set_Zh_TW, Set_N = Set_Zh_TW,
-		     Unicode,
+		     Unicode
 		    };
 
     QFont();					// default font

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#20 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#21 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -172,7 +172,7 @@ public:
 	DitherMode_Mask		= 0x000000c0,
 	AutoDither		= 0x00000000,
 	PreferDither		= 0x00000040,
-	AvoidDither		= 0x00000080,
+	AvoidDither		= 0x00000080
     };
 
     enum BGMode	{				// background mode
