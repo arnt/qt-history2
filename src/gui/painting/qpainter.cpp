@@ -1310,6 +1310,26 @@ void QPainter::drawRect(const QRect &r)
     d->engine->drawRect(rect);
 }
 
+
+/*!
+  Draws the one or more edges of the rectangle \a r. Edges to draw are
+  specified in \a edges. Drawing all edges are equivalent to setting
+  the current pen to Qt::NoBrush and calling QPainter::drawRect().
+
+  \sa drawRect(),
+*/
+void QPainter::drawEdges(const QRect &r, Qt::RectangleEdges edges)
+{
+    if (edges & Qt::LeftEdge)
+        drawLine(r.x(), r.y(), r.x(), r.y() + r.height() - 1);
+    if (edges & Qt::TopEdge)
+        drawLine(r.x(), r.y(), r.x() + r.width() - 1, r.y());
+    if (edges & Qt::RightEdge)
+        drawLine(r.x() + r.width() - 1, r.y(), r.x() + r.width() - 1, r.y() + r.height() - 1);
+    if (edges & Qt::BottomEdge)
+        drawLine(r.x(), r.y() + r.height() - 1, r.x() + r.width() - 1, r.y() + r.height() - 1);
+}
+
 /*!
     Draws all the rectangles in the \a rects list using the current
     pen and brush.

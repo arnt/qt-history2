@@ -1017,6 +1017,15 @@ public:
         SourceCopy
     };
 
+    enum RectangleEdge {
+        LeftEdge        = 0x0001,
+        TopEdge         = 0x0002,
+        RightEdge       = 0x0004,
+        BottomEdge      = 0x0008
+    };
+
+    Q_DECLARE_FLAGS(RectangleEdges, RectangleEdge);
+
     // "handle" type for system objects. Documented as \internal in
     // qapplication.cpp
 #if defined(Q_WS_MAC)
