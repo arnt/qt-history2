@@ -225,8 +225,9 @@ public slots:
     void editAccels();
     void editSlots();
     void editConnections();
-    SourceEditor *editSource() { return editSource( TRUE ); }
+    SourceEditor *editSource();
     SourceEditor *editSource( SourceFile *f );
+    SourceEditor *openSourceEdior();
     void editFormSettings();
     void editProjectSettings();
     void editPixmapCollection();
@@ -322,7 +323,6 @@ private:
     void addRecentlyOpened( const QString &fn, QStringList &lst );
     enum LineMode { Error, Step, StackFrame };
     void showSourceLine( QObject *o, int line, LineMode lm );
-    SourceEditor *editSource( bool resetSame );
     QWidget *findRealForm( QWidget *w );
 
 private slots:

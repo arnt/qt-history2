@@ -343,7 +343,7 @@ void FormFile::showFormWindow()
     MainWindow::self->openFormWindow( pro->makeAbsolute( filename ), TRUE, this );
 }
 
-void FormFile::showEditor()
+SourceEditor *FormFile::showEditor()
 {
     showFormWindow();
     bool modify = FALSE;
@@ -351,9 +351,10 @@ void FormFile::showEditor()
 	createFormCode();
 	modify = TRUE;
     }
-    MainWindow::self->editSource();
+    SourceEditor *e = MainWindow::self->openSourceEdior();
     if ( modify )
 	setModified( TRUE );
+    return e;
 }
 
 static int count = 0;

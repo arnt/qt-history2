@@ -72,7 +72,7 @@ public:
     void functionNameChanged( const QString &oldName, const QString &newName );
 
     void showFormWindow();
-    void showEditor();
+    SourceEditor *showEditor();
 
     static QString createUnnamedFileName();
     QString formName() const;

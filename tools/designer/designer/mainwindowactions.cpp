@@ -1659,7 +1659,14 @@ void MainWindow::editConnections()
     statusBar()->clear();
 }
 
-SourceEditor *MainWindow::editSource( bool /*resetSame*/ )
+SourceEditor *MainWindow::editSource()
+{
+    if ( !formWindow() )
+	return 0;
+    return formWindow()->formFile()->showEditor();
+}
+
+SourceEditor *MainWindow::openSourceEdior()
 {
     if ( !formWindow() )
 	return 0;

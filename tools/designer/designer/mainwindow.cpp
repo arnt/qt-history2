@@ -477,7 +477,7 @@ QObjectList *MainWindow::runProject()
 
     previewing = TRUE;
 
-    
+
     for ( QPtrListIterator<FormFile> it = currentProject->formFiles(); it.current(); ++it ) {
 	QWidget *w = QWidgetFactory::create( currentProject->makeAbsolute( (*it)->fileName() ), 0, invisibleGroupLeader );
 
@@ -3046,7 +3046,7 @@ void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 		    fw->setFocus();
 		    lastActiveFormWindow = fw;
 		    qApp->processEvents();
-		    se = editSource( (bool)FALSE );
+		    se = editSource();
 		    if ( se ) {
 			switch ( lm ) {
 			case Error:
