@@ -26,7 +26,11 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
     // Call getaddrinfo, and place all IPv4 addresses at the start and
     // the IPv6 addresses at the end of the address list in results.
     addrinfo *res = 0;
-    int result = getaddrinfo(hostName.latin1(), 0, 0, &res);
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = PF_UNSPEC;
+
+    int result = getaddrinfo(hostName.latin1(), 0, &hints, &res);
     if (result == 0) {
         addrinfo *node = res;
         while (node) {
