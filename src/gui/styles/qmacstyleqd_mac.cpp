@@ -52,6 +52,7 @@
 #include <qtabbar.h>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
+#include <qtreeview.h>
 #include <qviewport.h>
 
 extern QRegion qt_mac_convert_mac_region(RgnHandle rgn);
@@ -933,22 +934,38 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         break; }
     case PE_HeaderArrow:
         if (const QStyleOptionHeader *header = qt_cast<const QStyleOptionHeader *>(opt)) {
-            if (w && w->parentWidget()->inherits("QTable"))
-                drawPrimitive(header->state & Style_Up ? PE_ArrowUp : PE_ArrowDown, header, p, w);
+            if (w && (qt_cast<QTreeView *>(w->parentWidget())
+#ifdef QT_COMPAT
+			|| w->parentWidget()->inherits("Q3ListView")
+#endif
+		))
+		break; // ListView-type header is taken care of.
+	    drawPrimitive(header->state & Style_Up ? PE_ArrowUp : PE_ArrowDown, header, p, w);
         }
-        // else drawn in HeaderSection.
         break;
     case PE_HeaderSection:
         if (const QStyleOptionHeader *header = qt_cast<const QStyleOptionHeader *>(opt)) {
-            ThemeButtonKind bkind = kThemeListHeaderButton;
+            ThemeButtonKind bkind;
             SFlags flags = header->state;
-            if (w && w->parentWidget()->inherits("QTable")) {
+            QRect ir = header->rect;
+            bool scaleHeader = false;
+            SInt32 headerHeight = 0;
+            if (w && (qt_cast<QTreeView *>(w->parentWidget())
+#ifdef QT_COMPAT
+			|| w->parentWidget()->inherits("Q3ListView")
+#endif
+		)) {
+		bkind = kThemeListHeaderButton;
+                GetThemeMetric(kThemeMetricListHeaderHeight, &headerHeight);
+                if (ir.height() > headerHeight)
+                    scaleHeader = true;
+            } else {
                 bkind = kThemeBevelButton;
                 if (p->font().bold())
                     flags |= Style_Sunken;
                 else
                     flags &= ~Style_Sunken;
-            }
+	    }
             ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
             QWidget *w = 0;
 
@@ -968,13 +985,22 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
             if (flags & Style_Sunken)
                 info.value = kThemeButtonOn;
 
-            QRect ir = header->rect;
             if (flags & Style_Off)
                 ir.setRight(ir.right() + 50);
             else if (flags & Style_Up)
                 info.adornment |= kThemeAdornmentHeaderButtonSortUp;
-            static_cast<QMacStyleQDPainter *>(p)->setport();
-            DrawThemeButton(qt_glb_mac_rect(ir, p, false), bkind, &info, 0, 0, 0, 0);
+	    if (scaleHeader) {
+		QPixmap headerPix(ir.width(), headerHeight);
+		QPainter pixPainter(&headerPix);
+		Rect pixRect = *qt_glb_mac_rect(QRect(0, 0, ir.width(), headerHeight),
+						&pixPainter, false);
+		static_cast<QMacStyleQDPainter *>(&pixPainter)->setport();
+		DrawThemeButton(&pixRect, bkind, &info, 0, 0, 0, 0);
+		p->drawPixmap(ir, headerPix);
+	    } else {
+		static_cast<QMacStyleQDPainter *>(p)->setport();
+		DrawThemeButton(qt_glb_mac_rect(ir, p, false), bkind, &info, 0, 0, 0, 0);
+	    }
         }
         break;
     case PE_Panel:
@@ -1388,11 +1414,17 @@ void QMacStyleQD::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
             }
 
             // change the color to bright text if we are a table header and selected.
-            const QColor *penColor = &header->palette.buttonText().color();
-            if (widget && widget->parentWidget()->inherits("QTable") && p->font().bold())
-                penColor = &header->palette.color(QPalette::BrightText);
+	    QColor penColor;
+            if (widget && p->font().bold() && (qt_cast<QTreeView *>(widget->parentWidget())
+#ifdef QT_COMPAT
+			|| widget->parentWidget()->inherits("Q3ListView")
+#endif
+		))
+		penColor = header->palette.buttonText().color();
+	    else
+                penColor = header->palette.color(QPalette::BrightText);
             drawItem(p, textr, Qt::AlignVCenter, header->palette, header->state & Style_Enabled,
-                     header->text, -1, penColor);
+                     header->text, -1, &penColor);
         }
         break;
     case CE_ToolBoxTab:

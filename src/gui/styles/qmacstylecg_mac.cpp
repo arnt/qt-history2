@@ -810,20 +810,33 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         break; }
     case PE_HeaderArrow:
         if (const QStyleOptionHeader *header = qt_cast<const QStyleOptionHeader *>(opt)) {
-            if (w && w->inherits("QTable"))
-                drawPrimitive(header->state & Style_Up ? PE_ArrowUp : PE_ArrowDown, header, p, w);
-            // ListView header is taken care of.
+            if (w && (qt_cast<QTreeView *>(w->parentWidget())
+#ifdef QT_COMPAT
+			|| w->parentWidget()->inherits("Q3ListView")
+#endif
+		))
+		break; // ListView-type header is taken care of.
+	    drawPrimitive(header->state & Style_Up ? PE_ArrowUp : PE_ArrowDown, header, p, w);
         }
         break;
     case PE_HeaderSection:
         if (const QStyleOptionHeader *header = qt_cast<const QStyleOptionHeader *>(opt)) {
+            bool scaleHeader = false;
+            SInt32 headerHeight = 0;
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             bdi.state = tds;
             SFlags flags = header->state;
+            QRect ir = header->rect;
             if (w && (qt_cast<QTreeView *>(w->parentWidget())
-			|| w->parentWidget()->inherits("Q3ListView"))) {
+#ifdef QT_COMPAT
+			|| w->parentWidget()->inherits("Q3ListView")
+#endif
+		)) {
                 bdi.kind = kThemeListHeaderButton;
+                GetThemeMetric(kThemeMetricListHeaderHeight, &headerHeight);
+                if (ir.height() > headerHeight)
+                    scaleHeader = true;
             } else {
                 bdi.kind = kThemeBevelButton;
                 if (p->font().bold())
@@ -838,7 +851,6 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
 
             bdi.adornment = kThemeAdornmentNone;
 
-            QRect ir = header->rect;
             if (flags & Style_Off)
                 ir.setRight(ir.right() + 50);  // Cheat to hide the down indicator.
             else if (flags & Style_Up)
@@ -846,8 +858,19 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
 
             if (flags & Style_HasFocus && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
                 bdi.adornment = kThemeAdornmentFocus;
-            HIRect hirect = qt_hirectForQRect(ir, p);
-            HIThemeDrawButton(&hirect, &bdi, cg, kHIThemeOrientationNormal, 0);
+	    // The ListViewHeader button is only drawn one size, so draw into a pixmap and scale it
+            // Otherwise just draw it normally.
+	    if (scaleHeader) {
+		QPixmap headerPix(ir.width(), headerHeight);
+		QPainter pixPainter(&headerPix);
+		QMacCGContext pixCG(&pixPainter);
+		HIRect pixRect = CGRectMake(0, 0, ir.width(), headerHeight);
+		HIThemeDrawButton(&pixRect, &bdi, pixCG, kHIThemeOrientationNormal, 0);
+		p->drawPixmap(ir, headerPix);
+	    } else {
+		HIRect hirect = qt_hirectForQRect(ir, p);
+		HIThemeDrawButton(&hirect, &bdi, cg, kHIThemeOrientationNormal, 0);
+	    }
         }
         break;
     case PE_PanelGroupBox:
@@ -1213,11 +1236,17 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
             }
 
             // change the color to bright text if we are a table header and selected.
-            const QColor *penColor = &header->palette.buttonText().color();
-            if (w && w->parentWidget()->inherits("QTable") && p->font().bold())
-                penColor = &header->palette.color(QPalette::BrightText);
+	    QColor penColor;
+            if (w && p->font().bold() && (qt_cast<QTreeView *>(w->parentWidget())
+#ifdef QT_COMPAT
+			|| w->parentWidget()->inherits("Q3ListView")
+#endif
+		))
+		penColor = header->palette.buttonText().color();
+	    else
+                penColor = header->palette.color(QPalette::BrightText);
             drawItem(p, textr, Qt::AlignVCenter, header->palette, header->state & Style_Enabled,
-                    header->text, -1, penColor);
+                    header->text, -1, &penColor);
         }
         break;
     case CE_ToolBoxTab:
