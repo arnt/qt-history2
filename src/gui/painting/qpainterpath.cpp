@@ -3,6 +3,7 @@
 
 #include <private/qobject_p.h>
 #include <qlist.h>
+#include <qpointarray.h>
 
 
 /**********************************************************************

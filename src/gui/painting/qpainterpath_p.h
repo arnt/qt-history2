@@ -15,6 +15,8 @@
 #ifndef QPAINTERPATH_P_H
 #define QPAINTERPATH_P_H
 
+#include <qlist.h>
+
 /*!
  * Describes an element in a subpath
  */
@@ -77,4 +79,4 @@ public:
 };
 
 
-#endif QPAINTERPATH_P_H
+#endif //QPAINTERPATH_P_H
