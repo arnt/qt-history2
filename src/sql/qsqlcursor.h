@@ -66,13 +66,13 @@ public:
 	Writable = 7
     };
 
-    QVariant          value( int i );
-    QVariant          value( const QString& name );
-    QSqlIndex         primaryIndex( bool prime = FALSE ) const;
-    QSqlIndex         index( const QStringList& fieldNames ) const;
+    QVariant          value( int i ) const;
+    QVariant          value( const QString& name ) const;
+    virtual QSqlIndex primaryIndex( bool prime = FALSE ) const;
+    virtual QSqlIndex index( const QStringList& fieldNames ) const;
     QSqlIndex         index( const QString& fieldName ) const;
     QSqlIndex         index( const char* fieldName ) const;
-    void              setPrimaryIndex( const QSqlIndex& idx );
+    virtual void      setPrimaryIndex( const QSqlIndex& idx );
 
     virtual QSqlRecord* insertBuffer( bool clearValues = TRUE, bool prime = TRUE );
     virtual int         insert( bool invalidate = TRUE );

@@ -73,32 +73,32 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
     \brief Manipulates SQL tables or views.
 
     \module sql
-    
+
     A 'cursor' is a database record (see \l QSqlRecord) which
     coresponds to a table or view within a SQL database.  Cursors
     contain a list of fields, whose values can be manipulated directly
     through code, or indirectly when moving the cursor to different
     records within the database.
-    
+
     To position to a valid record, cursors can be navigated in the
     same way as a \l QSqlQuery.  Once positioned on a valid record,
     data can be retrieved from the record fields directly.  In
     addition, for cursors which correspond to tables or views that
     contain primary indexes, data can be edited directly using the
     edit functions insert(), update() and del().
-    
+
     To edit a database record, manipulate the cursor's edit buffer
     (see insertBuffer() and updateBuffer()).  The edit buffer can then
     be inserted or updated in the database.
-    
+
 */
 
 /*! \enum QSqlCursor::Mode
 
   This enum type describes how QSqlCursor operates on records in the
   database.
-  
-  The currently defined values are: 
+
+  The currently defined values are:
   <ul>
 
   <li> \c ReadOnly - the cursor can only select records from the
@@ -107,9 +107,9 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
   <li> \c Insert - the cursor can insert records into the database.
 
   <li> \c Update - the cursor can update records in the database.
-  
+
   <li> \c Delete - the cursor can delete records from the database.
-  
+
   <li> \c Writable - the cursor can insert, update and delete records
   in the database.
 
@@ -123,7 +123,7 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
   information can be automatically created.  The cursor is created
   with an initial mode of QSqlCursor::Writable (meaning that records
   can be inserted, updated or deleted using the cursor).
-  
+
   \sa setName() setMode()
 
 */
@@ -314,11 +314,8 @@ QSqlIndex QSqlCursor::index( const QStringList& fieldNames ) const
 
 QSqlIndex QSqlCursor::index( const QString& fieldName ) const
 {
-    QSqlIndex idx;
-    const QSqlField* f = field( fieldName );
-    if ( f )
-	idx.append( *f );
-    return idx;
+    QStringList fl( fieldName );
+    return index( fl );
 }
 
 /*! \overload
@@ -326,7 +323,7 @@ QSqlIndex QSqlCursor::index( const QString& fieldName ) const
 
 QSqlIndex QSqlCursor::index( const char* fieldName ) const
 {
-    return index( QString( fieldName ) );
+    return index( QStringList( QString( fieldName ) ) );
 }
 
 /*!  Selects all fields in the cursor from the database matching the
@@ -381,7 +378,7 @@ bool QSqlCursor::select()
 }
 
 /*!  \overload
-  
+
   Selects all fields in the cursor from the database.  The data is
   returned in the order specified by the index \a sort. The cursor is
   initially positioned to an invalid row.  To move to a valid row, use
@@ -395,7 +392,7 @@ bool QSqlCursor::select( const QSqlIndex& sort )
 }
 
 /*! \overload
-  
+
   Selects all fields in the cursor matching the filter index \a
   filter.  The data is returned in the order specified by the index \a
   sort.  Note that the \a filter index fields that are in the cursor
@@ -584,7 +581,7 @@ QSqlRecord* QSqlCursor::insertBuffer( bool clearValues, bool prime )
   'prime' the field values of an insert record buffer (for example, to
   correctly initialize auto-incremented numeric fields).  The default
   implementation does nothing.
-  
+
   \sa insert()
 
 */
@@ -695,7 +692,7 @@ int QSqlCursor::update( bool invalidate )
 }
 
 /*!  \overload
-  
+
   Updates the database with the current contents of the cursor edit
   buffer, using the specified \a filter.  Only records which meet the
   filter criteria are updated, otherwise all records in the table are
@@ -755,7 +752,7 @@ int QSqlCursor::del( bool invalidate )
 }
 
 /*! \overload
-  
+
    Deletes the current cursor record from the database using the
    filter \a filter.  Only records which meet the filter criteria are
    deleted.  Returns the number of records which were deleted. If \a
@@ -815,16 +812,16 @@ bool QSqlCursor::exec( const QString & sql )
   to be calculated.  Derived classes should reimplement this function
   and return the appropriate value for field \a name.  The default
   implementation returns and invalid QVariant.
-  
+
   \sa setCalculated()
 */
-  
+
 QVariant QSqlCursor::calculateField( const QString& )
 {
     return QVariant();
 }
 
-/*! \internal 
+/*! \internal
    Ensure fieldlist is synced with query.
 
 */
@@ -852,7 +849,7 @@ void QSqlCursor::sync()
 }
 
 /*! \reimp
-  
+
 */
 
 void QSqlCursor::afterSeek()
@@ -863,7 +860,7 @@ void QSqlCursor::afterSeek()
 /*! \reimp
 */
 
-QVariant QSqlCursor::value( int i )
+QVariant QSqlCursor::value( int i ) const
 {
     return QSqlRecord::value( i );
 }
@@ -871,7 +868,7 @@ QVariant QSqlCursor::value( int i )
 /*! \reimp
 */
 
-QVariant QSqlCursor::value( const QString& name )
+QVariant QSqlCursor::value( const QString& name ) const
 {
     return QSqlRecord::value( name );
 }
