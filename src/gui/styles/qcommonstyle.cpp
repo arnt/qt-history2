@@ -2781,7 +2781,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         const QStyleOptionTab *tb = qt_cast<const QStyleOptionTab *>(opt);
         if (tb && (tb->shape == QTabBar::RoundedNorth || tb->shape == QTabBar::RoundedSouth
                    || tb->shape == QTabBar::RoundedWest || tb->shape == QTabBar::RoundedEast))
-            ret = 10;
+            ret = 8;
         else
             ret = 0;
         break; }
