@@ -362,6 +362,11 @@ void QDataStream::unsetDevice()
     \sa QIODevice::atEnd()
 */
 
+bool QDataStream::atEnd() const
+{
+    return dev ? dev->atEnd() : true;
+}
+
 /*!\fn bool QDataStream::eof() const
 
   \obsolete

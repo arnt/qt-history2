@@ -4,6 +4,7 @@
 #include <qdatetime.h>
 #include <qmap.h>
 #include <qmutex.h>
+#include <qiodevice.h>
 #include <qstack.h>
 #include <qstringlist.h>
 #include <private/qobject_p.h>

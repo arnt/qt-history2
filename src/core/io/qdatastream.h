@@ -14,7 +14,10 @@
 #ifndef QDATASTREAM_H
 #define QDATASTREAM_H
 
-#include <qiodevice.h>
+#include "qglobal.h"
+
+class QByteArray;
+class QIODevice;
 
 template<typename T> class QList;
 template<typename T> class QLinkedList;
@@ -119,9 +122,6 @@ private:
 
 inline QIODevice *QDataStream::device() const
 { return dev; }
-
-inline bool QDataStream::atEnd() const
-{ return dev ? dev->atEnd() : true; }
 
 inline bool QDataStream::eof() const
 { return atEnd(); }

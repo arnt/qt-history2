@@ -32,6 +32,7 @@ class QPointArray;
 class QRegion;
 class QBitmap;
 class QCursor;
+class QObject;
 class QStringList;
 class QSizePolicy;
 class QKeySequence;
