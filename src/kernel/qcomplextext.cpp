@@ -925,6 +925,7 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 
     int sor = start;
     int eor = start;
+    bool first = TRUE;
 
     int current = start;
     while(current <= last) {
@@ -941,7 +942,7 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 
 
 #if (BIDI_DEBUG >= 2)
-	cout << "directions: dir=" << dir << " current=" << dirCurrent << " last=" << status.last << " eor=" << status.eor << " lastStrong=" << status.lastStrong << " embedding=" << context->dir << " level =" << (int)context->level << endl;
+	cout << "directions: dir=" << dir << " current=" << dirCurrent << " last=" << status.last << " eor=" << eor << "/" << status.eor << " lastStrong=" << status.lastStrong << " embedding=" << context->dir << " level =" << (int)context->level << endl;
 #endif
 
 	switch(dirCurrent) {
@@ -955,8 +956,12 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 		else
 		    level++;
 		if(level < 61) {
-		    runs->append( new QTextRun(sor, eor, context, dir) );
-		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+		    if ( !first ) {
+			runs->append( new QTextRun(sor, eor, context, dir) );
+			++eor; 
+			sor = eor; 
+		    }
+		    dir = QChar::DirON; status.eor = QChar::DirON;
 		    context = new QBidiContext(level, QChar::DirR, context);
 		    status.last = QChar::DirR;
 		    status.lastStrong = QChar::DirR;
@@ -971,8 +976,12 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 		else
 		    level += 2;
 		if(level < 61) {
-		    runs->append( new QTextRun(sor, eor, context, dir) );
-		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+		    if ( !first ) {
+			runs->append( new QTextRun(sor, eor, context, dir) );
+			++eor; 
+			sor = eor; 
+		    }
+		    dir = QChar::DirON; status.eor = QChar::DirON;
 		    context = new QBidiContext(level, QChar::DirL, context);
 		    status.last = QChar::DirL;
 		    status.lastStrong = QChar::DirL;
@@ -987,8 +996,13 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 		else
 		    level++;
 		if(level < 61) {
-		    runs->append( new QTextRun(sor, eor, context, dir) );
-		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+		    if ( !first ) {
+			runs->append( new QTextRun(sor, eor, context, dir) );
+			++eor; 
+			sor = eor; 
+
+		    }
+		    dir = QChar::DirON; status.eor = QChar::DirON;
 		    context = new QBidiContext(level, QChar::DirR, context, TRUE);
 		    dir = QChar::DirR;
 		    status.last = QChar::DirR;
@@ -1004,8 +1018,12 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 		else
 		    level += 2;
 		if(level < 61) {
-		    runs->append( new QTextRun(sor, eor, context, dir) );
-		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+		    if ( !first ) {
+			runs->append( new QTextRun(sor, eor, context, dir) );
+			++eor; 
+			sor = eor; 
+		    }
+		    dir = QChar::DirON; status.eor = QChar::DirON;
 		    context = new QBidiContext(level, QChar::DirL, context, TRUE);
 		    dir = QChar::DirL;
 		    status.last = QChar::DirL;
@@ -1017,8 +1035,12 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 	    {
 		QBidiContext *c = context->parent;
 		if(c) {
-		    runs->append( new QTextRun(sor, eor, context, dir) );
-		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+		    if ( !first ) {
+			runs->append( new QTextRun(sor, eor, context, dir) );
+			++eor; 
+			sor = eor; 
+		    }
+		    dir = QChar::DirON; status.eor = QChar::DirON;
 		    status.last = context->dir;
 		    if( context->deref() ) delete context;
 		    context = c;
@@ -1043,8 +1065,12 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 		case QChar::DirAL:
 		case QChar::DirEN:
 		case QChar::DirAN:
-		    runs->append( new QTextRun(sor, eor, context, dir) );
-		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+		    if ( !first ) {
+			runs->append( new QTextRun(sor, eor, context, dir) );
+			++eor; 
+			sor = eor; 
+		    }
+		    dir = QChar::DirON; status.eor = QChar::DirON;
 		    break;
 		case QChar::DirES:
 		case QChar::DirET:
@@ -1095,8 +1121,12 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 		case QChar::DirL:
 		case QChar::DirEN:
 		case QChar::DirAN:
-		    runs->append( new QTextRun(sor, eor, context, dir) );
-		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+		    if ( !first ) {
+			runs->append( new QTextRun(sor, eor, context, dir) );
+			++eor; 
+			sor = eor; 
+		    }
+		    dir = QChar::DirON; status.eor = QChar::DirON;
 		    break;
 		case QChar::DirES:
 		case QChar::DirET:
@@ -1159,8 +1189,12 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 		    case QChar::DirR:
 		    case QChar::DirAL:
 		    case QChar::DirAN:
-			runs->append( new QTextRun(sor, eor, context, dir) );
-			++eor; sor = eor; status.eor = QChar::DirEN;
+			if ( !first ) {
+			    runs->append( new QTextRun(sor, eor, context, dir) );
+			    ++eor; 
+			    sor = eor; 
+			}
+			status.eor = QChar::DirEN;
 			dir = QChar::DirAN; break;
 		    case QChar::DirES:
 		    case QChar::DirCS:
@@ -1212,8 +1246,12 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 		case QChar::DirR:
 		case QChar::DirAL:
 		case QChar::DirEN:
-		    runs->append( new QTextRun(sor, eor, context, dir) );
-		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirAN;
+		    if ( !first ) {
+			runs->append( new QTextRun(sor, eor, context, dir) );
+			++eor; 
+			sor = eor; 
+		    }
+		    dir = QChar::DirON; status.eor = QChar::DirAN;
 		    break;
 		case QChar::DirCS:
 		    if(status.eor == QChar::DirAN) {
@@ -1315,6 +1353,7 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 		status.last = dirCurrent;
 	    }
 
+	first = FALSE;
 	++current;
     }
 
