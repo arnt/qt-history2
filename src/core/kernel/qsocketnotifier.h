@@ -70,9 +70,11 @@ class Q_CORE_EXPORT QWinEventNotifier : public QObject
     Q_OBJECT
 public:
     
+    QWinEventNotifier(QObject *parent = 0);
     QWinEventNotifier(long hEvent, QObject *parent = 0);
     ~QWinEventNotifier();
 
+    void setHandle(long hEvent);
     long handle() const;
 
     bool isEnabled() const;

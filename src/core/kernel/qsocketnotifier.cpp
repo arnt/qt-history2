@@ -298,6 +298,10 @@ possible to use this class in a similar way to QSocketNotifier. It will enable t
   for the now the api models QSocketNotifier and is just in a trial period.
 */
 
+QWinEventNotifier::QWinEventNotifier(QObject *parent)
+: enabled(false), QObject(parent)
+{}
+
 QWinEventNotifier::QWinEventNotifier(long hEvent, QObject *parent)
 : handleToEvent(hEvent), enabled(false), QObject(parent)
 {
@@ -311,6 +315,12 @@ QWinEventNotifier::QWinEventNotifier(long hEvent, QObject *parent)
 QWinEventNotifier::~QWinEventNotifier()
 {
     setEnabled(false);
+}
+
+void QWinEventNotifier::setHandle(long hEvent)
+{
+    setEnabled(false);
+    handleToEvent = hEvent;
 }
 
 long  QWinEventNotifier::handle() const

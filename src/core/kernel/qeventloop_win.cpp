@@ -705,7 +705,7 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
             }
             winProcessEvent(&msg);
         } else if (ret - WAIT_OBJECT_0 >= 0 && ret - WAIT_OBJECT_0 < d->wen_handle_list.count()) {
-            activateWinEventNotifiers();
+            activateWinEventNotifier(d->wen_list.at(ret - WAIT_OBJECT_0));
         }
     }
 
@@ -776,14 +776,20 @@ void QEventLoop::unregisterWinEventNotifier(QWinEventNotifier * notifier)
 int QEventLoop::activateWinEventNotifiers()
 {
     int n_act = 0;
-    QEvent event(QEvent::SockAct);
     for (int i=0; i<d->wen_list.count(); i++) {
+        QEvent event(QEvent::SockAct); // if this was out of the for loop it would need to get reset each time
         if (WaitForSingleObject((HANDLE)d->wen_list.at(i)->handle(), 0) == WAIT_OBJECT_0) {
             QCoreApplication::sendEvent(d->wen_list.at(i), &event);
             ++n_act;
         }
     }
     return n_act;
+}
+
+void QEventLoop::activateWinEventNotifier(QWinEventNotifier * wen)
+{
+    QEvent event(QEvent::SockAct);
+    QCoreApplication::sendEvent(wen, &event);
 }
 
 #endif
