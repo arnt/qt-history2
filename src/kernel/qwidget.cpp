@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#149 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#150 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#149 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#150 $");
 
 
 /*!
@@ -40,10 +40,10 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#149 $");
   is a child window in its parent.  You usually cannot distinguish a
   child widget from its parent visually.
 
-  QWidget has many member functions, but many of them have little direct
-  functionality - for example it has a setFont() function but never uses
-  the font itself. There are many subclasses which provide real
-  functionality, as diverse as QPushButton, QListBox and QTabDialog.
+  QWidget has many member functions, but many of them have little
+  direct functionality - for example it has a font but never uses it
+  itself. There are many subclasses which provide real functionality,
+  as diverse as QPushButton, QListBox and QTabDialog.
 
   QWidget offers two APIs: The public functions, for mamipulating state
   which is common to all or many of the subclasses, and the protected
@@ -51,14 +51,187 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#149 $");
   (The constructor and a few static functions do not belong in either
   group.)
 
+
+
   <strong>Publics:</strong> The public interface mostly consists of
-  access functions.  Here are the main groups, with a link to a
-  relevant access function or two: <ul> <li> Geometry: size(), move(),
-  mapFromGlobal(). <li> Mode: isPopup(), hasFocus().  <li> Look and
-  feel: style(), setFont(), setPalette(). <li> Convenience:
-  childrenRect(), topLevelWidget(), sizeHint(). <li> User
-  communication: grabMouse(), clearFocus(), raise(), show().  <li>
-  System functions: recreate(), parentWidget(). </ul>
+  access functions.  Here are the main groups: <ul>
+
+  <li> Geometry:
+
+move(),
+resize(),
+setCRect(),
+setFRect(),
+setGeometry(),
+
+pos(),
+size(),
+rect(),
+x(),
+y(),
+width(),
+height(),
+frameGeometry(),
+geometry(),
+
+sizeHint(),
+adjustSize(),
+
+mapFromGlobal(),
+mapFromParent()
+mapToGlobal(),
+mapToParent(),
+
+maximumSize(),
+minimumSize(),
+sizeIncrement(),
+setMaximumSize(),
+setMinimumSize(),
+setSizeIncrement(),
+setFixedSize(),
+
+
+<li> Mode:
+
+isDesktop(),
+isEnabled(),
+isModal(),
+isPopup(),
+isTopLevel(),
+setEnabled(),
+
+isVisible()
+show(),
+hide(),
+
+isFocusEnabled(),
+setFocusPolicy(),
+hasFocus(),
+setFocus(),
+clearFocus(),
+
+hasMouseTracking(),
+setMouseTracking(),
+
+isUpdatesEnabled(),
+setUpdatesEnabled(),
+
+<li> Look and feel:
+
+style(),
+setStyle(),
+
+cursor(),
+setCursor()
+
+font(),
+setFont(),
+
+palette(),
+setPalette(),
+
+backgroundColor(),
+foregroundColor(),
+setBackgroundColor(),
+
+backgroundPixmap(),
+setBackgroundPixmap(),
+
+colorGroup(),
+
+fontMetrics(),
+fontInfo(),
+
+<li> Event handlers:
+
+closeEvent(),
+enterEvent(),
+focusInEvent(),
+focusOutEvent(),
+keyPressEvent(),
+keyReleaseEvent(),
+leaveEvent(),
+mouseDoubleClickEvent(),
+mouseMoveEvent(),
+mousePressEvent(),
+mouseReleaseEvent(),
+moveEvent(),
+paintEvent(),
+resizeEvent(),
+
+and last but not least event().
+
+<li> Change handlers:
+
+backgroundColorChange(),
+backgroundPixmapChange(),
+enabledChange(),
+fontChange(),
+paletteChange(),
+styleChange(),
+
+<li> Top level Window functions:
+
+caption(),
+setCaption(),
+
+icon(),
+setIcon(),
+
+iconText(),
+setIconText(),
+
+isActiveWindow(),
+setActiveWindow(),
+
+iconify()
+
+
+<li> Convenience:
+
+childrenRect(),
+drawText(),
+erase(),
+scroll(),
+
+<li> User communication:
+
+grabMouse(),
+releaseMouse(),
+grabKeyboard(),
+releaseKeyboard(),
+clearFocus(),
+raise(),
+show().
+
+<li> System functions:
+parentWidget(),
+topLevelWidget(),
+
+recreate(),
+focusNextPrevChild(),
+winId(),
+wmapper(),
+find(),
+metric(),
+
+mouseGrabber(),
+keyboardGrabber(),
+
+clearWFlags(),
+getWFlags(),
+setWFlags(),
+testWFlags(),
+
+<li> Misc:
+update(),
+repaint(),
+close(),
+
+lower(),
+raise(),
+
+</ul>
 
   <strong>Constructor:</strong> Every widget's constructor accepts two
   or three standard arguments: <ul><li><code>QWidget * parent =
@@ -97,11 +270,11 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#149 $");
   <li> resizeEvent() - which is called whenever the widget's size is
   changed.
 
- <li> mousePressEvent() - called when a mouse button is pressed.
- There are six mouse-related events, mouse press and mouse release
- events are by far the most important.  A widget receives mouse press
- events when the widget is inside it, or when it has grabbed the mouse
- using grabMouse().
+  <li> mousePressEvent() - called when a mouse button is pressed.
+  There are six mouse-related events, mouse press and mouse release
+  events are by far the most important.  A widget receives mouse press
+  events when the widget is inside it, or when it has grabbed the
+  mouse using grabMouse().
 
   <li> mouseReleaseEvent() - called when a mouse button is released.
   A widget receives mouse release events when it has received the
