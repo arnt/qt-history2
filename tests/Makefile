@@ -6,5 +6,5 @@
 	echo >>$*/$*.pro "CONFIG      =	qt warn_on release"
 	echo >>$*/$*.pro "SOURCES	    =	$*.cpp"
 	echo >>$*/$*.pro "TARGET      =	$*"
-	touch $*/$*.cpp
+	cp skel.cpp $*/$*.cpp
 	cd $*; make -W $*.pro
