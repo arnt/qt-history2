@@ -17,6 +17,7 @@ CFLAGS		= -W -Wtemplate-debugging -Wparentheses -Wuninitialized \
 		-Wconversion -Wno-overloaded-virtual \
 		-O2 -fno-strength-reduce
 CDBGFLAGS	= -g -W -Wall -Wpointer-arith -Wsynth -Wconversion
+CPROFLAGS	= -pg -O2 -fno-strength-reduce
 CSTATICFLAGS	=
 CSHAREDFLAGS	= -fPIC
 CC		= gcc
@@ -36,6 +37,7 @@ all:
 	@echo "PLEASE SPECIFY A TARGET"
 	@echo "  make static    - creates a static library"
 	@echo "  make staticdbg - creates a static library w/debug info"
+	@echo "  make staticpro - creates a static library w/profiling code"
 	@echo "  make shared    - creates a shared library"
 	@echo "  make shareddbg - creates a shared library w/debug info"
 	@echo "  make moc       - creates the meta object compiler"
@@ -82,6 +84,12 @@ staticdbg:
 	/bin/rm -f $(STATICTARGET)
 	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CDBGFLAGS) $(CSTATICFLAGS)' 'OBJDIR=obj/staticdbg'
 	ar q $(STATICTARGET) obj/staticdbg/*/*.o
+	ranlib $(STATICTARGET)
+
+staticpro:
+	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CPROFLAGS) $(CSTATICFLAGS)' 'OBJDIR=obj/staticpro'
+	/bin/rm -f $(STATICTARGET)
+	ar q $(STATICTARGET) obj/staticpro/*/*.o
 	ranlib $(STATICTARGET)
 
 shared:
