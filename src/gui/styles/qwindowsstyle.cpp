@@ -252,6 +252,14 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
         break;
 #endif // QT_NO_SLIDER
 
+    case PM_MenuBarHMargin:
+        ret = 0;
+        break;
+
+    case PM_MenuBarVMargin:
+        ret = 1;
+        break;
+
     case PM_MenuBarPanelWidth:
         ret = 0;
         break;
