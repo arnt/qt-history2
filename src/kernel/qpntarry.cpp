@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#28 $
 **
 ** Implementation of QPointArray class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#27 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#28 $")
 
 
 /*----------------------------------------------------------------------------
@@ -597,19 +597,24 @@ static void init_bicot()			// initialize Pascal's triangle
 }
 
 
-QPointArray QPointArray::bezier() const		// calculate Bezier curve
+/*----------------------------------------------------------------------------
+  Returns the Bezier points for the four control points in this array.
+ ----------------------------------------------------------------------------*/
+
+QPointArray QPointArray::bezier() const
 {
-    int v;
-    if ( size() <= 2 || size() > max_bezcontrols ) {
+    if ( size() != 4 ) {
+#if defined(CHECK_RANGE)
+	warning( "QPointArray::bezier: The array must have 4 control points" );
+#endif
 	QPointArray p;
-	if ( size() == 2 )			// trivial
-	    p = copy();
 	return p;
     }
-    int n = size() - 1;				// n + 1 control points
+    int v;
+    int n = 3;					// n + 1 control points
     int m = 0;					// m = # Bezier points
-    float xvec[max_bezcontrols];
-    float yvec[max_bezcontrols];
+    float xvec[4];
+    float yvec[4];
     for ( v=0; v<=n; v++ ) {			// store all x,y in xvec,yvec
 	int x, y;
 	point( v, &x, &y );
@@ -623,74 +628,32 @@ QPointArray QPointArray::bezier() const		// calculate Bezier curve
 	    m += x > y ? x : y;
 	}
     }
-    if ( m == 0 ) m = 1; // ### Paul was here! 
+
+    if ( m < 2 )				// at least two points
+	m = 2;
     QPointArray p( m );				// p = Bezier point array
     register QPointData *pd = p.data();
-    if ( n == 2 ) {				// 3 control points
-	float x0 = xvec[0],  y0 = yvec[0];
-	float dt = 1.0F/m;
-	float bx = 2.0F * (xvec[1] - x0);
-	float ax = xvec[2] - (x0 + bx);
-	float by = 2.0F * (yvec[1] - y0);
-	float ay = yvec[2] - (y0 + by);
-	float t = 0.0F;
-	float xf,yf;
-	while ( m-- ) {				// optimized loop
-	    xf = (ax * t + bx) * t + x0;
-	    yf = (ay * t + by) * t + y0;
-	    pd->x = (Qpnta_t)(xf + (xf > 0 ? 0.5 : -0.5));
-	    pd->y = (Qpnta_t)(yf + (yf > 0 ? 0.5 : -0.5));
-	    pd++;
-	    t += dt;
-	}
+
+    float x0 = xvec[0],  y0 = yvec[0];
+    float dt = 1.0F/m;
+    float cx = 3.0F * (xvec[1] - x0);
+    float bx = 3.0F * (xvec[2] - xvec[1]) - cx;
+    float ax = xvec[3] - (x0 + cx + bx);
+    float cy = 3.0F * (yvec[1] - y0);
+    float by = 3.0F * (yvec[2] - yvec[1]) - cy;
+    float ay = yvec[3] - (y0 + cy + by);
+    float t = 0.0F;
+    float xf,yf;
+
+    while ( m-- ) {
+	xf = ((ax * t + bx) * t + cx) * t + x0;
+	yf = ((ay * t + by) * t + cy) * t + y0;
+	pd->x = (Qpnta_t)qRound( xf );
+	pd->y = (Qpnta_t)qRound( yf );
+	pd++;
+	t += dt;
     }
-    else if ( n == 3 ) {			// 4 control points
-	float x0 = xvec[0],  y0 = yvec[0];
-	float dt = 1.0F/m;
-	float cx = 3.0F * (xvec[1] - x0);
-	float bx = 3.0F * (xvec[2] - xvec[1]) - cx;
-	float ax = xvec[3] - (x0 + cx + bx);
-	float cy = 3.0F * (yvec[1] - y0);
-	float by = 3.0F * (yvec[2] - yvec[1]) - cy;
-	float ay = yvec[3] - (y0 + cy + by);
-	float t = 0.0F;
-	float xf,yf;
-	while ( m-- ) {				// optimized loop
-	    xf = ((ax * t + bx) * t + cx) * t + x0;
-	    yf = ((ay * t + by) * t + cy) * t + y0;
-	    pd->x = (Qpnta_t)(xf + (xf > 0 ? 0.5 : -0.5));
-	    pd->y = (Qpnta_t)(yf + (yf > 0 ? 0.5 : -0.5));
-	    pd++;
-	    t += dt;
-	}
-    }
-    else {					// 5..maxbez_control points
-	m--;
-	init_bicot();
-	long *bico = &BICO(n,0);
-	float bv,u;
-	float uv1[max_bezcontrols];		// contains: uv1[i] = u^i
-	float uv2[max_bezcontrols];		// contains: uv2[i] = (1-u)^i
-	uv1[0] = uv2[0] = 1.0F;
-	float xf, yf;
-	int   i, b, k;
-	for ( i=0; i<=m; i++ ) {		// for each Bezier point...
-	    u = (float)i/m;
-	    for ( b=1; b<=n; b++ ) {		// compute u^1, u^2, ... u^n
-		uv1[b] = u*uv1[b-1];		//   and (1-u)^1, ... (1-u)^n
-		uv2[b] = (1.0F-u)*uv2[b-1];
-	    }
-	    xf = yf = 0.0F;
-	    for ( k=0; k<=n; k++ ) {		// add control point influence
-		bv = uv1[k]*uv2[n-k]*bico[k];	// compute blending value
-		xf += bv*xvec[k];
-		yf += bv*yvec[k];
-	    }
-	    pd->x = (Qpnta_t)(xf + (xf > 0 ? 0.5 : -0.5));
-	    pd->y = (Qpnta_t)(yf + (yf > 0 ? 0.5 : -0.5));
-	    pd++;
-	}
-    }
+
     return p;
 }
 

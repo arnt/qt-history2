@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#170 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#171 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#170 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#171 $")
 
 
 /*****************************************************************************
@@ -44,7 +44,7 @@ const double Q_2PI  = 6.28318530717958647693;	// 2*pi
 const double Q_PI2  = 1.57079632679489661923;	// pi/2
 const double Q_3PI2 = 4.71238898038468985769;	// 3*pi/2
 
-#if defined(_OS_LINUX_) && defined(_CC_GNU_) && defined(__i386__)
+#if defined(_CC_GNU_) && defined(__i386__)
 
 inline double qcos( double a )
 {
@@ -2218,25 +2218,29 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 
 
 /*----------------------------------------------------------------------------
-  Draws a Bezier curve defined by the \e npoints control points in \e a,
+  Draws a cubic Bezier curve defined by the control points in \e a,
   starting at \e a[index].
- ----------------------------------------------------------------------------*/
 
-void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
+  \e a must have 4 points or more.  The control point \e a[index+4] and
+  beyon are ignored.
+ ----------------------------------------------------------------------------*/
+  
+
+void QPainter::drawBezier( const QPointArray &a, int index )
 {
-    if ( npoints < 0 )
-	npoints = a.size() - index;
-    if ( index + npoints > (int)a.size() )
-	npoints = a.size() - index;
-    if ( !isActive() || npoints < 2 || index < 0 )
+    if ( !isActive() )
 	return;
-    QPointArray pa;
-    if ( npoints != (int)a.size() ) {
-	pa.resize( npoints );
-	for ( int i=0; i<npoints; i++ )
+    if ( a.size() - index < 4 ) {
+#if defined(CHECK_RANGE)
+	warning( "QPainter::drawBezier: Cubic Bezier needs 4 control points" );
+#endif
+	return;
+    }
+    QPointArray pa( a );
+    if ( index != 0 || a.size() > 4 ) {
+	pa = QPointArray( 4 );
+	for ( int i=0; i<4; i++ )
 	    pa.setPoint( i, a.point(index+i) );
-    } else {
-	pa = a;
     }
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
