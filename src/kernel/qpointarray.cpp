@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#75 $
 **
 ** Implementation of QPointArray class
 **
@@ -396,14 +396,14 @@ static inline int fix_angle( int a )
 /*!
   Sets the points of the array to those describing an arc of an
   ellipse with size \a w by \a h and position (\a x, \a y ), starting
-  from angle \a a1, spanning \a a2.  The resulting array has sufficient
+  from angle \a1, spanning \a a2.  The resulting array has sufficient
   resolution for pixel accuracy (see the overloaded function which
   takes an additional QWMatrix parameter).
 
   Angles are specified in 16ths of a degree,
   i.e. a full circle equals 5760 (16*360). Positive values mean
   counter-clockwise while negative values mean clockwise direction.
-  Zero degrees is at the 3 o'clock position.
+  Zero degrees is at the 3'o clock position.
 */
 
 void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
@@ -519,7 +519,6 @@ void QPointArray::makeArc( int x, int y, int w, int h,
 
     bool arc = a1 != 0 || a2 != 360*16 || rev;
 
-
     double xP, yP, xQ, yQ, xK, yK;
 
     xf.map(x+w, y+h/2.0, &xP, &yP);
@@ -575,22 +574,20 @@ void QPointArray::makeArc( int x, int y, int w, int h,
 	    da1 -= Q_PI/2;
 	    t++;
 	}
+
 	int i = nquad[t]+int(da1/inc+0.5);
 	int k = int(da2/inc+0.5);
+	QPointArray r(k);
+	int j = 0;
+
 	if ( rev ) {
-	    QPointArray r(k);
-	    int j = 0;
-	    while (k--)
+	    while ( k-- )
 		r[j++] = at((i+k)%n);
-	    *this = r;
 	} else {
-	    int j = 0;
-	    while (j < k) {
-		setPoint(j,at((k+j)%n));
-		j++;
-	    }
-	    resize(j);
+	    while ( j < k )
+		r[j++] = at((i+j)%n);
 	}
+	*this = r;
     } else {
 	resize(n);
     }
@@ -925,7 +922,7 @@ QPointArray QPointArray::quadBezier() const
 
   The serialization format is:
   <ol>
-  <li> The array size (Q_UINT32)
+  <li> The array size (UINT32)
   <li> The array points (QPoint)
   </ol>
 */
