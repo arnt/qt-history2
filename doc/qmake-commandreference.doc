@@ -48,11 +48,11 @@
 \target About
 \section1 About This Reference
 
-This reference is a detailed index of all commandline options,
-configurations and internal variables used by the \e qmake
-cross-platform makefile generation utility.
+This reference is a detailed index of all command line options,
+configurations and internal variables used by the 
+cross-platform makefile generation utility \e qmake.
 
-For a higher level introduction to using \e qmake see the
+For a higher level introduction to using \e qmake then see the
 \link qmake-guide.html qmake User's Guide \endlink.
 
 \target Commands
@@ -71,28 +71,28 @@ The following options can be specified on the command line to \e qmake:
 \list
 \i \c -o file <br>
 	\e qmake output will be directed to \e file. If this argument
-	is not specified qmake will try to guess a suitable name, if '-' is
+	is not specified then qmake will try to guess a suitable name, if '-' is
 	specified output is directed to stdout. 
 \i \c -unix <br>
-	\e qmake will run in unix mode.  In this mode Unix file
+	\e qmake will run in unix mode.  In this mode, Unix file
 	naming and path conventions will be used. This is the default mode on all Unices.
 \i \c -win32 <br>
-	\e qmake will run in win32 mode.  In this mode Windows file naming and path
+	\e qmake will run in win32 mode.  In this mode, Windows file naming and path
 	conventions will be used. This is the default mode on Windows.
 \i \c -d <br>
 	\e qmake will output useful debugging information.
 \i \c -t tmpl <br>
 	\e qmake will override any set TEMPLATE variables with tmpl.
 \i \c -help <br>
-	\e qmake will go over these features and give some usefull help.
+	\e qmake will go over these features and give some useful help.
 \endlist
 
 
 QMake supports two different modes of operation. The first mode (and
 default) is makefile generation, in this mode qmake will take a .pro file
-and turn it into a proper system Makefile. This is the mode documented in
+and turn it into a makefile. This is the mode documented in
 this guide, however there is an additional mode in qmake to generate .pro
-files from source code.
+files.
 
 To toggle between these modes you must specify in the first argument what
 mode you want, if no mode is specified qmake will assume you want makefile
@@ -100,9 +100,9 @@ mode, the available mode switches are:
 
 \list
 \i \c -makefile <br>
-	\e qmake output will be a makefile (\link #MakefileMode Makefile Mode \endlink).
+	\e qmake output will be a makefile (\link #MakefileMode Makefile mode \endlink).
 \i \c -project <br>
-	\e qmake output will be a project file (\link #ProjectfileMode Projectfile Mode \endlink).
+	\e qmake output will be a project file (\link #ProjectfileMode Project file mode \endlink).
 \endlist
 
 \target MakefileMode
@@ -115,11 +115,11 @@ supply the following arguments in this mode:
 \i \c -nocache <br>
 	\e qmake will ignore the .qmake.cache file.
 \i \c -nodepend <br>
-	\e qmake will not genereate any dependancy information.
+	\e qmake will not generate any dependency information.
 \i \c -cache file <br>
 	\e qmake will use \e file as the cache file, ignoring any other .qmake.cache file found
 \i \c -spec spec <br>
-	\e qmake will use \e spec as a path to platform-conpiler information and QMAKESPEC will be ignored.
+	\e qmake will use \e spec as a path to platform-compiler information and QMAKESPEC will be ignored.
 \endlist
 
 The \c files argument can be a list of one or more project files, separated
@@ -129,9 +129,11 @@ they will be processed before all files specified, for example:
 qmake -makefile -unix -o Makefile "CONFIG+=test" test.pro 
 
 This will generate a Makefile from test.pro, with Unix pathnames, however
-many of these arguments aren't necesary as they are the default:
+many of these arguments aren't necessary as they are the default.  Therefore
+the line can be simplified on Unix to:
 
 qmake "CONFIG+=test" test.pro 
+
 
 \target ProjectfileMode
 \section3 Projectfile Mode
@@ -142,14 +144,14 @@ supply the following arguments in this mode:
 \list
 \i \c -nopwd <br>
 	\e qmake will not look in your current working directory for
-	source code and only use specified \c files
+	source code and only use the specified \c files
 \endlist
 
 The \c files argument can be a list of files or directories, if a directory
-is specified this will be included in the DEPENDPATH and relevant code from
-there will be included in the generated project file, if a file is given it
-will go into the correct variable depending on extention (ie .ui files go
-into FORMS, .cpp files go into SOURCES, etc).
+is specified then this will be included in the DEPENDPATH variable and relevant 
+code from there will be included in the generated project file, if a file is 
+given it will go into the correct variable depending on extension (i.e. .ui 
+files go into FORMS, .cpp files go into SOURCES, etc).
 
 \target SystemVariables
 \section1 System Variables
@@ -187,17 +189,17 @@ These \c CONFIG values control compilation flags:
 \i debug - Compile with debug options enabled
 \i warn_on - The compiler should emit more warnings than normally, ignored if
      "warn_off" is specified
-\i warn_off - The compiler should emit no warnings or as few as possible.
+\i warn_off - The compiler should emit no warnings except severe warnings.
 \endlist
 
 These options define the application/library type:
 
 \list
-\i qt - The target is a Qt application/library and requires Qt header
+\i qt - The target is a Qt application/library and requires the Qt header
      files/library.  The proper include and library paths for the Qt
      library will automatically be added to the project.
 \i opengl - The target requires the OpenGL (or Mesa)
-    headers/libraries. The proper include and library paths for the
+    headers/libraries. The proper include and library paths for
     these libraries will automatically be added to the project.
 \i thread - The target is a multi-threaded application or library.  The
     proper defines and compiler flags will automatically be added to
@@ -252,7 +254,7 @@ DEFINES += USE_MY_STUFF QT_DLL
 \target DEF_FILE
 <dt>\c DEF_FILE
 
-<dd>\e {win32/app only}.
+<dd>\e {This is only used on Windows when using the 'app' template}.
 
 Specifies a .def file to be included in the project.
 
@@ -268,25 +270,21 @@ For example:
   DESTDIR = ../../lib
 \endcode
 
-Also see \link #DirectoryNote this note \endlink.
-
 \target DLLDESTDIR
 <dt>\c DLLDESTDIR
 
 <dd>Specifies where to copy the \link #TARGET target \endlink dll.
-
-Also see \link #DirectoryNote this note \endlink.
 
 \target HEADERS
 <dt>\c HEADERS
 
 <dd>Defines the header files for the project.  
 
-\e qmake will generate dependancy information (unless -nodepend
+\e qmake will generate dependency information (unless -nodepend
 is specified on the \link #Commands command line \endlink) for the
 specified headers.  \e qmake will also automatically detect if
 \e moc is required by the classes in these headers, and add the
-appropriate dependancies and files to the project for generating and
+appropriate dependencies and files to the project for generating and
 linking the moc files. 
 
 For example:
@@ -304,7 +302,7 @@ See also \link #SOURCES SOURCES \endlink.
 <dt>\c INCLUDEPATH
 
 <dd>This variable specifies the #include directories which should be
-searched when compiling the project. Use ';' or space as a the
+searched when compiling the project. Use ';' or a space as the
 directory separator. 
 
 For example:
@@ -317,9 +315,9 @@ For example:
 \target FORMS
 <dt>\c FORMS
 
-<dd>This variable specifies the .ui files (see the \link
+<dd>This variable specifies the .ui files (see \link
 designer.html Qt Designer \endlink) to be processed through \e uic
-before compiling.  All dependancies, headers and source files required
+before compiling.  All dependencies, headers and source files required
 to build these .ui files will automatically be added to the project.
 
 For example:
@@ -335,7 +333,7 @@ FORMS = mydialog.ui \
 <dt>\c LEXSOURCES
 
 <dd>This variable contains a list of lex source files.  All
-dependancies, headers and source files will automatically be added to
+dependencies, headers and source files will automatically be added to
 the project for building these lex files.  
 
 For example:
@@ -373,8 +371,6 @@ unix:MOC_DIR = ../myproject/tmp
 win32:MOC_DIR = c:\myproject\tmp
 \endcode
 
-Also see \link #DirectoryNote this note \endlink.
-
 
 \target OBJECTS_DIR
 <dt>\c OBJECTS_DIR
@@ -389,18 +385,6 @@ unix:OBJECTS_DIR = ../myproject/tmp
 win32:OBJECTS__DIR = c:\myproject\tmp
 \endcode
 
-Also see \link #DirectoryNote this note \endlink.
-
-
-\target OBJMOC
-<dt>\c OBJMOC
-
-<dd>This variable is set by \e qmake if files can be found that
-contain the Q_OBJECT macro.  \c OBJMOC contains the
-name of all intermediate moc object files. The value of this variable
-is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
-modified.
-
 
 \target REQUIRES
 <dt>\c REQUIRES
@@ -408,9 +392,10 @@ modified.
 <dd>This is a special variable processed by \e qmake.  If the
 contents of this variable do not appear in CONFIG by the time this
 variable is assigned to then a minimal makefile will be generated that
-states what dependancies (the values assigned to REQUIRES) were
+states what dependencies (the values assigned to REQUIRES) were
 missing.
 
+This is mainly used in Qt's build system for building the examples.
 
 <dt>\c SOURCES
 
@@ -428,24 +413,11 @@ SOURCES	= myclass.cpp \
 See also \link #HEADERS HEADERS \endlink
 
 
-
-
-
-<dt>\c SRCMOC
-<dd>This variable is set by \e qmake if files can be found that
-contain the Q_OBJECT macro.  \c SRCMOC contains the
-name of all the generated moc files. The value of this variable
-is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
-modified.
-
-
-
-
 <dt>\c SUBDIRS
 
 <dd>This variable, when used with the 'subdir'
 \link #TEMPLATE TEMPLATE \endlink contains the names of all subdirectories
-to be built by the project.
+to look for a project file.
 
 For example:
 
@@ -457,7 +429,7 @@ SUBDIRS = kernel \
 
 \target TARGET
 <dt>\c TARGET
-<dd>This contains the name of the project target.
+<dd>This specifies the name of the target file.
 
 For example:
 
@@ -500,16 +472,20 @@ TARGET = mylib
 
 <dt>\c VERSION
 
-<dd>This variable contains the version number of the library, is the
+<dd>This variable contains the version number of the library, if the
 'lib' \link #TEMPLATE TEMPLATE \endlink is specified.
 
+For example:
 
+\code
+VERSION = 1.2.3
+\endcode
 
 
 <dt>\c YACCSOURCES
 
 <dd>This variable contains a list of yacc source files to be included
-in the project.  All dependancies, headers and source files will
+in the project.  All dependencies, headers and source files will
 automatically be included in the project.
 
 For example:
@@ -536,13 +512,14 @@ the TARGET variable appened at the end.  The value of this variable
 is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
 modified.
 
-Also see \link #DirectoryNote this note \endlink.
-
 
 \target DSP_TEMPLATE
 <dt>\c DSP_TEMPLATE
 
-<dd>
+<dd>This variable is set internally by \e qmake which specifies where the dsp template file for
+basing generated dsp files is stored.  The value of this variable
+is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
+modified.
 
 
 \target LEXIMPLS
@@ -566,7 +543,7 @@ files.The value of this variable is typically handled by
 <dt>\c MAKEFILE
 
 <dd>This variable specifies the name of the makefile which
-\e qmake should use when outputting the dependancy information
+\e qmake should use when outputting the dependency information
 for building a project.  The value of this variable is typically
 handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
@@ -582,18 +559,26 @@ handled internally by \e qmake and rarely needs to be modified.
 \target OBJECTS
 <dt>\c OBJECTS
 
-<dd>This variable is generated from \link #SOURCES SOURCES
-\endlink.  The extension of each source file will been replaced by .o
-(Unix) or .obj (Win32).  The value of this variable is typically
-handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and
+<dd>This variable is generated from the \link #SOURCES SOURCES
+\endlink variable.  The extension of each source file will have been 
+replaced by .o (Unix) or .obj (Win32).  The value of this variable is 
+typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and
 rarely needs to be modified.
 
+\target OBJMOC
+<dt>\c OBJMOC
+
+<dd>This variable is set by \e qmake if files can be found that
+contain the Q_OBJECT macro.  \c OBJMOC contains the
+name of all intermediate moc object files. The value of this variable
+is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
+modified.
 
 \target PRECOMPH
 <dt>\c PRECOMPH
 
 <dd>This variable contains a list of header files that require some
-sort of precompilation step (such as with moc). The value of this
+sort of pre-compilation step (such as with moc). The value of this
 variable is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
 modified.  
 
@@ -618,19 +603,11 @@ modified. Use the \link #QMAKESPEC QMAKESPEC \endlink environment
 variable instead.
 
 
-
-
-\target QMAKE_ABSOLUTE_SOURCE_PATH
-<dt>\c QMAKE_ABSOLUTE_SOURCE_PATH
-
-<dd>###
-
-
-
 \target QMAKE_AIX_SHLIB
 <dt>\c QMAKE_AIX_SHLIB
 
-<dd>If not empty. this variable tells \e qmake to generate the
+<dd>If this variable is not empty, then this variable tells \e qmake 
+to generate the
 \link #TARGET TARGET \endlink as an AIX shared library.
 
 
@@ -665,7 +642,7 @@ modified.
 \target QMAKE_AR_CMD
 <dt>\c QMAKE_AR_CMD
 
-<dd>\e {unix only}
+<dd>\e {This is used on Unix platforms only}
 
 This variable contains the command for invoking the program which
 creates, modifies and extracts archives. The value of this variable is
@@ -688,7 +665,7 @@ and rarely needs to be modified.
 <dt>\c QMAKE_CFLAGS_MT
 
 <dd>This variable contains the compiler flags for creating a
-multi-threaded program.  The value of this variable is typically
+multi-threaded application.  The value of this variable is typically
 handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and
 rarely needs to be modified.
 
@@ -698,8 +675,8 @@ rarely needs to be modified.
 \target QMAKE_CFLAGS_MT_DBG
 <dt>\c QMAKE_CFLAGS_MT_DBG
 
-<dd>This variable contains the compiler flags for creating a debug
-multi-threaded program.  The value of this variable is typically
+<dd>This variable contains the compiler flags for creating a debuggable
+multi-threaded application.  The value of this variable is typically
 handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and
 rarely needs to be modified.
 
@@ -709,7 +686,9 @@ rarely needs to be modified.
 \target QMAKE_CFLAGS_MT_DLL
 <dt>\c QMAKE_CFLAGS_MT_DLL
 
-<dd>This variable contains the compiler flags for creating a 
+<dd>\e {This is used on Windows only}
+
+This variable contains the compiler flags for creating a 
 multi-threaded dll.  The value of this variable is typically
 handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and
 rarely needs to be modified.
@@ -720,7 +699,9 @@ rarely needs to be modified.
 \target QMAKE_CFLAGS_MT_DLLDBG
 <dt>\c QMAKE_CFLAGS_MT_DLLDBG
 
-<dd>This variable contains the compiler flags for creating a debug
+<dd>\e {This is used on Windows only}
+
+This variable contains the compiler flags for creating a debuggable
 multi-threaded dll.  The value of this variable is typically
 handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and
 rarely needs to be modified.
@@ -731,8 +712,8 @@ rarely needs to be modified.
 \target QMAKE_CFLAGS_RELEASE
 <dt>\c QMAKE_CFLAGS_RELEASE
 
-<dd>This variable contains the compiler flags for creating a non-debug
-program.  The value of this variable is typically
+<dd>This variable contains the compiler flags for creating a non-debuggable
+application.  The value of this variable is typically
 handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and
 rarely needs to be modified.
 
@@ -742,7 +723,9 @@ rarely needs to be modified.
 \target QMAKE_CFLAGS_SHLIB
 <dt>\c QMAKE_CFLAGS_SHLIB
 
-<dd>This variable contains the compiler flags for creating a shared
+<dd>\e {This is used on Unix platforms only}
+
+This variable contains the compiler flags for creating a shared
 library. The value of this variable is typically handled by
 \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
 to be modified.
@@ -753,8 +736,8 @@ to be modified.
 \target QMAKE_CFLAGS_THREAD
 <dt>\c QMAKE_CFLAGS_THREAD
 
-<dd>This variable contains the compiler flags for creating a threaded
-program. The value of this variable is typically handled by
+<dd>This variable contains the compiler flags for creating a multi-threaded
+application. The value of this variable is typically handled by
 \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
 to be modified.
 
@@ -765,7 +748,10 @@ to be modified.
 <dt>\c QMAKE_CFLAGS_WARN_OFF
 
 <dd>This variable is not empty if the warn_off
-\link #TEMPLATE TEMPLATE \endlink option is specified.
+\link #TEMPLATE TEMPLATE \endlink option is specified.  The value of this 
+variable is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink 
+and rarely needs to be modified.
+
 
 
 \target QMAKE_CFLAGS_WARN_ON
@@ -773,6 +759,9 @@ to be modified.
 
 <dd>This variable is not empty if the warn_on
 \link #TEMPLATE TEMPLATE \endlink option is specified.
+The value of this variable is typically handled by
+\e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
+to be modified.
 
 
 
@@ -788,8 +777,8 @@ generated files) and object files that should be removed when using "make clean"
 \target QMAKE_CXXFLAGS_DEBUG
 <dt>\c QMAKE_CXXFLAGS_DEBUG
 
-<dd>This variable contains the c++ compiler flags for creating a debug
-program. The value of this variable is typically handled by
+<dd>This variable contains the C++ compiler flags for creating a debuggable
+application. The value of this variable is typically handled by
 \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
 to be modified.
 
@@ -798,8 +787,8 @@ to be modified.
 \target QMAKE_CXXFLAGS_MT
 <dt>\c QMAKE_CXXFLAGS_MT
 
-<dd>This variable contains the c++ compiler flags for creating a multi-threaded
-program. The value of this variable is typically handled by
+<dd>This variable contains the C++ compiler flags for creating a multi-threaded
+application. The value of this variable is typically handled by
 \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
 to be modified.
 
@@ -809,8 +798,8 @@ to be modified.
 \target QMAKE_CXXFLAGS_MT_DBG
 <dt>\c QMAKE_CXXFLAGS_MT_DBG
 
-<dd>This variable contains the c++ compiler flags for creating a debug multi-threaded
-program. The value of this variable is typically handled by
+<dd>This variable contains the C++ compiler flags for creating a debuggable multi-threaded
+application. The value of this variable is typically handled by
 \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
 to be modified.
 
@@ -820,7 +809,9 @@ to be modified.
 \target QMAKE_CXXFLAGS_MT_DLL
 <dt>\c QMAKE_CXXFLAGS_MT_DLL
 
-<dd>This variable contains the c++ compiler flags for creating a multi-threaded
+<dd>\c {This is used on Windows only}
+
+This variable contains the C++ compiler flags for creating a multi-threaded
 dll. The value of this variable is typically handled by
 \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
 to be modified.
@@ -831,7 +822,9 @@ to be modified.
 \target QMAKE_CXXFLAGS_MT_DLLDBG
 <dt>\c QMAKE_CXXFLAGS_MT_DLLDBG
 
-<dd>This variable contains the c++ compiler flags for creating a multi-threaded debug
+<dd>\c {This is used on Windows only}
+
+This variable contains the C++ compiler flags for creating a multi-threaded debuggable
 dll. The value of this variable is typically handled by
 \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
 to be modified.
@@ -842,8 +835,8 @@ to be modified.
 \target QMAKE_CXXFLAGS_RELEASE
 <dt>\c QMAKE_CXXFLAGS_RELEASE
 
-<dd>This variable contains the c++ compiler flags for creating a non-debug
-program. The value of this variable is typically handled by
+<dd>This variable contains the C++ compiler flags for creating an 
+application. The value of this variable is typically handled by
 \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
 to be modified.
 
@@ -853,7 +846,7 @@ to be modified.
 \target QMAKE_CXXFLAGS_SHLIB
 <dt>\c QMAKE_CXXFLAGS_SHLIB
 
-<dd>This variable contains the c++ compiler flags for creating a
+<dd>This variable contains the C++ compiler flags for creating a
 shared library.  The value of this variable is typically handled by
 \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
 to be modified.
@@ -864,8 +857,8 @@ to be modified.
 \target QMAKE_CXXFLAGS_THREAD
 <dt>\c QMAKE_CXXFLAGS_THREAD
 
-<dd>This variable contains the c++ compiler flags for creating a
-threaded program.  The value of this variable is typically handled by
+<dd>This variable contains the C++ compiler flags for creating a
+multi-threaded application.  The value of this variable is typically handled by
 \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
 to be modified.
 
@@ -875,7 +868,7 @@ to be modified.
 \target QMAKE_CXXFLAGS_WARN_OFF
 <dt>\c QMAKE_CXXFLAGS_WARN_OFF
 
-<dd>This variable contains the c++ compiler flags for suppressing compiler warnings.
+<dd>This variable contains the C++ compiler flags for suppressing compiler warnings.
  The value of this variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
@@ -884,7 +877,7 @@ to be modified.
 \target QMAKE_CXXFLAGS_WARN_ON
 <dt>\c QMAKE_CXXFLAGS_WARN_ON
 
-<dd>This variable contains the c++ compiler flags for generating compiler warnings.
+<dd>This variable contains C++ compiler flags for generating compiler warnings.
  The value of this variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
@@ -915,42 +908,49 @@ and rarely needs to be modified.
 \target QMAKE_FILETAGS
 <dt>\c QMAKE_FILETAGS
 
-<dd>###
+<dd>This variable contains the file tags needed to be entered into the makefile, such as SOURCES
+and HEADERS.  The value of this variable is typically handled by \e qmake or 
+\link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
 
 
 
 \target QMAKE_HPUX_SHLIB
 <dt>\c QMAKE_HPUX_SHLIB
 
-<dd>\e {unix only}
+<dd>\e {This is used on Unix platforms only}
 
-<dd>If not empty. this variable tells \e qmake to generate the
-\link #TARGET TARGET \endlink as an HPUX shared library.
-
-
-
+<dd>If this variable is not empty then this variable tells \e qmake to generate the
+\link #TARGET TARGET \endlink as an HPUX shared library.  The value of this variable is 
+typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely 
+needs to be modified.
 
 
 <dt>\c QMAKE_HPUX_SHLIBS
 
-<dd>\e {unix only}
-<dd>If not empty. this variable tells \e qmake to generate the
-\link #TARGET TARGET \endlink as an HPUX shared library.
+<dd>\e {This is used on Unix platforms only}
 
+<dd>If this variable is not empty then this variable tells \e qmake to generate the
+\link #TARGET TARGET \endlink as an HPUX shared library.  The value of this variable is 
+typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely 
+needs to be modified.
 
 
 \target QMAKE_INCDIR
 <dt>\c QMAKE_INCDIR
 
-<dd>###
-
+<dd>This variable contains the location of all known header files to be added to 
+INCLUDEPATH when building an application.  The value of this variable is 
+typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely 
+needs to be modified.
 
 
 
 \target QMAKE_INCDIR_OPENGL
 <dt>\c QMAKE_INCDIR_OPENGL
 
-<dd>This variable contains the location of OpenGL header files. The
+<dd>This variable contains the location of OpenGL header files to be added
+to INCLUDEPATH when building an application with OpenGL support. The
 value of this variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
@@ -960,8 +960,8 @@ value of this variable is typically handled by \e qmake or
 <dt>\c QMAKE_INCDIR_QT
 
 <dd>This variable contains the location of all known header files
-paths. The value of this variable is typically handled by
-\e qmake or
+paths to be added to INCLUDEPATH when building a Qt application. The value 
+of this variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
 
@@ -971,8 +971,8 @@ paths. The value of this variable is typically handled by
 <dt>\c QMAKE_INCDIR_THREAD
 
 <dd>This variable contains the location of all known header files
-paths when building threaded programs. The value of this variable is
-typically handled by \e qmake or
+paths to be added to INCLUDEPATH when building a multi-threaded application. 
+The value of this variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
 
@@ -981,9 +981,10 @@ typically handled by \e qmake or
 \target QMAKE_INCDIR_X11
 <dt>\c QMAKE_INCDIR_X11
 
-<dd>\e {unix only}
+<dd>\e {This is used on Unix platforms only}
 
-This variable contains the location of X11 header files paths.  The
+This variable contains the location of X11 header files paths to be
+added to INCLUDEPATH when building a X11 application.  The
 value of this variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
@@ -992,30 +993,20 @@ value of this variable is typically handled by \e qmake or
 \target QMAKE_LFLAGS_CONSOLE
 <dt>\c QMAKE_LFLAGS_CONSOLE
 
-<dd>This variable contains link flags when building console
-programs.The value of this variable is typically handled by
+<dd>\e {This is used on Windows only}
+
+This variable contains link flags when building console
+programs.  The value of this variable is typically handled by
 \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
-
-
-
-
-
-<dt>\c QMAKE_LFLAGS_CONSOLE_ANY
-
-<dd>This variable contains link flags when building console
-programs.The value of this variable is typically handled by
-\e qmake or
- \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
-
-
-
 
 
 <dt>\c QMAKE_LFLAGS_CONSOLE_DLL
 
+<dd>\e {This is used on Windows only}
+
 <dd>This variable contains link flags when building console
-programs.The value of this variable is typically handled by
+dlls.  The value of this variable is typically handled by
 \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
@@ -1025,7 +1016,7 @@ programs.The value of this variable is typically handled by
 
 <dt>\c QMAKE_LFLAGS_DEBUG
 
-<dd>This variable contains link flags when building debug programs.The
+<dd>This variable contains link flags when building debuggable applications.  The
 value of this variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
@@ -1056,10 +1047,9 @@ typically handled by \e qmake or
 
 <dt>\c QMAKE_LFLAGS_RELEASE
 
-<dd>This variable contains link flags when building release
-programs. The value of this variable is typically handled by
-\e qmake or
- \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+<dd>This variable contains link flags when building applications for 
+release. The value of this variable is typically handled by
+\e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
 
 
@@ -1067,7 +1057,10 @@ programs. The value of this variable is typically handled by
 
 <dt>\c QMAKE_LFLAGS_SHAPP
 
-<dd>###
+<dd>This variable contains link flags when building applications which are using
+the 'app' template.  The value of this variable is typically handled by
+\e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
 
 
 
@@ -1083,14 +1076,17 @@ The value of this variable is typically handled by \e qmake or
 
 
 <dt>\c QMAKE_LFLAGS_SONAME
-<dd>###
+
+<dd>This variable specifies the name of shared objects, such as .so or .dll.
+The value of this variable is typically handled by \e qmake or
+ \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
 
 
 
 <dt>\c QMAKE_LFLAGS_THREAD
 
-<dd>This variable contains link flags when building threaded projects.
+<dd>This variable contains link flags when building multi-threaded projects.
 The value of this variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
@@ -1100,26 +1096,18 @@ The value of this variable is typically handled by \e qmake or
 
 <dt>\c QMAKE_LFLAGS_WINDOWS
 
-<dd>This variable contains link flags when building windows projects.
+<dd>\e {This is used on Windows only}
+
+This variable contains link flags when building windows projects.
 The value of this variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
-
-
-
-
-<dt>\c QMAKE_LFLAGS_WINDOWS_ANY
-
-<dd>This variable contains link flags when building windows projects.
-The value of this variable is typically handled by \e qmake or
- \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
-
-
-
 
 
 <dt>\c QMAKE_LFLAGS_WINDOWS_DLL
 
-<dd>This variable contains link flags when building windows dll projects.
+<dd>\e {This is used on Windows only}
+
+This variable contains link flags when building windows dll projects.
 The value of this variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
@@ -1140,9 +1128,10 @@ directories.The value of this variable is typically handled by
 
 <dt>\c QMAKE_LIBDIR_FLAGS
 
-###?
-<dd>This variable contains the location of all library
-directory flags.The value of this variable is typically handled by
+<dd>\e {This is used on Unix platforms only}
+
+This variable contains the location of all library
+directory with -L prefixed.  The value of this variable is typically handled by
 \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
@@ -1174,35 +1163,35 @@ directory.The value of this variable is typically handled by
 
 <dt>\c QMAKE_LIBDIR_X11
 
-<dd>This variable contains the location of the X11 library
+<dd>\e {This is used on Unix platforms only}
+
+This variable contains the location of the X11 library
 directory.The value of this variable is typically handled by
 \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
-
-
-
-
 <dt>\c QMAKE_LIBS
 
-<dd>This variable contains all project libraries.The value of this
+<dd>This variable contains all project libraries.  The value of this
+variable is typically handled by \e qmake or
+ \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+<dt>\c QMAKE_LIBS_CONSOLE
+
+<dd>\e {This is used on Windows only}
+
+This variable contains all project libraries that should be linked against
+when building a console application.  The value of this
 variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
 
 
 
-
-<dt>\c QMAKE_LIBS_CONSOLE
-
-<dd>###
-
-
-
-
 <dt>\c QMAKE_LIBS_OPENGL
 
-<dd>This variable contains all OpenGL libraries.The value of this
+<dd>This variable contains all OpenGL libraries.  The value of this
 variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
@@ -1232,8 +1221,10 @@ variable is typically handled by \e qmake or
 
 <dt>\c QMAKE_LIBS_QT_DLL
 
-<dd>This variable contains all Qt dll libraries.The value of this
-variable is typically handled by \e qmake or
+<dd>\e {This is used on Windows only}
+
+This variable contains all Qt libraries when Qt is built as a dll.  The 
+value of this variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
 
@@ -1243,41 +1234,65 @@ variable is typically handled by \e qmake or
 <dt>\c QMAKE_LIBS_QT_OPENGL
 
 <dd>This variable contains all the libraries needed to link against if 
-OpenGL support is turned on.
-
+OpenGL support is turned on. The 
+value of this variable is typically handled by \e qmake or
+ \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
 
 
 <dt>\c QMAKE_LIBS_QT_THREAD
 
 <dd>This variable contains all the libraries needed to link against if 
-thread support is turned on.
+thread support is turned on.  The 
+value of this variable is typically handled by \e qmake or
+ \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
 
 
 
 
 <dt>\c QMAKE_LIBS_RT
-<dd>###
+
+<dd>\e {This is used with Borland compilers only}
+
+This variable contains the runtime library needed to link against when
+building an application.  The 
+value of this variable is typically handled by \e qmake or
+ \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
 
 
 
 
 <dt>\c QMAKE_LIBS_RTMT
 
-<dd>###
+<dd>\e {This is used with Borland compilers only}
 
+This variable contains the runtime library needed to link against when
+building a multi-threaded application.  The 
+value of this variable is typically handled by \e qmake or
+ \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
 
 
 <dt>\c QMAKE_LIBS_THREAD
-<dd>###
+
+<dd>\e {This is used on Unix platforms only}
+
+This variable contains all libraries that need to be linked against
+when building a multi-threaded application.  The 
+value of this variable is typically handled by \e qmake or
+ \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
 
 
 
 
 <dt>\c QMAKE_LIBS_WINDOWS
 
-<dd>This variable contains all windows libraries.The value of this
+<dd>\e {This is used on Windows only}
+
+This variable contains all windows libraries.The value of this
 variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
@@ -1287,7 +1302,9 @@ variable is typically handled by \e qmake or
 
 <dt>\c QMAKE_LIBS_X11
 
-<dd>This variable contains all X11 libraries.The value of this
+<dd>\e {This is used on Unix platforms only}
+
+This variable contains all X11 libraries.The value of this
 variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
@@ -1297,7 +1314,9 @@ variable is typically handled by \e qmake or
 
 <dt>\c QMAKE_LIBS_X11SM
 
-<dd>This variable contains all X11 session management libraries.  The
+<dd>\e {This is used on Unix platforms only}
+
+This variable contains all X11 session management libraries.  The
 value of this variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
@@ -1306,8 +1325,9 @@ value of this variable is typically handled by \e qmake or
 
 
 <dt>\c QMAKE_LIB_FLAG
-<dd>###
-
+<dd>This variable is not empty if the 'lib' template is specified.  The
+value of this variable is typically handled by \e qmake or
+ \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
 
 
@@ -1376,7 +1396,11 @@ typically handled by \e qmake or
 
 
 <dt>\c QMAKE_QT_DLL
-<dd>###
+<dd>This variable is not empty if Qt was built as a dll.  The
+value of this variable is typically handled by \e qmake or
+ \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
 
 
 
@@ -1417,14 +1441,28 @@ this variable is typically handled by \e qmake or
 
 
 <dt>\c RC_FILE
-<dd>###
+
+<dd>This variable contains the name of the resource file for the application.  
+The value of this variable is typically handled by \e qmake or
+ \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
 
 
 
 
 <dt>\c RES_FILE
 
-<dd>###
+<dd>This variable contains the name of the resource file for the application.  
+The value of this variable is typically handled by \e qmake or
+ \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+<dt>\c SRCMOC
+<dd>This variable is set by \e qmake if files can be found that
+contain the Q_OBJECT macro.  \c SRCMOC contains the
+name of all the generated moc files. The value of this variable
+is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
+modified.
 
 
 <dt>\c SUBLIBS
@@ -1434,8 +1472,9 @@ this variable is typically handled by \e qmake or
 
 
 <dt>\c TARGET_EXT
-<dd>###
-
+<dd>This variable specifies the target's extension.  The value of this variable
+is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
+modified.
 
 
 
@@ -1451,21 +1490,28 @@ this variable is typically handled by \e qmake or
 
 
 <dt>\c UICIMPLS
-<dd>###
+<dd>This variable contains a list of the generated implementation files by UIC.  
+The value of this variable
+is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
+modified.
+
 
 
 
 
 <dt>\c UICOBJECTS
 
-<dd>###
+<dd>This variable is generated from the UICIMPLS variable.  The extension of each 
+file will have been replaced by .o (Unix) or .obj (Win32).  The value of this variable is 
+typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and
+rarely needs to be modified.
 
 
 
 <dt>\c VER_MAJ
 
 <dd>This variable contains the major version number of the library, if the
-'lib' \link #TEMPLATE TEMPLATE \endlink is specified.
+'lib' \link #TEMPLATE template \endlink is specified.
 
 
 
@@ -1474,7 +1520,7 @@ this variable is typically handled by \e qmake or
 <dt>\c VER_MIN
 
 <dd>This variable contains the minor version number of the library, if the
-'lib' \link #TEMPLATE TEMPLATE \endlink is specified.
+'lib' \link #TEMPLATE template \endlink is specified.
 
 
 
@@ -1483,7 +1529,7 @@ this variable is typically handled by \e qmake or
 <dt>\c VER_PAT
 
 <dd>This variable contains the patch version number of the library, if the
-'lib' \link #TEMPLATE TEMPLATE \endlink is specified.
+'lib' \link #TEMPLATE template \endlink is specified.
 
 
 
@@ -1508,14 +1554,14 @@ this variable is typically handled by \e qmake or
 
 <a name="DirectoryNote">*</a> For all project files that specify a directory and are interpreted by qmake
 (DESTDIR, OBJECTS_DIR, MOC_DIR, etc) the directory will be created when qmake
-is called, ie before the 'make' command is specified. This is to assure
+is called, i.e. before the 'make' command is specified. This is to assure
 portablity.
 
 \target Functions
 \section1 Functions
 
 For a higher level introduction to using \e qmake functions see
-the \link qmake-guide.html#Functions \e qmake User's
+the \link qmake-guide.html#Functions qmake User's
 Guide \endlink.
 
 \e qmake recognizes the following functions:
@@ -1543,14 +1589,15 @@ OPTIONS = standard custom
 
 <dt>\c exists( file )
 
-<dd>This function will test if \e file exists, if so it will return success. 
-You can specify a regular expression in file and it will return success if any file
+<dd>This function will test if \e file exists, if so it will succeed; otherwise it will
+fail. 
+You can specify a regular expression in file and it will succeed if any file
 matches the regular expression specified.
 
 For example:
 \code
 exists( $(QTDIR)/lib/qt-mt* ) {
-      message( "Configuring for threaded Qt..." )
+      message( "Configuring for multi-threaded Qt..." )
       CONFIG += thread
 }
 \endcode
@@ -1575,7 +1622,7 @@ contains( drivers, network ) {
 <dt>\c count( variablename, number )
 
 <dd>This function will succeed if the variable \e variablename
-contains \e number elements, otherwise it will fails.  You can check
+contains \e number elements, otherwise it will fail.  You can check
 the return value of this function using a
 \link qmake-guide.html#Scopes scope \endlink.
 
@@ -1597,7 +1644,7 @@ empty (same as \c count(variable, 0)).
 
 <dt>\c system( command )
 
-<dd>This function will execute string in a secondary shell and will
+<dd>This function will execute \c command in a secondary shell and will
 succeed if the command exits with a exit status of 1.You can check the
 return value of this function using a
 \link qmake-guide.html#Scopes scope \endlink.
@@ -1652,7 +1699,7 @@ variable can contain any of the following:
 \endlist
 
 Note: the QMAKESPEC path will automatically be added to the
-\link #INCLUDEPATHS INCLUDEPATHS \endlink system variable.
+\link #INCLUDEPATHS INCLUDEPATH \endlink system variable.
 
 \target cache
 \section2 Cache File
@@ -1660,7 +1707,7 @@ Note: the QMAKESPEC path will automatically be added to the
 The cache file (mentioned above in the options) is a special file
 \e qmake will read to find settings not specified in the
 qmake.conf file, the .pro file, or the command line. If neither -path
-nor -nocache are specified qmake will try to find a file called
+or -nocache are specified qmake will try to find a file called
 .qmake.cache in parent directories.  If it fails to find this file it
 will silently ignore this step of processing.
 
