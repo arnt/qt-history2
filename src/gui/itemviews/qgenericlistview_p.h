@@ -127,7 +127,7 @@ public:
 
     QGenericListView::Flow flow;
     QGenericListView::Movement movement;
-    QGenericListView::IconSize iconSize;
+    QGenericListView::IconMode iconMode;
     QGenericListView::ResizeMode resizeMode;
     QGenericListView::LayoutMode layoutMode;
     bool wrap;

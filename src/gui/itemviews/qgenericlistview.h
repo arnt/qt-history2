@@ -27,7 +27,7 @@ class Q_GUI_EXPORT QGenericListView : public QAbstractItemView
     Q_PROPERTY(Movement movement READ movement WRITE setMovement)
     Q_PROPERTY(Flow flow READ flow WRITE setFlow)
     Q_PROPERTY(bool isWrapping READ isWrapping WRITE setWrapping)
-    Q_PROPERTY(IconSize iconSize READ iconSize WRITE setIconSize)
+    Q_PROPERTY(IconMode iconMode READ iconMode WRITE setIconMode)
     Q_PROPERTY(ResizeMode resizeMode READ resizeMode WRITE setResizeMode)
     Q_PROPERTY(LayoutMode layoutMode READ layoutMode WRITE setLayoutMode)
     Q_PROPERTY(int spacing READ spacing WRITE setSpacing)
@@ -36,9 +36,9 @@ class Q_GUI_EXPORT QGenericListView : public QAbstractItemView
 public:
     enum Movement { Static, Free, Snap };
     enum Flow { LeftToRight, TopToBottom };
-    enum IconSize { Automatic, Small, Large };
+    enum IconMode { Automatic, Small, Large };
     enum ResizeMode { Fixed, Adjust };
-    enum LayoutMode { Instant, Delayed };
+    enum LayoutMode { Instant, Batched };
 
     QGenericListView(QAbstractItemModel *model, QWidget *parent = 0);
     ~QGenericListView();
@@ -52,8 +52,8 @@ public:
     void setWrapping(bool enable);
     bool isWrapping() const;
 
-    void setIconSize(IconSize size);
-    IconSize iconSize() const;
+    void setIconMode(IconMode mode);
+    IconMode iconMode() const;
 
     void setResizeMode(ResizeMode mode);
     ResizeMode resizeMode() const;
@@ -76,7 +76,7 @@ public:
 protected:
     QGenericListView(QGenericListViewPrivate &, QAbstractItemModel *model, QWidget *parent = 0);
     void scrollContentsBy(int dx, int dy);
-    void resizeContents(int w, int h);
+    void resizeContents(int width, int height);
 
     void rowsInserted(const QModelIndex &parent, int start, int end);
     void rowsRemoved(const QModelIndex &parent, int start, int end);

@@ -598,8 +598,7 @@ void QItemSelectionModel::emitSelectionChanged(const QItemSelection &oldSelectio
 
 void QItemSelectionModelPrivate::init()
 {
-//    QObject::connect(model, SIGNAL(rowsInserted(const QModelIndex&,int,int)), q, SLOT(clear()));
+    // ### This is only necessary until we move the selection model over to use QPersistentModelIndex
     QObject::connect(model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)), q, SLOT(clear()));
-//    QObject::connect(model, SIGNAL(columnsInserted(const QModelIndex&,int,int)), q, SLOT(clear()));
     QObject::connect(model, SIGNAL(columnsRemoved(const QModelIndex&,int,int)), q, SLOT(clear()));
 }

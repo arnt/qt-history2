@@ -247,12 +247,18 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
     }
 }
 
+/*!
+  Creates a new QGenericListView to view the \a model, and with parent \a parent.
+*/
 QGenericListView::QGenericListView(QAbstractItemModel *model, QWidget *parent)
     : QAbstractItemView(*new QGenericListViewPrivate, model, parent)
 {
     d->init();
 }
 
+/*!
+  \internal
+*/
 QGenericListView::QGenericListView(QGenericListViewPrivate &dd, QAbstractItemModel *model,
                                    QWidget *parent)
     : QAbstractItemView(dd, model, parent)
@@ -260,10 +266,28 @@ QGenericListView::QGenericListView(QGenericListViewPrivate &dd, QAbstractItemMod
     d->init();
 }
 
+/*!
+  Destroys the view.
+*/
 QGenericListView::~QGenericListView()
 {
 }
 
+/*!
+  \property movement
+  \brief whether the items can be moved freely, snaps to a grid or not at all.
+
+  This property holds how the user can move the items in the view.
+  Static means that the items can't be moved at all by the user.
+  Free means that the user can drag and drop the items to any position in the view.
+  Snap means that the user can drag and drop the items, but only to the positions
+  in a grid decided by the property gridSize.
+
+  Setting this property when the view is visible will cause the items to
+  be layed out again.
+
+  \sa gridSize
+*/
 void QGenericListView::setMovement(Movement movement)
 {
     d->movement = movement;
@@ -276,6 +300,22 @@ QGenericListView::Movement QGenericListView::movement() const
     return d->movement;
 }
 
+/*!
+  \property flow
+  \brief which direction the items layout should flow.
+
+  If this property is LeftToRight, the items will be layed out
+  left to right. If the isWrapping property is true, the layout
+  will wrap when it reaches the right side of the visible area.
+  If this  property is TopToBottom, the items will be layed out
+  from the top of the visible area, wrapping when it reaches
+  the bottom.
+
+  Setting this property when the view is visible will cause the items to
+  be layed out again.
+
+  \sa isWrapping
+*/
 void QGenericListView::setFlow(Flow flow)
 {
     d->flow = flow;
@@ -288,6 +328,19 @@ QGenericListView::Flow QGenericListView::flow() const
     return d->flow;
 }
 
+/*!
+  \property isWrapping
+  \brief whether the items layout should wrap.
+
+  This property holds whether the layout should wrap when
+  there is no more space in the visible area. When the layout
+  wraps depends on the flow property.
+
+  Setting this property when the view is visible will cause the items to
+  be layed out again.
+
+  \sa flow doItemLayout()
+*/
 void QGenericListView::setWrapping(bool enable)
 {
     d->wrap = enable;
@@ -300,18 +353,43 @@ bool QGenericListView::isWrapping() const
     return d->wrap;
 }
 
-void QGenericListView::setIconSize(IconSize size)
+/*!
+  \property iconMode
+  \brief whether the items should be rendered as large or small items.
+
+  If this property is Small (default), the default delegate will render the items
+  as small items with the decoration to the left and the text to the right.
+  If this property is Large, the default delegate will render the items
+  as large items with the decoration on top and the text on the bottom.
+  If set to Automatic, the view will use the Small mode if the isWrapping
+  property is true.
+
+  Setting this property when the view is visible will cause the items to
+  be layed out again.
+
+  \sa isWrapping
+*/
+void QGenericListView::setIconMode(IconMode mode)
 {
-    d->iconSize = size;
+    d->iconMode = mode;
     if (isVisible())
         doItemsLayout();
 }
 
-QGenericListView::IconSize QGenericListView::iconSize() const
+QGenericListView::IconMode QGenericListView::iconMode() const
 {
-    return d->iconSize;
+    return d->iconMode;
 }
 
+/*!
+  \property resizeMode
+  \brief whether or not the items are layed out again when the view is resized.
+
+  If this property is Adjust, the items will be layed out again when the view is
+  resized. When it is Fixed, the items will not be moved.
+
+  \sa doItemsLayout()
+*/
 void QGenericListView::setResizeMode(ResizeMode mode)
 {
     d->resizeMode = mode;
@@ -322,6 +400,18 @@ QGenericListView::ResizeMode QGenericListView::resizeMode() const
     return d->resizeMode;
 }
 
+/*!
+  \property layoutMode
+  \brief whether the layout of items should be instant or delayed.
+
+  This property holds the layout mode for the items.
+  When the mode is Instant (default), the items are layed out all in one go.
+  When the mode is Batched, the items are layed out in batches of 100 items,
+  while processing events. This makes it possible to instantly view and interact
+  with items while the rest are being layed out.
+
+  \sa doItemsLayout()
+*/
 void QGenericListView::setLayoutMode(LayoutMode mode)
 {
     d->layoutMode = mode;
@@ -332,6 +422,19 @@ QGenericListView::LayoutMode QGenericListView::layoutMode() const
     return d->layoutMode;
 }
 
+/*!
+  \property spacing
+  \brief the space between items in the layout
+
+  This property is the size of the empty space between items
+  in the layout. The spacing will be ignored if the items are layed out in
+  a grid.
+
+  Setting this property when the view is visible will cause the items to
+  be layed out again.
+
+  \sa doItemsLayout()
+*/
 void QGenericListView::setSpacing(int space)
 {
     d->spacing = space;
@@ -344,6 +447,18 @@ int QGenericListView::spacing() const
     return d->spacing;
 }
 
+/*!
+  \property QGenericListView::gridSize
+  \brief the size of the layout grid
+
+  This property is the size of the grid in which the items are layed out.
+  To turn on grid layout, the grid size must be non-empty.
+
+  Setting this property when the view is visible will cause the items to
+  be layed out again.
+
+  \sa doItemsLayout()
+*/
 void QGenericListView::setGridSize(const QSize &size)
 {
     d->gridSize = size;
@@ -356,11 +471,17 @@ QSize QGenericListView::gridSize() const
     return d->gridSize;
 }
 
+/*!
+  \reimp
+*/
 QRect QGenericListView::itemViewportRect(const QModelIndex &index) const
 {
     return d->mapToViewport(itemRect(index));
 }
 
+/*!
+  \reimp
+*/
 void QGenericListView::ensureItemVisible(const QModelIndex &item)
 {
     QRect area = d->viewport->rect();
@@ -389,6 +510,9 @@ void QGenericListView::ensureItemVisible(const QModelIndex &item)
         horizontalScrollBar()->setValue(vx + rect.right() - viewport()->width());
 }
 
+/*!
+  Scroll the view contents by \a dx and \a dy.
+*/
 void QGenericListView::scrollContentsBy(int dx, int dy)
 {
     QRect rect = d->draggedItemsRect;
@@ -399,25 +523,37 @@ void QGenericListView::scrollContentsBy(int dx, int dy)
     d->viewport->repaint(rect);
 }
 
-void QGenericListView::resizeContents(int w, int h)
+/*!
+  Resize the internal contents to \a width and \a height and set the scrollbar ranges accordingly.
+*/
+void QGenericListView::resizeContents(int width, int height)
 {
-    d->contentsSize = QSize(w, h);
-    horizontalScrollBar()->setRange(0, w - viewport()->width());
-    verticalScrollBar()->setRange(0, h - viewport()->height());
+    d->contentsSize = QSize(width, height);
+    horizontalScrollBar()->setRange(0, width - viewport()->width());
+    verticalScrollBar()->setRange(0, height - viewport()->height());
 }
 
+/*!
+  \reimp
+*/
 void QGenericListView::rowsInserted(const QModelIndex &parent, int, int)
 {
     if (parent == root() && isVisible())
         doItemsLayout();
 }
 
+/*!
+  \reimp
+*/
 void QGenericListView::rowsRemoved(const QModelIndex &parent, int, int)
 {
     if (parent == root() && isVisible())
         doItemsLayout();
 }
 
+/*!
+  \reimp
+*/
 void QGenericListView::mouseMoveEvent(QMouseEvent *e)
 {
     QAbstractItemView::mouseMoveEvent(e);
@@ -426,19 +562,25 @@ void QGenericListView::mouseMoveEvent(QMouseEvent *e)
                        d->pressedPosition.y() - verticalOffset());
         QRect rect(mapToGlobal(topLeft), mapToGlobal(e->pos()));
         d->rubberBand->setGeometry(rect.normalize());
-        if (!d->rubberBand->isVisible() && d->iconSize == Large) {
+        if (!d->rubberBand->isVisible() && d->iconMode == Large) {
             d->rubberBand->show();
             d->rubberBand->raise();
         }
     }
 }
 
+/*!
+  \reimp
+*/
 void QGenericListView::mouseReleaseEvent(QMouseEvent *e)
 {
     QAbstractItemView::mouseReleaseEvent(e);
     d->rubberBand->hide();
 }
 
+/*!
+  \reimp
+*/
 void QGenericListView::timerEvent(QTimerEvent *e)
 {
     if (e->timerId() == d->layoutTimer) {
@@ -449,6 +591,9 @@ void QGenericListView::timerEvent(QTimerEvent *e)
     QAbstractItemView::timerEvent(e);
 }
 
+/*!
+  \reimp
+*/
 void QGenericListView::resizeEvent(QResizeEvent *e)
 {
     QAbstractItemView::resizeEvent(e);
@@ -460,6 +605,9 @@ void QGenericListView::resizeEvent(QResizeEvent *e)
     }
 }
 
+/*!
+  \reimp
+*/
 void QGenericListView::dragMoveEvent(QDragMoveEvent *e)
 {
     if (!model()->canDecode(e)) {
@@ -483,12 +631,18 @@ void QGenericListView::dragMoveEvent(QDragMoveEvent *e)
         e->accept();
 }
 
+/*!
+  \reimp
+*/
 void QGenericListView::dragLeaveEvent(QDragLeaveEvent *)
 {
     d->draggedItemsPos = QPoint(-1, -1); // don't draw the dragged items
     d->viewport->update(d->draggedItemsRect); // erase the area
 }
 
+/*!
+  \reimp
+*/
 void QGenericListView::dropEvent(QDropEvent *e)
 {
     if (e->source() == this && d->movement != Static) {
@@ -512,6 +666,9 @@ void QGenericListView::dropEvent(QDropEvent *e)
     }
 }
 
+/*!
+  \reimp
+*/
 QDragObject *QGenericListView::dragObject()
 {
     // This function does the same thing as in QAbstractItemView,
@@ -524,6 +681,9 @@ QDragObject *QGenericListView::dragObject()
     return model()->dragObject(items, this);
 }
 
+/*!
+  \reimp
+*/
 void QGenericListView::startDrag()
 {
     QAbstractItemView::startDrag();
@@ -531,15 +691,21 @@ void QGenericListView::startDrag()
     d->draggedItems.clear();
 }
 
+/*!
+  \reimp
+*/
 bool QGenericListView::isDragEnabled(const QModelIndex &) const
 {
     return d->movement == Free;
 }
 
+/*!
+  \reimp
+*/
 QStyleOptionViewItem QGenericListView::viewOptions() const
 {
     QStyleOptionViewItem option = QAbstractItemView::viewOptions();
-    if (d->iconSize == Automatic ? d->wrap : d->iconSize == Small) {
+    if (d->iconMode == Automatic ? !d->wrap : d->iconMode == Small) {
         option.decorationSize = QStyleOptionViewItem::Small;
         option.decorationPosition = (QApplication::reverseLayout()
                                       ? QStyleOptionViewItem::Right
@@ -551,6 +717,9 @@ QStyleOptionViewItem QGenericListView::viewOptions() const
     return option;
 }
 
+/*!
+  \reimp
+*/
 void QGenericListView::paintEvent(QPaintEvent *e)
 {
     QStyleOptionViewItem option = viewOptions();
@@ -597,6 +766,9 @@ void QGenericListView::paintEvent(QPaintEvent *e)
     }
 }
 
+/*!
+  \reimp
+*/
 QModelIndex QGenericListView::itemAt(int x, int y) const
 {
     QRect rect(x + horizontalScrollBar()->value(), y + verticalScrollBar()->value(), 1, 1);
@@ -611,16 +783,25 @@ QModelIndex QGenericListView::itemAt(int x, int y) const
     return QModelIndex();
 }
 
+/*!
+  \reimp
+*/
 int QGenericListView::horizontalOffset() const
 {
     return horizontalScrollBar()->value();
 }
 
+/*!
+  \reimp
+*/
 int QGenericListView::verticalOffset() const
 {
     return verticalScrollBar()->value();
 }
 
+/*!
+  \reimp
+*/
 QModelIndex QGenericListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
                                          Qt::ButtonState)
 {
@@ -727,6 +908,10 @@ QModelIndex QGenericListView::moveCursor(QAbstractItemView::CursorAction cursorA
     return closest;
 }
 
+/*!
+  Returns the rectangle of the item at \a index in contents coordinates.
+  \sa itemViewportRect()
+*/
 QRect QGenericListView::itemRect(const QModelIndex &index) const
 {
     if (!index.isValid() || model()->parent(index) != root())
@@ -734,6 +919,9 @@ QRect QGenericListView::itemRect(const QModelIndex &index) const
     return d->indexToListViewItem(index).rect();
 }
 
+/*!
+  \reimp
+*/
 void QGenericListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
     QRect crect(rect.left() + horizontalScrollBar()->value(),
@@ -766,6 +954,9 @@ void QGenericListView::setSelection(const QRect &rect, QItemSelectionModel::Sele
     selectionModel()->select(selection, command);
 }
 
+/*!
+  \reimp
+*/
 QRect QGenericListView::selectionViewportRect(const QItemSelection &selection) const
 {
     if (selection.count() == 1 && selection.at(0).top() == selection.at(0).bottom()) {
@@ -777,6 +968,9 @@ QRect QGenericListView::selectionViewportRect(const QItemSelection &selection) c
     return d->viewport->clipRegion().boundingRect();
 }
 
+/*!
+  Layout the items according to the flow and wrapping properties.
+*/
 void QGenericListView::doItemsLayout()
 {
     d->layoutStart = 0;
@@ -798,6 +992,9 @@ void QGenericListView::doItemsLayout()
             qApp->processEvents();
 }
 
+/*!
+  \internal
+*/
 bool QGenericListView::doItemsLayout(int delta)
 {
     int max = model()->rowCount(root()) - 1;
@@ -831,6 +1028,9 @@ bool QGenericListView::doItemsLayout(int delta)
     return false; // not done
 }
 
+/*!
+  \internal
+*/
 void QGenericListView::doItemsLayout(const QRect &bounds,
                                      const QModelIndex &first,
                                      const QModelIndex &last)
@@ -843,6 +1043,9 @@ void QGenericListView::doItemsLayout(const QRect &bounds,
         doDynamicLayout(bounds, first.row(), last.row());
 }
 
+/*!
+  \internal
+*/
 void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
 {
     int x = 0;
@@ -920,6 +1123,9 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
         d->viewport->update();
 }
 
+/*!
+  \internal
+*/
 void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
 {
     int gw = d->gridSize.width() > 0 ? d->gridSize.width() : 0;
@@ -1020,6 +1226,9 @@ void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
         d->viewport->update();
 }
 
+/*!
+  \internal
+*/
 void QGenericListView::updateGeometries()
 {
     QModelIndex index = model()->index(0, 0, root());
@@ -1043,7 +1252,7 @@ QGenericListViewPrivate::QGenericListViewPrivate()
     : QAbstractItemViewPrivate(),
       flow(QGenericListView::TopToBottom),
       movement(QGenericListView::Static),
-      iconSize(QGenericListView::Small),
+      iconMode(QGenericListView::Small),
       resizeMode(QGenericListView::Fixed),
       layoutMode(QGenericListView::Instant),
       wrap(false),
