@@ -967,7 +967,7 @@ void QPainter::setBackgroundMode( BGMode m )
 
 void QPainter::setRasterOp( RasterOp r )
 {
-    static short ropCodes[] = {
+    static const short ropCodes[] = {
 	R2_COPYPEN,	// CopyROP
 	R2_MERGEPEN,	// OrROP
 	R2_XORPEN,	// XorROP
@@ -984,6 +984,26 @@ void QPainter::setRasterOp( RasterOp r )
 	R2_MERGEPENNOT,	// OrNotROP
 	R2_NOTMASKPEN,	// NandROP
 	R2_NOTMERGEPEN	// NorROP
+    };
+    // For bitmaps, color0 is 0xffffff and color1 is 0x000000 -- so we have to
+    // use adjusted ROPs in this case to get the same effect as on Unix.
+    static const short ropCodesBitmap[] = {
+	R2_COPYPEN,	// CopyROP
+	R2_MASKPEN,	// OrROP
+	R2_NOTXORPEN,	// XorROP
+	R2_MERGENOTPEN,	// NotAndROP
+	R2_NOTCOPYPEN,	// NotCopyROP
+	R2_MASKNOTPEN,	// NotOrROP
+	R2_XORPEN,	// NotXorROP
+	R2_MERGEPEN,	// AndROP
+	R2_NOT,		// NotROP
+	R2_WHITE,	// ClearROP
+	R2_BLACK,	// SetROP
+	R2_NOP,		// NopROP
+	R2_MERGEPENNOT,	// AndNotROP
+	R2_MASKPENNOT,	// OrNotROP
+	R2_NOTMERGEPEN,	// NandROP
+	R2_NOTMASKPEN	// NorROP
     };
 
     if ( !isActive() ) {
@@ -1005,7 +1025,10 @@ void QPainter::setRasterOp( RasterOp r )
 	if ( !pdev->cmd(QPaintDevice::PdcSetROP,this,param) || !hdc )
 	    return;
     }
-    SetROP2( hdc, ropCodes[rop] );
+    if ( pdev->devType()==QInternal::Pixmap && ((QPixmap*)pdev)->isQBitmap() )
+	SetROP2( hdc, ropCodesBitmap[rop] );
+    else
+	SetROP2( hdc, ropCodes[rop] );
 }
 
 
