@@ -2288,7 +2288,7 @@ QMAKE_VARS="$QMAKE_VARS \"data.path=${QT_INSTALL_DATA}\""
 
 rm -f $outpath/include/qmodules.h.new
 cat >$outpath/include/qmodules.h.new << EOF
-// These modules are present in this configuration of Qt
+/* These modules are present in this configuration of Qt */
 EOF
 for MODULE in $MODULES; do
     if [ -d "$relpath/src/$MODULE" ]; then
