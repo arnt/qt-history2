@@ -389,6 +389,23 @@ bool QtService::isInstalled() const
     Returns TRUE if the service is running, otherwise returns FALSE.
     The service needs to be installed to be able to run.
 
+    Note that isRunning() returns FALSE if the program runs standalone,
+    so you can modify your application depending on the context is is
+    running in:
+    \code
+    int MyService::run( int argc, char **argv )
+    {
+        QApplication app( argc, argv );
+
+        QWidget *gui = new ServiceGui( ... );
+	if ( !isRunning() ) // runs stand alone -> quit when GUI is closed
+	    app.setMainWidget( gui );
+
+        gui->show();
+	return app.exec();
+    }
+    \endcode
+
     \sa isInstalled(), tryStart(), start(), stop()
 */
 bool QtService::isRunning() const
