@@ -473,9 +473,7 @@ void TextEdit::textColor()
     if (!col.isValid())
         return;
     currentEditor->setColor(col);
-    QPixmap pix(16, 16);
-    pix.fill(Qt::black);
-    actionTextColor->setIcon(pix);
+    colorChanged(col);
 }
 
 void TextEdit::textAlign(QAction *a)
@@ -496,9 +494,7 @@ void TextEdit::currentCharFormatChanged(const QTextCharFormat &format)
 {
     fontChanged(format.font());
     colorChanged(format.color());
-
-    QTextCursor cursor = currentEditor->cursor();
-    alignmentChanged(cursor.blockFormat().alignment());
+    alignmentChanged(currentEditor->alignment());
 }
 
 void TextEdit::clipboardDataChanged()
@@ -556,6 +552,7 @@ void TextEdit::editorChanged()
     currentEditor = qt_cast<QTextEdit *>(tabWidget->currentWidget());
     if (!currentEditor)
         return;
+
     fontChanged(currentEditor->font());
     colorChanged(currentEditor->color());
     alignmentChanged(currentEditor->alignment());
@@ -586,7 +583,6 @@ void TextEdit::editorChanged()
 QTextEdit *TextEdit::createNewEditor(const QString &title)
 {
     QTextEdit *edit = new QTextEdit;
-    //edit->setTextFormat(RichText);
     connect(edit, SIGNAL(currentCharFormatChanged(const QTextCharFormat &)),
             this, SLOT(currentCharFormatChanged(const QTextCharFormat &)));
 
