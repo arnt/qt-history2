@@ -664,8 +664,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value CE_ScrollBarFirst    Scroll bar first line indicator (i.e., home).
     \value CE_ScrollBarLast     Scroll bar last line indicator (i.e., end).
 
-    \value CE_SpinBoxSlider     The optional slider part of a spin box.
-
     \value CE_RubberBand        Rubber band used in such things as iconview.
 
     \value CE_FocusFrame        Focus Frame that can is style controled.
@@ -885,8 +883,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SC_SpinBoxDown  Spinwidget down/decrease
     \value SC_SpinBoxFrame  Spinwidget frame
     \value SC_SpinBoxEditField  Spinwidget edit field
-    \value SC_SpinBoxButtonField  Spinwidget button field
-    \value SC_SpinBoxSlider  Spinwidget optional slider
 
     \value SC_ComboBoxEditField  Combobox edit field; see also QComboBox
     \value SC_ComboBoxArrow  Combobox arrow

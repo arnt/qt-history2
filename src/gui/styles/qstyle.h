@@ -185,7 +185,6 @@ public:
 
         CE_Q3DockWindowEmptyArea,
         CE_ToolBoxTab,
-        CE_SpinBoxSlider,
         CE_SizeGrip,
         CE_Splitter,
         CE_RubberBand,
@@ -291,9 +290,7 @@ public:
         SC_SpinBoxDown =           0x00000002,
         SC_SpinBoxFrame =          0x00000004,
         SC_SpinBoxEditField =      0x00000008,
-        SC_SpinBoxButtonField =    0x00000010,
-        SC_SpinBoxSlider =         0x00000020,
-
+        
         SC_ComboBoxFrame =         0x00000001,
         SC_ComboBoxEditField =     0x00000002,
         SC_ComboBoxArrow =         0x00000004,

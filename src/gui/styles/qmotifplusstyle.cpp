@@ -1568,8 +1568,6 @@ QRect QMotifPlusStyle::subControlRect(ComplexControl control,
                 return QRect(x + 1, y, bs.width(), bs.height() - 1);
             case SC_SpinBoxDown:
                 return QRect(x + 1, y + bs.height() + 1, bs.width(), bs.height());
-            case SC_SpinBoxButtonField:
-                return QRect(x, y, bs.width(), h - 2*fw);
             case SC_SpinBoxEditField:
                 return QRect(lx, fw, rx, h - 2*fw);
             case SC_SpinBoxFrame:

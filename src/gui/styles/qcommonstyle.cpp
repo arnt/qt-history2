@@ -1046,17 +1046,6 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             }
         }
         break;
-    case CE_SpinBoxSlider:
-        if (const QStyleOptionSpinBox *sb = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
-            QRect re = sb->rect;
-            int tmp = (int)((double)re.width() * sb->percentage);
-            re.setWidth(tmp);
-            if (sb->direction == Qt::RightToLeft) {
-                re.moveRight(sb->rect.right());
-            }
-            p->fillRect(re, sb->palette.brush(QPalette::Highlight));
-            break;
-        }
     case CE_SizeGrip: {
         p->save();
         int x, y, w, h;
@@ -1709,16 +1698,6 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 copy.rect.adjust(3, 0, -4, 0);
                 drawPrimitive(pe, &copy, p, widget);
             }
-
-            if (sb->subControls & CE_SpinBoxSlider) {
-                copy.state = sb->state;
-                copy.subControls = SC_SpinBoxSlider;
-                copy.rect = visualRect(opt->direction, opt->rect,
-                                       subControlRect(CC_SpinBox, sb, SC_SpinBoxSlider,
-                                       widget));
-                drawControl(CE_SpinBoxSlider, &copy, p, widget);
-            }
-
         }
         break;
     case CC_ToolButton:
@@ -2001,7 +1980,7 @@ QStyle::SubControl QCommonStyle::hitTestComplexControl(ComplexControl cc, const 
         if (const QStyleOptionSpinBox *spinbox = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
             QRect r;
             uint ctrl = SC_SpinBoxUp;
-            while (ctrl <= SC_SpinBoxSlider) {
+            while (ctrl <= SC_SpinBoxEditField) {
                 r = visualRect(opt->direction, opt->rect,
                                subControlRect(cc, spinbox, QStyle::SubControl(ctrl),
                                                       widget));
@@ -2170,13 +2149,8 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
         break;
     case CC_SpinBox:
         if (const QStyleOptionSpinBox *spinbox = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
-
-            int fw = spinbox->showFrame ? pixelMetric(PM_SpinBoxFrameWidth, spinbox, widget) : 0;
-            int slider = spinbox->showSliderIndicator ? qMax(int(spinbox->rect.height() / 20),
-                                             pixelMetric(PM_SpinBoxSliderHeight, spinbox, widget))
-                                         : 0;
             QSize bs;
-
+            int fw = pixelMetric(PM_SpinBoxFrameWidth, spinbox, widget);
             bs.setHeight(qMax(8, spinbox->rect.height()/2 - fw));
             // 1.6 -approximate golden mean
             bs.setWidth(qMax(16, qMin(bs.height() * 8 / 5, spinbox->rect.width() / 4)));
@@ -2193,18 +2167,11 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
             case SC_SpinBoxDown:
                 ret = QRect(x, y + bs.height(), bs.width(), bs.height());
                 break;
-            case SC_SpinBoxButtonField:
-                ret = QRect(x, y, bs.width(), spinbox->rect.height() - 2*fw);
-                break;
             case SC_SpinBoxEditField:
-                ret = QRect(lx, fw, rx, spinbox->rect.height() - 2*fw - slider);
-                break;
-            case SC_SpinBoxSlider:
-                ret = (slider > 0 ? QRect(lx, spinbox->rect.height() - fw - slider, rx, slider)
-                                  : QRect());
+                ret = QRect(lx, fw, rx, spinbox->rect.height() - 2*fw);
                 break;
             case SC_SpinBoxFrame:
-                ret = spinbox->showFrame ? spinbox->rect : QRect();
+                ret = spinbox->rect;
             default:
                 break;
             }

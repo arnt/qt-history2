@@ -1529,8 +1529,6 @@ QRect QPocketPCStyle::subControlRect(ComplexControl         complex,
                 return QRect(xU, fw, PM_SPINBOXBUTTONWIDTH, dh);
             case SC_SpinBoxDown:
                 return QRect(xD, fw, PM_SPINBOXBUTTONWIDTH, dh);
-            case SC_SpinBoxButtonField:
-                return QRect(xU, fw, PM_SPINBOXBUTTONWIDTH*2, dh);
             case SC_SpinBoxEditField:
                 return QRect(fw, fw, w-(w-xU)-PM_SPINBOXFRAMEWIDTH, dh);
             case SC_SpinBoxFrame:

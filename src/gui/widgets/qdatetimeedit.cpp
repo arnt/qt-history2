@@ -1537,31 +1537,6 @@ QVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
     return bound(v);
 }
 
-QVariant QDateTimeEditPrivate::valueForPosition(int pos) const
-{
-    QStyleOptionSpinBox opt = styleOption();
-    QRect r = QStyle::visualRect(opt.direction, opt.rect,
-                                 q->style()->subControlRect(QStyle::CC_SpinBox,
-                                                            &opt, QStyle::SC_SpinBoxSlider, q));
-
-    double percentage = (double)QStyle::visualPos(opt.direction, r, QPoint(pos, 0)).x() / r.width();
-
-    double totalDays = (double)minimum.toDateTime().daysTo(maximum.toDateTime());
-    totalDays += (double)minimum.toDateTime().time().msecsTo(maximum.toDateTime().time()) / (24 * 3600 * 1000);
-
-    if (percentage == 0) {
-        return minimum;
-    } else if (percentage == 1) {
-        return maximum;
-    }
-
-    double diff = (totalDays * percentage);
-    QDate date = minimum.toDate().addDays((qint64)diff);
-    QTime time = QTime().addMSecs((int)(24 * 3600 * 1000 * (diff - ((double)(qint64)diff))));
-    return QVariant(QDateTime(date, time));
-}
-
-
 /*!
     \internal
 
@@ -1964,10 +1939,6 @@ QStyleOptionSpinBox QDateTimeEditPrivate::styleOption() const
     opt.activeSubControls = 0;
     opt.buttonSymbols = buttonsymbols;
     opt.subControls = QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown | QStyle::SC_SpinBoxEditField;
-    if (slider)
-        opt.subControls |= QStyle::SC_SpinBoxSlider;
-    if (frame)
-        opt.subControls |= QStyle::SC_SpinBoxFrame;
 
     if (d->buttonstate & Up) {
         opt.activeSubControls = QStyle::SC_SpinBoxUp;
@@ -1981,8 +1952,6 @@ QStyleOptionSpinBox QDateTimeEditPrivate::styleOption() const
     totalDays += (double)minimum.toDateTime().time().msecsTo(maximum.toDateTime().time()) / (24 * 3600 * 1000);
 
     opt.percentage = days / totalDays;
-    opt.showSliderIndicator = slider;
-    opt.showFrame = frame;
     return opt;
 }
 
@@ -2498,8 +2467,6 @@ void QDateTimeEditPrivate::calculateSizeHints() const
 						   QStyle::SC_SpinBoxEditField, q).size();
         hint += extra;
 
-        if (slider)
-            hint.rheight() += q->style()->pixelMetric(QStyle::PM_SpinBoxSliderHeight, &opt, q);
         cachedsizehint = cachedminimumsizehint = hint.expandedTo(QApplication::globalStrut());
         const_cast<QDateTimeEditPrivate *>(this)->sizehintdirty = false;
     }

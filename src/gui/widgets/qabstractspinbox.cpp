@@ -253,43 +253,6 @@ void QAbstractSpinBox::setWrapping(bool w)
     d->wrapping = w;
 }
 
-/*!
-    \property QAbstractSpinBox::slider
-    \brief whether the spin box's slider is pressed down
-*/
-
-bool QAbstractSpinBox::slider() const
-{
-    return d->slider;
-}
-
-void QAbstractSpinBox::setSlider(bool s)
-{
-    d->slider = s;
-    d->sliderpressed = d->slider && d->sliderpressed;
-    update();
-}
-
-/*!
-    \property QAbstractSpinBox::frame
-    \brief whether the spin box draws itself with a frame
-
-    If enabled (the default) the spin box draws itself inside a
-    two-pixel frame, otherwise the line edit draws itself without any
-    frame.
-*/
-bool QAbstractSpinBox::hasFrame() const
-{
-    return d->frame;
-}
-
-void QAbstractSpinBox::setFrame(bool enable)
-{
-    d->frame = enable;
-    update();
-    updateGeometry();
-}
-
 
 /*!
     \property QAbstractSpinBox::readOnly
@@ -523,7 +486,8 @@ void QAbstractSpinBox::setLineEdit(QLineEdit *e)
                                             style()->subControlRect(QStyle::CC_SpinBox, &opt,
                                                                     QStyle::SC_SpinBoxEditField,
                                                                     this)));
-    d->edit->installEventFilter(this);
+    d->edit->setContextMenuPolicy(Qt::NoContextMenu);
+
 
     if (isVisible())
         d->edit->show();
@@ -559,42 +523,6 @@ bool QAbstractSpinBox::event(QEvent *event)
     }
     return QWidget::event(event);
 }
-
-/*!
-    \reimp
-*/
-
-bool QAbstractSpinBox::eventFilter(QObject *object, QEvent *event)
-{
-    bool ret = false;
-    if (object == d->edit) {
-        switch (event->type()) {
-        case QEvent::ContextMenu: {
-            QContextMenuEvent *ce = static_cast<QContextMenuEvent*>(event);
-            ce->ignore();
-            contextMenuEvent(ce);
-            ret = ce->isAccepted();
-            break; }
-
-        case QEvent::MouseMove:
-        case QEvent::MouseButtonPress:
-        case QEvent::MouseButtonRelease: {
-            QMouseEvent *me = static_cast<QMouseEvent*>(event);
-            me->ignore();
-            switch (event->type()) {
-            case QEvent::MouseMove: mouseMoveEvent(me); break;
-            case QEvent::MouseButtonPress: mousePressEvent(me); break;
-            case QEvent::MouseButtonRelease: mouseReleaseEvent(me); break;
-            default: break;
-            }
-            ret = me->isAccepted();
-            break; }
-        default: break;
-        }
-    }
-    return ret;
-}
-
 
 /*!
     \reimp
@@ -878,18 +806,8 @@ void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
 {
 #ifndef QT_NO_POPUPMENU
     d->resetState();
-    const QPointer<QMenu> menu = new QMenu(this);
-#ifndef QT_NO_CLIPBOARD
-    const bool selected = d->edit->hasSelectedText();
-    menu->addAction(tr("Cu&t"), d->edit, SLOT(cut()))->setEnabled(selected);
-    menu->addAction(tr("&Copy"), d->edit, SLOT(copy()))->setEnabled(selected);
-    menu->addAction(tr("&Paste"), d->edit,
-                    SLOT(paste()))->setEnabled(QApplication::clipboard()->text().size());
-#endif
-    menu->addAction(tr("Select &All"), this, SLOT(selectAll()));
-    menu->addAction(tr("C&lear"), this, SLOT(clear()));
+    QMenu *menu = d->edit->createStandardContextMenu();
     menu->addSeparator();
-
     const uint se = stepEnabled();
     QAction *up = menu->addAction(tr("&Step up"));
     up->setEnabled(se & StepUpEnabled);
@@ -963,7 +881,7 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
 */
 void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *)
 {
-    d->dragging = d->sliderpressed = false;
+    d->dragging = false;
     if ((d->buttonstate & Mouse) != 0)
         d->resetState();
 }
@@ -980,8 +898,7 @@ QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
       spinclicktimerinterval(100), buttonstate(None), sizehintdirty(true),
       dirty(true), cachedtext("\x01"), cachedstate(QValidator::Invalid),
       pendingemit(false), readonly(false), tracking(false), wrapping(false),
-      dragging(false), ignorecursorpositionchanged(false), slider(false),
-      sliderpressed(false), frame(true),
+      dragging(false), ignorecursorpositionchanged(false),
       buttonsymbols(QAbstractSpinBox::UpDownArrows)
 {
 }
@@ -1197,23 +1114,10 @@ void QAbstractSpinBoxPrivate::updateSpinBox()
         QStyleOptionSpinBox opt = getStyleOption();
         q->update(QStyle::visualRect(opt.direction, opt.rect,
                                      q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                                QStyle::SC_SpinBoxButtonField, q)));
-    }
-}
-
-/*!
-    \internal
-
-    Calls QWidget::update() on the area where the slider is painted.
-*/
-
-void QAbstractSpinBoxPrivate::updateSlider()
-{
-    if (q) {
-        QStyleOptionSpinBox opt = getStyleOption();
+                                                                QStyle::SC_SpinBoxUp, q)));
         q->update(QStyle::visualRect(opt.direction, opt.rect,
                                      q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                                QStyle::SC_SpinBoxSlider, q)));
+                                                                QStyle::SC_SpinBoxDown, q)));
     }
 }
 
@@ -1292,8 +1196,6 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
                                                    QStyle::SC_SpinBoxEditField, q).size();
         hint += extra;
 
-        if (slider)
-            hint.rheight() += q->style()->pixelMetric(QStyle::PM_SpinBoxSliderHeight, &opt, q);
         cachedsizehint = hint.expandedTo(QApplication::globalStrut());
         cachedminimumsizehint = hint.expandedTo(QApplication::globalStrut());
         const_cast<QAbstractSpinBoxPrivate *>(this)->sizehintdirty = false;
@@ -1312,12 +1214,7 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::getStyleOption() const
     opt.init(q);
     opt.activeSubControls = 0;
     opt.buttonSymbols = buttonsymbols;
-    opt.subControls = QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown;
-    if (slider)
-        opt.subControls |= QStyle::SC_SpinBoxSlider;
-
-    if (frame)
-        opt.subControls |= QStyle::SC_SpinBoxFrame;
+    opt.subControls = QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown | QStyle::SC_SpinBoxFrame;
 
     if (buttonstate & Up)
         opt.activeSubControls = QStyle::SC_SpinBoxUp;
@@ -1335,22 +1232,7 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::getStyleOption() const
         opt.stepEnabled = QAbstractSpinBox::StepNone;
         opt.percentage = 0.0;
     }
-    opt.showSliderIndicator = slider;
-    opt.showFrame = frame;
     return opt;
-}
-
-QVariant QAbstractSpinBoxPrivate::valueForPosition(int pos) const
-{
-    QStyleOptionSpinBox opt = getStyleOption();
-    QRect r = QStyle::visualRect(opt.direction, opt.rect,
-                                 q->style()->subControlRect(QStyle::CC_SpinBox,
-                                                            &opt, QStyle::SC_SpinBoxSlider, q));
-
-    double percentage = (double)QStyle::visualPos(opt.direction, r, QPoint(pos, 0)).x() / r.width();
-
-    QVariant ret = minimum + (maximum - minimum) * percentage;
-    return ret;
 }
 
 /*!
@@ -1435,9 +1317,6 @@ void QAbstractSpinBoxPrivate::setValue(const QVariant &val, EmitPolicy ep,
     if (ep == AlwaysEmit || (ep == EmitIfChanged && changed)) {
         emitSignals(ep, old);
     }
-    if (changed && slider)
-	updateSlider();
-
 }
 
 /*!

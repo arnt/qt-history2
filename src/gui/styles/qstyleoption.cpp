@@ -895,8 +895,7 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
 
 QStyleOptionSpinBox::QStyleOptionSpinBox()
     : QStyleOptionComplex(Version, SO_SpinBox), buttonSymbols(QAbstractSpinBox::UpDownArrows),
-      stepEnabled(QAbstractSpinBox::StepNone), percentage(0.0), showSliderIndicator(false),
-      showFrame(true)
+      stepEnabled(QAbstractSpinBox::StepNone), percentage(0.0)
 {
 }
 
@@ -905,8 +904,7 @@ QStyleOptionSpinBox::QStyleOptionSpinBox()
 */
 QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
     : QStyleOptionComplex(version, SO_SpinBox), buttonSymbols(QAbstractSpinBox::UpDownArrows),
-      stepEnabled(QAbstractSpinBox::StepNone), percentage(0.0), showSliderIndicator(false),
-      showFrame(true)
+      stepEnabled(QAbstractSpinBox::StepNone), percentage(0.0)
 {
 }
 
@@ -931,16 +929,6 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
 
     The percentage is the quotient of the current value divided by
     the maximum value.
-*/
-
-/*!
-    \property QStyleOptionSpinBox::showSliderIndicator
-    \brief Indicates whether the slider indicator should be drawn.
-*/
-
-/*!
-    \property QStyleOptionSpinBox::showFrame
-    \brief Indicates whether a frame should be drawn.
 */
 
 /*!

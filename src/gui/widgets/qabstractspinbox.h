@@ -28,8 +28,6 @@ class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
     Q_PROPERTY(bool wrapping READ wrapping WRITE setWrapping)
     Q_PROPERTY(bool tracking READ tracking WRITE setTracking)
     Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
-    Q_PROPERTY(bool slider READ slider WRITE setSlider)
-    Q_PROPERTY(bool frame READ hasFrame WRITE setFrame)
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
     Q_PROPERTY(ButtonSymbols buttonSymbols READ buttonSymbols WRITE setButtonSymbols)
     Q_PROPERTY(QString text READ text)
@@ -57,12 +55,6 @@ public:
     bool wrapping() const;
     void setWrapping(bool w);
 
-    bool slider() const;
-    void setSlider(bool s);
-
-    void setFrame(bool f);
-    bool hasFrame() const;
-
     void setReadOnly(bool r);
     bool isReadOnly() const;
 
@@ -74,7 +66,6 @@ public:
 
     void interpretText();
     bool event(QEvent *event);
-    bool eventFilter(QObject *object, QEvent *event);
 
     virtual QValidator::State validate(QString &input, int &pos) const;
     virtual void fixup(QString &input) const;

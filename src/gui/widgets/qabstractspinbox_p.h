@@ -88,13 +88,11 @@ public:
     virtual QVariant bound(const QVariant &val, const QVariant &old = QVariant(), int steps = 0) const;
     QLineEdit *lineEdit();
     void updateSpinBox();
-    void updateSlider();
     void update();
     void updateEdit() const;
     virtual void calculateSizeHints() const;
 
     virtual QStyleOptionSpinBox getStyleOption() const;
-    virtual QVariant valueForPosition(int pos) const;
 
     virtual void emitSignals(EmitPolicy ep, const QVariant &old);
     virtual void refresh(EmitPolicy ep);
@@ -130,9 +128,6 @@ public:
     uint wrapping : 1;
     uint dragging : 1;
     uint ignorecursorpositionchanged : 1;
-    uint slider : 1;
-    uint sliderpressed : 1;
-    uint frame : 1;
     QStyle::SubControl hoverControl;
     QRect hoverRect;
     QAbstractSpinBox::ButtonSymbols buttonsymbols;

@@ -480,8 +480,6 @@ public:
     QAbstractSpinBox::ButtonSymbols buttonSymbols;
     QAbstractSpinBox::StepEnabled stepEnabled;
     double percentage;
-    bool showSliderIndicator;
-    bool showFrame;
 
     QStyleOptionSpinBox();
     QStyleOptionSpinBox(const QStyleOptionSpinBox &other) : QStyleOptionComplex(Version, Type) { *this = other; }
@@ -489,8 +487,6 @@ public:
     QDOC_PROPERTY(QAbstractSpinBox::ButtonSymbols buttonSymbols)
     QDOC_PROPERTY(QAbstractSpinBox::StepEnabled stepEnabled)
     QDOC_PROPERTY(double percentage)
-    QDOC_PROPERTY(bool showSliderIndicator)
-    QDOC_PROPERTY(bool showFrame)
 
 protected:
     QStyleOptionSpinBox(int version);

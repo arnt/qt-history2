@@ -2377,10 +2377,15 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                     bdi.adornment = kThemeAdornmentFocus;
                 else
                     bdi.adornment = kThemeAdornmentNone;
-                QRect updown = QStyle::visualRect(opt->direction, opt->rect,
+                QRect uprect = QStyle::visualRect(opt->direction, opt->rect,
                                                   q->subControlRect(QStyle::CC_SpinBox, sb,
-                                                                    QStyle::SC_SpinBoxButtonField,
+                                                                    QStyle::SC_SpinBoxUp,
                                                                     widget));
+                QRect downrect = QStyle::visualRect(opt->direction, opt->rect,
+                                                  q->subControlRect(QStyle::CC_SpinBox, sb,
+                                                                    QStyle::SC_SpinBoxDown,
+                                                                    widget));
+                QRect updown = QRegion(uprect).unite(downrect).boundingRect();
                 HIRect hirect = qt_hirectForQRect(updown, p);
                 HIThemeDrawButton(&hirect, &bdi, cg, kHIThemeOrientationNormal, 0);
             }
@@ -2892,9 +2897,6 @@ QRect QMacStylePrivate::HIThemeSubControlRect(QStyle::ComplexControl cc,
                 break;
             case QStyle::SC_SpinBoxDown:
                 ret.setY(ret.y() + ret.height() / 2);
-                break;
-            case QStyle::SC_SpinBoxButtonField:
-                // ret == ret :)
                 break;
             default:
                 Q_ASSERT(0);
@@ -4441,9 +4443,6 @@ QRect QMacStylePrivate::AppManSubControlRect(QStyle::ComplexControl cc,
             case QStyle::SC_SpinBoxDown:
                 ret.setY(ret.y() + ret.height() / 2);
                 break;
-            case QStyle::SC_SpinBoxButtonField:
-                // ret == ret :)
-                break;
             default:
                 Q_ASSERT(0);
                 break;
@@ -5526,7 +5525,6 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
             switch (sc) {
             case SC_SpinBoxUp:
             case SC_SpinBoxDown:
-            case SC_SpinBoxButtonField:
                 if (d->useHITheme)
                     ret = d->HIThemeSubControlRect(cc, opt, sc, w);
                 else
