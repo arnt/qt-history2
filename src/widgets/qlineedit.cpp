@@ -137,7 +137,7 @@ struct QLineEditPrivate {
     {
 	delete parag;
 	delete cursor;
-	if ( maskList ) delete maskList;
+	delete maskList;
     }
     QString displayText() const
     {
