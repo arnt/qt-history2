@@ -121,7 +121,7 @@ void CannonField::paintCannon( QPainter *p )
 QRect CannonField::cannonRect() const
 {
     QRect r( 0, 0, 50, 50 );
-    r.setBottomLeft( rect().bottomLeft() );
+    r.moveBottomLeft( rect().bottomLeft() );
     return r;
 }
 
@@ -141,6 +141,6 @@ QRect CannonField::shotRect() const
     int    y         = (int) (y0 + vely*time - gravity*time*time);
 
     QRect r = QRect( 0, 0, 6, 6 );
-    r.setCenter( QPoint( qRound(x), height() - 1 - qRound(y) ) );
+    r.moveCenter( QPoint( qRound(x), height() - 1 - qRound(y) ) );
     return r;
 }

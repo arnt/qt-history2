@@ -75,6 +75,6 @@ void CannonField::paintCannon( QPainter *p )
 QRect CannonField::cannonRect() const
 {
     QRect r( 0, 0, 50, 50 );
-    r.setBottomLeft( rect().bottomLeft() );
+    r.moveBottomLeft( rect().bottomLeft() );
     return r;
 }
