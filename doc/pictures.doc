@@ -41,6 +41,13 @@ Most of these widgets are shown in either Motif or Windows style.
 All widgets are supported in both styles (and other \link QStyle
 styles\endlink), but for clarity we just present a selection.
 
+\omit
+Below is a screen shot of the demo example running under Linux. It
+shows off many of Qt's widgets. (The source is in \c{examples/demo}.
+
+\img demo-screenshot.png
+\endomit
+
 
 Below we have three views seperated by \l {QSplitter}s. At the
 top-left there's a \l QListBox, at the top-right there's a \l
