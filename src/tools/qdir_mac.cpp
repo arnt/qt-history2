@@ -152,6 +152,9 @@ bool QDir::setCurrent( const QString &path )
 
 QString QDir::currentDirPath()
 {
+    if(qt_cwd.isEmpty())
+        qt_cwd = drives()->getFirst()->filePath();
+    const char *foo = qt_cwd.latin1();
 	return qt_cwd;
 }
 
