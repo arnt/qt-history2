@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#102 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#103 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#102 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#103 $");
 
 
 /*!
@@ -127,7 +127,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     if ( gs == WindowsStyle ) {
 	h = 2 + fm.height() + motifItemVMargin + 2*motifBarFrame;
     } else {
-	h =  motifBarFrame + motifBarVMargin + fm.height() 
+	h =  motifBarFrame + motifBarVMargin + fm.height()
 	    + motifItemVMargin + 2*motifBarFrame + 2*motifItemFrame;
     }
 
@@ -242,10 +242,10 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	return FALSE;
     }
 
-    if ( style() != WindowsStyle || 
+    if ( style() != WindowsStyle ||
 	 !isVisibleToTLW() ||
 	 !object->isWidgetType() ||
-	 !( event->type() == Event_Accel || 
+	 !( event->type() == Event_Accel ||
 	    event->type() == Event_KeyPress ||
 	    event->type() == Event_KeyRelease ) )
 	return FALSE;
@@ -535,10 +535,6 @@ int QMenuBar::calculateRects( int max_width )
     bool update = ( max_width < 0 );
 
     if ( update ) {
-        if (width() == 1) { // gcc Linux/Alpha
-	    show();
-	    return 0;
-	}
 	if ( !badSize )				// size was not changed
 	    return 0;
 	delete [] irects;
@@ -705,7 +701,7 @@ void QMenuBar::drawContents( QPainter *p )
 		g = palette().normal();
 	    else
 		g = palette().disabled();
-		     
+		
 	    if ( gs == WindowsStyle ) {
 		p->fillRect( r, palette().normal().background() );
 		if ( i == actItem ) {
@@ -925,7 +921,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 	    else if ( i < 0 )
 		i = c - 1;
 	    mi = mitems->at( i );
-	    // ### fix windows-style traversal - currently broken due to 
+	    // ### fix windows-style traversal - currently broken due to
 	    // QMenuBar's reliance on QPopupMenu
 	    if ( /* (style() == WindowsStyle || */ mi->isEnabled() /* ) */
 		 && !mi->isSeparator() )
@@ -1038,7 +1034,7 @@ void QMenuBar::setWindowsAltMode( bool enable, int index )
     if ( enable ) {
 	if ( !windowsaltactive ) {
 	    windowsaltactive = 1;
-	    if ( style() == WindowsStyle ) 
+	    if ( style() == WindowsStyle )
 		setFocus();
 	}
 	if ( index == actItem ) // work around setActItem overoptimization
