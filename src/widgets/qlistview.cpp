@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#329 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#330 $
 **
 ** Implementation of QListView widget class
 **
@@ -4288,6 +4288,7 @@ QSize QListView::sizeHint() const
 	buildDrawableList();
 
     QSize s( d->h->sizeHint() );
+    s += QSize(frameWidth()*2,frameWidth()*2);
     QListViewItem * l = d->r;
     while( l && !l->height() )
 	l = l->childItem ? l->childItem : l->siblingItem;
