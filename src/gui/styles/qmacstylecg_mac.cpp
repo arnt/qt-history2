@@ -250,19 +250,23 @@ void QMacStyleCG::polish(QWidget *w)
         bginfo.state = kThemeStateActive;
         bginfo.kind = kThemeBackgroundMetal;
         HIRect rect = CGRectMake(0, 0, px.width(), px.height());
-        HIThemeDrawBackground(&rect, &bginfo, static_cast<CGContextRef>(px.handle()),
+        HIThemeDrawBackground(&rect, &bginfo, static_cast<CGContextRef>(px.macCGHandle()),
                               kHIThemeOrientationNormal);
         p.end();
     }
 
-    if (/*::qt_cast<Q3PopupMenu *>(w) ||*/ ::qt_cast<QMenu*>(w)) {
+    if (::qt_cast<QMenu*>(w)
+#ifdef QT_COMPAT
+            || w->inherits("Q3PopupMenu")
+#endif
+       ) {
         px.resize(200, 200);
         QPainter p(&px);
         HIThemeMenuDrawInfo mtinfo;
         mtinfo.version = qt_mac_hitheme_version;
         mtinfo.menuType = kThemeMenuTypePopUp;
         HIRect rect = CGRectMake(0, 0, px.width(), px.height());
-        HIThemeDrawMenuBackground(&rect, &mtinfo, static_cast<CGContextRef>(px.handle()),
+        HIThemeDrawMenuBackground(&rect, &mtinfo, static_cast<CGContextRef>(px.macCGHandle()),
                                   kHIThemeOrientationNormal);
         p.end();
         w->setWindowOpacity(0.95);
@@ -287,7 +291,11 @@ void QMacStyleCG::polish(QWidget *w)
 void QMacStyleCG::unPolish(QWidget *w)
 {
     d->removeWidget(w);
-    if (/*::qt_cast<Q3PopupMenu *>(w) || */::qt_cast<QMenu*>(w) || qt_mac_is_metal(w)) {
+    if (::qt_cast<QMenu*>(w) || qt_mac_is_metal(w)
+#ifdef QT_COMPAT
+            || w->inherits("Q3PopupMenu")
+#endif
+       ) {
         QPalette pal = w->palette();
         QPixmap tmp;
         QBrush background(tmp);

@@ -114,9 +114,9 @@ void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt)
 CGContextRef qt_macCGHandle(const QPaintDevice *pd)
 {
     if (pd->devType() == QInternal::Widget)
-        return (CGContextRef)static_cast<const QWidget *>(pd)->macCGHandle();
+        return static_cast<CGContextRef>(static_cast<const QWidget *>(pd)->macCGHandle());
     else if (pd->devType() == QInternal::Pixmap);
-        return (CGContextRef)static_cast<const QPixmap *>(pd)->macCGHandle();
+        return static_cast<CGContextRef>(static_cast<const QPixmap *>(pd)->macCGHandle());
     Q_ASSERT(false);
     return 0;
 }
