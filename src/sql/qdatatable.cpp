@@ -1668,8 +1668,13 @@ void QDataTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDele
 	    d->fldLabel.clear();
 	    d->fldWidth.clear();
 	    d->fldIcon.clear();
-	    for ( uint i = 0; i < sqlCursor()->count(); ++i )
-		addColumn( sqlCursor()->field( i )->name(), sqlCursor()->field( i )->name() ); //## algorithm for betten display label
+	    QSqlIndex idx = cursor->primaryIndex();
+	    for ( uint i = 0; i < sqlCursor()->count(); ++i ) {
+		//## need algorithm for better display label
+		addColumn( sqlCursor()->field( i )->name(), sqlCursor()->field( i )->name() );
+		if ( idx.contains( sqlCursor()->field( i )->name() ) )
+		    setColumnReadOnly( numCols()-1, TRUE );
+	    }
 	}
 	if ( sqlCursor()->isReadOnly() )
 	    setReadOnly( TRUE );
