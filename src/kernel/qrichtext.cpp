@@ -1628,7 +1628,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 			}
 			// end qt- and body-tag handling
 		    } else if ( tagname == "meta" ) {
-			if ( attr["name"] == "qtextedit" && attr["content"] == "3.0.5" )
+			if ( attr["name"] == "qrichtext" && attr["content"] == "1" )
 			    textEditMode = TRUE;
 		    } else if ( tagname == "title" ) {
 			QString title;
@@ -2165,7 +2165,7 @@ QString QTextDocument::richText() const
 {
     QString s = "";
     if ( !par ) {
-	s += "<html><head><meta name=\"qtextedit\" content=\"3.0.5\" /></head><body style=\"font-size:" ;
+	s += "<html><head><meta name=\"qrichtext\" content=\"1\" /></head><body style=\"font-size:" ;
 	s += QString::number( formatCollection()->defaultFormat()->font().pointSize() );
 	s += "pt;font-family:";
 	s += formatCollection()->defaultFormat()->font().family();
@@ -4625,7 +4625,7 @@ void QTextParagraph::drawLabel( QPainter* p, int x, int y, int w, int h, int bas
     case QStyleSheetItem::ListSquare:
 	{
 	    QRect er( r.right() - size * 2, r.top() + fm.height() / 2 - size / 2, size, size );
-	    p->fillRect( er , cg.brush( QColorGroup::Foreground ) );
+	    p->fillRect( er , cg.brush( QColorGroup::Text ) );
 	}
 	break;
     case QStyleSheetItem::ListCircle:
@@ -4637,7 +4637,7 @@ void QTextParagraph::drawLabel( QPainter* p, int x, int y, int w, int h, int bas
     case QStyleSheetItem::ListDisc:
     default:
 	{
-	    p->setBrush( cg.brush( QColorGroup::Foreground ));
+	    p->setBrush( cg.brush( QColorGroup::Text ));
 	    QRect er( r.right()-size*2, r.top() + fm.height() / 2 - size / 2, size, size);
 	    p->drawEllipse( er );
 	    p->setBrush( Qt::NoBrush );
