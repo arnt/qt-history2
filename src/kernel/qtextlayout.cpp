@@ -288,9 +288,16 @@ QTextItem QTextLayout::findItem( int strPos ) const
 
 void QTextLayout::setFormat(int from, int length, int format)
 {
+    if (!d->items)
+	d->itemize(QTextEngine::Full);
     d->setFormat(from, length, format);
 }
 
+void QTextLayout::setTextFlags(int textFlags)
+{
+    d->textFlags = textFlags;
+    d->lines.clear();
+}
 void QTextLayout::beginLayout( QTextLayout::LayoutMode m, int textFlags )
 {
     d->items.clear();
@@ -650,6 +657,7 @@ bool QTextLayout::validCursorPosition( int pos ) const
 
 QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 {
+    Q_ASSERT(d->items.size());
     QScriptLine line;
     line.x = x1;
     line.width = x2-x1;

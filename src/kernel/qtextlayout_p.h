@@ -146,6 +146,7 @@ public:
     void setBoundary( int strPos );
 
     void setFormat(int from, int length, int format);
+    void setTextFlags(int textFlags);
 
     int numItems() const;
     QTextItem itemAt( int i ) const;
