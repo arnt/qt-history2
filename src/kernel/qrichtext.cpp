@@ -1218,16 +1218,28 @@ void QTextCursor::setDocument( QTextDocument *d )
 QTextDocument::QTextDocument( QTextDocument *p )
     : par( p ), parParag( 0 ), tc( 0 ), tArray( 0 ), tStopWidth( 0 )
 {
+    fCollection = new QTextFormatCollection;
+    init();
+}
+
+QTextDocument::QTextDocument( QTextDocument *p, QTextFormatCollection *f )
+    : par( p ), parParag( 0 ), tc( 0 ), tArray( 0 ), tStopWidth( 0 )
+{
+    fCollection = f;
+    init();
+}
+
+void QTextDocument::init()
+{
 #if defined(PARSER_DEBUG)
     qDebug( debug_indent + "new QTextDocument (%p)", this );
 #endif
-    if ( p )
-	p->insertChild( this );
+    if ( par )
+	par->insertChild( this );
     pProcessor = 0;
     useFC = TRUE;
     pFormatter = 0;
     indenter = 0;
-    fCollection = new QTextFormatCollection;
     fParag = 0;
     txtFormat = Qt::AutoText;
     preferRichText = FALSE;
@@ -1249,8 +1261,8 @@ QTextDocument::QTextDocument( QTextDocument *p )
     buf_pixmap = 0;
     nextDoubleBuffered = FALSE;
 
-    if ( p )
-	withoutDoubleBuffer = p->withoutDoubleBuffer;
+    if ( par )
+	withoutDoubleBuffer = par->withoutDoubleBuffer;
     else
 	withoutDoubleBuffer = FALSE;
 
@@ -1259,7 +1271,7 @@ QTextDocument::QTextDocument( QTextDocument *p )
 
     cx = 0;
     cy = 2;
-    if ( p )
+    if ( par )
 	cx = cy = 0;
     cw = 600;
     vw = 0;

@@ -678,6 +678,7 @@ public:
     };
 
     QTextDocument( QTextDocument *p );
+    QTextDocument( QTextDocument *d, QTextFormatCollection *f );
     ~QTextDocument();
     QTextDocument *parent() const { return par; }
     QTextParag *parentParag() const { return parParag; }
@@ -833,6 +834,7 @@ signals:
     void minimumWidthChanged( int );
 
 private:
+    void init();
     QPixmap *bufferPixmap( const QSize &s );
     // HTML parser
     bool hasPrefix(const QString& doc, int pos, QChar c);
@@ -1470,9 +1472,9 @@ inline int QTextString::length() const
     return data.size();
 }
 
-inline void QTextString::operator+=( const QString &s ) 
-{ 
-    insert( length(), s, 0 ); 
+inline void QTextString::operator+=( const QString &s )
+{
+    insert( length(), s, 0 );
 }
 
 inline int QTextParag::length() const
