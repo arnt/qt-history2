@@ -55,6 +55,12 @@ Editor::Editor( const QString &fn, QWidget *parent, const char *name )
     editable = TRUE;
 }
 
+Editor::~Editor()
+{
+    delete cfg;
+    delete parenMatcher;
+}
+
 void Editor::cursorPosChanged( QTextCursor *c )
 {
     if ( parenMatcher->match( c ) )

@@ -32,6 +32,7 @@ public:
     };
 
     Editor( const QString &fn, QWidget *parent, const char *name );
+    ~Editor();
     virtual void load( const QString &fn );
     virtual void save( const QString &fn );
     QTextDocument *document() const { return QTextEdit::document(); }
