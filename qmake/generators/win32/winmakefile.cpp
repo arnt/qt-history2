@@ -259,6 +259,27 @@ Win32MakefileGenerator::findDependency(const QString &dep)
 		return targ;
 	}
     }
+    {
+	QStringList &quc = project->variables()["QMAKE_EXTRA_WIN_COMPILERS"];
+	for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
+	    QString tmp_out = project->variables()[(*it) + ".output"].first();
+	    QString tmp_cmd = project->variables()[(*it) + ".commands"].join(" ");
+	    if(tmp_out.isEmpty() || tmp_cmd.isEmpty())
+		continue;
+	    QStringList &tmp = project->variables()[(*it) + ".input"];
+	    for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
+		QStringList &inputs = project->variables()[(*it2)];
+		for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
+		    QString out = tmp_out;
+		    QFileInfo fi(Option::fixPathToLocalOS((*input)));
+		    out.replace("${QMAKE_FILE_BASE}", fi.baseName());
+		    out.replace("${QMAKE_FILE_NAME}", fi.fileName());
+		    if(out.endsWith(dep)) 
+			return out;
+		}
+	    }
+	}
+    }
     return MakefileGenerator::findDependency(dep);
 }
 

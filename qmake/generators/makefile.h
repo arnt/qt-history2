@@ -19,6 +19,12 @@
 #include <qtextstream.h>
 #include <qptrlist.h>
 
+#ifdef Q_OS_WIN32
+#define QT_POPEN _popen
+#else
+#define QT_POPEN popen
+#endif
+
 class MakefileGenerator
 {
     QString spec;

@@ -21,12 +21,6 @@
 #include <qdir.h>
 #include <time.h>
 
-#ifdef Q_OS_WIN32
-#define QT_POPEN _popen
-#else
-#define QT_POPEN popen
-#endif
-
 QString mkdir_p_asstring(const QString &dir);
 
 UnixMakefileGenerator::UnixMakefileGenerator(QMakeProject *p) : MakefileGenerator(p), init_flag(FALSE), include_deps(FALSE)

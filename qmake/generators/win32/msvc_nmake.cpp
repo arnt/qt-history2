@@ -20,7 +20,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-
 NmakeMakefileGenerator::NmakeMakefileGenerator(QMakeProject *p) : Win32MakefileGenerator(p), init_flag(FALSE)
 {
 
@@ -126,6 +125,23 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << "UICIMPLS =	" << varList("UICIMPLS") << endl;
     t << "SRCMOC	=	" << varList("SRCMOC") << endl;
     t << "OBJMOC	=	" << varList("OBJMOC") << endl;
+
+    QString extraCompilerDeps;
+    if(!project->isEmpty("QMAKE_EXTRA_WIN_COMPILERS")) {
+	t << "OBJCOMP = " << varList("OBJCOMP") << endl;
+	extraCompilerDeps += " $(OBJCOMP) ";
+	
+	QStringList &comps = project->variables()["QMAKE_EXTRA_WIN_COMPILERS"];
+	for(QStringList::Iterator compit = comps.begin(); compit != comps.end(); ++compit) {
+	    QStringList &vars = project->variables()[(*compit) + ".variables"];
+	    for(QStringList::Iterator varit = vars.begin(); varit != vars.end(); ++varit) {
+		QStringList vals = project->variables()[(*varit)];
+		if(!vals.isEmpty())
+		    t << "QMAKE_COMP_" << (*varit) << " = " << valList(vals) << endl;
+	    }
+	}
+    }
+
     t << "DIST	=	" << varList("DISTFILES") << endl;
     t << "TARGET	=	";
     if( !project->variables()[ "DESTDIR" ].isEmpty() )
@@ -185,7 +201,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << "####### Build rules" << endl << endl;
     t << "all: " << fileFixify(Option::output.name()) << " " << varGlue("ALL_DEPS"," "," "," ") << "$(TARGET)" << endl << endl;
     t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(UICDECLS) $(OBJECTS) $(OBJMOC) "
-      << var("POST_TARGETDEPS");
+      << extraCompilerDeps << var("POST_TARGETDEPS");
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
 	t << "\n\t" << "$(LINK) $(LFLAGS) /OUT:$(TARGET) @<< " << "\n\t  "
 	  << "$(OBJECTS) $(OBJMOC) $(LIBS)";
@@ -267,6 +283,55 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	  << cmd;
     }
     t << endl << endl;
+    
+    QStringList &quc = project->variables()["QMAKE_EXTRA_WIN_COMPILERS"];
+    for(it = quc.begin(); it != quc.end(); ++it) {
+	QString tmp_out = project->variables()[(*it) + ".output"].first();
+	QString tmp_cmd = project->variables()[(*it) + ".commands"].join(" ");
+	QString tmp_dep = project->variables()[(*it) + ".depends"].join(" ");
+	QStringList &vars = project->variables()[(*it) + ".variables"];
+	if(tmp_out.isEmpty() || tmp_cmd.isEmpty())
+	    continue;
+	QStringList &tmp = project->variables()[(*it) + ".input"];
+	for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
+	    QStringList &inputs = project->variables()[(*it2)];
+	    for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
+		QFileInfo fi(Option::fixPathToLocalOS((*input)));
+		QString in = Option::fixPathToTargetOS((*input), FALSE),
+		       out = tmp_out, cmd = tmp_cmd, deps;
+		out.replace("${QMAKE_FILE_BASE}", fi.baseName());
+		out.replace("${QMAKE_FILE_NAME}", fi.fileName());
+		cmd.replace("${QMAKE_FILE_BASE}", fi.baseName());
+		cmd.replace("${QMAKE_FILE_OUT}", out);
+		cmd.replace("${QMAKE_FILE_NAME}", fi.fileName());
+		for(QStringList::Iterator it3 = vars.begin(); it3 != vars.end(); ++it3)
+		    cmd.replace("$(" + (*it3) + ")", "$(QMAKE_COMP_" + (*it3)+")");
+		if(!tmp_dep.isEmpty()) {
+		    char buff[256];
+		    QString dep_cmd = tmp_dep;
+		    dep_cmd.replace("${QMAKE_FILE_NAME}", fi.fileName());
+		    if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
+			while(!feof(proc)) {
+			    int read_in = fread(buff, 1, 255, proc);
+			    if(!read_in)
+				break;
+			    int l = 0;
+			    for(int i = 0; i < read_in; i++) {
+				if(buff[i] == '\n' || buff[i] == ' ') {
+				    deps += " " + QCString(buff+l, (i - l) + 1);
+				    l = i;
+				}
+			    }
+			}
+			fclose(proc);
+		    }
+		}
+		t << out << ": " << in << deps << "\n\t"
+		  << cmd << endl << endl;
+	    }
+	}
+    }
+    t << endl;
 
     if(project->variables()["QMAKE_NOFORCE"].isEmpty())
 	t << "FORCE:" << endl << endl;
@@ -415,5 +480,25 @@ NmakeMakefileGenerator::init()
 	project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + version + ".pdb");
 	project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + version + ".ilk");
 	project->variables()["QMAKE_CLEAN"].append("vc*.pdb");
+    }
+
+    QStringList &quc = project->variables()["QMAKE_EXTRA_WIN_COMPILERS"];
+    for(it = quc.begin(); it != quc.end(); ++it) {
+	QString tmp_out = project->variables()[(*it) + ".output"].first();
+	if(tmp_out.isEmpty())
+	    continue;
+	QStringList &tmp = project->variables()[(*it) + ".input"];
+	for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
+	    QStringList &inputs = project->variables()[(*it2)];
+	    for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
+		QFileInfo fi(Option::fixPathToLocalOS((*input)));
+		QString in = Option::fixPathToTargetOS((*input), FALSE),
+		       out = tmp_out;
+		out.replace("${QMAKE_FILE_BASE}", fi.baseName());
+		out.replace("${QMAKE_FILE_NAME}", fi.fileName());
+		if(project->variables()[(*it) + ".CONFIG"].findIndex("no_link") == -1)
+		    project->variables()["OBJCOMP"] += out;
+	    }
+	}
     }
 }
