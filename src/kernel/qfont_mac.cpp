@@ -212,7 +212,7 @@ void QFont::setPixelSizeFloat( float pixelSize )
 
 int QFont::pixelSize() const
 {
-    return d->request.pointSize;
+    return d->request.pointSize/10;
 }
 
 //
