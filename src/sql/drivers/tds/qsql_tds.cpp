@@ -362,15 +362,16 @@ bool QTDSResult::reset ( const QString& query )
 	    if ( p )
 		ret = dbbind( d->dbproc, i+1, INTBIND, (DBINT) 4, (unsigned char *)p );
 	    break;
+	case QVariant::Double:
+	    // use string binding to prevent lossof precision
+	    p = buf->append( 50, QVariant::CString, nd );
+	    if ( p )
+		ret = dbbind( d->dbproc, i+1, STRINGBIND, 50, (unsigned char *)p );
+	    break;
 	case QVariant::String:
 	    p = buf->append( dbcollen( d->dbproc, i+1 ) + 1, vType, nd );
 	    if ( p )
 		ret = dbbind( d->dbproc, i+1, STRINGBIND, DBINT(dbcollen( d->dbproc, i+1 ) + 1), (unsigned char *)p );
-	    break;
-	case QVariant::Double:
-	    p = buf->append( 8, vType, nd );
-	    if ( p )
-		ret = dbbind( d->dbproc, i+1, FLT8BIND, (DBINT) 8, (unsigned char *)p );
 	    break;
 	case QVariant::DateTime:
 	    p = buf->append( 8, vType, nd );
