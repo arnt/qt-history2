@@ -27,7 +27,10 @@ NurbSample::NurbSample()
     nurb->setGeometry( 10, 200, 320, 320 );
 
     QPushButton *b;
-    // Create 5 buttons
+
+  // Creates some buttons and connects the button's clicked signal
+  // to actions in the nurb widget.
+
     b = new QPushButton( this );
     b->setText( "Left" );
     b->setGeometry( 10, 70, 100, 30 );
@@ -51,7 +54,8 @@ NurbSample::NurbSample()
     b->setToggleButton( TRUE );
     connect( b, SIGNAL(clicked()), nurb, SLOT(animate()) );
 
-    // Create an accelerator to handle arrow keys
+  // Create an accelerator to handle arrow keys
+
     QAccel *a = new QAccel( this );
     a->connectItem( a->insertItem(Key_Left), nurb,SLOT(doLeft()) );
     a->connectItem( a->insertItem(Key_Right),nurb,SLOT(doRight()) );

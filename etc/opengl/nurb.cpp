@@ -2,7 +2,8 @@
 **
 ** Implementation of Nurb widget class
 **
-** Some of the code has been borrowed from SGI's tnurb example.
+** Some of the code has been borrowed from SGI's tnurb example, which is
+** (c) Copyright 1993, Silicon Graphics, Inc.
 **
 *****************************************************************************/
 

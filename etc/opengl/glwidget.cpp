@@ -1,9 +1,6 @@
 /****************************************************************************
 **
-** Implementation of GLWidget class
-**
-** This implementation is for X11, however, the class definition is
-** platform independent.
+** Implementation of GLWidget class for X11.
 **
 *****************************************************************************/
 
@@ -12,6 +9,19 @@
 #include <GL/glx.h>
 
 #include "glwidget.h"
+
+
+/*----------------------------------------------------------------------------
+  \class GLWidget glwidget.h
+  \brief The GLWidget is an OpenGL wrapper class.
+
+  To create your own OpenGL widget, make a subclass of GLWidget and
+  reimplement the virtual functions paintGL() and resizeGL().
+  Study the Nurb class for an example.
+
+  The GLWidget is a very thin wrapper and it probably lacks functionality.
+  Please give feedback to hanord@troll.no.
+ ----------------------------------------------------------------------------*/
 
 
 bool GLWidget::dblBuf = TRUE;
@@ -69,6 +79,15 @@ void GLWidget::initialize()
 
 
 /*----------------------------------------------------------------------------
+  \fn bool GLWidget::doubleBuffer()
+
+  Returns TRUE if double buffering is enabled, otherwise FALSE.
+
+  \sa setDoubleBuffer()
+ ----------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------
   Enables or disables double buffering. The default setting is TRUE.
 
   Call this static function before you create any GLWidgets.
@@ -83,6 +102,13 @@ void GLWidget::setDoubleBuffer( bool enable )
     }
     dblBuf = enable;
 }
+
+
+/*----------------------------------------------------------------------------
+  \fn void GLWidget::updateGL()
+
+  Updates the widget. Does not clear the background first.
+ ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------
@@ -104,15 +130,29 @@ void GLWidget::resizeGL( int, int )
 }
 
 
+/*----------------------------------------------------------------------------
+  Handles paint events. Calls the virtual function paintGL().
+ ----------------------------------------------------------------------------*/
+
 void GLWidget::swapBuffers()
 {
     glXSwapBuffers( x11Display(), winId() );
 }
 
+/*----------------------------------------------------------------------------
+  Makes this widget the current GL object. GLWidget takes care of this
+  before calling paintGL() or resizeGL().
+ ----------------------------------------------------------------------------*/
+
 void GLWidget::makeCurrentGL()
 {
     glXMakeCurrent( x11Display(), winId(), glx_context );
 }
+
+
+/*----------------------------------------------------------------------------
+  Handles paint events. Calls the virtual function paintGL().
+ ----------------------------------------------------------------------------*/
 
 void GLWidget::paintEvent( QPaintEvent * )
 {
@@ -121,6 +161,10 @@ void GLWidget::paintEvent( QPaintEvent * )
     if ( doubleBuffer() )
 	swapBuffers();
 }
+
+/*----------------------------------------------------------------------------
+  Handles resize events. Calls the virtual function resizeGL().
+ ----------------------------------------------------------------------------*/
 
 void GLWidget::resizeEvent( QResizeEvent * )
 {
