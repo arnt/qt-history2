@@ -187,15 +187,16 @@ Project::Project( const QString &fn, const QString &pName, QPluginManager<Projec
     pixCollection = new PixmapCollection( this );
     iface = 0;
     lang = "C++";
-    setFileName( fn );
-    if ( !pName.isEmpty() )
-	proName = pName;
-    if ( pName == "<No Project>" )
+    cfg.insert( "(all)", "qt warn_on release" );
+    templ = "app";
+    csList << "CPP_ALWAYS_CREATE_SOURCE";
+    if ( proName == "<No Project>" )
 	setCustomSetting( "CPP_ALWAYS_CREATE_SOURCE", "FALSE" );
     else
 	setCustomSetting( "CPP_ALWAYS_CREATE_SOURCE", "TRUE" );
-    cfg.insert( "(all)", "qt warn_on release" );
-    templ = "app";
+    setFileName( fn );
+    if ( !pName.isEmpty() )
+	proName = pName;
 }
 
 Project::~Project()
@@ -333,8 +334,9 @@ QStringList parse_multiline_part( const QString &contents, const QString &key, i
 		if ( !hadEqual && c != '=' )
 		    continue;
 		hadEqual = TRUE;
-		if ( ( c.isLetter() || c.isDigit() || c == '.' || c == '/' || c == '_' ) &&
-		     c != ' ' && c != '\t' && c != '\n' && c != '=' && c != '\\' ) {
+		if ( ( c.isLetter() || c.isDigit() || c == '.' || c == '/' || c == '_' ||
+		       c == '$' || c == '-' || c == '(' || c == ')' ) &&
+		     c != ' ' && c != '\t' && c != '\n' && c != '=' && c != '\\'  ) {
 		    if ( !inName )
 			currName = QString::null;
 		    currName += c;
@@ -403,6 +405,8 @@ void Project::parse()
 	QString part = contents.mid( i + QString( "TEMPLATE" ).length() );
 	templ = parse_part( part );
     }
+
+    qDebug( templ );
 
     readPlatformSettings( contents, "CONFIG", cfg );
     readPlatformSettings( contents, "LIBS", lbs );
@@ -1081,8 +1085,15 @@ void Project::updateCustomSettings()
     if ( !iface )
 	return;
     csList = iface->projectSettings();
-
-
+    if ( lang == "C++" ) {
+	if ( csList.find( "CPP_ALWAYS_CREATE_SOURCE" ) == csList.end() )
+	    csList << "CPP_ALWAYS_CREATE_SOURCE";
+	if ( proName == "<No Project>" )
+	    setCustomSetting( "CPP_ALWAYS_CREATE_SOURCE", "FALSE" );
+	else
+	    setCustomSetting( "CPP_ALWAYS_CREATE_SOURCE", "TRUE" );
+    }
+	
     customSettings.clear();
 
 }
@@ -1185,14 +1196,8 @@ void Project::readPlatformSettings( const QString &contents,
 	QString p = platforms[ i ];
 	if ( !p.isEmpty() )
 	    p += ":";
-	int j = contents.find( p + setting );
-	if ( j > 0 && contents[ j - 1 ] == ':' )
-	    j = -1;
-	QString s;
-	if ( j != -1 ) {
-	    QString part = contents.mid( j + QString( p + setting ).length() );
-	    s = parse_part( part );
-	}
+	QStringList lst = parse_multiline_part( contents, p + setting );
+	QString s = lst.join( " " );
 	QString key = platforms[ i ];
 	if ( key.isEmpty() )
 	    key = "(all)";
@@ -1207,7 +1212,7 @@ void Project::removePlatformSettings( QString &contents, const QString &setting 
 	QString p = platforms[ i ];
 	if ( !p.isEmpty() )
 	    p += ":";
-	remove_contents( contents, p + setting );
+	remove_multiline_contents( contents, p + setting );
     }
 }
 
