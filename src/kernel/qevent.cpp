@@ -37,7 +37,7 @@
   \ingroup event
   \ingroup kernel
 
-  The \link QApplication::exec() main event loop\endlink of Qt fetches
+  The   main event loop of Qt (QApplication::exec()) fetches
   native window system events from the event queue, translates them
   into QEvent and sends the translated events to QObjects.
 
@@ -46,11 +46,12 @@
   using QApplication::sendEvent() and QApplication::postEvent().
 
   QObject received events by having its QObject::event() function
-  called.  The default implementation simply calls
-  QObject::timerEvent() for timer events and ignores all other events.
-  QWidget reimplements \link QWidget::event() event() \endlink and
-  dispatches incoming events to various event handles such as
-  QWidget::keyPressEvent() and QWidget::mouseMoveEvent().
+  called. The function can be reimplemented in subclasses to customize
+  event handling and add additional event types. QWidget::event() is
+  a notable example. By default, events are dispatched to event handlers
+  like QObject::timerEvent() and QWidget::mouseMoveEvent(). 
+  QObject::installEventFilter() allows an object to intercept events
+  to another object.
 
   The basic QEvent only contains an event type parameter.  Subclasses
   of QEvent contain additional parameters that describe the particular
@@ -89,7 +90,7 @@
 /*! \enum QEvent::Type
 
   This enum type defines the valid event types in Qt.  The currently
-  defined event types, and the specialized types for each type, are: <ul>
+  defined event types, and the specialized classes for each type, are: <ul>
 
   <li> \c None - not an event
   <li> \c Timer - regular timer events, QTimerEvent
@@ -106,35 +107,37 @@
   <li> \c Paint - screen update necessary, QPaintEvent
   <li> \c Move - widget's position changed, QMoveEvent
   <li> \c Resize - widget's size changed, QResizeEvent
-  <li> \c Create -
-  <li> \c Destroy -
+  <li> \c Create - reserved
+  <li> \c Destroy - reserved
   <li> \c Show - widget was shown on screen, QShowEvent
   <li> \c Hide - widget was removed from screen, QHideEvent
   <li> \c Close - widget was closed (permanently), QCloseEvent
-  <li> \c Quit -
+  <li> \c Quit - reserved
   <li> \c Accel - key press in child, for shortcut key handling, QKeyEvent
   <li> \c Wheel - mouse wheel rolled, QWheelEvent
-  <li> \c AccelAvailable -
-  <li> \c CaptionChange -
-  <li> \c Clipboard -
-  <li> \c SockAct -
-  <li> \c DragEnter -
-  <li> \c DragMove -
-  <li> \c DragLeave -
-  <li> \c Drop -
+  <li> \c AccelAvailable - an internal event used by Qt on some platforms.
+  <li> \c CaptionChange - widget's caption has changed
+  <li> \c Clipboard - system clipboard contents have changed
+  <li> \c SockAct - socket activated, used to implement QSocketNotifier
+  <li> \c DragEnter - drag-and-drop enters widget, QDragEnterEvent
+  <li> \c DragMove - drag-and-drop in progress, QDragMoveEvent
+  <li> \c DragLeave - drag-and-drop leaves widget, QDragLeaveEvent
+  <li> \c Drop - drag-and-drop is completed, QDropEvent
   <li> \c DragResponse - an internal event used by Qt on some platforms.
-  <li> \c ChildInserted -
-  <li> \c ChildRemoved -
-  <li> \c LayoutHint -
-  <li> \c ActivateControl -
-  <li> \c DeactivateControl -
-  <li> \c User -
+  <li> \c ChildInserted - object gets a child, QChildEvent
+  <li> \c ChildRemoved - object loses a child, QChildEvent
+  <li> \c LayoutHint - a widget child has changed layout properties
+  <li> \c ActivateControl - an internal event used by Qt on some platforms.
+  <li> \c DeactivateControl - an internal event used by Qt on some platforms.
+  <li> \c Configure - reserved
+  <li> \c ConfigureLayout - reserved
+
+  <li> \c User - user defined event
 </ul>
 */
 /*!
   \fn QEvent::QEvent( Type type )
-  Contructs an event object with a \a type. The file qevent.h lists
-  all event types.
+  Contructs an event object with a \a type.
 */
 
 /*!
@@ -150,18 +153,15 @@
 
   \ingroup event
 
-
   Timer events are sent at regular intervals to objects that have
   started one or more timers.  Each timer has a unique identifier.
+  A timer is started with  QObject::startTimer().
 
-  If interval is 0, then the timer event occurs
-  once every time there are no more window system events to process.
-
-  The QTimer class provides a high-level programming interface with one-shot
-  timers and timer signals instead of events.
+  The QTimer class provides a high-level programming interface that
+  uses signals instead of events. It also provides one-shot timers.
 
   The event handler QObject::timerEvent() receives timer events.
-
+  
   \sa QTimer, QObject::timerEvent(), QObject::startTimer(),
   QObject::killTimer(), QObject::killTimers()
 */
@@ -185,29 +185,30 @@
 
   \ingroup event
 
-
   Mouse events occur when a mouse button is pressed or released inside a
   widget, or when the mouse cursor is moved.
 
-  Mouse move events will only occur when some mouse button is pressed down,
-  unless \link QWidget::setMouseTracking() mouse tracking\endlink has been
-  enabled.
+  Mouse move events will only occur when some mouse button is pressed
+  down, unless mouse tracking has been enabled with
+  QWidget::setMouseTracking().
 
-  Qt makes an automatic mouse grab when a mouse button is pressed inside a
+  Qt automatically grabs the mouse when a mouse button is pressed inside a
   widget, and the widget will continue to receive mouse events until the
   last mouse button is released.
 
+  The functions pos(), x() and y() give the cursor position relative
+  to the widget that receives the mouse event. If you move the widget
+  as a result of the mouse event, use the global position returned by
+  globalPos() to avoid a shaking motion.
+  
   The QWidget::setEnable() function can be used to enable or disable mouse
   and keyboard events for a widget.
-
-  The QCursor widget has static functions for reading and setting the
-  position of the mouse cursor.
 
   The event handlers QWidget::mousePressEvent(), QWidget::mouseReleaseEvent(),
   QWidget::mouseDoubleClickEvent() and QWidget::mouseMoveEvent() receive
   mouse events.
 
-  \sa QWidget::setMouseTracking(), QWidget::grabMouse()
+  \sa QWidget::setMouseTracking(), QWidget::grabMouse(), QCursor::pos()
 */
 
 /*!
@@ -215,9 +216,18 @@
 
   Constructs a mouse event object.
 
-  The type parameter must be \c QEvent::MouseButtonPress,
+  The \a type parameter must be \c QEvent::MouseButtonPress,
   \c QEvent::MouseButtonRelease,
   \c QEvent::MouseButtonDblClick or \c QEvent::MouseMove.
+
+  The \a pos parameter specifies the position relative to the receiving widget;
+  \a button specifies the ButtonState of the button that caused the event,
+  it should be 0 if \a type is \c MouseMove; and \a state is the ButtonState
+  at the time of the event.
+
+  The globalPos() is initialized to QCursor::pos(), which may not be 
+  appropriate. Use the other constructor to specify the global position
+  explicitely.
 */
 
 QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
@@ -231,16 +241,26 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 
   Constructs a mouse event object.
 
-  The type parameter must be \c QEvent::MouseButtonPress,
+  The \a type parameter must be \c QEvent::MouseButtonPress,
   \c QEvent::MouseButtonRelease,
   \c QEvent::MouseButtonDblClick or \c QEvent::MouseMove.
+  
+  The \a pos parameter specifies the position relative to the receiving widget;
+  \a globalPos gives the position in absolute coordinates;
+  \a button specifies the ButtonState of the button that caused the event,
+  it should be 0 if \a type is \c MouseMove; and \a state is the ButtonState
+  at the time of the event.
 */
 
 /*!
   \fn const QPoint &QMouseEvent::pos() const
   Returns the position of the mouse pointer, relative to the widget that
   received the event.
-  \sa x(), y()
+  
+  If you move the widget as a result of the mouse event, use the
+  global position returned by globalPos() to avoid a shaking motion.
+  
+  \sa x(), y(), globalPos()
 */
 
 /*!
@@ -250,7 +270,8 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
   time of the event. This is important on asynchronous window systems
   like X11: Whenever you move your widgets around in response to mouse
   evens, globalPos() can differ a lot from the current pointer
-  position QCursor::pos().
+  position QCursor::pos(), and from 
+  <code> QWidget::mapToGlobal( pos() ) </code>.
 
   \sa globalX(), globalY()
 */
@@ -306,6 +327,9 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
   QEvent::MouseButtonDblClick, the flag for the button() itself will not be
   set in the state; while for \c QEvent::MouseButtonRelease, it will.
 
+  This value is mainly interesting for \c QEvent::MouseMove, for the
+  other cases, button() is more useful.
+  
   The returned value is \c LeftButton, \c RightButton, \c MidButton,
   \c ShiftButton, \c ControlButton and \c AltButton OR'ed together.
 
@@ -338,18 +362,18 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 
 
   Wheel events occur when a mouse wheel is turned while the widget has
-  focus.  The rotation distance is provided by delta(). If required,
-  both pos() and globalPos() return the mouse pointer location at the
+  focus.  The rotation distance is provided by delta(). The functions
+  pos() and globalPos() return the mouse pointer location at the
   time of the event.
 
   A wheel event contains a special accept flag which tells whether the
   receiver wants the event.  You should call QWheelEvent::accept() if you
-  handle the wheel event, otherwise it will be sent to the parent widget as well.
+  handle the wheel event, otherwise it will be sent to the parent widget.
 
   The QWidget::setEnable() function can be used to enable or disable mouse
   and keyboard events for a widget.
 
-  The event handlers QWidget::wheelEvent() receive wheel events.
+  The event handler QWidget::wheelEvent() receive wheel events.
 
   \sa QMouseEvent, QWidget::grabMouse()
 */
@@ -359,6 +383,12 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 
   Constructs a wheel event object.
 
+  The globalPos() is initialized to QCursor::pos(), which may not be 
+  appropriate. Use the other constructor to specify the global position
+  explicitely.
+
+  
+  \sa pos(), delta(), state()
 */
 QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
     : QEvent(Wheel), p(pos), d(delta), s((ushort)state),
@@ -372,6 +402,7 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
 
   Constructs a wheel event object.
 
+  \sa pos(), globalPos(), delta(), state()
 */
 
 /*!
@@ -394,7 +425,11 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
   \fn const QPoint &QWheelEvent::pos() const
   Returns the position of the mouse pointer, relative to the widget that
   received the event.
-  \sa x(), y()
+  
+  If you move your widgets around in response to mouse
+  evens, use globalPos() instead of this function.
+  
+  \sa x(), y(), globalPos()
 */
 
 /*!
@@ -439,7 +474,7 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
 
 /*!
   \fn ButtonState QWheelEvent::state() const
-  Returns the keyboard modifier flags.
+  Returns the keyboard modifier flags of the event.
 
   The returned value is \c ShiftButton, \c ControlButton and \c AltButton
   OR'ed together.
@@ -468,7 +503,6 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
 
   Clearing the accept parameter indicates that the event receiver does
   not want the wheel event. Unwanted wheel events are sent to the parent widget.
-
   The accept flag is set by default.
 
   \sa accept()
@@ -923,9 +957,13 @@ void QFocusEvent::resetReason()
 
   \ingroup event
 
-
   Child events are sent to objects when children are inserted or removed.
 
+  A \c ChildRemoved event is sent immediately, but a \c ChildInserted event
+  is \e posted (with QApplication::postEvent())
+  
+  
+  
   The handler for these events is QObject::childEvent().
 */
 
