@@ -92,14 +92,14 @@ QSqlCursor* DatabaseSupport::defCursor()
 	cursor->select();
 	autoDeleteCursors.insert( 0, cursor );
 	QSqlRecord* buf = cursor->editBuffer();
-
 	for ( QMap<QString, QString>::Iterator it = dbControls.begin(); it != dbControls.end(); ++it ) {
 	    QObject *chld = parent->child( it.key(), "QWidget" );
 	    if ( !chld )
 		continue;
 	    form->insert( (QWidget*)chld, buf->field( *it ) );
 	}
-	form->readFields();
+	if ( form )
+	    form->readFields();
     }
     return cursor;
 }
