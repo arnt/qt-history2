@@ -124,7 +124,7 @@ public:
 */
 
 
-QTabWidget::QTabWidget( QWidget *parent, const char *name, WFlags f)
+QTabWidget::QTabWidget( QWidget *parent, const char *name, WFlags f )
     : QWidget( parent, name, f )
 {
     init();
@@ -133,7 +133,7 @@ QTabWidget::QTabWidget( QWidget *parent, const char *name, WFlags f)
 /*!
   \overload
 */
-QTabWidget::QTabWidget( QWidget *parent, const char *name)
+QTabWidget::QTabWidget( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
     init();
@@ -151,6 +151,8 @@ void QTabWidget::init()
     d->stack->setLineWidth( style().defaultFrameWidth() );
 
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
+    setFocusPolicy( TabFocus );
+    setFocusProxy( d->tabs );
 }
 
 /*!
