@@ -70,6 +70,9 @@ void ConfigureApp::buildModulesList()
 {
     QDir dir( qtDir + "/src" );
     const QFileInfoList* fiList = dir.entryInfoList();
+    if ( !fiList )
+	return;
+
     QFileInfoListIterator listIter( *fiList );
     QFileInfo* fi;
 
