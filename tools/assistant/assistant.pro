@@ -15,17 +15,6 @@ PROJECTNAME        = Assistant
 DESTDIR            = ../../bin
 INCLUDEPATH += $(QTDIR)/include/flat
 
-PRE_TARGETDEPS += ui_sources
-
-ui_sources.depends = ui_finddialog.h \
-        ui_helpdialog.h \
-        ui_mainwindow.h \
-        ui_settingsdialog.h \
-        ui_tabbedbrowser.h \
-        ui_topicchooser.h
-
-QMAKE_EXTRA_TARGETS += ui_sources
-
 UI_SOURCES += finddialog.ui \
         helpdialog.ui \
         mainwindow.ui \
