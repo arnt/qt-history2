@@ -2540,7 +2540,7 @@ QString QFileDialog::selectedFilter() const
   Selects the \a n filter in the list.
 */
 
-void QFileDialog::setSelectedFilter( int n )
+void QFileDialog::setSelectedFilter( int n ) const
 {
     d->types->setCurrentItem( n );
 }
@@ -2549,7 +2549,7 @@ void QFileDialog::setSelectedFilter( int n )
   Selects the first filter that contains \a mask.
 */
 
-void QFileDialog::setSelectedFilter( const QString& mask )
+void QFileDialog::setSelectedFilter( const QString& mask ) const
 {
     int n;
 
