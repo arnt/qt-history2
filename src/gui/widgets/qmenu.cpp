@@ -89,7 +89,7 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
     actionRects.clear();
     actionList.clear();
     QList<QAction*> items = q->actions();
-    int max_column_width = 0, dh = QApplication::desktop()->height(), ncols = 1, y = 0;
+    int max_column_width = 0, dh = QApplication::desktop()->availableGeometry(q).height(), ncols = 1, y = 0;
     const int hmargin = q->style()->pixelMetric(QStyle::PM_MenuHMargin, 0, q),
               vmargin = q->style()->pixelMetric(QStyle::PM_MenuVMargin, 0, q),
               icone = q->style()->pixelMetric(QStyle::PM_SmallIconSize, 0, q);
@@ -404,16 +404,17 @@ void QMenuPrivate::scrollMenu(QAction *action, QMenuScroller::ScrollLocation loc
             break;
         }
     }
-    if (location == QMenuScroller::ScrollTop && (newScrollFlags & QMenuScroller::ScrollUp)
-       && !(scroll->scrollFlags & QMenuScroller::ScrollUp))
+
+    if (location == QMenuScroller::ScrollTop && ((newScrollFlags & QMenuScroller::ScrollUp)
+                                                 || !(scroll->scrollFlags & QMenuScroller::ScrollUp)))
         newOffset += scrollHeight;
-    else if (location == QMenuScroller::ScrollBottom && (newScrollFlags & QMenuScroller::ScrollDown)
-            && !(scroll->scrollFlags & QMenuScroller::ScrollDown))
+    else if (location == QMenuScroller::ScrollBottom && ((newScrollFlags & QMenuScroller::ScrollDown)
+                                                         || !(scroll->scrollFlags & QMenuScroller::ScrollDown)))
         newOffset -= scrollHeight;
 
-    int dh = QApplication::desktop()->height();
+    QRect screen = QApplication::desktop()->availableGeometry(q);
     const int desktopFrame = q->style()->pixelMetric(QStyle::PM_MenuDesktopFrameWidth, 0, q);
-    if (q->height() < dh-(desktopFrame*2)) {
+    if (q->height() < screen.height()-(desktopFrame*2)-1) {
         QRect geom = q->geometry();
         if (newOffset > d->scroll->scrollOffset) { //scroll up
             geom.setHeight(geom.height()-(newOffset-scroll->scrollOffset));
@@ -424,10 +425,10 @@ void QMenuPrivate::scrollMenu(QAction *action, QMenuScroller::ScrollLocation loc
                 newScrollFlags &= ~QMenuScroller::ScrollUp;
             }
         }
-        if (geom.bottom() > dh - desktopFrame)
-            geom.setBottom(dh - desktopFrame);
-        if (geom.top() < desktopFrame)
-            geom.setTop(desktopFrame);
+        if (geom.bottom() > screen.bottom() - desktopFrame)
+            geom.setBottom(screen.bottom() - desktopFrame);
+        if (geom.top() < desktopFrame+screen.top())
+            geom.setTop(desktopFrame+screen.top());
         if (geom != q->geometry()) {
 #if 0
             if (newScrollFlags & QMenuScroller::ScrollDown &&
@@ -1224,7 +1225,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
     d->updateActions();
     QPoint pos = p;
     QSize size = sizeHint() + contentsMarginSize();
-    QRect screen = QApplication::desktop()->screenGeometry(p);
+    QRect screen = QApplication::desktop()->availableGeometry(p);
     const int desktopFrame = style()->pixelMetric(QStyle::PM_MenuDesktopFrameWidth, 0, this);
     if (d->ncols != 1) {
         pos.setY(screen.top()+desktopFrame);
@@ -1270,7 +1271,12 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
     }
     if (d->scroll && pos.y()+size.height() > screen.height()-(desktopFrame*2)) {
         d->scroll->scrollFlags |= uint(QMenuPrivate::QMenuScroller::ScrollDown);
-        size.setHeight(screen.height()-desktopFrame-pos.y());
+        size.setHeight(screen.bottom()-desktopFrame-pos.y());
+    } else {
+        if(pos.y()+size.height() > screen.height())
+            pos.setY(desktopFrame+screen.top()+(screen.height()-desktopFrame-size.height()));
+        else if(pos.y() < screen.top())
+            pos.setY(screen.top());
     }
     setGeometry(QRect(pos, size));
 
@@ -2035,7 +2041,7 @@ void QMenu::internalDelayedPopup()
 
     //setup
     QRect actionRect(d->actionRect(d->currentAction));
-    QPoint pos(mapToGlobal(QPoint(width(), actionRect.top())));
+    QPoint pos(mapToGlobal(QPoint(actionRect.right(), actionRect.top())));
     d->activeMenu = d->currentAction->menu();
     d->activeMenu->d->causedPopup = this;
 
@@ -2049,11 +2055,11 @@ void QMenu::internalDelayedPopup()
     } else {
         QMenu *caused = qobject_cast<QMenu*>(d->causedPopup);
         if (caused && caused->x() > x() ||
-           x() + width() + menuSize.width() > QApplication::desktop()->width())
+            x() + width() + menuSize.width() > QApplication::desktop()->width())
             on_left = true;
     }
     if (on_left)
-        pos.rx() = x() - menuSize.width();
+        pos.rx() = mapToGlobal(QPoint(actionRect.left() - menuSize.width(), 0)).x();
 
     //calc sloppy focus buffer
     if (style()->styleHint(QStyle::SH_Menu_SloppySubMenus, 0, this)) {
