@@ -148,7 +148,7 @@ public:
     // QTranslator must finalize this before deallocating it
 
     // for mmap'ed files, this is what needs to be unmapped.
-    char * unmapPointer;
+    char *unmapPointer;
     unsigned int unmapLength;
 
     // for squeezed but non-file data, this is what needs to be deleted
@@ -358,8 +358,8 @@ QTranslator::~QTranslator()
 */
 
 bool QTranslator::load(const QString & filename, const QString & directory,
-                        const QString & search_delimiters,
-                        const QString & suffix)
+                       const QString & search_delimiters,
+                       const QString & suffix)
 {
     Q_D(QTranslator);
     clear();
@@ -414,7 +414,9 @@ bool QTranslator::load(const QString & filename, const QString & directory,
 
     // realname is now the fully qualified name of a readable file.
 
-#if defined(QT_USE_MMAP)
+    bool ok = false;
+
+#ifdef QT_USE_MMAP
 
 #ifndef MAP_FILE
 #define MAP_FILE 0
@@ -423,58 +425,53 @@ bool QTranslator::load(const QString & filename, const QString & directory,
 #define MAP_FAILED -1
 #endif
 
-    int f;
-
-    f = QT_OPEN(QFile::encodeName(realname), O_RDONLY,
+    int fd = -1;
+    if (!realname.startsWith(QLatin1String(":")))
+        fd = QT_OPEN(QFile::encodeName(realname), O_RDONLY,
 #if defined(Q_OS_WIN)
-            _S_IREAD | _S_IWRITE
+                 _S_IREAD | _S_IWRITE
 #else
-            0666
+                 0666
 #endif
-            );
-    if (f < 0) {
-        // qDebug("can't open %s: %s", realname.ascii(), strerror(errno));
-        return false;
+                );
+    if (fd >= 0) {
+        struct stat st;
+        if (!fstat(fd, &st)) {
+            char *ptr;
+            ptr = reinterpret_cast<char *>(
+                        mmap(0, st.st_size,             // any address, whole file
+                             PROT_READ,                 // read-only memory
+                             MAP_FILE | MAP_PRIVATE,    // swap-backed map from file
+                             fd, 0));                   // from offset 0 of fd
+            if (ptr && ptr != reinterpret_cast<char *>(MAP_FAILED)) {
+                d->unmapPointer = ptr;
+                d->unmapLength = st.st_size;
+                ok = true;
+            }
+        }
+        ::close(fd);
     }
+#endif // QT_USE_MMAP
 
-    struct stat st;
-    if (fstat(f, &st)) {
-        // qDebug("can't stat %s: %s", realname.ascii(), strerror(errno));
-        return false;
-    }
-    char * tmp;
-    tmp = (char*)mmap(0, st.st_size, // any address, whole file
-                       PROT_READ, // read-only memory
-                       MAP_FILE | MAP_PRIVATE, // swap-backed map from file
-                       f, 0); // from offset 0 of f
-    if (!tmp || tmp == (char*)MAP_FAILED) {
-        // qDebug("can't mmap %s: %s", filename.ascii(), strerror(errno));
-        return false;
-    }
-
-    ::close(f);
-
-    d->unmapPointer = tmp;
-    d->unmapLength = st.st_size;
-#else
-    QFile f(realname);
-    if (!f.exists())
-        return false;
-    d->unmapLength = f.size();
-    d->unmapPointer = new char[d->unmapLength];
-    bool ok = false;
-    if (f.open(QIODevice::ReadOnly)) {
-        ok = d->unmapLength == (uint)f.read(d->unmapPointer, d->unmapLength);
-        f.close();
-    }
     if (!ok) {
-        delete [] d->unmapPointer;
-        d->unmapPointer = 0;
-        return false;
-    }
-#endif
+        QFile file(realname);
+        if (!file.exists())
+            return false;
+        d->unmapLength = file.size();
+        d->unmapPointer = new char[d->unmapLength];
 
-    return d->do_load((const uchar *) d->unmapPointer, d->unmapLength);
+        if (file.open(QIODevice::ReadOnly))
+            ok = (d->unmapLength == (uint)file.read(d->unmapPointer, d->unmapLength));
+
+        if (!ok) {
+            delete [] d->unmapPointer;
+            d->unmapPointer = 0;
+            d->unmapLength = 0;
+            return false;
+        }
+    }
+
+    return d->do_load(reinterpret_cast<const uchar *>(d->unmapPointer), d->unmapLength);
 }
 
 /*!
@@ -553,11 +550,11 @@ bool QTranslatorPrivate::do_load(const uchar *data, int len)
 bool QTranslator::save(const QString & filename, SaveMode mode)
 {
     Q_D(QTranslator);
-    QFile f(filename);
-    if (f.open(QIODevice::WriteOnly)) {
+    QFile file(filename);
+    if (file.open(QIODevice::WriteOnly)) {
         squeeze(mode);
 
-        QDataStream s(&f);
+        QDataStream s(&file);
         s.writeRawData((const char *)magic, MagicLength);
         Q_UINT8 tag;
 
