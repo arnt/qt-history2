@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#186 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#187 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -274,6 +274,8 @@ void Q_EXPORT qt_qstring_stats()
 	debug("copy_on_write = %d (%d chars)", stat_copy_on_write, stat_copy_on_write_size);
 	debug("fast_copy = %d", stat_fast_copy);
 }
+#else
+#define Q2HELPER(x)
 #endif
 
 /*!
