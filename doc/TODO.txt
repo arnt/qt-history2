@@ -396,3 +396,6 @@ QListBox (Reggie)
 
 QTable (Reggie):
     functions for insert/remove row/column
+
+QPrinter
+    get a list of the available printers
