@@ -61,14 +61,6 @@ public:
 
     void updateState(const QPaintEngineState &state);
 
-    void updatePen(const QPen &pen);
-    void updateBrush(const QBrush &brush, const QPointF &pt);
-    void updateFont(const QFont &font);
-    void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
-    void updateMatrix(const QMatrix &matrix);
-    void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
-    void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
-    void updateRenderHints(QPainter::RenderHints hints);
     virtual void drawLines(const QLineF *lines, int lineCount);
     virtual void drawRects(const QRectF *r, int num);
     virtual void drawPoints(const QPointF *p, int pointCount);
@@ -79,11 +71,8 @@ public:
     virtual void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
 				 Qt::PixmapDrawingMode mode);
     virtual void drawPath(const QPainterPath &);
-    virtual QPainter::RenderHints supportedRenderHints() const;
-
 
 private:
-    virtual void updateInternal(QPainterState *state, bool updateGC = true);
     friend class QPrintDialog;
     friend class QPageSetupDialog;
 };

@@ -517,10 +517,10 @@ void QPaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF 
 */
 
 QPaintEngine::QPaintEngine(PaintEngineFeatures caps)
-    : active(0),
-      selfDestruct(false),
-      state(0),
+    : state(0),
       gccaps(caps),
+      active(0),
+      selfDestruct(false),
       d_ptr(new QPaintEnginePrivate)
 {
     d_ptr->q_ptr = this;
@@ -531,10 +531,10 @@ QPaintEngine::QPaintEngine(PaintEngineFeatures caps)
 */
 
 QPaintEngine::QPaintEngine(QPaintEnginePrivate &dptr, PaintEngineFeatures caps)
-    : active(0),
-      selfDestruct(false),
-      state(0),
+    : state(0),
       gccaps(caps),
+      active(0),
+      selfDestruct(false),
       d_ptr(&dptr)
 {
     d_ptr->q_ptr = this;
@@ -770,10 +770,19 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 #if !defined(Q_WS_X11) && !defined(Q_WS_WIN)
     if (hasFeature(QPaintEngine::UsesFontEngine)) {
 	bool useFontEngine = true;
-        if (state->txop > QPainterPrivate::TxTranslate) {
+        QMatrix matrix = state->matrix();
+        bool simple = matrix.m11() == 1 && matrix.m12() == 0
+                        && matrix.m21() == 0 && matrix.m22() == 1;
+        if (!simple) {
             useFontEngine = false;
             QFontEngine *fe = ti.fontEngine;
             QFontEngine::FECaps fecaps = fe->capabilites();
+            useFontEngine = (fecaps == QFontEngine::FullTransformations);
+            if (!useFontEngine
+                    && matrix.m11() == matrix.m22()
+                    && matrix.m12() == -matrix.m21())
+                useFontEngine = (fecaps & QFontEngine::RotScale) == QFontEngine::RotScale;
+#if 0
             if (state->txop == QPainterPrivate::TxRotShear) {
                 useFontEngine = (fecaps == QFontEngine::FullTransformations);
                 if (!useFontEngine
@@ -783,6 +792,7 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
             } else if (state->txop == QPainterPrivate::TxScale) {
                 useFontEngine = (fecaps & QFontEngine::Scale);
             }
+#endif
         }
         if (useFontEngine) {
             ti.fontEngine->draw(this, qRound(p.x()),  qRound(p.y()), ti);

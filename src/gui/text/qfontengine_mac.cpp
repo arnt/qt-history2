@@ -103,11 +103,11 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItemInt &
 {
     if(p->type() == QPaintEngine::MacPrinter)
         p = static_cast<QMacPrintEngine*>(p)->paintEngine();
-    QPainterState *pState = p->painterState();
+    QPaintEngineState *pState = p->state;
     int x = req_x, y = req_y;
 
 #if 1
-    if(p->type() == QPaintEngine::QuickDraw && pState->txop) {
+    if(p->type() == QPaintEngine::QuickDraw && !pState->matrix().isIdentity()) {
         float aw = si.width, ah = si.ascent + si.descent + 1;
         if(aw == 0 || ah == 0)
             return;
@@ -120,18 +120,17 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItemInt &
         }
 
         QPixmap pm(bm.size());
-        if(pState->painter->backgroundMode() == Qt::OpaqueMode) {
+        if(pState->backgroundMode() == Qt::OpaqueMode) {
             pm = bm;
             bm.fill(Qt::color1);
             pm.setMask(bm);
         } else {
             QPainter paint(&pm);
-            paint.fillRect(0, 0, pm.width(), pm.height(), pState->painter->pen().color());
+            paint.fillRect(0, 0, pm.width(), pm.height(), pState->pen().color());
             paint.end();
             pm.setMask(bm);
         }
-
-        pState->painter->drawPixmap(x, y - qRound(si.ascent), pm);
+        pState->painter()->drawPixmap(x, y - qRound(si.ascent), pm);
         return;
     }
 #endif
@@ -142,14 +141,14 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItemInt &
         mgc->setupQDFont();
     }
 
-    if(pState->painter->backgroundMode() == Qt::OpaqueMode) {
+    if(pState->backgroundMode() == Qt::OpaqueMode) {
         glyph_metrics_t br = boundingBox(si.glyphs, si.num_glyphs);
-        pState->painter->fillRect(x + int(br.x), y + int(br.y), int(br.width), int(br.height),
-                                  pState->painter->background().color());
+        pState->painter()->fillRect(x + int(br.x), y + int(br.y), int(br.width), int(br.height),
+                                  pState->backgroundBrush().color());
     }
 
-    bool textAA = p->renderHints() & QPainter::TextAntialiasing;
-    bool lineAA = p->renderHints() & QPainter::Antialiasing;
+    bool textAA = pState->renderHints() & QPainter::TextAntialiasing;
+    bool lineAA = pState->renderHints() & QPainter::Antialiasing;
     if(p->type() == QPaintEngine::CoreGraphics && textAA != lineAA)
         CGContextSetShouldAntialias(QMacCGContext(p->painter()), textAA);
 
@@ -165,22 +164,22 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItemInt &
         doTextTask((QChar*)g.data(), 0, si.num_glyphs, si.num_glyphs, DRAW, x, y, p) + 1;
     }
     if(si.width && si.flags != 0) {
-        QPen oldPen = p->painter()->pen();
-        QBrush oldBrush = p->painter()->brush();
-        p->painter()->setBrush(p->painter()->pen().color());
-        p->painter()->setPen(Qt::NoPen);
+        QPen oldPen = pState->pen();
+        QBrush oldBrush = pState->brush();
+        pState->painter()->setBrush(pState->pen().color());
+        pState->painter()->setPen(Qt::NoPen);
         const float lw = lineThickness();
         if(si.flags & QTextItem::Underline)
-            p->painter()->drawRect(QRectF(req_x, req_y + underlinePosition(), si.width, lw));
+            pState->painter()->drawRect(QRectF(req_x, req_y + underlinePosition(), si.width, lw));
         if(si.flags & QTextItem::Overline)
-            p->painter()->drawRect(QRectF(req_x, req_y - (ascent() + 1), si.width, lw));
+            pState->painter()->drawRect(QRectF(req_x, req_y - (ascent() + 1), si.width, lw));
         if(si.flags & QTextItem::StrikeOut)
-            p->painter()->drawRect(QRectF(req_x, req_y - (ascent() / 3), si.width, lw));
-        p->painter()->setBrush(oldBrush);
-        p->painter()->setPen(oldPen);
+            pState->painter()->drawRect(QRectF(req_x, req_y - (ascent() / 3), si.width, lw));
+        pState->painter()->setBrush(oldBrush);
+        pState->painter()->setPen(oldPen);
     }
     if(p->type() == QPaintEngine::CoreGraphics && textAA != lineAA)
-        CGContextSetShouldAntialias(QMacCGContext(p->painter()), !textAA);
+        CGContextSetShouldAntialias(QMacCGContext(pState->painter()), !textAA);
 }
 
 glyph_metrics_t
@@ -333,12 +332,12 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
                                int x, int y, QPaintEngine *p) const
 {
     QATSUStyle *st = getFontStyle();
-    QPainterState *pState = 0;
+    QPaintEngineState *pState = 0;
     QPaintDevice *device = 0;
     QWidget *widget = 0;
     if(p) {
-        pState = p->painterState();
-        device = p->painter()->device();
+        pState = p->state;
+        device = p->paintDevice();
         if(device->devType() == QInternal::Widget)
             widget = static_cast<QWidget *>(device);
     }
@@ -349,7 +348,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     int ret = 0;
     if(task & DRAW) {
         Q_ASSERT(p); //really need a painter and engine to do any drawing!!!
-        QColor rgb = pState->painter->pen().color();
+        QColor rgb = pState->pen().color();
 
         if(rgb != st->rgb) {
             st->rgb = rgb;

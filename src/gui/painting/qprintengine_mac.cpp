@@ -424,70 +424,7 @@ bool QMacPrintEnginePrivate::newPage_helper()
 
 void QMacPrintEngine::updateState(const QPaintEngineState &state)
 {
-    QPaintEngine::DirtyFlags flags = state.state();
-    if (flags & DirtyTransform) updateMatrix(state.matrix());
-    if (flags & DirtyPen) updatePen(state.pen());
-    if (flags & DirtyBrush) updateBrush(state.brush(), state.brushOrigin());
-    if (flags & DirtyBackground) updateBackground(state.backgroundMode(), state.backgroundBrush());
-    if (flags & DirtyFont) updateFont(state.font());
-    if (flags & DirtyClipPath) updateClipPath(state.clipPath(), state.clipOperation());
-    if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
-    if (flags & DirtyHints) updateRenderHints(state.renderHints());
-}
-
-void QMacPrintEngine::updatePen(const QPen &pen)
-{
-    Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->updatePen(pen);
-}
-
-void QMacPrintEngine::updateBrush(const QBrush &brush, const QPointF &pt)
-{
-    Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->updateBrush(brush, pt);
-}
-
-void QMacPrintEngine::updateInternal(QPainterState *newState, bool updateGC)
-{
-    d->paintEngine->state = state; // ### QPainter changes my state without me knowing in begin().
-    d->paintEngine->updateInternal(newState, updateGC);
-    QPaintEngine::updateInternal(newState, updateGC);
-}
-
-void QMacPrintEngine::updateFont(const QFont &font)
-{
-    Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->updateFont(font);
-}
-
-void QMacPrintEngine::updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush)
-{
-    Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->updateBackground(bgmode, bgBrush);
-}
-
-void QMacPrintEngine::updateMatrix(const QMatrix &matrix)
-{
-    Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->updateMatrix(matrix);
-}
-
-void QMacPrintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation op)
-{
-    Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->updateClipRegion(region, op);
-}
-
-void QMacPrintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op)
-{
-    Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->updateClipPath(path, op);
-}
-
-void QMacPrintEngine::updateRenderHints(QPainter::RenderHints hints)
-{
-    Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->updateRenderHints(hints);
+    d->paintEngine->updateState(state);
 }
 
 void QMacPrintEngine::drawRects(const QRectF *r, int num)
@@ -544,12 +481,6 @@ void QMacPrintEngine::drawPath(const QPainterPath &path)
 {
     Q_ASSERT(d->state == QPrinter::Active);
     d->paintEngine->drawPath(path);
-}
-
-QPainter::RenderHints QMacPrintEngine::supportedRenderHints() const
-{
-    Q_ASSERT(d->state == QPrinter::Active);
-    return d->paintEngine->supportedRenderHints();
 }
 
 

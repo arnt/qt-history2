@@ -62,7 +62,7 @@ public:
         PatternTransform          = 0x000004,               // Brush patterns
         PatternBrush              = 0x000008,               // Native support for pixmap and pattern brushes
         PixmapTransform           = 0x000010,               // Pixmap transforms
-        LinearGradientFill   	  = 0x000020,               // Can fill gradient areas.
+        LinearGradientFill        = 0x000020,               // Can fill gradient areas.
         LinearGradientFillPolygon = 0x000040,               // Can fill polygons with linear gradients.
         PixmapScale               = 0x000080,               // Can scale (w/o XForm) in drawPixmap
 	AlphaFill                 = 0x000100,               // Can fill with alpha.
