@@ -26,13 +26,6 @@ class DownloadDelegate : public QItemDelegate
 public:
     DownloadDelegate(QObject *parent);
     ~DownloadDelegate();
-
-    enum Roles {
-        CheckRole = Qt::CheckStateRole,
-        DateRole = Qt::DisplayRole,
-        ProgressRole = Qt::DisplayRole,
-        RatingRole = Qt::DisplayRole
-    };  
     
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const;
@@ -68,7 +61,7 @@ void DownloadDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
             painter->fillRect(option.rect, option.palette.color(cg, QPalette::Highlight));
         if (index.column() == 2) {
             QRect rect = option.rect.adjusted(3, 3, -4, -4);
-            double download = model->data(index, DownloadDelegate::ProgressRole).toDouble();
+            double download = model->data(index, Qt::DisplayRole).toDouble();
             int width = qMin(rect.width(), static_cast<int>(rect.width() * download));
             QLinearGradient gradient(rect.topLeft(), rect.bottomLeft());
             gradient.appendStop(0, option.palette.color(cg, QPalette::Light));
@@ -78,7 +71,7 @@ void DownloadDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
                               option.palette.base());
             painter->drawRect(rect.adjusted(0, 0, -1, -1));
         } else if (index.column() == 3) {
-            int rating = model->data(index, DownloadDelegate::RatingRole).toInt();
+            int rating = model->data(index, Qt::DisplayRole).toInt();
             int width = star.width();
             int height = star.height();
             int x = option.rect.x();
@@ -140,10 +133,10 @@ int main(int argc, char *argv[])
   for (int i = 0; i < 10; ++i) {
       QTreeWidgetItem *item = new QTreeWidgetItem(view);
       item->setText(0, "Song " + QString::number(i));
-      item->setData(0, DownloadDelegate::CheckRole, (i % 5) != 0 ? Qt::Checked : Qt::Unchecked);
-      item->setData(1, DownloadDelegate::DateRole, QDate(2004, 9, 11 + i));
-      item->setData(2, DownloadDelegate::ProgressRole, 0.25 * (i % 4) + 0.10);
-      item->setData(3, DownloadDelegate::RatingRole, (i % 6) + 1);
+      item->setData(0, Qt::CheckStateRole, (i % 5) != 0 ? Qt::Checked : Qt::Unchecked);
+      item->setData(1, Qt::DisplayRole, QDate(2004, 9, 11 + i));
+      item->setData(2, Qt::DisplayRole, 0.25 * (i % 4) + 0.10);
+      item->setData(3, Qt::DisplayRole, (i % 6) + 1);
       item->setFlags(item->flags()|Qt::ItemIsEditable);
   }
 
