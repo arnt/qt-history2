@@ -488,6 +488,4 @@ bool QThread::running() const
     \sa wait()
 */
 
-#include "qthread_unix.moc"
-
 #endif // QT_THREAD_SUPPORT

@@ -295,6 +295,4 @@ bool QThread::running() const
     return d->running;
 }
 
-#include "qthread_win.moc"
-
 #endif
