@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#187 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#188 $
 #
 # this is a massive hack, written very quickly
 #
@@ -955,8 +955,8 @@ sub readfiles {
 </title>", $style, "
 </head><body bgcolor=\"#ffffff\">\n", $postheader, "
 <h1 align=center>", $filename, "</h1><br clear=\"all\">
-This is the verbatim text of the ", $filename," include file.  It is is
-provided only for illustration; the <a href=\"license.html\">copyright</a>
+This is the verbatim text of the ", $filename," include file.  It is
+provided only for illustration; the copyright
 remains with ", $company, ".
 <hr>
 <pre>
