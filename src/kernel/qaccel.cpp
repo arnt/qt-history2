@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#42 $
 **
 ** Implementation of QAccel class
 **
@@ -16,14 +16,14 @@
 #include "qlist.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#41 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#42 $");
 
 
 /*!
   \class QAccel qaccel.h
   \brief The QAccel class handles keyboard accelerator keys.
 
-  \ingroup uiclasses
+  \ingroup kernel
 
   A QAccel contains a list of accelerator items. Each accelerator item
   consists of an identifier and a keyboard code combined with modifiers

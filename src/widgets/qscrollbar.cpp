@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#89 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#90 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,13 +14,15 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#89 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#90 $");
 
 
 /*!
   \class QScrollBar qscrbar.h
 
   \brief The QScrollBar widget provides a vertical or horizontal scroll bar.
+
+  \ingroup realwidgets
 
   A scroll bar is used to let the user control a value within a
   program-definable range, and to give the user visible indication of

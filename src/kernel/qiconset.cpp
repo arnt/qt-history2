@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#4 $
 **
 ** Implementation of QIconSet class
 **
@@ -16,7 +16,7 @@
 #include "qpainter.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qiconset.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qiconset.cpp#4 $");
 
 
 struct QIconSetPrivate: public QShared
@@ -52,6 +52,8 @@ struct QIconSetPrivate: public QShared
 
   \brief The QIconSet class provides a set of icons (normal, disabled,
   various sizes) for e.g. buttons.
+
+  \ingroup misc
 
   QIconSet must be fed at least one icon, and can generate the other
   variants from the ones it is fed, or use programmer-specified icons.

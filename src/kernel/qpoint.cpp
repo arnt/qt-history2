@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#25 $
 **
 ** Implementation of QPoint class
 **
@@ -13,12 +13,14 @@
 #include "qpoint.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpoint.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpoint.cpp#25 $");
 
 
 /*!
   \class QPoint qpoint.h
   \brief The QPoint class defines a point in the plane.
+
+  \ingroup drawing
 
   A point is specified by an x coordinate and a y coordinate.
 

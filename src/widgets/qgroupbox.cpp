@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#31 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -12,12 +12,14 @@
 #include "qgrpbox.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#31 $");
 
 
 /*!
   \class QGroupBox qgrpbox.h
   \brief The QGroupBox widget provides a group box frame with a title.
+
+  \ingroup realwidgets
 
   The intended use of a group box is to show that a number of widgets
   (i.e. child widgets) are logically related.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#106 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#107 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#106 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#107 $");
 
 
 /*!
@@ -25,6 +25,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#106 $");
   \brief The QMenuBar class provides a horizontal menu bar.
 
   \ingroup realwidgets
+  \ingroup application
 
   It automatically sets its own geometry to the top of the parent
   widget and changes appropriately it when the parent widget is

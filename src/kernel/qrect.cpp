@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#41 $
 **
 ** Implementation of QRect class
 **
@@ -13,12 +13,14 @@
 #include "qrect.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#41 $");
 
 
 /*!
   \class QRect qrect.h
   \brief The QRect class defines a rectangle in the plane.
+
+  \ingroup drawing
 
   A rectangle is internally represented as an upper left corner and a
   bottom right corner, but it is normally expressed as an upper left

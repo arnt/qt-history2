@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvbox.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qvbox.cpp#4 $
 **
 ** Implementation of vbox layout widget
 **
@@ -15,6 +15,8 @@
 /*!
   \class QVBox qvbox.h
   \brief The QVBox widget performs geometry management on its children
+
+  \ingroup geomanagement
 
   All its children will be placed vertically and sized
   according to their sizeHint()s.

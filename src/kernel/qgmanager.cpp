@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#29 $
 **
 ** Implementation of QGGeometry class
 **
@@ -15,13 +15,15 @@
 #include "qapp.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#29 $");
 
 
 
 /*!
   \class QGManager qgmanagr.h
   \brief The QGManager class provides one-dimensional geometry management.
+
+  \ingroup geomanagement
 
   This class is intended for those who write geometry managers and
   graphical designers. <strong>It is not for the faint of

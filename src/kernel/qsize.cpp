@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qsize.cpp#24 $
 **
 ** Implementation of QSize class
 **
@@ -13,12 +13,14 @@
 #include "qsize.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qsize.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qsize.cpp#24 $");
 
 
 /*!
   \class QSize qsize.h
   \brief The QSize class defines the size of a two-dimensional object.
+
+  \ingroup drawing
 
   A size is specified by a width and a height.
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#20 $
 **
 ** Implementation of QSignal class
 **
@@ -13,11 +13,13 @@
 #include "qmetaobj.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qsignal.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qsignal.cpp#20 $");
 
 /*!
   \class QSignal qsignal.h
   \brief The QSignal class can be used to send signals without parameters.
+
+  \ingroup kernel
 
   QSignal is a simple extension of QObject that can send plain signals
   without parameters.  If you want to send signals from a class that does

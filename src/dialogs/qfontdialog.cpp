@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#10 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#11 $
 **
 ** Implementation of QFontDialog
 **
@@ -22,8 +22,17 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#11 $");
 
+
+/*notready
+  \class QFontDialog qfontdialog.h
+  \brief The QFontDialog provides a dialog widget for selecting a text font
+  \ingroup dialogs
+
+  Use for allowing the user to select a font among the available fonts
+  on the underlying window system.
+*/
 
 struct QFontDialogPrivate
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#46 $
 **
 ** Implementation of QDialog class
 **
@@ -15,12 +15,14 @@
 #include "qkeycode.h"
 #include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#46 $");
 
 
 /*!
   \class QDialog qdialog.h
   \brief The QDialog class is the base class of dialog windows.
+
+  \ingroup dialogs
 
   A dialog window is a widget used to communicate with the user. It offers
   mechanisms such as default buttons.

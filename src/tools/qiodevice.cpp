@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#34 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#35 $
 **
 ** Implementation of QIODevice class
 **
@@ -11,7 +11,7 @@
 
 #include "qiodev.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#34 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#35 $");
 
 
 /*!
@@ -19,9 +19,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#34 $");
 
   \brief The QIODevice class is the base class of I/O devices.
 
-  \ingroup tools
-  \ingroup files
-  \ingroup streams
+  \ingroup io
 
   An I/O device represents a medium that one can read bytes from and write
   bytes to.  The QIODevice class itself is not capable of reading or

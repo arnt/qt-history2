@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#50 $
 **
 ** Implementation of event classes
 **
@@ -11,7 +11,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#49 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#50 $");
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -94,6 +94,7 @@ void QEvent::peErrMsg()				// posted event error message
   event classes. Event objects contain event parameters.
 
   \ingroup event
+  \ingroup kernel
 
   The \link QApplication::exec() main event loop\endlink of Qt fetches
   native window system events from the event queue, translates them
@@ -143,6 +144,7 @@ void QEvent::peErrMsg()				// posted event error message
   timer event.
 
   \ingroup event
+  
 
   Timer events are sent at regular intervals to objects that have
   started one or more timers.  Each timer has a unique identifier.
@@ -177,6 +179,7 @@ void QEvent::peErrMsg()				// posted event error message
   \brief The QMouseEvent class contains parameters that describe a mouse event.
 
   \ingroup event
+  
 
   Mouse events occur when a mouse button is pressed or released inside a
   widget, or when the mouse cursor is moved.
@@ -264,6 +267,7 @@ void QEvent::peErrMsg()				// posted event error message
   \brief The QKeyEvent class contains parameters that describe a key event.
 
   \ingroup event
+  
 
   Key events occur when a key is pressed or released when a widget has
   keyboard input focus.
@@ -353,6 +357,7 @@ void QEvent::peErrMsg()				// posted event error message
   events.
 
   \ingroup event
+  
 
   Focus events are sent to widgets when the keyboard input focus changes.
 
@@ -385,6 +390,7 @@ void QEvent::peErrMsg()				// posted event error message
   \brief The QPaintEvent class contains event parameters for paint events.
 
   \ingroup event
+  
 
   Paint events are sent to widgets that need to update themselves, for instance
   when a part of a widget is exposed because an overlying widget is moved away.
@@ -410,6 +416,7 @@ void QEvent::peErrMsg()				// posted event error message
   \brief The QMoveEvent class contains event parameters for move events.
 
   \ingroup event
+  
 
   Move events are sent to widgets that have been moved to a new position
   relative to their parent.
@@ -441,6 +448,7 @@ void QEvent::peErrMsg()				// posted event error message
   \brief The QResizeEvent class contains event parameters for resize events.
 
   \ingroup event
+  
 
   Resize events are sent to widgets that have been resized.
 
@@ -471,6 +479,7 @@ void QEvent::peErrMsg()				// posted event error message
   \brief The QCloseEvent class contains parameters that describe a close event.
 
   \ingroup event
+  
 
   Close events are sent to widgets that the user wants to close, usually
   by choosing "Close" from the window menu. They are also sent when you
@@ -575,6 +584,7 @@ void QEvent::peErrMsg()				// posted event error message
   events.
 
   \ingroup event
+  
 
   Child events are sent to widgets when children are inserted or removed.
 
@@ -619,6 +629,7 @@ void QEvent::peErrMsg()				// posted event error message
   \brief The QCustomEvent class provides support for custom events.
 
   \ingroup event
+  
 
   QCustomEvent is a user-defined event type which contains a \c void*.
 

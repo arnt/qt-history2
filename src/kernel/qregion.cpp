@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#19 $
 **
 ** Implementation of QRegion class
 **
@@ -14,12 +14,14 @@
 #include "qbuffer.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#19 $");
 
 
 /*!
   \class QRegion qregion.h
   \brief The QRegion class specifies a clip region for a painter.
+
+  \ingroup drawing
 
   A region can be a rectangle, an ellipse, a polygon or a combination
   of these.

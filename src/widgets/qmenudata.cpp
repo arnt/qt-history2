@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#58 $
 **
 ** Implementation of QMenuData class
 **
@@ -14,12 +14,14 @@
 #include "qpopmenu.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#57 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#58 $");
 
 
 /*!
   \class QMenuData qmenudta.h
   \brief The QMenuData class is a base class for QMenuBar and QPopupMenu.
+
+  \ingroup misc
 
   QMenuData has an internal list of menu items.	 A menu item is a text,
   pixmap or a separator, and may also have a popup menu (separators

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#33 $
 **
 ** Implementation of QTabBar class
 **
@@ -13,7 +13,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#32 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#33 $");
 
 
 QTab::~QTab()
@@ -36,6 +36,8 @@ struct QTabPrivate {
 
   \brief The QTabBar class provides a tab bar, for use in e.g. tabbed
   dialogs.
+
+  \ingroup realwidgets
 
   The class is quite simple; it draws the tabs in one of four shapes
   and emits a signal when one is selected.  It can be subclassed to

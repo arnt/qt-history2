@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qthread.cpp#6 $
 **
 ** Implementation of QThread class
 **
@@ -19,6 +19,8 @@
 /*!
   \class QThread qthread.h
   \brief QThread represents an OS thread.
+
+  \ingroup kernel
 
   Threads are concurrently executing code.
 

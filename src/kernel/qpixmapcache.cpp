@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#16 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -12,7 +12,7 @@
 #include "qpmcache.h"
 #include "qcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#16 $");
 
 
 /*!
@@ -20,6 +20,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#15 $");
 
   \brief The QPixmapCache class provides an application-global cache for
   pixmaps.
+
+  \ingroup kernel
 
   This class is a tool for optimized drawing with \link QPixmap
   QPixmaps\endlink.  Here follows an example.  The QRadioButton widget has

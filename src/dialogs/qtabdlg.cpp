@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#54 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#55 $
 **
 ** Implementation of QTabDialog class
 **
@@ -20,13 +20,15 @@
 #include "qwidgetstack.h"
 #include "qlayout.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#54 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#55 $");
 
 
 /*!
   \class QTabDialog qtabdlg.h
 
   \brief The QTabDialog class provides a stack of tabbed widgets.
+
+  \ingroup dialogs
 
   A tabbed dialog is one in which several "pages" are available, and
   the user selects which page to see and use by clicking on its tab,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#27 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#28 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#28 $");
 
 
 struct QPrintDialogPrivate
@@ -236,6 +236,8 @@ static void deleteGlobalPrinterDialog()
 
   \brief The QPrintDialog class provides a dialog for specifying
   print-out details.
+
+  \ingroup dialogs
 
   It encompasses both the sort of details needed for doing a simple
   print-out and some print configuration setup.

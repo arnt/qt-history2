@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#3 $
 **
 ** Implementation of QStatusBar class
 **
@@ -18,13 +18,16 @@
 #include "qdrawutl.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qstatusbar.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qstatusbar.cpp#3 $");
 
 
 /*! \class QStatusBar qstatusbar.h
 
   \brief The QStatusBar class provides a horizontal bar suitable for
   presenting status messages.
+
+  \ingroup realwidgets
+  \ingroup application
 
   Each status message falls into one of three classes: <ul>
 

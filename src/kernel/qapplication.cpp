@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#135 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#136 $
 **
 ** Implementation of QApplication class
 **
@@ -16,12 +16,14 @@
 #include "qpalette.h"
 //#include "qmessagefile.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#135 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#136 $");
 
 
 /*!
   \class QApplication qapp.h
   \brief The QApplication class manages the application event queue.
+  
+  \ingroup kernel
 
   The QApplication class is central to Qt.  It receives events from
   the underlying window system and sends them to the destination widgets.

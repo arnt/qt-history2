@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#12 $
 **
 ** Implementation of QMainWindow class
 **
@@ -25,8 +25,16 @@
 
 #include "qtooltip.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#12 $");
 
+/*notready
+  \class QMainWindow
+  \brief ...
+  \ingroup realwidgets
+  \ingroup application
+
+  ...
+*/
 
 class QMainWindowPrivate {
 public:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#4 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -14,7 +14,7 @@
 #include "qobjcoll.h"
 #include "qlayout.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#4 $");
 
 
 class QWidgetStackPrivate {
@@ -25,6 +25,8 @@ class QWidgetStackPrivate {
 
   \brief The QWidgetStack class provides a stack of widgets, where the
   user can see only the top widget.
+
+  \ingroup misc
 
   This is often used e.g. in tab and wizard dialogs.
 

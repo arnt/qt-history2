@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#28 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -17,6 +17,8 @@
 /*!
   \class QImageConsumer qasyncimageio.h
   \brief An abstraction used by QImageDecoder.
+  
+  \ingroup images
 
   \internal
 
@@ -94,6 +96,8 @@
 /*!
   \class QImageDecoder qasyncimageio.h
   \brief Incremental image decoder for all supported image formats.
+
+  \ingroup images
 
   \internal
 
@@ -255,6 +259,8 @@ void QImageDecoder::unregisterDecoderFactory(QImageFormatDecoderFactory* f)
   \class QImageFormatDecoder qasyncimageio.h
   \brief Incremental image decoder for a specific image format.
 
+  \ingroup images
+
   \internal
 */
 
@@ -281,6 +287,8 @@ QImageFormatDecoder::~QImageFormatDecoder()
 /*!
   \class QImageFormatDecoderFactory qasyncimageio.h
   \brief Factory that makes QImageFormatDecoder objects.
+
+  \ingroup images
 
   \internal
 
@@ -326,6 +334,8 @@ QImageFormatDecoderFactory::~QImageFormatDecoderFactory()
 /*!
   \class QGIFDecoder qasyncimageio.h
   \brief Incremental image decoder for GIF image format.
+
+  \ingroup images
 
   \internal
 */

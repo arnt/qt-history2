@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#78 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -19,12 +19,14 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#77 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#78 $");
 
 
 /*!
   \class QPaintDevice qpaintd.h
   \brief The base class of objects that can be painted.
+
+  \ingroup drawing
 
   A paint device is an abstraction of a two-dimensional space that can be
   drawn using a QPainter.

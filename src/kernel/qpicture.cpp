@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#46 $
 **
 ** Implementation of QPicture class
 **
@@ -16,7 +16,7 @@
 #include "qfile.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#46 $");
 
 
 /*!
@@ -24,7 +24,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#45 $");
   \brief The QPicture class is a paint device that records and replays QPainter
   commands.
 
-  \ingroup paintdevice
+  \ingroup drawing
 
   A picture serializes painter commands to an IO device in a
   platform-independent format.	A picture created under Windows

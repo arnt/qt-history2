@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhbox.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qhbox.cpp#8 $
 **
 ** Implementation of hbox layout widget
 **
@@ -15,6 +15,8 @@
 /*!
   \class QHBox qhbox.h
   \brief The QHBox widget performs geometry management on its children
+
+  \ingroup geomanagement
 
   All its children will be placed beside each other and sized
   according to their sizeHint()s.

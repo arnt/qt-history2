@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#143 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#144 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -21,7 +21,7 @@
 #include "qtimer.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#143 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#144 $");
 
 // Motif style parameters
 
@@ -132,7 +132,6 @@ static QPopupMenuExtra * lookInPMDict( const QPopupMenu *that )
   \class QPopupMenu qpopmenu.h
   \brief The QPopupMenu class provides a popup menu widget.
 
-  \ingroup menus
   \ingroup realwidgets
 
   The popup widget is different from other widgets in the way it

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#32 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#33 $
 **
 ** Implementation of QFileInfo class
 **
@@ -28,7 +28,7 @@
 extern "C" int readlink( const char *, void *, uint );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#32 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#33 $");
 
 
 #if defined(_OS_FATFS_)
@@ -64,7 +64,7 @@ struct QFileInfoCache
   \class QFileInfo qfileinf.h
   \brief The QFileInfo class provides system-independent file information.
 
-  \ingroup tools
+  \ingroup io
 
   QFileInfo provides information about a file's name and position (path) in
   the file system, its access rights and whether it is a directory or a

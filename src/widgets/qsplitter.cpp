@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#9 $
 **
 **  Splitter widget
 **
@@ -171,6 +171,8 @@ void QInternalSplitter::paintEvent( QPaintEvent * )
 /*!
   \class QSplitter qsplitter.h
   \brief QSplitter implements a splitter widget.
+
+  \ingroup realwidgets
 
   A splitter lets the user control the size of two child widgets.
 

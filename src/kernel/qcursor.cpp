@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#21 $
 **
 ** Implementation of QCursor class
 **
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#21 $");
 
 
 /*!
@@ -21,7 +21,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#20 $");
 
   \brief The QCursor class provides a mouse cursor with an arbitrary shape.
 
-  \ingroup guitool
+  \ingroup kernel
   \ingroup shared
 
   This class is used for mainly two things; to create mouse cursors to be

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#2 $
 **
 ** Implementation of QWellArray widget class
 **
@@ -20,6 +20,14 @@ struct QWellArrayData {
     QBrush *brush;
 };
 
+/*notready
+  \class QWellArray qwellarray.h
+  \brief ....
+
+  ....
+
+  \ingroup realwidgets
+*/
 
 QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )
     : QTableView(parent,name,popup?WStyle_Customize|WStyle_Tool|WStyle_NoBorder:0)

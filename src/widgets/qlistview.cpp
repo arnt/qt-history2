@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#85 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#84 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#85 $");
 
 
 const int Unsorted = 32767;
@@ -967,6 +967,7 @@ void QListViewPrivate::Root::setup()
 /*!
   \class QListView qlistview.h
   \brief The QListView class implements a tree/list view.
+  \ingroup realwidgets
 
   It can display and control a hierarchy of multi-column items, and
   provides the ability to add new items at run-time, let the user

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#29 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -25,6 +25,8 @@
 
   \brief The QSpinBox class provides a spin box widget, sometimes called
   up-down widget, little arrows widget or spin button.
+
+  \ingroup realwidgets
 
   QSpinBox allows the user to choose a numeric value, either by
   clicking the up/down buttons to increase/decrease the value

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#14 $
 **
 ** Implementation of QToolBar class
 **
@@ -20,13 +20,16 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#14 $");
 
 
 
 /*! \class QToolBar qtoolbar.h
 
   \brief The QToolBar class provides a simple tool bar.
+
+  \ingroup realwidgets
+  \ingroup application
 
   Very simple, even.
 

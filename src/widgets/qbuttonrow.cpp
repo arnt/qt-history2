@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttonrow.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qbuttonrow.cpp#5 $
 **
 ** Implementation of button row layout widget
 **
@@ -16,6 +16,8 @@
 /*!
   \class QButtonRow qbuttonrow.h
   \brief The QButtonRow widget performs geometry management on its children
+
+  \ingroup geomanagement
 
   All its children will be placed horizontally and sized
   according to their sizeHint()s. If there is room, all widgets will have the

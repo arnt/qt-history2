@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#46 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#47 $
 **
 ** Implementation of QDir class
 **
@@ -25,7 +25,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#46 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#47 $");
 
 
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
@@ -56,7 +56,7 @@ static void slashify( char * )
   \brief Traverses directory structures and contents in a
 	    platform-independent way.
 
-  \ingroup tools
+  \ingroup io
 
   A QDir can point to a file using either a relative or an absolute file
   path. Absolute file paths begin with the directory separator ('/') or a

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#17 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -12,7 +12,7 @@
 #include "qpalette.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#17 $");
 
 
 /*****************************************************************************
@@ -24,6 +24,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#16 $");
   \brief The QColorGroup class contains a group of widget colors.
 
   \ingroup color
+  \ingroup drawing
 
   A color group contains a group of colors used by widgets for drawing
   themselves.  Widgets should not use colors like "red" and "turqoise"
@@ -166,6 +167,7 @@ bool QColorGroup::operator==( const QColorGroup &g ) const
 
   \ingroup color
   \ingroup shared
+  \ingroup drawing
 
   A palette consists of three color groups: a \e normal, a \e disabled
   and an \e active color group.	 All \link QWidget widgets\endlink

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#17 $
 **
 ** Implementation of validator classes.
 **
@@ -14,13 +14,15 @@
 
 #include <limits.h> // *_MIN, *_MAX
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#17 $");
 
 
 /*!
   \class QValidator qvalidator.h
 
   \brief The QValidator class provides validation of input text.
+
+  \ingroup misc
 
   The class itself is abstract; two subclasses provide rudimentary
   numeric range checking.
@@ -107,6 +109,8 @@ void QValidator::fixup( QString & input )
   \class QIntValidator qvalidator.h
 
   \brief The QIntValidator class provides range checking of integers.
+
+  \ingroup misc
 
   QIntValidator provides a lower and an upper bound.  It does not
   provide a fixup() function.
@@ -207,6 +211,8 @@ void QIntValidator::setRange( int bottom, int top )
 
   \brief The QDoubleValidator class provides range checking of
   floating-point numbers.
+
+  \ingroup misc
 
   QDoubleValidator provides an upper bound, a lower bound, and a limit
   on the number of digits after the decimal point.  It does not

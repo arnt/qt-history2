@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#11 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -22,8 +22,17 @@
 #include "qbitmap.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#11 $");
 
+
+/*notready
+  \class QWhatsThis qwhatsthis.h
+  \brief ....
+
+  ....
+
+  \ingroup application
+*/
 
 class QWhatsThisPrivate: public QObject
 {

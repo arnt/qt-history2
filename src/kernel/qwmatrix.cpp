@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#18 $
 **
 ** Implementation of QWMatrix class
 **
@@ -17,13 +17,15 @@ double qsincos( double, bool calcCos );		// defined in qptr_x11.cpp
 #include <math.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#18 $");
 
 
 /*!
   \class QWMatrix qwmatrix.h
   \brief The QWMatrix class specifies 2D transformations of a
   coordinate system.
+
+  \ingroup drawing
 
   The standard coordinate system of a \link QPaintDevice paint
   device\endlink has the origin located at the top left position. X

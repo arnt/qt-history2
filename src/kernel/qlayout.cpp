@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#29 $
 **
 ** Implementation of layout classes
 **
@@ -12,12 +12,14 @@
 #include "qlayout.h"
 #include "qmenubar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#29 $");
 
 
 /*!
   \class QLayout qlayout.h
   \brief The QLayout class is the base class of geometry specifiers.
+
+  \ingroup geomanagement
 
   This is an abstract base class. Various layout managers inherit
   from this one.
@@ -247,6 +249,8 @@ void QLayout::setMenuBar( QMenuBar *w )
 /*!
   \class QBoxLayout qlayout.h
   \brief The QBoxLayout class specifies child widget geometry.
+
+  \ingroup geomanagement
 
   Contents are arranged serially, either horizontal or vertical.
   The contents fill the available space.
@@ -575,6 +579,8 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
   \class QHBoxLayout qlayout.h
   \brief The QHBoxLayout class provides a horizontal layout box
 
+  \ingroup geomanagement
+
   The contents are arranged left to right, they will stretch to fill
   the available space. 
 */
@@ -614,6 +620,8 @@ QHBoxLayout::~QHBoxLayout()
   \class QVBoxLayout qlayout.h
   \brief The QVBoxLayout class provides a vertical layout box
 
+  \ingroup geomanagement
+
   The contents are arranged top to bottom, they will stretch to fill
   the available space.
 */
@@ -649,6 +657,8 @@ QVBoxLayout::~QVBoxLayout()
   \class QGridLayout qlayout.h
 
   \brief The QGridLayout class specifies child widget geometry.
+
+  \ingroup geomanagement
 
   Contents are arranged in a grid. If you need a more flexible layout,
   see the QHBoxLayout and QVBoxLayout classes.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#17 $
 **
 ** Implementation of QToolButton class
 **
@@ -22,7 +22,7 @@
 #include "qiconset.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#17 $");
 
 
 static QToolButton * threeDeeButton = 0;
@@ -37,6 +37,8 @@ class QToolButtonPrivate
 
   \brief The QToolButton class provides a push button whose appearance
   has been tailored for use in a QToolBar.
+
+  \ingroup realwidgets
 
   This means that it implements the ridiculous Microsoft auto-raise
   feature.  And it isn't finished, either.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#58 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#59 $
 **
 ** Implementation of QFile class
 **
@@ -12,16 +12,14 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#58 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#59 $");
 
 
 /*!
   \class QFile qfile.h
   \brief The QFile class is an I/O device that operates on files.
 
-  \ingroup tools
-  \ingroup files
-  \ingroup stream
+  \ingroup io
 
   QFile is an I/O device for reading and writing binary and text files.	A
   QFile may be used by itself (readBlock and writeBlock) or by more

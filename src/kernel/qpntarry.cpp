@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#54 $
 **
 ** Implementation of QPointArray class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#54 $");
 
 /*!
   \class QPointVal qpntarry.h
@@ -59,6 +59,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#53 $");
 /*!
   \class QPointArray qpntarry.h
   \brief The QPointArray class provides an array of points.
+
+  \ingroup drawing
 
   \inherit QArray
 

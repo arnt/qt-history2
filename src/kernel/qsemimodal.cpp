@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsemimodal.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qsemimodal.cpp#4 $
 **
 ** Implementation of QSemiModal class
 **
@@ -12,12 +12,14 @@
 #include "qsemimodal.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qsemimodal.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qsemimodal.cpp#4 $");
 
 
 /*!
   \class QSemiModal qsemimodal.h
   \brief The QSemiModal class is the base class of semi-modal dialog windows.
+
+  \ingroup dialogs
 
   The semi-modal dialog window can disable events to other windows while
   it is open.  To enable this, the QSemiModal must be constructed with

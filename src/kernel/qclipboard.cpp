@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#14 $
 **
 ** Implementation of QClipboard class
 **
@@ -13,12 +13,14 @@
 #include "qapp.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard.cpp#14 $");
 
 
 /*!
   \class QClipboard qclipbrd.h
   \brief The QClipboard class provides access to the window system clipboard.
+
+  \ingroup kernel
 
   The clipboard offers a simple mechanism to copy and paste data between
   applications.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrid.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qgrid.cpp#8 $
 **
 ** Implementation of grid layout widget
 **
@@ -15,6 +15,8 @@
 /*!
   \class QGrid qgrid.h
   \brief The QGrid widget performs geometry management on its children
+
+  \ingroup geomanagement
 
   The number of rows or columns is defined in the constructor. All its
   children will be placed and sized according to their sizeHint()s.

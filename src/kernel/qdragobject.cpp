@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#9 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -22,7 +22,7 @@
 extern void qt_xdnd_send_move( Window, QDragObject *, const QPoint & );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdragobject.cpp#8 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdragobject.cpp#9 $");
 
 
 // both a struct for storing stuff in and a wrapper to avoid polluting
@@ -415,6 +415,8 @@ void QDragObject::encode()
 
   \brief The QTextDragObject provides a drag and drop object for
   tranferring plain text.
+
+  \ingroup kernel
 
   Plain text is defined as single- or multi-line US-ASCII or an
   unspecified 8-bit character set.

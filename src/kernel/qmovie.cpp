@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#30 $
 **
 ** Implementation of movie classes
 **
@@ -26,6 +26,8 @@
 /*!
   \class QMovie qmovie.h
   \brief Incrementally loads an animation or image, signalling as it progresses.
+
+  \ingroup images
 
   A QMovie provides a QPixmap as the framePixmap(), and connections can
   be made via connectResize() and connectUpdate() to receive notification
@@ -827,7 +829,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Sep 4 15:31:20 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.29 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.30 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.cpp#17 $
+** $Id: //depot/qt/main/src/tools/qcollection.cpp#18 $
 **
 ** Implementation of base class for all collection classes
 **
@@ -11,7 +11,7 @@
 
 #include "qcollect.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#18 $");
 
 
 /*!
@@ -19,6 +19,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#17 $");
   \brief The QCollection class is the base class of all Qt collections.
 
   \ingroup collection
+  \ingroup tools
 
   The QCollection class is an abstract base class for the Qt \link
   collection.html collection classes\endlink QDict, QList etc. via QGDict,

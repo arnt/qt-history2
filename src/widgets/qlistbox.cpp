@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#136 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#137 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#136 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#137 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -66,8 +66,6 @@ static inline bool checkIndex( const char *method, const char * name,
 /*!
   \class QListBoxItem qlistbox.h
   \brief This is the base class of all list box items.
-
-  \ingroup abstract
 
   This class is the abstract base class of all list box items. If you
   need to insert customized items into a QListBox, you must inherit

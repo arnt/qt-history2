@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#44 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#45 $
 **
 ** Implementation of QRegExp class
 **
@@ -13,12 +13,13 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#44 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#45 $");
 
 
 /*!
   \class QRegExp qregexp.h
   \ingroup tools
+  \ingroup misc
   \brief The QRegExp class provides pattern matching using regular expressions and wildcards.
 
   QRegExp knows these regexp primitives:

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#32 $
 **
 ** Implementation of QPrinter class
 **
@@ -11,7 +11,7 @@
 
 #include "qprinter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#31 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#32 $");
 
 
 /*!
@@ -19,7 +19,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#31 $");
   \brief The QPrinter class is a paint device that prints graphics on a
   printer.
 
-  \ingroup paintdevice
+  \ingroup drawing
 
   All window systems that Qt supports, except X11, have built-in
   printer drivers.  For X11, Qt provides PostScript (tm)

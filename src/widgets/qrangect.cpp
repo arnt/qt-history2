@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangect.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qrangect.cpp#20 $
 **
 ** Implementation of QRangeControl class
 **
@@ -12,12 +12,14 @@
 #include "qrangect.h"
 #include "qglobal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qrangect.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qrangect.cpp#20 $");
 
 
 /*!
   \class QRangeControl qrangect.h
   \brief The QRangeControl class provides an integer value within a range.
+
+  \ingroup misc
 
   This class has many functions to manipulate a value inside a range.
   It was specifically designed for the QScrollBar widget, but it can

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#118 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#119 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qwidget.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#118 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#119 $");
 
 
 /*!
@@ -2209,6 +2209,7 @@ QRect QPainter::boundingRect( int x, int y, int w, int h, int tf,
   \brief The QPen class defines how a QPainter should draw lines and outlines
   of shapes.
   \ingroup drawing
+  \ingroup shared
 
   A pen has a style, a width and a color.
 

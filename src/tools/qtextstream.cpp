@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#43 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#44 $
 **
 ** Implementation of QTextStream class
 **
@@ -16,15 +16,16 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#44 $");
 
 
 /*!
   \class QTextStream qtstream.h
-  \ingroup tools
-  \ingroup files
+
   \brief The QTextStream class provides basic functions for reading and
   writing text using a QIODevice.
+
+  \ingroup io
 
   \define endl
   \define bin
@@ -59,7 +60,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#43 $");
   \sa QDataStream
 */
 
-/*!
+/*
   \class QTSManip qtstream.h
 
   \brief The QTSManip class is an internal helper class for the
@@ -67,8 +68,6 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#43 $");
 
   It is generally a very bad idea to use this class directly in
   application programs.
-
-  \ingroup streams
 
   \internal
 
@@ -87,7 +86,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#43 $");
   is executed with the argument.
 */
 
-/*! \fn QTSManip::QTSManip (QTSMFI m, int a)
+/* \fn QTSManip::QTSManip (QTSMFI m, int a)
 
   Constructs a QTSManip object which will call \m (a member function
   in QTextStream which accepts a single int) with argument \a a when
@@ -98,7 +97,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#43 $");
   \endcode
 */
 
-/*! \fn void QTSManip::exec (QTextStream& s)
+/* \fn void QTSManip::exec (QTextStream& s)
 
   Calls the member function specified in the constructor, for object
   \a s.  Used internally in e.g. endl:

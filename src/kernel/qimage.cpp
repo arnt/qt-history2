@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#148 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#149 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,13 +23,15 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#148 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#149 $");
 
 
 /*!
   \class QImage qimage.h
   \brief The QImage class provides a hardware-independent pixmap representation
   with direct access to the pixel data.
+
+  \ingroup images
 
   The direct pixel access functionality of QImage makes it very suitable
   for image processing and for pixmap archiving.
@@ -2257,7 +2259,7 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
   and saving images.
 
   \ingroup images
-  \ingroup files
+  \ingroup io
 
   QImageIO contains a QIODevice object that is used for image data I/O.
   The programmer can install new image file formats in addition to those

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#23 $
+** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#24 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -16,7 +16,7 @@
 #include "qdatetm.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#24 $");
 
 
 // If the operation is expected to take this long (as predicted by
@@ -61,6 +61,7 @@ struct QProgressData
 /*!
   \class QProgressDialog qprogdlg.h
   \brief Provides feedback on the progress of a slow operation.
+  \ingroup dialogs
   \ingroup realwidgets
 
   A progress dialog is used to give the user an indication of how long an

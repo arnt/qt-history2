@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#153 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#154 $
 **
 ** Implementation of QObject class
 **
@@ -17,13 +17,15 @@
 #include "qapp.h"
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#153 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#154 $");
 
 
 /*!
   \class QObject qobject.h
   \brief The QObject class is the base class of all Qt objects that can
   deal with signals, slots and events.
+
+  \ingroup kernel
 
   Qt provides a very powerful mechanism for seamless object
   communication; \link metaobjects.html signal/slot
@@ -130,6 +132,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#153 $");
 /*!
   \class QSenderObject qobject.h
   \brief Internal object used for sending signals.
+
+  \internal
 
   It is generally a very bad idea to use this class directly in
   application programs.

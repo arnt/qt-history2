@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocknot.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qsocknot.cpp#17 $
 **
 ** Implementation of QSocketNotifier class
 **
@@ -21,6 +21,7 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   \brief The QSocketNotifer class provides support for socket callbacks.
 
   \ingroup kernel
+  \ingroup io
 
   This class makes it possible to write e.g. asynchronous TCP/IP
   socket-based code in Qt.  Using synchronous socket operations blocks

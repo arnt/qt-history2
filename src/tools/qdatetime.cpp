@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#59 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#60 $
 **
 ** Implementation of date and time classes
 **
@@ -33,7 +33,7 @@
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdatetime.cpp#59 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatetime.cpp#60 $");
 
 
 static const uint FIRST_DAY	= 2361222;	// Julian day for 17520914
@@ -62,7 +62,7 @@ const char *QDate::weekdayNames[] ={
 /*!
   \class QDate qdatetm.h
   \brief The QDate class provides date functions.
-  \ingroup tools
+
   \ingroup time
 
   The QDate is based on the Gregorian (modern western) calendar. England
@@ -438,7 +438,6 @@ void QDate::jul2greg( uint jd, int &y, int &m, int &d )
 
   \capt Time functions
 
-  \ingroup tools
   \ingroup time
 
   The time resolution of QTime is a millisecond, although the accuracy
@@ -778,7 +777,7 @@ int QTime::elapsed()
 /*!
   \class QDateTime qdatetm.h
   \brief The QDateTime class combines QDate and QTime into a single class.
-  \ingroup tools
+
   \ingroup time
 
   QDateTime provides high precision date and time functions since it can work
