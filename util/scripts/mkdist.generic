@@ -28,7 +28,7 @@ DISTDIR=$3
 
 unset LANG
 
-x11onlysrc="kernel/qpsprn.cpp dialog/qprndlg.cpp"
+x11onlysrc="kernel/qpsprn.cpp kernel/qpshdr.txt dialogs/qprndlg.cpp"
 x11onlyhdr="kernel/qpsprn.h dialogs/qprndlg.h"
 
 unset goodparam1
@@ -96,7 +96,7 @@ else
   echo "Generating documentation" >&2
   make -s -C ${QTDIR}/src include
   mkdir -p ${DISTDIR}/qt/doc/html
-  ${DISTDIR}/qt/util/qdoc/qdoc
+  ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt
   if [ "${platform}" = "x11" ]; then
     mkdir -p ${DISTDIR}/qt/doc/man/man1  ${DISTDIR}/qt/doc/man/man3
     ${DISTDIR}/qt/util/qdoc/man
@@ -110,6 +110,7 @@ fi
 
 echo "Removing local files..." >&2
 cd ${DISTDIR}
+rm -f qt/doc.conf
 find qt -name .cvsignore | xargs rm -f
 rm -rf qt/doc qt/etc qt/gif
 rm -f qt/TODO
@@ -128,20 +129,18 @@ fi
 
 echo "Generate lex and yacc files for moc..." >&2
 cd ${DISTDIR}/qt/src/moc
-make moc_gen.cpp
+make mocgen.cpp
 
 if [ "${platform}" = "win" ]; then
   cd ${DISTDIR}/qt/src/moc
   perl -pi -e 's/^#include \<unistd\.h\>$/\/\* #include <unistd.h> \*\//' lex.yy.c
-  echo "Moving include files..." >&2
-  cd ${DISTDIR}/qt
+  cd ${DISTDIR}/qt/src
+  echo "Removing X11-only files..." >&2
+  rm ${x11onlysrc}
+  rm ${x11onlyhdr}
   echo "Moving source and include files..." >&2
   rm -f ../include/*
   mv */q*.h ../include
-  echo "Removing X11-only files..." >&2
-  rm ${x11onlysrc}
-  cd ${DISTDIR}/qt/include
-  rm ${x11onlyhdr}
   cd ${DISTDIR}/qt
   rm -rf makefiles
   find . -name 'Makefile*' -o -name 'qtx11.*' | xargs rm -vf
@@ -153,7 +152,7 @@ fi
 
 if [ "${platform}" = "x11" ]; then
   cd ${DISTDIR}/qt
-  find . -name '*.mak' -o -name 'qtwin.*' | xargs rm -vf
+  find . -name '*.mak' -o -name 'qtwin.*' | xargs rm -f
   echo "Creating arch directory" >&2
   cd ${DISTDIR}/qt/src
   if [ "$disttype" = "beta" ]; then
