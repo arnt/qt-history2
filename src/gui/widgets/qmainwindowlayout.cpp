@@ -1752,7 +1752,8 @@ void QMainWindowLayout::dropDockWindow(QDockWindow *dockwindow,
     // remove dockwindow from current position in the layout
     removeRecursive(dockwindow);
 
-    dockwindow->setParent(qt_cast<QMainWindow *>(parentWidget()));
+    QWidget *parent = qt_cast<QMainWindow *>(parentWidget());
+    dockwindow->setParent(parent);
     QDockWindowLayout *dwl = layoutForArea(static_cast<Qt::DockWindowArea>(areaForPosition(pos)));
     dwl->addWidget(dockwindow);
 
