@@ -243,8 +243,10 @@ bool QPrinter::newPage()
         if ( fullPage() ) {
 	    POINT p;
 	    GetViewportOrgEx( hdc, &p );
-	    QSize margs = margins();
-	    OffsetViewportOrgEx( hdc, -p.x - margs.width(), -p.y - margs.height(), 0 );
+	    OffsetViewportOrgEx( hdc,
+				 -p.x - GetDeviceCaps( hdc, PHYSICALOFFSETX ),
+				 -p.y - GetDeviceCaps( hdc, PHYSICALOFFSETY ),
+				 0 );
         } else {
 	    QSize margs = margins();
 	    POINT p;
@@ -1141,13 +1143,14 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	    // StartPage resets DC on Win95/98
 	    setPrinterMapping( hdc, res );
         if ( ok && fullPage() && !viewOffsetDone ) {
-	    QSize margs = margins();
 	    POINT p;
 	    GetViewportOrgEx( hdc, &p );
-            OffsetViewportOrgEx( hdc, -p.x - margs.width(), -p.y - margs.height(), 0 );
+	    OffsetViewportOrgEx( hdc,
+				 -p.x - GetDeviceCaps( hdc, PHYSICALOFFSETX ),
+				 -p.y - GetDeviceCaps( hdc, PHYSICALOFFSETY ),
+				 0 );
             //### CS097 viewOffsetDone = TRUE;
         } else {
-	    QSize margs = margins();
 	    POINT p;
 	    GetViewportOrgEx( hdc, &p );
 	    OffsetViewportOrgEx( hdc, -p.x, -p.y, 0 );
@@ -1417,7 +1420,7 @@ QSize QPrinter::margins() const
     if ( handle() == 0 )                        // not ready
         return QSize( 0, 0 );
     return QSize( GetDeviceCaps( handle(), PHYSICALOFFSETX ) * res / GetDeviceCaps( hdc, LOGPIXELSX ),
-	GetDeviceCaps( handle(), PHYSICALOFFSETY ) * res / GetDeviceCaps( hdc, LOGPIXELSY ) );
+		  GetDeviceCaps( handle(), PHYSICALOFFSETY ) * res / GetDeviceCaps( hdc, LOGPIXELSY ) );
 }
 
 void QPrinter::setMargins( uint, uint, uint, uint )
