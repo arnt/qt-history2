@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#175 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#176 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -3591,7 +3591,7 @@ static void write_pbm_image( QImageIO *iio )
 		uchar *p = image.scanLine(y);
 		uchar *end = p + image.bytesPerLine();
 		while ( p < end )
-		    *p++ ^= 0x00ffffff;
+		    *p++ ^= 0xff;
 	    }
 	}
     }
