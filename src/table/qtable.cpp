@@ -5311,7 +5311,7 @@ void QTable::hideRow( int row )
 
 void QTable::hideColumn( int col )
 {
-    if ( d->hiddenCols.find( col ) )
+    if ( !numCols() || d->hiddenCols.find( col ) )
 	return;
     d->hiddenCols.replace( col, new int( topHeader->sectionSize( col ) ) );
     topHeader->resizeSection( col, 0 );
