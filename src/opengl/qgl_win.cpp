@@ -770,7 +770,7 @@ void QGLContext::makeCurrent()
 	    return;
 	currentCtx->doneCurrent();
     }
-    if ( !valid )
+    if ( !d->valid )
 	return;
     if ( win )
 	dc = GetDC( win );
