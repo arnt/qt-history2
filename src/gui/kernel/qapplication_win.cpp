@@ -305,7 +305,6 @@ class QETWidget : public QWidget                // event translator widget
 public:
     void        setWFlags(Qt::WFlags f)        { QWidget::setWFlags(f); }
     void        clearWFlags(Qt::WFlags f) { QWidget::clearWFlags(f); }
-    void        setAttribute(Qt::WidgetAttribute f, bool on = true) { QWidget::setAttribute(f, on); }
     QWExtra    *xtra()                        { return d->extraData(); }
     QTLWExtra  *topData()                     { return d->topData(); }
     bool        winEvent(MSG *m, long *r)        { return QWidget::winEvent(m, r); }
