@@ -1046,8 +1046,8 @@ QString &QString::insert(int i, const QLatin1String &str)
     expand(qMax(d->size, i) + len - 1);
 
     ::memmove(d->data + i + len, d->data + i, (d->size - i - len) * sizeof(QChar));
-    for (int j = i; j < i+len; ++j)
-        d->data[j] = s[j];
+    for (int j = 0; j < len; ++j) 
+        d->data[i + j] = s[j];
     return *this;
 }
 
