@@ -134,6 +134,10 @@ public:
     typename QValueList<T>::Iterator insert(typename QValueList<T>::Iterator pos,
                                              const T& x)
         { return QLinkedList<T>::insert(pos, x); }
+    typename QValueList<T>::Iterator remove(typename QValueList<T>::Iterator pos)
+        { return QLinkedList<T>::erase(pos); }
+    int remove(const T &value)
+        { return QLinkedList<T>::removeAll(value); }
 
     inline QValueList<T> operator+ (const QValueList<T>& l) const
         { return static_cast<QValueList<T> >(QLinkedList<T>::operator+(l)); }
