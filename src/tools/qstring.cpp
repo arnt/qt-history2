@@ -12647,7 +12647,8 @@ void QStringData::deleteSelf()
 /*! \overload
 
   Assigns a shallow copy of \a s to this string and returns a
-  reference to this string.
+  reference to this string.  This is very fast because the string
+  isn't actually copied.
 */
 QString &QString::operator=( const QString &s )
 {
@@ -12733,7 +12734,7 @@ QString &QString::operator=( const char *str )
     
   In Qt 1.x, it was possible to "truncate" a string to a longer
   length.  This is no longer possible; use setLength() if you need to
-  do that.
+  extend the length of a string.
 
   \sa setLength()
 */
@@ -12758,19 +12759,19 @@ void QString::truncate( uint newLen )
 
   This function is useful for code that needs to build up a
   long string and wants to avoid repeated reallocation. In this
-  example, we want to call add to the string until some condition is
-  true, and we're fairly sure that moreThanEnough is more than enough:
+  example, we want to add to the string until some condition is
+  true, and we're fairly sure that size is big enough:
   \code
     QString result;
     int resultLength = 0;
-    result.setLength( moreThanEnough ) // allocate some space
+    result.setLength( size ) // allocate some space
     while ( ... ) {
         result[resultLength++] = ... // fill (part of) the space with data
     }
     result.truncate[resultLength]; // and get rid of the undefined junk
   \endcode
 
-  (Note that if moreThanEnough is an underestimate, the worst that'll
+  (Note that if size is an underestimate, the worst that'll
   happen is that the loop will slow down.)
 
   \sa truncate(), isNull(), isEmpty(), length()
@@ -12881,7 +12882,7 @@ QString QString::arg(const QString& a, int fieldwidth) const
   \a a is padded to.  A positive value will produce a right-aligned number, 
   whereas a negative value will produce a left-aligned number.
     
-  \a a is expressed in \a base notation, which is base 10 (decimal) by
+  \a a is expressed in base \a base, which is base 10 (decimal) by
   default and must be in the range 2-36, inclusive.
 */
 QString QString::arg(long a, int fieldwidth, int base) const
@@ -12891,7 +12892,7 @@ QString QString::arg(long a, int fieldwidth, int base) const
 
 /*! \overload
 
-  \a a is expressed in \a base notation, which is decimal by
+  \a a is expressed in base \a base, which is decimal by
   default and must be in the range 2-36, inclusive.
 */
 QString QString::arg(ulong a, int fieldwidth, int base) const
@@ -12902,7 +12903,7 @@ QString QString::arg(ulong a, int fieldwidth, int base) const
 /*!
   \overload QString QString::arg(int a, int fieldwidth, int base) const
 
-  \a a is expressed in \a base notation, which is decimal by
+  \a a is expressed in base \a base, which is decimal by
   default and must be in the range 2-36, inclusive.
 
 */
@@ -12910,21 +12911,21 @@ QString QString::arg(ulong a, int fieldwidth, int base) const
 /*!
   \overload QString QString::arg(uint a, int fieldwidth, int base) const
 
-  \a a is expressed in \a base notation, which is decimal by
+  \a a is expressed in base \a base, which is decimal by
   default and must be in the range 2-36, inclusive.
 */
 
 /*!
   \overload QString QString::arg(short a, int fieldwidth, int base) const
 
-  \a a is expressed in \a base notation, which is decimal by
+  \a a is expressed in base \a base, which is decimal by
   default and must be in the range 2-36, inclusive.
 */
 
 /*!
   \overload QString QString::arg(ushort a, int fieldwidth, int base) const
 
-  \a a is expressed in \a base notation, which is decimal by
+  \a a is expressed in base \a base, which is decimal by
   default and must be in the range 2-36, inclusive.
 */
 
@@ -13686,17 +13687,16 @@ QString QString::leftJustify( uint width, QChar fill, bool truncate ) const
     QString t = string.rightJustify(8, '.');          // t == "...apple"
   \endcode
 
-  Returns a string of length \a width that contains this
-  the \a fill character followed by the string.
+  Returns a string of length \a width that contains the \a fill character 
+  followed by the string.
 
   If \a truncate is FALSE and the length of the string is more than \a width,
   then the returned string is a copy of the string.
 
   If \a truncate is TRUE and the length of the string is more than \a width, 
-  then any characters in a copy of the string after length \a width are 
-  removed, and the copy is returned.
+  then the resulting string is truncated at position \a width.
 
-  \sa rightJustify()
+  \sa leftJustify()
 */
 
 QString QString::rightJustify( uint width, QChar fill, bool truncate ) const
@@ -13781,15 +13781,15 @@ QString QString::upper() const
 /*!
   \code
     QString string = "   white space   ";
-    QString t = string.stripWhiteSpace();            // t == "space"
+    QString s = string.stripWhiteSpace();            // s == "space"
   \endcode
   
   Returns a string that has whitespace removed from the start and the end.
 
   Whitespace means any character for which QChar::isSpace() returns
-  TRUE. This includes ASCII characters 9 (TAB), 10 (LF), 11 (VT), 12
-  (FF), 13 (CR) and 32 (Space), and may also include other Unicode
-  characters.
+  TRUE. This includes UNICODE characters with decimal values 9 (TAB), 
+  10 (LF), 11 (VT), 12 (FF), 13 (CR) and 32 (Space), and may also 
+  include other Unicode characters.
 
   \sa simplifyWhiteSpace()
 */
@@ -13828,11 +13828,11 @@ QString QString::stripWhiteSpace() const
   \endcode
 
   Returns a string that has whitespace removed from the start and the end
-  of the string.  Any sequence of internal whitespace is replaced with a single space.
+  of the string, and any sequence of internal whitespace is replaced with a single space.
 
   Whitespace means any character for which QChar::isSpace() returns
-  TRUE. This includes ASCII characters 9 (TAB), 10 (LF), 11 (VT), 12
-  (FF), 13 (CR), and 32 (Space).
+  TRUE. This includes UNICODE characters with decimal values9 (TAB), 
+  10 (LF), 11 (VT), 12 (FF), 13 (CR), and 32 (Space).
 
   \sa stripWhiteSpace()
 */
@@ -13953,7 +13953,7 @@ QString &QString::insert( uint index, QChar c ) // insert char
     string.prepend("The answer is");    // string == "The answer is 42"
   \endcode
  
-  Prepends \a s to the string. 
+  Inserts \a s at the beginning of the string and returns a reference to the string.
   
   Equivalent to insert(0, s).
 
@@ -13963,7 +13963,7 @@ QString &QString::insert( uint index, QChar c ) // insert char
 /*! \fn QString& QString::prepend( char ch )
   \overload
 
-  Prepends \a ch to the string and returns a reference to the result.
+  Inserts \a ch at the beginning of the string and returns a reference to the string.
 
   Equivalent to insert(0, ch).
 
@@ -13973,7 +13973,7 @@ QString &QString::insert( uint index, QChar c ) // insert char
 /*! \fn QString& QString::prepend( QChar ch )
   \overload
 
-  Prepends \a ch to the string and returns a reference to the result.
+  Inserts \a ch at the beginning of the string and returns a reference to the string.
 
   Equivalent to insert(0, ch).
 
@@ -13990,8 +13990,10 @@ QString &QString::insert( uint index, QChar c ) // insert char
   Removes \a len characters starting at position \a index from the
   string and returns a reference to the string.
 
-  If \a index is too big, nothing happens.  If \a index is valid, but
-  \a len is too large, the rest of the string is removed.
+  If \a index is beyond the length of the string, nothing happens.  If 
+  \a index is within the string, but \a index plus \a len is beyond the
+  end of the string, the string is truncated at position \a index.
+  
 
   \sa insert(), replace()
 */
@@ -14021,9 +14023,11 @@ QString &QString::remove( uint index, uint len )
   Replaces \a len characters starting at position \a index from the
   string with \a s, and returns a reference to the string.
 
-  If \a index is too big, nothing is deleted and \a s is inserted at the
-  end of the string.  If \a index is valid, but \a len is too large, \e
-  str replaces the rest of the string.
+  If \a index is beyond the length of the string, nothing is deleted 
+  and \a s is appended at the end of the string.  If \a index is valid, 
+  but \a index plus \a len is beyond the end of the string, the string 
+  is truncated at position \a index, then \a str is appended at the
+  end.
 
 
   \sa insert(), remove()
@@ -14038,7 +14042,8 @@ QString &QString::replace( uint index, uint len, const QString &s )
 /*! \overload
 
   Replaces \a len characters starting at position \a index by
-  \a slen units ot QChar data from \a s, and returns a reference to the string.
+  \a slen characters of QChar data from \a s, and returns a 
+  reference to the string.
 
   \sa insert(), remove()
 */
@@ -14195,9 +14200,9 @@ static bool ok_in_base( QChar c, int base )
 
 /*! Returns the string converted to a \c long value to the base \a base.
 
-  If \a *ok is non-null, and is TRUE then there have been no errors 
-  in the conversion.  If \a *ok is non-null, and is FALSE, then the 
-  string is not a number at all or it has invalid characters at the end.
+  If \a ok is non-null, and no conversion error occured then \a *ok 
+  is set to TRUE.  In the event of a conversion error the number 
+  returned will be 0 and *ok is set to FALSE if ok is non-null.
 
   \sa number()
 */
@@ -14257,9 +14262,9 @@ bye:
 /*! Returns the string converted to an \c{unsigned long}
   value to the base \a base.
 
-  If \a *ok is non-null, and is TRUE then there have been no errors 
-  in the conversion.  If \a *ok is non-null, and is FALSE, then the 
-  string is not a number at all or it has invalid characters at the end.
+  If \a ok is non-null, and no conversion error occured then \a *ok 
+  is set to TRUE.  In the event of a conversion error the number 
+  returned will be 0 and *ok is set to FALSE if ok is non-null.
 
   \sa number()
 */
@@ -14311,9 +14316,9 @@ bye:
 /*! Returns the string converted to a \c short value to the
   base \a base.
 
-  If \a *ok is non-null, and is TRUE then there have been no errors 
-  in the conversion.  If \a *ok is non-null, and is FALSE, then the 
-  string is not a number at all or it has invalid characters at the end.
+  If \a ok is non-null, and no conversion error occured then \a *ok 
+  is set to TRUE.  In the event of a conversion error the number 
+  returned will be 0 and *ok is set to FALSE if ok is non-null.
 */
 
 short QString::toShort( bool *ok, int base ) const
@@ -14329,9 +14334,9 @@ short QString::toShort( bool *ok, int base ) const
 /*! Returns the string converted to an \c{unsigned short} value
   to the base \a base.
 
-  If \a *ok is non-null, and is TRUE then there have been no errors 
-  in the conversion.  If \a *ok is non-null, and is FALSE, then the 
-  string is not a number at all or it has invalid characters at the end.
+  If \a ok is non-null, and no conversion error occured then \a *ok 
+  is set to TRUE.  In the event of a conversion error the number 
+  returned will be 0 and *ok is set to FALSE if ok is non-null.
 */
 
 ushort QString::toUShort( bool *ok, int base ) const
@@ -14371,9 +14376,9 @@ int QString::toInt( bool *ok, int base ) const
 /*! Returns the string converted to an \c{unsigned int} value
   to the base \a base.
 
-  If \a *ok is non-null, and is TRUE then there have been no errors 
-  in the conversion.  If \a *ok is non-null, and is FALSE, then the 
-  string is not a number at all or it has invalid characters at the end.
+  If \a ok is non-null, and no conversion error occured then \a *ok 
+  is set to TRUE.  In the event of a conversion error the number 
+  returned will be 0 and *ok is set to FALSE if ok is non-null.
 
   \sa number()
 */
@@ -14391,9 +14396,9 @@ uint QString::toUInt( bool *ok, int base ) const
 
   Returns the string converted to a \c double value.
 
-  If \a *ok is non-null, and is TRUE then there have been no errors 
-  in the conversion.  If \a *ok is non-null, and is FALSE, then the 
-  string is not a number at all or it has invalid characters at the end.
+  If \a ok is non-null, and no conversion error occured then \a *ok 
+  is set to TRUE.  In the event of a conversion error the number 
+  returned will be 0 and *ok is set to FALSE if ok is non-null.
 
   \sa number()
 */
@@ -14411,9 +14416,9 @@ double QString::toDouble( bool *ok ) const
 
 /*! Returns the string converted to a \c float value.
 
-  If \a *ok is non-null, and is TRUE then there have been no errors 
-  in the conversion.  If \a *ok is non-null, and is FALSE, then the 
-  string is not a number at all or it has invalid characters at the end.
+  If \a ok is non-null, and no conversion error occured then \a *ok 
+  is set to TRUE.  In the event of a conversion error the number 
+  returned will be 0 and *ok is set to FALSE if ok is non-null.
 
   \sa number()
 */
@@ -14433,8 +14438,8 @@ float QString::toFloat( bool *ok ) const
   Sets the string to the printed value of \a n and returns a
   reference to the string.
 
-  The value is converted to \a base notation (default is decimal).
-  The base must be a value from 2 to 36.
+  The value is converted to base \a base (default is decimal).
+  The base must be in the range 2 to 36.
 */
 
 QString &QString::setNum( long n, int base )
@@ -14478,11 +14483,11 @@ QString &QString::setNum( long n, int base )
 
 /*! \overload
 
-  Sets the string to the printed unsigned value of \a n and
+  Sets the string to the printed value of \a n and
   returns a reference to the string.
 
-  The value is converted to \a base notation (default is decimal).
-  The base must be a value from 2 to 36.
+  The value is converted to base \a base (default is decimal).
+  The base must be in the range 2 to 36.
 */
 
 QString &QString::setNum( ulong n, int base )
@@ -14515,7 +14520,7 @@ QString &QString::setNum( ulong n, int base )
 /*! \fn QString &QString::setNum( uint n, int base )
   \overload
 
-  Sets the string to the printed unsigned value of \a n to the
+  Sets the string to the printed value of \a n to the
   base \a base and returns a reference to the string.
 */
 
@@ -14529,17 +14534,18 @@ QString &QString::setNum( ulong n, int base )
 /*! \fn QString &QString::setNum( ushort n, int base )
   \overload
 
-  Sets the string to the printed unsigned value of \a n to the
+  Sets the string to the printed value of \a n to the
   base \a base and returns a reference to the string.
 */
 
 /*! \overload
 
-  Sets the string to the printed value of \a n, formatted in the \a f
-  format with \a prec precision, and returns a reference to the
+  Sets the string to the printed value of \a n, formatted in format \a f
+  with precision \a prec, and returns a reference to the
   string.
 
-  The format, \a f,  can be 'f', 'F', 'e', 'E', 'g', or 'G' - see arg().
+  The format, \a f, can be 'f', 'F', 'e', 'E', 'g', or 'G' - see arg() for 
+  an explanation of the formats.
 */
 
 QString &QString::setNum( double n, char f, int prec )
@@ -14575,11 +14581,12 @@ QString &QString::setNum( double n, char f, int prec )
 /*! \fn QString &QString::setNum( float n, char f, int prec )
   \overload
 
-  Sets the string to the printed value of \a n, formatted in the \a f
-  format with \a prec precision, and returns a reference to the
+  Sets the string to the printed value of \a n, formatted in format \a f
+  with precision \a prec, and returns a reference to the
   string.
 
-  The format, \a f,  can be 'f', 'F', 'e', 'E', 'g', or 'G' - see arg().
+  The format, \a f, can be 'f', 'F', 'e', 'E', 'g', or 'G' - see arg() for 
+  an explanation of the formats.
 */
 
 
@@ -14720,12 +14727,11 @@ void QString::setExpand( uint index, QChar c )
     doSomethingWith(name);
 \endcode
 
-  It will call <tt>operator const char*()</tt>, which is an inefficent 
-  way of doing what you want to achieve; you may wish to define the macro
-  QT_NO_ASCII_CAST when writing code which you wish to remain strictly
-  Unicode-clean.
+  It will call <tt>operator const char*()</tt>, which is inefficent; 
+  you may wish to define the macro QT_NO_ASCII_CAST when writing code 
+  which you wish to remain strictly Unicode-clean.
 
-  When you want the above semantics, then use:
+  When you want the above semantics, use:
 
 \code
   QString name = getName();
@@ -14750,14 +14756,14 @@ void QString::setExpand( uint index, QChar c )
 /*! \fn QString& QString::append( char ch )
   \overload
 
-  Appends \a ch to the string and returns a reference to the result.
+  Appends character \a ch to the string and returns a reference to the result.
   Equivalent to operator+=().
  */
 
 /*! \fn QString& QString::append( QChar ch )
   \overload
 
-  Appends \a ch to the string and returns a reference to the result.
+  Appends character \a ch to the string and returns a reference to the result.
   Equivalent to operator+=().
  */
 
@@ -15020,7 +15026,7 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
     QChar ch = string.at( 4 );   // ch == 'e'
   \endcode
   
-  Returns the character at \a i, or 0 if \a i is beyond the length
+  Returns the character at index \a i, or 0 if \a i is beyond the length
   of the string.
 
   Note: If the QString is not const (i.e. const QString) or const& (i.e. 
@@ -15044,7 +15050,10 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
     QChar ch = string.ref(3);   // ch == 'C'
   \endcode
 
-  Returns the QChar at \a i by reference.
+  Returns the QChar at index \a i by reference, expanding the string with 
+  QChar::null if necessary.  The resulting reference can be assigned to, or
+  otherwise used immediately, but becomes invalid once furher modifications
+  are made to the string.
 
   \sa constref()
 */
@@ -15052,11 +15061,11 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 /*!
   \fn QChar QString::operator[](int) const
 
-  Returns the character at \a i, or QChar::null if \a i is beyond the
+  Returns the character at index \a i, or QChar::null if \a i is beyond the
   length of the string.
 
-  Note: If the QString is not const (i.e. const QString) or const& (i.e. 
-  const QString &), then the non-const overload of operator[] will be 
+  Note: If the QString is not const (i.e. const QString) or const& 
+  (const QString &), then the non-const overload of operator[] will be 
   used instead.
 
 */
@@ -15064,24 +15073,25 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 /*! \fn QCharRef QString::operator[](int)
   \overload
 
-  The function returns a reference to the character at \a i.  The 
+  The function returns a reference to the character at index \a i.  The 
   resulting reference can then be assigned to, or otherwise used 
   immediately, but it will become invalid once further modifications 
   are made to the original string.
 
   If \a i is beyond the length of the string then the string is expanded with
-  QChar::null.  
+  QChar::nulls, so that the QCharRef references a valid (null) character in
+  the string.  
 
   The QCharRef internal class can be used much like a constant QChar, but
-  if you assign to it, you change the original string (which enlarges
-  and detaches itself). You will get compilation errors if you try to
-  use the result as anything but a QChar.
+  if you assign to it, you change the original string (which will detach 
+  itself because of QString's copy-on-write semantics). You will get 
+  compilation errors if you try to use the result as anything but a QChar.
 */
 
 /*! \fn QCharRef QString::at( uint i )
   \overload
 
-  The function returns a reference to the character at \a i.  The 
+  The function returns a reference to the character at index \a i.  The 
   resulting reference can then be assigned to, or otherwise used 
   immediately, but it will become invalid once further modifications 
   are made to the original string.
@@ -15110,9 +15120,9 @@ void QString::subat( uint i )
 
 
 /*!
-  Resizes the string to \a len unicode characters and copies \a unicode
+  Resizes the string to \a len characters and copies \a unicode
   into the string.  If \a unicode is null, nothing is copied, but the
-  string is resized to \a len anyway. If \a len is zero, then the string
+  string is still resized to \a len. If \a len is zero, then the string
   becomes a \link isNull() null\endlink string.
 
   \sa setLatin1(), isNull()
@@ -15148,12 +15158,12 @@ QString& QString::setUnicode( const QChar *unicode, uint len )
 }
 
 /*!
-  Resizes the string to \a len unicode characters and copies
+  Resizes the string to \a len characters and copies
   \a unicode_as_ushorts into the string (on some X11 client
   platforms this will involve a byte-swapping pass).
 
   If \a unicode_as_ushorts is null, nothing is copied, but the
-  string is resized to \a len anyway. If \a len is zero, the string
+  string is still resized to \a len. If \a len is zero, the string
   becomes a \link isNull() null\endlink string.
 
   \sa setLatin1(), isNull()
@@ -15178,7 +15188,7 @@ QString& QString::setUnicodeCodes( const ushort* unicode_as_ushorts, uint len )
 
 /*!
   Sets this string to \a str, interpreted as a classic Latin1 C string.
-  If \a len is -1 (default), then it is set to strlen(str).
+  If \a len is -1 (the default), then it is set to strlen(str).
 
   If \a str is 0 a null string is created.  If \a str is "", an empty
   string is created.
@@ -15350,7 +15360,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \fn bool operator==( const QString &s1, const QString &s2 )
   \relates QString
   Returns TRUE if \a s1 is equal to \a s2 or FALSE if they are different.
-  Note that a null string is different from an empty string which is non-null.
+  Note that a null string is not equal to an empty string which is non-null.
 
   Equivalent to compare( s1, s2 ) != 0.
 
@@ -15362,7 +15372,7 @@ bool operator>=( const char *s1, const QString &s2 )
 
   \relates QString
   Returns TRUE if \a s1 is equal to \a s2 or FALSE if they are different.
-  Note that a null string is different from an empty string which is non-null.
+  Note that a null string is not equal to an empty string which is non-null.
 
   Equivalent to compare( s1, s2 ) == 0.
 */
@@ -15372,7 +15382,7 @@ bool operator>=( const char *s1, const QString &s2 )
 
   \relates QString
   Returns TRUE if \a s1 is equal to \a s2 or FALSE if they are different.
-  Note that a null string is different from an empty string which is non-null.
+  Note that a null string is not equal to an empty string which is non-null.
 
   Equivalent to compare( s1, s2 ) == 0.
 */
@@ -15381,7 +15391,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \fn bool operator!=( const QString &s1, const QString &s2 )
   \relates QString
   Returns TRUE if \a s1 is not equal to \a s2 or FALSE if they are equal.
-  Note that a null string is different from an empty string which is non-null.
+  Note that a null string is not equal to an empty string which is non-null.
 
   Equivalent to compare( s1, s2 ) != 0.
 */
@@ -15391,7 +15401,7 @@ bool operator>=( const char *s1, const QString &s2 )
 
   \relates QString
   Returns TRUE if \a s1 is not equal to \a s2 or FALSE if they are equal.
-  Note that a null string is different from an empty string which is non-null.
+  Note that a null string is not equal to an empty string which is non-null.
 
   Equivalent to compare( s1, s2 ) != 0.
 */
@@ -15401,7 +15411,7 @@ bool operator>=( const char *s1, const QString &s2 )
 
   \relates QString
   Returns TRUE if \a s1 is not equal to \a s2 or FALSE if they are equal.
-  Note that a null string is different from an empty string which is non-null.
+  Note that a null string is not equal to an empty string which is non-null.
 
   Equivalent to compare( s1, s2 ) != 0.
 */
@@ -15410,7 +15420,8 @@ bool operator>=( const char *s1, const QString &s2 )
   \fn bool operator<( const QString &s1, const char *s2 )
   \relates QString
   Returns TRUE if \a s1 is lexically less than \a s2 or FALSE if it is not.
-  Note that a null string is different from an empty string which is non-null.
+  The comparison is case-sensitive.  Note that a null string is not equal to 
+  an empty string which is non-null.
 
   Equivalent to compare( s1, s2 ) < 0.
 */
@@ -15420,7 +15431,8 @@ bool operator>=( const char *s1, const QString &s2 )
 
   \relates QString
   Returns TRUE if \a s1 is lexically less than \a s2 or FALSE if it is not.
-  Note that a null string is different from an empty string which is non-null.
+  The comparison is case-sensitive.  Note that a null string is not equal to 
+  an empty string which is non-null.
 
   Equivalent to compare( s1, s2 ) < 0.
 
@@ -15430,7 +15442,8 @@ bool operator>=( const char *s1, const QString &s2 )
   \fn bool operator<=( const QString &s1, const char *s2 )
   \relates QString
   Returns TRUE if \a s1 is lexically less than or equal to \a s2 or FALSE if it is not.
-  Note that a null string is different from an empty string which is non-null.
+  The comparison is case-sensitive.  Note that a null string is not equal to 
+  an empty string which is non-null.
 
   Equivalent to compare( s1, s2 ) <= 0.
   
@@ -15441,7 +15454,8 @@ bool operator>=( const char *s1, const QString &s2 )
 
   \relates QString
   Returns TRUE if \a s1 is lexically less than or equal to \a s2 or FALSE if it is not.
-  Note that a null string is different from an empty string which is non-null.
+  The comparison is case-sensitive.  Note that a null string is not equal to 
+  an empty string which is non-null.
 
   Equivalent to compare( s1, s2 ) <= 0.
 */
@@ -15450,7 +15464,8 @@ bool operator>=( const char *s1, const QString &s2 )
   \fn bool operator>( const QString &s1, const char *s2 )
   \relates QString
   Returns TRUE if \a s1 is lexically greater than \a s2 or FALSE if it is not.
-  Note that a null string is different from an empty string which is non-null.
+  The comparison is case-sensitive.  Note that a null string is not equal to 
+  an empty string which is non-null.
 
   Equivalent to compare( s1, s2 ) > 0.
 */
@@ -15460,7 +15475,8 @@ bool operator>=( const char *s1, const QString &s2 )
 
   \relates QString
   Returns TRUE if \a s1 is lexically greater than \a s2 or FALSE if it is not.
-  Note that a null string is different from an empty string which is non-null.
+  The comparison is case-sensitive.  Note that a null string is not equal to 
+  an empty string which is non-null.
 
   Equivalent to compare( s1, s2 ) > 0.
 */
@@ -15469,7 +15485,8 @@ bool operator>=( const char *s1, const QString &s2 )
   \fn bool operator>=( const QString &s1, const char *s2 )
   \relates QString
   Returns TRUE if \a s1 is lexically greater than or equal to \a s2 or FALSE if it is not.
-  Note that a null string is different from an empty string which is non-null.
+  The comparison is case-sensitive.  Note that a null string is not equal to 
+  an empty string which is non-null.
 
   Equivalent to compare( s1, s2 ) >= 0.
 */
@@ -15479,7 +15496,8 @@ bool operator>=( const char *s1, const QString &s2 )
 
   \relates QString
   Returns TRUE if \a s1 is lexically greater than or equal to \a s2 or FALSE if it is not.
-  Note that a null string is different from an empty string which is non-null.
+  The comparison is case-sensitive.  Note that a null string is not equal to 
+  an empty string which is non-null.
 
   Equivalent to compare( s1, s2 ) >= 0.
 */
@@ -15487,7 +15505,8 @@ bool operator>=( const char *s1, const QString &s2 )
 /*!
   \fn QString operator+( const QString &s1, const QString &s2 )
   \relates QString
-  Returns a string which appends the string \a s2 to the string \a s1.
+  Returns a string which is the result of concatenating the string \a s1 
+  and the string \a s2.
 
   Equivalent to s1.append( s2 ).
 */
@@ -15496,7 +15515,8 @@ bool operator>=( const char *s1, const QString &s2 )
   \overload
 
   \relates QString
-  Returns a string which appends the char* \a s2 to the string \a s1.
+  Returns a string which is the result of concatenating the string \a s1 and 
+  character \a s2.
 
   Equivalent to s1.append( s2 ).
 */
@@ -15505,7 +15525,8 @@ bool operator>=( const char *s1, const QString &s2 )
   \overload
 
   \relates QString
-  Returns a string which appends the string \a s2 to the char* string \a s1.
+  Returns a string which is the result of concatenating the character \a s1 and 
+  string \a s2.
 
 */
 
@@ -15513,7 +15534,8 @@ bool operator>=( const char *s1, const QString &s2 )
   \overload
 
   \relates QString
-  Returns a string which appends the character \a c to the string \a s.
+  Returns a string which is the result of concatenating the string \a s and 
+  character \a c.
 
   Equivalent to s.append( c ).
 */
@@ -15522,7 +15544,9 @@ bool operator>=( const char *s1, const QString &s2 )
   \overload
 
   \relates QString
-  Returns a string which appends the character \a c to the string \a s.
+  Returns a string which is the result of concatenating the character \a c and 
+  string \a s.
+
 
   Equivalent to s.prepend( c ).
 */
@@ -15853,7 +15877,7 @@ public:
   depending on  how similar the string is to \a target. 
 
   This function is efficient, but its results might change in future 
-  versions of Qt.
+  versions of Qt as the algorithm evolves.
 */
 int QString::similarityWith( const QString& target ) const
 {
