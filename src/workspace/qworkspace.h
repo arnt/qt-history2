@@ -99,6 +99,7 @@ protected:
     void wheelEvent( QWheelEvent *e );
 
 private slots:
+    void closeDockWindow(bool);
     void closeActiveWindow();
     void closeAllWindows();
     void normalizeActiveWindow();

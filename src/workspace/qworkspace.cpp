@@ -819,6 +819,12 @@ void QWorkspace::handleUndock(QDockWindow *w)
 	w->hide();
 }
 
+void QWorkspace::closeDockWindow(bool b)
+{
+    if(!b && d->mainwindow) 
+	d->mainwindow->close();
+}
+
 void QWorkspace::dockWindowsShow()
 {
     QPtrList<QDockWindow> lst = d->newdocks;
@@ -892,8 +898,10 @@ void QWorkspace::showEvent( QShowEvent *e )
 			d->newdocks.prepend(tb);
 		    } else if(tb_list.count()) {
 			QDockWindow *dw = new QDockWindow(QDockWindow::OutsideDock, 
-							  w->parentWidget(), 
-							  QString("QMagicDock_") + w->name());
+							  NULL, QString("QMagicDock_") + w->name());
+			QObject::connect(dw, SIGNAL(visibilityChanged(bool)), 
+					 this, SLOT(closeDockWindow(bool)));
+			dw->setResizeEnabled(TRUE);
 			dw->setCloseMode( QDockWindow::Always );
 			dw->setResizeEnabled(FALSE);
 			dw->setCaption(o->caption());
