@@ -2647,8 +2647,8 @@ fi
 if true; then ###[ '!' -f "$outpath/bin/qmake" ];
     echo "Creating qmake. Please wait..."
     OLD_QCONFIG_H=
-    if [ -f "$outpath/include/QtCore/qconfig.h" ]; then
-         OLD_QCONFIG_H="$outpath/include/QtCore/qconfig.h"
+    if [ -f "$outpath/src/core/global/qconfig.h" ]; then
+         OLD_QCONFIG_H="$outpath/src/core/global/qconfig.h"
          mv -f "$OLD_QCONFIG_H" "${OLD_QCONFIG_H}.old"
     fi
 
