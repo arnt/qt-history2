@@ -100,7 +100,7 @@ public:
 //
 // QGridLayout helpers
 //
-    int findItemAt(int row, int column);
+    int findItemAt(int row, int column) const;
 
     static int findItemAt(QGridLayout *, int row, int column);
     static void createEmptyCells(QGridLayout *&gridLayout);

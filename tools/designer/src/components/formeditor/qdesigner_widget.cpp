@@ -516,7 +516,7 @@ void QLayoutSupport::insertWidget(QWidget *widget)
     } // end switch
 }
 
-int QLayoutSupport::findItemAt(int at_row, int at_column)
+int QLayoutSupport::findItemAt(int at_row, int at_column) const
 {
     if (QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout()))
         return findItemAt(gridLayout, at_row, at_column);
@@ -698,25 +698,42 @@ QRect QLayoutSupport::itemInfo(int index) const
 int QLayoutSupport::findItemAt(const QPoint &pos) const
 {
     if (!layout())
+         return -1;
+
+    QRect g = layout()->geometry();
+    if (!g.contains(pos))
         return -1;
 
-    int index = 0;
-    while (QLayoutItem *item = layout()->itemAt(index)) {
-        QRect g = item->geometry();
+    QPoint pt = pos;
+    pt -= g.topLeft();
 
-        int spacing = layout()->spacing();
-        int margin = layout()->margin();
-        // ### use the margin
-        Q_UNUSED(margin);
+    if (QGridLayout *grid = qt_cast<QGridLayout*>(layout())) {
+        int columnCount = qMax(1, grid->columnCount());
+        int rowCount = qMax(1, grid->rowCount());
 
-        g.setBottomRight(g.bottomRight() + QPoint(spacing, spacing));
+        int cellWidth = g.width() / columnCount;
+        int cellHeight = g.height() / rowCount;
 
-        if (g.contains(pos))
-            return index;
+        return findItemAt(pt.y() / cellHeight, pt.x() / cellWidth);
+    } else if (QVBoxLayout *vbox = qt_cast<QVBoxLayout*>(layout())) {
+        int cellCount = 0;
+        while (vbox->itemAt(cellCount))
+            ++cellCount;
 
-        ++index;
+        cellCount = qMax(1, cellCount);
+        int cellHeight = g.height() / cellCount;
+
+        return pt.y() / cellHeight;
+    } else if (QHBoxLayout *hbox = qt_cast<QHBoxLayout*>(layout())) {
+        int cellCount = 0;
+        while (hbox->itemAt(cellCount))
+            ++cellCount;
+
+        cellCount = qMax(1, cellCount);
+        int cellWidth = g.width() / cellCount;
+
+        return pt.x() / cellWidth;
     }
-
     return -1;
 }
 
