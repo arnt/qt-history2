@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#219 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#220 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1443,7 +1443,7 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
     }
     if ( !dirName.isEmpty() )
         cwd.setPath( dirName );
-
+    
     cwd.convertToAbs();
     rereadDir();
 }
@@ -2099,6 +2099,8 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 
 void QFileDialog::okClicked()
 {
+    QDir::setCurrent( cwd.absPath() );
+    
     // if we're in multi-selection mode and something is selected,
     // accept it and be done.
     if ( mode() == ExistingFiles ) {
@@ -2646,12 +2648,15 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
         QFileInfo f( *workingDirectory );
         if ( f.isDir() )
             dialog->setDir( *workingDirectory );
-    }	
-    if ( !dir.isEmpty() ) {
-        QFileInfo f( dir );
-        if ( f.isDir() ) {
-            *workingDirectory = dir;
-            dialog->setDir( dir );
+    } else {	
+        if ( dir.isEmpty() )
+            dir = QDir::currentDirPath();
+        if ( !dir.isEmpty() ) {
+            QFileInfo f( dir );
+            if ( f.isDir() ) {
+                *workingDirectory = dir;
+                dialog->setDir( dir );
+            }
         }
     }
 
@@ -3065,22 +3070,21 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 {
     makeVariables();
 
-    // ### Problem with the logic here: If dir is unset, will get root
-    // (and why not CWD, as doc says?) instead of current value of
-    // workingDirectory
-
     if ( workingDirectory->isNull() )
         *workingDirectory = QDir::currentDirPath();
 
-    QFileInfo tmp( QDir::root(), dir );
-    if ( !tmp.isDir() ) {
-        tmp.setFile( QDir::root(), *workingDirectory );
-        while( !tmp.isDir() )
-            tmp.setFile( tmp.dirPath( TRUE ) );
-    }
+//     QFileInfo tmp( QDir::root(), dir );
+//     if ( !tmp.isDir() ) {
+//         tmp.setFile( QDir::root(), *workingDirectory );
+//         while( !tmp.isDir() )
+//             tmp.setFile( tmp.dirPath( TRUE ) );
+//     }
 
-    *workingDirectory = tmp.absFilePath();
+//     *workingDirectory = tmp.absFilePath();
 
+    if ( !dir.isEmpty() )
+        *workingDirectory = dir;
+    
 #if defined(_WS_WIN_)
     if ( qApp->style() == WindowsStyle )
         return winGetOpenFileNames( filter, workingDirectory, parent, name );
