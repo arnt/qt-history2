@@ -720,12 +720,11 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
     See \l Qt::Key for the list of keyboard codes. These codes are
     independent of the underlying window system.
 
-  Key code 0 means that the event is not a result of a known key (e.g. it
-  may be the result of a compose sequence or keyboard macro).
+    Key code 0 means that the event is not the result of a known key
+    (e.g. it may be the result of a compose sequence or a keyboard
+    macro, or due to key event compression).
 
-  When key event compression is turned on, this function's return
-  value is undefined.  See QWidget::setKeyCompression() for details
-  on key event compression.
+    \sa QWidget::setKeyCompression()
 */
 
 /*!
@@ -818,10 +817,6 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 
     Returns the number of single keys for this event. If text() is not
     empty, this is simply the length of the string.
-
-    However, Qt also compresses invisible keycodes such as BackSpace.
-    For those, count() returns the number of key presses/repeats this
-    event represents.
 
     \sa QWidget::setKeyCompression()
 */

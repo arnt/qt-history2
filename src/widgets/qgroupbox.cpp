@@ -369,7 +369,7 @@ void QGroupBox::addSpace( int size )
 
 /*!
   \property QGroupBox::columns
-  \brief the number of columns or rows (depending on \l orientation) in the group box
+  \brief the number of columns or rows (depending on \l QGroupBox::orientation) in the group box
 
   Usually it is not a good idea to set this property because it is slow
   (it does a complete layout).  It is better to set the number of columns
