@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#23 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#24 $
 **
 ** Definition of QListView widget class
 **
@@ -58,7 +58,7 @@ public:
     virtual void paintBranches( QPainter * p, const QColorGroup & cg,
 				int w, int y, int h, GUIStyle s ) const;
 
-    const QListViewItem * firstChild() const { return childItem; }
+    const QListViewItem * firstChild() const;
     const QListViewItem * nextSibling() const { return siblingItem; }
 
     QListViewItem * itemAbove();
@@ -75,7 +75,7 @@ public:
     void repaint() const;
 
 protected:
-    void enforceSortOrder();
+    void enforceSortOrder() const;
     void setHeight( int );
     virtual void activate();
 

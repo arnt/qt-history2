@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#51 $
 **
 ** Implementation of QListView widget class
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#50 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#51 $");
 
 
 const int Unsorted = 32767;
@@ -550,10 +550,11 @@ void QListViewItem::setExpandable( bool enable )
 */
 
 
-void QListViewItem::enforceSortOrder()
+void QListViewItem::enforceSortOrder() const
 {
     if( parentItem && (parentItem->lsc != lsc || parentItem->lso != lso) )
-	sortChildItems( (int)parentItem->lsc, (bool)parentItem->lso );
+	((QListViewItem *)this)->sortChildItems( (int)parentItem->lsc,
+						 (bool)parentItem->lso );
 }
 
 
@@ -1510,9 +1511,7 @@ QListViewItem * QListViewItem::itemBelow()
   \sa setOpen()
 */
 
-/*! \fn const QListViewItem* QListViewItem::firstChild () const
-
-  Returns a pointer to the first (top) child of this item.
+/*! Returns a pointer to the first (top) child of this item.
 
   Note that the children are not guaranteed to be sorted properly.
   QListView and QListViewItem try to postpone or avoid sorting to the
@@ -1521,6 +1520,13 @@ QListViewItem * QListViewItem::itemBelow()
 
   \sa nextSibling()
 */
+
+const QListViewItem* QListViewItem::firstChild () const
+{
+    enforceSortOrder();
+    return childItem;
+}
+
 
 /*! \fn const QListViewItem* QListViewItem::nextSibling () const
 
@@ -2400,13 +2406,13 @@ void QCheckListItem::init()
 }
 
 
-/*! 
+/*!
   \fn QCheckListItem::Type QCheckListItem::type () const
 
   Returns the type of this item.
 */
 
-/*! 
+/*!
   \fn  bool QCheckListItem::isOn () const
   Returns TRUE if this item is toggled on, FALSE otherwise.
 */
