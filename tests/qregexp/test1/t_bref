@@ -1,5 +1,0 @@
-(a*)(\1) # aaaaa # 0 4 'aa' 'aa'
-<(\w*)>.+</\1> # <b>blabla</b>bla</> # 0 13 'b'
-<(\w*)>.+</\1> # <>blabla</b>bla</> # 0 18 ''
-((a*\2)\2) # aaaa # 0 4 'aaaa' 'aa'
-^(aa+)\1+$ # aaaaaa # 0 6 'aa'

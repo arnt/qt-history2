@@ -1,7 +1,0 @@
-#!/bin/bash
-
-for f in "$@"; do
-rm /tmp/foo.1 /tmp/foo.2;
-./test < $f >& /tmp/foo.1 > /tmp/foo.2;
-diff /tmp/foo.1 /tmp/foo.2 | grep '^[<>]';
-done
