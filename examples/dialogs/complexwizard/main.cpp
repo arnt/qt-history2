@@ -6,6 +6,5 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     LicenseWizard wizard;
-    wizard.show();
-    return app.exec();
+    return wizard.exec();
 }

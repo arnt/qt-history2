@@ -13,6 +13,5 @@ int main(int argc, char *argv[])
         fileName = ".";
 
     TabDialog tabdialog(fileName);
-    tabdialog.show();
-    return app.exec();
+    return tabdialog.exec();
 }

@@ -35,6 +35,12 @@ Window::Window()
 
     alignmentLineEdit = new QLineEdit(alignmentGroup);
 
+    QPalette pal;
+    pal.setColor(QPalette::Base, Qt::green);
+    validatorLineEdit->setPalette(pal);
+    pal.setColor(QPalette::Base, Qt::green);
+    alignmentLineEdit->setPalette(pal);
+
     QGroupBox *inputMaskGroup = new QGroupBox(tr("Input mask"), this);
 
     QLabel *inputMaskLabel = new QLabel(tr("Type:"), inputMaskGroup);
