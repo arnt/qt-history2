@@ -358,7 +358,7 @@ HRESULT WINAPI UpdateRegistry(BOOL bRegister)
     return S_OK;
 }
 
-static QStringList *enums = 0;
+static QStrList *enums = 0;
 
 static const char* const type_map[][2] =
 {
@@ -394,8 +394,10 @@ static QString convertTypes( const QString &qtype, bool *ok )
 	}
 	++i;
     }
-    if ( enums && enums->contains( qtype ) )
+    if ( enums && enums->contains( qtype ) ) {
 	*ok = TRUE;
+	return "Enum" + qtype;
+    }
     return qtype;
 }
 
@@ -638,10 +640,40 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 	QString eventsID = _Module.factory()->eventsID( className ).toString().upper();
 	STRIPCB(eventsID);
 
-#if QT_VERSION >= 0x040000
-#error "Try support for enumerators"
-	for ( i = 0; i < mo->
-	    out << "typedef enum { NoBackground = 0 } BackgroundMode;" << endl;
+#if QT_VERSION >= 0x030100
+	QStrList enumerators = mo->enumeratorNames( TRUE );
+	for ( i = 0; i < enumerators.count(); ++i ) {
+	    if ( !enums )
+		enums = new QStrList;
+
+	    const char *enumerator = enumerators.at(i);
+	    if ( !enumerator )
+		continue;
+	    const QMetaEnum *mEnum = mo->enumerator( enumerator, TRUE );
+	    if ( !mEnum )
+		continue;
+
+	    if ( enums->contains( enumerator ) )
+		continue;
+
+	    enums->append( enumerator );
+	    
+	    out << "\ttypedef enum " << enumerator << " {" << endl;
+
+	    for ( uint j = 0; j < mEnum->count; ++j ) {
+		QString key = mEnum->items[j].key;
+		key = key.leftJustify( 20 );
+		out << "\t\t" << key << "\t= ";
+		if ( mEnum->set )
+		    out << "0x" << QString::number( mEnum->items[j].value, 16 ).rightJustify( 8, '0' );
+		else
+		    out << mEnum->items[j].value;
+		if ( j < mEnum->count-1 )
+		    out << ", ";
+		out << endl;
+	    }
+	    out << "\t} Enum" << enumerator << ";" << endl << endl;
+	}
 #endif
 
 	out << endl;
@@ -686,7 +718,9 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 	    if ( !ok )
 		out << "\t******/" << endl;
 	    ++id;
-	} for ( i = propoff; i < mo->numProperties( TRUE ); ++i ) {
+	}
+	
+	for ( i = propoff; i < mo->numProperties( TRUE ); ++i ) {
 	    const QMetaProperty *property = mo->property( i, TRUE );
 	    if ( !property || property->testFlags( QMetaProperty::Override ) )
 		continue;
@@ -697,8 +731,12 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 	    bool write = property->writable();
 	    bool designable = property->designable( w );
 	    bool scriptable = isBindable ? property->scriptable( w ) : FALSE;
-	    bool ok;
+	    bool ok = TRUE;
+#if QT_VERSION >= 0x030100
+	    QString type = convertTypes( property->type(), &ok );
+#else
 	    QString type = convertTypes( property->isEnumType() ? "int" : property->type(), &ok );
+#endif
 	    QString name = replaceKeyword( property->name() );
 
 	    if ( !ok )
