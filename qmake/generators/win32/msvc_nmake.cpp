@@ -320,7 +320,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 			    int l = 0;
 			    for(int i = 0; i < read_in; i++) {
 				if(buff[i] == '\n' || buff[i] == ' ') {
-				    deps += " " + QCString(buff+l, (i - l) + 1);
+				    deps += " " + QString::fromLatin1(buff+l, (i - l) + 1);
 				    l = i;
 				}
 			    }
