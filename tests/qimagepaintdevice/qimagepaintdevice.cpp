@@ -121,8 +121,8 @@ bool QImagePaintDevice32::cmd( int c, QPainter *painter, QPDevCmdParam *p )
 	case PdcDrawPolyline:
 	    drawPolyline(*p[0].ptarr);
 	    break;
-	case PdcDrawQuadBezier:
-	    drawQuadBezier(*p[0].ptarr);
+	case PdcDrawCubicBezier:
+	    drawCubicBezier(*p[0].ptarr);
 	    break;
 
 	case PdcDrawPolygon:
@@ -457,9 +457,9 @@ void QImagePaintDevice32::drawPolyline(const QPointArray& pa)
 	drawLine(pa[i],pa[i+1]); // XXX beware XOR mode vertices
 }
 
-void QImagePaintDevice32::drawQuadBezier(const QPointArray &pa )
+void QImagePaintDevice32::drawCubicBezier(const QPointArray &pa )
 {
-    drawPolyline( pa.quadBezier() );
+    drawPolyline( pa.cubicBezier() );
 }
 
 // Based on Xserver code miFillGeneralPoly...

@@ -80,7 +80,7 @@ public:
     void    makeEllipse( int x, int y, int w, int h );
     void    makeArc( int x, int y, int w, int h, int a1, int a2,
 		     const QWMatrix& );
-    QPointArray quadBezier() const;
+    QPointArray cubicBezier() const;
 
     void*  shortPoints( int index = 0, int nPoints = -1 ) const;
     static void cleanBuffers();

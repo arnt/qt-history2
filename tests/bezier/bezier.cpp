@@ -30,7 +30,7 @@ void BezierViewer::paintEvent( QPaintEvent* )
     }
 
     /* Calculate Bezier curve */
-    QPointArray bezier = points.quadBezier();
+    QPointArray bezier = points.cubicBezier();
 
     QPainter painter( this );
 

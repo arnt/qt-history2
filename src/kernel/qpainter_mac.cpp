@@ -1225,7 +1225,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 */
 
 // FIXME: Implement this
-void QPainter::drawQuadBezier( const QPointArray &, int )
+void QPainter::drawCubicBezier( const QPointArray &, int )
 {
 }
 

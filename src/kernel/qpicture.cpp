@@ -347,9 +347,9 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		s >> a >> i_8;
 		painter->drawPolygon( a, i_8 );
 		break;
-	    case PdcDrawQuadBezier:
+	    case PdcDrawCubicBezier:
 		s >> a;
-		painter->drawQuadBezier( a );
+		painter->drawCubicBezier( a );
 		break;
 	    case PdcDrawText:
 		s >> p >> str1;
@@ -590,9 +590,9 @@ bool QPicture::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	    br = p[0].ptarr->boundingRect();
 	    corr = TRUE;
 	    break;
-	case PdcDrawQuadBezier:
+	case PdcDrawCubicBezier:
 	    s << *p[0].ptarr;
-	    br = p[0].ptarr->quadBezier().boundingRect(); // ### expensive
+	    br = p[0].ptarr->cubicBezier().boundingRect();
 	    corr = TRUE;
 	    break;
 	case PdcDrawPolygon:

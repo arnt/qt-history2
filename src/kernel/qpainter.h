@@ -200,7 +200,7 @@ public:
 			      int index=0, int npoints=-1 );
     void	drawPolygon( const QPointArray &, bool winding=FALSE,
 			     int index=0, int npoints=-1 );
-    void	drawQuadBezier( const QPointArray &, int index=0 );
+    void	drawCubicBezier( const QPointArray &, int index=0 );
     void	drawPixmap( int x, int y, const QPixmap &,
 			    int sx=0, int sy=0, int sw=-1, int sh=-1 );
     void	drawPixmap( const QPoint &, const QPixmap &,

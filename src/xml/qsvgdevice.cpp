@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#16 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#17 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -658,7 +658,7 @@ void QSVGDevice::drawPath( const QString &data )
 		quad.setPoint( 2, x32, y32 );
 	    }
 	    // calculate points on curve
-	    bezier = quad.quadBezier();		// ### wrong naming in API
+	    bezier = quad.cubicBezier();
 	    for ( uint j = 0; j < bezier.size(); j ++ )
 		path.setPoint( pcount++, bezier[ j ] );
 	    break;

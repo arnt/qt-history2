@@ -524,7 +524,7 @@ static const char * const ps_header[] = {
 "} D",
 "",
 "",
-"/BZ {",				// PdcDrawQuadBezier [3 points]
+"/BZ {",				// PdcDrawCubicBezier [4 points]
 "    curveto",
 "    QS",
 "} D",
@@ -2666,7 +2666,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		stream << "/WFi false d\n";
 	}
 	break;
-    case PdcDrawQuadBezier:
+    case PdcDrawCubicBezier:
 	if ( p[0].ptarr->size() == 4 ) {
 	    stream << "NP\n";
 	    QPointArray a = *p[0].ptarr;

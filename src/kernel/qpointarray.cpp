@@ -67,7 +67,7 @@ const double Q_PI = 3.14159265358979323846;   // pi // one more useful comment
 
   QPointArray is used by QPainter::drawLineSegments(),
   QPainter::drawPolyline(), QPainter::drawPolygon() and
-  QPainter::drawQuadBezier(), among other things.
+  QPainter::drawCubicBezier(), among other things.
 
   Note that since this class is a QArray, it is explicitly shared and
   works with shallow copies by default.
@@ -689,7 +689,7 @@ void QPointArray::makeEllipse( int xx, int yy, int w, int h )
 }
 
 
-// Work functions for QPointArray::quadBezier()
+// Work functions for QPointArray::cubicBezier()
 static
 void split(const double *p, double *l, double *r)
 {
@@ -841,7 +841,7 @@ void polygonizeQBezier( double* acc, int& accsize, const double ctrl[],
   Returns the Bezier points for the four control points in this array.
 */
 
-QPointArray QPointArray::quadBezier() const
+QPointArray QPointArray::cubicBezier() const
 {
 #ifdef USE_SIMPLE_QBEZIER_CODE
     if ( size() != 4 ) {

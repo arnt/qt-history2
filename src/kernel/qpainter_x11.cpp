@@ -2286,13 +2286,13 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
   there aren't enough control points.
 */
 
-void QPainter::drawQuadBezier( const QPointArray &a, int index )
+void QPainter::drawCubicBezier( const QPointArray &a, int index )
 {
     if ( !isActive() )
 	return;
     if ( a.size() - index < 4 ) {
 #if defined(QT_CHECK_RANGE)
-	qWarning( "QPainter::drawQuadBezier: Cubic Bezier needs 4 control "
+	qWarning( "QPainter::drawCubicBezier: Cubic Bezier needs 4 control "
 		 "points" );
 #endif
 	return;
@@ -2307,14 +2307,14 @@ void QPainter::drawQuadBezier( const QPointArray &a, int index )
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[1];
 	    param[0].ptarr = (QPointArray*)&pa;
-	    if ( !pdev->cmd(QPaintDevice::PdcDrawQuadBezier,this,param) || !hd )
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawCubicBezier,this,param) || !hd )
 		return;
 	}
 	if ( txop != TxNone )
 	    pa = xForm( pa );
     }
     if ( cpen.style() != NoPen ) {
-	pa = pa.quadBezier();
+	pa = pa.cubicBezier();
 	XDrawLines( dpy, hd, gc, (XPoint*)pa.shortPoints(), pa.size(),
 		    CoordModeOrigin);
     }

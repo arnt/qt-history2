@@ -144,7 +144,7 @@ public:
 	PdcDrawLineSegments = 11, // ptarr
 	PdcDrawPolyline = 12, // ptarr
 	PdcDrawPolygon = 13, // ptarr,ival
-	PdcDrawQuadBezier = 14, // ptarr
+	PdcDrawCubicBezier = 14, // ptarr
 	PdcDrawText = 15, // point,str
 	PdcDrawTextFormatted = 16, // rect,ival,str
 	PdcDrawPixmap = 17, // point,pixmap
