@@ -637,7 +637,7 @@ QTextStringChar::~QTextStringChar()
 	delete d.custom;
 }
 
-QTextParagraphPseudoDocument::QTextParagraphPseudoDocument():pFormatter(0),commandHistory(0), minw(0),wused(0){}
+QTextParagraphPseudoDocument::QTextParagraphPseudoDocument():pFormatter(0),commandHistory(0), minw(0),wused(0),collection(){}
 QTextParagraphPseudoDocument::~QTextParagraphPseudoDocument(){ delete pFormatter; delete commandHistory; }
 
 
