@@ -380,6 +380,17 @@ bool QBrush::operator==(const QBrush &b) const
 	   || (b.d->style == d->style && b.d->color == d->color && b.d->pixmap == d->pixmap);
 }
 
+/*!
+    \fn QBrush::operator const QColor&() const
+
+    Returns the brush's color.
+*/
+
+/*!
+    \fn QBrush::operator const QPixmap*() const
+
+    Returns the brush's pixmap.
+*/
 
 /*!
     \fn inline double QPainter::translationX() const

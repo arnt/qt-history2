@@ -1205,6 +1205,12 @@ QHttp::~QHttp()
 }
 
 /*!
+    \fn int QHttp::supportedOperations() const
+
+    \internal
+*/
+
+/*!
     \enum QHttp::State
 
     This enum is used to specify the state the client is in:

@@ -27,6 +27,12 @@
 */
 
 /*!
+    \fn QInputEvent::QInputEvent(Type type)
+
+    \internal
+*/
+
+/*!
     \fn bool QInputEvent::isAccepted() const
 
     Returns the accept flag of the event object. It is set by default.
@@ -956,6 +962,14 @@ void QFocusEvent::resetReason()
 */
 
 /*!
+    \fn QPaintEvent::QPaintEvent( const QRegion &paintRegion,
+				  const QRect &paintRect)
+
+    Constructs a paint event object with the rectangle \a paintRect,
+    and with the region that should be updated given by \a paintRegion.
+*/
+
+/*!
     \fn const QRect &QPaintEvent::rect() const
 
     Returns the rectangle that should be updated.
@@ -1379,14 +1393,16 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
     composition up to that point (which may be an empty string).
 */
 
-/*
-    \fn  QIMEvent::QIMEvent( Type type, const QString &text, int cursorPosition )
+/*!
+    \fn QIMEvent::QIMEvent( Type type, const QString &text, int
+			    cursorPosition, int selLength )
 
     Constructs a new QIMEvent with the accept flag set to FALSE. \a
     type can be one of QEvent::IMStartEvent, QEvent::IMComposeEvent
     or QEvent::IMEndEvent. \a text contains the current compostion
     string and \a cursorPosition the current position of the cursor
-    inside \a text.
+    inside \a text. \a selLength characters are selected (default is
+    0).
 */
 
 /*!
@@ -1466,14 +1482,17 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
                                   const QPoint &globalPos, int device,
                                   int pressure, int xTilt, int yTilt,
 				  const QPair<int,int> &uId )
-  Construct a tablet event of type \a t.  The position of when the event occurred is given
-  int \a pos and \a globalPos.  \a device contains the \link TabletDevice device type\endlink,
-  \a pressure contains the pressure exerted on the \a device, \a xTilt and \a yTilt contain
-  \a device's degree of tilt from the X and Y axis respectively.  The \a uId contains an
-  event id.
 
-  On Irix, \a globalPos will contain the high-resolution coordinates received from the
-  tablet device driver, instead of from the windowing system.
+  Construct a tablet event of \c Type \a t.  The position where the
+  event occurred is given in \a pos and in \a globalPos. \a device
+  contains the \link TabletDevice device type\endlink, \a pressure
+  contains the pressure exerted on the \a device, \a xTilt and \a
+  yTilt contain \a device's degree of tilt from the X and Y axis
+  respectively. The \a uId contains an event id.
+
+  On Irix, \a globalPos will contain the high-resolution coordinates
+  received from the tablet device driver, instead of from the
+  windowing system.
 
   \sa pos(), globalPos(), device(), pressure(), xTilt(), yTilt()
 */
@@ -1613,7 +1632,7 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
     \fn QPair<int, int> QTabletEvent::uniqueId()
 
     Returns a unique ID for the current device. It is possible to
-    generate a unique ID for any Wacom&copy; device. This makes it
+    generate a unique ID for any Wacom(TM) device. This makes it
     possible to differentiate between multiple devices being used at
     the same time on the tablet. The \c first member contains a value
     for the type, the \c second member contains a physical ID obtained
@@ -1621,6 +1640,25 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
     for different platforms, the \c first value is different due to
     different driver implementations.
 */
+
+/*!
+    \fn int QTabletEvent::isAccepted() const
+
+    \reimp
+*/
+
+/*!
+    \fn void QTabletEvent::accept()
+
+    \reimp
+*/
+
+/*!
+    \fn void QTabletEvent::ignore()
+
+    \reimp
+*/
+
 
 /*!
     \fn QDragMoveEvent::QDragMoveEvent( const QPoint& pos, Type type )
@@ -1894,9 +1932,17 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
 */
 
 /*!
+    \fn QFileOpenEvent::QFileOpenEvent(const QString &file)
+
+    \internal
+
+    Constructs a file open event for the file \a file.
+*/
+
+/*!
     \fn QString QFileOpenEvent::file() const
 
-    Returns the file attempting to be opened.
+    Returns the file that is being opened.
 */
 
 

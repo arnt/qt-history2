@@ -687,7 +687,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	QTab.
 
     \value PE_MenuFrame frame displayed in a QMenu
-    \value PE_MenuBarFrmae frame displayed in a QMenuBar
+    \value PE_MenuBarFrame frame displayed in a QMenuBar
 
     \value PE_HeaderSection  section of a list or table header; see also
 	QHeader.
@@ -728,6 +728,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PE_CheckListIndicator checkbox part of a listview item
     \value PE_CheckListExclusiveIndicator radiobutton part of a listview item
     \value PE_RubberBand rubber band used in such things as iconview
+    \value PE_RubberBandMask (internal)
 
     \value PE_TreeBranch lines used to represent the branch of a tree
     in a tree view
@@ -755,30 +756,31 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     the different meanings of the flags, see the \link
     customstyles.html Style overview\endlink.
 
-    \value Style_Default
-    \value Style_Enabled
-    \value Style_Raised
-    \value Style_Sunken
-    \value Style_Off
-    \value Style_NoChange
-    \value Style_On
-    \value Style_Down
-    \value Style_Horizontal
-    \value Style_HasFocus
-    \value Style_Top
-    \value Style_Bottom
-    \value Style_FocusAtBorder
-    \value Style_AutoRaise
-    \value Style_MouseOver
-    \value Style_Up
-    \value Style_Selected
-    \value Style_HasFocus
     \value Style_Active
+    \value Style_AutoRaise
+    \value Style_Bottom
     \value Style_ButtonDefault
-    \value Style_Open
     \value Style_Children
+    \value Style_Default
+    \value Style_Down
+    \value Style_Enabled
+    \value Style_FocusAtBorder
+    \value Style_HasFocus
+    \value Style_HasFocus
+    \value Style_Horizontal
     \value Style_Item
+    \value Style_MouseOver
+    \value Style_NoChange
+    \value Style_Off
+    \value Style_On
+    \value Style_Open
+    \value Style_Raised
+    \value Style_Rectangle
+    \value Style_Selected
     \value Style_Sibling
+    \value Style_Sunken
+    \value Style_Top
+    \value Style_Up
 
     \sa drawPrimitive()
 */
@@ -900,6 +902,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	style supports scrolling.
     \value CE_MenuTearoff a menu item representing the tear off section of
         a QMenu.
+    \value CE_MenuEmptyArea ###
+    \value CE_MenuVerticalExtra ###
+    \value CE_MenuHorizontalExtra ###
 
     \value CE_DockWindowEmptyArea the empty area of a QDockWindow.
 
@@ -1015,7 +1020,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	 \i12 &nbsp;
     \row \i \l Style_HasFocus \i Set if the progressbar has input focus.
 
-    \row \i13 \l{CE_PopupMenuItem}(const \l QPopupMenu *)
+    \row \i13 \l{CE_MenuItem}(const \l QPopupMenu *)
 	 \i \l Style_Enabled \i Set if the menuitem is enabled.
 	 \i13 \l QStyleOption ( QMenuItem *mi, int tabwidth, int maxpmwidth )
 		\list
@@ -1490,6 +1495,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PM_MenuScrollerHeight height of the scroller area in a QMenu.
     \value PM_MenuScrollerHeight height of the scroller area in a QMenu.
     \value PM_MenuTearoffHeight height of a tear off area in a QMenu.
+    \value PM_MenuDesktopFrameWidth ###
 
     \value PM_CheckListButtonSize area (width/height) of the
 	checkbox/radiobutton in a QCheckListItem
@@ -1564,9 +1570,6 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value CT_Menu
     \value CT_DialogButtons
 
-    \value CT_Q3PopupMenuItem
-    \value CT_Q3MenuBar
-
     \value CT_CustomBase  base value for custom ControlElements. All
 	values above this are reserved for custom use. Custom values
 	must be greater than this value.
@@ -1598,7 +1601,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \row \i \l CT_Splitter \i (const \l QSplitter *) \i Unused. \i &nbsp;
     \row \i \l CT_DockWindow \i (const \l QDockWindow *) \i Unused. \i &nbsp;
     \row \i \l CT_ProgressBar \i (const \l QProgressBar *) \i Unused. \i &nbsp;
-    \row \i \l CT_PopupMenuItem \i (const QPopupMenu *)
+    \row \i \l CT_MenuItem \i (const QPopupMenu *)
 	\i \l QStyleOption ( QMenuItem *mi )
 	    \list
 	    \i opt.\link QStyleOption::menuItem() menuItem\endlink()
@@ -1699,6 +1702,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value SH_MenuBar_MouseTracking  mouse tracking in menubars.
 
+    \value SH_Menu_FillScreenWithScroll whether scrolling popups
+    should fill the screen as they are scrolled
+
     \value SH_ItemView_ChangeHighlightOnFocus  gray out selected items
 	when losing focus.
 
@@ -1724,6 +1730,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value SH_ScrollBar_StopMouseOverSlider stops autorepeat when
 	slider reaches mouse
+
+    \value SH_ScrollBar_BackgroundMode (deprecated)
 
     \value SH_BlinkCursorWhenTextSelected whether cursor should blink
 	when text is selected
@@ -1756,7 +1764,11 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value SH_UnderlineAccelerator whether accelerators are underlined
 
-    \value SH_SpinBoxAnimateButton animate a click when up or down is pressed in a spin box
+    \value SH_SpinBox_AnimateButton animate a click when up or down is pressed in a spin box
+    \value SH_SpinBox_KeyPressAutoRepeatRate autorepeat interval for
+    spinbox keypresses
+    \value SH_SpinBox_ClickAutoRepeatRate autorepeat interval for
+    spinbox mouse clicks
 
     \sa styleHint()
 */

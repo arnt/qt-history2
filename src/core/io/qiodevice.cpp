@@ -161,6 +161,65 @@
 */
 
 /*!
+    \enum QIODevice::AccessTypes
+
+    \internal
+
+    \value Direct
+    \value Sequential
+    \value Combined (Direct and Sequential)
+    \value TypeMask (internal)
+*/
+
+/*!
+    \enum QIODevice::HandlingModes
+
+    \internal
+
+    \value Raw unbuffered
+    \value Async asynchronous
+*/
+
+/*!
+    \enum QIODevice::OpenModes
+
+    \value ReadOnly
+    \value WriteOnly
+    \value ReadWrite
+    \value Append
+    \value Truncate
+    \value Translate translate line ending conventions
+    \value ModeMask (internal)
+*/
+
+/*!
+    \enum QIODevice::State
+
+    \internal
+
+    \value Open
+    \value StateMask
+*/
+
+/*!
+    \enum QIODevice::Status
+
+    \internal
+
+    \value Ok
+    \value ReadError
+    \value WriteError
+    \value FatalError
+    \value ResourceError
+    \value OpenError
+    \value ConnectError
+    \value AbortError
+    \value TimeOutError
+    \value UnspecifiedError
+
+*/
+
+/*!
     \enum QIODevice::Offset
 
     The offset within the device.

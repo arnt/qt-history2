@@ -461,6 +461,22 @@ QPixmap &QPixmap::operator=( const QImage &image )
 }
 
 /*!
+    \fn bool QPixmap::operator!() const
+
+    Returns true if this is a null pixmap; otherwise returns false.
+
+    \sa isNull()
+*/
+
+/*!
+    \fn QPixmap::operator QImage() const
+
+    \internal
+
+    Returns the pixmap as a QImage.
+*/
+
+/*!
     Returns the actual matrix used for transforming a pixmap with \a w
     width and \a h height and matrix \a m.
 
