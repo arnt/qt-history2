@@ -922,7 +922,9 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
           << "\t\t" << "};" << "\n";
     }
     //TARGET
-    t << "\t\t" << keyFor("QMAKE_PBX_TARGET") << " = {" << "\n"
+    QString target_key = keyFor("QMAKE_PBX_TARGET");
+    project->variables()["QMAKE_PBX_TARGETS"].append(target_key);
+    t << "\t\t" << target_key << " = {" << "\n"
       << "\t\t\t" << "buildPhases = (" << "\n"
       << varGlue("QMAKE_PBX_PRESCRIPT_BUILDPHASES", "\t\t\t\t", ",\n\t\t\t\t", ",\n")
       << varGlue("QMAKE_PBX_BUILDPHASES", "\t\t\t\t", ",\n\t\t\t\t", "\n")
@@ -1144,7 +1146,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t" << "mainGroup = " << keyFor("QMAKE_PBX_ROOT_GROUP") << ";" << "\n"
       << "\t\t\t" << "projectDirPath = \"\";" << "\n"
       << "\t\t\t" << "targets = (" << "\n"
-      << "\t\t\t\t" << keyFor("QMAKE_PBX_TARGET") << "\n"
+      << varGlue("QMAKE_PBX_TARGETS", "\t\t\t\t", ",\n\t\t\t\t", "\n")
       << "\t\t\t" << ");" << "\n"
       << "\t\t" << "};" << "\n";
 
