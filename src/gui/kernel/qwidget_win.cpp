@@ -30,6 +30,8 @@
 #include <private/qpaintengine_win_p.h>
 #include "qcleanuphandler.h"
 
+#include <qdebug.h>
+
 #ifdef QT_RASTER_PAINTENGINE
 #include "qpaintengine_raster_p.h"
 #endif
@@ -922,7 +924,6 @@ void QWidget::repaint(const QRegion& rgn)
 #ifdef QT_RASTER_PAINTENGINE
     double_buffer = false;
     QRasterPaintEngine *rasterEngine = static_cast<QRasterPaintEngine *>(paintEngine());
-    rasterEngine->setFlushOnEnd(false);
 #endif
 
     bool tmphdc = !d->hd;
@@ -961,7 +962,6 @@ void QWidget::repaint(const QRegion& rgn)
     QApplication::sendSpontaneousEvent(this, &e);
 
 #ifdef QT_RASTER_PAINTENGINE
-    rasterEngine->setFlushOnEnd(true);
     rasterEngine->flush(this);
 #endif
 
@@ -1818,12 +1818,14 @@ QPaintEngine *QWidget::paintEngine() const
 {
     if (!qt_widget_paintengine) {
         qt_widget_paintengine = new QRasterPaintEngine();
+        qt_widget_paintengine->setFlushOnEnd(false);
         qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
     }
 
     if (qt_widget_paintengine->isActive()) {
-        QPaintEngine *extraEngine = new QRasterPaintEngine();
+        QRasterPaintEngine *extraEngine = new QRasterPaintEngine();
         extraEngine->setAutoDestruct(true);
+        extraEngine->setFlushOnEnd(false);
         return extraEngine;
     }
 
