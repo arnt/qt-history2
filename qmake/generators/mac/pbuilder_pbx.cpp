@@ -111,12 +111,12 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                             warn_msg(WarnLogic, "Ignored (not found) '%s'", pbxproj.latin1());
                             goto nextfile; // # Dirty!
                         }
+                        const QString project_key = keyFor(pbxproj + "_PROJECTREF");
                         project->variables()["QMAKE_PBX_SUBDIRS"] += pbxproj;
                         //PROJECTREF
                         {
                             bool in_root = true;
                             QString name = QDir::currentPath();
-                            QString project_key = keyFor(pbxproj + "_PROJECTREF");
                             if(project->isActiveConfig("flat")) {
                                 QString flat_file = fileFixify(name, oldpwd, Option::output_dir, FileFixifyRelative);
                                 if(flat_file.indexOf(Option::dir_sep) != -1) {
@@ -148,19 +148,60 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                                 project->variables()["QMAKE_PBX_GROUPS"] += project_key;
                             t << "\t\t" << project_key << " = {" << "\n"
                               << "\t\t\t" << "isa = PBXFileReference;" << "\n"
-                              << "\t\t\t" << "name = " << tmp_proj.first("TARGET") << ";" << "\n"
+                              << "\t\t\t" << "lastKnownFileType = \"wrapper.pb-project\";" << "\n"
+                              << "\t\t\t" << "name = " << tmp_proj.first("TARGET") << projectSuffix() << ";" << "\n"
                               << "\t\t\t" << "path = " << pbxproj << ";" << "\n"
                               << "\t\t\t" << "refType = 0;" << "\n"
                               << "\t\t\t" << "sourceTree = \"<absolute>\";" << "\n"
                               << "\t\t" << "};" << "\n";
+                            //WRAPPER
+                            t << "\t\t" << keyFor(pbxproj + "_WRAPPER") << " = {" << "\n"
+                              << "\t\t\t" << "isa = PBXReferenceProxy;" << "\n";
+                            if(tmp_proj.first("TEMPLATE") == "app") 
+                                t << "\t\t\t" << "fileType = wrapper.application;" << "\n"
+                                  << "\t\t\t" << "path = " << tmp_proj.first("TARGET") << ".app;" << "\n";
+                            else
+                                t << "\t\t\t" << "fileType = \"compiled.mach-o.dylib\";" << "\n"
+                                  << "\t\t\t" << "path = " << tmp_proj.first("TARGET") << ".dylib;" << "\n";
+                            t << "\t\t\t" << "refType = 3;" << "\n"
+                              << "\t\t\t" << "remoteRef = " << keyFor(pbxproj + "_WRAPPERREF") << ";" << "\n"
+                              << "\t\t\t" << "sourceTree = BUILT_PRODUCTS_DIR;" << "\n"
+                              << "\t\t" << "};" << "\n";
+                            t << "\t\t" << keyFor(pbxproj + "_WRAPPERREF") << " = {" << "\n"
+                              << "\t\t\t" << "containerPortal = " << project_key << ";" << "\n"
+                              << "\t\t\t" << "isa = PBXContainerItemProxy;" << "\n"
+                              << "\t\t\t" << "proxyType = 2;" << "\n"
+                              << "\t\t\t" << "remoteGlobalIDString = " << keyFor(pbxproj + "QMAKE_PBX_REFERENCE") << ";" << "\n"
+                              << "\t\t\t" << "remoteInfo = " << tmp_proj.first("TARGET") << ";" << "\n"
+                              << "\t\t" << "};" << "\n";
                             //PRODUCTGROUP
                             t << "\t\t" << keyFor(pbxproj + "_PRODUCTGROUP") << " = {" << "\n"
                               << "\t\t\t" << "children = (" << "\n"
+                              << "\t\t\t\t" << keyFor(pbxproj + "_WRAPPER") << "\n"
                               << "\t\t\t" << ");" << "\n"
                               << "\t\t\t" << "isa = PBXGroup;" << "\n"
                               << "\t\t\t" << "name = Products;" << "\n"
                               << "\t\t\t" << "refType = 4;" << "\n"
                               << "\t\t\t" << "sourceTree = \"<group>\";" << "\n"
+                              << "\t\t" << "};" << "\n";
+                        }
+                        //TARGET (for aggregate)
+                        {
+                            //container
+                            const QString container_proxy = keyFor(pbxproj + "_CONTAINERPROXY");
+                            t << "\t\t" << container_proxy << " = {" << "\n"
+                              << "\t\t\t" << "containerPortal = " << project_key << ";" << "\n"
+                              << "\t\t\t" << "isa = PBXContainerItemProxy;" << "\n"
+                              << "\t\t\t" << "proxyType = 1;" << "\n"
+                              << "\t\t\t" << "remoteGlobalIDString = " << keyFor(pbxproj + "QMAKE_PBX_TARGET") << ";" << "\n"
+                              << "\t\t\t" << "remoteInfo = " << tmp_proj.first("TARGET") << ";" << "\n"
+                              << "\t\t" << "};" << "\n";
+                            //targetref
+                            t << "\t\t" << keyFor(pbxproj + "_TARGETREF") << " = {" << "\n"
+                              << "\t\t\t" << "isa = PBXTargetDependency;" << "\n"
+                              << "\t\t\t" << "name = \"" << tmp_proj.first("TARGET") 
+                              << " (from " << tmp_proj.first("TARGET") << projectSuffix() << ")\";" << "\n"
+                              << "\t\t\t" << "targetProxy = " << container_proxy << ";" << "\n"
                               << "\t\t" << "};" << "\n";
                         }
                     }
@@ -207,6 +248,25 @@ nextfile:
           << "\t\t" << "};" << "\n";
     }
 
+    //target
+    t << "\t\t" << keyFor("QMAKE_PBX_AGGREGATE_TARGET") << " = {" << "\n"
+      << "\t\t\t" << "buidPhases = (" << "\n"
+      << "\t\t\t" << ");" << "\n"
+      << "\t\t\t" << "buildSettings = {" << "\n"
+      << "\t\t\t\t" << "PRODUCT_NAME = " << project->variables()["TARGET"].first() << ";" << "\n"
+      << "\t\t\t" << "};" << "\n"
+      << "\t\t\t" << "dependencies = (" << "\n";
+    {
+        const QStringList &qmake_subdirs = project->variables()["QMAKE_PBX_SUBDIRS"];
+        for(int i = 0; i < qmake_subdirs.count(); i++)
+            t << "\t\t\t\t" << keyFor(qmake_subdirs[i] + "_TARGETREF") << "," << "\n";
+    }
+    t << "\t\t\t" << ");" << "\n"
+      << "\t\t\t" << "isa = PBXAggregateTarget;" << "\n"
+      << "\t\t\t" << "name = " << project->variables()["TARGET"].first() << ";" << "\n"
+      << "\t\t\t" << "productName = " << project->variables()["TARGET"].first() << ";" << "\n"
+      << "\t\t" << "};" << "\n";
+
     //ROOT_GROUP
     t << "\t\t" << keyFor("QMAKE_PBX_ROOT_GROUP") << " = {" << "\n"
       << "\t\t\t" << "children = (" << "\n"
@@ -229,17 +289,20 @@ nextfile:
       << "\t\t\t" << "projectDirPath = \"\";" << "\n"
       << "\t\t\t" << "projectReferences = (" << "\n";
     {
-        QStringList &libdirs = project->variables()["QMAKE_PBX_SUBDIRS"];
-        for(int i = 0; i < libdirs.count(); i++) {
-            QString lib = libdirs[i];
+        QStringList &qmake_subdirs = project->variables()["QMAKE_PBX_SUBDIRS"];
+        for(int i = 0; i < qmake_subdirs.count(); i++) {
+            QString subdir = qmake_subdirs[i];
             t << "\t\t\t\t" << "{" << "\n"
-              << "\t\t\t\t\t" << "ProductGroup = " << keyFor(lib + "_PRODUCTGROUP") << ";" << "\n"
-              << "\t\t\t\t\t" << "ProjectRef = " << keyFor(lib + "_PROJECTREF") << ";" << "\n"
+              << "\t\t\t\t\t" << "ProductGroup = " << keyFor(subdir + "_PRODUCTGROUP") << ";" << "\n"
+              << "\t\t\t\t\t" << "ProjectRef = " << keyFor(subdir + "_PROJECTREF") << ";" << "\n"
               << "\t\t\t\t" << "}," << "\n";
         }
     }
     t << "\t\t\t" << ");" << "\n"
       << "\t\t\t" << "targets = (" << "\n"
+#if 1
+      << "\t\t\t\t" << keyFor("QMAKE_PBX_AGGREGATE_TARGET") << "\n"
+#endif
       << "\t\t\t" << ");" << "\n"
       << "\t\t" << "};" << "\n";
 
@@ -868,20 +931,18 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     //REFERENCE
     project->variables()["QMAKE_PBX_PRODUCTS"].append(keyFor(pbx_dir + "QMAKE_PBX_REFERENCE"));
     t << "\t\t" << keyFor(pbx_dir + "QMAKE_PBX_REFERENCE") << " = {" << "\n"
-      << "\t\t\t" << "fallbackIsa = PBXFileReference;" << "\n";
+      << "\t\t\t" << "isa = PBXFileReference;" << "\n";
     if(project->first("TEMPLATE") == "app") {
         QString targ = project->first("QMAKE_ORIG_TARGET");
         if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console")) {
             targ += ".app";
-            t << "\t\t\t" << "isa = PBXApplicationReference;" << "\n";
+            t << "\t\t\t" << "explicitFileType = wrapper.application;" << "\n";
         } else {
-            t << "\t\t\t" << "isa = PBXExecutableFileReference;" << "\n";
+            t << "\t\t\t" << "explicitFileType  = wrapper.executable;" << "\n";
         }
         QString app = (!project->isEmpty("DESTDIR") ? project->first("DESTDIR") + project->first("QMAKE_ORIG_TARGET") :
                        QDir::currentPath()) + Option::dir_sep + targ;
-        t << "\t\t\t" << "name = " <<  targ << ";" << "\n"
-          << "\t\t\t" << "path = \"" << targ << "\";" << "\n"
-          << "\t\t\t" << "refType = " << reftypeForFile(app) << ";" << "\n";
+        t << "\t\t\t" << "path = \"" << targ << "\";" << "\n";
     } else {
         QString lib = project->first("QMAKE_ORIG_TARGET");
         if(project->isActiveConfig("staticlib")) {
@@ -895,13 +956,12 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         int slsh = lib.lastIndexOf(Option::dir_sep);
         if(slsh != -1)
             lib = lib.right(lib.length() - slsh - 1);
-        t << "\t\t\t" << "isa = PBXLibraryReference;" << "\n"
-          << "\t\t\t" << "expectedFileType = \"compiled.mach-o.dylib\";" << "\n"
-          << "\t\t\t" << "path = " << lib << ";\n"
-          << "\t\t\t" << "refType = " << 3/*reftypeForFile(lib)*/ << ";" << "\n"
-          << "\t\t\t" << "sourceTree = BUILT_PRODUCTS_DIR" << ";" << "\n";
+        t << "\t\t\t" << "explicitFileType = \"compiled.mach-o.dylib\";" << "\n"
+          << "\t\t\t" << "path = " << lib << ";" << "\n";
     }
-    t << "\t\t" << "};" << "\n";
+    t << "\t\t\t" << "refType = " << 3 << ";" << "\n"
+      << "\t\t\t" << "sourceTree = BUILT_PRODUCTS_DIR" << ";" << "\n"
+      << "\t\t" << "};" << "\n";
     { //Products group
         QString grp("Products"), key = keyFor(grp);
         project->variables()["QMAKE_PBX_GROUPS"].append(key);
@@ -915,7 +975,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
           << "\t\t" << "};" << "\n";
     }
     //TARGET
-    QString target_key = keyFor("QMAKE_PBX_TARGET");
+    QString target_key = keyFor(pbx_dir + "QMAKE_PBX_TARGET");
     project->variables()["QMAKE_PBX_TARGETS"].append(target_key);
     t << "\t\t" << target_key << " = {" << "\n"
       << "\t\t\t" << "buildPhases = (" << "\n"
@@ -1089,8 +1149,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                   << "\t\t\t\t" << "</dict>" << "\n"
                   << "\t\t\t\t" << "</plist>";
             }
+            t << "\";" << "\n";
         }
-        t << "\";" << "\n";
         t << "\t\t\t" << "name = \"" << project->first("QMAKE_ORIG_TARGET") << "\";" << "\n"
           << "\t\t\t" << "productName = " << project->first("QMAKE_ORIG_TARGET") << ";" << "\n";
     } else {
