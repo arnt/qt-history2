@@ -22,7 +22,7 @@
 #ifndef QCPPSYNTAXHIGHLIGHTER_H
 #define QCPPSYNTAXHIGHLIGHTER_H
 
-#include <qrichtext_p.h>
+#include <private/qrichtext_p.h>
 #include <conf.h>
 
 class SyntaxHighlighter_CPP : public QTextPreProcessor

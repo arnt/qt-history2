@@ -22,7 +22,7 @@
 #include "editorinterfaceimpl.h"
 #include <viewmanager.h>
 #include "cppeditor.h"
-#include <qrichtext_p.h>
+#include <private/qrichtext_p.h>
 #include <qapplication.h>
 #include "completion.h"
 #include <designerinterface.h>

@@ -22,7 +22,7 @@
 #include "paragdata.h"
 
 #include "qtextedit.h"
-#include <qrichtext_p.h>
+#include <private/qrichtext_p.h>
 #include <qapplication.h>
 
 ParenMatcher::ParenMatcher()
@@ -111,12 +111,12 @@ bool ParenMatcher::checkOpenParen( QTextCursor *cursor )
 		 c == '(' && closedParen.chr != ')' ||
 		 c == '[' && closedParen.chr != ']' )
 		id = Mismatch;
-	    cursor->document()->setSelectionStart( id, cursor );
+	    cursor->document()->setSelectionStart( id, *cursor );
 	    int tidx = cursor->index();
 	    QTextParagraph *tstring = cursor->paragraph();
 	    cursor->setParagraph( closedParenParag );
 	    cursor->setIndex( closedParen.pos + 1 );
-	    cursor->document()->setSelectionEnd( id, cursor );
+	    cursor->document()->setSelectionEnd( id, *cursor );
 	    cursor->setParagraph( tstring );
 	    cursor->setIndex( tidx );
 	    return TRUE;
@@ -185,12 +185,12 @@ bool ParenMatcher::checkClosedParen( QTextCursor *cursor )
 		 c == ')' && openParen.chr != '(' ||
 		 c == ']' && openParen.chr != '[' )
 		id = Mismatch;
-	    cursor->document()->setSelectionStart( id, cursor );
+	    cursor->document()->setSelectionStart( id, *cursor );
 	    int tidx = cursor->index();
 	    QTextParagraph *tstring = cursor->paragraph();
 	    cursor->setParagraph( openParenParag );
 	    cursor->setIndex( openParen.pos );
-	    cursor->document()->setSelectionEnd( id, cursor );
+	    cursor->document()->setSelectionEnd( id, *cursor );
 	    cursor->setParagraph( tstring );
 	    cursor->setIndex( tidx );
 	    return TRUE;

@@ -21,7 +21,7 @@
 #include "editor.h"
 #include "parenmatcher.h"
 #include <qfile.h>
-#include <qrichtext_p.h>
+#include <private/qrichtext_p.h>
 #include "conf.h"
 #include <qapplication.h>
 #include <qpopupmenu.h>
@@ -105,9 +105,9 @@ void Editor::setErrorSelection( int line )
     c.setParagraph( p );
     c.setIndex( 0 );
     document()->removeSelection( Error );
-    document()->setSelectionStart( Error, &c );
+    document()->setSelectionStart( Error, c );
     c.gotoLineEnd();
-    document()->setSelectionEnd( Error, &c );
+    document()->setSelectionEnd( Error, c );
     hasError = TRUE;
     viewport()->repaint( FALSE );
 }
@@ -121,9 +121,9 @@ void Editor::setStepSelection( int line )
     c.setParagraph( p );
     c.setIndex( 0 );
     document()->removeSelection( Step );
-    document()->setSelectionStart( Step, &c );
+    document()->setSelectionStart( Step, c );
     c.gotoLineEnd();
-    document()->setSelectionEnd( Step, &c );
+    document()->setSelectionEnd( Step, c );
     viewport()->repaint( FALSE );
 }
 

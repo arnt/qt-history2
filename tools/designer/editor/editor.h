@@ -23,7 +23,6 @@
 
 #include <qtextedit.h>
 #include "dlldefs.h"
-#include <qrichtext_p.h>
 
 struct Config;
 class ParenMatcher;

@@ -1,6 +1,6 @@
 #include "browser.h"
 #include "editor.h"
-#include <qrichtext_p.h>
+#include <private/qrichtext_p.h>
 
 
 EditorBrowser::EditorBrowser( Editor *e )

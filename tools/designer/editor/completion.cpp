@@ -24,7 +24,7 @@
 #include <qlistbox.h>
 #include <qvbox.h>
 #include <qmap.h>
-#include <qrichtext_p.h>
+#include <private/qrichtext_p.h>
 #include <qapplication.h>
 #include <qregexp.h>
 #include "arghintwidget.h"

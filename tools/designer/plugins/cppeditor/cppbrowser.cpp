@@ -1,5 +1,5 @@
 #include "cppbrowser.h"
-#include <qrichtext_p.h>
+#include <private/qrichtext_p.h>
 #include <qprocess.h>
 #include <qmainwindow.h>
 #include <qstatusbar.h>

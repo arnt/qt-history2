@@ -22,7 +22,7 @@
 #include "editor.h"
 #include "markerwidget.h"
 #include <qlayout.h>
-#include <qrichtext_p.h>
+#include <private/qrichtext_p.h>
 #include <qdockarea.h>
 #include "paragdata.h"
 #include <qobjectlist.h>

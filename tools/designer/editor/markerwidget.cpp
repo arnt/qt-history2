@@ -20,7 +20,7 @@
 
 #include "markerwidget.h"
 #include "viewmanager.h"
-#include <qrichtext_p.h>
+#include <private/qrichtext_p.h>
 #include "editor.h"
 #include <qpainter.h>
 #include <qpopupmenu.h>
