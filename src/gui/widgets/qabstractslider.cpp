@@ -12,6 +12,7 @@
 **
 ****************************************************************************/
 
+#include <qapplication.h>
 #include "qabstractslider.h"
 #include "qevent.h"
 #include "qabstractslider_p.h"
@@ -499,7 +500,12 @@ void QAbstractSlider::wheelEvent( QWheelEvent * e )
 	offset_owner = this;
 	offset = 0;
     }
-    offset += -e->delta()*qMax(d->pageStep,d->singleStep)/120;
+
+    int step = qMin(QApplication::wheelScrollLines()*d->singleStep, d->pageStep);
+    if ((e->state() & ControlButton) || (e->state() & ShiftButton))
+	step = d->pageStep;
+    offset += -e->delta()*step/120;
+    
     if (QABS(offset)<1)
 	return;
     setValue(d->value + int(offset));
