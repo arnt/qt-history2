@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#15 $
 **
 ** Implementation of QApplication class
 **
@@ -13,18 +13,19 @@
 #include "qapp.h"
 #include "qobjcoll.h"
 #include "qwidget.h"
+#include "qwidcoll.h"
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#15 $";
 #endif
 
 
 QApplication *qApp = 0;				// global application object
 QWidget *QApplication::main_widget = 0;		// main application widget
+QCursor *QApplication::appCursor   = 0;		// default application cursor
 QPalette *QApplication::appPal	   = 0;		// default application palette
 QFont   *QApplication::appFont     = 0;		// default application font
-QCursor *QApplication::appCursor   = 0;		// default application cursor
 bool	 QApplication::starting_up = TRUE;	// app starting up
 bool	 QApplication::closing_down  = FALSE;	// app closing down
 
@@ -65,7 +66,7 @@ QApplication::QApplication()
     quit_code = 0;
     qApp = this;
     create_palettes();
-    appPal = motifPalette;
+    appPal = new QPalette( *motifPalette );
     QWidget::createMapper();			// create widget mapper
     starting_up = FALSE;			// no longer starting up
 }
@@ -103,9 +104,19 @@ QPalette *QApplication::palette()		// get application palette
     return appPal;
 }
 
-void QApplication::setPalette( const QPalette &p )
+void QApplication::setPalette( const QPalette &p, bool forceAllWidgets )
 {						// set application palette
-    *appPal = p;
+    delete appPal;
+    appPal = new QPalette( p.copy() );
+    CHECK_PTR( appPal );
+    if ( forceAllWidgets ) {			// update all widgets
+	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
+	register QWidget *w;
+	while ( (w=it.current()) ) {		// for all widgets...
+	    w->setPalette( *appPal );
+	    ++it;
+	}
+    }
 }
 
 
