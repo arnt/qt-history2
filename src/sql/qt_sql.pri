@@ -104,13 +104,24 @@ sql {
 		HEADERS += $$SQL_CPP/drivers/odbc/qsql_odbc.h
 		SOURCES += $$SQL_CPP/drivers/odbc/qsql_odbc.cpp
 		DEFINES += QT_SQL_ODBC
+
+		mac {
+			!contains( LIBS, .*odbc.* ) {
+				LIBS        *= -liodbc
+			}
+		}
+
 		unix {
-			LIBS += -lodbc
+			!contains( LIBS, .*odbc.* ) {
+				LIBS        *= -lodbc
+			}
 		}
+
 		win32 {
-			!win32-borland:LIBS += odbc32.lib
-			win32-borland:LIBS  += $(BCB)/lib/PSDK/odbc32.lib
+			!win32-borland:LIBS     *= odbc32.lib
+			win32-borland:LIBS      *= $(BCB)/lib/PSDK/odbc32.lib
 		}
+
 	}
 
 	contains(sql-drivers, oci) {
