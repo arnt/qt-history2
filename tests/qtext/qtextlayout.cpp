@@ -7,12 +7,11 @@
 //#define BIDI_DEBUG 2
 
 
-QChar::Direction basicDirection(const QString &text)
+QChar::Direction basicDirection(const QRichTextString &text)
 {
-    const QChar *ch = text.unicode();
     int pos = 0;
     while( pos < text.length() ) {
-	switch( (ch + pos)->direction() )
+	switch( text.at(pos).c.direction() )
 	{
 	case QChar::DirL:
 	case QChar::DirLRO:
@@ -64,12 +63,76 @@ void QBidiContext::deref() const
 
 // ----------------------------------------------------------
 
+QRichTextString::QRichTextString( const QString &str, QRichTextFormat *f )
+{
+    data = 0;
+    len = maxLen = 0;
+    insert(0, str, f);
+}
+
+QRichTextString::QRichTextString()
+{
+    data = 0;
+    len = maxLen = 0;
+}
+
+void QRichTextString::insert( int index, const QString &s, QRichTextFormat *f )
+{
+    if( maxLen < len + s.length() )
+	setLength(len + s.length());
+    if ( index < len ) {
+	memmove( data + index + s.length(), data + index,
+		 sizeof( Char ) * ( len - index ) );
+    }
+    for ( int i = 0; i < (int)s.length(); ++i ) {
+	data[ (int)index + i ].x = 0;
+	data[ (int)index + i ].lineStart = 0;
+#if defined(_WS_X11_)
+	//### workaround for broken courier fonts on X11
+	if ( s[ i ] == QChar( 0x00a0U ) )
+	    data[ (int)index + i ].c = ' ';
+	else
+	    data[ (int)index + i ].c = s[ i ];
+#else
+	data[ (int)index + i ].c = s[ i ];
+#endif
+	data[ (int)index + i ].format = f;
+    }
+    cache.insert( index, s );
+}
+
+void QRichTextString::truncate( int index )
+{
+    if(index < len) {
+	len = index;
+	cache.truncate( index );
+    }
+}
+
+void QRichTextString::remove( int index, int length )
+{
+    memmove( data + index, data + index + length,
+	     sizeof( Char ) * ( len - index - length ) );
+    len -= length;
+    cache.remove( index, len );
+}
+
+void QRichTextString::setFormat( int index, QRichTextFormat *f, bool useCollection )
+{
+    if ( useCollection && data[ index ].format )
+	data[ index ].format->removeRef();
+    data[ index ].format = f;
+}
+
+// ====================================================================
+
+
 /*
   used internally.
   Represents one line of text in a Rich Text drawing area
 */
-QTextRow::QTextRow(const QString &t, int from, int length, QTextRow *previous)
-    :  start(from), len(length), text(t), prev(previous)
+QTextRow::QTextRow(const QRichTextString &t, int from, int length, QTextRow *previous)
+    :  start(from), len(length), text(t), prev(previous), reorderedText()
 {
     next = 0;
 
@@ -103,7 +166,7 @@ void QTextRow::paint(QPainter *p, int _x, int _y)
     // no rich text formatting....
     // ### no alignment
     // ### should be reordered text
-    p->drawText(xPos + _x, yPos + _y, reorderedText );
+    //p->drawText(xPos + _x, yPos + _y, reorderedText );
 }
 
 void QTextRow::setPosition(int _x, int _y)
@@ -134,15 +197,13 @@ bool QTextRow::hasComplexText()
 	return true;
     }
 
-    const QChar *ch = text.unicode() + start;
     int i = len;
     while(i) {
-	if(ch->row() > 0x04) {
+	if(text.at(i).c.row() > 0x04) {
 	    complexText = true;
 	    return true;
 	}
 	--i;
-	++ch;
     }
     endEmbed = startEmbed;
     endEmbed->ref();
@@ -205,7 +266,7 @@ void QTextRow::bidiReorderLine()
 		c = c->parent;
 	    dirCurrent = c->dir;
 	} else
-	    dirCurrent = text[current].direction();
+	    dirCurrent = text.at(current).c.direction();
 
 	
 #if BIDI_DEBUG > 1
@@ -670,20 +731,20 @@ void QTextRow::bidiReorderLine()
 
     // now construct the reordered string out of the runs...
 
-    reorderedText = "";
+    reorderedText.clear();
     r = runs.first();
     while ( r ) {
 	if(r->level %2) {
 	    // odd level, need to reverse the string
 	    int pos = r->stop;
 	    while(pos >= r->start) {
-		reorderedText += text[pos];
+		reorderedText.append( text.at(pos) );
 		pos--;
 	    }
 	} else {
 	    int pos = r->start;
 	    while(pos <= r->stop) {
-		reorderedText += text[pos];
+		reorderedText.append( text.at(pos) );
 		pos++;
 	    }
 	}
@@ -717,7 +778,7 @@ QTextArea::QTextArea(int w)
 /*!
   append a new paragraph of text to the Textarea
 */
-void QTextArea::appendParagraph(const QString &str)
+void QTextArea::appendParagraph(const QRichTextString &str)
 {
     paragraphs.append( createParagraph(str, paragraphs.last()) );
 }
@@ -725,7 +786,7 @@ void QTextArea::appendParagraph(const QString &str)
 /*!
   insert a new paragraph at position pos to the Textarea
 */
-void QTextArea::insertParagraph(const QString &str, int pos)
+void QTextArea::insertParagraph(const QRichTextString &str, int pos)
 {
     paragraphs.insert( pos, createParagraph( str, paragraphs.at(pos) ) );
 
@@ -740,7 +801,7 @@ void QTextArea::removeParagraph(int pos)
     //paragraphs.remove(pos);
 }
 
-QParagraph *QTextArea::createParagraph(const QString &text, QParagraph *before)
+QParagraph *QTextArea::createParagraph(const QRichTextString &text, QParagraph *before)
 {
     return new QParagraph(text, this, before);
 }
@@ -771,12 +832,13 @@ void QTextArea::paint(QPainter *p, int x, int y)
 
 
 
-QParagraph::QParagraph(const QString &t, QTextArea *a, QParagraph *lastPar)
+QParagraph::QParagraph(const QRichTextString &t, QTextArea *a, QParagraph *lastPar)
+    : text(t)
 {
     area = a;
     first = last = 0;
-    text = t;
-    text.compose();
+
+    //    text.compose();
 
     // get last paragraph so we know where we want to place the next line
     if ( lastPar ) {
@@ -796,6 +858,8 @@ QParagraph::~QParagraph()
 
 QPoint QParagraph::nextLine() const
 {
+    if( !last )
+	return QPoint(0, 0);
     return QPoint( last->x(), last->y() + last->height() );
 }
 
@@ -818,7 +882,6 @@ int QParagraph::findLineBreak(int pos)
     int start = pos;
     QFontMetrics fm(QApplication::font());
 
-    const QChar *ch = text.unicode();
 
     int x = xPos;
     int y = yPos;
@@ -831,12 +894,12 @@ int QParagraph::findLineBreak(int pos)
     int pos2 = pos;
 
     while(1) {
-	while(pos2 < text.length() && !(ch+pos2)->isSpace()) {
+	while(pos2 < text.length() && !(text.at(pos2).c.isSpace())) {
 	    pos2++;
 	}
 	
 	// we know the string is not going to get modified....
-	width -= fm.width(QConstString(const_cast<QChar *>(text.unicode() + pos), pos2 - pos).string());
+	width -= fm.width(QConstString(const_cast<QChar *>(text.toString().unicode() + pos), pos2 - pos).string());
 	if(width < 0) return pos - start;
 	if(pos2 < text.length()) {
 	    width -= fm.width(' ');
@@ -889,4 +952,301 @@ void QParagraph::paint(QPainter *p, int x, int y)
 	line = line->nextLine();
     }
 }
+
+// ======================================================================
+
+
+QRichTextFormatCollection::QRichTextFormatCollection()
+{
+    defFormat = new QRichTextFormat( QApplication::font(),
+				     QApplication::palette().color( QPalette::Normal, QColorGroup::Text ) );
+    lastFormat = cres = 0;
+    cflags = -1;
+    cKey.setAutoDelete( TRUE );
+    cachedFormat = 0;
+}
+
+QRichTextFormat *QRichTextFormatCollection::format( QRichTextFormat *f )
+{
+    if ( f->parent() == this ) {
+#ifdef DEBUG_COLLECTION
+	qDebug( "need '%s', best case!", f->key().latin1() );
+#endif
+	lastFormat = f;
+	lastFormat->addRef();
+	return lastFormat;
+    }
+
+    if ( f == lastFormat || ( lastFormat && f->key() == lastFormat->key() ) ) {
+#ifdef DEBUG_COLLECTION
+	qDebug( "need '%s', good case!", f->key().latin1() );
+#endif
+	lastFormat->addRef();
+	return lastFormat;
+    }
+
+    QRichTextFormat *fm = cKey.find( f->key() );
+    if ( fm ) {
+#ifdef DEBUG_COLLECTION
+	qDebug( "need '%s', normal case!", f->key().latin1() );
+#endif
+	lastFormat = fm;
+	lastFormat->addRef();
+	return lastFormat;
+    }
+
+#ifdef DEBUG_COLLECTION
+    qDebug( "need '%s', worst case!", f->key().latin1() );
+#endif
+    lastFormat = new QRichTextFormat( *f );
+    lastFormat->collection = this;
+    cKey.insert( lastFormat->key(), lastFormat );
+    return lastFormat;
+}
+
+QRichTextFormat *QRichTextFormatCollection::format( QRichTextFormat *of, QRichTextFormat *nf, int flags )
+{
+    if ( cres && kof == of->key() && knf == nf->key() && cflags == flags ) {
+#ifdef DEBUG_COLLECTION
+	qDebug( "mix of '%s' and '%s, best case!", of->key().latin1(), nf->key().latin1() );
+#endif
+	cres->addRef();
+	return cres;
+    }
+
+    cres = new QRichTextFormat( *of );
+    kof = of->key();
+    knf = nf->key();
+    cflags = flags;
+    if ( flags & QRichTextFormat::Bold )
+	cres->fn.setBold( nf->fn.bold() );
+    if ( flags & QRichTextFormat::Italic )
+	cres->fn.setItalic( nf->fn.italic() );
+    if ( flags & QRichTextFormat::Underline )
+	cres->fn.setUnderline( nf->fn.underline() );
+    if ( flags & QRichTextFormat::Family )
+	cres->fn.setFamily( nf->fn.family() );
+    if ( flags & QRichTextFormat::Size )
+	cres->fn.setPointSize( nf->fn.pointSize() );
+    if ( flags & QRichTextFormat::Color )
+	cres->col = nf->col;
+    cres->update();
+
+    QRichTextFormat *fm = cKey.find( cres->key() );
+    if ( !fm ) {
+#ifdef DEBUG_COLLECTION
+	qDebug( "mix of '%s' and '%s, worst case!", of->key().latin1(), nf->key().latin1() );
+#endif
+	cres->collection = this;
+	cKey.insert( cres->key(), cres );
+    } else {
+#ifdef DEBUG_COLLECTION
+	qDebug( "mix of '%s' and '%s, good case!", of->key().latin1(), nf->key().latin1() );
+#endif
+	delete cres;
+	cres = fm;
+	cres->addRef();
+    }
+					
+    return cres;
+}
+
+QRichTextFormat *QRichTextFormatCollection::format( const QFont &f, const QColor &c )
+{
+    if ( cachedFormat && cfont == f && ccol == c ) {
+#ifdef DEBUG_COLLECTION
+	qDebug( "format of font and col '%s' - best case", cachedFormat->key().latin1() );
+#endif
+	cachedFormat->addRef();
+	return cachedFormat;
+    }
+
+    QString key = QRichTextFormat::getKey( f, c );
+    cachedFormat = cKey.find( key );
+    cfont = f;
+    ccol = c;
+
+    if ( cachedFormat ) {
+#ifdef DEBUG_COLLECTION
+	qDebug( "format of font and col '%s' - good case", cachedFormat->key().latin1() );
+#endif
+	cachedFormat->addRef();
+	return cachedFormat;
+    }
+
+    cachedFormat = new QRichTextFormat( f, c );
+    cachedFormat->collection = this;
+    cKey.insert( cachedFormat->key(), cachedFormat );
+#ifdef DEBUG_COLLECTION
+    qDebug( "format of font and col '%s' - worst case", cachedFormat->key().latin1() );
+#endif
+    return cachedFormat;
+}
+
+void QRichTextFormatCollection::remove( QRichTextFormat *f )
+{
+    if ( lastFormat == f )
+	lastFormat = 0;
+    if ( cres == f )
+	cres = 0;
+    if ( cachedFormat == f )
+	cachedFormat = 0;
+    cKey.remove( f->key() );
+}
+
+void QRichTextFormatCollection::debug()
+{
+#ifdef DEBUG_COLLECTION
+    qDebug( "------------ QRichTextFormatCollection: debug --------------- BEGIN" );
+    QDictIterator<QRichTextFormat> it( cKey );
+    for ( ; it.current(); ++it ) {
+	qDebug( "format '%s' (%p): refcount: %d", it.current()->key().latin1(),
+		it.current(), it.current()->ref );
+    }
+    qDebug( "------------ QRichTextFormatCollection: debug --------------- END" );
+#endif
+}
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void QRichTextFormat::setBold( bool b )
+{
+    if ( b == fn.bold() )
+	return;
+    fn.setBold( b );
+    update();
+}
+
+void QRichTextFormat::setItalic( bool b )
+{
+    if ( b == fn.italic() )
+	return;
+    fn.setItalic( b );
+    update();
+}
+
+void QRichTextFormat::setUnderline( bool b )
+{
+    if ( b == fn.underline() )
+	return;
+    fn.setUnderline( b );
+    update();
+}
+
+void QRichTextFormat::setFamily( const QString &f )
+{
+    if ( f == fn.family() )
+	return;
+    fn.setFamily( f );
+    update();
+}
+
+void QRichTextFormat::setPointSize( int s )
+{
+    if ( s == fn.pointSize() )
+	return;
+    fn.setPointSize( s );
+    update();
+}
+
+void QRichTextFormat::setFont( const QFont &f )
+{
+    if ( f == fn )
+	return;
+    fn = f;
+    update();
+}
+
+void QRichTextFormat::setColor( const QColor &c )
+{
+    if ( c == col )
+	return;
+    col = c;
+}
+
+static int makeLogicFontSize( int s )
+{
+    int defSize = QApplication::font().pointSize();
+    if ( s < defSize - 4 )
+	return 1;
+    if ( s < defSize )
+	return 2;
+    if ( s < defSize + 4 )
+	return 3;
+    if ( s < defSize + 8 )
+	return 4;
+    if ( s < defSize + 12 )
+	return 5;
+    if (s < defSize + 16 )
+	return 6;
+    return 7;
+}
+
+static QRichTextFormat *defaultFormat = 0;
+
+QString QRichTextFormat::makeFormatChangeTags( QRichTextFormat *f ) const
+{
+    if ( !defaultFormat )
+	defaultFormat = new QRichTextFormat( QApplication::font(),
+					     QApplication::palette().color( QPalette::Normal, QColorGroup::Text ) );
+
+    QString tag;
+    if ( f ) {
+	if ( f->font() != defaultFormat->font() ||
+	     f->color().rgb() != defaultFormat->color().rgb() )
+	    tag += "</font>";
+	if ( f->font() != defaultFormat->font() ) {
+	    if ( f->font().underline() && f->font().underline() != defaultFormat->font().underline() )
+		tag += "</u>";
+	    if ( f->font().italic() && f->font().italic() != defaultFormat->font().italic() )
+		tag += "</i>";
+	    if ( f->font().bold() && f->font().bold() != defaultFormat->font().bold() )
+		tag += "</b>";
+	}
+    }
+
+    if ( font() != defaultFormat->font() ) {
+	if ( font().bold() && font().bold() != defaultFormat->font().bold() )
+	    tag += "<b>";
+	if ( font().italic() && font().italic() != defaultFormat->font().italic() )
+	    tag += "<i>";
+	if ( font().underline() && font().underline() != defaultFormat->font().underline() )
+	    tag += "<u>";
+    }
+    if ( font() != defaultFormat->font() ||
+	 color().rgb() != defaultFormat->color().rgb() ) {
+	tag += "<font ";
+	if ( font().family() != defaultFormat->font().family() )
+	    tag +="face=\"" + fn.family() + "\" ";
+	if ( font().pointSize() != defaultFormat->font().pointSize() )
+	    tag +="size=\"" + QString::number( makeLogicFontSize( fn.pointSize() ) ) + "\" ";
+	if ( color().rgb() != defaultFormat->color().rgb() )
+	    tag +="color=\"" + col.name() + "\" ";
+	tag += ">";
+    }
+
+    return tag;
+}
+
+QString QRichTextFormat::makeFormatEndTags() const
+{
+    if ( !defaultFormat )
+	defaultFormat = new QRichTextFormat( QApplication::font(),
+					     QApplication::palette().color( QPalette::Normal, QColorGroup::Text ) );
+
+    QString tag;
+    if ( font() != defaultFormat->font() ||
+	 color().rgb() != defaultFormat->color().rgb() )
+	tag += "</font>";
+    if ( font() != defaultFormat->font() ) {
+	if ( font().underline() && font().underline() != defaultFormat->font().underline() )
+	    tag += "</u>";
+	if ( font().italic() && font().italic() != defaultFormat->font().italic() )
+	    tag += "</i>";
+	if ( font().bold() && font().bold() != defaultFormat->font().bold() )
+	    tag += "</b>";
+    }
+    return tag;
+}
+
 
