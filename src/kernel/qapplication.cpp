@@ -1081,8 +1081,6 @@ QApplication::~QApplication()
     delete session_key;
     session_key = 0;
 #endif //QT_NO_SESSIONMANAGER
-// Cannot delete codecs until after QDict destructors
-    // QTextCodec::deleteAllCodecs()
 }
 
 

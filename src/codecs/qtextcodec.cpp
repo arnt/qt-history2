@@ -86,6 +86,13 @@ static QValueList<QTextCodec*> *all = 0;
 static bool destroying_is_ok; // starts out as 0
 static QTextCodec * localeMapper = 0;
 
+class QTextCodecCleanup {
+public:
+    ~QTextCodecCleanup() {
+	QTextCodec::deleteAllCodecs();
+    }
+};
+static QTextCodecCleanup qtextcodec_cleanup;
 
 /*!
     Deletes all the created codecs.
