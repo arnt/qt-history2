@@ -46,6 +46,7 @@ for(QTLIB, $$list($$unique(QT))) {
         target_qt:isEqual(TARGET, qlib) {
             warning($$TARGET cannot have a QT of $$QTLIB)
         } else {
+            DEFINES *= $$upper(QT_$${QTLIB}_LIB)
 	    isEqual(QTLIB, compat) {
 	       QTDIR_build:warning(***USE of COMPAT inside of QTDIR!**) #just for us
 	       INCLUDEPATH *= $$QMAKE_INCDIR_QT/Qt
