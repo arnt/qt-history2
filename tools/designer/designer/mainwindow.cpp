@@ -2290,7 +2290,19 @@ QObjectList *MainWindow::runProject()
 			if ( it == qwf_functions->end() )
 			    continue;
 			if ( !piface->check( *it, error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
-			    showSourceLine( it.key(), line[ 0 ], TRUE );
+			    showSourceLine( it.key(), line[ 0 ] - 1, TRUE );
+			    oWindow->setErrorMessages( error, line );
+			    piface->release();
+			    QApplication::restoreOverrideCursor();
+			    return 0;
+			}
+		    }
+		    QList<SourceFile> sources = currentProject->sourceFiles();
+		    for ( SourceFile *f = sources.first(); f; f = sources.next() ) {
+			QStringList error;
+			QValueList<int> line;
+			if ( !piface->check( f->text(), error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
+			    showSourceLine( f, line[ 0 ] - 1, TRUE );
 			    oWindow->setErrorMessages( error, line );
 			    piface->release();
 			    QApplication::restoreOverrideCursor();
@@ -4641,6 +4653,7 @@ void MainWindow::showDebugStep( QObject *o, int line )
 
 void MainWindow::showErrorMessage( QObject *o, int errorLine, const QString &errorMessage )
 {
+    errorLine--; // ######
     QValueList<int> l;
     l << errorLine;
     QStringList l2;
