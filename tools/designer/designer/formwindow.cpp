@@ -2221,7 +2221,7 @@ void FormWindow::saveBackground()
 
 void FormWindow::restoreConnectionLine()
 {
-    if (!unclippedPainter)
+    if (!unclippedPainter || !buffer) // designer will occasionally crash if buffer is not tested to be non-zero
 	return;
 
     int a =QABS( startPos.x() - currentPos.x() );
