@@ -10,7 +10,7 @@
 
 extern bool toolbarHackFor30Development;
 
-struct DockData 
+struct DockData
 {
     DockData() : w( 0 ), rect() {}
     DockData( QDockWidget *dw, const QRect &r ) : w( dw ), rect( r ) {}
@@ -48,7 +48,7 @@ private:
     int cached_width, cached_height;
     int cached_hfw, cached_wfh;
     QList<QDockWidget> *dockWidgets;
-    
+
 };
 
 
@@ -250,20 +250,19 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
     QValueList<DockData> lastLine;
     while ( ( dw = it.current() ) != 0 ) {
  	++it;
-	if ( lastLine.isEmpty() || 
-	     space_left( r, pos, orientation() ) >= dock_extend( dw, orientation() ) ) {
-	    lastLine.append( DockData( dw, QRect( QMAX( pos, dw->offset() ), sectionpos, 
-						  dock_extend( dw, orientation() ), dock_strut( dw, orientation() ) ) ) );
-	    linestrut = QMAX( dock_strut( dw, orientation() ), linestrut );
-	    add_size( dock_extend( dw, orientation() ), pos, orientation() );
-	} else {
+	if ( !lastLine.isEmpty() &&
+	     space_left( r, pos, orientation() ) < dock_extend( dw, orientation() ) ) {
 	    finish_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ) );
 	    lastLine.clear();
 	    sectionpos += linestrut;
 	    linestrut = 0;
 	    pos = start;
-	    --it;
 	}
+
+	lastLine.append( DockData( dw, QRect( QMAX( pos, dw->offset() ), sectionpos,
+					      dock_extend( dw, orientation() ), dock_strut( dw, orientation() ) ) ) );
+	linestrut = QMAX( dock_strut( dw, orientation() ), linestrut );
+	add_size( dock_extend( dw, orientation() ), pos, orientation() );
     }
     finish_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ) );
     return sectionpos + linestrut;
@@ -276,9 +275,9 @@ int QToolLayout::heightForWidth( int w ) const
 	mthis->cached_width = w;
 	int h = mthis->layoutItems( QRect( 0, 0, w, 0 ), TRUE );
 	mthis->cached_hfw = h;
-	return h;
+	return QMAX( h, 5 ); // ### get rid of the MAX 5 when parent listens to events to drag toolwindows in a dock
     }
-    return cached_hfw;
+    return QMAX( cached_hfw, 5 ); // ### get rid of the MAX 5 when parent listens to events to drag toolwindows in a dock
 }
 
 int QToolLayout::widthForHeight( int h ) const
@@ -300,9 +299,9 @@ QDockArea::QDockArea( Orientation o, QWidget *parent, const char *name )
     : QWidget( parent, name ), orient( o ), layout( 0 )
 {
     dockWidgets = new QList<QDockWidget>;
-    dockWidgets->setAutoDelete( TRUE );
-    setMinimumSize( 3, 3 );
-    layout = new QToolLayout( this, o, dockWidgets, -1, -1, "toollayout" ); 
+    setMinimumSize( 3, 3 ); // ### get rid of that when parent listens to events to drag toolwindows in a dock
+    layout = new QToolLayout( this, o, dockWidgets, -1, -1, "toollayout" );
+    installEventFilter( this );
 }
 
 QDockArea::~QDockArea()
@@ -337,11 +336,11 @@ void QDockArea::removeDockWidget( QDockWidget *w, bool makeFloating, bool swap )
     if ( i == -1 )
 	return;
     dockWidget = dockWidgets->at( i );
+    dockWidgets->remove( i );
     if ( makeFloating )
 	dockWidget->reparent( 0, WStyle_Customize | WStyle_NoBorderEx, QPoint( 0, 0 ), FALSE );
     if ( swap )
 	dockWidget->resize( dockWidget->height(), dockWidget->width() );
-    dockWidgets->remove( i );
     updateLayout();
     if ( dockWidgets->isEmpty() )
 	setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
@@ -368,6 +367,9 @@ bool QDockArea::eventFilter( QObject *o, QEvent *e )
 		removeDockWidget( (QDockWidget*)o, FALSE, FALSE );
 	    return TRUE;
 	}
+    } else if ( o == this && e->type() == QEvent::Resize ) {
+	if ( orientation() == Vertical )
+	    updateLayout();
     }
     return FALSE;
 }

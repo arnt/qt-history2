@@ -48,7 +48,7 @@ private:
 
 };
 
-QDockWidgetResizeHandle::QDockWidgetResizeHandle( Qt::Orientation o, QWidget *parent, 
+QDockWidgetResizeHandle::QDockWidgetResizeHandle( Qt::Orientation o, QWidget *parent,
 						  QDockWidget *w, const char * name )
     : QWidget( parent, name ), mousePressed( FALSE ), unclippedPainter( 0 ), dockWidget( w )
 {
@@ -448,7 +448,7 @@ void QDockWidget::handleMoveOutsideDock( const QPoint &pos, const QPoint &gp )
 
     state = InDock;
     QDockArea *area = (QDockArea*)w;
-    if ( startOrientation != orientation() )
+    if ( startOrientation != ( area ? area->orientation() : Horizontal ) )
 	    swapRect( currRect, orientation(), startOffset );
     unclippedPainter->setPen( QPen( gray, 1 ) );
     unclippedPainter->drawRect( currRect );
@@ -637,7 +637,7 @@ int QDockWidget::offset() const
     return offs;
 }
 
-void QDockWidget::setOffset( int o ) 
+void QDockWidget::setOffset( int o )
 {
     offs = o;
 }
