@@ -62,7 +62,7 @@
     operation:
 
     \quotefromfile snippets/dragging/mainwindow.cpp
-    \skipto mousePressEvent
+    \skipto mouseMoveEvent
     \printuntil setPixmap
     \skipto drag->start()
     \printuntil drag->start()
