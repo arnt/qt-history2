@@ -1409,6 +1409,7 @@ QRect QPainter::xForm(const QRect &r)	const
     case TxRotShear:
 	return ds->matrix.mapRect(r);
     }
+    return r;
 #else
     return QRect( r.x()+ds->xlatex, r.y()+ds->xlatey, r.width(), r.height() );
 #endif
