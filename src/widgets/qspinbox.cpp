@@ -128,13 +128,12 @@ struct QSpinBoxPrivate
   <img src=qspinbox-m.png> <img src=qspinbox-w.png>
 
   \sa QScrollBar QSlider
-  <a href="guibooks.html#fowler">GUI Design Handbook: Spin Box</a>
+  \link guibooks.html#fowler GUI Design Handbook: Spin Box \endlink
 */
 
 
-/*!
-  Constructs a spin box with the default QRangeControl range and step
-  values.
+/*! Constructs a spin box with the default QRangeControl range and step
+  values. It has the parent \a parent and the name \a name.
 
   \sa minValue(), maxValue(), setRange(), lineStep(), setSteps()
 */
@@ -147,10 +146,12 @@ QSpinBox::QSpinBox( QWidget * parent , const char *name )
 }
 
 
-/*!
-  Constructs a spin box with range from \a minValue to \a maxValue
+/*! Constructs a spin box that allows values from \a minValue to \a maxValue
   inclusive, with step amount \a step.  The value is initially
   set to \a minValue.
+
+  \a parent serves as the parent widget of \e this spin box with the
+  name \a name.
 
   \sa minValue(), maxValue(), setRange(), lineStep(), setSteps()
 */
@@ -391,8 +392,7 @@ QString QSpinBox::suffix() const
 }
 
 
-/*!
-  Setting wrapping to TRUE will allow the value to be stepped from the
+/*! Setting \a on to TRUE allows the value to be stepped from the
   highest value to the lowest and vice versa.  By default, wrapping is
   turned off.
 
@@ -543,14 +543,14 @@ void QSpinBox::stepDown()
 }
 
 
-/*!
-  \fn void QSpinBox::valueChanged( int value )
+/*! \fn void QSpinBox::valueChanged( int value )
 
   This signal is emitted every time the value of the spin box changes
-  (whatever the cause - by setValue(), by a keyboard accelerator, by
-  mouse clicks, etc.).
+  to \a value. This is for example caused by setValue(), a keyboard accelerator,
+  mouse clicks, etc.
 
-  Note that it is emitted \e every time, not just for the "final" step;
+  Note that the valueChanged() signal is emitted \e every time, 
+  not just for the "final" step; i.e.
   if the user clicks "up" three times, this signal is emitted three
   times.
 
@@ -558,8 +558,9 @@ void QSpinBox::stepDown()
 */
 
 
-/*!
-  \fn void QSpinBox::valueChanged( const QString& valueText )
+/*! \fn void QSpinBox::valueChanged( const QString& valueText )
+
+  \overload
 
   This signal is emitted whenever the valueChanged( int ) signal is
   emitted, i.e., every time the value of the spin box changes (whatever
@@ -575,7 +576,7 @@ void QSpinBox::stepDown()
 
 
 /*!
-  Intercepts and handles those events coming to the embedded QLineEdit
+  Intercepts and handles those events \a ev coming to the embedded QLineEdit
   that have special meaning for the QSpinBox.
 */
 
@@ -1036,9 +1037,8 @@ int QSpinBox::maxValue() const
     return QRangeControl::maxValue();
 }
 
-/*!
-  A convenience function that just calls
-  setRange( i, maxValue() ).
+/*! A convenience function that simply calls
+  setRange( \a i, maxValue() ).
 
   \sa setRange()
 */
@@ -1047,9 +1047,8 @@ void QSpinBox::setMinValue( int i )
     setRange( i, maxValue() );
 }
 
-/*!
-  A convenience function that just calls
-  setRange( minValue(), i ).
+/*! A convenience function that simply calls
+  setRange( minValue(), \a i ).
 
   \walkthrough table/wineorder2/spinboxitem.cpp
   \skipto setMaxValue
@@ -1073,8 +1072,7 @@ int QSpinBox::lineStep() const
     return QRangeControl::lineStep();
 }
 
-/*!
-  Sets the line step to \e i.
+/*! Sets the line step to \a i.
 
   Calls the virtual stepChange() function if the new line step is
   different from the previous setting.
