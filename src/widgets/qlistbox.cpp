@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#113 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#114 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#113 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#114 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -412,8 +412,8 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     QFontMetrics fm = fontMetrics();
     setCellHeight( fm.lineSpacing() + 1 );
     setNumCols( 1 );
-    setTableFlags( Tbl_autoVScrollBar|Tbl_autoHScrollBar |
-		   Tbl_smoothVScrolling | Tbl_clipCellPainting );
+    setTableFlags( Tbl_autoVScrollBar|Tbl_autoHScrollBar | Tbl_snapToVGrid |
+		   Tbl_smoothVScrolling | Tbl_clipCellPainting  );
     switch ( style() ) {
 	case WindowsStyle:
 	case MotifStyle:
@@ -1374,21 +1374,29 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	break;
     case Key_Down:
 	if ( currentItem() < (int)count() - 1 ) {
+	    bool a = autoUpdate();
+	    bool u = FALSE;
+	    setAutoUpdate( FALSE );
 	    setCurrentItem( currentItem() + 1 );
-	    if ( currentItem() > lastRowVisible() )
-		setTopItem( topItem() + currentItem() - lastRowVisible() );
+	    while ( currentItem() >= lastRowVisible() ) {
+		setTopItem( topItem() + currentItem() + 1 - lastRowVisible() );
+		u = TRUE;
+	    }
+	    setAutoUpdate( a );
 	    if ( e->state() & ShiftButton )
 		toggleCurrentItem();
+	    if ( u )
+		repaint();
 	}
 	break;
     case Key_Next:
 	if ( style() == MotifStyle ) {
 	    delta = currentItem() - topItem();
-	    pageSize = lastRowVisible() - topItem();
+	    pageSize = QMAX( 1, lastRowVisible() - 1 - topItem() );
 	    setTopItem( QMIN( topItem() + pageSize, (int)count() - 1 ) );
 	    setCurrentItem( QMIN( topItem() + delta, (int)count() - 1 ) );
 	} else {
-	    pageSize = lastRowVisible() - topItem();
+	    pageSize = QMAX( 1, lastRowVisible() - 1 - topItem() );
 	    setTopItem( QMIN(currentItem(),(int)count()-pageSize+1) );
 	    setCurrentItem( QMIN(lastRowVisible(), (int)count()-1) );
 	}
@@ -1396,11 +1404,11 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     case Key_Prior:
 	if ( style() == MotifStyle ) {
 	    delta = currentItem() - topItem();
-	    pageSize = lastRowVisible() - topItem();
+	    pageSize = QMAX( 1, lastRowVisible() - 1 - topItem() );
 	    setTopItem( QMAX( topItem() - pageSize, 0 ) );
 	    setCurrentItem( QMAX( topItem() + delta, 0 ) );
 	} else {
-	    pageSize = lastRowVisible() - topItem();
+	    pageSize = QMAX( 1, lastRowVisible() - topItem() );
 	    setTopItem( QMAX(0,currentItem()-pageSize+1) );
 	    setCurrentItem( topItem() );
 	}
@@ -1474,8 +1482,19 @@ void QListBox::timerEvent( QTimerEvent * )
 {
     if ( scrollDown ) {
 	if ( topItem() != maxRowOffset() ) {
-	    setTopItem( topItem() + 1 );
-	    setCurrentItem( lastRowVisible() );
+	    int y = lastRowVisible()+1;
+	    bool a = autoUpdate();
+	    bool u = FALSE;
+	    setAutoUpdate( FALSE );
+	    while ( y < (int)count() &&
+		    y >= lastRowVisible() ) {
+		setTopItem( topItem() + 1 );
+		u = TRUE;
+	    }
+	    setAutoUpdate( a );
+	    if ( u )
+		repaint();
+	    setCurrentItem( y );
 	}
     } else {
 	if ( topItem() != 0 ) {
