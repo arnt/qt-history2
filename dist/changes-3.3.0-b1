@@ -1,0 +1,127 @@
+
+Qt 3.3 introduces new features as well as many improvements over the
+3.2.x series. For more details, see the online documentation which is
+included in this distribution. The documentation is also available at
+http://doc.trolltech.com/
+
+The Qt version 3.3 series is binary compatible with the 3.2.x series.
+Applications compiled for 3.2 will continue to run with 3.3.
+
+****************************************************************************
+*			    General					   *
+****************************************************************************
+
+Qt library
+----------
+
+Two new database drivers has been added to the SQL module, Interbase
+and SQLite. This makes it possible to write database applications that
+does not require a database server.
+
+Qt Motif Extension
+------------------
+
+
+ActiveQt Extension
+------------------
+
+Two new functions, QAxFactory::startServer() and
+QAxFactory::stopServer(), can be used to start and stop an
+out-of-process ActiveQt server in runtime. The new functions
+QAxFactory::serverDirPath() and QAxFactory::serverFilePath() return
+the location of the COM server binary. Server binaries no longer
+need to implement a main() entry point function.  A default
+implementation will be used for out-of-process servers. IClassFactory2
+is supported for the development of licensed components, and
+QAxFactory supports the creation of non-visual COM objects.  Class
+specific information can be provided directly in the C++ class
+declaration using the Q_CLASSINFO macro to control how objects and
+controls are registered and exposed. New helper classes and macros
+are avialable to make it even easier to expose object classes (see the
+QAxServer documentation for details).
+
+COM objects developed with ActiveQt are now supported in a wider range
+of clients, including Microsoft Office applications and .NET. Examples
+that demonstrate how to use the Qt objects from the examples in .NET
+languages like C# are included. QStringList is supported as a type,
+and QRect, QSize and QPoint are now supported datatypes for control
+properties and as reference parameters. Saving the controls to a
+storage or stream now includes the version number of the QDataStream
+used for the serialization (note that this might break existing 
+storages).
+
+The QAxContainer library is now static even for shared configurations
+of Qt, which simplifies deployment and allows using both QAxServer and
+QAxContainer in one project (ie. an OLE automatable application that
+uses COM objects itself). The semantic of QAxBase::setControl() has
+been extended to allow creating of COM objects on remote machines via
+DCOM, to create controls requiring a license key and to connect to
+already running objects.  The implementation of QAxBase::dynamicCall()
+has been improved to support passing of parameter values directly in
+the function string. Three new classes, QAxScript, QAxScriptManager
+and QAxScriptEngine, can be used to script COM objects from within Qt
+applications using Windows Script Host.
+
+SAFEARRAY(BSTR) parameters are supported as QStringList. Calling of
+COM object methods with out-parameters of type short is now supported
+(the parameters are of type int& in the Qt wrapper), and QVariants
+used for out-parameters don't have to be initialized to the expected
+type.  Calling QByteArray functions in out-of-process controls no
+longer returns an error code. The control's client side is set to zero
+when the container releases the control.
+
+Qt Designer
+-----------
+
+
+Qt Assistant
+------------
+
+
+Compilers
+---------
+
+Qt 3.3.x does no longer officially support the IRIX MIPSpro o32 mode
+or Sun CC 5.0.
+
+
+****************************************************************************
+*			   Library					   *
+****************************************************************************
+
+- QAction
+  Added a setDisabled() slot similar to QWidget::setDisabled, and a slot
+  activate(). Actions with the "text" properties including '&' and with
+  now "menuText" set explicitly encode the '&' to "&&" so that the ampersand
+  is visible in the menu.
+
+- QVariant
+  Compariason between variants where one of the variants is a numeric value will
+  compare on the numeric value. 
+  Type casting between different variants is made more consistent.
+
+- QHeader
+  The sizeChange() signal is emitted when the section sizes are adjusted by
+  double clicking.
+
+- QListView
+  Improved alignment for text in QListViewItems. Right aligned text
+  now have the ellipsis to the left.
+
+- QWindowsStyle
+  Qt supports toggeling of the accelerator underlines using the
+  Alt-key on Windows 98, 2000 and later. On other platforms this
+  change has no effect.
+
+- QSound
+  Windows: Support loop related APIs
+
+- QStatusBar
+  Draw messages with the foreground() color of the palette, not with
+  text().
+
+- QSql
+  Support for Interbase and SQLite
+
+- QTextEdit
+  Added an accessor for the currently set QSyntaxHighlighter.
