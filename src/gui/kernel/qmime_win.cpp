@@ -949,8 +949,6 @@ QBuiltInMimes::QBuiltInMimes()
         QString imgformat = QLatin1String("image/") + ifmts.at(i).toLower();
         inFormats.insert(QWindowsMime::registerMimeType(imgformat), imgformat);
     }
-
-
 }
 
 bool QBuiltInMimes::canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const
@@ -963,8 +961,47 @@ bool QBuiltInMimes::canConvertFromMime(const FORMATETC &formatetc, const QMimeDa
 
 bool QBuiltInMimes::convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const
 {
-    return canConvertFromMime(formatetc, mimeData)
-        && setData(mimeData->data(outFormats.value(getCf(formatetc))), pmedium);
+    if (canConvertFromMime(formatetc, mimeData)) {
+        QByteArray data;
+        if (outFormats.value(getCf(formatetc)) == "text/html") {
+            // text/html is in wide chars on windows (compatable with mozillia)
+            QString html = mimeData->html();
+            // smake code as in the text converter up above
+            const QChar *u = html.unicode();
+            QString res;
+            const int s = html.length();
+            int maxsize = s + s/40 + 3;
+            res.resize(maxsize);
+            int ri = 0;
+            bool cr = false;
+            for (int i=0; i < s; ++i) {
+                if (*u == '\r')
+                    cr = true;
+                else {
+                    if (*u == '\n' && !cr)
+                        res[ri++] = QChar('\r');
+                    cr = false;
+                }
+                res[ri++] = *u;
+                if (ri+3 >= maxsize) {
+                    maxsize += maxsize/4;
+                    res.resize(maxsize);
+                }
+                ++u;
+            }
+            res.truncate(ri);
+            const int byteLength = res.length()*2;
+            QByteArray r(byteLength + 2, '\0');
+            memcpy(r.data(), res.unicode(), byteLength);
+            r[byteLength] = 0;
+            r[byteLength+1] = 0;
+            data = r;
+        } else {
+            data = mimeData->data(outFormats.value(getCf(formatetc)));
+        }
+        return setData(data, pmedium);
+    }
+    return false;
 }
 
 QVector<FORMATETC> QBuiltInMimes::formatsForMime(const QString &mimeType, const QMimeData *mimeData) const
@@ -991,16 +1028,8 @@ QVariant QBuiltInMimes::convertToMime(const QString &mimeType, struct IDataObjec
             qDebug("QBuiltInMimes::convertToMime()");
 #endif
             if (mimeType == "text/html" && preferredType == QVariant::String) {
-                QTextCodec * codec = Qt::codecForHtml(data);
-                // hack to get the right codec for mozillia
-                if (codec) {
-                    if (codec->name() == "ISO-8859-1" && data.size() > 1 && data.at(1) == 0)
-                        val = QString::fromUtf16((const unsigned short*)data.data());
-                    else
-                        val = codec->toUnicode(data);
-                } else {
-                    val = data;
-                }
+                // text/html is in wide chars on windows (compatable with mozillia)
+                val = QString::fromUtf16((const unsigned short *)data.data());   
             } else {
                 val = data; // it should be enough to return the data and let QMimeData do the rest.
             }

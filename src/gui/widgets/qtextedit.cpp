@@ -58,6 +58,8 @@ static QMimeData *createMimeData(const QTextDocumentFragment &fragment)
     stream << fragment;
     data->setData("application/x-qt-richtext", binary);
 
+    data->setHtml(fragment.toHtml());
+
     QString txt = fragment.toPlainText();
     txt.replace(QChar::Nbsp, ' ');
     data->setText(txt);
@@ -66,7 +68,8 @@ static QMimeData *createMimeData(const QTextDocumentFragment &fragment)
 
 static bool dataHasText(const QMimeData *data)
 {
-    return data->hasFormat("text/plain")
+    return data->hasText()
+        || data->hasHtml()
         || data->hasFormat("application/x-qrichtext")
         || data->hasFormat("application/x-qt-richtext");
 }
@@ -439,6 +442,9 @@ void QTextEditPrivate::paste(const QMimeData *source)
         hasData = true;
     } else if (source->hasFormat("application/x-qrichtext")) {
         fragment = QTextDocumentFragment::fromHtml(source->data("application/x-qrichtext"));
+        hasData = true;
+    } else if (source->hasHtml()) {
+        fragment = QTextDocumentFragment::fromHtml(source->html());
         hasData = true;
     } else {
         QString text = source->text();
