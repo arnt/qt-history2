@@ -247,9 +247,13 @@ int QMotifPlusStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
 /*!
     \reimp
 */
+void QMotifPlusStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
+                        const QWidget *w) const
+/*
 void QMotifPlusStyle::drawPrimitive(PrimitiveElement pe,
                                      QPainter *p, const QRect &r, const QPalette &pal,
                                      SFlags flags, const Q3StyleOption& opt) const
+                                     */
 {
     switch (pe) {
     case PE_HeaderSection:
@@ -619,6 +623,9 @@ void QMotifPlusStyle::drawPrimitive(PrimitiveElement pe,
 /*!
     \reimp
 */
+void QMotifPlusStyle::drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
+                      const QWidget *w) const
+/*
 void QMotifPlusStyle::drawControl(ControlElement element,
                                   QPainter *p,
                                   const QWidget *widget,
@@ -626,6 +633,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
                                   const QPalette &pal,
                                   SFlags flags,
                                   const Q3StyleOption& opt) const
+                                  */
 {
     if (widget == singleton->hoverWidget)
         flags |= Style_MouseOver;
@@ -1131,7 +1139,8 @@ void QMotifPlusStyle::drawControl(ControlElement element,
 /*!
     \reimp
 */
-QRect QMotifPlusStyle::subRect(SubRect r, const QWidget *widget) const
+QRect QMotifPlusStyle::subRect(SubRect r, const QStyleOption *opt, const QWidget *widget) const
+//QRect QMotifPlusStyle::subRect(SubRect r, const QWidget *widget) const
 {
     QRect rect;
 
@@ -1224,6 +1233,9 @@ QRect QMotifPlusStyle::subRect(SubRect r, const QWidget *widget) const
 /*!
     \reimp
 */
+void QMotifPlusStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
+                            const QWidget *w) const
+/*
 void QMotifPlusStyle::drawComplexControl(ComplexControl control,
                                          QPainter *p,
                                          const QWidget *widget,
@@ -1233,6 +1245,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
                                          SCFlags controls,
                                          SCFlags active,
                                          const Q3StyleOption& opt) const
+                                         */
 {
     if (widget == singleton->hoverWidget)
         flags |= Style_MouseOver;
@@ -1508,10 +1521,14 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 /*!
     \reimp
 */
+QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt,
+                                 SubControl sc, const QWidget *widget) const
+/*
 QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
                                               const QWidget *widget,
                                               SubControl subcontrol,
                                               const Q3StyleOption& opt) const
+                                              */
 {
     switch (control) {
     case CC_SpinBox: {
@@ -1684,10 +1701,14 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 
 
 /*! \reimp */
+int QMotifPlusStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidget *widget,
+                  QStyleHintReturn *returnData) const
+/*
 int QMotifPlusStyle::styleHint(StyleHint hint,
                                const QWidget *widget,
                                const Q3StyleOption &opt,
                                QStyleHintReturn *returnData) const
+                               */
 {
     int ret;
     switch (hint) {

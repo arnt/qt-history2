@@ -36,23 +36,11 @@ public:
     int pixelMetric(PixelMetric metric, const QStyleOption *option = 0,
                     const QWidget *widget = 0) const;
 
-    virtual void drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
-                             const QWidget *w = 0) const = 0;
+    void drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
+                             const QWidget *w = 0) const;
 
-    void drawControl(ControlElement element,
-                     QPainter *p,
-                     const QWidget *widget,
-                     const QRect &r,
-                     const QPalette &pal,
-                     SFlags how = Style_Default
-                     /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
-
-    void drawPrimitive(PrimitiveElement pe,
-                       QPainter *p,
-                       const QRect &r,
-                       const QPalette &pal,
-                       SFlags flags = Style_Default
-                       /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
+    void drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
+                        const QWidget *w = 0) const;
 
 };
 

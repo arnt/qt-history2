@@ -394,8 +394,11 @@ static const int sgiTabSpacing                 = 12;   // space between text and
 // static const int sgiCheckMarkHMargin = 2;    // horiz. margins of check mark ### not used?!?
 static const int sgiCheckMarkSpace      = 20;
 
+/*int QSGIStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, const QWidget *widget) const*/
+
 /*! \reimp */
-int QSGIStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, const QWidget *widget) const
+int QSGIStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QWidget *widget) const
+
 {
     switch (metric) {
     case PM_MenuFrameWidth:
@@ -570,18 +573,20 @@ static void get_combo_parameters(const QRect &r,
     ax  += (ew-awh)/2;
 }
 
-/*!
-    Draws the primitive element \a pe on painter \a p. The confining
-    rectangle is \a r and the palette to be used is \a pal. The
-    drawing respects the style \a flags and the style options
-    specified by \a opt.
-*/
+/*
 void QSGIStyle::drawPrimitive(PrimitiveElement pe,
                     QPainter *p,
                     const QRect &r,
                     const QPalette &pal,
                     SFlags flags,
                     const Q3StyleOption& opt) const
+                    */
+
+/*!
+  \reimp
+*/
+void QSGIStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
+                              const QWidget *w) const
 {
     const int x = r.x();
     const int y = r.y();
@@ -908,9 +913,7 @@ void QSGIStyle::drawPrimitive(PrimitiveElement pe,
     }
 }
 
-/*!
-    \reimp
-*/
+/*
 void QSGIStyle::drawControl(ControlElement element,
                             QPainter *p,
                             const QWidget *widget,
@@ -918,6 +921,13 @@ void QSGIStyle::drawControl(ControlElement element,
                             const QPalette &pal,
                             SFlags flags,
                             const Q3StyleOption& opt) const
+                            */
+
+/*!
+    \reimp
+*/
+void QSGIStyle::drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
+                            const QWidget *w) const
 {
     if (widget == d->hotWidget)
         flags |= Style_MouseOver;
@@ -1335,10 +1345,7 @@ void QSGIStyle::drawControl(ControlElement element,
     }
 }
 
-/*!
-    \reimp
-*/
-void QSGIStyle::drawComplexControl(ComplexControl control,
+/* void QSGIStyle::drawComplexControl(ComplexControl control,
                                    QPainter *p,
                                    const QWidget* widget,
                                    const QRect& r,
@@ -1346,7 +1353,12 @@ void QSGIStyle::drawComplexControl(ComplexControl control,
                                    SFlags flags,
                                    SCFlags sub,
                                    SCFlags subActive,
-                                   const Q3StyleOption& opt) const
+                                   const Q3StyleOption& opt) const */
+/*!
+    \reimp
+*/
+void QSGIStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
+                                   const QWidget *w) const
 {
     if (widget == d->hotWidget)
         flags |= Style_MouseOver;
@@ -1561,13 +1573,17 @@ void QSGIStyle::drawComplexControl(ComplexControl control,
     }
 }
 
-/*!
-    \reimp
-*/
+/*
 QSize QSGIStyle::sizeFromContents(ContentsType contents,
                                   const QWidget *widget,
                                   const QSize &contentsSize,
                                   const Q3StyleOption& opt) const
+                                  */
+/*!
+    \reimp
+*/
+QSize QSGIStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
+                                  const QSize &contentsSize, const QWidget *widget) const
 {
     QSize sz(contentsSize);
 
@@ -1621,10 +1637,11 @@ QSize QSGIStyle::sizeFromContents(ContentsType contents,
     return sz;
 }
 
+//QRect QSGIStyle::subRect(SubRect r, const QWidget *widget) const
 /*!
     \reimp
 */
-QRect QSGIStyle::subRect(SubRect r, const QWidget *widget) const
+QRect QSGIStyle::subRect(SubRect r, const QStyleOption *opt, const QWidget *widget) const
 {
     QRect rect;
 
@@ -1647,13 +1664,18 @@ QRect QSGIStyle::subRect(SubRect r, const QWidget *widget) const
     return rect;
 }
 
-/*!
-    \reimp
-*/
+/*
 QRect QSGIStyle::querySubControlMetrics(ComplexControl control,
                                         const QWidget *widget,
                                         SubControl sub,
                                         const Q3StyleOption& opt) const
+                                        */
+
+/*!
+    \reimp
+*/
+QRect QSGIStyle::querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt,
+                                        SubControl sc, const QWidget *w) const
 {
     switch (control) {
     case CC_ComboBox:

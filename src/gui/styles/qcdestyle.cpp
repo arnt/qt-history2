@@ -64,6 +64,10 @@ QCDEStyle::~QCDEStyle()
 */
 int QCDEStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
                            const QWidget *widget) const
+/*
+int QCDEStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
+                           const QWidget *widget) const
+                           */
 {
     int ret;
 
@@ -88,12 +92,16 @@ int QCDEStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
 /*!
     \reimp
 */
+void QCDEStyle::drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
+                             const QWidget *w) const
+/*
 void QCDEStyle::drawControl(ControlElement element,
                             QPainter *p,
                             const QWidget *widget,
                             const QRect &r,
                             const QPalette &pal,
                             SFlags how) const
+                            */
 {
 
     switch(element) {
@@ -130,11 +138,15 @@ void QCDEStyle::drawControl(ControlElement element,
 /*!
     \reimp
 */
+void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
+                        const QWidget *w) const
+/*
 void QCDEStyle::drawPrimitive(PrimitiveElement pe,
                               QPainter *p,
                               const QRect &r,
                               const QPalette &pal,
                               SFlags flags) const
+                              */
 {
     switch(pe) {
     case PE_Indicator: {

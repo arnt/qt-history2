@@ -61,15 +61,18 @@ QPlatinumStyle::~QPlatinumStyle()
 {
 }
 
-/*!
-    \reimp
-*/
-void QPlatinumStyle::drawPrimitive(PrimitiveElement pe,
+/*void QPlatinumStyle::drawPrimitive(PrimitiveElement pe,
                                    QPainter *p,
                                    const QRect &r,
                                    const QPalette &pal,
                                    SFlags flags,
-                                   const Q3StyleOption& opt) const
+                                   const Q3StyleOption& opt) const*/
+
+/*!
+    \reimp
+*/
+void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
+                                   const QWidget *w) const
 {
     switch (pe) {
     case PE_HeaderSection:
@@ -716,6 +719,9 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe,
 /*!
     \reimp
 */
+void QPlatinumStyle::drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
+                                 const QWidget *w = 0) const
+/*
 void QPlatinumStyle::drawControl(ControlElement element,
                                  QPainter *p,
                                  const QWidget *widget,
@@ -723,6 +729,7 @@ void QPlatinumStyle::drawControl(ControlElement element,
                                  const QPalette &pal,
                                  SFlags how,
                                  const Q3StyleOption& opt) const
+                                 */
 {
     switch(element) {
     case CE_PushButton:
@@ -904,6 +911,9 @@ void QPlatinumStyle::drawControl(ControlElement element,
 /*!
     \reimp
 */
+void QPlatinumStlye::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
+                                        QPainter *p, const QWidget *widget) const
+/*
 void QPlatinumStyle::drawComplexControl(ComplexControl control,
                                         QPainter *p,
                                         const QWidget *widget,
@@ -913,6 +923,7 @@ void QPlatinumStyle::drawComplexControl(ComplexControl control,
                                         SCFlags sub,
                                         SCFlags subActive,
                                         const Q3StyleOption& opt) const
+                                        */
 {
     switch (control) {
     case CC_ComboBox:
@@ -1295,10 +1306,14 @@ void QPlatinumStyle::drawComplexControl(ComplexControl control,
 /*!
     \reimp
 */
+QRect QPlatinumStyle::querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt,
+                                             SubControl sc, const QWidget *widget) const
+/*
 QRect QPlatinumStyle::querySubControlMetrics(ComplexControl control,
                                              const QWidget *widget,
                                              SubControl sc,
                                              const Q3StyleOption& opt) const
+                                             */
 {
     switch(control) {
 #ifndef QT_NO_COMBOBOX
@@ -1456,7 +1471,8 @@ int QPlatinumStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
 /*!
     \reimp
 */
-QRect QPlatinumStyle::subRect(SubRect r, const QWidget *widget) const
+QRect QPlatinumStyle::subRect(SubRect r, const QStyleOption *opt, const QWidget *widget) const
+//QRect QPlatinumStyle::subRect(SubRect r, const QWidget *widget) const
 {
     QRect rect;
     switch (r) {

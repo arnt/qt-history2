@@ -184,19 +184,18 @@ static void rot(QPointArray& a, int n)
 
 
 /*!
-    \overload
-
-    Draws the primitive element \a pe on painter \a p. The confining
-    rectangle is \a r and the palette to be used is \a pal. The
-    drawing respects the style \a flags and the style options
-    specified by \a opt.
+    \reimp
 */
+void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
+                                const QWidget *w) const
+/*
 void QMotifStyle::drawPrimitive(PrimitiveElement pe,
                                  QPainter *p,
                                  const QRect &r,
                                  const QPalette &pal,
                                  SFlags flags,
                                  const Q3StyleOption& opt) const
+                                 */
 {
     switch(pe) {
 #ifndef QT_NO_LISTVIEW
@@ -762,13 +761,11 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
 
 
 /*!
-    \overload
-
-    Draws the control \a element on painter \a p. The parent widget is
-    \a widget. The confining rectangle is given by \a r and the
-    palette to be used by \a pal. The drawing respects the style \a
-    flags and the style options specified by \a opt.
+    \reimp
 */
+void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
+                              const QWidget *w) const
+/*
 void QMotifStyle::drawControl(ControlElement element,
                                QPainter *p,
                                const QWidget *widget,
@@ -776,6 +773,7 @@ void QMotifStyle::drawControl(ControlElement element,
                                const QPalette &pal,
                                SFlags flags,
                                const Q3StyleOption& opt) const
+                               */
 {
     switch(element) {
     case CE_PushButton:
@@ -1367,14 +1365,11 @@ static void get_combo_parameters(const QRect &r,
 }
 
 /*!
-    \overload
-
-    Draws the complex \a control using the painter \a p. The \a widget
-    may be given and may be useful for drawing the element. The
-    confining rectangle is \a r, and the palette to be used is \a pal.
-    The style flags are given by \a flags, \a sub, and \a subActive,
-    and the style options by \a opt.
+    \reimp
 */
+void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
+                                    const QWidget *w) const
+        /*
 void QMotifStyle::drawComplexControl(ComplexControl control,
                                      QPainter *p,
                                      const QWidget *widget,
@@ -1384,6 +1379,7 @@ void QMotifStyle::drawComplexControl(ComplexControl control,
                                      SCFlags sub,
                                      SCFlags subActive,
                                      const Q3StyleOption& opt) const
+                                     */
 {
     switch (control) {
     case CC_SpinBox: {
@@ -1610,8 +1606,12 @@ void QMotifStyle::drawComplexControl(ComplexControl control,
 
 
 /*! \reimp */
+int QMotifStyle::pixelMetric(PixelMetric pm, const QStyleOption *option,
+                             const QWidget *widget) const
+/*
 int QMotifStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
                              const QWidget *widget) const
+                             */
 {
      int ret;
 
@@ -1697,16 +1697,16 @@ int QMotifStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
 
 
 /*!
-    \overload
-
-    Returns the rectangle needed by the given sub-control \a{sc}, in
-    the complex \a control in the given \a widget with the style
-    options specified by \a opt.
+    \reimp
 */
+QRect QMotifStyle::querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt,
+                                 SubControl sc, const QWidget *widget) const
+/*
 QRect QMotifStyle::querySubControlMetrics(ComplexControl control,
                                            const QWidget *widget,
                                            SubControl sc,
                                            const Q3StyleOption& opt) const
+                                           */
 {
     switch (control) {
     case CC_SpinBox: {
@@ -1882,17 +1882,16 @@ QRect QMotifStyle::querySubControlMetrics(ComplexControl control,
 }
 
 /*!
-    \overload
-
-    Returns the size required by the given \a contents using the \a
-    contentsSize, and the style options specified by \a opt. The \a
-    widget is optional and may contain a widget that is useful for
-    calculating the size.
+    \reimp
 */
+QSize QMotifStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
+                           const QSize &contentsSize, const QWidget *widget) const
+/*
 QSize QMotifStyle::sizeFromContents(ContentsType contents,
                                      const QWidget *widget,
                                      const QSize &contentsSize,
                                      const Q3StyleOption& opt) const
+                                     */
 {
     QSize sz(contentsSize);
 
@@ -2022,13 +2021,10 @@ QSize QMotifStyle::sizeFromContents(ContentsType contents,
 }
 
 /*!
-    \overload
-
-    Returns the rectangle for the given sub-rectangle \a r. The \a
-    widget is optional and may contain a widget that is useful for
-    drawing the sub-rectangle.
+    \reimp
 */
-QRect QMotifStyle::subRect(SubRect r, const QWidget *widget) const
+QRect QMotifStyle::subRect(SubRect r, const QStyleOption *opt, const QWidget *widget) const
+//QRect QMotifStyle::subRect(SubRect r, const QWidget *widget) const
 {
     QRect rect;
     QRect wrect = widget->rect();
@@ -2441,9 +2437,13 @@ static const char *const question_xpm[] = {
 /*!
  \reimp
  */
+QPixmap QMotifStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
+                           const QWidget *widget) const
+/*
 QPixmap QMotifStyle::stylePixmap(StylePixmap sp,
                                  const QWidget *widget,
                                  const Q3StyleOption& opt) const
+                                 */
 {
 #ifndef QT_NO_IMAGEIO_XPM
     switch (sp) {
@@ -2534,10 +2534,14 @@ QPixmap QMotifStyle::stylePixmap(StylePixmap sp,
 
 
 /*! \reimp */
+int QMotifStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidget *widget,
+                  QStyleHintReturn *returnData) const
+/*
 int QMotifStyle::styleHint(StyleHint hint,
                            const QWidget *widget,
                            const Q3StyleOption &opt,
                            QStyleHintReturn *returnData) const
+                           */
 {
     int ret;
 

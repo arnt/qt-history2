@@ -40,43 +40,25 @@ public:
     void polish(QApplication *app);
     void unPolish(QApplication *app);
 
-    void drawPrimitive(PrimitiveElement pe,
-                        QPainter *p,
-                        const QRect &r,
-                        const QPalette &pal,
-                        SFlags flags = Style_Default
-                        /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
+    void drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
+                        const QWidget *w = 0) const;
 
-    void drawControl(ControlElement element,
-                      QPainter *p,
-                      const QWidget *widget,
-                      const QRect &r,
-                      const QPalette &pal,
-                      SFlags how = Style_Default
-                      /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
+    void drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
+                      const QWidget *w = 0) const;
 
-    QRect subRect(SubRect r, const QWidget *widget) const;
+    QRect subRect(SubRect r, const QStyleOption *opt, const QWidget *widget = 0) const;
 
-    void drawComplexControl(ComplexControl control,
-                            QPainter *p,
-                            const QWidget *widget,
-                            const QRect &r,
-                            const QPalette &pal,
-                            SFlags how = Style_Default,
-                            SCFlags controls = SC_All,
-                            SCFlags active = SC_None
-                            /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
+    void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
+                            const QWidget *w = 0) const;
 
-    QRect querySubControlMetrics(ComplexControl control,
-                                 const QWidget *widget,
-                                 SubControl subcontrol
-                                 /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
+    QRect querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt,
+                                 SubControl sc, const QWidget *widget = 0) const;
 
     int pixelMetric(PixelMetric metric, const QStyleOption *option = 0,
-		    const QWidget *widget = 0) const;
+                     const QWidget *widget = 0) const;
 
-    int styleHint(StyleHint sh, const QWidget * /*const Q3StyleOption & = Q3StyleOption::Default*/,
-                  QStyleHintReturn* = 0) const;
+    int styleHint(StyleHint hint, const QStyleOption *opt = 0, const QWidget *widget = 0,
+                  QStyleHintReturn *returnData = 0) const;
 
 protected:
     bool eventFilter(QObject *, QEvent *);

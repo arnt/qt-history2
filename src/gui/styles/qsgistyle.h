@@ -43,43 +43,24 @@ public:
     void polish(QApplication*);
     void unPolish(QApplication*);
 
-    void drawPrimitive(PrimitiveElement pe,
-                        QPainter *p,
-                        const QRect &r,
-                        const QPalette &pal,
-                        SFlags flags = Style_Default
-                        /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
+    void drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
+                       const QWidget *w = 0) const;
 
-    void drawControl(ControlElement element,
-                      QPainter *p,
-                      const QWidget *widget,
-                      const QRect &r,
-                      const QPalette &pal,
-                      SFlags how = Style_Default
-                      /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
+    void drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
+                     const QWidget *w = 0) const;
 
-    void drawComplexControl(ComplexControl control,
-                             QPainter *p,
-                             const QWidget* widget,
-                             const QRect& r,
-                             const QPalette& pal,
-                             SFlags how = Style_Default,
-                             SCFlags sub = SC_All,
-                             SCFlags subActive = SC_None
-                             /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
+    void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
+                            const QWidget *w = 0) const;
 
-    int pixelMetric(PixelMetric metric, const QStyleOption *option = 0, const QWidget *widget = 0) const;
+    int pixelMetric(PixelMetric pm, const QStyleOption *opt = 0, const QWidget *widget = 0) const;
 
-    QSize sizeFromContents(ContentsType contents,
-                            const QWidget *widget,
-                            const QSize &contentsSize
-                            /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
+    QSize sizeFromContents(ContentsType ct, const QStyleOption *opt,
+                           const QSize &contentsSize, const QWidget *widget = 0) const;
 
-    QRect subRect(SubRect r, const QWidget *widget) const;
-    QRect querySubControlMetrics(ComplexControl control,
-                                  const QWidget *widget,
-                                  SubControl sc
-                                  /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
+    QRect subRect(SubRect r, const QStyleOption *opt, const QWidget *widget = 0) const;
+
+    QRect querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt, SubControl sc,
+                                 const QWidget *w = 0) const;
 
 protected:
     bool eventFilter(QObject*, QEvent*);
