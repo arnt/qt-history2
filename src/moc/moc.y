@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#59 $
+** $Id: //depot/qt/main/src/moc/moc.y#60 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -38,7 +38,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#59 $")
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#60 $")
 
 QString rmWS( const char * );
 
@@ -880,17 +880,17 @@ int main( int argc, char **argv )
 		 );
 	return 1;
     } else {
-	yyin = fopen( (const char *)fileName, "r" );
+	yyin = fopen( fileName.data(), "r" );
 	if ( !yyin ) {
-	    fprintf( stderr, "moc: %s: No such file\n", (const char*)fileName );
+	    fprintf( stderr, "moc: %s: No such file\n", fileName.data() );
 	    return 1;
 	}
     }
     if ( !outputFile.isEmpty() ) {		// output file specified
-	out = fopen( (const char *)outputFile, "w" );	// create output file
+	out = fopen( outputFile.data(), "w" );	// create output file
 	if ( !out ) {
 	    fprintf( stderr, "moc: Cannot create %s\n",
-		     (const char*)outputFile );
+		     outputFile.data() );
 	    return 1;
 	}
     } else					// use stdout
@@ -1141,8 +1141,8 @@ void generateFuncs( FuncList *list, char *functype, int num )
 	    a = f->args->next();
 	}
 	fprintf( out, "    typedef %s(%s::*m%d_t%d)(%s);\n",
-		 (const char*)f->type,
-		 (const char*)className, num, list->at(),(const char*)typstr );
+		 f->type.data(), className.data(), num, list->at(), 
+		 typstr.data() );
 	f->type = f->name.copy();
 	f->type += "(";
 	f->type += typstr;
@@ -1150,13 +1150,13 @@ void generateFuncs( FuncList *list, char *functype, int num )
     }
     for ( f=list->first(); f; f=list->next() )
 	fprintf( out, "    m%d_t%d v%d_%d = &%s::%s;\n", num, list->at(),
-		 num, list->at(), (const char*)className, (const char*)f->name);
+		 num, list->at(), className.data(), f->name.data());
     if ( list->count() )
 	fprintf( out, "    QMetaData *%s_tbl = new QMetaData[%d];\n",
 		 functype, list->count() );
     for ( f=list->first(); f; f=list->next() )
 	fprintf( out, "    %s_tbl[%d].name = \"%s\";\n",
-		 functype, list->at(), (const char*)f->type );
+		 functype, list->at(), f->type.data());
     for ( f=list->first(); f; f=list->next() )
 	fprintf( out, "    %s_tbl[%d].ptr = *((QMember*)&v%d_%d);\n",
 		 functype, list->at(), num, list->at() );
@@ -1202,13 +1202,13 @@ void generateClass()		      // generate C++ source code for a class
 	    i--;				// skip path
 	if ( i >= 0 )
 	    fn = &fileName[i];
-	fprintf( out, hdr1, (const char*)className, (const char*)fn );
-	fprintf( out, hdr2, (const char*)dstr );
+	fprintf( out, hdr1, className.data(), fn.data() );
+	fprintf( out, hdr2, dstr.data() );
 	fprintf( out, hdr3 );
 	fprintf( out, hdr4 );
 	fprintf( out, "#include <qmetaobj.h>\n" );
 	if ( !noInclude )
-	    fprintf( out, "#include \"%s\"\n", (const char*)includeFile );
+	    fprintf( out, "#include \"%s\"\n", includeFile.data() );
 	fprintf( out, "\n\n" );
     }
     else
@@ -1218,21 +1218,21 @@ void generateClass()		      // generate C++ source code for a class
 // Generate virtual function className()
 //
     fprintf( out, "const char *%s::className() const\n{\n    ",
-	     (const char*)className );
-    fprintf( out, "return \"%s\";\n}\n\n", (const char*)className );
+	     className.data() );
+    fprintf( out, "return \"%s\";\n}\n\n", className.data() );
 
 //
 // Generate static metaObj variable
 //
-    fprintf( out, "QMetaObject *%s::metaObj = 0;\n\n", (const char*)className );
+    fprintf( out, "QMetaObject *%s::metaObj = 0;\n\n", className.data() );
 
 //
 // Generate initMetaObject member function
 //
-    fprintf( out, "void %s::initMetaObject()\n{\n", (const char*)className );
+    fprintf( out, "void %s::initMetaObject()\n{\n", className.data() );
     fprintf( out, "    if ( metaObj )\n\treturn;\n" );
     fprintf( out, "    if ( !%s::metaObject() )\n\t%s::initMetaObject();\n",
-	     (const char*)superclassName, (const char*)superclassName );
+	     superclassName.data(), superclassName.data() );
 //
 // Build slots array in initMetaObject()
 //
@@ -1247,7 +1247,7 @@ void generateClass()		      // generate C++ source code for a class
 // Finally code to create meta object
 //
     fprintf( out, "    metaObj = new QMetaObject( \"%s\", \"%s\",\n",
-	     (const char*)className, (const char*)superclassName );
+	     className.data(), superclassName.data() );
     if ( slots.count() )
 	fprintf( out, "\tslot_tbl, %d,\n", slots.count() );
     else
@@ -1305,28 +1305,29 @@ void generateClass()		      // generate C++ source code for a class
 	    included_list_stuff = TRUE;
 	}
 
-	fprintf( out, "\n/" /* c++ */ "/ SIGNAL %s\n", (const char*)f->name );
-	fprintf( out, "void %s::%s(", (const char*)className, (const char*)f->name );
+	fprintf( out, "\n/" /* c++ */ "/ SIGNAL %s\n", f->name.data() );
+	fprintf( out, "void %s::%s(", className.data(), f->name.data() );
 
 	if ( argstr.isEmpty() )
 	    fprintf( out, ")\n{\n" );
 	else
-	    fprintf( out, " %s )\n{\n", (const char*)argstr );
+	    fprintf( out, " %s )\n{\n", argstr.data() );
 
 	if ( predef_call ) {
 	    fprintf( out, "    activate_signal( \"%s(%s)\"",
-		     (const char*)f->name, (const char*)typstr );
+		     f->name.data(), typstr.data() );
 	    if ( !valstr.isEmpty() )
-		fprintf( out, ", %s", (const char*)valstr );
+		fprintf( out, ", %s", valstr.data() );
 	    fprintf( out, " );\n}\n" );
 	    f = signals.next();
 	    continue;
 	}
 
 	fprintf( out, "    QConnectionList *clist = receivers(\"%s(%s)\");\n",
-		 (const char*)f->name, (const char*)typstr );
+		 f->name.data(), typstr.data() );
 	fprintf( out, "    if ( !clist || signalsBlocked() )\n\treturn;\n" );
-	fprintf( out, "    typedef void (QObject::*RT)(%s);\n",(const char*)typstr);
+	fprintf( out, "    typedef void (QObject::*RT)(%s);\n",
+		 typstr.data() );
 	fprintf( out, "    typedef RT *PRT;\n" );
 	fprintf( out, "    QConnectionListIt it(*clist);\n" );
 	fprintf( out, "    register QConnection *c;\n" );
@@ -1337,7 +1338,7 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "\tr = *((PRT)(c->member()));\n" );
 	fprintf( out, "\tobject = (QSenderObject*)c->object();\n" );
 	fprintf( out, "\tobject->setSender( this );\n" );
-	fprintf( out, "\t(object->*r)(%s);\n", (const char*)valstr );
+	fprintf( out, "\t(object->*r)(%s);\n", valstr.data() );
 	fprintf( out, "\tobject->setSender( 0 );\n" );
 	fprintf( out, "    }\n}\n" );
 	f = signals.next();
