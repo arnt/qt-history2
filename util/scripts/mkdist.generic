@@ -38,7 +38,7 @@ while true ; do
   esac
 done
 
-DISTDIR=/tmp/mkdist-$$
+DISTDIR=/tmp/qt-$VERSION-`whoami`
 
 unset LANG || true
 unset goodparam1 || true
