@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/widgets/widgets.cpp#11 $
+** $Id: //depot/qt/main/examples/widgets/widgets.cpp#12 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -44,8 +44,9 @@
 #include <qprogressbar.h>
 #include <qsplitter.h>
 #include <qlistview.h>
+#include <qheader.h>
 #include <qtextview.h>
-
+#include <qwellarray.h>
 #include <qfiledialog.h>
 
 #include "widgets.h"
@@ -165,7 +166,30 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     id = popup->insertItem( "&New" );
     popup->setItemEnabled( id, FALSE );
     id = popup->insertItem( "&Open", this, SLOT( open() ) );
-    //popup->setItemEnabled( id, FALSE );
+    
+    movie = QMovie( MOVIEFILENAME );
+    
+    //experimental
+    QLabel* l = new QLabel(0,0);
+    l->setFixedSize( 128, 64 );
+    l->setBackgroundMode( NoBackground );
+    l->setMovie( movie );
+    id = popup->insertItem( l, -1, 0 );
+    popup->setItemEnabled( id, FALSE );
+    well = new QWellArray(0,0, TRUE );
+    connect( well, SIGNAL( selected(int,int) ), this, SLOT( wellArraySelected(int,int)) );
+    popup->insertItem( well );
+    well->setDimension( 3, 10 );
+    well->setCellBrush( 0, 0, red );
+    well->setCellBrush( 1, 0, green );
+    well->setCellBrush( 2, 0, blue );
+    well->setCellBrush( 0, 1, yellow );
+    well->setCellBrush( 1, 1, cyan );
+    well->setCellBrush( 2, 1, white );
+    well->setCellBrush( 0, 2, black );
+    well->setCellBrush( 1, 2, magenta );
+    well->setCellBrush( 2, 2, darkBlue );
+    well->setCellBrush( 0, 3, qApp->palette().normal().background() );
     popup->insertSeparator();
     popup->insertItem( "&Quit", qApp, SLOT(quit()), CTRL+Key_Q );
 
@@ -215,7 +239,6 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     // Create a label containing a QMovie
 
     movielabel = new QLabel( central, "label0" );
-    movie = QMovie( MOVIEFILENAME );
     movie.connectStatus(this, SLOT(movieStatus(int)));
     movie.connectUpdate(this, SLOT(movieUpdate(const QRect&)));
     movielabel->setFrameStyle( QFrame::Box | QFrame::Plain );
@@ -229,7 +252,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 
     // Create a group of check boxes
 
-    QButtonGroup *bg = new QButtonGroup( central, "checkGroup" );
+    bg = new QButtonGroup( central, "checkGroup" );
     bg->setTitle( "Check Boxes" );
     grid->addWidget( bg, 1, 0 );
 
@@ -263,6 +286,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 
     QRadioButton *rb;
     bg = new QButtonGroup( central, "radioGroup" );
+    bg->setEnabled( FALSE );
     bg->setTitle( "Radio buttons" );
 
     grid->addWidget( bg, 1, 1 );
@@ -378,17 +402,21 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 
     // Create a tabwidget that switches between multi line edits
 
-    QTabWidget* tabs = new QTabWidget( central );
+    tabs = new QTabWidget( central );
     //tabs->setTabPosition( QTabWidget::Bottom );
     tabs->setMargin( 4 );
     grid->addMultiCellWidget( tabs, 3, 3, 1, 2 );
     QMultiLineEdit *mle = new QMultiLineEdit( tabs, "multiLineEdit" );
+    edit = mle;
     mle->setText("This is a QMultiLineEdit widget,\n"
 	         "useful for small multi-line\n"
 		 "input fields.");
     QToolTip::add( mle, "multi line editor" );
 
     tabs->addTab( mle, QPixmap(fileopen), "F&irst");
+
+    QLabel* label = new QLabel("Hallo", this );
+    tabs->addTab( label, "Label");
 
     mle = new QMultiLineEdit( tabs, "multiLineEdit" );
     QString mleText = "This is another QMultiLineEdit widget.";
@@ -447,9 +475,22 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     QSplitter *split = new QSplitter( Vertical, central, "splitter" );
     split->setOpaqueResize( TRUE );
     topLayout->addWidget( split, 1 );
-    QListView *lv = new QListView( split );
+    QListView *lv = new MyListView( split );
+    connect(lv, SIGNAL(selectionChanged() ), this, SLOT( selectionChanged() ) );
+    connect(lv, SIGNAL(selectionChanged() ), this, SLOT( selectionChanged() ) );
+    connect(lv, SIGNAL(selectionChanged(QListViewItem*) ), this, SLOT( selectionChanged(QListViewItem*) ) );
+    connect(lv, SIGNAL(clicked(QListViewItem*) ), this, SLOT( clicked(QListViewItem*) ) );
+    connect(lv, SIGNAL(mySelectionChanged(QListViewItem*) ), this, SLOT( mySelectionChanged(QListViewItem*) ) );
     lv->addColumn( "One" );
     lv->addColumn( "Two" );
+    lv->addColumn( "Three" );
+    lv->addColumn( "Four" );
+    lv->addColumn( "Five" );
+    lv->addColumn( "Six" );
+    lv->addColumn( "Seven" );
+    lv->addColumn( "Eight" );
+    lv->addColumn( "Nine" );
+    lv->addColumn( "Ten" );
     lv->setAllColumnsShowFocus( TRUE );
 
     QListViewItem *lvi=  new QListViewItem( lv, "Text", "Text" );
@@ -480,7 +521,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     (void) new QCheckListItem( lit, "Jarlsberg", QCheckListItem::RadioButton );
 
 
-     QTextView *qmlv =  new QTextView( "<h1>QTextView</h1>"
+     QTextView *qmlv =  new QTextView( "<hr><h1>QTextView</h1>"
 		      "<p>Qt supports formatted rich text, such "
 		      "as the heading above, <em>emphasized</em> and "
 		      "<b>bold</b> text, via an XML subset.</p> "
@@ -552,6 +593,12 @@ void WidgetView::movieStatus( int s )
 
 void WidgetView::checkBoxClicked( int id )
 {
+    if ( id == 0 ) {
+	if ( cb[0]->isChecked() )
+	    edit->grabKeyboard();
+	else
+	    edit->releaseKeyboard();
+    }
     QString str;
     str = tr("Check box %1 clicked : ").arg(id);
     QString chk = "---";
@@ -670,11 +717,43 @@ bool WidgetView::eventFilter( QObject *obj, QEvent *event )
 
 void WidgetView::open()
 {
-    QFileDialog::getOpenFileName( QString::null, "Textfiles (*.txt)", this );
+    bg->setEnabled( !bg->isEnabled() );
+    //QFileDialog::getOpenFileName( QString::null, "Textfiles (*.txt)", this );
 }
 
 
 void WidgetView::dummy()
 {
+    if ( tabs->isVisible() )
+	tabs->hide();
+    else
+	tabs->show();
+    return;
     QMessageBox::information( this, "Sorry", "This function is not implemented" );
+}
+
+void WidgetView::selectionChanged()
+{
+    qDebug("selectionChanged");
+}
+void WidgetView::selectionChanged( QListViewItem* item)
+{
+    qDebug("selectionChanged %p", item );
+}
+
+void WidgetView::clicked( QListViewItem* item )
+{
+    qDebug("clicked %p", item );
+}
+
+void WidgetView::mySelectionChanged( QListViewItem* item )
+{
+    qDebug("mySelectionChanged %p", item );
+}
+
+void WidgetView::wellArraySelected(int row, int cell)
+{
+    QPalette p( qApp->palette() );
+    p.setBrush( QColorGroup::Background, well->getCellBrush(row, cell) );
+    qApp->setPalette( p, TRUE);
 }

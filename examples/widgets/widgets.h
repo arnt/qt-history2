@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/widgets/widgets.h#1 $
+** $Id: //depot/qt/main/examples/widgets/widgets.h#2 $
 **
 ** Definition of something or other
 **
@@ -14,10 +14,48 @@
 
 #include <qmainwindow.h>
 #include <qmovie.h>
+#include <qlistview.h>
 class QLabel;
 class QCheckBox;
 class QProgressBar;
+class QTabWidget;
+class QGroupBox;
+class QMultiLineEdit;
+class QWellArray;
 
+class MyListView : public QListView
+{
+    Q_OBJECT
+public:
+    MyListView( QWidget * parent = 0, const char *name = 0 )
+	: QListView( parent, name ), selected(0)
+    {}
+    ~MyListView()
+    {}
+protected:
+
+    void contentsMousePressEvent( QMouseEvent * e )
+    {
+	selected = selectedItem();
+	QListView::contentsMousePressEvent( e );
+    }
+    void contentsMouseReleaseEvent( QMouseEvent * e )
+    {
+	QListView::contentsMouseReleaseEvent( e );
+	if ( selectedItem() != selected ) {
+	    emit mySelectionChanged( selectedItem() );
+	    emit mySelectionChanged();
+	}
+    }
+
+signals:
+    void mySelectionChanged();
+    void mySelectionChanged( QListViewItem* );
+
+private:
+    QListViewItem* selected;
+
+};
 //
 // WidgetView contains lots of Qt widgets.
 //
@@ -30,6 +68,10 @@ public:
 
 public slots:
     void	setStatus(const QString&);
+    void selectionChanged();
+    void selectionChanged( QListViewItem* );
+    void clicked( QListViewItem* );
+    void mySelectionChanged( QListViewItem* );
 
 protected slots:
    virtual void button1Clicked();
@@ -48,16 +90,21 @@ private slots:
     void	open();
     void	dummy();
     
+    void     wellArraySelected(int,int);
+
 private:
     bool	eventFilter( QObject *, QEvent * );
     QLabel     *msg;
     QCheckBox  *cb[3];
+    QGroupBox* bg;
     QLabel     *movielabel;
     QMovie      movie;
     QWidget *central;
     QProgressBar *prog;
     int progress;
+    QTabWidget* tabs;
+    QMultiLineEdit* edit;
+    QWellArray* well;
 };
-
 
 #endif
