@@ -437,7 +437,7 @@ static inline QFont::Script scriptForWinLanguage( DWORD langid )
 {
     QFont::Script script = (QFont::Script)script_for_win_language[langid];
     if ( script == QFont::NScripts )
-	qWarning( "Qt Uniscribe support: Encountered unhandled language id %x", langid );
+	qWarning( "Qt Uniscribe support: Encountered unhandled language id %x", (unsigned int)langid );
     return script;
 }
 

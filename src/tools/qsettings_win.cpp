@@ -83,7 +83,7 @@ QSettingsSysPrivate::QSettingsSysPrivate( QSettingsPrivate *priv )
     local = 0;
     user  = 0 ;
 
-    LONG res;
+    LONG res = ERROR_SUCCESS;
     if ( settingsTryLocal ) {
 	QT_WA( {
 	    res = RegOpenKeyExW( HKEY_LOCAL_MACHINE, NULL, 0, KEY_ALL_ACCESS, &local );
