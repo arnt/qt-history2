@@ -183,6 +183,7 @@ protected:
     bool         eventFilter( QObject *o, QEvent *e );
     void         resizeEvent ( QResizeEvent * );
     void         contentsMousePressEvent( QMouseEvent* e );
+    void         contentsContextMenuEvent( QContextMenuEvent* e );
     void         endEdit( int row, int col, bool accept, bool replace );
     QWidget *    createEditor( int row, int col, bool initFromCell ) const;
     void         activateNextCell();

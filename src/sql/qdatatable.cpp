@@ -672,14 +672,14 @@ void QDataTable::resizeEvent ( QResizeEvent * e )
 }
 
 /*! \reimp */
-void QDataTable::contentsMousePressEvent( QMouseEvent* e )
+void QDataTable::contentsContextMenuEvent( QContextMenuEvent* e )
 {
-    QTable::contentsMousePressEvent( e );
+    QTable::contentsContextMenuEvent( e );
     if ( d->dat.mode() != QSql::None )
 	endEdit( d->editRow, d->editCol, autoEdit(), FALSE );
     if ( !sqlCursor() )
 	return;
-    if ( e->button() == RightButton && d->dat.mode() == QSql::None ) {
+    if ( d->dat.mode() == QSql::None ) {
 	if ( isReadOnly() )
 	    return;
 	enum {
@@ -712,6 +712,14 @@ void QDataTable::contentsMousePressEvent( QMouseEvent* e )
 	    deleteCurrent();
 	return;
     }
+}
+
+/*! \reimp */
+void QDataTable::contentsMousePressEvent( QMouseEvent* e )
+{
+    QTable::contentsMousePressEvent( e );
+    if ( d->dat.mode() != QSql::None )
+	endEdit( d->editRow, d->editCol, autoEdit(), FALSE );
 }
 
 /*! \reimp */
