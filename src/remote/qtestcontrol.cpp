@@ -61,7 +61,7 @@
   \class QTestControl qtestcontrol.h
   \brief The QTestControl class is an extension to QRemoteControl and introduces
   functionality for remote control (testing) of a Qt application.
-  
+
     Detailed description
 
    <strong>Groups of functions:</strong>
@@ -78,7 +78,7 @@
 	close(),
 
   <li> Message handlers:
-	handleNotification(), 
+	handleNotification(),
 	postObject(),
 	sendObject().
   </ul>
@@ -114,7 +114,7 @@ QTestControl::QTestControl()
     curMessage = new QRemoteMessage;
     m_replyList.setAutoDelete(FALSE);
     m_cmdList.setAutoDelete(FALSE);
-    
+
     m_socket = new QSocket;
     testWidgets.setSocket( m_socket );
 
@@ -146,9 +146,9 @@ QTestControl::~QTestControl()
     and handle commands send by the remote control.
 */
 
-void QTestControl::setRemoteClient( QRemoteClient *client ) 
-{ 
-    m_remoteClient = client; 
+void QTestControl::setRemoteClient( QRemoteClient *client )
+{
+    m_remoteClient = client;
 }
 
 /*!
@@ -225,11 +225,11 @@ void QTestControl::onData()
 		curMessage = new QRemoteMessage;
 
 		// pass the remote message on trough the activation of an event
-		// to break the direct link between the current event handler and 
+		// to break the direct link between the current event handler and
 		// the processing of the message.
 		QTimer::singleShot(0,this,SLOT(onCommand()));
 	    }
-			
+
 	} else {
 
 	    // build in safetynet to make sure we receive everything...
@@ -273,13 +273,13 @@ void QTestControl::handleCommand(QRemoteMessage *msg)
 	    S.send(m_socket);
 	} else {
 	    // No need to give more info here, this is already done in simulateEvent()
-	    QRemoteMessage S("NAK",""); 
+	    QRemoteMessage S("NAK","");
 	    S.send(m_socket);
 	}
 	return;
 
     } else if (msg->event() == "PING") {
-	
+
         QRemoteMessage S("PONG", "" );
 	S.send(m_socket);
 
@@ -335,13 +335,13 @@ void QTestControl::handleCommand(QRemoteMessage *msg)
 	return;
 
     } else if (msg->event() == "AppId") {
-	
+
 	QUuid id = qApp->applicationId();
 
 	// Signal the other side the id and testcase name of the application
 	QString s;
         s.sprintf("<ID>%s</ID><CASE>", id.toString().latin1() );
-        if (m_remoteClient) 
+        if (m_remoteClient)
             s+= m_remoteClient->className();
         s+= "</CASE>";
 
@@ -354,7 +354,7 @@ void QTestControl::handleCommand(QRemoteMessage *msg)
 	if (m_remoteClient != 0) {
 	    QByteArray *b;
 	    assert(msg->getData(b));
-	    
+
 	    if (!m_remoteClient->execCommand(b)) {
 
 		QRemoteMessage S("NAK","Remote client didn't accept command.");
@@ -472,7 +472,7 @@ bool QTestControl::simulateEvent( QRemoteMessage *msg )
 {
     QString tmp = msg->message();
     QTextStream line_stream(tmp, IO_ReadOnly);
-    
+
     int event_id;
     line_stream >> event_id;
 
@@ -576,8 +576,8 @@ bool QTestControl::simulateEvent( QRemoteMessage *msg )
 	QRemoteMessage S("WRN","Ignoring widget named '#'");
 	S.send(m_socket);
 	return TRUE; // I think we can go on here ??
-    } 
-	
+    }
+
     QString name_trail = widget_name.right(12);
     if ((name_trail == "QScrollBarv#") || (name_trail == "QScrollBarh#")) {
 
@@ -827,19 +827,19 @@ bool QTestControl::handleNotification( QObject *receiver, QEvent *e )
     // if we generate an event ourselves (e.g. we simulate it), we obviously don't want to record it again
     // So let QApp handle it without further delay
     if (isSimulatedEvent)
-	return FALSE; 
+	return FALSE;
 
     if (is_replaying)
     {
-	if ( 
+	if (
 		(e->type() == QEvent::MouseMove)
           //|| ((e->type () == QEvent::Move)   && ! isToplevelEventFromUser (receiver))
           //|| ((e->type () == QEvent::Resize) && ! isToplevelEventFromUser (receiver))
            ) {
 
-	    // returning TRUE means QTestControl has handled the notification. 
+	    // returning TRUE means QTestControl has handled the notification.
 	    // i.e. QApplication shouldn't handle it anymore
-	    return TRUE; 
+	    return TRUE;
         }
     }
 
@@ -922,7 +922,7 @@ void QTestControl::recordEvent( QObject* receiver, QEvent* e )
                         dump_filename += "_rec_";
                         dump_filename += QString ().setNum (recFileCount);
                         dumpPixmapToFile (*dump_widget, dump_filename);
-                        ++recFileCount;              
+                        ++recFileCount;
                     }
                 }
             }
@@ -1168,14 +1168,14 @@ bool QTestControl::isToplevelEventFromUser(QObject* receiver)
 
     QWidget* w = (QWidget*)receiver;
     // if ( ! w->isVisible ())  <-- defies portability
-    //     return FALSE;        
+    //     return FALSE;
 
     if ( ! w->isTopLevel ())
         return FALSE;
 
     if (w->isPopup ())
         return FALSE;        // popups cannot be placed by user
-    
+
     //if ( ! ((QWidget*)receiver)->testWFlags (Qt::WStyle_NormalBorder | Qt::WStyle_DialogBorder))
     //    break;        // widgets without border cannot be placed by user (only some wm allow this)
 
@@ -1216,12 +1216,12 @@ bool QTestControl::isWidgetAListBoxArea( const QObject* event_widget )
 }
 
 QTestControl::QTestScalingInfo::QTestScalingInfo(QByteArray *params, ScaleMode sm)
-: scale_mode_ (sm)
-, scale_filter_ (0)
+    : scale_filter_ (0),
+      scale_mode_ (sm)
 {
     QDataStream ts (*params, IO_ReadOnly);
     QString regexp;
-    QChar   asterisk_dummy;
+//    QChar   asterisk_dummy;
 //    ts >> asterisk_dummy >> scale_h_value_ >> scale_v_value_ >> regexp;
     assert(FALSE);
     scale_filter_ = new QRegExp(regexp);
@@ -1269,10 +1269,10 @@ QMouseEvent* QTestControl::readMouseEvent(QEvent::Type event_id, QTextStream& re
                 const double h_center_offset = 0.5 * ((QWidget*)event_widget)->width ()  - x;
                 const double v_center_offset = 0.5 * ((QWidget*)event_widget)->height () - y;
                 if (h_center_offset)
-                    x *= scale_info->scaleHValue () * h_center_offset;
+                    x = int(x * scale_info->scaleHValue () * h_center_offset);
 
                 if (v_center_offset)
-                    y *= scale_info->scaleVValue () * v_center_offset;
+                    y = int(y * scale_info->scaleVValue () * v_center_offset);
             }
         }
     }
@@ -1367,7 +1367,7 @@ QMouseEvent* QTestControl::readMouseEvent(QEvent::Type event_id, QTextStream& re
         }
     }
     /*
-    else if (event_widget->isWidgetType () 
+    else if (event_widget->isWidgetType ()
              && ((QWidget*)event_widget)->isPopup ()
              && ! ((QWidget*)event_widget)->frameGeometry ().contains (((QWidget*)event_widget)->pos () + mouse_pos)
             )
@@ -1465,7 +1465,7 @@ qDebug("QTestControl::readKeyEvent()...");
                 dump_filename += "_rep_";
                 dump_filename += QString ().setNum (playFileCount);
                 dumpPixmapToFile (*dump_widget, dump_filename);
-                ++playFileCount;              
+                ++playFileCount;
             }
         }
 */
@@ -1500,7 +1500,7 @@ qDebug("QTestControl::findListViewItemByName()...");
 /*!
    \internal
 	Searches for a replymessage \a msg with the specified \a msgId.
-	A reply message is a reply received from the remote controller and is usually 
+	A reply message is a reply received from the remote controller and is usually
 	the answer to a question send before to the remote controller using sendObject().
 	Returns TRUE if the requested reply was received.
 */
@@ -1511,7 +1511,7 @@ bool QTestControl::findMessage(uint msgId, QRemoteMessage *&msg)
 
 		msg = m_replyList.at(i);
 		if ((msg) && (msg->messageId() == msgId)) {
-		
+
 			m_replyList.remove(i);
 			return TRUE;
 		}
@@ -1522,7 +1522,7 @@ bool QTestControl::findMessage(uint msgId, QRemoteMessage *&msg)
 
 /*!
    \internal
-    Posts (e.g. non blocking) an \a event, \a message and \a data to the remote 
+    Posts (e.g. non blocking) an \a event, \a message and \a data to the remote
     controller (host).
 */
 
@@ -1540,7 +1540,7 @@ void QTestControl::postObject(const QString &event, const QString &message, cons
 
 /*!
    \internal
-    Sends (e.g. blocking) a \a event, \a message and \a data to the remote controller 
+    Sends (e.g. blocking) a \a event, \a message and \a data to the remote controller
     (host) and waits for a \a result. You can use \a timeout to specify the max wait time
     for the reply. If \a timeout == -1 the function waits forever.
     The function returns TRUE if a reply is received before a timeout has elapsed.
@@ -1556,7 +1556,7 @@ bool QTestControl::sendObject(const QString &event, const QString &message, cons
 	out.send( m_socket );
 
 	QRemoteMessage *msg = 0;
-	while (!findMessage(out.messageId(), msg) && 
+	while (!findMessage(out.messageId(), msg) &&
 	       (m_socket->state() == QSocket::Connected) &&
 	       (m_socket->socketDevice()->error() == QSocketDevice::NoError)) {
 
@@ -1574,7 +1574,7 @@ bool QTestControl::sendObject(const QString &event, const QString &message, cons
 		result = msg->result();
 		delete msg;
 		return TRUE;
-	    } else 
+	    } else
 		return FALSE;
     } else {
 	return FALSE;
@@ -1584,7 +1584,7 @@ bool QTestControl::sendObject(const QString &event, const QString &message, cons
 /*!
    \internal
     Sends the debug statement \a msg to the remote control system.
-    So instead of presenting a debug statement on your local machine you'll get the 
+    So instead of presenting a debug statement on your local machine you'll get the
     output on the other machine.
 */
 
