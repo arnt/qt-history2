@@ -432,6 +432,9 @@ static const char * iso8859_2locales[] = {
     "ro_RO", "rumanian", "serbocroatian", "sh", "sh_SP", "sh_YU", "sk",
     "sk_SK", "sl", "sl_CS", "sl_SI", "slovak", "slovene", "sr_SP", 0 };
 
+static const char * iso8859_3locales[] = {
+    "eo", 0 };
+
 static const char * iso8859_5locales[] = {
     "bg", "bg_BG", "bulgarian", "mk", "mk_MK",
     /*"ru", "ru_SU", */ // Russians (and errr... Russian speaking Sudanese(!)
@@ -526,6 +529,8 @@ QTextCodec* QTextCodec::codecForLocale()
 	// We could perhaps default to 8859-15.
 	if ( try_locale_list( iso8859_2locales, lang ) )
 	    localeMapper = codecForName( "ISO 8859-2" );
+	else if ( try_locale_list( iso8859_3locales, lang ) )
+	    localeMapper = codecForName( "ISO 8859-3" );
 	else if ( try_locale_list( iso8859_5locales, lang ) )
 	    localeMapper = codecForName( "ISO 8859-5" );
 	else if ( try_locale_list( iso8859_6locales, lang ) )
