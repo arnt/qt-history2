@@ -19,15 +19,15 @@ class LightStylePrivate
 {
 public:
     LightStylePrivate()
-	: hoverWidget(0), ref(1), hoverPalette(0)
+	: hoverWidget(0), ref(1), savePalette(0)
     {
     }
 
     QGuardedPtr<QWidget> hoverWidget;
-    QPalette oldpalette, prelight_palette;
+    QPalette oldPalette, hoverPalette;
     int ref;
     QPoint mousePos;
-    QPalette *hoverPalette;
+    QPalette *savePalette;
 };
 
 
@@ -37,9 +37,42 @@ static LightStylePrivate *singleton = 0;
 LightStyle::LightStyle()
     : QWindowsStyle()
 {
-    if (! singleton)
+    if (! singleton) {
 	singleton = new LightStylePrivate;
-    else
+
+	QPalette pal = QApplication::palette();
+	singleton->oldPalette = pal;
+
+	QColor bg = pal.color(QPalette::Active, QColorGroup::Background);
+	QColor prelight;
+
+	if ( (bg.red() + bg.green() + bg.blue()) / 3 > 128)
+	    prelight = pal.color(QPalette::Active,
+				 QColorGroup::Background).light(110);
+	else
+	    prelight = pal.color(QPalette::Active,
+				 QColorGroup::Background).light(120);
+
+	QColorGroup active2(pal.color(QPalette::Active,
+				      QColorGroup::Foreground),      // foreground
+			    prelight,                                // button
+			    prelight.light(),                        // light
+			    prelight.dark(),                         // dark
+			    prelight.dark(120),                      // mid
+			    pal.color(QPalette::Active,
+				      QColorGroup::Text),            // text
+			    pal.color(QPalette::Active,
+				      QColorGroup::BrightText),      // bright text
+			    pal.color(QPalette::Active,
+				      QColorGroup::Base),            // base
+			    bg);                                     // background
+	active2.setColor(QColorGroup::Highlight,
+			 pal.color(QPalette::Active, QColorGroup::Highlight));
+
+	singleton->hoverPalette = pal;
+	singleton->hoverPalette.setActive(active2);
+ 	singleton->hoverPalette.setInactive(active2);
+    } else
 	singleton->ref++;
 }
 
@@ -100,9 +133,43 @@ QSize LightStyle::indicatorSize() const
 }
 
 
-void LightStyle::polish(QPalette &pal)
+void LightStyle::polish(QWidget *widget)
 {
-    singleton->oldpalette = pal;
+    if (widget->inherits("QPushButton"))
+	widget->installEventFilter(this);
+
+#if QT_VERSION >= 300
+    if (widget->inherits("QLineEdit")) {
+	QLineEdit *lineedit = (QLineEdit *) widget;
+	lineedit->setFrameShape(QFrame::StyledPanel);
+	lineedit->setLineWidth(2);
+    }
+#endif
+
+    QWindowsStyle::polish(widget);
+}
+
+
+void LightStyle::unPolish(QWidget *widget)
+{
+    if (widget->inherits("QPushButton"))
+	widget->removeEventFilter(this);
+
+#if QT_VERSION >= 300
+    if (widget->inherits("QLineEdit")) {
+	QLineEdit *lineedit = (QLineEdit *) widget;
+	lineedit->setLineWidth(1);
+	lineedit->setFrameShape(QFrame::WinPanel);
+    }
+#endif
+
+    QWindowsStyle::unPolish(widget);
+}
+
+
+void LightStyle::polish(QApplication *app)
+{
+    QPalette pal = app->palette();
 
     QColorGroup active(pal.color(QPalette::Active,
 				 QColorGroup::Foreground),           // foreground
@@ -157,82 +224,45 @@ void LightStyle::polish(QPalette &pal)
     pal.setInactive(active);
     pal.setDisabled(disabled);
 
-    {
-	QColor bg = pal.color(QPalette::Active, QColorGroup::Background);
-	QColor prelight;
+    singleton->oldPalette = pal;
 
-	if ( (bg.red() + bg.green() + bg.blue()) / 3 > 128)
-	    prelight = pal.color(QPalette::Active,
-				 QColorGroup::Background).light(110);
-	else
-	    prelight = pal.color(QPalette::Active,
-				 QColorGroup::Background).light(120);
+    QColor bg = pal.color(QPalette::Active, QColorGroup::Background);
+    QColor prelight;
 
-	QColorGroup active2(pal.color(QPalette::Active,
-				      QColorGroup::Foreground),      // foreground
-			    prelight,                                // button
-			    prelight.light(),                        // light
-			    prelight.dark(),                         // dark
-			    prelight.dark(120),                      // mid
-			    pal.color(QPalette::Active,
-				      QColorGroup::Text),            // text
-			    pal.color(QPalette::Active,
-				      QColorGroup::BrightText),      // bright text
-			    pal.color(QPalette::Active,
-				      QColorGroup::Base),            // base
-			    bg);                                     // background
-	active2.setColor(QColorGroup::Highlight,
-			 pal.color(QPalette::Active, QColorGroup::Highlight));
+    if ( (bg.red() + bg.green() + bg.blue()) / 3 > 128)
+	prelight = pal.color(QPalette::Active,
+			     QColorGroup::Background).light(110);
+    else
+	prelight = pal.color(QPalette::Active,
+			     QColorGroup::Background).light(120);
 
-	singleton->prelight_palette = pal;
-	singleton->prelight_palette.setActive(active2);
-	singleton->prelight_palette.setInactive(active2);
-    }
-}
+    QColorGroup active2(pal.color(QPalette::Active,
+				  QColorGroup::Foreground),      // foreground
+			prelight,                                // button
+			prelight.light(),                        // light
+			prelight.dark(),                         // dark
+			prelight.dark(120),                      // mid
+			pal.color(QPalette::Active,
+				  QColorGroup::Text),            // text
+			pal.color(QPalette::Active,
+				  QColorGroup::BrightText),      // bright text
+			pal.color(QPalette::Active,
+				  QColorGroup::Base),            // base
+			bg);                                     // background
+    active2.setColor(QColorGroup::Highlight,
+		     pal.color(QPalette::Active, QColorGroup::Highlight));
 
+    singleton->hoverPalette = pal;
+    singleton->hoverPalette.setActive(active2);
+    singleton->hoverPalette.setInactive(active2);
 
-void LightStyle::polish(QWidget *widget)
-{
-    if (widget->inherits("QPushButton"))
-	widget->installEventFilter(this);
-
-#if QT_VERSION >= 300
-    if (widget->inherits("QLineEdit")) {
-	QLineEdit *lineedit = (QLineEdit *) widget;
-	lineedit->setFrameShape(QFrame::StyledPanel);
-	lineedit->setLineWidth(2);
-    }
-#endif
-
-    QWindowsStyle::polish(widget);
-}
-
-
-void LightStyle::unPolish(QWidget *widget)
-{
-    if (widget->inherits("QPushButton"))
-	widget->removeEventFilter(this);
-
-#if QT_VERSION >= 300
-    if (widget->inherits("QLineEdit")) {
-	QLineEdit *lineedit = (QLineEdit *) widget;
-	lineedit->setLineWidth(1);
-	lineedit->setFrameShape(QFrame::WinPanel);
-    }
-#endif
-
-    QWindowsStyle::unPolish(widget);
-}
-
-
-void LightStyle::polish(QApplication *)
-{
+    app->setPalette(pal);
 }
 
 
 void LightStyle::unPolish(QApplication *app)
 {
-    app->setPalette(singleton->oldpalette);
+    app->setPalette(singleton->oldPalette);
 }
 
 
@@ -784,20 +814,20 @@ void LightStyle::drawScrollBarControls( QPainter* p, const QScrollBar* scrollbar
 		   FALSE, addR.x(), addR.y(),
                    addR.width(), addR.height(),
 		   (( activeControl == AddLine ) ?
-		    singleton->prelight_palette.active() : g),
+		    singleton->hoverPalette.active() : g),
 		   TRUE, &g.brush(QColorGroup::Background));
     if ( controls & SubLine ) {
         drawArrow( p, (scrollbar->orientation() == Vertical) ? UpArrow : LeftArrow,
 		   FALSE, subR.x(), subR.y(),
                    subR.width(), subR.height(),
                    (( activeControl == SubLine ) ?
-		    singleton->prelight_palette.active() : g),
+		    singleton->hoverPalette.active() : g),
 		   TRUE, &g.brush(QColorGroup::Background));
         drawArrow( p, (scrollbar->orientation() == Vertical) ? UpArrow : LeftArrow,
 		   FALSE, subR2.x(), subR2.y(),
                    subR2.width(), subR2.height(),
                    (( activeControl == SubLine ) ?
-		    singleton->prelight_palette.active() : g),
+		    singleton->hoverPalette.active() : g),
 		   TRUE, &g.brush(QColorGroup::Background));
     }
 
@@ -843,9 +873,9 @@ bool LightStyle::eventFilter(QObject *object, QEvent *event)
 
 	    QPalette pal = singleton->hoverWidget->palette();
 	    if (singleton->hoverWidget->ownPalette())
-		singleton->hoverPalette = new QPalette(pal);
+		singleton->savePalette = new QPalette(pal);
 
-	    singleton->hoverWidget->setPalette(singleton->prelight_palette);
+	    singleton->hoverWidget->setPalette(singleton->hoverPalette);
 
 	    break;
 	}
@@ -855,10 +885,10 @@ bool LightStyle::eventFilter(QObject *object, QEvent *event)
 	    if (object != singleton->hoverWidget)
 		break;
 
-	    if (singleton->hoverPalette) {
-		singleton->hoverWidget->setPalette(*(singleton->hoverPalette));
-		delete singleton->hoverPalette;
-		singleton->hoverPalette = 0;
+	    if (singleton->savePalette) {
+		singleton->hoverWidget->setPalette(*(singleton->savePalette));
+		delete singleton->savePalette;
+		singleton->savePalette = 0;
 	    } else
 		singleton->hoverWidget->unsetPalette();
 

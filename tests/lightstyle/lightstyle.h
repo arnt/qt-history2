@@ -16,13 +16,10 @@
 
 class Q_EXPORT_STYLE_LIGHT LightStyle : public QWindowsStyle
 {
-    Q_OBJECT
-
 public:
     LightStyle();
     virtual ~LightStyle();
 
-    void polish(QPalette &);
     void polish(QWidget *widget);
     void unPolish(QWidget*widget);
 
