@@ -1,6 +1,7 @@
 #include <qfile.h>
 
 #include <qt_windows.h>
+#include <io.h>
 
 static bool attachTypeLibrary( const QString &applicationName, int resource, const QByteArray &data, QString *errorMessage )
 {
@@ -129,7 +130,7 @@ int main( int argc, char **argv )
 		version = argv[i];
 	} else if ( p == "/tlb" || p == "-tlb" ) {
 	    if ( qWinVersion() & Qt::WV_DOS_based )
-		qFatal( "IDC requires Windows NT/2000/XP!" );
+		fprintf(stderr, "IDC requires Windows NT/2000/XP!\n");
 
 	    ++i;
 	    if ( i > argc ) {
@@ -139,17 +140,17 @@ int main( int argc, char **argv )
 	    tlbfile = argv[i];
 	    tlbfile = tlbfile.stripWhiteSpace().lower();
 	} else if ( p == "/v" || p == "-v" ) {
-	    qWarning( "Qt interface definition compiler version 1.0" );
+	    fprintf(stdout, "Qt interface definition compiler version 1.0\n");
 	    return 0;
 	} else if ( p == "/regserver" || p == "-regserver" ) {
 	    if ( !registerServer( input ) ) {
-		qFatal("Failed to register server!");
+		fprintf(stderr, "Failed to register server!\n");
 		return 1;
 	    }
 	    return 0;
 	} else if ( p == "/unregserver" || p == "-unregserver" ) {
 	    if ( !unregisterServer( input ) ) {
-		qFatal("Failed to unregister server!");
+		fprintf(stderr, "Failed to unregister server!\n");
 		return 1;
 	    }
 	    return 0;
@@ -163,19 +164,20 @@ int main( int argc, char **argv )
 	i++;
     }
     if ( !error.isEmpty() ) {
-	qFatal( error.latin1() );
+	fprintf(stderr, error.latin1() );
+	fprintf(stderr, "\n" );
 	return 5;
     }
     if ( input.isEmpty() ) {
-	qFatal( "No input file specified!" );
+	fprintf(stderr, "No input file specified!\n");
 	return 1;
     }
     if ( input.endsWith( ".exe" ) && tlbfile.isEmpty() ) {
-	qFatal( "No type library file specified!" );
+	fprintf(stderr, "No type library file specified!\n");
 	return 2;
     }
     if ( input.endsWith( ".dll" ) && idlfile.isEmpty() && tlbfile.isEmpty() ) {
-	qFatal( "No interface definition file and no type library file specified!" );
+	fprintf(stderr, "No interface definition file and no type library file specified!\n");
 	return 3;
     }
     slashify( input );
@@ -183,11 +185,12 @@ int main( int argc, char **argv )
 	slashify( tlbfile );
 	QFile file( tlbfile );
 	if ( !file.open( IO_ReadOnly ) )
-	    qFatal( "Couldn't open %s for read", (const char*)tlbfile.local8Bit() );
+	    fprintf(stderr, "Couldn't open %s for read\n", (const char*)tlbfile.local8Bit());
 	QByteArray data = file.readAll();
 	QString error;
 	bool ok = attachTypeLibrary( input, 1, data, &error );
-	qWarning( error );
+	fprintf(stderr, error.latin1());
+	fprintf(stderr, "\n");
 	return ok ? 0 : 4;
     } else if ( idlfile ) {
 	slashify( idlfile );
@@ -198,7 +201,7 @@ int main( int argc, char **argv )
 	    hdll = LoadLibraryA( input.local8Bit() );
 	} );
 	if ( !hdll ) {
-	    qFatal( "Couldn't load library file %s", (const char*)input.local8Bit() );
+	     fprintf(stderr, "Couldn't load library file %s\n", (const char*)input.local8Bit());
 	    return 3;
 	}
 	typedef HRESULT(__stdcall* DumpIDLProc)(const QString&, const QString&);
@@ -208,7 +211,7 @@ int main( int argc, char **argv )
 	DumpIDLProc DumpIDL = (DumpIDLProc)GetProcAddress( hdll, "DumpIDL" );
 #endif
 	if ( !DumpIDL ) {
-	    qFatal( "Couldn't resolve 'DumpIDL' symbol in %s", (const char*)input.local8Bit() );
+	    fprintf(stderr, "Couldn't resolve 'DumpIDL' symbol in %s\n", (const char*)input.local8Bit());
 	    return 3;
 	}
 	HRESULT res = DumpIDL( idlfile, version );
@@ -217,29 +220,30 @@ int main( int argc, char **argv )
 	case S_OK:
 	    break;
 	case -1:
-	    qWarning( "Couldn't open %s for writing", (const char*)idlfile.local8Bit() );
+	    fprintf(stderr, "Couldn't open %s for writing!\n", (const char*)idlfile.local8Bit());
 	    return res;
 	case 1:
-	    qWarning( "Malformed appID value in %s!", (const char*)input.local8Bit() );
+	    fprintf(stderr, "Malformed appID value in %s!\n", (const char*)input.local8Bit());
 	    return res;
 	case 2:
-	    qWarning( "Malformed typeLibID value in %s!", (const char*)input.local8Bit() );
+	    fprintf(stderr, "Malformed typeLibID value in %s!\n", (const char*)input.local8Bit());
 	    return res;
 	case 3:
-	    qWarning( "Class has no metaobject information (error in %s)!", (const char*)input.local8Bit() );
+	    fprintf(stderr, "Class has no metaobject information (error in %s)!\n", (const char*)input.local8Bit());
 	    return res;
 	case 4:
-	    qWarning( "Malformed classID value in %s!", (const char*)input.local8Bit() );
+	    fprintf(stderr, "Malformed classID value in %s!\n", (const char*)input.local8Bit());
 	    return res;
 	case 5:
-	    qWarning( "Malformed interfaceID value in %s!", (const char*)input.local8Bit() );
+	    fprintf(stderr, "Malformed interfaceID value in %s!\n", (const char*)input.local8Bit());
 	    return res;
 	case 6:
-	    qWarning( "Malformed eventsID value in %s!", (const char*)input.local8Bit() );
+	    fprintf(stderr, "Malformed eventsID value in %s!\n", (const char*)input.local8Bit());
 	    return res;
 
 	default:
-	    qFatal( "Unknown error writing IDL from %s", (const char*)input.local8Bit() );
+	    fprintf(stderr, "Unknown error writing IDL from %s\n", (const char*)input.local8Bit());
+	    return 7;
 	}
     }
     return 0;
