@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpen.h#15 $
+** $Id: //depot/qt/main/src/kernel/qpen.h#16 $
 **
 ** Definition of QPen class
 **
@@ -46,23 +46,11 @@ public:
 private:
     QPen	copy()	const;
     void	detach();
-#if defined(_WS_WIN_)
-    void	update( HDC );
-#elif defined(_WS_PM_)
-    void	update( HPS );
-#endif
     void	init( const QColor &, uint, PenStyle );
     struct QPenData : QShared {			// pen data
 	PenStyle  style;
 	uint	  width;
 	QColor	  color;
-#if defined(_WS_WIN_)
-	HANDLE	  hpen;
-	uint	  invalid  : 1;
-	uint	  stockPen : 1;
-#elif defined(_WS_PM_)
-	uint	  invalid  : 3;
-#endif
     } *data;
 };
 

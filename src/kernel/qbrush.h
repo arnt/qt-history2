@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbrush.h#21 $
+** $Id: //depot/qt/main/src/kernel/qbrush.h#22 $
 **
 ** Definition of QBrush class
 **
@@ -51,27 +51,11 @@ public:
 private:
     QBrush	copy()	const;
     void	detach();
-#if defined(_WS_WIN_)
-    bool	update( HDC );
-#elif defined(_WS_PM_)
-    bool	update( HPS );
-#endif
     void	init( const QColor &, BrushStyle );
-    void	reset();
     struct QBrushData : QShared {		// brush data
 	BrushStyle style;
 	QColor	  color;
 	QPixmap	 *pixmap;
-#if defined(_WS_WIN_)
-	HANDLE	  hbrush;
-	HANDLE	  hbm;
-	uint	  invalid    : 1;
-	uint	  stockBrush : 1;
-#elif defined(_WS_PM_)
-	uint	  invalid    : 2;
-#elif defined(_WS_X11_)
-	Display	 *dpy;
-#endif
     } *data;
 };
 
