@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#175 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#176 $
 **
 ** Definition of QIconView widget class
 **
@@ -1647,7 +1647,7 @@ void QIconViewItem::calcTmpText()
     if ( view->d->wordWrapIconText || !fm || !wordWrapDirty )
 	return;
     wordWrapDirty = FALSE;
-
+    
     int w = iconView()->maxItemWidth() - ( iconView()->itemTextPos() == QIconView::Bottom ? 0 :
 					   iconRect().width() ) - 4;
     if ( fm->width( itemText ) < w ) {
@@ -3266,10 +3266,12 @@ void QIconView::setWordWrapIconText( bool b )
 {
     if ( d->wordWrapIconText == b )
 	return;
-    
+
     d->wordWrapIconText = b;
-    for ( QIconViewItem *item = d->firstItem; item; item = item->next )
+    for ( QIconViewItem *item = d->firstItem; item; item = item->next ) {
 	item->wordWrapDirty = TRUE;
+	item->calcRect();
+    }
     alignItemsInGrid( TRUE );
 }
 
