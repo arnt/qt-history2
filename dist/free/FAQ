@@ -16,11 +16,8 @@ Please note: the latest version of this and other FAQ lists are available at:
       currently used in hundreds of software development projects
       world wide. 
 
-      In addition to Qt development and support, Troll Tech
-      engages on a consultancy basis in a large-scale software
-      development project. The project, which naturally is based on
-      Qt, is run by the Norwegian division of NCR (previously
-      AT&T). 
+      In addition to Qt development and support, Troll Tech engages
+      on a consultancy basis in various exciting development projects.
 
    2.Do you have any plans for a graphical designer/dialog
       builder? 
@@ -34,11 +31,16 @@ Please note: the latest version of this and other FAQ lists are available at:
 
    3.Is there a mailing list or something for Qt? 
 
-      There are two: qt-interest@troll.no and qt-announce. 
+      There are three: qt-interest@troll.no, snapshot-users@troll.no,
+      and qt-announce.
 
-      Qt-interest is a user forum. There can be as much as 20
+      Qt-interest is a user forum. There can be as much as 150
       messages per week. To join it, send a message containing the
       single word "subscribe" to qt-interest-request@troll.no. 
+
+      Snapshot-users@troll.no is a forum for people using the
+      cutting-edge unstable version.  The details of the snapshot
+      releases are detailed at http://www.troll.no/qt-snapshots.html
 
       Qt-announce is for announcements of new Qt versions and a
       few other announcements. We expect that there will be less
@@ -59,7 +61,7 @@ Please note: the latest version of this and other FAQ lists are available at:
    5.What kind of licenses exist for Qt? 
 
       The Qt toolkit is available under two different licenses: The
-      Professional Edition for commercial use, and the Free Edition
+      Professional Edition for commercial use, and the Q Public License
       for developing free software for the X platform. 
 
    6.What are the differences between the Professional
@@ -68,7 +70,7 @@ Please note: the latest version of this and other FAQ lists are available at:
       You can write commercial software only if you have the
       Professional Edition. The library itself is the same. With the
       Professional Edition, you also get technical support and
-      upgrades. 
+      upgrades.  For full details, see the LICENSE.QPL file.
 
    7.Are you going to include so-and-so feature in Qt? If
       so, when? 
@@ -77,8 +79,7 @@ Please note: the latest version of this and other FAQ lists are available at:
       whens of the next Qt release too early, because we do not want
       to be known as a vaporware company. 
 
-   8.I don't want to give away my source code. What do I
-      do? 
+   8.I don't want to give away my source code. What do I do? 
 
       Then you need the Professional Edition. 
 
