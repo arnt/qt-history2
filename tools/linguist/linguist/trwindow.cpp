@@ -1728,7 +1728,7 @@ bool TrWindow::maybeSave()
 				  .arg(filename),
 				  QMessageBox::Yes | QMessageBox::Default,
 				  QMessageBox::No,
-				  QMessageBox::Cancel ) )
+				  QMessageBox::Cancel | QMessageBox::Escape ) )
 	{
 	    case QMessageBox::Cancel:
 		return FALSE;
