@@ -260,11 +260,11 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	QString dir = getenv( "QTDIR" );
 	dir += "/plugins";
 	if ( !eventInterfaceManager )
-	    eventInterfaceManager = new QInterfaceManager<EventInterface>( IID_EventInterface, dir, "*.dll; *.so; *.dylib" );
+	    eventInterfaceManager = new QInterfaceManager<EventInterface>( IID_EventInterface, dir );
 	if ( !interpreterInterfaceManager )
-	    interpreterInterfaceManager = new QInterfaceManager<InterpreterInterface>( IID_InterpreterInterface, dir, "*.dll; *.so; *.dylib" );
+	    interpreterInterfaceManager = new QInterfaceManager<InterpreterInterface>( IID_InterpreterInterface, dir );
 	if ( !languageInterfaceManager )
-	    languageInterfaceManager = new QInterfaceManager<LanguageInterface>( IID_LanguageInterface, dir, "*.dll; *.so; *.dylib" );
+	    languageInterfaceManager = new QInterfaceManager<LanguageInterface>( IID_LanguageInterface, dir );
 
 	if ( eventInterfaceManager && interpreterInterfaceManager && languageInterfaceManager ) {
 	    QStringList langs = languageInterfaceManager->featureList();
