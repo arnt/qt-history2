@@ -52,6 +52,9 @@
 #include "qcombobox.h"
 #include "qstyle.h"
 #include <limits.h>
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+#include "qaccessible.h"
+#endif
 
 /*!
     \class QComboBox qcombobox.h
@@ -1635,6 +1638,10 @@ void QComboBox::currentChanged()
     if ( d->autoresize )
 	adjustSize();
     update();
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
+#endif
 }
 
 /*! \reimp
