@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#79 $
 **
 ** Implementation of QFrame widget class
 **
@@ -155,9 +155,12 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
   level with the surrounding screen, but the border itself may be
   raised or sunken.
   <li> \c Panel draws a rectangular panel that can be raised or sunken.
+  Its look depends on the current GUI style.
   <li> \c WinPanel draws a rectangular panel that can be raised or sunken.
   Specifying this shape sets the line width to 2 pixels.  WinPanel provides
-  fancy Windows 95-like shadows.
+  fancy Windows 95-like shadows. WinPanel is provided for compatibility. For
+  GUI style independence it's recommened to use Panel with 
+  setLineWidth(2) instead.
   <li> \c HLine draws a horizontal line (vertically centered).
   <li> \c VLine draws a vertical line (horizontally centered).
   </ul>
@@ -523,31 +526,31 @@ void QFrame::drawFrame( QPainter *p )
     QPoint	p1, p2;
     QRect	r     = frameRect();
     int		type  = fstyle & MShape;
-    int		style = fstyle & MShadow;
+    int		cstyle = fstyle & MShadow;
     QColorGroup g     = colorGroup();
 
     switch ( type ) {
 
     case Box:
-	if ( style == Plain )
+	if ( cstyle == Plain )
 	    qDrawPlainRect( p, r, g.foreground(), lwidth );
 	else
-	    qDrawShadeRect( p, r, g, style == Sunken, lwidth,
+	    qDrawShadeRect( p, r, g, cstyle == Sunken, lwidth,
 			    midLineWidth() );
 	break;
 
     case Panel:
-	if ( style == Plain )
+	if ( cstyle == Plain )
 	    qDrawPlainRect( p, r, g.foreground(), lwidth );
 	else
-	    qDrawShadePanel( p, r, g, style == Sunken, lwidth );
+	    style().drawPanel( p, r.x(), r.y(), r.width(), r.height(), g, cstyle == Sunken, lwidth );
 	break;
 
     case WinPanel:
-	if ( style == Plain )
+	if ( cstyle == Plain )
 	    qDrawPlainRect( p, r, g.foreground(), lwidth );
 	else
-	    qDrawWinPanel( p, r, g, style == Sunken );
+	    qDrawWinPanel( p, r, g, cstyle == Sunken );
 	break;
 
     case HLine:
@@ -560,14 +563,14 @@ void QFrame::drawFrame( QPainter *p )
 	    p1 = QPoint( r.x()+r.width()/2, 0 );
 	    p2 = QPoint( p1.x(), r.height() );
 	}
-	if ( style == Plain ) {
+	if ( cstyle == Plain ) {
 	    QPen oldPen = p->pen();
 	    p->setPen( QPen(g.foreground(),lwidth) );
 	    p->drawLine( p1, p2 );
 	    p->setPen( oldPen );
 	}
 	else
-	    qDrawShadeLine( p, p1, p2, g, style == Sunken,
+	    qDrawShadeLine( p, p1, p2, g, cstyle == Sunken,
 			    lwidth, midLineWidth() );
 	break;
     }
