@@ -73,7 +73,7 @@ void WriteInitialization::accept(DomUI *node)
 
     QString widgetClassName = node->elementWidget()->attributeClass();
 
-    output << "inline void " << className << "::setupUI(" << widgetClassName << " *" << varName << ")\n"
+    output << "inline void " << className << "::setupUi(" << widgetClassName << " *" << varName << ")\n"
            << "{\n";
 
     accept(node->elementWidget());

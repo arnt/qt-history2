@@ -34,7 +34,7 @@ void WriteDeclaration::accept(DomUI *node)
 
     TreeWalker::accept(node->elementWidget());
 
-    output << "\n" << option.indent << "inline void setupUI(" << widgetClassName << " *" << varName << ");\n";
+    output << "\n" << option.indent << "inline void setupUi(" << widgetClassName << " *" << varName << ");\n";
 
     if (node->elementImages()) {
         output << "\n"

@@ -807,7 +807,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
 //
 // setup the gui
 //
-    out << indent << "setupUI(this);" << endl << endl;
+    out << indent << "setupUi(this);" << endl << endl;
 
 
     if (isMainWindow)
