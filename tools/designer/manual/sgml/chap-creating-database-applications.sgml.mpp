@@ -1347,7 +1347,15 @@ bool createConnections()
 \scan eg/book/book7/editbook.cpp /EditBookForm::beforeUpdateBook/ /^}/ 
 </programlisting>
 	    We look up the id of the ComboBox's current author and place
-	    it in the update (or insert) buffer's authorid field.
+	    it in the update (or insert) buffer's authorid field. Note
+	    that if the author name has changed or been deleted the
+	    query will fail and no author id will be inserted into the
+	    buffer causing the \ins to fail. To guarantee that the
+	    ComboBox is up-to-date we should create a cursor subclass
+	    and use this for our lookups. This is described in the
+	    <ulink url="http://doc.trolltech.com/sql.html">Qt SQL Module
+	    documentation</>, especially the section on subclassing
+	    \class[QSqlCursor] and calculated fields.
 	    \P\Item
 
 	    \item\p
