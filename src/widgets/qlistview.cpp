@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#15 $
 **
 ** Implementation of something useful
 **
@@ -14,8 +14,48 @@
 #include "qheader.h"
 #include "qpainter.h"
 #include "qstack.h"
+#include "qstrlist.h"
+#include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#14 $");
+#include <stdarg.h>
+
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#15 $");
+
+
+struct QListViewPrivate
+{
+    // classes that are here to avoid polluting the global name space
+
+    // the magical hidden mother of all items
+    struct Root: public QListViewItem {
+	Root( QListView * parent );
+
+	void setHeight( int );
+	void invalidateHeight();
+	QListView *listView() const;
+
+	QListView * lv;
+    };
+
+    // a drawable item, for the stack used in drawContentsOffset()
+    struct PendingItem {
+	PendingItem( int level, int ypos, const QListViewItem * item)
+	    : l(level), y(ypos), i(item) {};
+
+	int l;
+	int y;
+	const QListViewItem * i;
+    };
+
+    // private variables used in QListView
+    QHeader * h;
+    Root * r;
+
+    QTimer * timer;
+    int levelWidth;
+};
+
+
 
 /*!
   \class QListViewItem qlistview.h
@@ -26,12 +66,69 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#14 $");
 
 
 
-/*!  Create a new list view item in the QListView \a parent
-  and is named \a name.
-*/
+/*!  Create a new list view item in the QListView \a parent */
 
-QListViewItem::QListViewItem( QListView * parent, const char * name )
-    : QObject( parent, name )
+QListViewItem::QListViewItem( QListView * parent )
+{
+    init();
+    parent->insertItem( this );
+}
+
+
+/*!  Create a new list view item which is a child of \a parent */
+
+QListViewItem::QListViewItem( QListViewItem * parent )
+{
+    init();
+    parent->insertItem( this );
+}
+
+
+/*!  Create a new list view item which is a child of \a parent,
+  with the contents asdf asdf asdf ### sex vold ### */
+
+QListViewItem::QListViewItem( QListViewItem * parent,
+			      const char * firstLabel, ... )
+{
+    init();
+    parent->insertItem( this );
+
+    columnTexts = new QStrList();
+    columnTexts->append( firstLabel );
+    va_list ap;
+    const char * nextLabel;
+    va_start( ap, firstLabel );
+    while ( (nextLabel = va_arg(ap, const char *)) != 0 )
+	columnTexts->append( nextLabel );
+    va_end( ap );
+}
+
+
+/*!  Create a new list view item which is a child of \a parent,
+  with the contents asdf asdf asdf ### sex vold ### */
+
+QListViewItem::QListViewItem( QListViewItem * parent,
+			      const QPixmap pm,
+			      const char * firstLabel, ... )
+{
+    init();
+    parent->insertItem( this );
+    icon = new QPixmap( pm );
+
+    columnTexts = new QStrList();
+    columnTexts->append( firstLabel );
+    va_list ap;
+    const char * nextLabel;
+    va_start( ap, firstLabel );
+    while ( (nextLabel = va_arg(ap, const char *)) != 0 )
+	columnTexts->append( nextLabel );
+    va_end( ap );
+}
+
+
+/*!  Perform the initializations that's common to the constructors. */
+
+void QListViewItem::init()
 {
     ownHeight = 0;
     maybeTotalHeight = -1;
@@ -41,26 +138,8 @@ QListViewItem::QListViewItem( QListView * parent, const char * name )
     parentItem = 0;
     siblingItem = childItem = 0;
 
-    parent->insertItem( this );
-}
-
-
-/*!  Create a new list view item which is a child of \a parent
-  and is named \a name.
-*/
-
-QListViewItem::QListViewItem( QListViewItem * parent, const char * name )
-    : QObject( parent, name )
-{
-    ownHeight = 0;
-    maybeTotalHeight = -1;
-    open = TRUE;
-
-    childCount = 0;
-    parentItem = parent;
-    siblingItem = childItem = 0;
-
-    parent->insertItem( this );
+    columnTexts = 0;
+    icon = 0;
 }
 
 
@@ -263,24 +342,40 @@ int QListViewItem::totalHeight() const
 }
 
 
+/*!  Returns the text in column \a column, or else 0. */
+
+const char * QListViewItem::text( int column ) const
+{
+    return columnTexts ? columnTexts->at( column ) : 0;
+}
+
+
 /*!  Paint the contents of one cell.
 
-  The default draws a rectangle just inside the cell rectangle using
-  the supplied pen and brush.  This is useless for production work but
-  useful for debugging.
+  ### undoc
 */
 
 void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 			       int column, int width ) const
 {
-    NOT_USED( column );
-
     if ( !p )
 	return;
 
-    p->fillRect( 0, 0, width, height(), cg.background() );
-    p->setPen( cg.foreground() );
-    p->drawRect( 1, 1, width-2, height()-2 );
+    p->fillRect( 0, 0, width, height(), cg.base() );
+
+    int r = 2;
+
+    if ( icon && !column ) {
+	p->drawPixmap( 0, (height()-icon->height())/2, *icon );
+	r += icon->width();
+    }
+
+    const char * t = text( column );
+    if ( t ) {
+	p->setPen( cg.text() );
+	// should do the ellipsis thing here
+	p->drawText( r, 0, width-2-r, height(), AlignLeft + AlignVCenter, t );
+    }
 }
 
 
@@ -407,46 +502,30 @@ void QListViewItem::paintTreeBranches( QPainter * p, const QColorGroup & cg,
 
 
 
-struct QListViewRoot: public QListViewItem {
-    QListViewRoot( QListView * parent, const char * name );
-
-    void setHeight( int );
-    void invalidateHeight();
-    QListView *listView() const;
-
-    QTimer * timer;
-    int levelWidth;
-
-    QHeader * h;
-};
-
-
-
-QListViewRoot::QListViewRoot( QListView * parent, const char * name )
-    : QListViewItem( parent, name )
+QListViewPrivate::Root::Root( QListView * parent )
+    : QListViewItem( parent )
 {
-    timer = new QTimer( this );
+    lv = parent;
     setHeight( 0 );
-    levelWidth = 0;
-    h = 0;
 }
 
 
-void QListViewRoot::setHeight( int )
+void QListViewPrivate::Root::setHeight( int )
 {
     QListViewItem::setHeight( 0 );
 }
 
 
-void QListViewRoot::invalidateHeight()
+void QListViewPrivate::Root::invalidateHeight()
 {
     QListViewItem::invalidateHeight();
-    timer->start( 0, TRUE );
+    lv->triggerUpdate();
 }
 
-QListView *QListViewRoot::listView() const
+
+QListView * QListViewPrivate::Root::listView() const
 {
-    return ((QListView*)parent()); //###
+    return lv;
 }
 
 
@@ -465,23 +544,28 @@ QListView *QListViewRoot::listView() const
 QListView::QListView( QWidget * parent, const char * name )
     : QScrollView( parent, name )
 {
-    root = 0;
-    // will access root
-    QListViewRoot * r = new QListViewRoot( this, "root" );
-    root = r;
-    root->h = new QHeader( this, "list view header" );
-    connect( root->timer, SIGNAL(timeout()),
+    d = new QListViewPrivate;
+    d->timer = new QTimer( this );
+    d->levelWidth = 0;
+    d->r = 0;
+    d->h = new QHeader( this, "list view header" );
+
+    connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(updateContents()) );
-    connect( root->h, SIGNAL(sizeChange( int, int )),
+    connect( d->h, SIGNAL(sizeChange( int, int )),
 	     this, SLOT(triggerUpdate()) );
-    connect( root->h, SIGNAL(sizeChange( int, int )),
+    connect( d->h, SIGNAL(sizeChange( int, int )),
 	     this, SIGNAL(sizeChanged()) );
-    connect( root->h, SIGNAL(moved( int, int )),
+    connect( d->h, SIGNAL(moved( int, int )),
 	     this, SLOT(triggerUpdate()) );
     connect( horizontalScrollBar(), SIGNAL(sliderMoved(int)),
-	     root->h, SLOT(setOffset(int)) );
+	     d->h, SLOT(setOffset(int)) );
     connect( horizontalScrollBar(), SIGNAL(valueChanged(int)),
-	     root->h, SLOT(setOffset(int)) );
+	     d->h, SLOT(setOffset(int)) );
+
+    // will access d->r
+    QListViewPrivate::Root * r = new QListViewPrivate::Root( this );
+    d->r = r;
 
     setFocusProxy( viewport() );
 }
@@ -505,18 +589,9 @@ QListView::~QListView()
 void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 				    int cx, int cy, int cw, int ch )
 {
-    struct PendingItem {
-	PendingItem( int level, int ypos, const QListViewItem * item)
-	    : l(level), y(ypos), i(item) {};
+    QStack<QListViewPrivate::PendingItem> stack;
 
-	int l;
-	int y;
-	const QListViewItem * i;
-    };
-
-    QStack<PendingItem> stack;
-
-    stack.push( new PendingItem( 0, 0, root ) );
+    stack.push( new QListViewPrivate::PendingItem( 0, 0, d->r ) );
 
     QRect r;
     int l;
@@ -524,7 +599,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
     l = 0;
     fx = -1;
     int tx = -1;
-    struct PendingItem * current;
+    struct QListViewPrivate::PendingItem * current;
 
     while ( !stack.isEmpty() ) {
 	current = stack.pop();
@@ -540,20 +615,20 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		// find first interesting column, once
 		x = 0;
 		c = 0;
-		cs = root->h->cellSize( 0 );
-		while ( x + cs <= cx && c < root->h->count() ) {
+		cs = d->h->cellSize( 0 );
+		while ( x + cs <= cx && c < d->h->count() ) {
 		    x += cs;
 		    c++;
-		    if ( c < root->h->count() )
-			cs = root->h->cellSize( c );
+		    if ( c < d->h->count() )
+			cs = d->h->cellSize( c );
 		}
 		fx = x;
 		fc = c;
-		while( x < cx + cw && c < root->h->count() ) {
+		while( x < cx + cw && c < d->h->count() ) {
 		    x += cs;
 		    c++;
-		    if ( c < root->h->count() )
-			cs = root->h->cellSize( c );
+		    if ( c < d->h->count() )
+			cs = d->h->cellSize( c );
 		}
 		lc = c;
 	    }
@@ -563,8 +638,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
             // draw to last interesting column
             while( c < lc ) {
-		int i = root->h->mapToLogical( c );
-                cs = root->h->cellSize( c );
+		int i = d->h->mapToLogical( c );
+                cs = d->h->cellSize( c );
                 r.setRect( x + ox, current->y + oy, cs, ih );
                 if ( c + 1 == lc && x + cs < cx + cw )
                     r.setRight( cx + cw + ox - 1 );
@@ -574,7 +649,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
                 p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
                 p->translate( r.left(), r.top() );
 		current->i->paintCell( p, colorGroup(),
-				       root->h->mapToLogical( c ), r.width() );
+				       d->h->mapToLogical( c ), r.width() );
 		p->restore();
 		x += cs;
 		c++;
@@ -583,8 +658,9 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 	// push younger sibling of current on the stack?
 	if ( current->y + ith < cy+ch && current->i->nextSibling() )
-	    stack.push( new PendingItem( current->l, current->y + ith,
-					 current->i->nextSibling() ) );
+	    stack.push( new QListViewPrivate::PendingItem( current->l,
+							   current->y + ith,
+							   current->i->nextSibling() ) );
 
 	// do any children of current need to be painted?
 	if ( current->i->isOpen() &&
@@ -592,7 +668,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	     current->y + ih < cy + ch ) {
 	    // perhaps even a branch?
 	    if ( tx < 0 )
-		tx = root->h->cellPos( root->h->mapToActual( 0 ) );
+		tx = d->h->cellPos( d->h->mapToActual( 0 ) );
 		
 	    if ( tx < cx + cw &&
 		 tx + current->l * treeStepSize() > cx ) {
@@ -636,17 +712,18 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    // push one child on the stack, if there is at least one
 	    // needing to be painted
 	    if ( c && y < cy+ch )
-		stack.push( new PendingItem( current->l + 1, y, c ) );
+		stack.push( new QListViewPrivate::PendingItem( current->l + 1,
+							       y, c ) );
 	}
 
 	delete current;
     }
 
-    if ( root->totalHeight() < cy + ch ) {
+    if ( d->r->totalHeight() < cy + ch ) {
 	// really should call some virtual method, or at least use
 	// something more configurable than colorGroup().base()
-	p->fillRect( cx + ox, root->totalHeight() + oy,
-		     cw, cy + ch - root->totalHeight(),
+	p->fillRect( cx + ox, d->r->totalHeight() + oy,
+		     cw, cy + ch - d->r->totalHeight(),
 		     colorGroup().base() );
     }
 }
@@ -661,7 +738,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 int QListView::treeStepSize() const
 {
-    return root->levelWidth;
+    return d->levelWidth;
 }
 
 
@@ -673,8 +750,8 @@ int QListView::treeStepSize() const
 
  void QListView::setTreeStepSize( int l )
 {
-    if ( l != root->levelWidth ) {
-	root->levelWidth = l;
+    if ( l != d->levelWidth ) {
+	d->levelWidth = l;
 	// update
     }
 }
@@ -687,8 +764,8 @@ int QListView::treeStepSize() const
 
 void QListView::insertItem( QListViewItem * i )
 {
-    if ( root ) // not for root itself
-	root->insertItem( i );
+    if ( d->r ) // not for d->r itself
+	d->r->insertItem( i );
 }
 
 
@@ -697,7 +774,7 @@ void QListView::insertItem( QListViewItem * i )
 
 void QListView::clear()
 {
-    const QListViewItem * c = root->firstChild();
+    const QListViewItem * c = d->r->firstChild();
     const QListViewItem * n;
     while( c ) {
 	n = c->nextSibling();
@@ -714,9 +791,9 @@ void QListView::clear()
 void QListView::setColumn( const char * label, int size, int column )
 {
     if ( column < 0 )
-	root->h->setCellSize( root->h->addLabel( label ), size );
+	d->h->setCellSize( d->h->addLabel( label ), size );
     else
-	root->h->setLabel( column, label, size );
+	d->h->setLabel( column, label, size );
 }
 
 
@@ -729,7 +806,7 @@ void QListView::show()
     if ( v )
 	v->setBackgroundMode( NoBackground );
 
-    viewResize( 250, root->totalHeight() ); // ### 250
+    viewResize( 250, d->r->totalHeight() ); // ### 250
     QScrollView::show();
 }
 
@@ -741,15 +818,15 @@ void QListView::show()
 void QListView::updateContents()
 {
     int w = 0;
-    for( int i=0; i<root->h->count(); i++ )
-	w += root->h->cellSize( i );
+    for( int i=0; i<d->h->count(); i++ )
+	w += d->h->cellSize( i );
 
-    int h = root->h->sizeHint().height();
-    root->h->setGeometry( frameWidth(), frameWidth(),
-			  frameRect().width(), h );
+    int h = d->h->sizeHint().height();
+    d->h->setGeometry( frameWidth(), frameWidth(),
+		       frameRect().width(), h );
     setMargins( 0, h, 0, 0 );
 
-    viewResize( w, root->totalHeight() );  // repaints
+    viewResize( w, d->r->totalHeight() );  // repaints
     viewport()->repaint();
 }
 
@@ -761,7 +838,7 @@ void QListView::updateContents()
 
 void QListView::triggerUpdate()
 {
-    root->timer->start( 0, TRUE );
+    d->timer->start( 0, TRUE );
 }
 
 
@@ -842,5 +919,3 @@ QListView * QListViewItem::listView() const
   This signal is emitted when the list view changes width (or height?
   not at present).
 */
-
-

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#5 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#6 $
 **
 ** Definition of 
 **
@@ -10,19 +10,25 @@
 #ifndef QLISTVIEW_H
 #define QLISTVIEW_H
 
-class QListViewRoot;
+class QStrList;
+class QPixmap;
+
 class QListView;
+struct QListViewPrivate;
 
 #include "qscrollview.h"
 
 
-class QListViewItem: public QObject
+class QListViewItem
 {
-    Q_OBJECT
 public:
-    QListViewItem( QListView * parent, const char * name = 0 );
-    QListViewItem( QListViewItem * parent, const char * name = 0 );
-    ~QListViewItem();
+    QListViewItem( QListView * parent );
+    QListViewItem( QListViewItem * parent );
+    QListViewItem( QListViewItem * parent,
+		   const char * firstLabel, ... );
+    QListViewItem( QListViewItem * parent,
+		   const QPixmap, const char * firstLabel, ... );
+    virtual ~QListViewItem();
 
     virtual void insertItem( QListViewItem * );
     virtual void removeItem( QListViewItem * );
@@ -31,14 +37,14 @@ public:
 
     int height() const { return ownHeight; }
     virtual void setHeight( int );
-
     virtual void invalidateHeight();
-
     int totalHeight() const;
+
+    virtual const char * text( int ) const;
 
     int children() const { return childCount; }
 
-    bool isOpen() const { return open && childCount>0; }
+    bool isOpen() const { return open && childCount>0; } // ###
     virtual void setOpen( bool );
 
     virtual void paintCell( QPainter *,  const QColorGroup & cg,
@@ -52,13 +58,19 @@ public:
     virtual QListView *listView() const;
 
 private:
+    void init();
+
     int ownHeight;
     int maybeTotalHeight;
     int childCount;
     bool open;
+
     QListViewItem * parentItem;
     QListViewItem * siblingItem;
     QListViewItem * childItem;
+
+    QStrList * columnTexts;
+    QPixmap * icon;
 
     friend QListView;
 };
@@ -81,6 +93,9 @@ public:
 
     void show();
 
+public slots:
+    void triggerUpdate();
+
 signals:
     void sizeChanged();
 
@@ -91,10 +106,9 @@ protected:
 
 protected slots:
     void updateContents();
-    void triggerUpdate();
 
 private:
-    QListViewRoot * root;
+    QListViewPrivate * d;
 };
 
 
