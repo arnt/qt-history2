@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#8 $
 **
 ** Implementation of QAccel class
 **
@@ -17,7 +17,7 @@
 #include "qsignal.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#8 $";
 #endif
 
 
@@ -121,7 +121,7 @@ void QAccel::disable()
 
 /*!
 \fn bool QAccel::isDisabled() const
-Returns TRUE is the accelerator is disabled.
+Returns TRUE if the accelerator is disabled.
 */
 
 
@@ -200,9 +200,10 @@ int QAccel::findKey( long key ) const
 }
 
 
-/*!  Returns TRUE if the accelerator items with the identifier \e id
-  is disabled.  Returns FALSE if the item is enabled or cannot
-  be found. */
+/*!
+Returns TRUE if the accelerator items with the identifier \e id
+is disabled.  Returns FALSE if the item is enabled or cannot
+be found. */
 
 bool QAccel::isItemDisabled( int id ) const
 {
