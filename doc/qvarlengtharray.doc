@@ -27,10 +27,10 @@
         }
     \endcode
 
-    QVarLengthArray attempts to fill this hole in the C++ language.
-    It allocates a certain number of items on the stack, and if you
-    resize the array to a larger size, it automatically uses the heap
-    instead.
+    QVarLengthArray is an attempt to work around this gap in the C++
+    language. It allocates a certain number of elements on the stack,
+    and if you resize the array to a larger size, it automatically
+    uses the heap instead.
 
     Example:
     \code
@@ -42,10 +42,10 @@
 	}
     \endcode
 
-    In the example above, QVarLengthArray will preallocate 512 items
-    on the stack and use them unless \c{n + 1} is greater than 512.
-    If you omit the second template argument, QVarLengthArray's
-    default of 256 is used.
+    In the example above, QVarLengthArray will preallocate 512
+    elements on the stack and use them unless \c{n + 1} is greater
+    than 512. If you omit the second template argument,
+    QVarLengthArray's default of 256 is used.
 
     QVarLengthArray's value type must be an \l{assignable data type}.
     This covers most data types that are commonly used, but the
@@ -63,14 +63,14 @@
        a basic type. (QVector always does.)
 
     \i QVector uses \l{implicit sharing} as a memory optimization.
-       QVarLengthArray doesn't provide that feature; in exchange, it
-       typically provides slightly better performance through reduced
+       QVarLengthArray doesn't provide that feature; however, it
+       usually produces slightly better performance due to reduced
        overhead.
     \endlist
 
     QVector (or QList) is the right class for most applications, but
-    if you need to write highly optimized code, QVarLengthArray is at
-    your disposition.
+    if you need to write highly optimized code, QVarLengthArray may be
+    appropriate.
 
     \sa QVector, QList, QLinkedList
 */
@@ -92,7 +92,7 @@
 
 /*! \fn int QVarLengthArray::size() const
 
-    Returns the number of items in the array.
+    Returns the number of elements in the array.
 
     \sa isEmpty(), resize()
 */
@@ -134,19 +134,18 @@
     the worst that will happen is that the QVarLengthArray will be a
     bit slower.
 
-    If you want to change the size of the array, call resize(), not
-    reserve().
+    If you want to change the size of the array, call resize().
 
     \sa capacity()
 */
 
 /*! \fn int QVarLengthArray::capacity() const
 
-    Returns the maximum number of items that can be stored in the
+    Returns the maximum number of elements that can be stored in the
     array without forcing a reallocation.
 
-    If you want to get the number of items currently in the array,
-    call size(), not capacity().
+    If you want to know how many items are currently in the array,
+    call size().
 
     \sa reserve()
 */
@@ -180,8 +179,8 @@
 
 /*! \fn T *QVarLengthArray::data()
 
-    Returns a pointer to the data stored in the array. That pointer
-    can be used to access and modify the items in the array.
+    Returns a pointer to the data stored in the array. The pointer can
+    be used to access and modify the items in the array.
 
     Example:
     \code
@@ -206,7 +205,7 @@
 
 /*! \fn const T *QVarLengthArray::constData() const
 
-    Returns a const pointer to the data stored in the array. That
+    Returns a const pointer to the data stored in the array. The
     pointer can be used to access the items in the array. The
     pointer remains valid as long as the array isn't reallocated.
 

@@ -42,8 +42,8 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     stores its items in adjacent memory locations and provides fast
     index-based access.
 
-    QList\<T\>, QLinkedList\<T\>, and QVector\<T\> provide similar
-    functionality. Here's an overview:
+    QList\<T\>, QLinkedList\<T\>, and QVarLengthArray\<T\> provide
+    similar functionality. Here's an overview:
 
     \list
     \i For most purposes, QList is the right class to use. Operations
@@ -56,6 +56,8 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
        items rather than indexes, use QLinkedList.
     \i If you want the items to occupy adjacent memory positions,
        use QVector.
+    \i If you want a low-level variable-size array, QVarLengthArray
+    may be sufficient.
     \endlist
 
     Here's an example of a QVector that stores integers and a QVector
@@ -80,7 +82,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     argument to the constructor:
 
     \code
-	QVector<QString> vector(200, "N/A");
+	QVector<QString> vector(200, "Pass");
     \endcode
 
     You can also call fill() at any time to fill the vector with a
@@ -88,8 +90,8 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 
     QVector uses 0-based indexes, just like C++ arrays. To access the
     item at a particular index position, you can use operator[](). On
-    non-const vectors, operator[]() returns a reference to the ite
-    and can be used on the left size of an assignment:
+    non-const vectors, operator[]() returns a reference to the item
+    that can be used on the left size of an assignment:
 
     \code
 	if (vector[0] == "Liz")
@@ -109,15 +111,16 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 
     Another way to access the data stored in a QVector is to call
     data(). The function returns a pointer to the first item in the
-    vector. You can use that pointer to access and modify stored in
-    the vector directly. This can be useful to pass a QVector to a
-    function that accepts a plain C++ array.
+    vector. You can use the pointer to directly access and modify the
+    elements stored in the vector. The pointer is also useful if you
+    need to pass a QVector to a function that accepts a plain C++
+    array.
 
     If you want to find all occurrences of a particular value in a
     vector, use indexOf() or lastIndexOf(). The former searches
     forward starting from a given index position, the latter searches
-    backward. Both return the index of a matching item if they find
-    it; otherwise, they return -1. For example:
+    backward. Both return the index of the matching item if they found
+    one; otherwise, they return -1. For example:
 
     \code
 	int i = vector.indexOf("Harumi");
@@ -129,14 +132,13 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     particular value, use contains(). If you want to find out how
     many times a particular value occurs in the vector, use count().
 
-    Unlike plain C++ arrays, QVectors can be resized at any point by
+    Unlike plain C++ arrays, QVectors can be resized at any time by
     calling resize(). If the new size is larger than the old size,
     QVector might need to reallocate the whole vector. If you know in
-    advance approximately how many items the QVector will contain,
-    you can call reserve(), asking QVector to allocate a certain
-    amout of memory, but this isn't necessary to obtain good
-    performance. You can also call capacity() to find out how much
-    memory QVector actually allocated.
+    advance approximately how many items the QVector will contain, you
+    can call reserve(), asking QVector to allocate a certain amount of
+    memory, but this isn't really necessary. You can also call
+    capacity() to find out how much memory QVector actually allocated.
 
     QVector provides these basic functions to add, move, and remove
     items: insert(), replace(), remove(), prepend(), append(). With
@@ -162,9 +164,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 
     In addition to QVector, Qt also provides QVarLengthArray.
     QVarLengthArray is a very low-level class with little
-    functionality that is optimized for speed. It achieves this by
-    preallocating memory on the stack. Qt uses it internally where
-    fast execution is critical.
+    functionality that is optimized for speed.
 
     \sa QVectorIterator, QVectorMutableIterator, QList, QLinkedList
 */
@@ -196,7 +196,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 
 /*! \fn QVector::QVector(const QVector &other)
 
-    Constrcuts a copy of \a other.
+    Constructs a copy of \a other.
 
     This operation takes \l{constant time}, because QVector is
     \l{implicitly shared}. This makes returning a QVector from a
@@ -295,15 +295,15 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 /*! \fn void QVector::reserve(int size)
 
     Asks QVector to allocate memory for at least \a size elements. If
-    you know in advance how large the vector can get, you can call
-    this function and if you call resize() often, you are likely to
+    you know in advance how large the vector will be, you can call
+    this function, and if you call resize() often you are likely to
     get better performance. If \a size is an underestimate, the worst
     that will happen is that the QVector will be a bit slower.
 
-    The sole purpose of this function is to provide a means to fine
-    tune QVector's memory usage. In general, you will rarely ever
+    The sole purpose of this function is to provide a means of fine
+    tuning QVector's memory usage. In general, you will rarely ever
     need to call this function. If you want to change the size of the
-    QVector, call resize(), not reserve().
+    QVector, call resize().
 
     \sa capacity()
 */
@@ -313,10 +313,10 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     Returns the maximum number of items that can be stored in the
     vector without forcing a reallocation.
 
-    The sole purpose of this function is to provide a means to fine
-    tune QVector's memory usage. In general, you will rarely ever
-    need to call this function. If you want to get the number of
-    items currently in the vector, call size(), not capacity().
+    The sole purpose of this function is to provide a means of fine
+    tuning QVector's memory usage. In general, you will rarely ever
+    need to call this function. If you want to know how many items are
+    in the vector, call size().
 
     \sa reserve()
 */
@@ -333,7 +333,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 
 /*! \fn T *QVector::data()
 
-    Returns a pointer to the data stored in the vector. That pointer
+    Returns a pointer to the data stored in the vector. The pointer
     can be used to access and modify the items in the vector.
 
     Example:
@@ -360,7 +360,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 
 /*! \fn const T *QVector::constData() const
 
-    Returns a const pointer to the data stored in the vector. That
+    Returns a const pointer to the data stored in the vector. The
     pointer can be used to access the items in the vector.
     The pointer remains valid as long as the vector isn't
     reallocated.
@@ -528,8 +528,8 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 /*! \fn QVector &QVector::fill(const T &t, int size = -1)
 
     Assigns value \a t to all items in the vector. If \a size is
-    different from -1, the vector is resized to size \a size
-    beforehand.
+    different from -1 (the default), the vector is resized to size \a
+    size beforehand.
 
     \code
 	QVector<QString> vector(3);
@@ -671,7 +671,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     \overload
 
     Removes all the items from \a begin up to (but not including) \a
-    end.
+    end. Returns an iterator to \a end.
 */
 
 /*! \fn T& QVector::first()
@@ -706,8 +706,8 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 
     If the index \a i is out of bounds, the function returns
     a \l{default-constructed value}. If you are certain that
-    the index is going to be within bounds, you can use at()
-    instead, which is slightly faster.
+    \a i is within bounds, you can use at() instead, which is slightly
+    faster.
 
     \sa at(), operator[]()
 */
@@ -794,7 +794,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     Returns a vector that contains all the items in this vector
     followed by all the items in the \a other vector.
 
-    \sa operator+=()    
+    \sa operator+=()
 */
 
 /*! \fn QVector &QVector::operator<<(const T &t)
