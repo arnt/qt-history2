@@ -373,7 +373,7 @@ int QKeySequence::decodeString( const QString& str )
     if ( name.length() == 1 ) {
 	char ltr = name[0].upper().latin1();
 	// We can only upper A-Z without problems.
-	if ( ltr < Key_A || ltr > Key_Z )
+	if ( ltr < (char) Key_A || ltr > (char) Key_Z )
 	    k = name[0].unicode();
 	else
 	    k = name[0].upper().unicode();
