@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#136 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#137 $
 **
 ** Implementation of QLabel widget class
 **
@@ -39,6 +39,11 @@
 
 class QLabelPrivate
 {
+public:
+    QLabelPrivate()
+	:minimumWidth(0)
+    {}
+    int minimumWidth; // for richtext
 };
 
 
@@ -201,7 +206,7 @@ void QLabel::init()
     autoresize = FALSE;
     textformat = Qt::AutoText;
     doc = 0;
-    d = 0;
+    d = new QLabelPrivate;
 }
 
 
@@ -264,8 +269,12 @@ void QLabel::setText( const QString &text )
 
     if ( textformat == RichText ||
 	 ( textformat == AutoText
-	   && QStyleSheet::mightBeRichText( ltext ) ) )
+	   && QStyleSheet::mightBeRichText( ltext ) ) ) {
 	doc = new QSimpleRichText( ltext, font() );
+	QPainter p (this );
+	doc->setWidth( &p, 10 );
+	d->minimumWidth = doc->widthUsed();
+    }
 
     if ( autoresize ) {
 	QSize s = sizeHint();
@@ -570,6 +579,14 @@ int QLabel::heightForWidth(int w) const
 QSize QLabel::sizeHint() const
 {
     return sizeForWidth( -1 );
+}
+
+QSize QLabel::minimumSizeHint() const
+{
+    if ( doc )
+	return QSize( d->minimumWidth, -1 );
+    else
+	return QSize( -1, -1 );
 }
 
 
