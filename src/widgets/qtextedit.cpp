@@ -2393,6 +2393,9 @@ void QTextEdit::removeParagraph( int para )
     QTextParag *p = doc->paragAt( para );
     if ( !p )
 	return;
+    for ( int i = 0; i < doc->numSelections(); ++i )
+	doc->removeSelection( i );
+
     if ( p == doc->firstParag() && p == doc->lastParag() ) {
 	p->remove( 0, p->length() - 1 );
 	repaintChanged();
