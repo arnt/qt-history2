@@ -652,7 +652,7 @@ void QToolButton::setOffIconSet(const QIconSet& set)
 
 void QToolButton::setIconSet(const QIconSet & set, bool /* on */)
 {
-    setIconSet(set);
+    QAbstractButton::setIconSet(set);
     qWarning("QToolButton::setIconSet(): 'on' parameter ignored");
 }
 
@@ -668,7 +668,8 @@ void QToolButton::setIconSet(const QIconSet & set, bool /* on */)
 */
 QIconSet QToolButton::iconSet(bool /* on */) const
 {
-    return iconSet();
+    QIconSet *icon = QAbstractButton::iconSet();
+    return  icon ? *icon : QIconSet();
 }
 
 #endif
