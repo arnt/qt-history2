@@ -2001,6 +2001,7 @@ static void convert_X32_to_Indexed8(QImageData *dst, const QImageData *src, Qt::
     }
 
     if ((flags & Qt::DitherMode_Mask) != Qt::PreferDither) {
+        dst->colortable.resize(256);
         const uchar *src_data = src->data;
         uchar *dest_data = dst->data;
         for (int y = 0; y < src->height; y++) {        // check if <= 256 colors
