@@ -310,19 +310,6 @@ void QDataBrowser::setSqlCursor( QSqlCursor* cursor, bool autoDelete )
 }
 
 
-/*! \obsolete
-
-  This function is obsolete and will be removed in Qt 3 final.
-  Please use setSqlCursor() instead.
-
-  \sa sqlCursor()
-*/
-
-void QDataBrowser::setCursor( QSqlCursor* cursor, bool autoDelete )
-{
-    setSqlCursor( cursor, autoDelete );
-}
-
 /*! Returns a pointer to the default cursor used for navigation, or 0
   if there is no default cursor.
 

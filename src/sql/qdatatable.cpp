@@ -1681,22 +1681,6 @@ void QDataTable::setSize( QSqlCursor* sql )
     }
 }
 
-/*!
-    \overload virtual void QDataTable::setCursor( QSqlCursor* cursor = 0, bool autoPopulate = FALSE, bool autoDelete = FALSE )
-
-    \obsolete
-
-    Use setSqlCursor() instead
-*/
-
-/*!
-    \fn void QDataTable::setCursor( QSqlCursor* cursor )
-
-    \obsolete
-
-    Use setSqlCursor() instead
-*/
-
 /*!  Sets \a cursor as the data source for the table.  To force the
   display of the data from \a cursor, use refresh(). If \a
   autoPopulate is TRUE, columns are automatically created based upon
