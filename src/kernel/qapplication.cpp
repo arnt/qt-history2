@@ -2342,7 +2342,7 @@ void QApplication::processEvents()
 */
 void QApplication::processEvents( int maxtime )
 {
-    eventLoop()->processEvents( QEventLoop::AllEvents, 3000 );
+    eventLoop()->processEvents( QEventLoop::AllEvents, maxtime );
 }
 
 /*! \obsolete
