@@ -597,7 +597,7 @@ QFile::close()
     if(d->external_file) {
         flush();
     } else {
-        if(!d->fileEngine->close()) {
+        if(d->fileEngine && !d->fileEngine->close()) {
             closed = false;
             setStatus(IO_UnspecifiedError, errno);
         }
