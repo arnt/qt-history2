@@ -136,7 +136,7 @@ public:
     void setModified( bool b, QWidget *window );
     void slotsChanged();
     void updateFunctionList();
-    QObjectList *previewProject( QWidget *mainWidget );
+    QObjectList *previewProject();
 
 public slots:
     void showProperties( QObject *w );

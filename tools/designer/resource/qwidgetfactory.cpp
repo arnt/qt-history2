@@ -286,6 +286,8 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 			funcs += "init();\n";
 			interpreterInterface->exec( widgetFactory->toplevel, funcs );
 		    }
+		    if ( widgetFactory->languageFunctions.isEmpty() )
+			interpreterInterface->exec( widgetFactory->toplevel, "dummy=0;" );
 		    for ( QMap<QObject *, EventFunction>::Iterator it = widgetFactory->eventMap.begin();
 			  it != widgetFactory->eventMap.end(); ++it ) {
 			QStringList::Iterator eit, fit;

@@ -2039,10 +2039,44 @@ void MainWindow::editPreferences()
     statusBar()->clear();
 }
 
-QObjectList *MainWindow::previewProject( QWidget *mainWidget )
+QObjectList *MainWindow::previewProject()
 {
-    mainWidget = 0;
-    return 0;
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
+	e->save();
+    if ( currentTool() == ORDER_TOOL )
+	resetTool();
+    if ( !currentProject )
+	return 0;
+    oWindow->parentWidget()->show();
+    QStringList conns = currentProject->databaseConnectionList();
+    bool ok = TRUE;
+    QStringList::Iterator cit;
+    for ( cit = conns.begin(); cit != conns.end(); ++cit ) {
+	if ( !currentProject->openDatabase( *cit ) )
+	    ok = FALSE;
+    }
+
+    // ### TODO: syntax checking of all forms
+
+    if ( !ok )
+	editDatabaseConnections();
+    QApplication::setOverrideCursor( WaitCursor );
+    for ( cit = conns.begin(); cit != conns.end(); ++cit )
+	currentProject->openDatabase( *cit );
+
+    QStringList forms = currentProject->uiFiles();
+    QObjectList *l = new QObjectList;
+    for ( QStringList::Iterator it = forms.begin(); it != forms.end(); ++it ) {
+	QWidget *w = QWidgetFactory::create( currentProject->makeAbsolute( *it ) );
+	if ( w ) {
+	    l->append( w );
+	    w->hide();
+	}
+    }
+
+    QApplication::restoreOverrideCursor();
+	
+    return l;
 }
 
 QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
@@ -2145,10 +2179,6 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 	return w;
     }
     QApplication::restoreOverrideCursor();
-    if ( fw->project() ) {
-	QStringList lst = MetaDataBase::fakeProperty( fw, "database" ).toStringList();
-	fw->project()->closeDatabase( lst[ 0 ] );
-    }
     return 0;
 }
 

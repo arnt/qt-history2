@@ -72,7 +72,7 @@ struct DesignerProject
 {
     virtual QList<DesignerFormWindow> formList() const = 0;
     virtual QStringList formNames() const = 0;
-    virtual QObjectList *preview( QWidget *mainWidget ) = 0;
+    virtual QObjectList *preview() = 0;
     virtual void addForm( DesignerFormWindow * ) = 0;
     virtual void removeForm( DesignerFormWindow * ) = 0;
     virtual QString fileName() const = 0;
