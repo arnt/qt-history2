@@ -450,6 +450,34 @@ bool QODBCResult::fetchFirst()
     return TRUE;
 }
 
+bool QODBCResult::fetchNext()
+{
+    SQLRETURN r;
+    fieldCache.clear();
+    nullCache.clear();
+    r = SQLFetchScroll( d->hStmt,
+		       SQL_FETCH_NEXT,
+		       0 );
+    if ( r != SQL_SUCCESS )
+	return FALSE;
+    setAt( at() + 1 );
+    return TRUE;
+}
+
+bool QODBCResult::fetchPrior()
+{
+    SQLRETURN r;
+    fieldCache.clear();
+    nullCache.clear();
+    r = SQLFetchScroll( d->hStmt,
+		       SQL_FETCH_PRIOR,
+		       0 );
+    if ( r != SQL_SUCCESS )
+	return FALSE;
+    setAt( at() - 1 );
+    return TRUE;
+}
+
 bool QODBCResult::fetchLast()
 {
     SQLRETURN r;
