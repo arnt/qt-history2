@@ -185,9 +185,9 @@ extern "C" {
 	    }
 
             // determine if the changed chars are selected based on text->feedback
-            for (int x = 0; x < s.length(); ++x)
-                data->selectedChars.setBit(x, (text->feedback ?
-                                               (text->feedback[x] & XIMReverse) : 0));
+            for (int x = 0; x < text->length; ++x)
+                data->selectedChars.setBit(x + drawstruct->chg_first,
+                                           (text->feedback ? (text->feedback[x] & XIMReverse) : 0));
 
             // figure out where the selection starts, and how long it is
             bool started = false;
