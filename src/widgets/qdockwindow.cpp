@@ -120,6 +120,10 @@ void QDockWindowResizeHandle::setOrientation( Qt::Orientation o )
 
 void QDockWindowResizeHandle::mousePressEvent( QMouseEvent *e )
 {
+    e->ignore();
+    if ( e->button() != LeftButton )
+	return;
+    e->accept();
     mousePressed = TRUE;
     startLineDraw();
     lastPos = firstPos = e->globalPos();
@@ -290,6 +294,10 @@ void QDockWindowHandle::paintEvent( QPaintEvent *e )
 
 void QDockWindowHandle::mousePressEvent( QMouseEvent *e )
 {
+    e->ignore();
+    if ( e->button() != LeftButton )
+	return;
+    e->accept();
     hadDblClick = FALSE;
     mousePressed = TRUE;
     offset = e->pos();
@@ -369,8 +377,12 @@ QSizePolicy QDockWindowHandle::sizePolicy() const
     return QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
 }
 
-void QDockWindowHandle::mouseDoubleClickEvent( QMouseEvent * )
+void QDockWindowHandle::mouseDoubleClickEvent( QMouseEvent *e )
 {
+    e->ignore();
+    if ( e->button() != LeftButton )
+	return;
+    e->accept();
     timer->stop();
     emit doubleClicked();
     hadDblClick = TRUE;
@@ -414,6 +426,10 @@ QDockWindowTitleBar::QDockWindowTitleBar( QDockWindow *dw )
 
 void QDockWindowTitleBar::mousePressEvent( QMouseEvent *e )
 {
+    e->ignore();
+    if ( e->button() != LeftButton )
+	return;
+    e->accept();
     mousePressed = TRUE;
     hadDblClick = FALSE;
     offset = e->pos();
@@ -490,37 +506,37 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
   onto a QDockArea, the QDockWindow gets docked into that. If he/she
   moves it outside the area, the QDockWindow gets undocked and
   floating.
-  
+
   QMainWindow contains four docking areas (one at each edge), which
   are used for docking windows into a mainwindow, like QToolBars or
   other QDockWindows.
-  
+
   It is importent that you pass the QDockWindow on construction either
   a QDockArea or a QMainWindow as parent.
-  
+
   Normally a QDockWindow is used to handle the docking of one
   widget. In that case just use the setWidget() function. In special
   cases (like the QToolBar), multiple widget should be arranged in a
   box layout (depending on the orientation) inside the
   QDockWindow. For that you can use the boxLayout() function to access
   the box layout which should be used for that.
-  
+
   In some cases it makes sense that the QDockWindow can be resized,
   e.g. when its widget() is a view which shows some data (like a
   QListView). To specify the resizeable state of the QDockWindow, use
   the setResizeEnabled() function. A resizeable QDockWindow can be
   resized inside a QDockArea using splitter-like handles, and when
   floating just like every other toplevel window.
-  
+
   Also it sometimes makes sense to allow the user to close a
   QDockWindow, and somethimes not. To specify that, use the
   setCloseMode() function. Using the visibilityChanged() signal, you
   can keep track of the visibility of the QDockWindow.
-  
+
   To programmatically dock or undock a QDockWindow, use the dock() and
   undock() functions.
 */
-  
+
 /*!
   \enum QDockWindow::Place
 
@@ -537,7 +553,7 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 
   Using setCloseMode() you can specify the close mode of a
   QDockWindow. This can be one of
-  
+
   <ul>
   <li>\c Never - Can be never closed by the user
   <li>\c Docked - Gets a close button on the handle if docked
@@ -548,24 +564,24 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 */
 
 /*! \fn void QDockWindow::orientationChanged( Orientation o )
-  
+
   This signal is emitted if the orientation of a QDockWindow changes
   to \a o.
 */
 
 /*! \fn void placeChanged( Place p )
-  
+
   This signal is emitted when the place of the QDockWindow has been
   changed to \a p
 */
-  
+
 /*! \fn void visibilityChanged( bool visible )
-  
+
   This signal is emitted if the visibility of the QDockWindow has been
   changed. If \a visible is TRUE, the QDockWindow got visible, else it
   got invisible.
 */
-  
+
 
 /*! Constructs a QDockWindow. If \a p is \c OutsideDock, it is created
   as floating window, else (\c InDock) it is docked into a
@@ -821,7 +837,7 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
 }
 
 /*! Sets the main widget of this QDockWindow.
-  
+
   \sa boxLayout()
 */
 
@@ -833,7 +849,7 @@ void QDockWindow::setWidget( QWidget *w )
 }
 
 /*!  Returns the main widget of this QDockWindow.
-  
+
   \sa setWidget()
 */
 
@@ -895,7 +911,7 @@ void QDockWindow::setMovingEnabled( bool b )
 }
 
 /*! Returns of the QDockWindow is resizeable or not.
-  
+
   \sa setResizeEnabled()
 */
 
@@ -905,7 +921,7 @@ bool QDockWindow::isResizeEnabled() const
 }
 
 /*! Returns of the QDockWindow is movable inside a QDockArea or not.
-  
+
   \sa setMovingEnabled()
 */
 
@@ -931,7 +947,7 @@ void QDockWindow::setCloseMode( int m )
 
 /*! Returns whether the QDockWindow can be closed in the current
   place().
-  
+
   \sa setCloseMode()
 */
 
@@ -942,7 +958,7 @@ bool QDockWindow::isCloseEnabled() const
 }
 
 /*! Returns the close mode of that QDockWindow.
-  
+
   \sa setCloseMode()
 */
 
@@ -980,7 +996,7 @@ bool QDockWindow::isHorizontalStretchable() const
 }
 
 /*!  Returns whether the QDockWindow is vertically stretchable.
- 
+
   \sa setVerticalStretchable()
  */
 
@@ -1001,7 +1017,7 @@ bool QDockWindow::isStretchable() const
 }
 
 /*! Returns the current orientation of the QDockWindow.
-  
+
   \sa orientationChanged()
 */
 
@@ -1078,7 +1094,7 @@ bool QDockWindow::newLine() const
 /*! Returns the layout which should be used for arranging widgets in
   this QDockWindow. The direction of it gets automatically adjusted to
   the orientation of the QDockWindow.
-  
+
   \sa setWidget()
 */
 
