@@ -16,7 +16,7 @@
 #include "tabletstats.h"
 
 MyOrientation::MyOrientation( QWidget *parent, const char *name )
-    : QFrame( parent, name )
+    : QFrame( parent, name, WRepaintNoErase )
 {
     setFrameStyle( QFrame::Box | QFrame::Sunken );
 }
@@ -39,14 +39,14 @@ void MyOrientation::newOrient( int tiltX, int tiltY )
     static int oldX = 0, oldY = 0;
     int tmpX, tmpY;
     QPainter p(this);
-    p.setPen( black );
     
-    p.setBrush( red );
+    
     tmpX = MY_HYP * sin( tiltX * (PI / 180) );
     tmpY = MY_HYP * sin( tiltY * (PI / 180 ) );
 
-    p.eraseRect( 0, 0, width(), height() );
     p.translate( width() / 2, height() / 2 );
+    p.setPen( backgroundColor() );
+    p.drawLine( 0, 0, oldX, oldY );
     p.setPen( black );
     p.drawLine( 0, 0,tmpX, tmpY );
     oldX = tmpX;
