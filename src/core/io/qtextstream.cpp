@@ -638,8 +638,12 @@ bool QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l
                     }
                 }
             }
-            if(out) 
-                memcpy(out, s.unicode(), used_len*sizeof(out[0]));
+            if(out) {
+                int remaining_space = len - rnum;
+                if (used_len > remaining_space)
+                    used_len = remaining_space;
+                memcpy(out + rnum, s.unicode(), used_len*sizeof(out[0]));
+            }
             rnum += used_len;
             if(used_len != s.length())
                 d->ungetcBuf += s.mid(used_len);
