@@ -121,6 +121,7 @@ void QMenuBarPrivate::setKeyboardMode(bool b)
             keyboardFocusWidget = 0;
         }
     }
+    q->update();
 }
 
 void QMenuBarPrivate::popupAction(QAction *action, bool activateFirst)

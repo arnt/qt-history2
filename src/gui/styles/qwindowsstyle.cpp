@@ -851,40 +851,16 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
             // Do nothing if we always paint underlines
             if (!ret && widget && d) {
                 const QMenuBar *menuBar = ::qobject_cast<const QMenuBar*>(widget);
-                const QMenu *popupMenu = 0;
-                if (!menuBar)
-                    popupMenu = ::qobject_cast<const QMenu *>(widget);
-
+                if (!menuBar && ::qobject_cast<const QMenu *>(widget)) {
+                    QWidget *w = QApplication::activeWindow();
+                    if (w && w != widget)
+                        menuBar = qFindChild<QMenuBar *>(w);
+                }
                 // If we paint a menubar draw underlines if it has focus, or if alt is down,
                 // or if a popup menu belonging to the menubar is active and paints underlines
                 if (menuBar) {
-                    if (menuBar->hasFocus()) {
+                    if (menuBar->hasFocus() || d->altDown())
                         ret = 1;
-                    } else if (d->altDown()) {
-                        ret = 1;
-                    } else if (qApp->focusWidget()
-                               && (qApp->focusWidget()->windowType() == Qt::Popup)) {
-                        popupMenu = qobject_cast<const QMenu *>(qApp->focusWidget());
-                        if (qobject_cast<QMenuBar *>(popupMenu->parentWidget()) == menuBar) {
-                            if (d->hasSeenAlt(menuBar))
-                                ret = 1;
-                        }
-                    }
-                    // If we paint a popup menu draw underlines if the respective menubar does
-                } else if (popupMenu) {
-                    const QMenu *menu = popupMenu;
-                    const QMenuBar *bar = 0;
-                    while (menu || bar) {
-                        if (bar) {
-                            if (d->hasSeenAlt(bar)) {
-                                ret = 1;
-                                break;
-                            }
-                        }
-                        QWidget *nextWidget = menu ? menu->parentWidget() : bar->parentWidget();
-                        bar = qobject_cast<const QMenuBar *>(nextWidget);
-                        menu = qobject_cast<const QMenu *>(nextWidget);
-                    }
                     // Otherwise draw underlines if the toplevel widget has seen an alt-press
                 } else if (d->hasSeenAlt(widget)) {
                     ret = 1;
