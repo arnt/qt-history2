@@ -1023,7 +1023,7 @@ void QImage::fill(uint pixel)
             uint *p = (uint *)scanLine(i);
             uint *end = (uint*)(((ushort*)p) + width());
             pixel &= 0xffff;
-            uint fill = pixel<<16 + pixel;
+            uint fill = (pixel<<16) + pixel;
             while (p < end)
                 *p++ = fill;
         }
