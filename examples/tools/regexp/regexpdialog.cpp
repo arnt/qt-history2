@@ -76,8 +76,8 @@ RegExpDialog::RegExpDialog(QWidget *parent)
     mainLayout->addLayout(middleLayout);
     mainLayout->addLayout(buttonLayout);
 
-    connect(patternComboBox, SIGNAL(textChanged(QString)), this, SLOT(refresh()));
-    connect(textComboBox, SIGNAL(textChanged(QString)), this, SLOT(refresh()));
+    connect(patternComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(refresh()));
+    connect(textComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(refresh()));
     connect(caseSensitiveCheckBox, SIGNAL(toggled(bool)), this, SLOT(refresh()));
     connect(minimalCheckBox, SIGNAL(toggled(bool)), this, SLOT(refresh()));
     connect(wildcardCheckBox, SIGNAL(toggled(bool)), this, SLOT(refresh()));
