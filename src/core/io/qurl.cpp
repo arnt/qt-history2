@@ -2305,7 +2305,7 @@ void QUrl::detach()
     Returns a QUrl representation of \a localFile, interpreted as a
     local file.
 */
-QUrl QUrl::fromLocalFile(const QString &localFile) //### set host name option ??
+QUrl QUrl::fromLocalFile(const QString &localFile)
 {
     QUrl url;
     url.setScheme(QLatin1String("file"));
@@ -2313,10 +2313,17 @@ QUrl QUrl::fromLocalFile(const QString &localFile) //### set host name option ??
     deslashified.replace('\\', '/');
 
     // magic for drives on windows
-    if (deslashified.length() > 1 && deslashified.at(1) == ':' && deslashified.at(0) != '/')
+    if (deslashified.length() > 1 && deslashified.at(1) == ':' && deslashified.at(0) != '/') {
         url.setPath(QLatin1String("/") + deslashified);
-    else
+    // magic for shared drive on windows
+    } else if (deslashified.startsWith(QLatin1String("//"))) {
+	int indexOfPath = deslashified.indexOf(QLatin1Char('/'), 2);
+	url.setHost(deslashified.mid(2, indexOfPath - 2));
+	if (indexOfPath > 2)
+	    url.setPath(deslashified.right(deslashified.length() - indexOfPath));
+    } else {
         url.setPath(deslashified);
+    }
 
     return url;
 }
@@ -2330,10 +2337,17 @@ QString QUrl::toLocalFile() const
 
     QString tmp;
     if (d->scheme.isEmpty() || d->scheme.toLower() == QLatin1String("file")) {
-        tmp = d->path;
-        // magic for drives on windows
-        if (tmp.length() > 2 && tmp.at(0) == '/' && tmp.at(2) == ':')
-            tmp.remove(0, 1);
+        
+	// magic for shared drive on windows
+	if (!d->host.isEmpty()) {
+	    tmp = QLatin1String("//") + d->host + (d->path.length() > 0 && d->path.at(0) != QLatin1Char('/') 
+						  ? QLatin1String("/") + d->path :  d->path);
+        } else {
+	    tmp = d->path;
+	    // magic for drives on windows
+            if (d->path.length() > 2 && d->path.at(0) == '/' && d->path.at(2) == ':') 
+		tmp.remove(0, 1);
+	}
     }
 
     return tmp;
