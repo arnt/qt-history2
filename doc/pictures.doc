@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: pictures.doc,v 2.6 1999/06/03 15:14:51 warwick Exp $
+** $Id: pictures.doc,v 2.7 1999/06/16 09:38:17 warwick Exp $
 **
 ** Pictures of Most Widgets in Qt
 **
@@ -21,7 +21,7 @@
 **
 *****************************************************************************/
 
-// $Id: pictures.doc,v 2.6 1999/06/03 15:14:51 warwick Exp $
+// $Id: pictures.doc,v 2.7 1999/06/16 09:38:17 warwick Exp $
 
 /*! \page pictures.html
 
@@ -74,8 +74,8 @@ down on the number of repeated images.
 <h2><a href="qlistview.html">QListView</a></h2>
 <img src="listview.png" width="518" height="82" align="top">&nbsp;
 Non-hierarchical list view
-<br clear="all">
-<img src="treeview.png" width="227" height="261" align="top">
+
+<img src="treeview.png" width="227" height="261" align="top">&nbsp;
 Hierarchical list view (multi-column tree view)
 
 <img src=qlistbox-w.png align=top>&nbsp;Windows
