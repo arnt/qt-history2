@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#167 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#168 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -519,7 +519,9 @@ void QString::truncate( uint newLen )
     // (Qt 1.x did, but there, one could access the data directly...)
 }
 
+#if defined(_OS_LINUX_)
 #warning "Warwick, or whoever put in that \obsolete: consider whether it should be there"
+#endif
 
 /*!
   \obsolete ?
