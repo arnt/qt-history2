@@ -69,11 +69,11 @@ QString QDir::canonicalPath() const
 
     char cur[PATH_MAX+1];
     char tmp[PATH_MAX+1];
-    QT_GETCWD( cur, PATH_MAX );
-    if ( QT_CHDIR(QFile::encodeName(dPath)) >= 0 )
-	if ( QT_GETCWD( tmp, PATH_MAX ) )
+    ::getcwd( cur, PATH_MAX );
+    if ( ::chdir(QFile::encodeName(dPath)) >= 0 )
+	if ( ::getcwd( tmp, PATH_MAX ) )
 	    r = QFile::decodeName(tmp);
-    QT_CHDIR( cur );
+    ::chdir( cur );
 
     slashify( r );
     return r;
@@ -126,7 +126,7 @@ bool QDir::rename( const QString &name, const QString &newName,
 bool QDir::setCurrent( const QString &path )
 {
     int r;
-    r = QT_CHDIR( QFile::encodeName(path) );
+    r = ::chdir( QFile::encodeName(path) );
     return r >= 0;
 }
 
@@ -137,7 +137,7 @@ QString QDir::currentDirPath()
     QT_STATBUF st;
     if ( QT_STAT( ".", &st ) == 0 ) {
 	char currentName[PATH_MAX+1];
-	if ( QT_GETCWD( currentName, PATH_MAX ) != 0 )
+	if ( ::getcwd( currentName, PATH_MAX ) != 0 )
 	    result = QFile::decodeName(currentName);
 #if defined(QT_DEBUG)
 	if ( result.isNull() )
