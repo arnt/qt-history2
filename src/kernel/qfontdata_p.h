@@ -189,7 +189,7 @@ public:
 	StrikeOut     = 0x0100,
 	FixedPitch    = 0x0200,
 	Stretch       = 0x0400,
-	Complete      = 0x07ff,
+	Complete      = 0x07ff
     };
 
     uint mask;

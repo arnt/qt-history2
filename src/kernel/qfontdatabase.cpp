@@ -1304,9 +1304,9 @@ QStringList QFontDatabase::styles( const QString &family ) const
 	QtFontFoundry *foundry = f->foundries[j];
 	if ( foundryName.isEmpty() || ucstricmp( foundry->name, foundryName ) == 0 ) {
 	    for ( int k = 0; k < foundry->count; k++ ) {
-		QtFontStyle::Key k( foundry->styles[k]->key );
-		k.stretch = 0;
-		allStyles.style( k,  TRUE );
+		QtFontStyle::Key ke( foundry->styles[k]->key );
+		ke.stretch = 0;
+		allStyles.style( ke,  TRUE );
 	    }
 	}
     }
