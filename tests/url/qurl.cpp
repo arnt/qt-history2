@@ -59,6 +59,7 @@ QUrl::QUrl( const QString& url )
     d->nameFilter = "*";
 
     QString tmp = url.stripWhiteSpace();
+    tmp.prepend( "file:" );
     parse( tmp );
 }
 
@@ -782,6 +783,7 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 	QFileInfoListIterator it( *filist );
 	QFileInfo *fi;
 	while ( ( fi = it.current()) != 0 ) {
+	    ++it;
 	    QUrlInfo inf( fi->fileName(), 0/*permissions*/, fi->owner(), fi->group(),
 			  fi->size(), fi->lastModified(), fi->lastRead(), fi->isDir(), fi->isFile(),
 			  fi->isSymLink(), fi->isWritable(), fi->isReadable(), fi->isExecutable() );
