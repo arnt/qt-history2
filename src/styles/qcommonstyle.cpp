@@ -1362,7 +1362,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	
     case SR_ToolBoxTabContents:
 	rect = wrect;
-	rect.addCoords( 0, 0, -20, 0 );
+	rect.addCoords( 0, 0, -30, 0 );
 	break;
 
     default:
