@@ -30,12 +30,14 @@ class QDropEvent;
 class QDragMoveEvent;
 class QDragEnterEvent;
 class MainWindow;
+class Project;
 
 class FormListItem : public QListViewItem
 {
 public:
     FormListItem( QListView *parent, const QString &form, const QString &file, FormWindow *fw );
 
+    void setFormWindow( FormWindow *fw ) { formwindow = fw; }
     FormWindow *formWindow() const { return formwindow; }
 
     void paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align );
@@ -53,7 +55,9 @@ class FormList : public QListView
     Q_OBJECT
 
 public:
-    FormList( QWidget *parent , MainWindow *mw );
+    FormList( QWidget *parent , MainWindow *mw, Project *pro );
+
+    void setProject( Project *pro );
     void addForm( FormWindow *fw );
     void closed( FormWindow *fw );
 
@@ -70,7 +74,7 @@ public slots:
 protected:
     void resizeEvent( QResizeEvent *e );
     void closeEvent( QCloseEvent *e );
-    
+
 signals:
     void hidden();
 
@@ -83,6 +87,7 @@ private:
 
 private:
     MainWindow *mainWindow;
+    Project *project;
     
 };
 

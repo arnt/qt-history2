@@ -150,7 +150,8 @@ MainWindow::MainWindow( bool asClient )
     actionPluginManager = 0;
     actionEditor = 0;
     currentProject = 0;
-		
+    formList = 0;
+    
     statusBar()->clear();
     statusBar()->addWidget( new QLabel("Ready", statusBar()), 1 );
 
@@ -1044,7 +1045,7 @@ void MainWindow::setupFormList()
     QDockWindow *dw = new QDockWindow;
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
-    formList = new FormList( dw, this );
+    formList = new FormList( dw, this, currentProject );
     addToolBar( dw, Qt::Left );
     dw->setWidget( formList );
 
@@ -3328,6 +3329,8 @@ void MainWindow::createNewTemplate()
 void MainWindow::projectSelected( QAction *a )
 {
     currentProject = *projects.find( a );
+    if ( formList )
+	formList->setProject( currentProject );
 }
 
 void MainWindow::openProject( const QString &fn )

@@ -24,6 +24,7 @@
 #include "pixmapchooser.h"
 #include "globaldefs.h"
 #include "command.h"
+#include "project.h"
 
 #include <qheader.h>
 #include <qdragobject.h>
@@ -31,6 +32,8 @@
 #include <qapplication.h>
 #include <qpainter.h>
 #include <qpen.h>
+
+static bool blockNewForms = FALSE;
 
 FormListItem::FormListItem( QListView *parent, const QString &form, const QString &file, FormWindow *fw )
     : QListViewItem( parent, form, "", file ), formwindow( fw )
@@ -46,7 +49,7 @@ void FormListItem::paintCell( QPainter *p, const QColorGroup &cg, int column, in
     g.setColor( QColorGroup::Text, Qt::black );
     p->save();
 
-    if ( formWindow()->commandHistory()->isModified() ) {
+    if ( formWindow() && formWindow()->commandHistory()->isModified() ) {
 	QFont f = p->font();
 	f.setBold( TRUE );
 	p->setFont( f );
@@ -86,9 +89,10 @@ void FormListItem::updateBackColor()
     }
 }
 
-FormList::FormList( QWidget *parent, MainWindow *mw )
+FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
     : QListView( parent, 0, WStyle_Customize | WStyle_NormalBorder | WStyle_Title |
-		 WStyle_Tool | WStyle_MinMax | WStyle_SysMenu ), mainWindow( mw )
+		 WStyle_Tool | WStyle_MinMax | WStyle_SysMenu ), mainWindow( mw ),
+	project( pro )
 {
     setResizePolicy( QScrollView::Manual );
     setIcon( PixmapChooser::loadPixmap( "logo" ) );
@@ -108,9 +112,25 @@ FormList::FormList( QWidget *parent, MainWindow *mw )
     setAcceptDrops( TRUE );
 }
 
+void FormList::setProject( Project *pro )
+{
+    project = pro;
+    clear();
+
+    QStringList lst = project->uiFiles();
+    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+	(void)new FormListItem( this, tr( "unknown" ), *it, 0 );
+    }
+    updateHeader();
+}
+
 void FormList::addForm( FormWindow *fw )
 {
-    (void)new FormListItem( this, QString( fw->name() ), fw->fileName(), fw );
+    if ( blockNewForms ) {
+	if ( currentItem() )
+	    ( (FormListItem*)currentItem() )->setFormWindow( fw );
+	return;
+    }
     updateHeader();
 }
 
@@ -208,7 +228,13 @@ void FormList::itemClicked( QListViewItem *i )
 {
     if ( !i )
 	return;
-    ( (FormListItem*)i )->formWindow()->setFocus();
+    if ( ( (FormListItem*)i )->formWindow() ) {
+	( (FormListItem*)i )->formWindow()->setFocus();
+    } else {
+	blockNewForms = TRUE;
+	mainWindow->openFile( ( (FormListItem*)i )->text( 2 ) ); // ##### make filename absolute
+	blockNewForms = FALSE;
+    }
 }
 
 void FormList::contentsDropEvent( QDropEvent *e )
