@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#41 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#40 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#41 $";
 #endif
 
 
@@ -74,56 +74,11 @@ void QPainter::setf( ushort b, bool v )		// set painter flag (internal)
 
 
 /*!
-  Set the number of pixels per tab stop to a fixed number.
-
-  Tab stops are used when drawing formatted text with \c ExpandTabs set.
-  This fixed tab stop value has lower precedence than tab array
-  settings.
-
-  \sa setTabArray()
+  \fn bool QPainter::isActive() const
+  Returns the TRUE if the painter is active painting, i.e. begin() has
+  been called and end() has not yet been called.
+  \sa QPaintDevice::paintingActive()
 */
-
-void QPainter::setTabStops( int ts )		// set tab stops
-{
-    tabstops = ts;
-    if ( isActive() && testf(ExtDev) ) {	// tell extended device
-	QPDevCmdParam param[1];
-	param[0].ival = ts;
-	pdev->cmd( PDC_SETTABSTOPS, param );
-    }
-}
-
-/*!
-  Set an array containing the tab stops.
-
-  The last tab stop must be 0 (terminates the array). <br>
-  Notice that setting a tab array overrides any fixed tabulator
-  stop that is set using setTabStops().
-
-  \sa setTabStops()
-*/
-
-void QPainter::setTabArray( int *ta )		// set tab array
-{
-    if ( ta != tabarray ) {
-	tabarraylen = 0;
-	delete tabarray;			// delete old array
-	if ( ta ) {				// tabarray = copy of 'ta'
-	    while ( ta[tabarraylen] )
-		tabarraylen++;
-	    tabarray = new int[tabarraylen];	// duplicate ta
-	    memcpy( tabarray, ta, sizeof(int)*tabarraylen );
-	}
-	else
-	    tabarray = 0;
-    }
-    if ( isActive() && testf(ExtDev) ) {	// tell extended device
-	QPDevCmdParam param[2];
-	param[0].ival = tabarraylen;
-	param[1].ivec = tabarray;
-	pdev->cmd( PDC_SETTABARRAY, param );
-    }
-}
 
 
 struct QPState {				// painter state
@@ -249,6 +204,74 @@ void QPainter::restore()			// restore/pop painter state
 }
 
 
+/*!
+  \fn QFontMetrics QPainter::fontMetrics() const
+  Returns the font metrics for the painter.
+  Font metrics can only be obtained when the painter is active.
+  \sa fontInfo(), isActive()
+*/
+
+/*!
+  \fn QFontInfo QPainter::fontInfo() const
+  Returns the font info for the painter.
+  Font info can only be obtained when the painter is active.
+  \sa fontMetrics(), isActive()
+*/
+
+
+/*!
+  Set the number of pixels per tab stop to a fixed number.
+
+  Tab stops are used when drawing formatted text with \c ExpandTabs set.
+  This fixed tab stop value has lower precedence than tab array
+  settings.
+
+  \sa setTabArray()
+*/
+
+void QPainter::setTabStops( int ts )		// set tab stops
+{
+    tabstops = ts;
+    if ( isActive() && testf(ExtDev) ) {	// tell extended device
+	QPDevCmdParam param[1];
+	param[0].ival = ts;
+	pdev->cmd( PDC_SETTABSTOPS, param );
+    }
+}
+
+/*!
+  Set an array containing the tab stops.
+
+  The last tab stop must be 0 (terminates the array). <br>
+  Notice that setting a tab array overrides any fixed tabulator
+  stop that is set using setTabStops().
+
+  \sa setTabStops()
+*/
+
+void QPainter::setTabArray( int *ta )
+{
+    if ( ta != tabarray ) {
+	tabarraylen = 0;
+	delete tabarray;			// delete old array
+	if ( ta ) {				// tabarray = copy of 'ta'
+	    while ( ta[tabarraylen] )
+		tabarraylen++;
+	    tabarray = new int[tabarraylen];	// duplicate ta
+	    memcpy( tabarray, ta, sizeof(int)*tabarraylen );
+	}
+	else
+	    tabarray = 0;
+    }
+    if ( isActive() && testf(ExtDev) ) {	// tell extended device
+	QPDevCmdParam param[2];
+	param[0].ival = tabarraylen;
+	param[1].ivec = tabarray;
+	pdev->cmd( PDC_SETTABARRAY, param );
+    }
+}
+
+
 // --------------------------------------------------------------------------
 // QPainter xform settings
 //
@@ -259,7 +282,7 @@ void QPainter::restore()			// restore/pop painter state
   \sa setWindow(), setViewport(), setWorldMatrix(), setWorldXForm()
 */
 
-void QPainter::setViewXForm( bool enable )	// set xform
+void QPainter::setViewXForm( bool enable )
 {
     if ( !isActive() || enable == testf(VxF) )
 	return;
