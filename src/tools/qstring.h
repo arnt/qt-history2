@@ -53,11 +53,11 @@ public:
 
     inline int size() const { return d->size; }
     inline int count() const { return d->size; }
-    int length() const;
-    bool isEmpty() const;
+    inline int length() const;
+    inline bool isEmpty() const;
     void resize(int size);
 
-    bool operator!() const;
+    inline bool operator!() const;
 
     QString &fill(QChar c, int size = -1);
     void truncate(int maxSize);
@@ -66,14 +66,14 @@ public:
     void reserve(int size);
     void squeeze();
 
-    const QChar *unicode() const;
-    operator const QChar*() const;
-    QChar *data();
-    const QChar *data() const;
-    const QChar *constData() const;
+    inline const QChar *unicode() const;
+    inline operator const QChar*() const;
+    inline QChar *data();
+    inline const QChar *data() const;
+    inline const QChar *constData() const;
 
     inline void detach();
-    bool isDetached() const;
+    inline bool isDetached() const;
     void clear();
 
     inline const QChar at(int i) const;
