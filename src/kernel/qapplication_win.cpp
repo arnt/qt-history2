@@ -658,11 +658,15 @@ static void qt_set_windows_resources()
 	QApplication::setPalette( menu, TRUE, "QPopupMenu");
 
 	if ( qt_winver == Qt::WV_XP ) {
-	    QColor menubar(qt_colorref2qrgb(GetSysColor(COLOR_MENUBAR)));
-	    cg.setColor( QColorGroup::Button, menubar );
-	    dcg.setColor( QColorGroup::Button, menubar );
-	    icg = cg;
-	    menu = QPalette( cg, dcg, icg );
+	    BOOL isFlat;
+	    SystemParametersInfo( 0x1022 /*SPI_GETFLATMENU*/, 0, &isFlat, 0 );
+	    if ( isFlat ) {
+		QColor menubar(qt_colorref2qrgb(GetSysColor(COLOR_MENUBAR)));
+		cg.setColor( QColorGroup::Button, menubar );
+		dcg.setColor( QColorGroup::Button, menubar );
+		icg = cg;
+		menu = QPalette( cg, dcg, icg );
+	    }
 	}
 	QApplication::setPalette( menu, TRUE, "QMenuBar");
     }
@@ -1444,7 +1448,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	}
     }
     */
-    
+
 #if defined(QT_NON_COMMERCIAL)
     QT_NC_WNDPROC
 #endif
