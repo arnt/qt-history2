@@ -63,7 +63,7 @@ public:
     void *resolve( const char* );
     static void *resolve( const QString &filename, const char * );
 
-    bool unload( bool force = FALSE );
+    bool unload();
     bool isLoaded() const;
 
     void setPolicy( Policy pol );

@@ -147,11 +147,11 @@ void QLibraryPrivate::killTimer()
   A typical use of QLibrary is to resolve an exported symbol in a shared object, and
   to e.g. call the function that this symbol represents. This is called "explicit
   linking" in contrast to "implicit linking", which is done by the link step in the
-  build process when linking an binary against a library.
+  build process when linking an executable against a library.
 
   The following code snipplet will load a library, resolve the symbol "mysymbol",
-  and call the function if everything succeeded. If anything went wrong, e.g. the
-  library file is not existing, or the symbol is not defined, the function pointer
+  and call the function if everything succeeded. If something went wrong, e.g. the
+  library file does not exist or the symbol is not defined, the function pointer
   will become a null pointer. Upon destruction of the QLibrary object the library
   will be unloaded again, making all referenced to memory allocated in the library
   invalid.
@@ -188,7 +188,13 @@ void QLibraryPrivate::killTimer()
 
   The shared object "mylib", which now acts as a component server, is guaranteed to
   provide a pointer to the correct interface type, so that it becomes safe to use
-  unknown libraries in an application.
+  unknown libraries in an application. Since the lifetime of the interface is reference
+  controlled it is also impossible to unload the library when there are references to 
+  memory allocated in the library.
+
+  If provided by the component, QLibrary uses the QLibraryInterface implementation to
+  control the initializing and unloading of the library. For more information, see the
+  implementation of this interface in the style plugins that ship with Qt.
 */
 
 /*!
@@ -201,7 +207,7 @@ void QLibraryPrivate::killTimer()
 
   \value Delayed  The library get's loaded as soon as needed and unloaded in the destructor
   \value Immediately  The library is loaded immediately and unloaded in the destructor
-  \value Manual  Like delayed, and library has to be unloaded manually
+  \value Manual  Like delayed, but the library has to be unloaded manually using unload()
 */
 
 /*!
@@ -222,6 +228,8 @@ void QLibraryPrivate::killTimer()
   \endcode
 
   on Windows. But \e "mylib.dll" will obviously not work on other platforms.
+  If \a filename does not include a path, the library loader will look for 
+  the file in the platform specific search paths.
 
   \sa setPolicy(), unload()
 */
@@ -236,7 +244,8 @@ QLibrary::QLibrary( const QString& filename, Policy pol )
 
 /*!
   Deletes the QLibrary object.
-  The library will be unloaded if the policy is not Manual.
+  The library will be unloaded if the policy is not Manual, otherwise
+  it stays in memory until the application is exited.
 
   \sa unload(), setPolicy()
 */
@@ -348,8 +357,8 @@ void QLibrary::createInstanceInternal()
 
 /*!
   Returns the address of the exported symbol \a symb. The library gets
-  loaded if necessary. The function returns NULL if the symbol could
-  not be resolved, or if loading the library failed.
+  loaded if necessary. The function returns a null pointer if the symbol 
+  could not be resolved or the library could not be loaded.
 
   \code
   typedef int (*addProc)( int, int );
@@ -386,10 +395,10 @@ void *QLibrary::resolve( const char* symb )
 
   Loads the library \a filename and returns the address of the exported symbol \a symb.
   Note that like for the constructor, \a filename does not need to include the (platform specific)
-  file extension. The library staying loaded until the process exits.
+  file extension. The library keeps loaded until the process exits.
 
-  The function returns a null pointer if the symbol could not be resolved or if loading
-  the library failed.
+  The function returns a null pointer if the symbol could not be resolved or the library could not
+  be loaded.
 */
 void *QLibrary::resolve( const QString &filename, const char *symb )
 {
@@ -416,35 +425,33 @@ bool QLibrary::load()
 }
 
 /*!
-  Releases the component and unloads the library when successful.
-  Returns TRUE if the library could be unloaded, otherwise FALSE.
-  If the component implements the QLibraryInterface, the cleanup()
-  function of this interface will be called. The unloading will be
-  cancelled if the subsequent call to canUnload() returns FALSE.
+  Unloads the library and returns TRUE if the library could be unloaded, 
+  otherwise returns FALSE.
 
-  This function gets called automatically in the destructor if
-  the policy is not Manual.
+  Any component referenced by the QLibrary object is being released before
+  the library is unloaded. If the component implements the QLibraryInterface, 
+  the \link QLibraryInterface::canUnload() canUnload() \endlink is called,
+  and unloaing will be cancelled if this function returns FALSE. If the call to
+  canUnload() returns TRUE, \link QLibraryInterface::cleanup() cleanup() \endlink 
+  gets called.
 
-  \warning
-  If \a force is set to TRUE, the library gets unloaded at any cost,
-  which is in most cases a segmentation fault, so you should know what
-  you're doing!
+  This function is called by the destructor if the policy is not Manual.
 
   \sa queryInterface(), resolve()
 */
-bool QLibrary::unload( bool force )
+bool QLibrary::unload()
 {
     if ( !d->pHnd )
 	return TRUE;
 
     if ( entry ) {
 	if ( d->libIface ) {
-	    d->libIface->cleanup();
-
 	    bool can = d->libIface->canUnload();
+	    if ( can )
+		d->libIface->cleanup();
 	    can = ( d->libIface->release() <= 1 ) && can;
 	    // the "entry" member must be the last reference to the component
-	    if ( can || force ) {
+	    if ( can ) {
 		d->libIface = 0;
 	    } else {
 #if defined(QT_DEBUG_COMPONENT)
@@ -459,12 +466,8 @@ bool QLibrary::unload( bool force )
 #if defined(QT_DEBUG_COMPONENT)
 	    qWarning( "%s is still in use!", library().latin1() );
 #endif
-	    if ( force ) {
-		delete entry;
-	    } else {
-		entry->addRef();
-		return FALSE;
-	    }
+	    entry->addRef();
+	    return FALSE;
 	}
 	d->killTimer();
 
