@@ -190,14 +190,14 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << "\n\t"
 	      << "$(LINK) " << incr_lflags << " -o "<< incr_target_dir << " $(OBJECTS) $(OBJMOC)" << endl;
 	    //real target
-	    QString objs = "$(INCREMENTAL_OBJECTS) $(LIBS)";
-	    t << var("TARGET") << ": " << incr_target_dir << " " << objs << "\n\t";
+	    QString objs = "$(INCREMENTAL_OBJECTS)";
+	    t << var("TARGET") << ": " << incr_target_dir << " " << objs << var("TARGETDEPS") << "\n\t";
 	    if(!destdir.isEmpty()) {
 		t << "[ -d " << destdir << " ] || mkdir -p " << destdir << "\n\t";
 		objs += " -L" + destdir;
 	    }
 	    objs += " -l" + incr_target;
-	    t << "$(LINK) $(LFLAGS) -o $(TARGET) " << objs << endl << endl;
+	    t << "$(LINK) $(LFLAGS) -o $(TARGET) " << objs << " $(LIBS)" << endl << endl;
 	} else {
 	    t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t";
 	    if(!destdir.isEmpty())
