@@ -282,4 +282,5 @@ bool QArchive::readArchive( QString outpath )
 	    }
 	}
     }
+    return TRUE;
 }
