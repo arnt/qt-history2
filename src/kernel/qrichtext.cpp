@@ -1089,6 +1089,7 @@ void QTextDocument::setRichText( const QString &text, const QString &context )
 		    NEWPAR;
 		}  else if ( tagname == "hr" ) {
 		    emptyTag = TRUE;
+		    custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag, this );
 		    NEWPAR;
 		} else if ( tagname == "table" ) {
 		    QTextFormat format = curtag.format.makeTextFormat(  nstyle, attr );
