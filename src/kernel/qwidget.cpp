@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#168 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#169 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#168 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#169 $");
 
 
 /*!
@@ -1490,23 +1490,24 @@ void QWidget::setFocus()
     if ( testWFlags(WFocusSet) || !(isFocusEnabled() && isEnabled()) )
 	return;
     setWFlags( WFocusSet );
-    QWidget *w;
-    bool sameTLW = FALSE;
-    if ( (w = qApp->focusWidget()) ) {		// goodbye to old focus widget
-	sameTLW = w->topLevelWidget() == topLevelWidget();
-	if ( sameTLW )
-	    w->clearWFlags( WFocusSet );
+    QWidget *ow = topLevelWidget();
+    QWidget *fw = qApp->focusWidget();
+    bool sameTLW = fw && (fw->topLevelWidget() == ow);
+    
+    while ( ow->focusChild ) {			// reset focus chain
+	QWidget *fc =  ow->focusChild;
+	ow->focusChild = 0;
+	ow = fc;
+    }
+    ow->clearWFlags( WFocusSet );
+    
+    if ( sameTLW ) {				// goodbye to old focus widget
 	qApp->focus_widget = 0;
 	QFocusEvent out( Event_FocusOut );
-	QApplication::sendEvent( w, &out );
+	QApplication::sendEvent( ow, &out );
     }
-    w = topLevelWidget();
-    while ( w->focusChild ) {			// reset focus chain
-	QWidget *fc =  w->focusChild;
-	w->focusChild = 0;
-	w = fc;
-    }
-    w = this;
+
+    QWidget *w = this;
     QWidget *p;
     while ( (p=w->parentWidget()) && !w->testWFlags(WType_TopLevel) ) {
 	p->focusChild = w;			// build new focus chain
@@ -1522,14 +1523,11 @@ void QWidget::setFocus()
 /*!
   Takes keyboard input focus from the widget.
 
-  A \link focusOutEvent() focus out event\endlink is sent to this
-  widget to tell it that it is about to loose the focus.
+  If the widget has focus, a \link focusOutEvent() focus out event\endlink
+  is sent to this widget to tell it that it is about to loose the focus.
 
   This widget must enable focus setting in order to get the keyboard input
   focus, i.e. it must call setFocusPolicy().
-
-  \warning If you call clearFocus() in a function which may itself be
-  called from focusOutEvent(), you may see infinite recursion.
 
   \sa hasFocus(), setFocus(), focusInEvent(), focusOutEvent(),
   setFocusPolicy(), QApplication::focusWidget()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#62 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#61 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#62 $");
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
@@ -541,15 +541,15 @@ void QWidget::show()
 
 void QWidget::hide()
 {
-    if ( testWFlags(WFocusSet) )
-	clearFocus();
+    if ( testWFlags(WFocusSet) || focusChild ) {
+	QWidget *w = this;
+	while ( w->focusChild )			// descend focus chain
+	    w = w->focusChild;
+	w->clearFocus();
+    }
     setWFlags( WState_DoHide );
-    if ( !testWFlags(WState_Visible) )		// not visible
+    if ( !testWFlags(WState_Visible) )
 	return;
-    if ( qApp->focus_widget == this )
-	qApp->focus_widget = 0;			// reset focus widget
-    if ( parentWidget() && parentWidget()->focusChild == this )
-	parentWidget()->focusChild = 0;
     if ( testWFlags(WType_Modal) )
 	qt_leave_modal( this );
     else if ( testWFlags(WType_Popup) )
