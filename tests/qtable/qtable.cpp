@@ -676,7 +676,7 @@ bool QTable::selection( int num, int &topRow, int &leftCol, int &bottomRow, int 
 	topRow = leftCol = bottomRow = rightCol = -1;
 	return FALSE;
     }
-    
+
     SelectionRange *s = selections.at( num );
     topRow = s->topRow;
     leftCol = s->leftCol;
@@ -830,7 +830,7 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 			item->row == curRow && item->col == curCol ) ||
 		      ( item->editType() == QTableItem::Always ) ) && o == item->lastEditor ) {
 	    QKeyEvent *ke = (QKeyEvent*)e;
-	    if ( ( ke->state() & ControlButton ) == ControlButton || 
+	    if ( ( ke->state() & ControlButton ) == ControlButton ||
 		 ( ke->key() != Key_Left && ke->key() != Key_Right && ke->key() != Key_Up &&
 		   ke->key() != Key_Down && ke->key() != Key_Prior && ke->key() != Key_Next &&
 		   ke->key() != Key_Home && ke->key() != Key_End ) )
@@ -1028,11 +1028,11 @@ void QTable::columnWidthChanged( int col, int, int )
 	}
     }
 
-    if ( curCol == col ) {
+    if ( curCol >= col ) {
 	item = cellContent( curRow, curCol );
 	if ( item && item->editType() == QTableItem::OnCurrent && item->lastEditor ) {
-	    moveChild( item->lastEditor, columnPos( col ) - 1, rowPos( curRow ) - 1 );
-	    item->lastEditor->resize( columnWidth( col ) + 1, rowHeight( curRow ) + 1 );
+	    moveChild( item->lastEditor, columnPos( curCol ) - 1, rowPos( curRow ) - 1 );
+	    item->lastEditor->resize( columnWidth( curCol ) + 1, rowHeight( curRow ) + 1 );
 	}
     }
 
@@ -1068,7 +1068,7 @@ void QTable::rowHeightChanged( int row, int, int )
 	}
     }
 
-    if ( curRow == row ) {
+    if ( curRow >= row ) {
 	item = cellContent( curRow, curCol );
 	if ( item && item->editType() == QTableItem::OnCurrent && item->lastEditor ) {
 	    moveChild( item->lastEditor, columnPos( curCol ) - 1, rowPos( curRow ) - 1 );
@@ -1199,6 +1199,7 @@ int QTable::cols() const
 void QTable::setRows( int r )
 {
     if ( r > rows() ) {
+	clearSelection();
 	while ( rows() < r ) {
 	    leftHeader->addLabel( QString::number( rows() + 1 ) );
 	    leftHeader->resizeSection( rows() - 1, 20 );
@@ -1217,6 +1218,7 @@ void QTable::setRows( int r )
 void QTable::setCols( int c )
 {
     if ( c > cols() ) {
+	clearSelection();
 	while ( cols() < c ) {
 	    topHeader->addLabel( QString::number( cols() + 1 ) );
 	    topHeader->resizeSection( cols() - 1, 100 );
@@ -1759,9 +1761,9 @@ void QTableHeader::updateSelections()
 
     QTable::SelectionRange oldSelection = *table->currentSelection;
     if ( orientation() == Vertical )
-	table->currentSelection->expandTo( b, count() - 1 );
+	table->currentSelection->expandTo( b, table->horizontalHeader()->count() - 1 );
     else
-	table->currentSelection->expandTo( count() - 1, b );
+	table->currentSelection->expandTo( table->verticalHeader()->count() - 1, b );
     table->repaintSelections( &oldSelection, table->currentSelection,
 			      orientation() == Horizontal, orientation() == Vertical );
 }
