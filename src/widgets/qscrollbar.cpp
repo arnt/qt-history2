@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#37 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#36 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#37 $")
 
 
 /*----------------------------------------------------------------------------
@@ -637,7 +637,7 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 	    if ( controls & SUB_LINE ) {
 		drawWinPanel( p, subB.x(), subB.y(),
 			      subB.width(), subB.height(), g,
-			      ADD_LINE_ACTIVE );
+			      SUB_LINE_ACTIVE );
 		qDrawArrow( p, VERTICAL ? UpArrow : LeftArrow, WindowsStyle,
 			    SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
 			    subB.width()-4, subB.height()-4, g );

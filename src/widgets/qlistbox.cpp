@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#43 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#42 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#43 $")
 
 
 declare(QListM, QLBItem);
@@ -126,8 +126,19 @@ QListBox::QListBox( QWidget *parent, const char *name )
     setNumCols( 1 );
     setTableFlags( Tbl_smoothVScrolling );
     clearTableFlags( Tbl_clipCellPainting );
-    setFrameStyle( QFrame::Sunken | QFrame::Panel );
-    setLineWidth( 1 );
+    switch ( style() ) {
+	case WindowsStyle:
+	    setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
+	    setBackgroundColor( colorGroup().base() );
+	    break;
+	case MotifStyle:
+	    setFrameStyle( QFrame::Panel | QFrame::Sunken );
+	    setLineWidth( 1 );
+	    break;
+	default:
+	    setFrameStyle( QFrame::Panel | QFrame::Plain );
+	    setLineWidth( 1 );
+    }
 }
 
 /*----------------------------------------------------------------------------
@@ -1037,9 +1048,15 @@ void QListBox::paintCell( QPainter *p, int row, int column )
 
     QFontMetrics fm = fontMetrics();
     QColorGroup  g  = colorGroup();
+    GUIStyle	 gs = style();
+    QColor	 fc;				// fill color
+    if ( gs == WindowsStyle )
+	fc = darkBlue;				// !!!hardcoded
+    else
+	fc = g.text();
     if ( current == row ) {
-	p->fillRect( 0, 0, cellWidth( column ), cellHeight( row ), g.text() );
-	p->setPen( g.background() );
+	p->fillRect( 0, 0, cellWidth( column ), cellHeight( row ), fc );
+	p->setPen( backgroundColor() );
     } else {
 	p->setPen( g.text() );
     }
