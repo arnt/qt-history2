@@ -5,12 +5,11 @@
 #include "qfontdatabase.h"
 #include "qfontmetrics.h"
 #include "qfontinfo.h"
-#include "qstrlist.h"
-#include "qutfcodec.h"
 #include "qt_mac.h"
 #include "qpaintdevice.h"
-#include "qpainter.h"
 #include <qdict.h>
+#include <qapplication.h>
+#include <qpainter.h>
 
 /* utility functions */
 static bool qstring_to_pstring( QString s, int len, Str255 str, TextEncoding encoding )
@@ -397,6 +396,8 @@ void QFont::initialize()
     if(!QFontPrivate::fontCache)
 	QFontPrivate::fontCache = new QFontCache();
     Q_CHECK_PTR( QFontPrivate::fontCache );
+    if(qApp)
+	qApp->setFont(QFont("Helvetica", 14));
 }
 
 void QFont::setPixelSizeFloat( float pixelSize )
