@@ -1435,6 +1435,8 @@ void QTextEdit::imEndEvent( QIMEvent *e )
 }
 
 
+static bool qtextedit_ignore_readonly = FALSE;
+
 /*!
   Executes keyboard action \a action. This is normally called by
   a key event handler.
@@ -1442,7 +1444,7 @@ void QTextEdit::imEndEvent( QIMEvent *e )
 
 void QTextEdit::doKeyboardAction( KeyboardAction action )
 {
-    if ( isReadOnly() )
+    if ( isReadOnly() && !qtextedit_ignore_readonly )
 	return;
 
     if ( cursor->nestedDepth() != 0 ) // #### for 3.0, disable editing of tables as this is not advanced enough
@@ -2733,12 +2735,14 @@ void QTextEdit::insertParagraph( const QString &text, int para )
     cursor->setParagraph( p );
     cursor->setIndex( 0 );
     clearUndoRedo();
+    qtextedit_ignore_readonly = TRUE;
     if ( append && cursor->paragraph()->length() > 1 ) {
 	cursor->setIndex( cursor->paragraph()->length() - 1 );
 	doKeyboardAction( ActionReturn );
     }
     insert( text, FALSE, TRUE, TRUE );
     doKeyboardAction( ActionReturn );
+    qtextedit_ignore_readonly = FALSE;
 
     drawCursor( FALSE );
     *cursor = old;
