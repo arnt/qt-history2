@@ -288,11 +288,11 @@ void QTableItem::setSpan( int rs, int cs )
 	    for ( int c = 0; c < colspan; ++c ) {
 		if ( r == 0 && c == 0 )
 		    continue;
-		table()->clearCell( row, col );
+		table()->clearCell( r + row, c + col );
 	    }
 	}
     }
-    
+
     rowspan = rs;
     colspan = cs;
 
@@ -608,21 +608,20 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    int colp, colw;
 	    colp = columnPos( c );
 	    colw = columnWidth( c );
-
+	    int oldrp = rowp;
+	    int oldrh = rowh;
+	    
 	    QTableItem *item = cellContent( r, c );
-	    if ( item ) {
-		if ( item->row != r ) {
-		    rowp = rowPos( item->row );
-		    rowh = 0;
-		    for ( int i = 0; i < r - item->row + 1; ++i )
-			rowh += rowHeight( i + item->row );
-		}
-		if ( item->col != c ) {
-		    colp = columnPos( item->col );
-		    colw = 0;
-		    for ( int i = 0; i < c - item->col + 1; ++i )
-			colw += columnWidth( i + item->col );
-		}
+	    if ( item && 
+		 ( item->colSpan() > 1 || item->rowSpan() > 1 ) ) {
+		rowp = rowPos( item->row );
+		rowh = 0;
+		for ( int i = 0; i < item->rowSpan(); ++i )
+		    rowh += rowHeight( i + item->row );
+		colp = columnPos( item->col );
+		colw = 0;
+		for ( int i = 0; i < item->colSpan(); ++i )
+		    colw += columnWidth( i + item->col );
 	    }
 	
 	    // Translate painter and draw the cell
@@ -630,6 +629,9 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    p->translate( colp, rowp );
 	    paintCell( p, r, c, QRect( colp, rowp, colw, rowh ), isSelected( r, c ) );
 	    p->restoreWorldMatrix();
+	    
+	    rowp = oldrp;
+	    rowh = oldrh;
 	}
     }
 
@@ -1544,15 +1546,10 @@ QRect QTable::cellGeometry( int row, int col ) const
     QRect rect( columnPos( col ), rowPos( row ),
 		columnWidth( col ), rowHeight( row ) );
 	
-    for ( int r = 0; r < item->rowSpan(); ++r ) {
-	if ( r != 0 )
+    for ( int r = 1; r < item->rowSpan(); ++r )
 	    rect.setHeight( rect.height() + rowHeight( r + row ) );
-	for ( int c = 0; c < item->colSpan(); ++c ) {
-	    if ( r == 0 && c == 0 )
-		continue;
-	    rect.setWidth( rect.width() + columnWidth( c + col ) );
-	}
-    }
+    for ( int c = 1; c < item->colSpan(); ++c )
+	rect.setWidth( rect.width() + columnWidth( c + col ) );
 
     return rect;
 }
