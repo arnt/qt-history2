@@ -54,7 +54,7 @@ public:
     QString(const QString &);
     ~QString();
     QString &operator=(QChar c);
-    inline QString &operator=(const QString &);
+    QString &operator=(const QString &);
     inline QString &operator=(const QLatin1String &);
 
     inline int size() const { return d->size; }
