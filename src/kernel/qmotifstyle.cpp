@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#31 $
 **
 ** Implementation of Motif-like style class
 **
@@ -481,7 +481,7 @@ void QMotifStyle::drawTab( QPainter* p, const QTabBar* tb, QTab* t , bool select
 	}
 
 	if ( selected ) {
-	    p->fillRect( QRect( r.left()+1, r.bottom()-1, r.width()-3, o?2:1),
+	    p->fillRect( QRect( r.left()+1, r.bottom()-o, r.width()-3, 2),
 			 tb->palette().normal().brush( QColorGroup::Background ));
  	    p->setPen( tb->colorGroup().background() );
 // 	    p->drawLine( r.left()+1, r.bottom(), r.right()-2, r.bottom() );
