@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#123 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#124 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#123 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#124 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -172,12 +172,13 @@ bool QWidget::create()
 	v.bit_gravity = NorthWestGravity;	// don't erase when resizing
 	XChangeWindowAttributes( dpy, id, CWBitGravity, &v );
     }
+    setWFlags( WMouseTracking );
     setMouseTracking( FALSE );			// also sets event mask
     if ( desktop ) {
 	setWFlags( WState_Visible );
     } else if ( topLevel ) {			// set X cursor
-	QCursor *appc = QApplication::cursor();
-	XDefineCursor( dpy, ident, appc ? appc->handle() : curs.handle() );
+	QCursor *oc = QApplication::overrideCursor();
+	XDefineCursor( dpy, ident, oc ? oc->handle() : curs.handle() );
 	setWFlags( WCursorSet );
     }
     return TRUE;
@@ -382,14 +383,14 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
     setCursor( ibeamCursor );
   \endcode
 
-  \sa cursor()
+  \sa cursor(), QApplication::setOverrideCursor()
  ----------------------------------------------------------------------------*/
 
 void QWidget::setCursor( const QCursor &cursor )
 {
     curs = cursor;
-    QCursor *appc = QApplication::cursor();
-    XDefineCursor( dpy, ident, appc ? appc->handle() : curs.handle() );
+    QCursor *oc = QApplication::overrideCursor();
+    XDefineCursor( dpy, ident, oc ? oc->handle() : curs.handle() );
     setWFlags( WCursorSet );
     XFlush( dpy );
 }
@@ -445,26 +446,25 @@ void QWidget::setIconText( const char *iconText )
 }
 
 
-bool QWidget::setMouseTracking( bool enable )
+void QWidget::setMouseTracking( bool enable )
 {
-    bool v = testWFlags( WMouseTracking );
+    if ( enable == testWFlags(WMouseTracking) )
+	return;
     ulong m;
     if ( enable ) {
 	m = PointerMotionMask;
 	setWFlags( WMouseTracking );
-    }
-    else {
+    } else {
 	m = 0;
 	clearWFlags( WMouseTracking );
     }
     if ( testWFlags(WType_Desktop) ) {		// desktop widget?
 	if ( testWFlags(WPaintDesktop) )	// get desktop paint events
 	    XSelectInput( dpy, ident, ExposureMask );
-    }
-    else
+    } else {
 	XSelectInput( dpy, ident,		// specify events
 		      m | stdWidgetEventMask );
-    return v;
+    }
 }
 
 

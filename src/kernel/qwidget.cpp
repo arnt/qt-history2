@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#110 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#111 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#110 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#111 $")
 
 
 /*----------------------------------------------------------------------------
@@ -948,28 +948,35 @@ const char *QWidget::iconText() const
 
 
 /*----------------------------------------------------------------------------
-  \fn bool QWidget::setMouseTracking( bool enable )
-  Enables or disables mouse tracking and returns the previous setting.
+  \fn bool QWidget::hasMouseTracking() const
+  Returns TRUE if mouse tracking is enabled for this widget, or FALSE
+  if mouse tracking is disabled.
+  \sa setMouseTracking()
+ ----------------------------------------------------------------------------*/
 
-  If mouse tracking is disabled (default), the widget only receives
+/*----------------------------------------------------------------------------
+  \fn void QWidget::setMouseTracking( bool enable )
+  Enables mouse tracking if \e enable is TRUE, or disables it if \e enable
+  is FALSE.
+
+  If mouse tracking is disabled (default), this widget only receives
   mouse move events when at least one mouse button is pressed down while
   the mouse is being moved.
 
-  If mouse tracking is enabled, the widget receives mouse move events
+  If mouse tracking is enabled, this widget receives mouse move events
   even if no buttons are pressed down.
 
-  \sa mouseMoveEvent()
+  \sa hasMouseTracking(), mouseMoveEvent()
  ----------------------------------------------------------------------------*/
 
 #if !defined(_WS_X11_)
-bool QWidget::setMouseTracking( bool enable )
+void QWidget::setMouseTracking( bool enable )
 {
-    bool v = testWFlags( WMouseTracking );
     if ( enable )
 	setWFlags( WMouseTracking );
     else
 	clearWFlags( WMouseTracking );
-    return v;
+    return;
 }
 #endif // _WS_X11_
 

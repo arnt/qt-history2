@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#74 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#75 $
 **
 ** Definition of QWidget class
 **
@@ -109,7 +109,8 @@ public:
     const char  *iconText()	const;
     void    	 setIconText( const char * );
 
-    bool	 setMouseTracking( bool enable );
+    bool	 hasMouseTracking() const;
+    void	 setMouseTracking( bool enable );
 
   // Keyboard input focus functions
 
@@ -333,6 +334,9 @@ inline QFontMetrics QWidget::fontMetrics() const
 
 inline QFontInfo QWidget::fontInfo() const
 { return QFontInfo(this); }
+
+inline bool QWidget::hasMouseTracking() const
+{ return testWFlags(WMouseTracking); }
 
 inline bool QWidget::isUpdatesEnabled() const
 { return !testWFlags(WState_DisUpdates); }
