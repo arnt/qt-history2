@@ -476,10 +476,11 @@ void QWizard::setBackEnabled( QWidget * page, bool enable )
 
 
 /*!
-    If \a enable is TRUE, page \a page has a Next button; otherwise \a
-    page has no Next button.
-  By default all pages have this button.
+    If \a enable is TRUE, page \a page has a Next button; otherwise
+    the Next button on \a page is disabled. By default all pages have
+    this button.
 */
+
 void QWizard::setNextEnabled( QWidget * page, bool enable )
 {
     QWizardPrivate::Page * p = d->page( page );

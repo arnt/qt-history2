@@ -162,10 +162,10 @@ void QGridView::setCellHeight( int cellHeight )
     updateContents();
 }
 
-/*!  
+/*!
   Returns the geometry of cell (\a row, \a column) in the content
   coordinate system.
-  
+
   \sa cellRect()
  */
 QRect QGridView::cellGeometry( int row, int column )
@@ -255,7 +255,7 @@ void QGridView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     for ( int r = rowfirst; r <= rowlast; ++r ) {
 	// get row position and height
 	int rowp = r * cellh;
-	
+
 	// Go through the columns in the row r
 	// if we know from where to where, go through [colfirst, collast],
 	// else go through all of them
@@ -311,7 +311,7 @@ void QGridView::dimensionChange( int, int ) {}
 /*!
   \fn void QGridView::paintCell( QPainter *p, int row, int col )
 
-  This pure virtual function is called to paint the single cell at 
+  This pure virtual function is called to paint the single cell at
   (\a row, \a col) using painter \a p. The painter must be open when
   paintCell() is called and must remain open.
 
@@ -325,7 +325,7 @@ void QGridView::dimensionChange( int, int ) {}
   efficiency. If you want clipping, use
 
   \code
-    p->setClipRect( cellRect(), QPainter::ClipPainter );
+    p->setClipRect( cellRect(), QPainter::CoordPainter );
     //... your drawing code
     p->setClipping( FALSE );
 
@@ -338,7 +338,7 @@ void QGridView::dimensionChange( int, int ) {}
   Returns the geometry of a cell in a cell's coordinate system. This
   is a convenience function useful in paintCell(). It is equivalent to
   QRect( 0, 0, cellWidth(), cellHeight() ).
-  
+
   \sa cellGeometry()
 
  */

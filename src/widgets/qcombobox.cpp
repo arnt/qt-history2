@@ -925,7 +925,7 @@ void QComboBox::setCurrentItem( int index )
 	return;
     }
 
-    if ( d->usingListBox() && !listBox()->item( index )->isSelectable() )
+    if ( d->usingListBox() && !( listBox()->item(index) && listBox()->item(index)->isSelectable() ) )
 	return;
 
     d->current = index;

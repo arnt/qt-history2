@@ -2564,7 +2564,7 @@ void qt_format_text( const QFont& font, const QRect &r,
     bool noaccel = ( tf & Qt::NoAccel ) == Qt::NoAccel;
 
     bool restoreClipping = FALSE;
-    if ( dontclip  && painter->hasClipping() ){
+    if ( painter && dontclip  && painter->hasClipping() ){
 	painter->save();
 	restoreClipping = TRUE;
 	painter->setClipping( FALSE );
@@ -2672,7 +2672,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    if ( !dontclip )
     		painter->restore();
 	}
-	if ( restoreClipping )
+	if ( painter && restoreClipping )
 	    painter->restore();
 	return;
     }

@@ -3381,13 +3381,27 @@ bool QCanvasView::setWorldMatrix( const QWMatrix & wm )
 void QCanvasView::updateContentsSize()
 {
     if ( viewing ) {
+	QRect br;
 #ifndef QT_NO_TRANSFORMATIONS
-	QRect br = d->xform.map(QRect(0,0,viewing->width(),viewing->height()));
-	resizeContents(br.width(),br.height());
+	br = d->xform.map(QRect(0,0,viewing->width(),viewing->height()));
 #else
-	resizeContents(viewing->width(),viewing->height());
+	br = QRect(0,0,viewing->width(),viewing->height());
 #endif
+
+	if ( br.width() < contentsWidth() ) {
+	    QRect r(contentsToViewport(QPoint(br.width(),0)),
+		    QSize(contentsWidth()-br.width(),contentsHeight()));
+	    viewport()->erase(r);
+	}
+	if ( br.height() < contentsHeight() ) {
+	    QRect r(contentsToViewport(QPoint(0,br.height())),
+		    QSize(contentsWidth(),contentsHeight()-br.height()));
+	    viewport()->erase(r);
+	}
+
+	resizeContents(br.width(),br.height());
     } else {
+	viewport()->erase();
 	resizeContents(1,1);
     }
 }
