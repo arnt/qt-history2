@@ -681,7 +681,7 @@ void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
 void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
 {
     d->dragging = true;
-    if (d->sliderpressed) {
+    if (d->sliderpressed && d->useprivate) {
         d->setValue(d->valueForPosition(e->pos().x()), EmitIfChanged);
     } else {
         QWidget::mouseMoveEvent(e);
@@ -702,37 +702,31 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
                                        QStyle::SC_SpinBoxUp, this).contains(p)) {
 	if (e->button() != Qt::LeftButton || !(se & StepUpEnabled) || d->buttonstate != None) {
 	    e->accept();
-	    return;
+	} else {
+	    d->spinclicktimerid = startTimer(d->spinclicktimerinterval);
+	    d->buttonstate = (Mouse | Up);
+	    stepBy(1);
 	}
-	d->spinclicktimerid = startTimer(d->spinclicktimerinterval);
-	d->buttonstate = (Mouse | Up);
-	stepBy(1);
-        return;
-    }
-    if (style().querySubControlMetrics(QStyle::CC_SpinBox, &sb,
-                                       QStyle::SC_SpinBoxDown, this).contains(p)) {
+    } else if (style().querySubControlMetrics(QStyle::CC_SpinBox, &sb,
+					      QStyle::SC_SpinBoxDown, this).contains(p)) {
 	if (e->button() != Qt::LeftButton || !(se & StepDownEnabled) || d->buttonstate != None) {
 	    e->accept();
-	    return;
+	} else {
+	    d->spinclicktimerid = startTimer(d->spinclicktimerinterval);
+	    d->buttonstate = (Mouse | Down);
+	    stepBy(-1);
 	}
-	d->spinclicktimerid = startTimer(d->spinclicktimerinterval);
-	d->buttonstate = (Mouse | Down);
-	stepBy(-1);
-        return;
-    }
-
-    if (d->slider && style().querySubControlMetrics(QStyle::CC_SpinBox, &sb,
-                                                    QStyle::SC_SpinBoxSlider, this).contains(p)) {
+    } else if (d->slider && style().querySubControlMetrics(QStyle::CC_SpinBox, &sb,
+							   QStyle::SC_SpinBoxSlider, this).contains(p)) {
         if (e->button() != Qt::LeftButton || d->buttonstate != None) {
 	    e->accept();
-	    return;
+	} else {
+	    d->sliderpressed = true;
+	    d->setValue(d->valueForPosition(e->pos().x()), EmitIfChanged);
 	}
-        d->sliderpressed = true;
-        d->setValue(d->valueForPosition(e->pos().x()), EmitIfChanged);
-        return;
+    } else {
+	QWidget::mousePressEvent(e);
     }
-
-    QWidget::mousePressEvent(e);
 }
 
 /*!
@@ -741,7 +735,7 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
 void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *e)
 {
     d->dragging = d->sliderpressed = false;
-    if (d->buttonstate & Mouse) {
+    if ((d->buttonstate & Mouse) != 0) {
 	d->resetState();
     } else {
 	e->ignore();
@@ -792,7 +786,7 @@ void QAbstractSpinBoxPrivate::strip(QString *text) const
 
 bool QAbstractSpinBoxPrivate::specialValue() const
 {
-    return (value == minimum && specialvaluetext.size());
+    return (value == minimum && specialvaluetext.size() > 0);
 }
 
 /*!
