@@ -673,8 +673,12 @@ QTextCodec* findcharset(const QCString& mimetype)
 	i = cs.find(';');
 	if ( i >= 0 )
 	    cs = cs.left(i);
+	// win98 often has charset=utf16, and we need to get the correct codec for
+	// it to be able to get Unicode text drops.
+	if ( cs == "utf16" )
+	    cs = "ISO-10646-UCS-2";
 	// May return 0 if unknown charset
-	return QTextCodec::codecForName(cs,cs.length()*3/4);
+	return QTextCodec::codecForName(cs);
     }
     // no charset=, use locale
     return QTextCodec::codecForLocale();
