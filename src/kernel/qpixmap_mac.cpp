@@ -385,13 +385,9 @@ void scaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 		   const QPaintDevice *src, int sx, int sy, int sw, int sh, 
 		   Qt::RasterOp rop, bool imask);
 
+QWidget *oinko = NULL;
 QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 {
-#if 0
-    qDebug("Grr.. I really need to work on this function..");
-    return *this;
-#endif
-
     int	   w, h;				// size of target pixmap
     int	   ws, hs;				// size of source pixmap
     uchar *dptr;				// data in target pixmap
@@ -724,13 +720,11 @@ void QPixmap::setOptimization( Optimization  )
 QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 {
     QPixmap pm;
-#if 0     //FIXME FIXME FIXME, THIS DOES NOT WORK FIXME!
     QWidget *widget = QWidget::find( window );
     if ( widget ) {
 	pm = QPixmap(w, h, 32);
 	bitBlt(&pm, 0, 0, widget, x, y, w, h);
     }
-#endif
     return pm;
 }
 
