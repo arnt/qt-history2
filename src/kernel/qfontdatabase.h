@@ -124,7 +124,7 @@ private:
 
     static void parseFontName(const QString &name, QString &foundry, QString &family);
 
-    friend class QFontDef;
+    friend struct QFontDef;
     friend class QFontPrivate;
     friend class QFontDialog;
     friend class QFontEngineLatinXLFD;
