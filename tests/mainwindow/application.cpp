@@ -54,7 +54,7 @@ ApplicationWindow::ApplicationWindow()
     : QMainWindow( 0, "example application main window", WDestructiveClose )
 {
     // Toolbars
-    
+
     QFile f( ".tbconfig" );
     bool tbconfig = f.open( IO_ReadOnly );
     QMap< QString, int > docks;
@@ -65,13 +65,13 @@ ApplicationWindow::ApplicationWindow()
 	s >> indices;
     }
 
-    QString toolBars[] = { 
+    QString toolBars[] = {
 	"file operations",
 	"file2 operations",
 	"file3 operations",
 	"file4 operations"
-    };			     
-    
+    };			
+
     if ( tbconfig ) {
 	QMap< QString, int >::Iterator dit, iit;
 	dit = docks.begin();
@@ -84,7 +84,7 @@ ApplicationWindow::ApplicationWindow()
 	for ( unsigned int i = 0; i < 4; ++i )
 	    createToolbar( toolBars[ i ] );
     }
-    
+
     // Menus:
 
     QPixmap openIcon, saveIcon, printIcon;
@@ -234,7 +234,7 @@ QToolBar* ApplicationWindow::createToolbar( const QString &name )
 	addToolBar( fileTools4, "FILETOOLS2", Top, FALSE );
 	return fileTools4;
     }
-    
+
     return 0;
 }
 

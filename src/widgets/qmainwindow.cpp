@@ -188,7 +188,7 @@ public:
     QMainWindow::ToolBarDock origDock, oldDock;
     int oldiPos;
     QToolBar *oldCovering;
-    
+
     QMap< int, bool > dockable;
 };
 
@@ -831,6 +831,12 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 	    if ( i > (int)dl->count() )
 		i = dl->count();
 	    dl->insert( i, ct );
+	    if ( !after && (int)dl->count() > i + 1 && dl->at( i + 1 )->nl ) {
+		dl->at( i + 1 )->nl = FALSE;
+		dl->at( i )->nl = TRUE;
+	    }
+	    if ( after && ct->nl )
+		ct->nl = FALSE;
 	}
     } else {
 	addToolBar( toolBar, edge, nl );
