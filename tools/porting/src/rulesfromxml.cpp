@@ -70,8 +70,7 @@ void RulesFromXml::parseXml()
         QtSimpleXml &currentRule = xml["Rules"][rule];
         
         if(currentRule.attribute("Type")=="RenamedHeader") {
-             cout <<" rename header "<<  currentRule["Qt3"].text().latin1()<<endl;
-             tokenRules.append(new IncludeTokenReplacement(
+                      tokenRules.append(new IncludeTokenReplacement(
                      currentRule["Qt3"].text().latin1(),
                      currentRule["Qt4"].text().latin1()));
         } 
