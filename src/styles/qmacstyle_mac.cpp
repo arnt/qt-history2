@@ -53,6 +53,7 @@
 #include <qcombobox.h>
 #include <qdrawutil.h>
 #include <qlineedit.h>
+#include <qregexp.h>
 #include "qwidgetlist.h"
 #include "private/qaquastyle_p.h"
 
@@ -331,8 +332,21 @@ void QMacStyle::drawItem( QPainter *p, const QRect &r,
 			   int len, const QColor* penColor ) const
 {
     //No accelerators drawn here!
+#if 0
+    int bkup = 0;
+    QString rt = text;
+    for(uint i = 0; i < rt.length(); i++) {
+	if(rt[i] == '&' && rt[i+1] != '&')
+	    bkup++;
+	else
+	    rt[i-bkup] = rt[i];
+    }
+    len = (len < 0) ? rt.length() - bkup : len - bkup;
+    QWindowsStyle::drawItem( p, r, flags, g, enabled, pixmap, rt, len, penColor );
+#else
     QWindowsStyle::drawItem( p, r, flags | NoAccel, g, enabled, pixmap, text,
 			     len, penColor );
+#endif
 }
 
 /*! \reimp */

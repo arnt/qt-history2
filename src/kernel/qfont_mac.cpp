@@ -40,11 +40,14 @@
 #include <qapplication.h>
 #include <qpainter.h>
 
+#ifdef Q_WS_MACX
+//# define QMAC_FONT_ANTIALIAS
+#endif
+
 /*****************************************************************************
   QFont debug facilities
  *****************************************************************************/
 //#define DEBUG_FONTMETRICS
-//#define QMAC_FONT_ANTIALIAS
 
 #ifdef DEBUG_FONTMETRICS
 #include <qregexp.h>
