@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#37 $
 **
 ** Implementation of layout classes
 **
@@ -691,7 +691,7 @@ QHBoxLayout::~QHBoxLayout()
 /*!
   \class QVBoxLayout qlayout.h
 
-  \brief The QHBoxLayout class lines up child widgets vertically.
+  \brief The QVBoxLayout class lines up child widgets vertically.
 
   \ingroup geomanagement
 
