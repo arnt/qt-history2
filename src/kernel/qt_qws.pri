@@ -106,7 +106,7 @@ embedded {
 	PRECOMPH=$$QT_SOURCE_TREE/include/qt.h
 	INCLUDEPATH += 3rdparty/freetype2/include 
 
-	qnx { 
+	qnx6 { 
 		HEADERS += $$KERNEL_H/qwsgfx_qnx6.h
 		SOURCES += $$KERNEL_CPP/qwskeyboard_qnx.cpp \
 			   $$KERNEL_CPP/qwsmouse_qnx.cpp \
