@@ -3147,7 +3147,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	    if ( locker.mutex() ) locker.mutex()->lock();
 #endif // QT_THREAD_SUPPORT
 	    if (backup != postEventCounter) // events got posted or removed ...
-		i = skipSafely = 0; // ... so start all over again.
+		i = skipSafely; // ... so start all over again.
 
 	    delete e;
 	    // careful when adding anything below this point - the
