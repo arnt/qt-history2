@@ -478,26 +478,36 @@ void QPushButton::drawButton( QPainter *paint )
     if ( isDefault() || autoDefault() ) {
 	diw = style().buttonDefaultIndicatorWidth();
 	if ( diw > 0 ) {
-	    if ( parentWidget() && parentWidget()->backgroundPixmap() ){
+	    if (backgroundMode() == X11ParentRelative) {
+		erase( 0, 0, width(), diw );
+		erase( 0, 0, diw, height() );
+		erase( 0, height() - diw, width(), diw );
+		erase( width() - diw, 0, diw, height() );
+	    } else if ( parentWidget() && parentWidget()->backgroundPixmap() ){
 		// pseudo tranparency
 		paint->drawTiledPixmap( 0, 0, width(), diw,
-				    *parentWidget()->backgroundPixmap(),
-				    x(), y() );
+					*parentWidget()->backgroundPixmap(),
+					x(), y() );
 		paint->drawTiledPixmap( 0, 0, diw, height(),
-				    *parentWidget()->backgroundPixmap(),
-				    x(), y() );
+					*parentWidget()->backgroundPixmap(),
+					x(), y() );
 		paint->drawTiledPixmap( 0, height()-diw, width(), diw,
-				    *parentWidget()->backgroundPixmap(),
-				    x(), y() );
+					*parentWidget()->backgroundPixmap(),
+					x(), y() );
 		paint->drawTiledPixmap( width()-diw, 0, diw, height(),
-				    *parentWidget()->backgroundPixmap(),
-				    x(), y() );
+					*parentWidget()->backgroundPixmap(),
+					x(), y() );
 	    } else {
-		paint->fillRect( 0, 0, width(), diw, colorGroup().brush(QColorGroup::Background) );
-		paint->fillRect( 0, 0, diw, height(), colorGroup().brush(QColorGroup::Background) );
-		paint->fillRect( 0, height()-diw, width(), diw, colorGroup().brush(QColorGroup::Background) );
-		paint->fillRect( width()-diw, 0, diw, height(), colorGroup().brush(QColorGroup::Background) );
+		paint->fillRect( 0, 0, width(), diw,
+				 colorGroup().brush(QColorGroup::Background) );
+		paint->fillRect( 0, 0, diw, height(),
+				 colorGroup().brush(QColorGroup::Background) );
+		paint->fillRect( 0, height()-diw, width(), diw,
+				 colorGroup().brush(QColorGroup::Background) );
+		paint->fillRect( width()-diw, 0, diw, height(),
+				 colorGroup().brush(QColorGroup::Background) );
 	    }
+	    
 	}
     }
 
