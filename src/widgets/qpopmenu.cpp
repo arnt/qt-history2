@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#44 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#43 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#44 $";
 #endif
 
 
@@ -676,7 +676,7 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
 	const char *t = strchr( s, '\t' );
 	int x = motifItemFrame + motifItemHMargin;
 	int m = motifItemVMargin;
-	const text_flags = AlignVCenter | ShowPrefix | DontClip;
+	const text_flags = AlignVCenter | ShowPrefix | DontClip | SingleLine;
 	if ( mi->isDisabled() )
 	    p->setPen( palette().disabled().text() );
 	if ( t ) {				// draw text before tab

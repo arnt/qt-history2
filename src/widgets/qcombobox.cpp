@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#13 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombobox.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombobox.cpp#13 $";
 #endif
 
 /*!
@@ -474,7 +474,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	QRect clip( 2, 2, xPos - 2 - 3, height() - 4 );
 	const char *tmp = d->popup->string( d->current );
 	if ( tmp ) {
-	    p.drawText( clip, AlignCenter | AlignVCenter, tmp );
+	    p.drawText( clip, AlignCenter | SingleLine, tmp );
 	} else {
 	    QPixmap *pix = d->popup->pixmap( d->current );
 	    if ( pix ) {
