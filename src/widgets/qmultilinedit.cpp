@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#130 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#131 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -151,7 +151,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 {
     mlData = new QMultiLineData;
     QFontMetrics fm( font() );
-    setCellHeight( fm.lineSpacing() + 1 );
+    setCellHeight( fm.lineSpacing() );
     setNumCols( 1 );
 
     setNumRows( 0 );
@@ -1896,7 +1896,7 @@ void QMultiLineEdit::setFont( const QFont &font )
 {
     QWidget::setFont( font );
     QFontMetrics fm( font );
-    setCellHeight( fm.lineSpacing() + 1 );
+    setCellHeight( fm.lineSpacing() );
     updateCellWidth();
 }
 
@@ -2146,7 +2146,7 @@ void QMultiLineEdit::setFixedVisibleLines( int lines )
 
 
     // #### What about auto-scrollbars?
-    int ls = fontMetrics().lineSpacing() + 1; // #### explain +1
+    int ls = fontMetrics().lineSpacing();
     setFixedHeight( frameWidth()*2 + ls*lines );
     return;
 }
