@@ -13,9 +13,9 @@
 #include <qdirectpainter_qws.h>
 #include <qapplication.h>
 
-class DirectPainerExample : public QWidget {
+class DirectPainterExample : public QWidget {
 public:
-    DirectPainerExample()
+    DirectPainterExample()
     {
 	startTimer(20);
     }
@@ -71,7 +71,7 @@ private:
 int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
-    DirectPainerExample m;
+    DirectPainterExample m;
     a.setMainWidget( &m );
     m.show();
     return a.exec();
