@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#95 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#96 $
 **
 ** Implementation of QMessageBox class
 **
@@ -1297,3 +1297,10 @@ void QMessageBoxLabel::initMetaObject()
 	0, 0 );
 }
 
+
+// My own personal favorite minimalist error message popped up whilst
+// testing Freehand 8 last month.  I took a screen shot.  I believe I
+// was trying to convert a file from one format to another.
+// Apparently, I...
+// 
+// http://www.people.cornell.edu/pages/mlj8/cant.gif

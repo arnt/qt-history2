@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#83 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -1195,10 +1195,10 @@ QByteArray QDragMoveEvent::encodedData( const char *format ) const
   potentially very slow, so it's advisable to call this function only
   if you're sure that you will need the data in \a format.
 
-  The resulting data will have a \link QByteArray::size() size\endlink
-  of 0 if the format was not available.
+  The resulting data will have a size of 0 if the format was not
+  available.
 
-  \sa QDragMoveEvent::encodedData() QDragMoveEvent::format()
+  \sa QDragMoveEvent::encodedData() QDragMoveEvent::format() QByteArray::size() 
 */
 
 QByteArray QDropEvent::encodedData( const char *format ) const
