@@ -490,6 +490,8 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     d = new QComboBoxData( this );
     setUpListBox();
 
+    if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup))
+	d->popup()->setItemChecked(d->current, FALSE);
     d->current = 0;
     d->maxCount = INT_MAX;
     setSizeLimit(10);
@@ -773,9 +775,9 @@ void QComboBox::removeItem( int index )
 	    d->updateLinedGeometry();
 	}
 	else {
-	    if ( d->usingListBox() )
+	    if ( d->usingListBox() ) {
 		d->current = d->listBox()->currentItem();
-	    else {
+	    } else {
 		if (d->current > count()-1 && d->current > 0)
 		    d->current--;
 	    }
@@ -808,6 +810,8 @@ void QComboBox::clear()
 	d->popup()->clear();
     }
 
+    if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup))
+	d->popup()->setItemChecked(d->current, FALSE);
     d->current = 0;
     if ( d->ed ) {
 	d->ed->setText( QString::fromLatin1("") );
@@ -953,6 +957,8 @@ void QComboBox::setCurrentItem( int index )
     if ( d->usingListBox() && !( listBox()->item(index) && listBox()->item(index)->isSelectable() ) )
 	return;
 
+    if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup))
+	d->popup()->setItemChecked(d->current, FALSE);
     d->current = index;
     d->completeAt = 0;
     if ( d->ed ) {
@@ -1029,6 +1035,8 @@ void QComboBox::internalActivate( int index )
 {
     if ( d->current != index ) {
 	if ( !d->usingListBox() || listBox()->item( index )->isSelectable() ) {
+	    if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup))
+		d->popup()->setItemChecked(d->current, FALSE);
 	    d->current = index;
 	    currentChanged();
 	}
@@ -1410,6 +1418,8 @@ void QComboBox::popup()
 		d->popup()->insertItem(new QComboBoxPopupItem(d->listBox()->item(i)), i, i);
 	}
 	d->popup()->installEventFilter( this );
+	if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup))
+	    d->popup()->setItemChecked(this->d->current, TRUE);
 	d->popup()->popup( mapToGlobal( QPoint(0,0) ), this->d->current );
     } else {
 	// Send all listbox events to eventFilter():
