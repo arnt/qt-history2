@@ -24,7 +24,7 @@ GameBoard::GameBoard( QWidget *parent, const char *name )
     quit = new QPushButton( "Quit", this, "quit" );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
 
-    connect( quit, SIGNAL(clicked()), qApp, SLOT(quitApp()) );
+    connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
 
     angle  = new LCDRange( "ANGLE", this, "angle" );
     angle->setRange( 5, 70 );
@@ -67,7 +67,7 @@ GameBoard::GameBoard( QWidget *parent, const char *name )
 
     QAccel *accel = new QAccel( this );
     accel->connectItem( accel->insertItem( Key_Space), this, SLOT(fire()) );
-    accel->connectItem( accel->insertItem( Key_Q), qApp, SLOT(quitApp()) );
+    accel->connectItem( accel->insertItem( Key_Q), qApp, SLOT(quit()) );
 
     quit->setGeometry( 10, 10, 75, 30 );
     angle->setGeometry( 10, quit->y() + quit->height() + 10, 75, 130 );

@@ -32,7 +32,7 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
     quit->setGeometry( 10, 10, 75, 30 );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
 
-    connect( quit, SIGNAL(clicked()), qApp, SLOT(quitApp()) );
+    connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
 
     lcd  = new QLCDNumber( 2, this, "lcd" );
     lcd->move( 10, quit->y() + quit->height() + 10 );

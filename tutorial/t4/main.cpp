@@ -26,7 +26,7 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
     quit->setGeometry( 62, 40, 75, 30 );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
 
-    connect( quit, SIGNAL(clicked()), qApp, SLOT(quitApp()) );
+    connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
 }
 
 

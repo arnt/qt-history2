@@ -35,7 +35,7 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
     quit = new QPushButton( "Quit", this, "quit" );
     quit->setGeometry( 10, 10, 75, 30 );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
-    connect( quit, SIGNAL(clicked()), qApp, SLOT(quitApp()) );
+    connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
 
     angle  = new LCDRange( this, "angle" );
     angle->setRange( 5, 70 );
