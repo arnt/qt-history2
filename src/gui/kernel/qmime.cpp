@@ -12,88 +12,18 @@
 ****************************************************************************/
 
 #include "qmime.h"
-
-#ifndef QT_NO_MIME
-
-#include "qmap.h"
-#include "qstringlist.h"
-#include "qfileinfo.h"
-#include "qdir.h"
-#include "qdragobject.h"
 #include "qpixmap.h"
-#include "qcleanuphandler.h"
+#include "qurl.h"
+#include "qlist.h"
+#include "qstring.h"
+#include "qmap.h"
 
-/*!
-    \class QMimeSource
-    \brief The QMimeSource class is an abstraction of objects which provide formatted data of a certain MIME type.
-
-    \ingroup io
-    \ingroup draganddrop
-    \ingroup misc
-
-    \link dnd.html Drag-and-drop\endlink and
-    \link QClipboard clipboard\endlink use this abstraction.
-
-    \sa \link http://www.isi.edu/in-notes/iana/assignments/media-types/
-            IANA list of MIME media types\endlink
-*/
-
-static int qt_mime_serial_number = 0;
-
-/*!
-    Constructs a mime source and assigns a globally unique serial
-    number to it.
-
-    \sa serialNumber()
-*/
-
-QMimeSource::QMimeSource()
-{
-    ser_no = qt_mime_serial_number++;
-    cacheType = NoCache;
-}
-
-/*!
-    \fn int QMimeSource::serialNumber() const
-
-    Returns the mime source's globally unique serial number.
-*/
+#include "private/qobject_p.h"
 
 
-void QMimeSource::clearCache()
-{
-    if (cacheType == Text) {
-        delete cache.txt.str;
-        delete cache.txt.subtype;
-        cache.txt.str = 0;
-        cache.txt.subtype = 0;
-    } else if (cacheType == Graphics) {
-        delete cache.gfx.img;
-        delete cache.gfx.pix;
-        cache.gfx.img = 0;
-        cache.gfx.pix = 0;
-    }
-    cacheType = NoCache;
-}
-
-/*!
-    Provided to ensure that subclasses destroy themselves correctly.
-*/
 QMimeSource::~QMimeSource()
 {
-    clearCache();
 }
-
-/*!
-    \fn QByteArray QMimeSource::encodedData(const char *format) const
-
-    Returns the encoded data of this object in the specified MIME
-    \a format.
-
-    Subclasses must reimplement this function.
-*/
-
-
 
 /*!
     Returns true if the object can provide the data in format \a
@@ -113,12 +43,132 @@ bool QMimeSource::provides(const char* mimeType) const
     return false;
 }
 
+class QMimeDataPrivate : public QObjectPrivate
+{
+public:
+    QString text;
+    QString html;
+    QPixmap pixmap;
+    QList<QUrl> urls;
 
-/*!
-    \fn const char * QMimeSource::format(int i) const
+    QMap<QString, QByteArray> data;
+};
 
-    Returns the \a{i}-th supported MIME format, or 0.
-*/
+QMimeData::QMimeData(QObject *parent)
+    : QObject(*new QMimeDataPrivate, parent)
+{
+}
 
+QMimeData::~QMimeData()
+{
+}
 
-#endif // QT_NO_MIME
+QList<QUrl> QMimeData::urls() const
+{
+    Q_D(const QMimeData);
+    if (!d->urls.isEmpty())
+        return d->urls;
+    // ########
+    return QList<QUrl>();
+}
+
+void QMimeData::setUrls(const QList<QUrl> &urls)
+{
+    Q_D(QMimeData);
+    d->urls = urls;
+}
+
+QString QMimeData::text() const
+{
+    Q_D(const QMimeData);
+    if (!d->text.isNull())
+        return d->text;
+    // ############
+    return QString();
+}
+
+void QMimeData::setText(const QString &text)
+{
+    Q_D(QMimeData);
+    d->text = text;
+}
+
+QString QMimeData::html() const
+{
+    Q_D(const QMimeData);
+    if (!d->html.isNull())
+        return d->html;
+    // ############
+    return QString();
+}
+
+void QMimeData::setHtml(const QString &html)
+{
+    Q_D(QMimeData);
+    d->html = html;
+}
+
+QPixmap QMimeData::pixmap() const
+{
+    Q_D(const QMimeData);
+    if (!d->pixmap.isNull())
+        return d->pixmap;
+    // ### try to decode
+    return QPixmap();
+}
+
+void QMimeData::setPixmap(const QPixmap &pixmap)
+{
+    Q_D(QMimeData);
+    d->pixmap = pixmap;
+}
+
+QByteArray QMimeData::data(const QString &mimetype) const
+{
+    Q_D(const QMimeData);
+    if (d->data.contains(mimetype))
+        return d->data.value(mimetype);
+
+    // #### match with known mimetypes and convert if needed
+    return QByteArray();
+}
+
+void QMimeData::setData(const QString &mimetype, const QByteArray &data)
+{
+    Q_D(QMimeData);
+    d->data[mimetype] = data;
+}
+
+bool QMimeData::hasFormat(const QString &mimetype) const
+{
+    Q_D(const QMimeData);
+    if (d->data.contains(mimetype))
+        return true;
+
+    return formats().contains(mimetype);
+}
+
+QStringList QMimeData::formats() const
+{
+    Q_D(const QMimeData);
+    QStringList formats = d->data.keys();
+
+    if (!d->text.isEmpty())
+        formats += QLatin1String("text/plain");
+    if (!d->html.isEmpty())
+        formats += QLatin1String("text/html");
+    if (!d->urls.isEmpty())
+        formats += QLatin1String("text/uri-list");
+    // ##### add keys for pixmaps
+    return formats;
+}
+
+void QMimeData::clear()
+{
+    Q_D(QMimeData);
+    d->text.clear();
+    d->html.clear();
+    d->pixmap = QPixmap();
+    d->urls.clear();
+    d->data.clear();
+}

@@ -14,8 +14,9 @@ HEADERS += \
 	kernel/qclipboard.h \
 	kernel/qcursor.h \
 	kernel/qdesktopwidget.h \
+	kernel/qdrag.h \
+	kernel/qdnd_p.h \
 	kernel/qdragobject.h \
-	kernel/qdragobject_p.h \
 	kernel/qevent.h \
 	kernel/qguieventloop.h\
 	kernel/qguieventloop_p.h \
@@ -43,6 +44,8 @@ SOURCES += \
 	kernel/qclipboard.cpp \
 	kernel/qcursor.cpp \
 	kernel/qdragobject.cpp \
+	kernel/qdrag.cpp \
+	kernel/qdnd.cpp \
 	kernel/qevent.cpp \
 	kernel/qguieventloop.cpp \
 	kernel/qkeysequence.cpp \

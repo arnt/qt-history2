@@ -16,6 +16,9 @@
 #include "qapplication.h"
 #include "qwidget.h"
 #include "qdebug.h"
+#include "qmime.h"
+#include "qdnd_p.h"
+
 /*!
     \class QInputEvent qevent.h
     \ingroup events
@@ -1755,9 +1758,10 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, c
     \warning Do not create a QDragMoveEvent yourself since these
     objects rely on Qt's internal state.
 */
-QDragMoveEvent::QDragMoveEvent(const QPoint& pos, Type type)
-    : QDropEvent(pos, type), rect(pos, QSize(1, 1))
+QDragMoveEvent::QDragMoveEvent(const QPoint& pos, const QMimeData *data, Type type)
+    : QDropEvent(pos, data, type), rect(pos, QSize(1, 1))
 {}
+
 
 /*!
     \fn void QDragMoveEvent::accept(bool y)
@@ -1804,9 +1808,89 @@ QDragMoveEvent::QDragMoveEvent(const QPoint& pos, Type type)
 */
 
 
-QDropEvent::QDropEvent(const QPoint& pos, Type typ)
-    : QEvent(typ), p(pos), act(0), accpt(0), accptact(0), resv(0)
+/*!
+    \class QDropEvent qevent.h
+    \ingroup events
+    \ingroup draganddrop
+
+    \brief The QDropEvent class provides an event which is sent when a
+    drag and drop action is completed.
+
+    When a widget \link QWidget::setAcceptDrops() accepts drop
+    events \endlink, it will receive this event if it has accepted the
+    most recent QDragEnterEvent or QDragMoveEvent sent to it.
+
+    The widget should use data() to extract the data in an appropriate
+    format.
+
+*/
+
+/*!
+    \fn QDropEvent::QDropEvent (const QPoint &point, Type type)
+
+    Constructs a drop event of a certain \a type corresponding to
+    a drop at the given \a point in a widget.
+*/ // ### pos is in which coordinate system?
+QDropEvent::QDropEvent(const QPoint& pos, const QMimeData *data, Type typ)
+    : QEvent(typ), p(pos), act(0), accpt(0), accptact(0), resv(0), mimeData(data)
 {}
+
+
+/*!
+    Returns a byte array containing the drag's data, in \a format.
+
+    data() normally needs to get the data from the drag source, which
+    is potentially very slow, so it's advisable to call this function
+    only if you're sure that you will need the data in that
+    particular \a format.
+
+    The resulting data will have a size of 0 if the format was not
+    available.
+
+    \sa format() QByteArray::size()
+*/
+
+QByteArray QDropEvent::encodedData(const char *format) const
+{
+    return data()->data(QLatin1String(format));
+}
+
+/*!
+    Returns a string describing one of the available data types for
+    this drag. Common examples are "text/plain" and "image/gif".
+    If \a n is less than zero or greater than the number of available
+    data types, format() returns 0.
+
+    This function is provided mainly for debugging. Most drop targets
+    will use provides().
+
+    \sa data() provides()
+*/
+
+const char* QDropEvent::format(int n) const
+{
+    QStringList formats = data()->formats();
+    if (n < 0 || n >= formats.size())
+        return 0;
+    return formats.at(n).latin1();
+}
+
+/*!
+    If the source of the drag operation is a widget in this
+    application, this function returns that source; otherwise it
+    returns 0. The source of the operation is the first parameter to
+    drag object subclasses.
+
+    This is useful if your widget needs special behavior when dragging
+    to itself.
+
+    See QDragObject::QDragObject() and subclasses.
+*/
+QWidget* QDropEvent::source() const
+{
+    QDragManager *manager = QDragManager::self();
+    return manager ? manager->source() : 0;
+}
 
 /*!
     \fn const QPoint& QDropEvent::pos() const
@@ -1930,8 +2014,8 @@ QDropEvent::QDropEvent(const QPoint& pos, Type typ)
     \warning Do not create a QDragEnterEvent yourself since these
     objects rely on Qt's internal state.
 */
-QDragEnterEvent::QDragEnterEvent(const QPoint& point)
-    : QDragMoveEvent(point, DragEnter)
+QDragEnterEvent::QDragEnterEvent(const QPoint& point, const QMimeData *data)
+    : QDragMoveEvent(point, data, DragEnter)
 {}
 
 QDragResponseEvent::QDragResponseEvent(bool accepted)

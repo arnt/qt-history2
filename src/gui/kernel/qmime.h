@@ -14,56 +14,56 @@
 #ifndef QMIME_H
 #define QMIME_H
 
-#include "qwindowdefs.h"
+#include "qobject.h"
 
-#ifndef QT_NO_MIME
+class QUrl;
+class QString;
+class QColor;
+class QPixmap;
+class QByteArray;
 
-class QImageDrag;
-class QTextDrag;
-template<class Key, class T> class QMap;
-template<class T> class QList;
+class QMimeDataPrivate;
+class Q_GUI_EXPORT QMimeData : public QObject
+{
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QMimeData)
+public:
+    QMimeData(QObject *parent);
+    ~QMimeData();
+
+    QList<QUrl> urls() const;
+    void setUrls(const QList<QUrl> &urls);
+
+    QString text() const;
+    void setText(const QString &text);
+
+    QString html() const;
+    void setHtml(const QString &html);
+
+    QPixmap pixmap() const;
+    void setPixmap(const QPixmap &pixmap);
+
+    QColor color() const;
+    void setColor(const QColor &color);
+
+    virtual QByteArray data(const QString &mimetype) const;
+    void setData(const QString &mimetype, const QByteArray &data);
+
+    virtual bool hasFormat(const QString &mimetype) const;
+    virtual QStringList formats() const;
+
+    void clear();
+};
 
 class Q_GUI_EXPORT QMimeSource
 {
-    friend class QClipboardData;
-
 public:
-    QMimeSource();
     virtual ~QMimeSource();
     virtual const char* format(int n = 0) const = 0;
     virtual bool provides(const char*) const;
     virtual QByteArray encodedData(const char*) const = 0;
-    int serialNumber() const;
-
-private:
-    int ser_no;
-    enum { NoCache, Text, Graphics } cacheType;
-    union
-    {
-        struct
-        {
-            QString *str;
-            QString *subtype;
-        } txt;
-        struct
-        {
-            QImage *img;
-            QPixmap *pix;
-        } gfx;
-    } cache;
-    void clearCache();
-
-    // friends for caching
-    friend class QImageDrag;
-    friend class QTextDrag;
-
 };
 
-inline int QMimeSource::serialNumber() const
-{ return ser_no; }
-
-class QStringList;
-class QMimeSourceFactoryData;
 
 #if defined(Q_WS_WIN)
 
@@ -129,7 +129,5 @@ public:
 };
 
 #endif // Q_WS_MAC
-
-#endif // QT_NO_MIME
 
 #endif // QMIME_H

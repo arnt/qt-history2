@@ -34,6 +34,7 @@
 #include "qtranslator.h"
 #include "qvariant.h"
 #include "qwidget.h"
+#include "qdnd_p.h"
 
 #include <private/qeventloop_p.h>
 
@@ -932,8 +933,7 @@ QApplication::~QApplication()
 #endif
 
 #ifndef QT_NO_DRAGANDDROP
-    extern QDragManager *qt_dnd_manager;
-    delete qt_dnd_manager;
+    delete QDragManager::self();
 #endif
 
     qt_cleanup();

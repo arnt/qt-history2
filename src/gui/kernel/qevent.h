@@ -18,11 +18,11 @@
 #include "qobject.h"
 #include "qregion.h"
 #include "qnamespace.h"
-#include "qmime.h"
 #include "qpair.h"
 #include "qstring.h"
 #include "qkeysequence.h"
 #include "qcoreevent.h"
+#include "qmime.h"
 
 class QAction;
 
@@ -350,13 +350,16 @@ private:
 
 
 #ifndef QT_NO_DRAGANDDROP
+
+class QMimeData;
+
 // This class is rather closed at the moment.  If you need to create your
 // own DND event objects, write to qt-bugs@trolltech.com and we'll try to
 // find a way to extend it so it covers your needs.
 class Q_GUI_EXPORT QDropEvent : public QEvent, public QMimeSource
 {
 public:
-    QDropEvent(const QPoint& pos, Type typ = Drop);
+    QDropEvent(const QPoint& pos, const QMimeData *data, Type typ = Drop);
     inline const QPoint &pos() const { return p; }
     inline bool isAccepted() const { return accpt || accptact; }
     inline void accept(bool y = TRUE) { accpt = y; }
@@ -369,27 +372,32 @@ public:
     inline Action action() const { return Action(act); }
 
     QWidget* source() const;
+    const QMimeData *data() const { return mimeData; }
+
     const char* format(int n = 0) const;
     QByteArray encodedData(const char*) const;
     bool provides(const char*) const;
-
-    inline QByteArray data(const char* f) const { return encodedData(f); }
+#ifdef QT_COMPAT
+    inline QT_COMPAT QByteArray data(const char* f) const { return encodedData(f); }
+#endif
 
     inline void setPoint(const QPoint& np) { p = np; }
 
 protected:
+    friend class QDragManager;
     QPoint p;
     uint act : 8;
     uint accpt : 1;
     uint accptact : 1;
     uint resv : 5;
+    const QMimeData *mimeData;
 };
 
 
 class Q_GUI_EXPORT QDragMoveEvent : public QDropEvent
 {
 public:
-    QDragMoveEvent(const QPoint &pos, Type typ = DragMove);
+    QDragMoveEvent(const QPoint &pos, const QMimeData *data, Type typ = DragMove);
     inline QRect answerRect() const { return rect; }
     inline void accept(bool y = true) { QDropEvent::accept(y); }
     inline void ignore() { QDropEvent::ignore(); }
@@ -405,7 +413,7 @@ protected:
 class Q_GUI_EXPORT QDragEnterEvent : public QDragMoveEvent
 {
 public:
-    QDragEnterEvent(const QPoint &pos);
+    QDragEnterEvent(const QPoint &pos, const QMimeData *data);
 };
 
 

@@ -28,6 +28,7 @@
 #include "qcursor.h"
 #include "qvector.h"
 
+#include "qdnd_p.h"
 #include "qt_x11_p.h"
 #include "qx11info_x11.h"
 
@@ -150,7 +151,7 @@ static int qt_xdnd_current_screen = -1;
 bool qt_xdnd_dragging = false;
 
 // first drag object, or 0
-static QDragObject * qt_xdnd_source_object = 0;
+static QDragPrivate * qt_xdnd_source_object = 0;
 
 // Motif dnd
 extern void qt_motifdnd_enable(QWidget *, bool);
@@ -161,7 +162,7 @@ bool qt_motifdnd_active = false;
 static bool dndCancelled = false;
 
 // Shift/Ctrl handling, and final drop status
-static QDragObject::DragMode drag_mode;
+static QDrag::DragOperations drag_mode;
 static QDropEvent::Action global_requested_action = QDropEvent::Copy;
 static QDropEvent::Action global_accepted_action = QDropEvent::Copy;
 
@@ -498,7 +499,7 @@ void qt_handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
 
         QRect answerRect(c->mapToGlobal(p), QSize(1,1));
 
-        QDragMoveEvent me(p);
+        QDragMoveEvent me(p, QDragManager::self()->dropData);
         QDropEvent::Action accepted_action = xdndaction_to_qtaction(l[4]);
         me.setAction(accepted_action);
 
@@ -513,7 +514,7 @@ void qt_handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
                 qt_xdnd_current_position = p;
                 //NOTUSED qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
 
-                QDragEnterEvent de(p);
+                QDragEnterEvent de(p, QDragManager::self()->dropData);
                 de.setAction(accepted_action);
                 QApplication::sendEvent(c, &de);
                 if (de.isAccepted()) {
@@ -699,10 +700,10 @@ void qt_handle_xdnd_drop(QWidget *, const XEvent * xe, bool passive)
         return;
     }
     if (qt_xdnd_source_object)
-        qt_xdnd_source_object->setTarget(qt_xdnd_current_widget);
+        qt_xdnd_source_object->target = qt_xdnd_current_widget;
 
     if (!passive) {
-        QDropEvent de(qt_xdnd_current_position);
+        QDropEvent de(qt_xdnd_current_position, QDragManager::self()->dropData);
         de.setAction(global_accepted_action);
         QApplication::sendEvent(qt_xdnd_current_widget, &de);
         if (!de.isAccepted()) {
@@ -759,7 +760,6 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
              ((QKeyEvent*)e)->key() == Qt::Key_Escape) {
             qApp->removeEventFilter(this);
             object = 0;
-            dragSource = 0;
             beingCancelled = false;
             qApp->exit_loop();
             return true; // block the key release
@@ -784,7 +784,6 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
         else
             cancel();
         object = 0;
-        dragSource = 0;
         beingCancelled = false;
         qApp->exit_loop();
         return true;
@@ -810,7 +809,6 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
             cancel();
             qApp->removeEventFilter(this);
             object = 0;
-            dragSource = 0;
             beingCancelled = false;
             qApp->exit_loop();
         } else {
@@ -854,14 +852,14 @@ void QDragManager::updateMode(Qt::KeyboardModifiers newstate)
         global_requested_action = QDropEvent::Link;
     } else {
         bool local = qt_xdnd_source_object != 0;
-        if (drag_mode == QDragObject::DragMove)
+        if (drag_mode == QDrag::MoveDrag)
             global_requested_action = QDropEvent::Move;
-        else if (drag_mode == QDragObject::DragCopy)
+        else if (drag_mode == QDrag::CopyDrag)
             global_requested_action = QDropEvent::Copy;
-        else if (drag_mode == QDragObject::DragLink)
+        else if (drag_mode == QDrag::LinkDrag)
             global_requested_action = QDropEvent::Link;
         else {
-            if (drag_mode == QDragObject::DragDefault && local)
+            if (drag_mode == QDrag::DefaultDrag && local)
                 global_requested_action = QDropEvent::Move;
             else
                 global_requested_action = QDropEvent::Copy;
@@ -996,7 +994,7 @@ Window findRealWindow(const QPoint & pos, Window w, int md)
 
 void QDragManager::move(const QPoint & globalPos)
 {
-    Q_ASSERT(object != 0); // ### remove in Qt 4.0 (object should never be 0 here)
+    Q_ASSERT(object != 0);
     int screen = QCursor::x11Screen();
     if ((qt_xdnd_current_screen == -1 && screen != QX11Info::appScreen()) ||
          (screen != qt_xdnd_current_screen)) {
@@ -1100,18 +1098,15 @@ void QDragManager::move(const QPoint & globalPos)
         if (target) {
             QVector<Atom> type;
             int flags = target_version << 24;
-            const char* fmt;
-            int nfmt=0;
-            for (nfmt=0; (fmt=object->format(nfmt)); nfmt++) {
-                type.resize(nfmt+1);
-                type[nfmt] = qt_xdnd_str_to_atom(fmt);
-            }
-            if (nfmt >= 3) {
-                XChangeProperty(QX11Info::display(),
-                                 object->source()->winId(), ATOM(XdndTypelist),
-                                 XA_ATOM, 32, PropModeReplace,
-                                 (unsigned char *)type.data(),
-                                 type.size());
+            QStringList fmts = object->data->formats();
+            for (int i = 0; i < fmts.size(); ++i)
+                type.append(qt_xdnd_str_to_atom(fmts.at(i).latin1()));
+            if (type.size() > 3) {
+                XChangeProperty(X11->display,
+                                object->source->winId(), ATOM(XdndTypelist),
+                                XA_ATOM, 32, PropModeReplace,
+                                (unsigned char *)type.data(),
+                                type.size());
                 flags |= 0x0001;
             }
             XClientMessageEvent enter;
@@ -1119,11 +1114,11 @@ void QDragManager::move(const QPoint & globalPos)
             enter.window = target;
             enter.format = 32;
             enter.message_type = ATOM(XdndEnter);
-            enter.data.l[0] = object->source()->winId();
+            enter.data.l[0] = object->source->winId();
             enter.data.l[1] = flags;
-            enter.data.l[2] = type.size()>0 ? type[0] : 0;
-            enter.data.l[3] = type.size()>1 ? type[1] : 0;
-            enter.data.l[4] = type.size()>2 ? type[2] : 0;
+            enter.data.l[2] = type.size()>0 ? type.at(0) : 0;
+            enter.data.l[3] = type.size()>1 ? type.at(1) : 0;
+            enter.data.l[4] = type.size()>2 ? type.at(2) : 0;
             // provisionally set the rectangle to 5x5 pixels...
             qt_xdnd_source_sameanswer = QRect(globalPos.x() - 2,
                                                globalPos.y() -2 , 5, 5);
@@ -1144,7 +1139,7 @@ void QDragManager::move(const QPoint & globalPos)
         move.format = 32;
         move.message_type = ATOM(XdndPosition);
         move.window = target;
-        move.data.l[0] = object->source()->winId();
+        move.data.l[0] = object->source->winId();
         move.data.l[1] = 0; // flags
         move.data.l[2] = (globalPos.x() << 16) + globalPos.y();
         move.data.l[3] = X11->time;
@@ -1179,7 +1174,7 @@ void QDragManager::drop()
     drop.window = qt_xdnd_current_target;
     drop.format = 32;
     drop.message_type = ATOM(XdndDrop);
-    drop.data.l[0] = object->source()->winId();
+    drop.data.l[0] = object->source->winId();
     drop.data.l[1] = 1 << 24; // flags
     drop.data.l[2] = 0; // ###
     drop.data.l[3] = X11->time;
@@ -1283,9 +1278,8 @@ void qt_xdnd_handle_selection_request(const XSelectionRequestEvent * req)
     evt.xselection.property = XNone;
     evt.xselection.time = req->time;
     const char* format = qt_xdnd_atom_to_str(req->target);
-    if (format && qt_xdnd_source_object &&
-         qt_xdnd_source_object->provides(format)) {
-        QByteArray a = qt_xdnd_source_object->encodedData(format);
+    if (format && qt_xdnd_source_object && qt_xdnd_source_object->data->hasFormat(QLatin1String(format))) {
+        QByteArray a = qt_xdnd_source_object->data->data(QLatin1String(format));
         XChangeProperty (QX11Info::display(), req->requestor, req->property,
                           req->target, 8, PropModeReplace,
                           (unsigned char *)a.data(), a.size());
@@ -1313,9 +1307,9 @@ static QByteArray qt_xdnd_obtain_data(const char *format)
          (w=QWidget::find(qt_xdnd_dragsource_xid))
          && (!w->isDesktop() || w->acceptDrops()))
     {
-        QDragObject * o = qt_xdnd_source_object;
-        if (o->provides(format))
-            result = o->encodedData(format);
+        QDragPrivate * o = qt_xdnd_source_object;
+        if (o->data->hasFormat(QLatin1String(format)))
+            result = o->data->data(QLatin1String(format));
         return result;
     }
 
@@ -1387,88 +1381,10 @@ bool qt_dnd_enable(QWidget* w, bool on)
     return qt_xdnd_enable(w, on);
 }
 
-
-/*!
-    \class QDropEvent qevent.h
-    \ingroup events
-    \ingroup draganddrop
-
-    \brief The QDropEvent class provides an event which is sent when a
-    drag and drop action is completed.
-
-    When a widget \link QWidget::setAcceptDrops() accepts drop
-    events \endlink, it will receive this event if it has accepted the
-    most recent QDragEnterEvent or QDragMoveEvent sent to it.
-
-    The widget should use data() to extract the data in an appropriate
-    format.
-
-*/
-
-
-/*!
-    \fn QDropEvent::QDropEvent (const QPoint &point, Type type)
-
-    Constructs a drop event of a certain \a type corresponding to
-    a drop at the given \a point in a widget.
-*/ // ### pos is in which coordinate system?
-
-
-/*!
-    Returns a byte array containing the drag's data, in \a format.
-
-    data() normally needs to get the data from the drag source, which
-    is potentially very slow, so it's advisable to call this function
-    only if you're sure that you will need the data in that
-    particular \a format.
-
-    The resulting data will have a size of 0 if the format was not
-    available.
-
-    \sa format() QByteArray::size()
-*/
-
-QByteArray QDropEvent::encodedData(const char *format) const
+QDrag::DragOperation QDragManager::drag(QDragPrivate * o, QDrag::DragOperations mode)
 {
-    if (qt_motifdnd_active)
-        return qt_motifdnd_obtain_data(format);
-    return qt_xdnd_obtain_data(format);
-}
-
-/*!
-    Returns a string describing one of the available data types for
-    this drag. Common examples are "text/plain" and "image/gif".
-    If \a n is less than zero or greater than the number of available
-    data types, format() returns 0.
-
-    This function is provided mainly for debugging. Most drop targets
-    will use provides().
-
-    \sa data() provides()
-*/
-
-const char* QDropEvent::format(int n) const
-{
-    if (qt_motifdnd_active)
-        return qt_motifdnd_format(n);
-
-    int i = 0;
-    while(i<n && qt_xdnd_types[i])
-        i++;
-    if (i < n)
-        return 0;
-
-    const char* name = qt_xdnd_atom_to_str(qt_xdnd_types[i]);
-    if (!name)
-        return 0; // should never happen
-
-    return name;
-}
-
-bool QDragManager::drag(QDragObject * o, QDragObject::DragMode mode)
-{
-    if (object == o || !o || !o->parent())
-        return false;
+    if (object == o || !o || !o->source)
+        return QDrag::NoDrag;
 
     if (object) {
         cancel();
@@ -1503,7 +1419,7 @@ bool QDragManager::drag(QDragObject * o, QDragObject::DragMode mode)
     }
 
     qt_xdnd_source_object = o;
-    qt_xdnd_source_object->setTarget(0);
+    qt_xdnd_source_object->target = 0;
     qt_xdnd_deco = new QShapedPixmapWidget();
 
     willDrop = false;
@@ -1511,12 +1427,10 @@ bool QDragManager::drag(QDragObject * o, QDragObject::DragMode mode)
     object = o;
     updatePixmap();
 
-    dragSource = (QWidget *)(object->parent());
-
     qApp->installEventFilter(this);
     qt_xdnd_source_current_time = X11->time;
     XSetSelectionOwner(QX11Info::display(), ATOM(XdndSelection),
-                        dragSource->topLevelWidget()->winId(),
+                        object->source->topLevelWidget()->winId(),
                         qt_xdnd_source_current_time);
     oldstate = Qt::KeyboardModifierMask; // #### Should use state that caused the drag
     drag_mode = mode;
@@ -1551,10 +1465,18 @@ bool QDragManager::drag(QDragObject * o, QDragObject::DragMode mode)
     qt_xdnd_current_screen = -1;
     qt_xdnd_dragging = false;
 
-    return ((! dndCancelled) && // source del?
-            (global_accepted_action == QDropEvent::Copy &&
-             global_requested_action == QDropEvent::Move));
-
+    if (dndCancelled)
+        return QDrag::NoDrag;
+    switch(global_accepted_action) {
+    case QDropEvent::Copy:
+        return QDrag::CopyDrag;
+    case QDropEvent::Move:
+        return QDrag::MoveDrag;
+    case QDropEvent::Link:
+        return QDrag::LinkDrag;
+    default:
+        return QDrag::DefaultDrag;
+    }
     // qt_xdnd_source_object persists until we get an xdnd_finish message
 }
 
@@ -1564,9 +1486,9 @@ void QDragManager::updatePixmap()
         QPixmap pm;
         QPoint pm_hot(default_pm_hotx,default_pm_hoty);
         if (object) {
-            pm = object->pixmap();
+            pm = object->pixmap;
             if (!pm.isNull())
-                pm_hot = object->pixmapHotSpot();
+                pm_hot = object->hotspot;
         }
         if (pm.isNull()) {
             if (!defaultPm)
@@ -1582,6 +1504,47 @@ void QDragManager::updatePixmap()
             //    qt_xdnd_deco->hide();
             //}
     }
+}
+
+QDropData::QDropData(QObject *parent)
+    : QMimeData(parent)
+{
+}
+
+QDropData::~QDropData()
+{
+}
+
+QByteArray QDropData::data(const QString &mimetype) const
+{
+    if (qt_motifdnd_active)
+        return qt_motifdnd_obtain_data(mimetype.latin1());
+    return qt_xdnd_obtain_data(mimetype.latin1());
+}
+
+bool QDropData::hasFormat(const QString &format) const
+{
+    return formats().contains(format);
+}
+
+QStringList QDropData::formats() const
+{
+    QStringList formats;
+    if (qt_motifdnd_active) {
+        int i = 0;
+        const char *fmt;
+        while ((fmt = qt_motifdnd_format(i))) {
+            formats.append(QLatin1String(fmt));
+            ++i;
+        }
+    } else {
+        int i = 0;
+        while ((qt_xdnd_types[i])) {
+            formats.append(QLatin1String(qt_xdnd_atom_to_str(qt_xdnd_types[i])));
+            ++i;
+        }
+    }
+    return formats;
 }
 
 #endif // QT_NO_DRAGANDDROP

@@ -50,6 +50,7 @@ in doc/dnd.doc, where the documentation system can see it. */
 #include "qt_x11_p.h"
 #include "qx11info_x11.h"
 #include "qiodevice.h"
+#include "qdnd_p.h"
 
 #include <stdlib.h>
 
@@ -788,7 +789,7 @@ void qt_motifdnd_handle_msg(QWidget * /* w */ , const XEvent * xe, bool /* passi
                 c = c->parentWidget();
             }
 
-            QDragMoveEvent me(p);
+            QDragMoveEvent me(p, QDragManager::self()->dropData);
             QDropEvent::Action accepted_action = QDropEvent::Copy;
             me.setAction(accepted_action);
 
@@ -798,7 +799,7 @@ void qt_motifdnd_handle_msg(QWidget * /* w */ , const XEvent * xe, bool /* passi
                      drop_widget != c) {
                     QDragLeaveEvent e;
                     QApplication::sendEvent(drop_widget, &e);
-                    QDragEnterEvent de(p);
+                    QDragEnterEvent de(p, QDragManager::self()->dropData);
                     QApplication::sendEvent(c, &de);
                 }
 
@@ -820,7 +821,7 @@ void qt_motifdnd_handle_msg(QWidget * /* w */ , const XEvent * xe, bool /* passi
                                cur_window, False, 0,
                                (XEvent *)&cm) ;
 
-                    QDragEnterEvent de(p);
+                    QDragEnterEvent de(p, QDragManager::self()->dropData);
                     QApplication::sendEvent(drop_widget, &de);
                     if (de.isAccepted()) {
                         me.accept(de.answerRect());
@@ -919,7 +920,7 @@ void qt_motifdnd_handle_msg(QWidget * /* w */ , const XEvent * xe, bool /* passi
         Dnd_selection_time = dnd_data.time;
 
         QPoint p(dnd_data.x, dnd_data.y);
-        QDropEvent de(drop_widget->mapFromGlobal(p));
+        QDropEvent de(drop_widget->mapFromGlobal(p), QDragManager::self()->dropData);
         de.setAction(QDropEvent::Copy);
         QApplication::sendEvent(drop_widget, &de);
 
