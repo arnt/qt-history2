@@ -66,7 +66,7 @@ WIDGETS_P	= widgets
 win32:DEPENDPATH = ../include
 unix:DEPENDPATH	= $$DIALOGS_H:$$KERNEL_H:$$TOOLS_H:$$WIDGETS_H
 
-#HEADERS	= $$WIDGETS_H/qwellarray_p.h
+HEADERS	= $$WIDGETS_H/qwellarray_p.h
 
 ALLHEADERS	= $$DIALOGS_H/qcolordialog.h \
 		  $$DIALOGS_H/qfiledialog.h \
