@@ -17,7 +17,10 @@
 **
 *****************************************************************************/
 
+#ifndef QVFBHDR_H
+
 #include <qcolor.h>
+#include <qrect.h>
 
 #define QT_VFB_MOUSE_PIPE	"/tmp/.qtvfb_mouse"
 #define QT_VFB_KEYBOARD_PIPE	"/tmp/.qtvfb_keyboard"
@@ -43,3 +46,4 @@ struct QVFbKeyData
     bool repeat;
 };
 
+#endif

@@ -26,7 +26,7 @@
 #include <sys/types.h>
 #include <sys/shm.h>
 
-#include "../../util/qvfb/qvfbhdr.h"
+#include "qvfbhdr_qws.h"
 
 // Unaccelerated screen/driver setup. Can be overridden by accelerated
 // drivers

@@ -486,7 +486,7 @@ void TPanelHandlerPrivate::readMouseData()
  */
 
 #if QT_FEATURE_QWS_VFB
-#include "../../util/qvfb/qvfbhdr.h"
+#include "qvfbhdr_qws.h"
 #endif
 
 class QVFbMouseHandlerPrivate : public MouseHandler {

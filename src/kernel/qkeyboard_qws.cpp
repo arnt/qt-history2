@@ -519,7 +519,7 @@ void QWSVr41xxButtonsHandler::readKeyboardData()
  */
 
 #if QT_FEATURE_QWS_VFB
-#include "../../util/qvfb/qvfbhdr.h"
+#include "qvfbhdr_qws.h"
 #endif
 
 QWSVFbKeyboardHandler::QWSVFbKeyboardHandler()
