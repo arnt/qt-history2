@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#43 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#44 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -181,6 +181,7 @@ class QDomNodeListPrivate : public QShared
 public:
     QDomNodeListPrivate( QDomNodePrivate* );
     QDomNodeListPrivate( QDomNodePrivate*, const QString&  );
+    QDomNodeListPrivate( QDomNodePrivate*, const QString&, const QString&  );
     virtual ~QDomNodeListPrivate();
 
     virtual bool operator== ( const QDomNodeListPrivate& ) const;
@@ -192,6 +193,7 @@ public:
 
     QDomNodePrivate* node_impl;
     QString tagname;
+    QString nsURI;
     QList<QDomNodePrivate> list;
     long timestamp;
 };
@@ -750,7 +752,7 @@ QDomNodeListPrivate::QDomNodeListPrivate( QDomNodePrivate* n_impl )
     node_impl = n_impl;
     if ( node_impl )
 	node_impl->ref();
-    createList();
+    timestamp = -1;
 }
 
 QDomNodeListPrivate::QDomNodeListPrivate( QDomNodePrivate* n_impl, const QString& name )
@@ -759,7 +761,17 @@ QDomNodeListPrivate::QDomNodeListPrivate( QDomNodePrivate* n_impl, const QString
     if ( node_impl )
 	node_impl->ref();
     tagname = name;
-    createList();
+    timestamp = -1;
+}
+
+QDomNodeListPrivate::QDomNodeListPrivate( QDomNodePrivate* n_impl, const QString& _nsURI, const QString& localName )
+{
+    node_impl = n_impl;
+    if ( node_impl )
+	node_impl->ref();
+    tagname = localName;
+    nsURI = _nsURI;
+    timestamp = -1;
 }
 
 QDomNodeListPrivate::~QDomNodeListPrivate()
@@ -789,9 +801,26 @@ void QDomNodeListPrivate::createList()
 	    list.append( p );
 	    p = p->next;
 	}
-    } else {
+    } else if ( nsURI.isNull() ) {
 	while ( p && p != node_impl ) {
 	    if ( p->isElement() && p->nodeName() == tagname ) {
+		list.append( p );
+	    }
+	    if ( p->first )
+		p = p->first;
+	    else if ( p->next )
+		p = p->next;
+	    else {
+		p = p->parent;
+		while ( p && p != node_impl && !p->next )
+		    p = p->parent;
+		if ( p && p != node_impl )
+		    p = p->next;
+	    }
+	}
+    } else {
+	while ( p && p != node_impl ) {
+	    if ( p->isElement() && p->name==tagname && p->namespaceURI==nsURI ) {
 		list.append( p );
 	    }
 	    if ( p->first )
@@ -3900,6 +3929,8 @@ QDomAttr QDomElement::removeAttributeNode( const QDomAttr& oldAttr )
   Returns a QDomNodeList containing all descendant elements of this element
   with the name \a tagname. The order they are in the node list, is the order
   they are encountered in a preorder traversal of the element tree.
+
+  \sa elementsByTagNameNS() QDomDocument::elementsByTagName()
 */
 QDomNodeList QDomElement::elementsByTagName( const QString& tagname ) const
 {
@@ -3997,11 +4028,16 @@ QDomAttr QDomElement::setAttributeNodeNS( const QDomAttr& /*newAttr*/ )
 }
 
 /*!
-  fnord
+  Returns a QDomNodeList containing all descendant elements of this element
+  with the local name \a localName and the namespace URI \a nsURI. The order
+  they are in the node list, is the order they are encountered in a preorder
+  traversal of the element tree.
+
+  \sa elementsByTagName() QDomDocument::elementsByTagNameNS()
 */
-QDomNodeList QDomElement::elementsByTagNameNS( const QString& /*nsURI*/, const QString& /*localName*/ ) const
+QDomNodeList QDomElement::elementsByTagNameNS( const QString& nsURI, const QString& localName ) const
 {
-    return QDomNodeList();
+    return QDomNodeList( new QDomNodeListPrivate( impl, nsURI, localName ) );
 }
 
 /*!
@@ -5692,8 +5728,10 @@ QDomEntityReference QDomDocument::createEntityReference( const QString& name )
 
 /*!
   Returns a QDomNodeList, that contains all elements in the document
-  with the tag name \a tagname. The order of the node list, is the
-  order they are encountered in a preorder traversal of the element tree.
+  with the name \a tagname. The order of the node list, is the order they are
+  encountered in a preorder traversal of the element tree.
+
+  \sa elementsByTagNameNS() QDomElement::elementsByTagName()
 */
 QDomNodeList QDomDocument::elementsByTagName( const QString& tagname ) const
 {
@@ -5739,11 +5777,16 @@ QDomAttr QDomDocument::createAttributeNS( const QString& nsURI, const QString& q
 }
 
 /*!
-  fnord
+  Returns a QDomNodeList, that contains all elements in the document
+  with the local name \a localName and the namespace URI \a nsURI. The order of
+  the node list, is the order they are encountered in a preorder traversal of
+  the element tree.
+
+  \sa elementsByTagName() QDomElement::elementsByTagNameNS()
 */
-QDomNodeList QDomDocument::elementsByTagNameNS( const QString& /*nsURI*/, const QString& /*localName*/ )
+QDomNodeList QDomDocument::elementsByTagNameNS( const QString& nsURI, const QString& localName )
 {
-    return QDomNodeList();
+    return QDomNodeList( new QDomNodeListPrivate( impl, nsURI, localName ) );
 }
 
 /*!
