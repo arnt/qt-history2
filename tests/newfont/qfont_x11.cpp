@@ -1865,66 +1865,19 @@ bool QFontMetrics::inFont(QChar ch) const
 
 
 static
-XCharStruct* charStr(const QTextCodec* codec, XFontStruct *f, QChar ch)
-{
-    // Optimized - inFont() is merged in here.
-
-    if (! f->per_char) {
-	return &f->max_bounds;
-    }
-
-    if (codec) {
-	ch = QChar(codec->characterFromUnicode(ch));
-    }
-
-    if ( f->max_byte1 ) {
-	if (! (ch.cell() >= f->min_char_or_byte2 &&
-	       ch.cell() <= f->max_char_or_byte2 &&
-	       ch.row() >= f->min_byte1 &&
-	       ch.row() <= f->max_byte1)) {
-	    ch = QChar((ushort)f->default_char);
-	}
-
-	return f->per_char +
-	    ((ch.row() - f->min_byte1)
-	     * (f->max_char_or_byte2 - f->min_char_or_byte2 + 1)
-	     + ch.cell() - f->min_char_or_byte2);
-    } else if ( ch.row() ) {
-	uint ch16 = ch.unicode();
-
-	if (! (ch16 >= f->min_char_or_byte2 &&
-	       ch16 <= f->max_char_or_byte2)) {
-	    ch16 = f->default_char;
-	}
-
-	return f->per_char + ch16;
-    }
-
-    if (! (ch.cell() >= f->min_char_or_byte2 &&
-	   ch.cell() <= f->max_char_or_byte2)) {
-	ch = QChar((uchar)f->default_char);
-    }
-
-    return f->per_char + ch.cell() - f->min_char_or_byte2;
-}
-
-
-static
-XCharStruct* charStrShaped(const QTextCodec* codec, XFontStruct *f,
-			   const QString &str, int pos)
+XCharStruct* charStr(const QTextCodec* codec, XFontStruct *f, const QString &str, int pos)
 {
     // Optimized - inFont() is merged in here.
     QChar ch;
-
+    
     if (! f->per_char) {
 	return &f->max_bounds;
     }
 
     if (codec) {
-	QShapingCodec *c = (QShapingCodec *)codec;
-	ch = QChar( c->shapedGlyph(str, pos) );
+	ch = QChar(codec->characterFromUnicode(str, pos));
     } else {
-	ch = str[pos];
+	ch = *( str.unicode() + pos );
     }
     
     if ( f->max_byte1 ) {
@@ -1956,6 +1909,12 @@ XCharStruct* charStrShaped(const QTextCodec* codec, XFontStruct *f,
     }
 
     return f->per_char + ch.cell() - f->min_char_or_byte2;
+}
+
+static
+XCharStruct* charStr(const QTextCodec* codec, XFontStruct *f, const QChar &ch )
+{
+    return charStr( codec, f, QString( ch ), 0 );
 }
 
 
@@ -2392,14 +2351,8 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
         return d->request.pointSize * 3 / 40;
     }
 
-    XCharStruct *xcs;
-    if ( script == QFontPrivate::ARABIC ) {
-	xcs = charStrShaped(d->x11data.fontstruct[script]->codec,
-		      ((XFontStruct *) d->x11data.fontstruct[script]->handle), str, pos);
-    } else {
-	xcs = charStr(d->x11data.fontstruct[script]->codec,
-		      ((XFontStruct *) d->x11data.fontstruct[script]->handle), ch);
-    }
+    XCharStruct *xcs = charStr(d->x11data.fontstruct[script]->codec,
+			       ((XFontStruct *) d->x11data.fontstruct[script]->handle), str, pos);
 
     return xcs ? xcs->width : d->request.pointSize * 3 / 40;
 }

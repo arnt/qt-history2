@@ -98,7 +98,7 @@ public:
     virtual int heuristicContentMatch(const char* chars, int len) const = 0;
     virtual int heuristicNameMatch(const char* hint) const;
 
-    virtual unsigned short characterFromUnicode(const QChar &character) const;
+    virtual unsigned short characterFromUnicode(const QString &str, int pos) const;
 
 protected:
     QTextCodec();

@@ -839,13 +839,16 @@ QString QTextCodec::toUnicode(const char* chars) const
 }
 
 
-unsigned short QTextCodec::characterFromUnicode(const QChar &character) const
+unsigned short QTextCodec::characterFromUnicode(const QString &str, int pos) const
 {
-    QCString result = QTextCodec::fromUnicode(QString(character));
-    if (result.size() > 2)
-	return (((unsigned short)(unsigned char) result[0] << 8) |
-		((unsigned short)(unsigned char) result[1]));
-    return (unsigned short)(unsigned char) result[0];
+    QCString result = QTextCodec::fromUnicode(QString(str[pos]));
+    uchar *ch = (uchar *) result.data();
+    ushort retval = 0;
+    if (result.size() > 2) {
+	retval = (ushort) *ch << 8;
+	ch++;
+    }
+    return retval + *ch;
 }
 
 /*!
@@ -1341,7 +1344,7 @@ public:
     
     QString toUnicode(const char* chars, int len) const;
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
-    unsigned short characterFromUnicode(const QChar &character) const;
+    unsigned short characterFromUnicode(const QString &str, int pos) const;
 
     const char* name() const;
     int mibEnum() const;
@@ -1905,10 +1908,11 @@ QCString QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
 }
 
 
-unsigned short QSimpleTextCodec::characterFromUnicode(const QChar &character) const
+unsigned short QSimpleTextCodec::characterFromUnicode(const QString &str, int pos) const
 {
+    // ### optimize!!!!
     int len = 1;
-    QCString result = fromUnicode(QString(character), len);
+    QCString result = fromUnicode(QString(str[pos]), len);
     return (unsigned short)(unsigned char) result[0];
 }
 
@@ -1976,7 +1980,7 @@ public:
 
     QString toUnicode(const char* chars, int len) const;
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
-    unsigned short characterFromUnicode(const QChar &character) const;
+    unsigned short characterFromUnicode(const QString &str, int pos) const;
 
     const char* name() const;
     int mibEnum() const;
@@ -2027,11 +2031,12 @@ QCString QLatin1Codec::fromUnicode(const QString& uc, int& len ) const
 }
 
 
-unsigned short QLatin1Codec::characterFromUnicode(const QChar &character) const
+unsigned short QLatin1Codec::characterFromUnicode(const QString &str, int pos) const
 {
-    if (character.row())
+    const QChar *ch = str.unicode() + pos;
+    if (ch->row())
 	return (unsigned short) '?';
-    return (unsigned short) character.cell();
+    return (unsigned short) ch->cell();
 }
 
 

@@ -587,7 +587,7 @@ QCString QFontArabic68Codec::fromUnicode(const QString& uc, int& lenInOut ) cons
     return result;
 }
 
-ushort QFontArabic68Codec::shapedGlyph( const QString &str, int pos )
+ushort QFontArabic68Codec::characterFromUnicode( const QString &str, int pos ) const
 {
     const QChar *ch = str.unicode() + pos;
     if ( ch->row() == 0 && ch->cell() < 0x80 ) {
@@ -935,7 +935,7 @@ QCString QFontArabicUnicodeCodec::fromUnicode(const QString& uc, int& lenInOut )
     return result;
 }
 
-ushort QFontArabicUnicodeCodec::shapedGlyph( const QString &str, int pos )
+ushort QFontArabicUnicodeCodec::characterFromUnicode( const QString &str, int pos ) const
 {
     const QChar *ch = str.unicode() + pos;
     if ( ch->row() != 0x06 || ch->cell() > 0x6f )

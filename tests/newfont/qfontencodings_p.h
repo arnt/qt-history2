@@ -130,14 +130,7 @@ public:
 // ------------------------------------------------------------------
 // the shaping codec for iso8859-6.8x fonts (see www.langbox.com)
 
-class QShapingCodec : public QTextCodec
-{
-public:
-    // returns the shaped glyph variant for the char at position pos (str is assumed to be in logical order)
-    virtual ushort shapedGlyph( const QString &str, int pos ) = 0;
-};
-
-class QFontArabic68Codec : public QShapingCodec
+class QFontArabic68Codec : public QTextCodec
 {
 public:
     QFontArabic68Codec();
@@ -157,10 +150,10 @@ public:
 
     int heuristicContentMatch(const char *, int) const;
 
-    ushort shapedGlyph( const QString &str, int pos );
+    unsigned short characterFromUnicode(const QString &str, int pos) const;
 };
 
-class QFontArabicUnicodeCodec : public QShapingCodec
+class QFontArabicUnicodeCodec : public QTextCodec
 {
 public:
     QFontArabicUnicodeCodec();
@@ -171,7 +164,7 @@ public:
     // Return the MIB enum for the encoding if it is listed in the
     // IANA character-sets encoding file.
 
-    QString toUnicode(const char* chars, int len) const ;
+    QString toUnicode(const char* chars, int ipelen) const ;
     // Converts len characters from chars to Unicode.
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
     // Converts lenInOut characters (of type QChar) from the start of
@@ -180,7 +173,7 @@ public:
 
     int heuristicContentMatch(const char *, int) const;
 
-    ushort shapedGlyph( const QString &str, int pos );
+    unsigned short characterFromUnicode(const QString &str, int pos) const;
 };
 
 
