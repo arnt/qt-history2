@@ -637,6 +637,7 @@ Q_LONGLONG QSocketLayer::read(char *data, Q_LONGLONG maxSize)
 
     // Handle remote close
     if (readBytes == 0 && d->socketType == Qt::TcpSocket) {
+        close();
         d->setError(Qt::RemoteHostClosedError,
                     Q_TR("The remote host closed the connection"));
         d->socketState = Qt::UnconnectedState;
