@@ -48,7 +48,7 @@ classes.  The pointer based collection classes work with pointers to
 items, while the value based classes store copies of their items. The
 value-based collections are very similar to STL container classes, and
 can be used with STL algorithms and containers.  See the \link
-qtl.html Qt Template Library\endif documentation for details.
+qtl.html Qt Template Library\endlink documentation for details.
 
 The value based collections are:
 <ul>
