@@ -564,7 +564,7 @@ public:
     void clear() { if ( sh->count == 1 ) sh->clear(); else { sh->deref(); sh = new QMapPrivate<Key,T>; } }
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const QMap& ) const;
+    bool operator==( const QMap& ) const { return FALSE; }
 #endif
 
 protected:

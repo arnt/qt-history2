@@ -136,19 +136,20 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
 	// Figure out position of offscreen memory
 	// Fetch size of pool entries table from memory
 	// Set up pool entries pointer table and 64-bit align it
-	unsigned int pos=(unsigned int)data;
+	int pos=(int)data;
 	pos+=size;
 	pos+=4096;
 	pos+=8;
 	pos&=~0x7;
 	entryp=((int *)pos);
-	lowest=((int *)pos)+1;
+	lowest=((unsigned int *)pos)+1;
 	optype=((int *)pos)+2;
 	lastop=((int *)pos)+3;
 	pos+=(sizeof(int))*4;
 	entries=(QPoolEntry *)pos;
     } else {
-	int * tmp=(int *)(data+(width() * height() * depth())/8);
+	int * tmp=(int *)
+		  (data+(width() * height() * depth())/8);
 	optype=tmp;
 	lastop=tmp+1;
     }
@@ -384,7 +385,7 @@ bool QLinuxFbScreen::initCard()
 	psize&=~0x7;
 	pos+=psize;
 	entryp=((int *)pos);
-	lowest=((int *)pos)+1;
+	lowest=((unsigned int *)pos)+1;
 	// These keep track of accelerator state
 	optype=((int *)pos)+2;
 	lastop=((int *)pos)+3;
@@ -393,7 +394,8 @@ bool QLinuxFbScreen::initCard()
 	*entryp=0;
 	*lowest=mapsize;
     } else {
-	int * tmp=(int *)(data+(width() * height() * depth())/8);
+	int * tmp=(int *)
+		  (data+(width() * height() * depth())/8);
 	optype=tmp;
 	lastop=tmp+1;
     }

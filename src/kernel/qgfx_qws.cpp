@@ -32,6 +32,7 @@
 #include <dlfcn.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <stdlib.h>
 
 #ifndef QT_NO_QWS_CURSOR
 bool qt_sw_cursor=false;

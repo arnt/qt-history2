@@ -2319,8 +2319,6 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    inc = -1;
 	}
 	if(!ismasking) {
-	    unsigned int put;
-	    unsigned short int *fun = (unsigned short int*)&put;
 #ifdef QWS_NO_WRITE_PACKING
 	    while ( w-- )
 		*(myptr++)=get_value_16(srcdepth,&srcdata);
@@ -2333,6 +2331,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
 
 	    QuadByte dput;
+	    unsigned short int * fun;
 	    fun=(unsigned short int *)&dput;
 
 	    while ( frontadd-- )

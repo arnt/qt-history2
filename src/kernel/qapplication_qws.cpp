@@ -641,7 +641,7 @@ void QWSDisplay::setProperty( int winId, int property, int mode,
     cmd.simpleData.windowid = winId;
     cmd.simpleData.property = property;
     cmd.simpleData.mode = mode;
-    cmd.setData( data, strlen(data) );
+    cmd.setData( (char *)data, strlen(data) );
     d->sendCommand( cmd );
 }
 
@@ -3147,6 +3147,8 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 
 bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 {
+    return true;
+
     if ( !animate_ui )
 	return FALSE;
 

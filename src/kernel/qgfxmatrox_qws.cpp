@@ -211,14 +211,14 @@ void QGfxMatrox<depth,type>::drawRect(int rx,int ry,int w,int h)
     }
 
     if( (cbrush.style()!=NoBrush) && (cbrush.style()!=SolidPattern) ) {
-	QGfxRaster::drawRect(rx,ry,w,h);
+	QGfxRaster<depth,type>::drawRect(rx,ry,w,h);
 	return;
     }
 
     QWSDisplay::grab( TRUE );
     if(!checkDest()) {
 	QWSDisplay::ungrab();
-	QGfxRaster::drawRect(rx,ry,w,h);
+	QGfxRaster<depth,type>::drawRect(rx,ry,w,h);
 	return;
     }
 
@@ -374,7 +374,8 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h)
 	    matrox_regw(LEN | EXEC,th);
 
 	}
-	do_scissors(QRect(0,0,width,height));
+	QRect r(0,0,width,height);
+	do_scissors(r);
 	QWSDisplay::ungrab();
 
 	GFX_END

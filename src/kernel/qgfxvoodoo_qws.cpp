@@ -137,6 +137,7 @@ inline int voodoo_depthcode(int d)
 	ret=1;
     } else {
 	qFatal("Unexpected depth %d",d);
+	ret=0;
     }
     return ret;
 }
@@ -205,14 +206,14 @@ void QGfxVoodoo<depth,type>::drawRect(int rx,int ry,int w,int h)
     }
 
     if( (cbrush.style()!=NoBrush) && (cbrush.style()!=SolidPattern) ) {
-	QGfxRaster::drawRect(rx,ry,w,h);
+	QGfxRaster<depth,type>::drawRect(rx,ry,w,h);
 	return;
     }
 
     QWSDisplay::grab( TRUE );
     if(!checkDest()) {
 	QWSDisplay::ungrab();
-	QGfxRaster::drawRect(rx,ry,w,h);
+	QGfxRaster<depth,type>::drawRect(rx,ry,w,h);
 	return;
     }
 

@@ -77,7 +77,7 @@ protected:
     QGfxRasterBase *gfxunder;
 
     QImage *imgunder;
-    QImage *cursor;
+    const QImage *cursor;
 
     uchar *fb_start;
     uchar *fb_end;

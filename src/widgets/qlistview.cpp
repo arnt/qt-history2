@@ -4000,6 +4000,7 @@ void QListView::invertSelection()
 	it.current()->setSelected( !it.current()->isSelected() );
     blockSignals( b );
     emit selectionChanged();
+    triggerUpdate();
 }
 
 

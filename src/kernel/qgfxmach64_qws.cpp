@@ -416,12 +416,12 @@ void QGfxMach64<depth,type>::drawRect(int rx,int ry,int w,int h)
     }
 
     if( (cbrush.style()!=NoBrush) && (cbrush.style()!=SolidPattern) ) {
-	QGfxRaster::drawRect(rx,ry,w,h);
+	QGfxRaster<depth,type>::drawRect(rx,ry,w,h);
 	return;
     }
 
     if(!checkDest() || myrop!=CopyROP) {
-	QGfxRaster::drawRect(rx,ry,w,h);
+	QGfxRaster<depth,type>::drawRect(rx,ry,w,h);
 	return;
     }
 
@@ -529,7 +529,7 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h)
     // memory at the moment
     if(alphatype==BigEndianMask || alphatype==LittleEndianMask ||
        alphatype==SeparateAlpha || srctype==SourcePen || (myrop!=CopyROP) ) {
-	QGfxRaster::blt(rx,ry,w,h);
+	QGfxRaster<depth,type>::blt(rx,ry,w,h);
     }
 
     bool canaccel=false;
@@ -1083,7 +1083,7 @@ void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
 	    | ( 0 << 10 )           // 1 = apple YUV mode
 	    | ( afn << 11 )         // alpha / fog control
 	    | ( asat << 13 )        // alpha saturate blending
-	    | ( 0 << 14 )           // 1 = limit red dither range (what for???)
+	    | ( 0 << 14 )           // 1 = limit red dither range (what for?)
 	    | ( 0 << 15 )           // 1 = signed dst blend clamp for mpeg
 	    | ( asrc << 16 )        // blend src
 	    | ( adst << 19 )        // blend dst
@@ -1231,7 +1231,7 @@ public:
 
     QMachScreen( int display_id );
     virtual ~QMachScreen();
-    virtual bool connect( const QString &spec, char *graphics_card_slot,
+    virtual bool connect( const QString &spec, char *,
 			    unsigned char * config );
     virtual bool initCard();
     virtual int initCursor(void*, bool);
@@ -1282,7 +1282,7 @@ QMachScreen::QMachScreen( int display_id )
 {
 }
 
-bool QMachScreen::connect( const QString &displaySpec, char *graphics_card_slot,
+bool QMachScreen::connect( const QString &displaySpec, char *,
 			    unsigned char * config )
 {
     if ( !QLinuxFbScreen::connect( displaySpec ) )
