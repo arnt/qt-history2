@@ -693,9 +693,9 @@ QByteArray QAxEventSink::findProperty(DISPID dispID)
     \i QDateTime&
     \row
     \i CY
-    \i Q_LLONG
-    \i Q_LLONG
-    \i Q_LLONG&
+    \i Q_LONGLONG
+    \i Q_LONGLONG
+    \i Q_LONGLONG&
     \row
     \i OLE_COLOR
     \i QColor
@@ -1716,7 +1716,7 @@ QByteArray MetaObjectGenerator::guessTypes(const TYPEDESC &tdesc, ITypeInfo *inf
         str = "uint";
         break;
     case VT_CY:
-        str = "Q_LLONG";
+        str = "Q_LONGLONG";
         break;
     case VT_R4:
         str = "float";
