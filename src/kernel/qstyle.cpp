@@ -883,7 +883,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value CE_PopupMenuItem  a menu item in a QPopupMenu.
     \value CE_PopupMenuScroller scrolling areas in a popumenu when the
 	style supports scrolling.
-    \value CE_PopupMenuHoriztonalExtra extra frame area set aside with PM_PopupMenuFrameHorizontalExtra
+    \value CE_PopupMenuHorizontalExtra extra frame area set aside with PM_PopupMenuFrameHorizontalExtra
     \value CE_PopupMenuVerticalExtra extra frame area set aside with PM_PopupMenuFrameVerticalExtra
 
     \value CE_MenuBarItem  a menu item in a QMenuBar.
