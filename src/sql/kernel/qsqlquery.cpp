@@ -786,9 +786,9 @@ bool QSqlQuery::isForwardOnly() const
 
     Forward only mode is off by default.
 
-    Forward only mode cannot be used with data aware widgets like
-    QDataTable, since they must to be able to scroll backward as well
-    as forward.
+    Forward only mode cannot be used with data aware widgets or with
+    any of the model/view classes, since they must to be able to
+    scroll backward as well as forward.
 
     \sa isForwardOnly(), next(), seek()
 */

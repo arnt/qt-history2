@@ -21,7 +21,8 @@ int Q3AccessibleScrollView::itemAt(int /*x*/, int /*y*/) const
 }
 
 /*!
-  Returns the location in viewport coordinates of the item with ID \a id.
+  Returns the location in viewport coordinates of the item with ID \a
+  item.
 */
 QRect Q3AccessibleScrollView::itemRect(int /*item*/) const
 {
