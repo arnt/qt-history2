@@ -5674,7 +5674,7 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	d->last = 0;
 	d->hadDotDot = FALSE;
 
-	if ( d->goBack && d->history.last() != d->url.toString() ) {
+	if ( d->goBack && (d->history.isEmpty() || d->history.last() != d->url.toString()) ) {
 	    d->history.append( d->url.toString() );
 	    if ( d->history.count() > 1 )
 		d->goBack->setEnabled( TRUE );
@@ -6265,7 +6265,7 @@ void QFileDialog::selectAll( bool b )
 
 void QFileDialog::goBack()
 {
-    if ( !d->goBack || !d->goBack->isEnabled() )
+    if ( !d->goBack || !d->goBack->isEnabled() || d->history.isEmpty() )
 	return;
     d->history.remove( d->history.last() );
     if ( d->history.count() < 2 )
