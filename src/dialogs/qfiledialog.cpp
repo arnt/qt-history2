@@ -477,6 +477,19 @@ static bool isDirectoryMode( int m )
     return m == QFileDialog::Directory || m == QFileDialog::DirectoryOnly;
 }
 
+static void updateLastSize( QFileDialog *that )
+{
+    int extWidth = 0;
+    int extHeight = 0;
+    if ( that->extension() && that->extension()->isVisible() ) {
+	if ( that->orientation() == Qt::Vertical )
+	    extHeight = that->extension()->height();
+	else
+	    extWidth = that->extension()->width();
+    }
+    lastWidth = that->width() - extWidth;
+    lastHeight = that->height() - extHeight;
+}
 
 // Don't remove the lines below!
 //
@@ -2774,8 +2787,7 @@ void QFileDialog::init()
 
 	    resize( s );
 	}
-	lastWidth = width();
-	lastHeight = height();
+	updateLastSize(this);
     } else {
 	resize( lastWidth, lastHeight );
     }
@@ -3638,8 +3650,7 @@ void QFileDialog::okClicked()
 
     *workingDirectory = d->url;
     detailViewMode = files->isVisible();
-    lastWidth = width();
-    lastHeight = height();
+    updateLastSize(this);
 
     if ( isDirectoryMode( d->mode ) ) {
 	QUrlInfo f( d->url, nameEdit->text() );
@@ -3757,8 +3768,7 @@ void QFileDialog::cancelClicked()
 {
     *workingDirectory = d->url;
     detailViewMode = files->isVisible();
-    lastWidth = width();
-    lastHeight = height();
+    updateLastSize(this);
     reject();
 }
 
@@ -4078,8 +4088,7 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 
     *workingDirectory = d->url;
     detailViewMode = files->isVisible();
-    lastWidth = width();
-    lastHeight = height();
+    updateLastSize(this);
 
     if ( !newItem )
 	return;
