@@ -57,8 +57,8 @@ struct UndoRedoInfo {
     UndoRedoInfo( QTextParag *p ) : type( Invalid ), parag( p ) {
 	text = QString::null; index = -1;
     }
-    void clear() {
-	if ( valid() ) {
+    void clear( bool force = FALSE ) {
+	if ( valid() || force ) {
 	    QTextString s;
 	    s.insert( 0, text, 0 );
 	    if ( type == Insert )
@@ -1054,7 +1054,13 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
 
     d->parag->setSelection( QTextDocument::Standard, c1.index(), c2.index() );
     *d->cursor = c2;
-    updateSelection();
+#ifndef QT_NO_CLIPBOARD
+    if (! d->mousePressed && QApplication::clipboard()->supportsSelection()) {
+	QApplication::clipboard()->setSelectionMode(TRUE);
+	copy();
+	QApplication::clipboard()->setSelectionMode(FALSE);
+    }
+#endif // QT_NO_CLIPBOARD
     update();
 }
 
