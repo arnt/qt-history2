@@ -1143,7 +1143,7 @@ void QLayout::addChildWidget(QWidget *w)
 
     //Qt::WA_LaidOut is never reset. It only means that the widget at some point has
     //been in a layout.
-    if (w->testAttribute(Qt::WA_LaidOut)) {
+    if (pw && w->testAttribute(Qt::WA_LaidOut)) {
         QLayout *l = pw->layout();
         if (l && removeWidgetRecursively(l, w))
             qWarning("QLayout::addChildWidget: %s is already in a layout; moved to new layout", w->metaObject()->className());
