@@ -45,8 +45,10 @@ WidgetGallery::WidgetGallery(QWidget *parent)
     mainLayout->addWidget(bottomLeftTabWidget, 2, 0);
     mainLayout->addWidget(bottomRightGroupBox, 2, 1);
     mainLayout->addWidget(progressBar, 3, 0, 1, 2);
-
-    mainLayout->setResizeMode(QLayout::Fixed);
+    mainLayout->setRowStretch(1, 1);
+    mainLayout->setRowStretch(2, 1);
+    mainLayout->setColumnStretch(0, 1);
+    mainLayout->setColumnStretch(1, 1);
 
     setWindowTitle(tr("Styles"));
     changeStyle("NorwegianWood");
@@ -77,7 +79,7 @@ void WidgetGallery::createTopLeftGroupBox()
     radioButton3 = new QRadioButton(tr("Radio button 3"), topLeftGroupBox);
     radioButton1->setChecked(true);
 
-    checkBox = new QCheckBox(tr("Check box"), topLeftGroupBox);
+    checkBox = new QCheckBox(tr("Tri-state check box"), topLeftGroupBox);
     checkBox->setTristate(true);
     checkBox->setCheckState(Qt::PartiallyChecked);
 
@@ -86,6 +88,7 @@ void WidgetGallery::createTopLeftGroupBox()
     layout->addWidget(radioButton2);
     layout->addWidget(radioButton3);
     layout->addWidget(checkBox);
+    layout->addStretch(1);
 }
 
 void WidgetGallery::createTopRightGroupBox()
@@ -160,6 +163,7 @@ void WidgetGallery::createBottomRightGroupBox()
     layout->addWidget(slider, 3, 0);
     layout->addWidget(scrollBar, 4, 0);
     layout->addWidget(dial, 3, 1, 2, 1);
+    layout->setRowStretch(5, 1);
 }
 
 void WidgetGallery::createProgressBar()

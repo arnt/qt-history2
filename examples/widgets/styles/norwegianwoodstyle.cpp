@@ -14,20 +14,25 @@ static void drawRoundRect(QPainter *painter, int x, int y, int width, int height
     painter->drawRoundRect(x, y, width, height, rx, ry);
 }
 
-static QRegion roundRectRegion(const QRect& g, int r)
+static QRegion roundRectRegion(const QRect &rect, int radius)
 {
-    QPolygon a;
-    a.setPoints(8, g.x()+r, g.y(), g.right()-r, g.y(),
-                 g.right(), g.y()+r, g.right(), g.bottom()-r,
-                 g.right()-r, g.bottom(), g.x()+r, g.bottom(),
-                 g.x(), g.bottom()-r, g.x(), g.y()+r);
-    QRegion reg(a);
-    int d = r*2-1;
-    reg += QRegion(g.x(),g.y(),r*2,r*2, QRegion::Ellipse);
-    reg += QRegion(g.right()-d,g.y(),r*2,r*2, QRegion::Ellipse);
-    reg += QRegion(g.x(),g.bottom()-d,r*2,r*2, QRegion::Ellipse);
-    reg += QRegion(g.right()-d,g.bottom()-d,r*2,r*2, QRegion::Ellipse);
-    return reg;
+    QPolygon polygon;
+    polygon << QPoint(rect.x() + radius, rect.y())
+            << QPoint(rect.x() + rect.width() - radius, rect.y())
+            << QPoint(rect.x() + rect.width(), rect.y() + radius)
+            << QPoint(rect.x() + rect.width(), rect.y() + rect.height() - radius)
+            << QPoint(rect.x() + rect.width() - radius, rect.y() + rect.height())
+            << QPoint(rect.x() + radius, rect.y() + rect.height())
+            << QPoint(rect.x(), rect.y() + rect.height() - radius)
+            << QPoint(rect.x(), rect.y() + radius);
+
+    QRegion region(polygon);
+    int diameter = radius * 2 - 1;
+    region |= QRegion(rect.x(), rect.y(), radius * 2, radius * 2, QRegion::Ellipse);
+    region |= QRegion(rect.right() - diameter, rect.y(), radius * 2, radius * 2, QRegion::Ellipse);
+    region |= QRegion(rect.x(), rect.bottom() - diameter, radius * 2, radius * 2, QRegion::Ellipse);
+    region |= QRegion(rect.right() - diameter, rect.bottom() - diameter, radius * 2, radius * 2, QRegion::Ellipse);
+    return region;
 }
 
 static int get_combo_extra_width(int height, int *return_awh)
@@ -79,12 +84,13 @@ static inline int buttonThickness(int side)
 
 NorwegianWoodStyle::NorwegianWoodStyle()
 {
-    buttonImage.load(":/images/woodbutton.png");
+    buttonImage.load(":/images/woodbutton.xpm");
     lightImage = buttonImage;
     darkImage = buttonImage;
     midImage = buttonImage;
-    backgroundImage.load(":/images/woodbackground.png");
+    backgroundImage.load(":/images/woodbackground.xpm");
     sunkenLightImage = backgroundImage;
+    sunkenMidImage = backgroundImage;
     sunkenDarkImage = backgroundImage;
 
     for (int i = 0; i < buttonImage.numColors(); ++i) {
@@ -92,14 +98,15 @@ NorwegianWoodStyle::NorwegianWoodStyle()
         QColor color(rgb);
 
         lightImage.setColor(i, color.light().rgb());
-        darkImage.setColor(i, color.dark(180).rgb());
         midImage.setColor(i, color.dark(120).rgb());
+        darkImage.setColor(i, color.dark(180).rgb());
     }
     for (int j = 0; j < backgroundImage.numColors(); ++j) {
         QRgb rgb = backgroundImage.color(j);
         QColor color(rgb);
 
         sunkenLightImage.setColor(j, color.light().rgb());
+        sunkenMidImage.setColor(j, color.dark(120).rgb());
         sunkenDarkImage.setColor(j, color.dark(180).rgb());
     }
 
@@ -118,35 +125,6 @@ void NorwegianWoodStyle::polish(QPalette &palette)
     palette = woodPalette;
 }
 
-void NorwegianWoodStyle::polish(QWidget *widget)
-{
-    QWindowsStyle::polish(widget);
-
-    if (!widget->isWindow()) {
-        if (qobject_cast<QPushButton *>(widget)
-                || qobject_cast<QComboBox *>(widget))
-            widget->setAutoMask(true);
-#if 0
-        if (widget->backgroundPixmap())
-            widget->setBackgroundOrigin(QWidget::WindowOrigin);
-#endif
-    }
-}
-
-void NorwegianWoodStyle::unpolish(QWidget *widget)
-{
-    if (!widget->isWindow()) {
-        if (qobject_cast<QPushButton *>(widget)
-                || qobject_cast<QComboBox *>(widget))
-            widget->setAutoMask(false);
-#if 0
-        if (widget->backgroundPixmap())
-            widget->setBackgroundOrigin(QWidget::WindowOrigin); // ###
-#endif
-    }
-    QWindowsStyle::unpolish(widget);
-}
-
 void NorwegianWoodStyle::drawPrimitive(PrimitiveElement element,
                                        const QStyleOption *option,
                                        QPainter *painter,
@@ -158,197 +136,105 @@ void NorwegianWoodStyle::drawPrimitive(PrimitiveElement element,
     switch (element) {
     case PE_PanelButtonCommand:
         {
+            const QStyleOptionButton *buttonOption =
+                    qstyleoption_cast<const QStyleOptionButton *>(option);
+            bool isFlat = (buttonOption->features & QStyleOptionButton::Flat);
+
+            if (isFlat && widget)
+                painter->setBrushOrigin(-widget->mapTo(widget->window(),
+                                                       QPoint(0, 0)));
+
             int minorDiameter = qMin(width, height) / 2;
             int thickness = buttonThickness(minorDiameter);
 
-            QRegion internR = roundRectRegion(QRect(x + thickness, y + thickness,
-                                                    width - 2 * thickness,
-                                                    height - 2 * thickness),
-                                                    minorDiameter - thickness);
-            QPen oldPen = painter->pen();
-
-            QBrush brush = option->palette.brush((option->state & State_Sunken) ? QPalette::Mid : QPalette::Button);
-            painter->setClipRegion(internR);
-            painter->fillRect(option->rect, brush);
-
+            QRegion outerRegion = roundRectRegion(option->rect, minorDiameter);
+            QRegion innerRegion = roundRectRegion(QRect(x + thickness,
+                                                        y + thickness,
+                                                        width - 2 * thickness,
+                                                        height - 2 * thickness),
+                                                  minorDiameter - thickness);
             QPoint p2(x + width - 1 - minorDiameter, y + minorDiameter);
             QPoint p3(x + minorDiameter, y + height - 1 - minorDiameter);
+            QPolygon sunnySide;
+            sunnySide << QPoint(x, y) << QPoint(x + width - 1, y) << p2 << p3 << QPoint(x, y + height - 1);
 
-            QPolygon a;
-            a.setPoints(5, x,y, x+width-1, y, p2.x(), p2.y(), p3.x(), p3.y(),
-                         x, y + height - 1);
-            painter->setClipRegion(QRegion(a) - internR);
+            QPen oldPen = painter->pen();
 
-            painter->fillRect(option->rect, (option->state & State_Sunken ? QBrush(option->palette.dark().color(), sunkenDarkImage)
+            QBrush brush;
+
+            if (option->state & (State_Down | State_On)) {
+                if (isFlat) {
+                    brush = QBrush(option->palette.mid().color(), sunkenMidImage);
+                } else {
+                    brush = option->palette.mid();
+                }
+            } else {
+                brush = option->palette.button();
+            }
+
+            painter->setClipRegion(innerRegion);
+            painter->fillRect(option->rect, brush);
+            if ((option->state & (State_Down | State_On)) == State_On)
+                painter->fillRect(option->rect, QBrush(brush.color(), Qt::Dense4Pattern));
+
+            painter->setClipRegion((QRegion(sunnySide) - innerRegion) & outerRegion);
+            painter->fillRect(option->rect, (option->state & (State_Down | State_On) ? QBrush(option->palette.dark().color(), sunkenDarkImage)
                                              : option->palette.brush(QPalette::Light)));
 
-            // A little inversion is needed the buttons
-            // (but not flat)
-            if ((option->state & State_Raised) || (option->state & State_Sunken)) {
-                a.setPoint(0, x + width - 1, y + width - 1);
-                painter->setClipRegion(QRegion(a) - internR);
+            if (option->state & (State_Raised | State_Down | State_On)) {
+                sunnySide[0] = QPoint(x + width - 1, y + width - 1);
+                painter->setClipRegion((QRegion(sunnySide) - innerRegion) & outerRegion);
 
-                painter->fillRect(option->rect, (option->state & State_Sunken ?
+                painter->fillRect(option->rect, (option->state & (State_Down | State_On) ?
                     QBrush(option->palette.light().color(), sunkenLightImage) : option->palette.dark()));
             }
-            painter->setClipRegion(internR);
             painter->setClipping(false);
             painter->setPen(option->palette.foreground().color());
             drawRoundRect(painter, x, y, width, height, minorDiameter);
             painter->setPen(oldPen);
             break;
         }
-/*
-    case PE_ScrollBarAddLine:
-        if (option->state & State_Horizontal)
-            drawSemicircleButton(painter, option->rect, PointRight, option->state & State_Down, cg);
-        else
-            drawSemicircleButton(painter, option->rect, PointDown, option->state & State_Down, cg);
-        break;
-    case PE_ScrollBarSubLine:
-        if (option->state & State_Horizontal)
-            drawSemicircleButton(painter, option->rect, PointLeft, option->state & State_Down, cg);
-        else
-            drawSemicircleButton(painter, option->rect, PointUp, option->state & State_Down, cg);
-        break;
-*/
     default:
         QWindowsStyle::drawPrimitive(element, option, painter, widget);
     }
 }
 
-#if 0
 void NorwegianWoodStyle::drawControl(ControlElement element,
-                                      QPainter *painter,
-                                      const QWidget *widget,
-                                      const QRect &r,
-                                      const QColorGroup &cg,
-                                      SFlags how, const QStyleOption& opt) const
+                                     const QStyleOption *option,
+                                     QPainter *painter,
+                                     const QWidget *widget) const
 {
     switch(element) {
-    case CE_PushButton:
-        {
-            const QPushButton *btn;
-            btn = (const QPushButton *)widget;
-            QColorGroup myCg(cg);
-            SFlags flags = State_Default;
-            if (btn->isOn())
-                flags |= State_On;
-            if (btn->isDown())
-                flags |= State_Down;
-            if (btn->isOn() || btn->isDown())
-                flags |= State_Sunken;
-            if (btn->isDefault())
-                flags |= State_Default;
-            if (! btn->isFlat() && !(flags & State_Down))
-                flags |= State_Raised;
-
-            int x1, y1, x2, y2;
-            option->rect.coords(&x1, &y1, &x2, &y2);
-
-            painter->setPen(cg.foreground());
-            painter->setBrush(QBrush(cg.button(), NoBrush));
-
-            QBrush fill;
-            if (btn->isDown())
-                fill = cg.brush(QColorGroup::Mid);
-            else if (btn->isOn())
-                fill = QBrush(cg.mid(), Dense4Pattern);
-            else
-                fill = cg.brush(QColorGroup::Button);
-            myCg.setBrush(QColorGroup::Mid, fill);
-
-            if (btn->isDefault()) {
-                x1 += 2;
-                y1 += 2;
-                x2 -= 2;
-                y2 -= 2;
-            }
-
-            drawPrimitive(PE_ButtonCommand, painter,
-                           QRect(x1, y1, x2 - x1 + 1, y2 - y1 + 1),
-                           myCg, flags, opt);
-
-            if (btn->isDefault()) {
-                QPen pen(Qt::black, 4);
-                pen.setCapStyle(Qt::RoundCap);
-                pen.setJoinStyle(Qt::RoundJoin);
-                painter->setPen(pen);
-                drawRoundRect(painter, x1 - 1, y1 - 1, x2 - x1 + 3, y2 - y1 + 3, 8);
-            }
-
-            if (btn->isMenuButton()) {
-                int dx = (y1 - y2 - 4) / 3;
-
-                // reset the flags
-                flags = State_Default;
-                if (btn->isEnabled())
-                    flags |= State_Enabled;
-                drawPrimitive(PE_ArrowDown, painter,
-                               QRect(x2 - dx, dx, y1, y2 - y1),
-                               myCg, flags, opt);
-            }
-
-            if (painter->brush().style() != NoBrush)
-                painter->setBrush(NoBrush);
-            break;
-        }
     case CE_PushButtonLabel:
         {
-            const QPushButton *btn;
-            btn = (const QPushButton*)widget;
-            int x, y, width, height;
-            option->rect.getRect(&x, &y, &width, &height);
-
-            int x1, y1, x2, y2;
-            option->rect.getCoords(&x1, &y1, &x2, &y2);
-            int dx = 0;
-            int dy = 0;
-            if (btn->isMenuButton())
-                dx = (y2 - y1) / 3;
-            if (dx || dy)
-                painter->translate(dx, dy);
-
-            x += 2;
-            y += 2;
-            width -= 4;
-            height -= 4;
-            drawItem(painter, QRect(x, y, width, height),
-                      AlignCenter | ShowPrefix,
-                      cg, btn->isEnabled(),
-                      btn->pixmap(), btn->text(), -1,
-                      (btn->isDown() || btn->isOn()) ? &cg.brightText()
-                      : &cg.buttonText());
-            if (dx || dy)
-                painter->translate(-dx, -dy);
-            break;
+            QStyleOptionButton myButtonOption;
+            const QStyleOptionButton *buttonOption = qstyleoption_cast<const QStyleOptionButton *>(option);
+            if (buttonOption) {
+                myButtonOption = *buttonOption;
+                if (myButtonOption.state & (State_Down | State_On))
+                    myButtonOption.palette.setBrush(QPalette::ButtonText, /*myButtonOption.palette.brightText()*/Qt::white);
+            }
+            QWindowsStyle::drawControl(element, &myButtonOption, painter, widget);
         }
-    default:
-        QWindowsStyle::drawControl(element, painter, widget, option->rect, cg, how, opt);
-    }
-}
-
-void NorwegianWoodStyle::drawControlMask(ControlElement element,
-                                          QPainter *painter,
-                                          const QWidget *widget,
-                                          const QRect &r,
-                                          const QStyleOption& opt) const
-{
-    switch(element) {
-    case CE_PushButton:
-        {
-            int minorDiameter = qMin(r.width(), r.height()) / 2;
-            painter->setPen(color1);
-            painter->setBrush(color1);
-            drawRoundRect(painter, r.x(), r.y(), r.width(), r.height(), minorDiameter);
-            break;
-        }
-    default:
-        QWindowsStyle::drawControlMask(element, painter, widget, r, opt);
         break;
+    case CE_ScrollBarAddLine:
+        if (option->state & State_Horizontal)
+            drawSemiCircleButton(PointRight, painter, option);
+        else
+            drawSemiCircleButton(PointDown, painter, option);
+        break;
+    case CE_ScrollBarSubLine:
+        if (option->state & State_Horizontal)
+            drawSemiCircleButton(PointLeft, painter, option);
+        else
+            drawSemiCircleButton(PointUp, painter, option);
+        break;
+    default:
+        QWindowsStyle::drawControl(element, option, painter, widget);
     }
 }
 
+#if 0
 void NorwegianWoodStyle::drawComplexControl(ComplexControl cc,
                                              QPainter *painter,
                                              const QWidget *widget,
@@ -398,27 +284,6 @@ void NorwegianWoodStyle::drawComplexControl(ComplexControl cc,
     default:
         QWindowsStyle::drawComplexControl(cc, painter, widget, r, cg, how,
                                            sub, subActive, opt);
-        break;
-    }
-}
-
-void NorwegianWoodStyle::drawComplexControlMask(ComplexControl control,
-                                                 QPainter *painter,
-                                                 const QWidget *widget,
-                                                 const QRect &r,
-                                                 const QStyleOption& opt) const
-{
-    switch (control) {
-    case CC_ComboBox:
-        {
-            int minorDiameter = qMin(r.width(), r.height()) / 2;
-            painter->setPen(color1);
-            painter->setBrush(color1);
-            drawRoundRect(painter, r.x(), r.y(), r.width(), r.height(), minorDiameter);
-            break;
-        }
-    default:
-        QWindowsStyle::drawComplexControlMask(control, painter, widget, r, opt);
         break;
     }
 }
@@ -538,23 +403,21 @@ void NorwegianWoodStyle::setBrushPixmap(QPalette &palette,
     }
 }
 
-#if 0
-void NorwegianWoodStyle::drawSemicircleButton(QPainter *painter, const QRect &r,
-                                               int dir, bool sunken,
-                                               const QColorGroup &g) const
+void NorwegianWoodStyle::drawSemiCircleButton(Direction direction, QPainter *painter,
+                                              const QStyleOption *option) const
 {
-    int b =  pixelMetric(PM_ScrollBarExtent) > 20 ? 3 : 2;
+    int b = pixelMetric(PM_ScrollBarExtent) > 20 ? 3 : 2;
 
-     QRegion extrn( r.x(),   r.y(),   r.width(),     r.height(),     QRegion::Ellipse);
-     QRegion intern(r.x()+b, r.y()+b, r.width()-2*b, r.height()-2*b, QRegion::Ellipse);
-    int w2 = r.width()/2;
-    int h2 = r.height()/2;
+    QRect r = option->rect.adjusted(2, 2, -2, -2);
+    QPalette g = option->palette;
+    QRegion extrn(r.x(), r.y(), r.width(), r.height(), QRegion::Ellipse);
+    QRegion intern(r.x() + b, r.y() + b, r.width() - 2 * b, r.height() - 2 * b, QRegion::Ellipse);
+    int w2 = r.width() / 2;
+    int h2 = r.height() / 2;
 
-    int bug = 1; //off-by-one somewhere!!!???
-
-    switch(dir) {
+    switch (direction) {
     case PointRight:
-        extrn +=  QRegion(r.x(),  r.y(),   w2,     r.height());
+        extrn += QRegion(r.x(),  r.y(),   w2,     r.height());
         intern += QRegion(r.x()+b,r.y()+b, w2-2*b, r.height()-2*b);
         break;
     case PointLeft:
@@ -563,32 +426,36 @@ void NorwegianWoodStyle::drawSemicircleButton(QPainter *painter, const QRect &r,
         break;
     case PointUp:
         extrn +=  QRegion(r.x(),  r.y()+h2,   r.width(),     h2);
-        intern += QRegion(r.x()+b,r.y()+h2+b, r.width()-2*b-bug, h2-2*b-bug);
+        intern += QRegion(r.x()+b,r.y()+h2+b, r.width()-2*b, h2-2*b);
         break;
     case PointDown:
         extrn +=  QRegion(r.x(),  r.y(),   r.width(),     h2);
-        intern += QRegion(r.x()+b,r.y()+b, r.width()-2*b-bug, h2-2*b-bug);
+        intern += QRegion(r.x()+b,r.y()+b, r.width()-2*b, h2-2*b);
         break;
     }
 
     extrn = extrn - intern;
     QPolygon a;
-    a.setPoints(3, r.x(), r.y(), r.x(), r.bottom(), r.right(), r.top());
+    a.setPoints(3, r.x(), r.y(), r.x(), r.y() + r.height(), r.x() + r.width(), r.top());
 
     QRegion oldClip = painter->clipRegion();
-    bool bReallyClip = painter->hasClipping();  // clip only if we really want.
+    bool bReallyClip = painter->hasClipping();
     painter->setClipRegion(intern);
-    painter->fillRect(r, g.brush(QColorGroup::Button));
+    painter->fillRect(r, g.button());
 
-    painter->setClipRegion(QRegion(a)&extrn);
-    painter->fillRect(r, sunken ? g.dark() : g.light());
+    QColor sunnySide = g.light().color();
+    QColor shadedSide = g.dark().color();
+    if (option->state & State_Down)
+        qSwap(sunnySide, shadedSide);
 
-    a.setPoints(3, r.right(), r.bottom(), r.x(), r.bottom(),
-                 r.right(), r.top());
-    painter->setClipRegion(QRegion(a) &  extrn);
-    painter->fillRect(r, sunken ? g.light() : g.dark());
+    painter->setClipRegion(QRegion(a) & extrn);
+    painter->fillRect(r, sunnySide);
+
+    a.setPoints(3, r.x() + r.width(), r.y() + r.height(), r.x(), r.y() + r.height(),
+                r.x() + r.width(), r.y());
+    painter->setClipRegion(QRegion(a) & extrn);
+    painter->fillRect(r, shadedSide);
 
     painter->setClipRegion(oldClip);
     painter->setClipping(bReallyClip);
 }
-#endif

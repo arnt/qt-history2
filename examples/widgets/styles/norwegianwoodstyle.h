@@ -12,14 +12,12 @@ public:
     NorwegianWoodStyle();
 
     void polish(QPalette &palette);
-    void polish(QWidget *widget);
-    void unpolish(QWidget *widget);
 
     void drawPrimitive(PrimitiveElement element, const QStyleOption *option,
                        QPainter *painter, const QWidget *widget) const;
-#if 0
     void drawControl(ControlElement control, const QStyleOption *option,
                      QPainter *painter, const QWidget *widget) const;
+#if 0
     void drawComplexControl(ControlElement control,
                             const QStyleOptionComplex *option,
                             QPainter *painter, const QWidget *widget) const;
@@ -33,12 +31,14 @@ public:
 #endif
 
 private:
+    enum Direction { PointUp, PointDown, PointLeft, PointRight };
+
     void setBrush(QPalette &palette, QPalette::ColorRole role,
                   const QBrush &brush);
     void setBrushPixmap(QPalette &palette, QPalette::ColorRole role,
                         const QPixmap &pixmap);
-    void drawSemicircleButton(QPainter *p, const QRect &r, int dir,
-			      bool sunken, const QColorGroup &g ) const;
+    void drawSemiCircleButton(Direction direction, QPainter *painter,
+                              const QStyleOption *option) const;
 
     QImage buttonImage;
     QImage lightImage;
@@ -46,6 +46,7 @@ private:
     QImage midImage;
     QImage backgroundImage;
     QImage sunkenLightImage;
+    QImage sunkenMidImage;
     QImage sunkenDarkImage;
     QPalette woodPalette;
 };
