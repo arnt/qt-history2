@@ -144,36 +144,6 @@ QVariant::Type qDecodeODBCType( SQLSMALLINT sqltype )
     return type;
 }
 
-QSqlField qMakeField( const QODBCPrivate* p, int i  )
-{
-    SQLSMALLINT colNameLen;
-    SQLSMALLINT colType;
-    SQLUINTEGER colSize;
-    SQLSMALLINT colScale;
-    SQLSMALLINT nullable;
-    SQLRETURN r = SQL_ERROR;
-    QString qColName;
-    SQLCHAR colName[255];
-    r = SQLDescribeCol( p->hStmt,
-			i+1,
-			colName,
-			sizeof(colName),
-			&colNameLen,
-			&colType,
-			&colSize,
-			&colScale,
-			&nullable);
-    if ( r != SQL_SUCCESS ) {
-#ifdef QT_CHECK_RANGE
-	qSqlWarning( QString("qMakeField: Unable to describe column %1").arg(i), p );
-#endif
-	return QSqlField();
-    }
-    qColName = qstrdup((const char*)colName);
-    QVariant::Type type = qDecodeODBCType( colType );
-    return QSqlField( qColName, type );
-}
-
 QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* p, int i  )
 {
     SQLSMALLINT colNameLen;
@@ -301,55 +271,6 @@ int qGetIntData( SQLHANDLE hStmt, int column, bool& isNull  )
     return (int)intbuf;
 }
 
-QSqlField qMakeField( const QODBCPrivate* d, const QString& tablename, const QString& fieldname )
-{
-    QSqlField fi;
-    SQLHANDLE hStmt;
-    SQLRETURN r = SQLAllocHandle( SQL_HANDLE_STMT,
-				  d->hDbc,
-				  &hStmt );
-    if ( r != SQL_SUCCESS ) {
-#ifdef QT_CHECK_RANGE
-        qSqlWarning( "qMakeField: Unable to alloc handle", d );
-#endif
-	return fi;
-    }
-    r = SQLSetStmtAttr( hStmt,
-			SQL_ATTR_CURSOR_TYPE,
-			(SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
-			SQL_IS_UINTEGER );
-    r =  SQLColumns( hStmt,
-		     NULL,
-		     0,
-		     NULL,
-		     0,
-		     (SQLCHAR*)tablename.local8Bit().data(),
-		     tablename.length(),
-		     (SQLCHAR*)fieldname.local8Bit().data(),
-		     fieldname.length() );
-
-    if ( r != SQL_SUCCESS ) {
-#ifdef QT_CHECK_RANGE
-	qSqlWarning( "qMakeField: Unable to execute column list", d );
-#endif
-	return fi;
-    }
-    r = SQLFetchScroll( hStmt,
-			SQL_FETCH_NEXT,
-			0);
-    if ( r == SQL_SUCCESS ) {
-	bool isNull;
-	int type = qGetIntData( hStmt, 4, isNull ); // column type
-	fi = QSqlField( fieldname, qDecodeODBCType( type ) );
-    }
-    r = SQLFreeHandle( SQL_HANDLE_STMT, hStmt );
-#ifdef QT_CHECK_RANGE
-    if ( r != SQL_SUCCESS )
-        qSqlWarning( "QODBCDriver: Unable to free statement handle " + QString::number(r), d );
-#endif
-    return fi;
-}
-
 QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* d, const QString& tablename, const QString& fieldname )
 {
     QSqlFieldInfo fi;
@@ -408,6 +329,18 @@ QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* d, const QString& tablename, c
         qSqlWarning( "QODBCDriver: Unable to free statement handle " + QString::number(r), d );
 #endif
     return fi;
+}
+
+QSqlField qMakeField( const QODBCPrivate* d, const QString& tablename, const QString& fieldname )
+{
+    QSqlFieldInfo info = qMakeFieldInfo( d, tablename, fieldname );
+    return QSqlField( info.name(), info.type() );
+}
+
+QSqlField qMakeField( const QODBCPrivate* p, int i  )
+{
+    QSqlFieldInfo info = qMakeFieldInfo( p, i );
+    return QSqlField( info.name(), info.type() );
 }
 
 ////////////////////////////////////////////////////////////////////////////
