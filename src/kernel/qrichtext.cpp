@@ -7935,8 +7935,7 @@ QTextTableCell::QTextTableCell( QTextTable* table,
     richtext->setUseFormatCollection( table->parent->useFormatCollection() );
     richtext->setMimeSourceFactory( &factory );
     richtext->setStyleSheet( sheet );
-    richtext->setDefaultFormat( table->parent->formatCollection()->defaultFormat()->font(),
-				table->parent->formatCollection()->defaultFormat()->color() );
+    richtext->setDefaultFormat( fmt.font(), fmt.color() );
     richtext->setRichText( doc, context );
     rowspan_ = 1;
     colspan_ = 1;
