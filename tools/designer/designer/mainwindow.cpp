@@ -1561,7 +1561,7 @@ void MainWindow::openFile( const QString &filename, bool validFileName )
 bool MainWindow::fileSave()
 {
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->form() == formWindow() ) {
+	if ( e->object() == formWindow() ) {
 	    e->save();
 	    e->setModified( FALSE );
 	}
@@ -1943,8 +1943,8 @@ void MainWindow::editSource( bool /*resetSame*/ )
     }
     editor->show();
     editor->setFocus();
-    if ( editor->form() != formWindow() )
-	editor->setForm( formWindow() );
+    if ( editor->object() != formWindow() )
+	editor->setObject( formWindow(), formWindow()->project() );
 }
 
 void MainWindow::editFormSettings()
@@ -2116,7 +2116,7 @@ void MainWindow::searchFind()
     findDialog->show();
     findDialog->raise();
     findDialog->setEditor( ( (SourceEditor*)workSpace()->activeWindow() )->editorInterface(),
-			   ( (SourceEditor*)workSpace()->activeWindow() )->form() );
+			   ( (SourceEditor*)workSpace()->activeWindow() )->object() );
     findDialog->comboFind->setFocus();
     findDialog->comboFind->lineEdit()->selectAll();
 }
@@ -2158,7 +2158,7 @@ void MainWindow::searchReplace()
     replaceDialog->show();
     replaceDialog->raise();
     replaceDialog->setEditor( ( (SourceEditor*)workSpace()->activeWindow() )->editorInterface(),
-			   ( (SourceEditor*)workSpace()->activeWindow() )->form() );
+			   ( (SourceEditor*)workSpace()->activeWindow() )->object() );
     replaceDialog->comboFind->setFocus();
     replaceDialog->comboFind->lineEdit()->selectAll();
 }
@@ -2297,7 +2297,7 @@ QObjectList *MainWindow::runProject()
     qwf_stays_on_top = FALSE;
 
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->form() && e->form()->project() == currentProject )
+	if ( e->object() && e->project() == currentProject )
 	    e->editorInterface()->setMode( EditorInterface::Debugging );
     }
     return l;
@@ -2951,7 +2951,7 @@ bool MainWindow::unregisterClient( FormWindow *w )
     QList<SourceEditor> waitingForDelete;
     waitingForDelete.setAutoDelete( TRUE );
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->form() == w )
+	if ( e->object() == w )
 	    waitingForDelete.append( e );
     }
 
@@ -4328,8 +4328,8 @@ void MainWindow::editFunction( const QString &func, const QString &l, bool rerea
     }
     editor->show();
     editor->setFocus();
-    if ( editor->form() != formWindow() )
-	editor->setForm( formWindow() );
+    if ( editor->object() != formWindow() )
+	editor->setObject( formWindow(), formWindow()->project() );
     else if ( rereadSource )
 	editor->refresh();
     editor->setFunction( func );
@@ -4468,8 +4468,13 @@ void MainWindow::setModified( bool b, QWidget *window )
 	    ( (FormWindow*)w )->modificationChanged( b );
 	    return;
 	} else if ( w->inherits( "SourceEditor" ) ) {
-	    ( (SourceEditor*)w )->form()->commandHistory()->setModified( b );
-	    ( (SourceEditor*)w )->form()->modificationChanged( b );
+	    if ( ( (SourceEditor*)w )->object()->inherits( "FormWindow" ) ) {
+		FormWindow *fw = (FormWindow*)( (SourceEditor*)w )->object();
+		fw->commandHistory()->setModified( b );
+		fw->modificationChanged( b );
+	    } else {
+		// ############# for outher source files
+	    }
 	}
 	w = w->parentWidget();
     }
@@ -4531,7 +4536,7 @@ void MainWindow::finishedRun()
     debuggingForms.clear();
     enableAll( TRUE );
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->form() && e->form()->project() == currentProject )
+	if ( e->object() && e->project() == currentProject )
 	    e->editorInterface()->setMode( EditorInterface::Editing );
     }
 }
@@ -4563,7 +4568,7 @@ void MainWindow::showSourceLine( QObject *o, int line, bool error )
 	if ( QString( fw->name() ) == QString( o->name() ) ) {
 
 	    if ( workSpace()->activeWindow() && workSpace()->activeWindow()->inherits( "SourceEditor" ) &&
-		 ( (SourceEditor*)workSpace()->activeWindow() )->form() == fw ) {
+		 ( (SourceEditor*)workSpace()->activeWindow() )->object() == fw ) {
 		if ( error )
 		    eiface->setError( line );
 		else
@@ -4616,7 +4621,7 @@ QWidget *MainWindow::findRealForm( QWidget *wid )
 void MainWindow::formNameChanged( FormWindow *fw )
 {
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->form() == fw ) {
+	if ( e->object() == fw ) {
 	    e->refresh();
 	    break;
 	}
@@ -4630,9 +4635,9 @@ void MainWindow::breakPointsChanged()
     if ( !workSpace()->activeWindow() || !workSpace()->activeWindow()->inherits( "SourceEditor" ) )
 	return;
     SourceEditor *e = (SourceEditor*)workSpace()->activeWindow();
-    if ( !e->form() || !e->form()->project() )
+    if ( !e->object() || !e->project() )
 	return;
-    if ( e->form()->project() != currentProject )
+    if ( e->project() != currentProject )
 	return;
 
     InterpreterInterface *iiface = 0;
@@ -4646,8 +4651,8 @@ void MainWindow::breakPointsChanged()
     e->saveBreakPoints();
 
     for ( QObject *o = debuggingForms.first(); o; o = debuggingForms.next() ) {
-	if ( qstrcmp( o->name(), e->form()->name() ) == 0 ) {
-	    iiface->setBreakPoints( o, MetaDataBase::breakPoints( e->form() ) );
+	if ( qstrcmp( o->name(), e->object()->name() ) == 0 ) {
+	    iiface->setBreakPoints( o, MetaDataBase::breakPoints( e->object() ) );
 	    break;
 	}
     }

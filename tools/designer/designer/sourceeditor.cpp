@@ -26,6 +26,7 @@
 #include "mainwindow.h"
 #include "../interfaces/languageinterface.h"
 #include <qregexp.h>
+#include "project.h"
 
 static QString make_func_pretty( const QString &s )
 {
@@ -42,7 +43,7 @@ static QString make_func_pretty( const QString &s )
 }
 
 SourceEditor::SourceEditor( QWidget *parent, EditorInterface *iface, LanguageInterface *liface )
-    : QVBox( parent ), iFace( iface ), lIface( liface ), formWindow( 0 )
+    : QVBox( parent ), iFace( iface ), lIface( liface ), formWindow( 0 ), pro( 0 )
 {
     iFace->addRef();
     lIface->addRef();
@@ -60,7 +61,7 @@ SourceEditor::~SourceEditor()
     editor = 0;
 }
 
-void SourceEditor::setForm( FormWindow *fw )
+void SourceEditor::setObject( QObject *fw, Project *p )
 {
     save();
     bool changed = FALSE;
@@ -69,15 +70,16 @@ void SourceEditor::setForm( FormWindow *fw )
 	changed = TRUE;
     }
     formWindow = fw;
+    pro = p;
     setCaption( tr( "Edit %1" ).arg( formWindow->name() ) );
-    iFace->setText( sourceOfForm( formWindow, lang, iFace, lIface ) );
-    if ( fw->project() )
-	iFace->setContext( fw->project()->formList(), fw ->mainContainer() );
+    iFace->setText( sourceOfObject( formWindow, lang, iFace, lIface ) );
+    if ( pro && fw->inherits( "FormWindow" ) )
+	iFace->setContext( pro->formList(), ( (FormWindow*)fw ) ->mainContainer() );
     if ( changed )
 	iFace->setBreakPoints( MetaDataBase::breakPoints( fw ) );
 }
 
-QString SourceEditor::sourceOfForm( FormWindow *fw, const QString &lang, EditorInterface *, LanguageInterface *lIface )
+QString SourceEditor::sourceOfObject( QObject *fw, const QString &lang, EditorInterface *, LanguageInterface *lIface )
 {
     QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( fw );
     QMap<QString, QString> bodies = MetaDataBase::functionBodies( fw );
@@ -200,7 +202,7 @@ void SourceEditor::setModified( bool b )
 
 void SourceEditor::refresh()
 {
-    iFace->setText( sourceOfForm( formWindow, lang, iFace, lIface ) );
+    iFace->setText( sourceOfObject( formWindow, lang, iFace, lIface ) );
 }
 
 void SourceEditor::setFocus()

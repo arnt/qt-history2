@@ -1,12 +1,10 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>ReplaceDialog</class>
-<include location="global" impldecl="in implementation">qlineedit.h</include>
 <include location="local" impldecl="in implementation">../interfaces/editorinterface.h</include>
-<include location="local" impldecl="in implementation">formwindow.h</include>
-<forward>class FormWindow;</forward>
+<include location="global" impldecl="in implementation">qlineedit.h</include>
 <forward>struct EditorInterface;</forward>
-<variable>FormWindow *formWindow;</variable>
 <variable>EditorInterface *editor;</variable>
+<variable>QObject *formWindow;</variable>
 <widget class="QDialog">
     <property name="name">
         <cstring>ReplaceDialog</cstring>
@@ -15,8 +13,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>294</width>
-            <height>213</height>
+            <width>290</width>
+            <height>211</height>
         </rect>
     </property>
     <property name="caption">
@@ -254,13 +252,17 @@
         <receiver>ReplaceDialog</receiver>
         <slot>reject()</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
-    <slot access="public" language="C++">doReplace()</slot>
-    <slot access="public" language="C++">doReplaceAll()</slot>
-    <slot access="public" language="C++">setEditor( EditorInterface *e,FormWindow *fw )</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="public" language="C++" returnType="void">doReplace()</slot>
+    <slot access="public" language="C++" returnType="void">doReplaceAll()</slot>
+    <slot access="public" language="C++" returnType="void">setEditor( EditorInterface * e, QObject * fw )</slot>
 </connections>
 <functions>
+    <function name="init()" >{
+    editor = 0;
+    formWindow = 0;
+}</function>
     <function name="destroy()" >{
     if ( editor )
 	editor-&gt;release();
@@ -287,11 +289,7 @@
     else  
 	checkBegin-&gt;setChecked( FALSE );  
 }</function>
-    <function name="init()" >{
-    editor = 0;
-    formWindow = 0;
-}</function>
-    <function name="setEditor(EditorInterface*,FormWindow*)" >{
+    <function name="setEditor(EditorInterface*,QObject*)" >{
     if ( fw != formWindow )
 	checkBegin-&gt;setChecked( TRUE );
     formWindow = fw;

@@ -28,6 +28,7 @@
 class FormWindow;
 class QCloseEvent;
 struct LanguageInterface;
+class Project;
 
 class SourceEditor : public QVBox
 {
@@ -37,13 +38,14 @@ public:
     SourceEditor( QWidget *parent, EditorInterface *iface, LanguageInterface *liface );
     ~SourceEditor();
 
-    void setForm( FormWindow *fw );
-    FormWindow *form() const { return formWindow; }
+    void setObject( QObject *fw, Project *p );
+    QObject *object() const { return formWindow; }
+    Project *project() const { return pro; }
     void setFunction( const QString &func );
     void save();
     void setModified( bool b );
 
-    static QString sourceOfForm( FormWindow *fw, const QString &lang, EditorInterface *iface, LanguageInterface *lIface );
+    static QString sourceOfObject( QObject *fw, const QString &lang, EditorInterface *iface, LanguageInterface *lIface );
 
     QString language() const;
     void setLanguage( const QString &l );
@@ -74,7 +76,8 @@ signals:
 private:
     EditorInterface *iFace;
     LanguageInterface *lIface;
-    QGuardedPtr<FormWindow> formWindow;
+    QGuardedPtr<QObject> formWindow;
+    Project *pro;
     QString lang;
     QGuardedPtr<QWidget> editor;
 
