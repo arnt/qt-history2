@@ -778,6 +778,3 @@ bool DspMakefileGenerator::openOutput(QFile &file, const QString &build) const
     }
     return Win32MakefileGenerator::openOutput(file, build);
 }
-/*ASDF
-
-*/
