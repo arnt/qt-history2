@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#26 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#27 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -937,7 +937,7 @@ void QtTextParagraph::invalidateLayout()
     }
     if ( next )
 	next->invalidateLayout();
-    
+
     if ( parent && parent->next && !parent->next->dirty )
 	parent->next->invalidateLayout();
 }
@@ -1391,7 +1391,7 @@ void QtTextCursor::updateCharFormat( QPainter* p, const QFontMetrics& fm )
 	    custom->realize( p );
 	}
 	if ( width >= 0 && custom->expandsHorizontally() ) {
-	    custom->resize( p, width - lmargin - rmargin + fm.minRightBearing() - fm.width(' ' ) );
+	    custom->resize( p, width - lmargin - rmargin - fm.width(' ' ) );
 	}
 	if ( custom->placeInline() )
 	    currentasc = custom->height;
@@ -1714,7 +1714,7 @@ void QtTextCursor::goTo( QPainter* p, int xpos, int ypos )
 	gotoParagraph( p, b );
 	b = paragraph;
 	b = b->nextInDocument();
-	//??? update dirty stuff here? 
+	//??? update dirty stuff here?
 	if ( !b || y() + paragraph->height  > ypos ) {
 	    do {
 		makeLineLayout( p, fm );
@@ -1733,8 +1733,8 @@ void QtTextCursor::goTo( QPainter* p, int xpos, int ypos )
 	}
     }
 }
-    
-    
+
+
 void QtTextCursor::setSelected( bool selected )
 {
     if ( current < paragraph->text.length() )
@@ -1785,7 +1785,7 @@ void QtTextCursor::updateParagraph( QPainter* p )
      int oldlast = last;
      int oldcurrent = current;
      int prevliney = oldy;
-     
+
      QtTextCursor store ( *this );
      QFontMetrics fm( p->fontMetrics() );
      gotoParagraph( p, paragraph );
@@ -1795,14 +1795,14 @@ void QtTextCursor::updateParagraph( QPainter* p )
 	     prevliney = y_;
      } while ( gotoNextLine( p, fm ) );
      *this = store;
-     
+
      update( p );
 
      int uy = QMIN( oldy, y_ );
      if ( current == first )
 	 uy = QMIN( uy, prevliney );
-     
-     if ( ph != paragraph->height ) { 
+
+     if ( ph != paragraph->height ) {
 	 if ( paragraph->nextInDocument() )
 	     paragraph->nextInDocument()->invalidateLayout();
 	 flow->updateRect.setRect( 0, uy, width, MAXINT );
@@ -1858,7 +1858,6 @@ void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
     int lastSpace =current;
     int lastHeight = rh;
     int lastWidth = 0;
-    int lastBearing = 0;
     int lastAsc = rasc;
     int lastDesc = rdesc;
     bool noSpaceFound = TRUE;
@@ -1866,7 +1865,6 @@ void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
     QtTextCharFormat* fmt = currentFormat();
     int fmt_current = current;
     p->setFont( fmt->font() );
-    int minRightBearing = fm.minRightBearing();
     int space_width = fm.width(' ');
     int fm_ascent = fm.ascent();
     int fm_height = fm.height();
@@ -1881,7 +1879,6 @@ void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
 	    fmt = currentFormat();
 	    fmt_current = current;
 	    p->setFont( fmt->font() );
-	    minRightBearing = fm.minRightBearing();
 	    space_width = fm.width(' ');
 	    fm_ascent = fm.ascent();
 	    fm_height = fm.height();
@@ -1924,7 +1921,7 @@ void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
 	// if a wordbreak is possible and required, do it. Unless we
 	// have a newline, of course. In that case we break after the
 	// newline to avoid empty lines.
-	if ( currentx > width - rmargin - space_width + minRightBearing
+	if ( currentx > width - rmargin - space_width 
 	     && !noSpaceFound && lastc != '\n' )
 	    break;
 	
@@ -1936,7 +1933,6 @@ void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
 	    lastAsc = rasc;
 	    lastDesc = rdesc;
 	    lastWidth = currentx;
-	    lastBearing = minRightBearing;
  	    if ( lastc == ' ' )
  		noSpaceFound = FALSE;
 	}
@@ -1971,7 +1967,7 @@ void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
 
     current = lastSpace;//###
 
-    int min = lastWidth - lastBearing;
+    int min = lastWidth ;
     if ( min + rmargin > widthUsed )
 	widthUsed = min + rmargin;
     if ( widthUsed > width )
