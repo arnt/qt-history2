@@ -2183,9 +2183,9 @@ fi
 # replace .qmake.cache if it differs from the newly created temp file
 if cmp -s $CACHEFILE.tmp $CACHEFILE
 then
-    mv -f $CACHEFILE.tmp $CACHEFILE
-else
     rm -f $CACHEFILE.tmp
+else
+    mv -f $CACHEFILE.tmp $CACHEFILE
 fi
 
 
