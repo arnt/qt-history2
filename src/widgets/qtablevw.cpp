@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#63 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#62 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#63 $");
 
 
 const int sbDim = 16;
@@ -1325,23 +1325,25 @@ void QTableView::paintEvent( QPaintEvent *e )
 	    cellR.setRect( xPos, yPos, cellW ? cellW : cellWidth(col),
 				       cellH ? cellH : cellHeight(row) );
 	    cellUR = cellR.intersect( updateR );
-	    cellUpdateR = cellUR;
-	    cellUpdateR.moveBy( -xPos, -yPos ); // cell coordinates
-	    if ( eraseInPaint )
-		paint.eraseRect( cellUR );
+	    if ( cellUR.isValid() ) {
+		cellUpdateR = cellUR;
+		cellUpdateR.moveBy( -xPos, -yPos ); // cell coordinates
+		if ( eraseInPaint )
+		    paint.eraseRect( cellUR );
 
-	    matrix.translate( xPos, yPos );
-	    paint.setWorldMatrix( matrix );
-	    if ( testTableFlags(Tbl_clipCellPainting) ||
-		 frameWidth() > 0 && !winR.contains( cellR ) ) { //##arnt
-		paint.setClipRect( cellUR );
-		paintCell( &paint, row, col );
-		paint.setClipping( FALSE );
-	    } else {
-		paintCell( &paint, row, col );
+		matrix.translate( xPos, yPos );
+		paint.setWorldMatrix( matrix );
+		if ( testTableFlags(Tbl_clipCellPainting) ||
+		     frameWidth() > 0 && !winR.contains( cellR ) ) { //##arnt
+		    paint.setClipRect( cellUR );
+		    paintCell( &paint, row, col );
+		    paint.setClipping( FALSE );
+		} else {
+		    paintCell( &paint, row, col );
+		}
+		matrix.reset();
+		paint.setWorldMatrix( matrix );
 	    }
-	    matrix.reset();
-	    paint.setWorldMatrix( matrix );
 	    col++;
 	    xPos = nextX;
 	}
