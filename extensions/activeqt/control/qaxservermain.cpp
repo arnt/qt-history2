@@ -183,12 +183,10 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
 	if ( cmd == "-activex" || cmd == "/activex" ) {
 	    runServer = TRUE;
 	} else if ( cmd == "-unregserver" || cmd == "/unregserver" ) {
-	    qWarning( "Unregistering COM objects in %s", cmds[0].latin1() );
  	    nRet = UpdateRegistry(FALSE);
             run = FALSE;
 	    break;
 	} else if ( cmd == "-regserver" || cmd == "/regserver" ) {
-	    qWarning( "Registering COM objects in %s", cmds[0].latin1() );
  	    nRet = UpdateRegistry(TRUE);
             run = FALSE;
             break;
@@ -207,34 +205,6 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
 		}
 
 		nRet = DumpIDL( outfile, version );
-		switch (nRet) {
-		case S_OK:
-		    break;
-		case -1:
-		    qWarning( "Couldn't open %s for writing", (const char*)outfile.local8Bit() );
-		    return nRet;
-		case 1:
-		    qWarning( "Malformed appID value in %s!", qAxModuleFilename );
-		    return nRet;
-		case 2:
-		    qWarning( "Malformed typeLibID value in %s!", qAxModuleFilename );
-		    return nRet;
-		case 3:
-		    qWarning( "Class has no metaobject information (error in %s)!", qAxModuleFilename );
-		    return nRet;
-		case 4:
-		    qWarning( "Malformed classID value in %s!", qAxModuleFilename );
-		    return nRet;
-		case 5:
-		    qWarning( "Malformed interfaceID value in %s!", qAxModuleFilename );
-		    return nRet;
-		case 6:
-		    qWarning( "Malformed eventsID value in %s!", qAxModuleFilename );
-		    return nRet;
-
-		default:
-		    qFatal( "Unknown error writing IDL from %s", qAxModuleFilename );
-		}
 	    } else {
 		qWarning( "Wrong commandline syntax: <app> -dumpidl <idl file> [-version <x.y.z>]" );
 	    }
