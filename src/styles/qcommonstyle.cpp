@@ -1623,7 +1623,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		    interval = sl->pageStep();
 	    }
 
-	    int fudge = len / 2 + 1;
+	    int fudge = len / 2;
 	    int pos;
 
 	    if ( ticks & QSlider::Above ) {
