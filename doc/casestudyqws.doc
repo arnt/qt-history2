@@ -40,13 +40,13 @@ can be compiled and run on your desktop machine.
 <h2>Installing Linux</h2>
 
 All the information and software required to get Linux running on the VR series
-of processors is available from the <a href=http://www.linux-vr.org/>Linux VR
+of processors is available from the <a href="http://www.linux-vr.org/">Linux VR
 </a> web site.  In Summary:
 
 <h3>Install the tools</h3>
 
 Follow the instructions at
-<a href=http://www.linux-vr.org/tools.html>http://www.linux-vr.org/tools.html</a>.
+<a href="http://www.linux-vr.org/tools.html">http://www.linux-vr.org/tools.html</a>.
 
 <h3>Build the kernel</h3>
 
@@ -54,11 +54,11 @@ Get a sample root ramdisk from
 <a href=ftp://ftp.ltc.com/pub/linux/mips/ramdisk/ramdisk>ftp://ftp.ltc.com/pub/linux/mips/ramdisk/ramdisk</a>
 <p>
 Follow the instructions at
-<a href=http://www.linux-vr.org/ramdisk.html>http://www.linux-vr.org/ramdisk.html</a>
+<a href="http://www.linux-vr.org/ramdisk.html">http://www.linux-vr.org/ramdisk.html</a>
 to create a ramdisk.o file.
 <p>
 Now build your kernel
-<a href=http://www.linux-vr.org/kernel.html>http://www.linux-vr.org/kernel.html</a>
+<a href="http://www.linux-vr.org/kernel.html">http://www.linux-vr.org/kernel.html</a>
 using this ramdisk object.  Make sure you have at least the following
 configuration:
 
@@ -75,7 +75,7 @@ configuration:
 <h3>Booting Linux</h3>
 
 Follow the instructions at
-<a href=http://www.linux-vr.org/booting.html>http://www.linux-vr.org/booting.html</a>.
+<a href="http://www.linux-vr.org/booting.html">http://www.linux-vr.org/booting.html</a>.
 <p>
 You should see the linux boot messages on the LCD display.
 

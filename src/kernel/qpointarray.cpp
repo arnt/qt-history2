@@ -99,7 +99,7 @@ const double Q_PI = 3.14159265358979323846;   // pi // one more useful comment
   If \a closed is FALSE, then the point array just contains the
   following four points in the listed order: r.topLeft(),
   r.topRight(), r.bottomRight() and r.bottomLeft().
-  
+
   If \a closed is TRUE, then a fifth point is set to r.topLeft().
 */
 
@@ -586,14 +586,16 @@ void QPointArray::makeArc( int x, int y, int w, int h,
 	QPointArray r(k);
 	int j = 0;
 
-	// This is really poor.
+	// This is rather poor.
 
 	if ( rev ) {
 	    while ( k-- )
 		r[j++] = at((i+k)%n);
 	} else {
-	    while ( j < k )
-		r[j++] = at((i+j)%n);
+	    while ( j < k ) {
+		r[j] = at((i+j)%n);
+		j++;
+	    }
 	}
 	*this = r;
     } else {

@@ -183,29 +183,26 @@
   the two applications need a way to agree on the type of information
   they both understand.
   The way they do it is using
-  <i><a href=http://www.rfc-editor.org/rfc/rfc1341.txt>MIME types</a></i> - the
-  drag source provides a list of MIME types that it can produce (ordered
-  from most appropriate to least appropriate), and the drop target chooses
-  which of those it can handle.
-  For example,
-  QTextDrag provides support for
-   the "<tt>text/plain</tt>" MIME type (ordinary unformatted text), and
-   the Unicode formats "<tt>text/utf16</tt>" and "<tt>text/utf8</tt>";
-  QImageDrag provides for "<tt>image/</tt><tt>*</tt>",
-  where <tt>*</tt>
-  is any \link QImageIO image format that Qt supports\endlink;
-  and the QUriDrag subclass provides "<tt>text/uri-list</tt>",
-  a standard format for transferring a list of filenames (or URLs).
+  <i><a href="http://www.rfc-editor.org/rfc/rfc1341.txt">MIME types</a></i>
+  - the drag source provides a list of MIME types that it can produce
+  (ordered from most appropriate to least appropriate), and the drop target
+  chooses which of those it can handle. For example, QTextDrag provides
+   support for the "<tt>text/plain</tt>" MIME type (ordinary unformatted
+   text), and the Unicode formats "<tt>text/utf16</tt>" and
+   "<tt>text/utf8</tt>"; QImageDrag provides for "<tt>image/</tt><tt>*</tt>",
+  where <tt>*</tt> is any image format that \l QImageIO supports; and the
+  QUriDrag subclass provides "<tt>text/uri-list</tt>", a standard format for
+  transferring a list of filenames (or URLs).
 
   To implement drag-and-drop of some type of information for which there
   is no available QDragObject subclass, the
   first and most important step is to look for existing formats
   that are appropriate - the Internet Assigned Numbers Authority
-  (<a href=http://www.iana.org>IANA</a>) provides a
-  <a href=http://www.isi.edu/in-notes/iana/assignments/media-types/>
+  (<a href="http://www.iana.org">IANA</a>) provides a
+  <a href="http://www.isi.edu/in-notes/iana/assignments/media-types/">
   hierarchical list of MIME media types</a>
   at the Information Sciences Institute
-  (<a href=http://www.isi.edu>ISI</a>).
+  (<a href="http://www.isi.edu">ISI</a>).
   This maximizes inter-operability of your software with other
   software now and in the future.
 
@@ -325,7 +322,7 @@
 
   <h3>Inter-operating with other applications</h3>
   On X11, the public
-  <a href=http://www.cco.caltech.edu/~jafl/xdnd/>XDND protocol</a>
+  <a class="r" href="http://www.cco.caltech.edu/~jafl/xdnd/">XDND protocol</a>
   is used, while on Windows Qt uses the OLE standard.  On X11,
   XDND uses MIME, so no translation is necessary.
   The Qt API is the same regardless of the platform.

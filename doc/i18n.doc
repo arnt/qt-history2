@@ -59,9 +59,8 @@ in the following stages:
 	Where your program uses <tt>"quoted text"</tt> for text
 	that will be presented to the user, ensure it goes through
 	the
-	\link QApplication::translate() QApplication::translate()\endlink
-       	function, usually this simply means using
-	\link QObject::tr() tr()\endlink.
+	\l QApplication::translate() function, usually this simply means using
+	\l QObject::tr().
 	For example, assuming
 	<tt>LoginWidget</tt> is a subclass of QWidget:
 	\code
@@ -72,7 +71,7 @@ in the following stages:
 	}
 	\endcode
 
-	This is 99% of the strings you're likely to write.
+	This is 99% of the user-visible strings you're likely to write.
 
 	If the quoted text is \e not in a member function of a
 	QObject/QWidget subclass, use either
@@ -340,7 +339,7 @@ be too concerned with the actual limitations.
      <li>Locale-oriented fonts and input methods.  Qt hides these and
 	    provides Unicode input and output.
      <li>Filesystem conventions such as
-            <a href="http://www.ietf.org/rfc/rfc2279.txt">UTF-8</a>
+            <a class="r" href="http://www.ietf.org/rfc/rfc2279.txt">UTF-8</a>
             are under development
 	    in some Unix variants.  All Qt file functions allow Unicode,
 	    but convert all filenames to the local 8-bit encoding, as
@@ -406,7 +405,7 @@ will be implemented.  The current state of activity is:
  <dt><b>eucKR</b>
   <dd>Under external development,
 	Mizi Research are assisting with this effort.
-	<a href="http://www.mizi.com">hanIM</a>
+	<a class="r" href="http://www.mizi.com">hanIM</a>
        	is the tested input method.
  <dt><b>Big5</b>
   <dd>Qt contains a Big5 codec developed by Ming Che-Chuang.
@@ -423,11 +422,9 @@ or just included with your application.
 Eventually, we hope to help Unix become as Unicode-oriented as
 Windows NT is becoming. This means better font support in the font servers,
 with new developments like the True Type font servers
-<a href="http://www.dcs.ed.ac.uk/home/jec/programs/xfsft/">xfsft</a>,
+<a class="r" href="http://www.dcs.ed.ac.uk/home/jec/programs/xfsft/">xfsft</a>,
 <a href="ftp://sunsite.unc.edu/pub/Linux/X11/fonts/">xfstt</a>,
-and
-x-tt,
-as well as
+and x-tt, as well as
 <a href="http://www.ietf.org/rfc/rfc2279.txt">UTF-8</a>
 (a Unicode encoding) filenames such as with the
 <a href="http://www.sun.com/software/white-papers/wp-unicode/">Unicode
@@ -442,31 +439,6 @@ directory, this does not necessarily mean you can display Japanese text
 - you also need JIS encoded fonts (or Unicode fonts), and that
 <tt>/usr/share/locale/ja_JP.EUC</tt> directory needs to be complete.
 For best results, use complete locales from your OS vendor.
-
-
-<h2>Note about Kinput2 on X11</h2>
-
-If using the Kinput2 XIM Server, users may need to apply the
-bug-fix patch below.  Without this patch, Kinput2 can produce bad
-XIM Protocol, causing application lock-up.
-<p>
-For a recent version of Kinput2 that includes all users need, see
-<a href="ftp://ftp.sra.co.jp/pub/x11/kinput2/">
-ftp://ftp.sra.co.jp/pub/x11/kinput2/</a>
-
-<p>Patch...
-\code
---- lib/imlib/imrequest.c~	Mon Feb  3 10:21:46 1997
-+++ lib/imlib/imrequest.c	Wed Mar 10 19:23:09 1999
-@@ -844,6 +844,6 @@
- 	IMSendBadLength(conn, icp->im->id, icp->id);
- 	return;
-     }
--    IMDestroyIC(icp);
-     IMSendRequestWithIC(conn, XIM_DESTROY_IC_REPLY, 0, icp);
-+    IMDestroyIC(icp);
- }
-\endcode
 
 
 */

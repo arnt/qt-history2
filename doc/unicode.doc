@@ -15,10 +15,11 @@ starting with version 2.0.
 <p>
 
 <b>Information about Unicode on the web.</b>  The
-<a href="http://www.unicode.org">Unicode Consortium</a> has a number
+<a class="r" href="http://www.unicode.org">Unicode Consortium</a> has a number
 of documents available, including<ul>
 
-<li><a href="http://www.unicode.org/unicode/standard/principles.html">
+<li>
+<a class="r" href="http://www.unicode.org/unicode/standard/principles.html">
 A technical introduction to Unicode</a>
 <li><a href="http://www.unicode.org/unicode/standard/standard.html">
 The home page for the standard</a>

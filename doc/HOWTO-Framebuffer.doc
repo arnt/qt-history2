@@ -33,16 +33,16 @@ static char ident[] = "$Id: indices.doc,v 2.35 1999/06/15 12:58:13 weis Exp $";
 
 <p>
 This is only a short guide.
-See <a href=file:/usr/src/linux/README><tt>/usr/src/linux/README</tt></a> and
-<a href=file:/usr/src/linux/Documentation/fb/><tt>/usr/src/linux/Documentation/fb/</tt></a>
+See <a href="file:/usr/src/linux/README"><tt>/usr/src/linux/README</tt></a> and
+<a href="file:/usr/src/linux/Documentation/fb/"><tt>/usr/src/linux/Documentation/fb/</tt></a>
 for detailed information.
 There is also a detailed explanation at:
-<a href=http://www.linuxdoc.org/HOWTO/Framebuffer-HOWTO.html>
+<a href="http://www.linuxdoc.org/HOWTO/Framebuffer-HOWTO.html">
 http://www.linuxdoc.org/HOWTO/Framebuffer-HOWTO.html</a>
 
 <ol>
 <li> Make sure that you have the Linux kernel source code in
-<a href=file:/usr/src/linux/>/usr/src/linux/</a>. 
+<a href="file:/usr/src/linux/">/usr/src/linux/</a>. 
 
 <li> Log in as root and cd /usr/src/linux
 

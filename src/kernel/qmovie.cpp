@@ -365,7 +365,7 @@ void QMovieFilePrivate::updatePixmapFromImage()
 	    delete mygfx;
 	}
     }
-#endif    
+#endif
 }
 
 void QMovieFilePrivate::showChanges()

@@ -258,10 +258,9 @@ void QSplitter::init()
 {
     data = new QSplitterData;
     if ( orient == Horizontal )
-	setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum ) );
+	setSizePolicy( QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Minimum) );
     else
-    	setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
-
+    	setSizePolicy( QSizePolicy(QSizePolicy::Minimum,QSizePolicy::Fixed) );
 }
 
 

@@ -34,7 +34,7 @@ programming.
 Since the commercial introduction of Qt in early
 1996, Qt has formed the basis of many hundreds of successful
 applications worldwide. Qt is also the basis of the popular
-<a href=http://www.kde.org/>KDE</a> Linux
+<a class="r" href="http://www.kde.org/">KDE</a> Linux
 desktop environment, a standard component of all major Linux distributions.
 
 <p>
@@ -620,9 +620,9 @@ QUrlOperator	- provides an easy way to work with URLs.
 about it so we can fix it.
 
 <p>Before reporting a bug, please check the
-<a href="http://www.trolltech.com/faq/">FAQs</a> and
-<a href="http://www.trolltech.com/platforms/">Platform Notes</a> on our web
-site to see if the issue is already known.
+<a class="r" href="http://www.trolltech.com/faq/">FAQs</a> and
+<a class="r" href="http://www.trolltech.com/platforms/">Platform Notes</a>
+on our web site to see if the issue is already known.
 
 <p>Always include the following information in your bug report:
 <nl>
@@ -645,9 +645,11 @@ of the many example programs in the <tt>qt/examples</tt> directory.
 \title How-To Buy Qt
 
 You can order Qt Professional Edition by printing out an
-<a href="http://www.trolltech.com/purchase/orderform.html">order form</a>
-and faxing it to <strong><nobr>+47 21 60 48 01</nobr></strong>. For prices, please see the
-<a href="http://www.trolltech.com/pricing.html">Pricing and Availability page.</a><p>
+<a class="r" href="http://www.trolltech.com/purchase/orderform.html">order
+form</a> and faxing it to <strong><nobr>+47 21 60 48 01</nobr></strong>. For
+prices, please see the
+<a class="r" href="http://www.trolltech.com/pricing.html">Pricing and
+Availability page.</a><p>
 
 We accept payment by:
 <ul>
@@ -949,8 +951,8 @@ This mailing list is a discussion forum for Qt users. Typical traffic
 is 5-10 messages per day.
 
 An archive of the messages from qt-interest is available on the Troll
-Tech web site: <a href="http://www.trolltech.com/qt-interest/">Qt Mailing
-List Archive</a>.
+Tech web site: <a class="r" href="http://www.trolltech.com/qt-interest/">Qt
+Mailing List Archive</a>.
 
 To subscribe to the <code>qt-interest</code> mailing list, send an
 email containing just the word <tt>subscribe</tt> or <tt>subscribe

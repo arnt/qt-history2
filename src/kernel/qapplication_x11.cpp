@@ -1379,7 +1379,8 @@ bool qt_wstate_iconified( WId winid )
   \relates QApplication
 
   Adds a global routine that will be called from the QApplication
-  destructor.  This function is normally used to add cleanup routines.
+  destructor.  This function is normally used to add cleanup routines
+  for program-wide functionality.
 
   The function given by \a p should take no arguments and return
   nothing, like this:
@@ -1398,7 +1399,41 @@ bool qt_wstate_iconified( WId winid )
 	qAddPostRoutine( cleanup_ptr );	// delete later
     }
   \endcode
-*/
+
+  Note that for an application- or module-wide cleanup,
+  qAddPostRoutine() is often not suitable.  People have a tendency to
+  make such modules dynamically loaaded, and then unload those modules
+  long before the QApplication destructor is called, for example.
+
+  For modules and libraries, using a reference-counted initialization
+  manager or Qt' parent-child delete mechanism may be better.  Here is
+  an example of a private class which uses the parent-child mechanism
+  to call a cleanup function at the right time:
+  
+  \code
+    class MyPrivateInitStuff: public QObject {
+    private:
+        MyPrivateInitStuff( QObject * parent ): QObject( parent) {
+	    // initialization goes here
+	}
+	MyPrivateInitStuff * p;
+
+    public:
+        static MyPrivateInitStuff * initStuff( QObject * parent ) {
+	    if ( !p )
+	        p = new MyPrivateInitStuff( parent );
+	    return p;
+	}
+
+        ~MyPrivateInitStuff() {
+	    // cleanup (the "post routine") goes here
+	}
+    }
+  \endcode
+
+  By selecting the right parent widget/object, this can often be made
+  to clean up the module's data at the exact right moment.
+*/  
 
 void qAddPostRoutine( Q_CleanUpFunction p )
 {

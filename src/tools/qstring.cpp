@@ -10867,7 +10867,7 @@ make sense of anything.
 /*! \enum QChar::Direction
 
   This enum type defines the Unicode direction attributes.
-  See <a href=http://www.unicode.org/>the Unicode Standard</a>
+  See <a href="http://www.unicode.org">the Unicode Standard</a>
   for a description of the values.
 
   In order to conform to C/C++ naming conventions "Dir" is
@@ -10877,14 +10877,14 @@ make sense of anything.
 /*! \enum QChar::Decomposition
 
   This enum type defines the Unicode decomposition attributes.
-  See <a href=http://www.unicode.org/>the Unicode Standard</a>
+  See <a href="http://www.unicode.org">the Unicode Standard</a>
   for a description of the values.
 */
 
 /*! \enum QChar::Joining
 
   This enum type defines the Unicode decomposition attributes.
-  See <a href=http://www.unicode.org/>the Unicode Standard</a>
+  See <a href="http://www.unicode.org">the Unicode Standard</a>
   for a description of the values.
 */
 
