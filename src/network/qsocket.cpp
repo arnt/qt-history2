@@ -977,8 +977,8 @@ int QSocket::ungetch( int ch )
     work:
 
     \code
-	while( !socket->canReadLine() ) // WRONG.
-	    ...
+	while( !socket->canReadLine() ) // WRONG
+	    ;
     \endcode
 
     \sa readLine()
