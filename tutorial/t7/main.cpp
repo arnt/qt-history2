@@ -28,7 +28,7 @@ private:
 MyWidget::MyWidget( QWidget *parent, const char *name )
         : QWidget( parent, name )
 {
-    setMinimumSize( 200, 300 );
+    setMinSize( 200, 300 );
 
     quit = new QPushButton( "Quit", this, "quit" );
     quit->setGeometry( 10, 10, 75, 30 );
