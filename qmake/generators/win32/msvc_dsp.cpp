@@ -120,7 +120,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 					"\t" + mocpath + findMocSource((*it)) + " -o " +
 					(*it) + "\n\n" "# End Custom Build\n\n";
 
-			t << "USERDEP_" << base << "=\"" << findMocSource((*it)) << "\"" << endl << endl;
+			t << "USERDEP_" << base << "=\"" << findMocSource((*it)) << "\" \"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
 
 			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\""
@@ -156,6 +156,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 					"\"" " : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
 					"\t" + mocpath + (*it)  + " -o " +
 					findMocDestination((*it)) + "\n\n" "# End Custom Build\n\n";
+
+			t << "USERDEP_" << base << "=\"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
 
 			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\""
@@ -208,7 +210,10 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 				    "\tcopy " + sify +" tmp\\" + sify + "\n"
 				    "# End Custom Build\n\n";
 
-		    t << "# Begin Source File\n\nSOURCE=" << *it << endl;
+		    t << "# Begin Source File\n\nSOURCE=" << sify << endl;
+
+		    t << "USERDEP_" << base << "=\"$(QTDIR)\\bin\\lupdate.exe\" \"$(QTDIR)\\bin\\lrelease.exe\"" << endl << endl;
+
 		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"\n" << build
 		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"\n" << build 
 		      << "!ENDIF " << endl << endl;
@@ -268,7 +273,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 					"\t" + mocpath + findMocSource((*it)) + " -o " +
 					(*it) + "\n\n" "# End Custom Build\n\n";
 
-			t << "USERDEP_" << base << "=\"" << findMocSource((*it)) << "\"" << endl << endl;
+			t << "USERDEP_" << base << "=\"" << findMocSource((*it)) << "\" \"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
 
 			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\""
@@ -292,9 +297,10 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		QStringList &list = project->variables()["FORMS"];
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-		    t <<  "# Begin Source File\n\nSOURCE=" << (*it) << endl;
+		    QString base = (*it);
+		    t <<  "# Begin Source File\n\nSOURCE=" << base << endl;
 
-		    QString fname = (*it);
+		    QString fname = base;
 		    fname.replace(QRegExp("\\.ui"), "");
 		    int lbs = fname.find( "\\" );
 		    QString fpath;
@@ -312,13 +318,15 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    if ( !project->variables()["IMAGES"].isEmpty() && !imagesBuildDone ) {
 			QStringList &list = project->variables()["IMAGES"];
 			for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-			    imagesBuild.append(" " + (*it));
+			    imagesBuild.append(" " + base);
 			}
 		    }
 
-		    QString build = "\n\n# Begin Custom Build - Uic'ing " + (*it) + "...\n"
-			"InputPath=.\\" + (*it) + "\n\n" "BuildCmds= \\\n\t" + uicpath + (*it) +
-			" -o " + fpath + fname + ".h \\\n" "\t" + uicpath  + (*it) +
+		    t << "USERDEP_" << base << "=\"$(QTDIR)\\bin\\moc.exe\" \"$(QTDIR)\\bin\\uic.exe\"" << endl << endl;
+
+		    QString build = "\n\n# Begin Custom Build - Uic'ing " + base + "...\n"
+			"InputPath=.\\" + base + "\n\n" "BuildCmds= \\\n\t" + uicpath + base +
+			" -o " + fpath + fname + ".h \\\n" "\t" + uicpath  + base +
 			" -i " + fname + ".h -o " + fpath + fname + ".cpp \\\n"
 			"\t" + mocpath + fpath + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n";
 		    
