@@ -500,68 +500,6 @@ int QPSQLResult::numRowsAffected()
 
 ///////////////////////////////////////////////////////////////////
 
-QPSQLDriver::QPSQLDriver( QObject * parent, const char * name )
-    : QSqlDriver(parent,name ? name : "QPSQL"), pro( QPSQLDriver::Version6 )
-{
-    init();
-}
-
-QPSQLDriver::QPSQLDriver( PGconn * conn, QObject * parent, const char * name )
-    : QSqlDriver(parent,name ? name : "QPSQL"), pro( QPSQLDriver::Version6 )
-{
-    init();
-    d->connection = conn;
-    if ( conn ) {
-	setOpen( TRUE );
-	setOpenError( FALSE );
-    }
-}
-
-void QPSQLDriver::init()
-{
-    qSqlDriverExtDict()->insert( this, new QPSQLDriverExtension(this) );
-    qSqlOpenExtDict()->insert( this, new QPSQLOpenExtension(this) );
-
-    d = new QPSQLPrivate();
-}
-
-QPSQLDriver::~QPSQLDriver()
-{
-    if ( d->connection )
-	PQfinish( d->connection );
-    delete d;
-    if ( !qSqlDriverExtDict()->isEmpty() ) {
-	QSqlDriverExtension *ext = qSqlDriverExtDict()->take( this );
-	delete ext;
-    }
-    if ( !qSqlOpenExtDict()->isEmpty() ) {
-	QSqlOpenExtension *ext = qSqlOpenExtDict()->take( this );
-	delete ext;
-    }
-}
-
-PGconn* QPSQLDriver::connection()
-{
-    return d->connection;
-}
-
-
-bool QPSQLDriver::hasFeature( DriverFeature f ) const
-{
-    switch ( f ) {
-    case Transactions:
-	return TRUE;
-    case QuerySize:
-	return TRUE;
-    case BLOB:
-	return pro >= QPSQLDriver::Version71;
-    case Unicode:
-	return d->isUtf8;
-    default:
-	return FALSE;
-    }
-}
-
 static bool setEncodingUtf8( PGconn* connection )
 {
     PGresult* result = PQexec( connection, "SET CLIENT_ENCODING TO 'UNICODE'" );
@@ -616,6 +554,69 @@ static QPSQLDriver::Protocol getPSQLVersion( PGconn* connection )
     }
 
     return QPSQLDriver::Version6;
+}
+
+QPSQLDriver::QPSQLDriver( QObject * parent, const char * name )
+    : QSqlDriver(parent,name ? name : "QPSQL"), pro( QPSQLDriver::Version6 )
+{
+    init();
+}
+
+QPSQLDriver::QPSQLDriver( PGconn * conn, QObject * parent, const char * name )
+    : QSqlDriver(parent,name ? name : "QPSQL"), pro( QPSQLDriver::Version6 )
+{
+    init();
+    d->connection = conn;
+    if ( conn ) {
+	pro = getPSQLVersion( d->connection );
+	setOpen( TRUE );
+	setOpenError( FALSE );
+    }
+}
+
+void QPSQLDriver::init()
+{
+    qSqlDriverExtDict()->insert( this, new QPSQLDriverExtension(this) );
+    qSqlOpenExtDict()->insert( this, new QPSQLOpenExtension(this) );
+
+    d = new QPSQLPrivate();
+}
+
+QPSQLDriver::~QPSQLDriver()
+{
+    if ( d->connection )
+	PQfinish( d->connection );
+    delete d;
+    if ( !qSqlDriverExtDict()->isEmpty() ) {
+	QSqlDriverExtension *ext = qSqlDriverExtDict()->take( this );
+	delete ext;
+    }
+    if ( !qSqlOpenExtDict()->isEmpty() ) {
+	QSqlOpenExtension *ext = qSqlOpenExtDict()->take( this );
+	delete ext;
+    }
+}
+
+PGconn* QPSQLDriver::connection()
+{
+    return d->connection;
+}
+
+
+bool QPSQLDriver::hasFeature( DriverFeature f ) const
+{
+    switch ( f ) {
+    case Transactions:
+	return TRUE;
+    case QuerySize:
+	return TRUE;
+    case BLOB:
+	return pro >= QPSQLDriver::Version71;
+    case Unicode:
+	return d->isUtf8;
+    default:
+	return FALSE;
+    }
 }
 
 bool QPSQLDriver::open( const QString&,
