@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.8 1998/09/27 19:33:36 agulbra Exp $
+** $Id: porting.doc,v 1.9 1998/11/04 11:42:44 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -130,6 +130,14 @@ Some repaint problems problems might occur with subclasses on QFrame,
 
 <p>
 QClipboard::pixmap() now returns a QPixmap, not a QPixmap*.
+
+<P>
+QDropSite is obsolete.  If you passed anything other than <tt>this</tt>
+to the constructor for QDropSite, your code will not work.  If you passed
+the viewport() of a QListView, simply override the viewportDragMoveEvent(),
+etc.  functions rather than QListView's dragMoveEvent() etc.  For other
+cases, you will need to use an event filter to act on the drag/drop events
+of another widget (as is the usual way to intercept foreign events).
 
 <p>
 The following virtual functions have changed signature in Qt 2.0.
