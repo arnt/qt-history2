@@ -73,7 +73,7 @@ void MainWindow::setupDockWindows()
 {
     static const struct Set {
         const char * name;
-        Qt::WFlags flags;
+        uint flags;
         Qt::DockWindowArea area;
         uint allowedAreas;
         uint features;
@@ -103,7 +103,7 @@ void MainWindow::setupDockWindows()
     const int setCount = sizeof(sets) / sizeof(Set);
 
     for (int i = 0; i < setCount; ++i) {
-        ColorSwatch *swatch = new ColorSwatch(tr(sets[i].name), this, sets[i].flags);
+        ColorSwatch *swatch = new ColorSwatch(tr(sets[i].name), this, Qt::WFlags(sets[i].flags));
         swatch->setAllowedAreas(Qt::DockWindowAreas(sets[i].allowedAreas));
         swatch->setFeatures(QDockWindow::DockWindowFeatures(sets[i].features));
         swatch->setArea(sets[i].area);
