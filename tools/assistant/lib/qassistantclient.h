@@ -17,6 +17,7 @@
 ** not clear to you.
 **
 **********************************************************************/
+
 #ifndef QASSISTANTCLIENT_H
 #define QASSISTANTCLIENT_H
 

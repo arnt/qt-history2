@@ -23,6 +23,12 @@
   This is the right panel of the main window.
 */
 
+#include "msgedit.h"
+
+#include "trwindow.h"
+#include "phraselv.h"
+#include "simtexth.h"
+
 #include <qapplication.h>
 #include <qcheckbox.h>
 #include <qclipboard.h>
@@ -38,21 +44,12 @@
 #include <qmainwindow.h>
 #include <qheader.h>
 #include <qregexp.h>
-
 #include <qdockarea.h>
 #include <qdockwindow.h>
 #include <qscrollview.h>
 #include <qfont.h>
 #include <qaccel.h>
-
 #include <private/qrichtext_p.h>
-
-#include "trwindow.h"
-
-#include "msgedit.h"
-#include "phraselv.h"
-
-#include "simtexth.h"
 
 static const int MaxCandidates = 5;
 

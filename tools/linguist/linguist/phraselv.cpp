@@ -24,11 +24,11 @@
   Target phrase, and Definition in its header) is a PhraseLV object.
 */
 
+#include "phraselv.h"
+
 #include <qregexp.h>
 #include <qwhatsthis.h>
 #include <qheader.h>
-
-#include "phraselv.h"
 
 class WhatPhrase : public QWhatsThis
 {

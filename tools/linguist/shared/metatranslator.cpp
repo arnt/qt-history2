@@ -18,6 +18,8 @@
 **
 **********************************************************************/
 
+#include "metatranslator.h"
+
 #include <qapplication.h>
 #include <qcstring.h>
 #include <qfile.h>
@@ -25,8 +27,6 @@
 #include <qtextcodec.h>
 #include <qtextstream.h>
 #include <qxml.h>
-
-#include "metatranslator.h"
 
 static bool encodingIsUtf8( const QXmlAttributes& atts )
 {

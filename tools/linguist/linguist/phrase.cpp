@@ -18,6 +18,8 @@
 **
 **********************************************************************/
 
+#include "phrase.h"
+
 #include <qapplication.h>
 #include <qcstring.h>
 #include <qfile.h>
@@ -25,8 +27,6 @@
 #include <qregexp.h>
 #include <qtextstream.h>
 #include <qxml.h>
-
-#include "phrase.h"
 
 static QCString protect( const QCString& str )
 {

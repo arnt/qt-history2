@@ -18,6 +18,10 @@
 **
 **********************************************************************/
 
+#include "simtexth.h"
+
+#include <metatranslator.h>
+
 #include <qcstring.h>
 #include <qdict.h>
 #include <qmap.h>
@@ -25,10 +29,7 @@
 #include <qstringlist.h>
 #include <qvaluelist.h>
 
-#include <metatranslator.h>
 #include <string.h>
-
-#include "simtexth.h"
 
 typedef QValueList<MetaTranslatorMessage> TML;
 

@@ -18,9 +18,9 @@
 **
 **********************************************************************/
 
-#include <qpainter.h>
-
 #include "listviews.h"
+
+#include <qpainter.h>
 
 static const int Text0MaxLen = 150;
 static const int Text1MaxLen = 150;

@@ -24,6 +24,9 @@
   PhraseBookBox.
 */
 
+#include "phrasebookbox.h"
+#include "phraselv.h"
+
 #include <qapplication.h>
 #include <qlabel.h>
 #include <qlayout.h>
@@ -31,9 +34,6 @@
 #include <qmessagebox.h>
 #include <qpushbutton.h>
 #include <qwhatsthis.h>
-
-#include "phrasebookbox.h"
-#include "phraselv.h"
 
 PhraseBookBox::PhraseBookBox( const QString& filename,
 			      const PhraseBook& phraseBook, QWidget *parent,

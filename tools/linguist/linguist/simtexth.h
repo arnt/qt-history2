@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Linguist.
 **
@@ -23,6 +23,8 @@
 
 #include <qstring.h>
 #include <qvaluelist.h>
+
+class MetaTranslator;
 
 struct Candidate {
     QString source;

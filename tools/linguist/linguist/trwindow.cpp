@@ -56,7 +56,7 @@
 #include <qprocess.h>
 #include <qassistantclient.h>
 
-#include <stdlib.h> // getenv()
+#include <stdlib.h>
 
 #define pagecurl_mask_width 53
 #define pagecurl_mask_height 51

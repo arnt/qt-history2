@@ -17,6 +17,7 @@
 ** not clear to you.
 **
 **********************************************************************/
+
 #include "docuparser.h"
 
 #include <qxml.h>

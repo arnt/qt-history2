@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Linguist.
 **
@@ -18,11 +18,11 @@
 **
 **********************************************************************/
 
+#include <metatranslator.h>
+
 #include <qregexp.h>
 #include <qstring.h>
 #include <qtranslator.h>
-
-#include <metatranslator.h>
 
 typedef QValueList<QTranslatorMessage> TML;
 
