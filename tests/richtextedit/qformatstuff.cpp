@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#7 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#8 $
 **
 ** Definition of the QtTextView class
 **
@@ -147,13 +147,14 @@ void QtTextFormatCollection::unregisterFormat( ushort index )
         QString key = cIndex[ index ]->key;
         QtTextCharFormat *f = cKey[ key ];
         int ref = f->removeRef();
-        cKey.remove( key );
-        cIndex.remove( index );
-        cKeyIndex.remove( key );
         qDebug( "unregisterFormat (%s): removed index %d, refcount of format: %d",
                 f->key.latin1(), index, ref );
-        if ( ref <= 0 )
+        if ( ref <= 0 ) {
             delete f;
+            cKey.remove( key );
+            cIndex.remove( index );
+            cKeyIndex.remove( key );
+        }
     }
 
 }
