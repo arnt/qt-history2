@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#217 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#218 $
 **
 ** Implementation of QFileDialog class
 **
@@ -254,7 +254,7 @@ public:
     QLabel *from() { return lfrom; }
     QLabel *to() { return lto; }
     QProgressBar *progress() { return pprogress; }
-    
+
 protected:
     void resizeEvent( QResizeEvent *e ) {
         QDialog::resizeEvent( e );
@@ -267,7 +267,7 @@ private:
 	QLabel *lfrom, *lto;
     QProgressBar *pprogress;
     QPushButton *cancel;
-    
+
 };
 
 QCopyFileDialog::QCopyFileDialog( QWidget *parent, const char *name )
@@ -558,7 +558,7 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
 {
     pressPos = e->pos();
     mousePressed = TRUE;
-    
+
     bool didRename = renaming;
 
     cancelRename();
@@ -2569,14 +2569,14 @@ QNewFolderDialog::QNewFolderDialog( QWidget *parent, const char *name )
     back->setMargin( 10 );
     back->setSpacing( 5 );
 
-    QHBox *row1 = new QHBox( back );
+    QHBox *row1 = new QHBox( (QWidget*)back );
     row1->setSpacing( 5 );
     QLabel *label = new QLabel( QFileDialog::tr( "&Folder name:" ), row1 );
 	nameEdit = new QLineEdit( row1 );
     label->setBuddy( nameEdit );
     label->setAutoResize( TRUE );
 
-    QHBox *row2 = new QHBox( back );
+    QHBox *row2 = new QHBox( (QWidget*)back );
     row2->setSpacing( 5 );
     (void)new QWidget( row2 );
 
@@ -2945,7 +2945,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
             ((QWidget*)o)->setFocus();
         return TRUE;
     }
-    
+
     return FALSE;
 }
 
