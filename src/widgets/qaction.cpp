@@ -1625,11 +1625,9 @@ void QActionGroup::childToggled( bool b )
 		    it.current()->setOn( FALSE );
 	    }
 	    emit activated();
-	    emit selected( s );
-	    emit ((QActionGroup*)s)->activated();
+	    emit selected( s );	    
 	} else if ( !s->isToggleAction() ) {
 	    emit activated();
-	    emit ((QActionGroup*)s)->activated();
 	}
     } else {
 	if ( s == d->selected ) {
