@@ -195,6 +195,9 @@ bool QProcess::start( QStringList *env )
 #endif
     reset();
 
+    if ( _arguments.isEmpty() )
+	return FALSE;
+
     // Open the pipes.  Make non-inheritable copies of input write and output
     // read handles to avoid non-closable handles (this is done by the
     // DuplicateHandle() call).
@@ -435,7 +438,6 @@ bool QProcess::isRunning() const
 	    DWORD exitCode;
 	    if ( GetExitCodeProcess( d->pid->hProcess, &exitCode ) ) {
 		if ( exitCode != STILL_ACTIVE ) { // this should ever be true?
-		    QProcess *that = (QProcess*)this; // mutable 
 		    that->exitNormal = exitCode != 0xf291;
 		    that->exitStat = exitCode;
 		}
