@@ -42,10 +42,11 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "LEAN" ] = "no";
     dictionary[ "NOPROCESS" ] = "no";
     dictionary[ "STL" ] = "no";
-//    dictionary[ "ACCESSIBILITY" ] = "no";
+    dictionary[ "ACCESSIBILITY" ] = "no";
     dictionary[ "VERSION" ] = "300";
     dictionary[ "REDO" ] = "no";
     dictionary[ "FORCE_PROFESSIONAL" ] = QEnvironment::getEnv( "FORCE_PROFESSIONAL" );
+    dictionary[ "BIG_CODECS" ] = "yes";
 
     QString tmp = QEnvironment::getEnv( "QMAKESPEC" );
     tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
@@ -96,7 +97,7 @@ void ConfigureApp::buildSqlList()
     QFileInfo* fi;
 
     if( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" ) {
-	allSqlDrivers = QStringList::split( ' ', "mysql oci odbc psql" );
+	allSqlDrivers = QStringList::split( ' ', "mysql oci odbc psql tds" );
 
 	while( ( fi = listIter.current() ) ) {
 	    if( allSqlDrivers.findIndex( fi->fileName() ) != -1 )
@@ -148,21 +149,29 @@ void ConfigureApp::parseCmdLine()
 	    dictionary[ "GIF" ] = "no";
 	else if( (*args) == "-qt-gif" )
 	    dictionary[ "GIF" ] = "yes";
+	else if( (*args) == "-no-zlib" ) {
+	    dictionary[ "ZLIB" ] = "no";
+	    dictionary[ "LIBPNG" ] = "no";
+	}
 	else if( (*args) == "-qt-zlib" )
 	    dictionary[ "ZLIB" ] = "yes";
 	else if( (*args) == "-system-zlib" )
-	    dictionary[ "ZLIB" ] = "no";
+	    dictionary[ "ZLIB" ] = "system";
+	else if( (*args) == "-no-png" )
+	    dictionary[ "LIBPNG" ] = "no";
 	else if( (*args) == "-qt-libpng" )
 	    dictionary[ "LIBPNG" ] = "yes";
 	else if( (*args) == "-system-libpng" )
-	    dictionary[ "LIBPNG" ] = "no";
+	    dictionary[ "LIBPNG" ] = "system";
 	else if( (*args) == "-no-mng" )
 	    dictionary[ "MNG" ] = "no";
 	else if( (*args) == "-system-mng" )
-	    dictionary[ "MNG" ] = "yes";
+	    dictionary[ "MNG" ] = "system";
 	else if( (*args) == "-no-jpeg" )
 	    dictionary[ "JPEG" ] = "no";
 	else if( (*args) == "-system-jpeg" )
+	    dictionary[ "JPEG" ] = "system";
+	else if( (*args) == "-qt-jpeg" )
 	    dictionary[ "JPEG" ] = "yes";
 	else if( (*args) == "-internal" )
 	    dictionary[ "QMAKE_INTERNAL" ] = "yes";
@@ -192,10 +201,14 @@ void ConfigureApp::parseCmdLine()
 	    dictionary[ "STL" ] = "yes";
 	else if( (*args) == "-no-stl" )
 	    dictionary[ "STL" ] = "no";
-//	else if( (*args) == "-accessibility" )
-//	    dictionary[ "ACCESSIBILITY" ] = "yes";
-//	else if( (*args) == "-no-accessibility" )
-//	    dictionary[ "ACCESSIBILITY" ] = "no";
+	else if( (*args) == "-accessibility" )
+	    dictionary[ "ACCESSIBILITY" ] = "yes";
+	else if( (*args) == "-no-accessibility" )
+	    dictionary[ "ACCESSIBILITY" ] = "no";
+	else if( (*args) == "-no-big-codecs" )
+	    dictionary[ "BIG_CODECS" ] = "no";
+	else if( (*args) == "-big-codecs" )
+	    dictionary[ "BIG_CODECS" ] = "yes";
 	else if( ( (*args) == "-override-version" ) || ( (*args) == "-version-override" ) ){
 	    ++args;
 	    dictionary[ "VERSION" ] = (*args);
@@ -292,18 +305,23 @@ bool ConfigureApp::displayHelp()
 	    cout << "                        " << (*config).latin1() << endl;
 	cout << "-qt-gif             Enable GIF support." << endl;
 	cout << "-no-gif           * Disable GIF support." << endl;
+	cout << "-no-zlib            Disable zlib.  Implies -no-png." << endl;
 	cout << "-qt-zlib          * Compile in zlib." << endl;
 	cout << "-system-zlib        Use existing zlib in system." << endl;
+	cout << "-no-png             Disable PNG support." << endl;
 	cout << "-qt-libpng        * Compile in libPNG." << endl;
 	cout << "-system-libpng      Use existing libPNG in system." << endl;
 	cout << "-no-mng           * Disable MNG support." << endl;
-	cout << "-system-mng         Enable MNG support." << endl;
-	cout << "-no-jpeg          * Disable JPEG support." << endl;
-	cout << "-system-jpeg        Enable JPEG support." << endl << endl;
+	cout << "-system-mng         Enable MNG support, use system MNG library." << endl;
+	cout << "-no-jpeg            Disable JPEG support." << endl;
+	cout << "-system-jpeg        Enable JPEG support, use system JPEG library" << endl;
+	cout << "-qt-jpeg          * Enable built-in JPEG support" << endl;
 	cout << "-stl                Enable STL support." << endl;
 	cout << "-no-stl           * Disable STL support." << endl;
-//	cout << "-accessibility      Enable Windows Active Accessibility." << endl;
-//	cout << "-no-accessibility * Disable Windows Active Accessibility." << endl << endl;
+	cout << "-accessibility      Enable Windows Active Accessibility." << endl;
+	cout << "-no-accessibility * Disable Windows Active Accessibility." << endl;
+	cout << "-big-codecs         Enable the building of big codecs." << endl;
+	cout << "-no-big-codecs      Disable the building of big codecs." << endl;
 	cout << "-no-dsp             Disable the generation of VC++ .DSP-files." << endl;
 	cout << "-dsp              * Enable the generation of VC++ .DSP-files." << endl;
 	cout << "-no-qmake           Do not build qmake." << endl;
@@ -339,10 +357,10 @@ void ConfigureApp::generateOutputVars()
 	dictionary[ "QMAKE_OUTDIR" ] += "_mt";
 	qmakeDefines += "QT_THREAD_SUPPORT";
     }
-//    if( dictionary[ "ACCESSIBILITY" ] == "yes" ) {
-//	qmakeConfig += "accessibility";
-//	qmakeDefines += "QT_ACCESSIBILITY_SUPPORT";
-//    }
+    if( dictionary[ "ACCESSIBILITY" ] == "yes" ) {
+	qmakeConfig += "accessibility";
+	qmakeDefines += "QT_ACCESSIBILITY_SUPPORT";
+    }
     if( dictionary[ "SHARED" ] == "yes" ) {
 	dictionary[ "QMAKE_OUTDIR" ] += "_shared";
 	qmakeDefines += "QT_DLL";
@@ -368,14 +386,24 @@ void ConfigureApp::generateOutputVars()
 
     if( dictionary[ "JPEG" ] == "yes" )
 	qmakeConfig += "jpeg";
+    else if( dictionary[ "JPEG" ] == "system" )
+	qmakeConfig += "system-jpeg";
     if( dictionary[ "MNG" ] == "yes" )
 	qmakeConfig += "mng";
+    else if( dictionary[ "MNG" ] == "system" )
+	qmakeConfig += "system-mng";
     if( dictionary[ "GIF" ] == "yes" )
 	qmakeConfig += "gif";
     if( dictionary[ "ZLIB" ] == "yes" )
 	qmakeConfig += "zlib";
+    else if( dictionary[ "ZLIB" ] == "no" )
+	qmakeConfig += "no-zlib";
     if( dictionary[ "LIBPNG" ] == "yes" )
-	qmakeConfig += "libpng";
+	qmakeConfig += "png";
+    else if( dictionary[ "LIBPNG" ] == "no" )
+	qmakeConfig += "no-png";
+    if( dictionary[ "BIG_CODECS" ] == "yes" )
+	qmakeConfig += "bigcodecs";
 
     if( !dictionary[ "QMAKESPEC" ].length() ) {
 	cout << "QMAKESPEC must either be defined as an environment variable, or specified" << endl;
@@ -521,7 +549,8 @@ void ConfigureApp::displayConfig()
     cout << "Thread support.............." << dictionary[ "THREAD" ] << endl;
     cout << "GIF support................." << dictionary[ "GIF" ] << endl;
     cout << "MNG support................." << dictionary[ "MNG" ] << endl;
-    cout << "JPEG support................" << dictionary[ "JPEG" ] << endl << endl;
+    cout << "JPEG support................" << dictionary[ "JPEG" ] << endl;
+    cout << "PNG support................." << dictionary[ "LIBPNG" ] << endl << endl;
     if( !qmakeDefines.isEmpty() ) {
 	cout << "Defines.....................";
 	for( QStringList::Iterator defs = qmakeDefines.begin(); defs != qmakeDefines.end(); ++defs )
@@ -542,10 +571,14 @@ void ConfigureApp::displayConfig()
     }
     if( dictionary[ "FORCE_PROFESSIONAL" ] == "yes" ) {
 	cout << "Licensing forced to professional edition.  If this is not what you want, unset" << endl;
-	cout << "the FORCE_PROFESSIONAL environment variable." << endl <<endl;
+	cout << "the FORCE_PROFESSIONAL environment variable." << endl;
     }
     if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
 	cout << "Using internal configuration." << endl;
+    }
+    if( dictionary[ "SHARED" ] == "no" ) {
+	cout << "WARNING: Using static linking will disable the use of plugins." << endl;
+	cout << "         Make sure you compile ALL needed modules into the library." << endl;
     }
 }
 
