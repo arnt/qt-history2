@@ -338,7 +338,7 @@ BOOL GetWindowExtEx( HDC hdc, LPSIZE lpSize )
     return TRUE;
 }
 
-UINT GetDIBColorTable( HDC hdc, DIBSECTION *ds, UINT uStartIndex, UINT cEntries, RGBQUAD *pColors )
+UINT qt_GetDIBColorTable( HDC hdc, DIBSECTION *ds, UINT uStartIndex, UINT cEntries, RGBQUAD *pColors )
 {
     if ( pColors == NULL ||	    // No place for palette
 	 ds->dsBmih.biBitCount > 8 ) // Not Palettized

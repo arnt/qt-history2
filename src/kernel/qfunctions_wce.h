@@ -188,7 +188,7 @@ BOOL GetViewportExtEx( HDC hdc, LPSIZE lpSize );
 BOOL GetWindowOrgEx( HDC hdc, LPPOINT lpPoint );
 BOOL GetWindowExtEx( HDC hdc, LPSIZE lpSize );
 
-UINT GetDIBColorTable( HDC hdc, DIBSECTION *ds, UINT uStartIndex, UINT cEntries, RGBQUAD *pColors );
+UINT qt_GetDIBColorTable( HDC hdc, DIBSECTION *ds, UINT uStartIndex, UINT cEntries, RGBQUAD *pColors );
 
 
 // Other stuff ------------------------------------------------------
@@ -248,6 +248,10 @@ typedef HANDLE  HDROP;
 typedef wchar_t _TUCHAR;
 typedef LPVOID  LPPRINTER_DEFAULTS;
 
+#ifndef WS_THICKFRAME
+#define WS_THICKFRAME	WS_DLGFRAME
+#endif
+
 #if (_WIN32_WCE < 400) // CE 4.0, CE.NET has these
     typedef struct _DROPFILES
     {
@@ -258,7 +262,6 @@ typedef LPVOID  LPPRINTER_DEFAULTS;
     } DROPFILES, FAR *LPDROPFILES;
 
     typedef LPVOID      	LPCHOOSEFONT;
-#   define WS_THICKFRAME	WS_DLGFRAME
 #   define RDW_INVALIDATE       (0x0001)
 #   define RDW_INTERNALPAINT    (0x0002)
 #   define RDW_ERASE            (0x0004)
