@@ -198,6 +198,7 @@ protected:
 private:
     void drawIndicator( const QPoint &pos );
     QPoint calcIndicatorPos( const QPoint &pos );
+    void findFormWindow();
 
 private:
     int itemNum;
@@ -206,6 +207,7 @@ private:
     QPoint lastIndicatorPos;
     int insertAt;
     QDesignerIndicatorWidget *indicator;
+    FormWindow *formWindow;
 
 };
 

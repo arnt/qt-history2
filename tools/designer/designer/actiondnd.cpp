@@ -671,6 +671,17 @@ QDesignerMenuBar::QDesignerMenuBar( QWidget *mw )
     insertAt = -1;
     indicator = new QDesignerIndicatorWidget( this );
     indicator->hide();
+    findFormWindow();
+}
+
+void QDesignerMenuBar::findFormWindow()
+{
+    QWidget *w = this;
+    while ( w ) {
+	if ( w->inherits( "FormWindow" ) )
+	    formWindow = (FormWindow*)w;
+	w = w->parentWidget();
+    }
 }
 
 void QDesignerMenuBar::mousePressEvent( QMouseEvent *e )
@@ -683,8 +694,11 @@ void QDesignerMenuBar::mousePressEvent( QMouseEvent *e )
 
     if ( e->button() == RightButton ) {
 	int itm = itemAtPos( e->pos() );
-	if ( itm == -1 )
+	if ( itm == -1 ) {
+	    if ( formWindow )
+		formWindow->mainWindow()->popupFormWindoMenu( e->globalPos(), formWindow );
 	    return;
+	}
 	QPopupMenu menu( this );
 	menu.insertItem( tr( "Delete Item" ), 1 );
 	menu.insertItem( tr( "Rename Item..." ), 2 );
