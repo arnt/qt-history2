@@ -46,6 +46,28 @@ QSqlFieldList & QSqlRowset::operator=( const QSqlFieldList & list )
 }
 
 /*!
+  Selects all fields in the rowset.  The order in which the data is returned
+  is database-specific.
+
+*/
+
+bool QSqlRowset::select()
+{
+    return select( "*", QSqlIndex() );
+}
+
+/*!
+  Selects all fields in the rowset.  The data is returned in the order specified
+  by the index \a sort.
+
+*/
+
+bool QSqlRowset::select( const QSqlIndex& sort )
+{
+    return select( "*", sort );
+}
+
+/*!
   Selects all fields in the rowset matching the filter criteria \a filter.  The
   data is returned in the order specified by the index \a sort.  Note that the
   \a filter string will be placed in the generated WHERE clause, but should not
@@ -200,6 +222,7 @@ void QSqlRowset::dumpRecords()
 }
 
 #endif // QT_NO_SQL
+
 
 
 

@@ -25,13 +25,15 @@ public:
     QVariant& operator[]( int i );
     QVariant& operator[]( const QString& name );
 
-    bool select( const QString & filter = QString::null, const QSqlIndex & sort = QSqlIndex() );
-    bool select( const QSqlIndex & filter, const QSqlIndex & sort = QSqlIndex() );
+    bool select();
+    bool select( const QSqlIndex& sort );
+    bool select( const QSqlIndex & filter, const QSqlIndex & sort );
     QString name() const { return tableName; }
 
     void dumpRecords();
 
 protected:
+    bool select( const QString & filter, const QSqlIndex & sort );
     QSqlFieldList & operator=( const QSqlFieldList & list );
     bool query( const QString & str );
     QString fieldEqualsValue( const QString& fieldSep, const QSqlIndex & i = QSqlIndex() );

@@ -19,10 +19,11 @@ public:
 
     QSqlIndex     primaryIndex() const;
     int           insert();
-    int           update( const QString & filter );
     int           update( const QSqlIndex & filter = QSqlIndex() );
-    int           del( const QString & filter );
     int           del( const QSqlIndex & filter = QSqlIndex() );
+protected:
+    int           update( const QString & filter );
+    int           del( const QString & filter );
 };
 
 #endif // QT_NO_SQL

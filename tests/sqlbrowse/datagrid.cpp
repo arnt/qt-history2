@@ -44,7 +44,7 @@ void DataGrid::columnClicked ( int col )
     if ( rset ) {
 	QSqlIndex newSort = QSqlIndex( rset->name() );
 	newSort.append( rset->field( col ).name() );
-	rset->select("*", newSort );
+	rset->select( newSort );
 	viewport()->repaint( TRUE );
     }
 }
