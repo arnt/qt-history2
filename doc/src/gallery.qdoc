@@ -9,23 +9,23 @@
 
   \table
   \row \i \inlineimage macintosh-tabwidget.png
-  \i \bold{Macintosh}
+  \i \bold{\l{gallery-macintosh.html}{Macintosh Style Widget Gallery}}
 
-  The \l{gallery-macintosh.html}{Macintosh style} provided by QMacStyle.
+  The Macintosh style is provided by QMacStyle.
 
   \row \i \inlineimage windows-tableview.png
-  \i \bold{Windows}
+  \i \bold{\l{gallery-windows.html}{Windows Style Widget Gallery}}
 
-  The \l{gallery-windows.html}{Windows style} provided by QWindowsStyle.
+  The Windows style is provided by QWindowsStyle.
 
   \row \i \inlineimage motif-tabwidget.png
-  \i \bold{Motif}
+  \i \bold{\l{gallery-motif.html}{Motif Style Widget Gallery}}
 
-  The \l{gallery-motif.html}{Motif style} provided by QMotifStyle.
+  The Motif style is provided by QMotifStyle.
 
   \row \i \inlineimage cde-treeview.png
-  \i \bold{Common Desktop Environment}
+  \i \bold{\l{gallery-cde.html}{CDE Style Widget Gallery}}
 
-  The \l{gallery-cde.html}{CDE style} provided by QCDEStyle.
+  The Common Desktop Environment style is provided by QCDEStyle.
   \endtable
 */
