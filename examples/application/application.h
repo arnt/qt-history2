@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/application/application.h#2 $
+** $Id: //depot/qt/main/examples/application/application.h#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -12,7 +12,6 @@
 #define APPLICATION_H
 
 #include <qmainwindow.h>
-#include <qstring.h>
 
 class QMultiLineEdit;
 class QToolBar;
@@ -25,32 +24,21 @@ public:
     ApplicationWindow();
     ~ApplicationWindow();
 
-protected:
-    bool eventFilter( QObject *, QEvent * );
-
 private slots:
     void newDoc();
     void load();
-    void load( const QString &fileName );
+    void load( const char *fileName );
     void save();
-    void saveAs();
     void print();
     void closeDoc();
 
     void about();
     void aboutQt();
 
-    void toggleMenuBar();
-    void toggleStatusBar();
-    void toggleToolBar();
-
 private:
     QPrinter *printer;
     QMultiLineEdit *e;
     QToolBar *fileTools;
-    QPopupMenu *controls;
-    int mb, tb, sb;
-    QString filename;
 };
 
 

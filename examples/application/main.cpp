@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/application/main.cpp#3 $
+** $Id: //depot/qt/main/examples/application/main.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -11,18 +11,11 @@
 #include <qapplication.h>
 #include "application.h"
 
-int main( int argc, char ** argv ) 
-{
+int main( int argc, char ** argv ) {
     QApplication a( argc, argv );
-
     ApplicationWindow * mw = new ApplicationWindow();
-    mw->resize( 640, 480 );
     mw->setCaption( "Document 1" );
-    a.setMainWidget( mw );
     mw->show();
-
     a.connect( &a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()) );
-    int result = a.exec();
-    delete mw;
-    return result;
+    return a.exec();
 }
