@@ -112,6 +112,10 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     }
     licenseID->setValidator( new QIntValidator( 100000, -1, licenseID ) );
     readLicense( QDir::homeDirPath() + "/.qt-license" );
+
+    // do this rather here than in the showPage() to keep the user's settings
+    // when he returns back to the page
+    qtDirCheck->setChecked( ( QEnvironment::getEnv( "QTDIR" ).length() == 0 ) );
 }
 
 void SetupWizardImpl::stopProcesses()
@@ -538,11 +542,15 @@ void SetupWizardImpl::showPage( QWidget* newPage )
     } else if( newPage == optionsPage ) {
 	setInstallStep( 2 );
     } else if( newPage == licensePage ) {
+qDebug( "%s", QEnvironment::getEnv( "PATH" ).latin1() );
 	QStringList makeCmds = QStringList::split( ' ', "nmake.exe make.exe gmake.exe" );
 	QStringList paths = QStringList::split( QRegExp("[;,]"), QEnvironment::getEnv( "PATH" ) );
 	if( !findFileInPaths( makeCmds[ sysID ], paths ) ) {
 	    setNextEnabled( licensePage, false );
-	    QMessageBox::critical( this, "Environment problems", "The installation program can't find the make command '" + makeCmds[ sysID ] + "'.\nMake sure the path to it "
+	    QMessageBox::critical( this, "Environment problems",
+					 "The installation program can't find the make command '"
+					 + makeCmds[ sysID ] +
+					 "'.\nMake sure the path to it "
 					 "is present in the PATH environment variable.\n"
 					 "The installation can't continue." );
 	} else {
@@ -555,7 +563,6 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	devSysLabel->setText( devSys[ sysID ] );
 	devSysPath->setEnabled( sysID == 0 );
 	devSysPathButton->setEnabled( sysID == 0 );
-	qtDirCheck->setChecked( ( QEnvironment::getEnv( "QTDIR" ).length() == 0 ) );
 	if( sysID == 0 )
 	    devSysPath->setText( QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine ) );
 	setInstallStep( 4 );
@@ -583,9 +590,13 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    rebuildInstallation->hide();
 	}
 
-	path = QStringList::split( ';', QEnvironment::getEnv( "PATH" ) );
+	path = QStringList::split( QRegExp("[;,]"), QEnvironment::getEnv( "PATH" ) );
 	if( path.findIndex( qtDir + "\\bin" ) == -1 ) {
 	    path.prepend( qtDir + "\\bin" );
+	    // ### this fucks up the PATH settings (at least if you go back
+	    // from the config page to the page where the compiler test is
+	    // done, you get suddenly a warning that the make too is not
+	    // found!)
 	    QEnvironment::putEnv( "PATH", path.join( ";" ) );
 	}
 
@@ -2004,8 +2015,8 @@ bool SetupWizardImpl::findFileInPaths( QString fileName, QStringList paths )
 {
 	QDir d;
 	for( QStringList::Iterator it = paths.begin(); it != paths.end(); ++it ) {
-		if( d.exists( (*it) + "\\" + fileName ) )
-			return true;
+	    if( d.exists( (*it) + "\\" + fileName ) )
+		return true;
 	}
 	return false;
 }
