@@ -1350,10 +1350,6 @@ void QTextView::insert( const QString &text, bool indent, bool checkNewLine, boo
     int idx = cursor->index();
     QTextCursor oldCursor = *cursor;
     cursor->insert( txt, checkNewLine );
-    if ( !removeSelected ) {
-	doc->setSelectionStart( QTextDocument::Standard, &oldCursor );
-	doc->setSelectionEnd( QTextDocument::Standard, cursor );
-    }
     if ( doc->useFormatCollection() )
 	cursor->parag()->setFormat( idx, txt.length(), currentFormat, TRUE );
 
@@ -1378,6 +1374,11 @@ void QTextView::insert( const QString &text, bool indent, bool checkNewLine, boo
     }
 
     emit textChanged();
+    if ( !removeSelected ) {
+	doc->setSelectionStart( QTextDocument::Standard, &oldCursor );
+	doc->setSelectionEnd( QTextDocument::Standard, cursor );
+	repaintChanged();
+    }
 }
 
 void QTextView::undo()
