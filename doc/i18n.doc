@@ -87,17 +87,19 @@ in the following stages:
 	\code
 	void some_global_function(LoginWidget* logwid)
 	{
-	    QLabel *label = new QLabel( LoginWidget::tr("Password:"), logwid );
+	    QLabel *label = new QLabel(
+		    LoginWidget::tr("Password:"), logwid );
 	}
 
 	void same_global_function(LoginWidget* logwid)
 	{
-	    QLabel *label = new QLabel( qApp->translate("LoginWidget", "Password:"), logwid );
+	    QLabel *label = new QLabel(
+		    qApp->translate("LoginWidget", "Password:"), logwid );
 	}
 	\endcode
 
 	Finally, if you need to have translatable text completely
-	outside a funciton, there are
+	outside a function, there are
 	two macros to help: QT_TR_NOOP() and QT_TRANSLATE_NOOP().
 	They merely mark the text for extraction by the <tt>findtr</tt>
 	utility described below - the macros expand to just the text (without
@@ -205,6 +207,14 @@ in the following stages:
 	    translation (no "fuzzy" matching is done).
 	</dl>
 	<p>
+	While these utilities offer a convenient way to create .qm files
+	by the existing .po files standard, any system which writes .qm files
+	is sufficient - you could make an application that adds translations
+	to a QTranslator with QTranslator::insert() and then writes a .qm
+	file with QTranslator::save(). This way the translations can come
+	from any source you choose.
+	</p>
+	<p>
 	<em>
 	Note that Qt itself contains a small number of strings that will
 	also need to be translated to the languages which you are targetting.
@@ -214,7 +224,7 @@ in the following stages:
 	will simplify transition to the official Qt translations. To create
 	a .po file for all Qt sources:
 	    \code
-		findtr qt/src/*/q*.cpp >qt.po
+		findtr qt/src/*\/q*.cpp >qt.po
 	    \endcode
 	</em>
 	<p>
