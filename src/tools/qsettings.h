@@ -34,7 +34,7 @@
 class QSettingsPrivate;
 
 
-class QSettings
+class Q_EXPORT QSettings
 {
 public:
     QSettings();
