@@ -17,7 +17,6 @@
 #include <qmenubar.h>
 #include <qpopupmenu.h>
 #include <qapplication.h>
-#include <qkeycode.h>
 #include "globjwin.h"
 #include "glbox.h"
 
@@ -27,7 +26,7 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
 {
     // Create a menu
     QPopupMenu *file = new QPopupMenu( this );
-    file->insertItem( "Delete Left QGLWidget", this, 
+    file->insertItem( "Delete Left QGLWidget", this,
 		      SLOT(deleteFirstWidget()) );
     file->insertItem( "Exit",  qApp, SLOT(quit()), CTRL+Key_Q );
 
@@ -46,23 +45,41 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
 
     // Create an OpenGL widget
     c1 = new GLBox( f1, "glbox1" );
-    
+
     // Create another OpenGL widget that shares display lists with the first
     c2 = new GLBox( f2, "glbox2", c1 );
 
     // Create the three sliders; one for each rotation axis
     // Make them spin the boxes, but not in synch
-    QSlider* x = new QSlider ( 0, 360, 60, 0, QSlider::Vertical, this, "xsl" );
+    QSlider* x = new QSlider (this);
+    x->setObjectName("xsl");
+    x->setOrientation(QSlider::Vertical);
+    x->setMinimum(0);
+    x->setMaximum(360);
+    x->setPageStep(60);
+    x->setValue(0);
     x->setTickmarks( QSlider::Left );
     connect( x, SIGNAL(valueChanged(int)), c1, SLOT(setXRotation(int)) );
     connect( x, SIGNAL(valueChanged(int)), c2, SLOT(setZRotation(int)) );
 
-    QSlider* y = new QSlider ( 0, 360, 60, 0, QSlider::Vertical, this, "ysl" );
+    QSlider* y = new QSlider (this);
+    y->setObjectName("ysl");
+    y->setOrientation(QSlider::Vertical);
+    y->setMinimum(0);
+    y->setMaximum(360);
+    y->setPageStep(60);
+    y->setValue(0);
     y->setTickmarks( QSlider::Left );
     connect( y, SIGNAL(valueChanged(int)), c1, SLOT(setYRotation(int)) );
     connect( y, SIGNAL(valueChanged(int)), c2, SLOT(setXRotation(int)) );
 
-    QSlider* z = new QSlider ( 0, 360, 60, 0, QSlider::Vertical, this, "zsl" );
+    QSlider* z = new QSlider (this);
+    z->setObjectName("zsl");
+    z->setOrientation(QSlider::Vertical);
+    z->setMinimum(0);
+    z->setMaximum(360);
+    z->setPageStep(60);
+    z->setValue(0);
     z->setTickmarks( QSlider::Left );
     connect( z, SIGNAL(valueChanged(int)), c1, SLOT(setZRotation(int)) );
     connect( z, SIGNAL(valueChanged(int)), c2, SLOT(setYRotation(int)) );
