@@ -57,7 +57,7 @@
 #endif
 
 /*!
-  \class QDialog qdialog.h
+  \class QDialog
   \brief The QDialog class is the base class of dialog windows.
 
   \ingroup dialogs
@@ -77,53 +77,50 @@
   it has a parent, its default location is centered on top of the
   parent. It will also share the parent's taskbar entry.
 
-  There are three kinds of dialog that are useful:
+  The difference between a modal dialog and a modeless dialog is
+  this:
 
   \list 1
+  \target modal
+  \i A <b>modal</b> dialog is a dialog that blocks input to other
+  visible windows in the same application. Users must finish
+  interacting with the dialog and close it before they can access any
+  other window in the application. Dialogs that are used to request a
+  file name from the user or that are used to set application
+  preferences are usually modal.
 
-  \i A <b>modal</b> dialog is a dialog that blocks input to other visible
-  windows in the same application: users must finish interacting
-  with the dialog and close it before they can access any other window
-  in the application. Modal dialogs have their own local event loop.
-  Dialogs which are used to request a filename from the user or which
-  are used to set application preferences are usually modal. Call exec()
-  to display a modal dialog. When the user closes the dialog, exec()
-  will provide a useful \link #return return value\endlink, and the flow
-  of control will follow on from the exec() call at this time. Typically
-  we connect a default button, e.g. "OK", to the accept() slot and a
-  "Cancel" button to the reject() slot, to get the dialog to close and
-  return the appropriate value. Alternatively you can connect to the
-  done() slot, passing it \c Accepted or \c Rejected.
+  The most common way to display a modal dialog is to call its exec()
+  function. When the user closes the dialog, exec() will provide a
+  useful \link #return return value\endlink. Typically we
+  connect a default button, e.g. "OK", to the accept() slot and a
+  "Cancel" button to the reject() slot, to get the dialog to close
+  and return the appropriate value. Alternatively you can connect to
+  the done() slot, passing it \c Accepted or \c Rejected.
 
-  \i A <b>modeless</b> dialog is a dialog that operates independently of
+  An alternative is to use showModal(). Unlike exec(), showModal()
+  returns control to the caller immediately.  showModal() is
+  especially useful for progress dialogs, where the user must have
+  the ability to interact with the dialog, e.g. to cancel a long
+  running operation. During the processing, it is necessary to call
+  QApplication::processEvents() periodically to enable the user to
+  interact with the dialog. (See \l QProgressDialog.)
+
+ \target modeless
+ \i A <b>modeless</b> dialog is a dialog that operates independently of
   other windows in the same application. Find and replace dialogs in
   word-processors are often modeless to allow the user to interact with
-  both the application's main window and the dialog. Call show() to
-  display a modeless dialog. show() returns immediately so the flow of
-  control will continue in the calling code. In practice you will often
-  call show() and come to the end of the function in which show() is
-  called with control returning to the main event loop.
+  both the application's main window and the dialog.
 
-  \i
-  \target semimodal
-  A "<b>semi-modal</b>" dialog is a modal dialog that returns control
-  to the caller immediately. Semi-modal dialogs do not have their own
-  event loop, so you will need to call QApplication::processEvents()
-  periodically to give the semi-modal dialog the opportunity to
-  process its events. A progress dialog (e.g. QProgressDialog) is an
-  example, where you only want the user to be able to interact with
-  the progress dialog, e.g. to cancel a long running operation, but
-  need to actually carry out the operation. Semi-modal dialogs are
-  displayed by setting the modal flag to TRUE and calling the \l
-  show() function.
+  Modeless dialogs are displayed using show(), which returns control
+  to the caller immediately.
   \endlist
 
   \target default
   \section1 Default button
 
-  A dialog's "default" button is the button that's pressed when the user
-  presses Enter or Return. This button is used to signify that the user
-  accepts the dialog's settings and wishes to close the dialog. Use
+  A dialog's \e default button is the button that's pressed when the user
+  presses Enter (Return). This button is used to signify that the user
+  accepts the dialog's settings and wants to close the dialog. Use
   QPushButton::setDefault(), QPushButton::isDefault() and
   QPushButton::autoDefault() to set and control the dialog's default
   button.
@@ -155,7 +152,7 @@
   \section1 Return value (modal dialogs)
 
   Modal dialogs are often used in situations where a return value is
-  required; for example to indicate whether the user pressed "OK" or
+  required, e.g. to indicate whether the user pressed "OK" or
   "Cancel". A dialog can be closed by calling the accept() or the
   reject() slots, and exec() will return \c Accepted or \c Rejected as
   appropriate. The exec() call returns the result of the dialog. The
@@ -183,9 +180,6 @@
   \printuntil show
   \skipto exec
   \printuntil }
-
-  See the \l QProgressDialog documentation for an example of a
-  semi-modal dialog.
 
   \sa QTabDialog QWidget QProgressDialog
   \link guibooks.html#fowler GUI Design Handbook: Dialogs, Standard\endlink
@@ -235,19 +229,20 @@ public:
 /*!
   Constructs a dialog called \a name, with parent \a parent.
 
-  If \a modal is FALSE (the default), the dialog is modeless and should
-  be displayed with show(). If \a modal is TRUE and the dialog is
-  displayed with exec(), the dialog is modal, i.e. blocks input to other
-  windows in this application. If \a modal is TRUE and the dialog is
-  displayed using show(), the dialog is semi-modal.
+  A dialog is always a top-level widget, but if it has a parent, its
+  default location is centered on top of the parent. It will also
+  share the parent's taskbar entry.
 
   The widget flags \a f are passed on to the QWidget constructor.
-
   If, for example, you don't want a What's This button in the titlebar
   of the dialog, pass WStyle_Customize | WStyle_NormalBorder |
   WStyle_Title | WStyle_SysMenu in \a f.
 
-  We recommend that you always pass a non-null parent.
+  \warning In Qt 3.2, the \a modal flag is obsolete and should be
+  FALSE. In previous versions of Qt, this flag controlled whether the
+  dialog was modal or modeless. From Qt 3.2, it is sufficient to call
+  one of exec(), showModal(), and show(). For compatibility, show()
+  behaves like showModal() when \a modal is TRUE.
 
   \sa QWidget::setWFlags() Qt::WidgetFlags
 */
@@ -326,30 +321,30 @@ void QDialog::hideDefault()
 
 
 /*!
-  \fn int  QDialog::result() const
+  \fn int QDialog::result() const
 
   Returns the modal dialog's result code, \c Accepted or \c Rejected.
 
   Do not call this function if the dialog was constructed with the \c
-  WDestructiveClose flag. (exec() returns the result code anyway.)
+  WDestructiveClose flag.
 */
 
 /*!
-  \fn void  QDialog::setResult( int i )
+  \fn void QDialog::setResult( int i )
 
   Sets the modal dialog's result code to \a i.
 */
 
 
 /*!
-    Executes a modal dialog. Control passes to the dialog until the user
-    closes it, at which point the local event loop finishes and the
-    function returns with the \l DialogCode result.
-    Users will not be able to interact with any other window in
-    the same application until they close this dialog. For a modeless or
-    semi-modal dialog use show().
+    Shows the dialog as a \link #modal modal \endlink dialog,
+    blocking until the user closes it. The function returns a \l
+    DialogCode result.
 
-  \sa show(), result()
+    Users cannot interact with any other window in the same
+    application until they close the dialog.
+
+  \sa showModal(), show(), result()
 */
 
 int QDialog::exec()
@@ -433,6 +428,7 @@ void QDialog::done( int r )
 
 /*!
   Hides the modal dialog and sets the result code to \c Accepted.
+
   \sa reject() done()
 */
 
@@ -443,6 +439,7 @@ void QDialog::accept()
 
 /*!
   Hides the modal dialog and sets the result code to \c Rejected.
+
   \sa accept() done()
 */
 
@@ -568,23 +565,14 @@ extern "C" { int XSetTransientForHint( Display *, unsigned long, unsigned long )
 #endif // Q_WS_X11
 
 /*!
-    Shows a modeless or semi-modal dialog. Control returns immediately
-    to the calling code.
+    Shows the dialog as a \link #modeless modeless \endlink dialog.
+    Control returns immediately to the calling code.
 
-    The dialog does not have a local event loop so you must call
-    QApplication::processEvents() periodically to give the dialog the
-    opportunity to process its events.
+    \warning For compatibility, the dialog will be \link #modal
+    modal\endlink if the modal flag was set to TRUE in the
+    constructor.
 
-    The dialog will be \link #semimodal semi-modal\endlink if the modal
-    flag was set to TRUE in the constructor.
-
-  \warning
-
-  In Qt 2.x, calling show() on a modal dialog enters a local event
-  loop, and works like exec(), but doesn't return the result code
-  exec() returns. Trolltech has always warned that doing this is unwise.
-
-  \sa exec()
+    \sa exec(), showModal()
 */
 
 void QDialog::show()
@@ -614,13 +602,14 @@ void QDialog::show()
     QFocusData *fd = focusData();
 
     /*
-      The following block is to handle a special case, and does not really follow
-      propper logic in concern of autoDefault and TAB order. However, it's here to
-      ease usage for the users. If a dialog has a default QPushButton, and first
-      widget in the TAB order also is a QPushButton, then we give focus to the
-      main default QPushButton. This simplifies code for the developers, and
-      actually catches most cases... If not, then they simply have to use
-      [widget*]->setFocus() themselves...
+      The following block is to handle a special case, and does not
+      really follow propper logic in concern of autoDefault and TAB
+      order. However, it's here to ease usage for the users. If a
+      dialog has a default QPushButton, and first widget in the TAB
+      order also is a QPushButton, then we give focus to the main
+      default QPushButton. This simplifies code for the developers,
+      and actually catches most cases... If not, then they simply
+      have to use [widget*]->setFocus() themselves...
     */
     if ( !fw || fw->focusPolicy() == NoFocus ) {
 	fd->home(); // Skip main form
@@ -630,7 +619,6 @@ void QDialog::show()
 	     first->inherits("QPushButton") )
 	    d->mainDef->setFocus();
     }
-    // -- [End special case block] --
 
     if ( !d->mainDef && isTopLevel() ) {
 	if ( !fw || fw->focusPolicy() == NoFocus ) {
@@ -668,9 +656,13 @@ void QDialog::show()
 }
 
 /*!
-    Shows a modal dialog.
+    Shows the dialog as a \link #modal modal \endlink dialog. Control
+    returns immediately to the calling code.
 
-    ### Mark and I (Jasmin) will update the documentation
+    Users cannot interact with any other window in the same
+    application until they close the dialog.
+
+    \sa exec(), show()
 */
 void QDialog::showModal()
 {
@@ -681,8 +673,7 @@ void QDialog::showModal()
 	clearWFlags( WShowModal );
 }
 
-/*!\internal
- */
+/*! \internal */
 void QDialog::adjustPosition( QWidget* w)
 {
     adjustPositionInternal( w );
@@ -693,8 +684,8 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
 {
     /* need to make sure these events are already sent to be sure
        our information below is correct --sam */
-    QApplication::sendPostedEvents(this, QEvent::LayoutHint);
-    QApplication::sendPostedEvents(this, QEvent::Resize);
+    QApplication::sendPostedEvents( this, QEvent::LayoutHint );
+    QApplication::sendPostedEvents( this, QEvent::Resize );
 
     // processing the events might call polish(), which is a nice place
     // to restore geometries, so return if the dialog has been positioned
