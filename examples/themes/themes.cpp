@@ -12,7 +12,7 @@
 #include "wood.h"
 #include "metal.h"
 
-#include "../buttons_groups/buttongroups.h"
+#include "../buttongroups/buttongroups.h"
 #include "../lineedits/lineedits.h"
 #include "../listboxcombo/listboxcombo.h"
 #include "../checklists/checklists.h"

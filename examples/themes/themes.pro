@@ -1,9 +1,9 @@
 TEMPLATE	= app
 CONFIG		= qt warn_on release
 HEADERS		= themes.h \
-		  ../buttons_groups/buttons_groups.h \
+		  ../buttongroups/buttongroups.h \
 		  ../lineedits/lineedits.h \
-		  ../listbox_combo/listbox_combo.h \
+		  ../listboxcombo/listboxcombo.h \
 		  ../checklists/checklists.h \
 		  ../progressbar/progressbar.h \
 		  ../rangecontrols/rangecontrols.h \
@@ -13,9 +13,9 @@ HEADERS		= themes.h \
 		
 SOURCES		= themes.cpp \
 		  main.cpp \
-		  ../buttons_groups/buttons_groups.cpp \
+		  ../buttongroups/buttongroups.cpp \
 		  ../lineedits/lineedits.cpp \
-		  ../listbox_combo/listbox_combo.cpp \
+		  ../listboxcombo/listboxcombo.cpp \
 		  ../checklists/checklists.cpp \
 		  ../progressbar/progressbar.cpp \
 		  ../rangecontrols/rangecontrols.cpp \
