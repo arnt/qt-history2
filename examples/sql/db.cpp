@@ -61,6 +61,7 @@ void create_db()
     db->exec("create table INVOICE "
 	     "(ID numeric(10) primary key,"
 	     "CUSTOMERID numeric(10) references customer,"
+	     "PRODUCTID numeric(10) references product,"
 	     "NUM numeric(10),"
 	     "PAID numeric(1),"
 	     "CREATEDATE date,"
@@ -77,26 +78,11 @@ void create_db()
     buf->setValue( "SHIPPING",  0 );
     buf->setValue( "TOTAL",  100.00 );
     invoice.insert();
-
-    db->exec("create table INVOICEITEM "
-	     "(ID numeric(10) primary key,"
-	     "INVOICEID numeric(10) references invoice,"
-	     "PRODUCTID numeric(10) references product,"
-	     "QUANTITY numeric(10),"
-	     "TOTAL numeric(15,2));");
-    InvoiceItemCursor invoiceitem;
-    buf = invoiceitem.insertBuffer();
-    buf->setValue( "INVOICEID",  invoice.value("id") );
-    buf->setValue( "PRODUCTID",  product.value("id") );
-    buf->setValue( "QUANTITY",  10 );
-    buf->setValue( "TOTAL",  10*100.0 );
-    invoiceitem.insert();
 }
 
 void drop_db()
 {
     QSqlDatabase* db = QSqlDatabase::database();
-    db->exec("drop table INVOICEITEM;");
     db->exec("drop table INVOICE;");
     db->exec("drop table PRODUCT;");
     db->exec("drop table CUSTOMER;");

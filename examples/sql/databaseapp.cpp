@@ -29,11 +29,11 @@ DatabaseFrontEnd::DatabaseFrontEnd( QWidget * parent, const char * name )
 }
 
 /*!
-  Initialize the different widgets that appear in the database front-end.
+  Initialize the widgets that appear in the database front-end.
  */
 void DatabaseFrontEnd::init()
 {
-    QSplitter * vSplitter, * hSplitter;    
+    QSplitter * vSplitter, * hSplitter;
     QGridLayout* gl = new QGridLayout( this );
     hSplitter   = new QSplitter( QSplitter::Horizontal, this );
     gl->addWidget( hSplitter, 0, 0 );
@@ -100,9 +100,9 @@ void DatabaseFrontEnd::init()
     vb2->addWidget( label );
 
     customerInfo = new QLabel( f2 );
-    customerInfo->setText( "Customer info goes here!" );
-    customerInfo->resize( fm.width( customerInfo->text() ),
- 		      customerInfo->height() );
+    //    customerInfo->setText( "Customer info goes here!" );
+    //    customerInfo->resize( fm.width( customerInfo->text() ),
+    // 		      customerInfo->height() );
     customerInfo->setFont( QFont( "fixed" ) );
     customerInfo->setAutoResize( TRUE );
     customerInfo->setSizePolicy( QSizePolicy( QSizePolicy::Preferred,
@@ -167,9 +167,9 @@ void DatabaseFrontEnd::init()
 
 }
 
-/*!
-  When a new customer is selected in the customer table - update the
-  invoice table to show the invoices for the currently selected customer.
+/*!  When a new customer is selected in the customer table - show
+  extended customer info to the user and update the invoice table to
+  show the invoices for the currently selected customer.
  */
 void DatabaseFrontEnd::updateCustomerInfo( const QSqlRecord * fields )
 {
@@ -191,8 +191,7 @@ void DatabaseFrontEnd::updateCustomerInfo( const QSqlRecord * fields )
     invoiceTable->refresh();
 }
 
-/*!
-  Pops up a data entry form for inserting new customers into the
+/*!  Pops up a data entry form for inserting new customers into the
   database.
  */
 void DatabaseFrontEnd::insertCustomer()
@@ -206,10 +205,9 @@ void DatabaseFrontEnd::insertCustomer()
     }
 }
 
-/*!
-  Pops up a data entry form for editing an existing customer. The
-  fields in the form will contain the current values for the currently
-  selected customer.
+/*!  Pops up a data entry form for editing an existing customer. We
+  ensure that the fields in the form will contain the values for the
+  currently selected customer by using QSqlCursor::updateBuffer().
  */
 void DatabaseFrontEnd::updateCustomer()
 {
@@ -222,8 +220,7 @@ void DatabaseFrontEnd::updateCustomer()
     }
 }
 
-/*!
-  Pops up a data entry form for deleting an existing customer. The
+/*!  Pops up a data entry form for deleting an existing customer. The
   fields in the form will contain the current values for the currently
   selected customer.
  */
@@ -238,8 +235,8 @@ void DatabaseFrontEnd::deleteCustomer()
     }
 }
 
-/*!
-  Pops up a data entry form for inserting a new invoice for a customer.
+/*!  Pops up a data entry form for inserting a new invoice for a
+  customer.
  */
 void DatabaseFrontEnd::insertInvoice()
 {
@@ -253,23 +250,25 @@ void DatabaseFrontEnd::insertInvoice()
     QSqlRecord * buf = cr->insertBuffer();
     insertingInvoice( buf );
 
-    InvoiceDialog dlg( buf, InvoiceDialog::Insert, this );
+    GenericDialog dlg( buf, GenericDialog::Insert, this );
     if( dlg.exec() == QDialog::Accepted ){
 	cr->insert();
 	invoiceTable->refresh( cr->primaryIndex( TRUE ) );
     }
 }
 
+/*! Link the new invoice to the currently selected customer.
+*/
 void DatabaseFrontEnd::insertingInvoice( QSqlRecord* buf )
 {
     QSqlRecord fl = customerTable->currentFieldSelection();
     buf->setValue( "customerid", fl.field("id")->value() );
 }
 
-/*!
-  Pops up a data entry form for updating an invoice for a customer.
-  The fields in the form will contain the current values for the currently
-  selected invoice.
+/*!  Pops up a data entry form for updating an invoice for a customer.
+  We ensure tha the fields in the form will contain the current values
+  for the currently selected invoice by using
+  QSqlCursor::updateBuffer().
 */
 void DatabaseFrontEnd::updateInvoice()
 {
@@ -281,15 +280,14 @@ void DatabaseFrontEnd::updateInvoice()
     }
     QSqlCursor  * cr = invoiceTable->cursor();
 
-    InvoiceDialog dlg( cr->updateBuffer(), InvoiceDialog::Update, this );
+    GenericDialog dlg( cr->updateBuffer(), GenericDialog::Update, this );
     if( dlg.exec() == QDialog::Accepted ){
 	cr->update();
 	invoiceTable->refresh( cr->primaryIndex( TRUE ) );
     }
 }
 
-/*!
-  Pops up a data entry form for deleting an existing invoice. The
+/*!  Pops up a data entry form for deleting an existing invoice. The
   fields in the form will contain the current values for the currently
   selected invoice.
  */
@@ -303,7 +301,7 @@ void DatabaseFrontEnd::deleteInvoice()
     }
 
     QSqlCursor  * cr = invoiceTable->cursor();
-    InvoiceDialog dlg( cr->updateBuffer(), InvoiceDialog::Delete, this );
+    GenericDialog dlg( cr->updateBuffer(), GenericDialog::Delete, this );
 
     if( dlg.exec() == QDialog::Accepted ){
 	cr->del();

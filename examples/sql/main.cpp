@@ -13,7 +13,7 @@ int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
 
-    QSqlDatabase * db = QSqlDatabase::addDatabase( "QPSQL" );
+    QSqlDatabase * db = QSqlDatabase::addDatabase( "QPSQL7" );
     db->setDatabaseName( "test" );
     db->setUserName( "db" );
     db->setPassword( "db" );
@@ -26,9 +26,9 @@ int main( int argc, char ** argv )
     }
 
     QStringList tables = db->tables();
-    if ( !tables.contains("customer") && !tables.contains("CUSTOMER") ) 
+    if ( !tables.contains("customer") && !tables.contains("CUSTOMER") )
 	create_db();
-    
+
     DatabaseApp dbapp;
 
     a.setMainWidget( &dbapp );
