@@ -218,6 +218,7 @@ ZLIB=yes
 LIBPNG=yes
 JPEG=no
 MNG=no
+FT=yes
 NAS_SOUND=no
 D_FLAGS=
 I_FLAGS=
@@ -243,7 +244,8 @@ while [ -n "$1" ]; do
 	    echo "No license exists to enable Embedded. Disabling."
 	else
 	    EMBEDDED=$1
-	    #XPLATFORM=qws/linux-${EMBEDDED}-g++
+	    PLATFORM=qws/linux-generic-g++
+	    XPLATFORM=qws/linux-${EMBEDDED}-g++
 	fi
 	;;
    -qconfig)
@@ -299,6 +301,12 @@ while [ -n "$1" ]; do
 	;;
    -thread)
        THREAD=yes
+	;;
+   -freetype)
+       FT=yes
+	;;
+   -no-freetype)
+       FT=no
 	;;
    -qt-zlib)
        ZLIB=yes
@@ -567,8 +575,6 @@ fi
 MKSPEC="$relpath/mkspecs/${PLATFORM}"
 XMKSPEC="$relpath/mkspecs/${XPLATFORM}"
 
-################## need Qt/Embedded specs here ###############
-
 if [ '!' -f "$MKSPEC" ];
 then
     echo
@@ -765,6 +771,9 @@ each option:
     -system-nas-sound .. Use NAS libaudio from the operating system.
                          See http://radscan.com/nas.html
 
+    -no-freetype ....... Qt/Embedded only: do not compile in FreeType2 support.
+ *  -freetype .......... Qt/Embedded only: add FreeType2 font support.
+
     -enable-kde2 ....... Builds the Qt Designer with KDE2 support, so that
 			 KDE2 widgets can be used directly in
 			 the Qt Designer. \$KDEDIR must be
@@ -841,16 +850,6 @@ then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-emb-$EMBEDDED"
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$QTDIR/lib-e-$EMBEDDED\""
     QMAKE_CONFIG="$QMAKE_CONFIG embedded"
-    QMAKE_VARS="$QMAKE_VARS \"DEFINES+=QWS\""
-#    case $EMBEDDED in
-#    mips)
-#	QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-fnonnull-objects -fshort-enums -fshared-data -fno-vtable-thunks\""
-#	;;
-#    arm)
-#	QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-fshort-enums -fshared-data\""
-#	;;
-#    *) ;;
-#    esac
 fi
 QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE_OUTDIR\""
 
@@ -859,6 +858,7 @@ QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE
 [ "x$NAS_SOUND" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG nas"
 [ "x$JPEG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG jpeg"
 [ "x$MNG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG mng"
+[ "x$FT" = "xyes" -a "x$EMBEDDED" != "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG ft"
 [ "x$SM" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG x11sm"
 [ "x$GIF" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG gif"
 [ "x$ZLIB" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG zlib"

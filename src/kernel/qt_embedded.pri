@@ -7,10 +7,9 @@ embedded {
 		SUBLIBS += gsos
 		MAKELIBgsos = $(MAKE) -C 3rdparty/gsos; \
 			cp 3rdparty/gsos/libgsos.a tmp
+		DEFINES += QT_QWS_EE
 	}
-	!contains(embedded-videodriver, eproj):DEFINES += QT_NO_QWS_E_PROJ
 
-	DEFINES += QWS
 	CONFIG -= opengl
 	CONFIG	+= png zlib
 	CONFIG -= jpeg
@@ -69,6 +68,30 @@ embedded {
 		  $$KERNEL_CPP/qlock_qws.cpp \
 		  $$KERNEL_CPP/qwsregionmanager_qws.cpp \
 		  $$KERNEL_CPP/qwssocket_qws.cpp
+
+	ft:SOURCES+=3rdparty/freetype2/config/unix/ftsystem.c \
+                3rdparty/freetype2/src/base/ftdebug.c \
+                3rdparty/freetype2/src/base/ftinit.c \
+                3rdparty/freetype2/src/base/ftbase.c \
+                3rdparty/freetype2/src/base/ftbbox.c \
+                3rdparty/freetype2/src/base/ftraster.c \
+                3rdparty/freetype2/src/base/ftoutln.c \
+                3rdparty/freetype2/src/psnames/psdriver.c \
+                3rdparty/freetype2/src/sfnt/sfnt.c \
+                3rdparty/freetype2/src/truetype/truetype.c \
+                3rdparty/freetype2/src/type1/type1.c
+
+	# Rather ridiculous. Perhaps we should ships symlinks and
+	# only have one here.
+	ft:INCLUDEPATH += 3rdparty/freetype2/src/shared \
+		3rdparty/freetype2/src/sfnt \
+		3rdparty/freetype2/include \
+		3rdparty/freetype2/src/base \
+		3rdparty/freetype2/config/unix \
+		3rdparty/freetype2/config \
+		3rdparty/freetype2/src/truetype \
+		3rdparty/freetype2/src/type1 \
+		3rdparty/freetype2/src/psnames
 
 	PRECOMPH=$(QTDIR)/src/kernel/qt.h
 	INCLUDEPATH += 3rdparty/freetype2/include 3rdparty/libpng 3rdparty/zlib
