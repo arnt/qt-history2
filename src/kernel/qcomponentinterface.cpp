@@ -49,6 +49,14 @@ QUnknownInterface::~QUnknownInterface()
 }
 
 /*!
+  Returns the internal name of the interface.
+*/
+const char *QUnknownInterface::name() const
+{
+    return objname;
+}
+
+/*!
   Makes interface \a child a child of this interface.
 */
 
@@ -330,7 +338,7 @@ QString QPlugInInterface::version() const
 }
 
 /*!
-  \class QApplicationInterface qapplicationinterface.h
+  \class QApplicationInterface qcomponentinterface.h
 
   \brief This class provides a top level interface for application modules.
 
@@ -384,7 +392,7 @@ QString QApplicationInterface::command() const
 }
 
 /*!
-  \class QApplicationComponentInterface qapplicationinterface.h
+  \class QApplicationComponentInterface qcomponentinterface.h
 
   \brief This class provides an interface to application components.
 */
