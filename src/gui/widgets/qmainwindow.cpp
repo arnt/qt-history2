@@ -306,7 +306,6 @@ bool QMainWindow::event(QEvent *event)
             sb->message(static_cast<QStatusTipEvent*>(event)->tip());
             return true;
         }
-    } else {
-        return QWidget::event(event);
     }
+    return QWidget::event(event);
 }
