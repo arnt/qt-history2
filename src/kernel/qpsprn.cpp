@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#19 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -19,7 +19,7 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#18 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#19 $")
 
 
 #if !defined(QT_HEADER_PS)
@@ -162,9 +162,9 @@ static void ps_dumpPixmapData( QTextStream &stream, QImage img,
 	for( x = 0 ; x < width ; x++ ) {
 	    if ( pixWidth == 1 ) {
 		cval = img.color( scanLine[x] );
-		hexOut( stream, QRED(cval) );
-		hexOut( stream, QGREEN(cval) );
-		hexOut( stream, QBLUE(cval) );
+		hexOut( stream, qRed(cval) );
+		hexOut( stream, qGreen(cval) );
+		hexOut( stream, qBlue(cval) );
 	    } else {
 		hexOut( stream, scanLine[3*x] );
 		hexOut( stream, scanLine[3*x + 1] );
