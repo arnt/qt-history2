@@ -68,7 +68,7 @@ Q_TEMPLATE_EXTERN template class Q_EXPORT QGuardedPtr<QWidget>;
 Q_TEMPLATE_EXTERN template class Q_EXPORT QGuardedPtr<QAccessibleObject>;
 #endif
 
-#if defined(Q_DEFINED_QINTDICT) && !defined(Q_EXPORTED_QINTDICTWIDGET_TEMPLATES)
+#if defined(Q_DEFINED_QINTDICT) && !defined(Q_EXPORTED_QINTDICT_TEMPLATES)
 #define Q_EXPORTED_QINTDICT_TEMPLATES
 Q_TEMPLATE_EXTERN template class Q_EXPORT QIntDict<int>;
 #endif
@@ -85,7 +85,7 @@ Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<int, int>; // for Qtopia
 Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<int, bool>; // for Qtopia
 #endif
 
-#if defined(Q_DEFINED_QMAP) && defined(Q_DEFINED_QSTRING) && !defined(Q_EXPORTED_QMAPSTRING_TEMPLATES)
+#if defined(Q_DEFINED_QMAP) && defined(Q_DEFINED_QSTRING) && !defined(Q_EXPORTED_QMAPQSTRING_TEMPLATES)
 #define Q_EXPORTED_QMAPQSTRING_TEMPLATES
 Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<QString, QString>;
 Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<QString, int>; // for Qtopia
