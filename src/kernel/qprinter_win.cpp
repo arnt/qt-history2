@@ -1060,13 +1060,46 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             if ( paint ) {
                 bool wxf = paint->hasWorldXForm();
                 bool vxf = paint->hasViewXForm();
-                if ( wxf || vxf ) {             // map position
-                    pos = paint->xForm( pos );
-                }
+		bool complexWxf = FALSE;
                 if ( wxf ) {
-                    QWMatrix m = paint->worldMatrix();
-                    xs = m.m11();
-                    ys = m.m22();
+		    QWMatrix m = paint->worldMatrix();
+		    complexWxf = m.m12() != 0 || m.m21() != 0;
+		    if ( complexWxf ) {
+			//qDebug( "yes alphaBuffer=%d colorDepth=%d", image.hasAlphaBuffer(), image.depth() );
+			if ( image.isNull() ) {
+			    image = pixmap;
+			    //qDebug( "yes alphaBuffer=%d colorDepth=%d", image.hasAlphaBuffer(), image.depth() );
+			    pixmap = QPixmap();
+			}
+			image.setAlphaBuffer( TRUE );
+			image = image.xForm( m );
+			int origW = w;
+			int origH = h;
+			w = image.width();
+			h = image.height();
+			rect.setWidth( rect.width()*w / origW );
+			rect.setHeight( rect.height()*h / origH );
+			//qDebug( "yes alphaBuffer=%d colorDepth=%d", image.hasAlphaBuffer(), image.depth() );
+
+			// The image is already transformed. For the transformation
+			// of pos, we need a modified world matrix:
+			//   Let M be the original world matrix and T its true
+			//   matrix of image transformation. The resulting new
+			//   world matrix we are looking for has only the
+			//   translation
+			//     v = pos' - pos
+			//       = M*pos - T*0 - pos
+			//   whith pos' being the desired upper left corner of the
+			//   transformed image.
+			paint->save();
+			QPoint p1 = QPixmap::trueMatrix( paint->worldMatrix(), origW, origH ) * QPoint(0,0);
+			QPoint p2 = paint->worldMatrix() * pos;
+			p1 = p2 - p1 - pos;
+			paint->setWorldMatrix( QWMatrix( 1, 0, 0, 1, p1.x(), p1.y() ) );
+		    } else {
+			xs = m.m11();
+			ys = m.m22();
+		    }
                 }
                 if ( vxf ) {
                     QRect vr = paint->viewport();
@@ -1074,6 +1107,11 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
                     xs = xs * vr.width() / wr.width();
                     ys = ys * vr.height() / wr.height();
                 }
+                if ( wxf || vxf ) {             // map position
+                    pos = paint->xForm( pos );
+                }
+		if ( complexWxf )
+		    paint->restore();
             }
             int dw = qRound( xs * rect.width() );
             int dh = qRound( ys * rect.height() );
