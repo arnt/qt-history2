@@ -62,8 +62,7 @@ public:
 
     QSqlError lastError() const;
 
-public slots:
-    void fetchMore();
+    void fetchMore(const QModelIndex &parent = QModelIndex::Null);
 
 protected:
     QModelIndex dataIndex(const QModelIndex &item) const;

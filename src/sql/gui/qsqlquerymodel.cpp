@@ -104,8 +104,10 @@ QSqlQueryModel::~QSqlQueryModel()
 /*!
     \internal
 */
-void QSqlQueryModel::fetchMore()
+void QSqlQueryModel::fetchMore(const QModelIndex &parent)
 {
+    if (parent.isValid())
+        return;
     d->prefetch(d->bottom.row() + QSQL_PREFETCH);
 }
 
