@@ -593,6 +593,11 @@ bool Q4Menu::isCheckable() const
     return d->checkable;
 }
 
+QAction *Q4Menu::activeAction() const
+{
+    return d->currentAction->action;
+}
+
 QSize Q4Menu::sizeHint() const
 {
     ensurePolished();
@@ -1497,6 +1502,22 @@ QAction *Q4MenuBar::insertMenu(QAction *before, const QString &text, Q4Menu *men
     QAction *ret = new QAction(text, menu);
     insertAction(before, ret);
     return ret;
+}
+
+QAction *Q4MenuBar::activeAction() const
+{
+    return d->currentAction->action;
+}
+
+void Q4MenuBar::setDefaultUp(bool b)
+{
+    qWarning("Must implement Q4MenuBar::setDefaultUp(%d)", b);
+}
+ 
+bool Q4MenuBar::isDefaultUp() const
+{
+    qWarning("Must implement Q4MenuBar::isDefaultUp()");
+    return true;
 }
 
 void Q4MenuBar::resizeEvent(QResizeEvent *)
