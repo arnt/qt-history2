@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#53 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -621,7 +621,7 @@ QLayout::QLayout( int space, const char *name )
 /*! \fn void QLayout::addItem (QLayoutItem *item )
     Implemented in subclasses to add \a item. How it is
     added is specific to each subclass.
-    
+
     Note that the ownership of \a item is transferred to
     the layout, and it is the layout's responsibility to
     delete it.
@@ -1115,6 +1115,16 @@ bool QLayout::activate()
     // Paul: If adding stuff to a QLayout for a widget causes
     // postEvent(thatWidget, QEvent::LayoutHint), activate() becomes
     // unnecessary in that case too.
+    QWidget *mainW = mainWidget();
+    if ( !mainW ) {
+#if defined( CHECK_NULL )
+	    qWarning( "QLayout::activate(): %s \"%s\" does not have a " 
+		      "main widget.",
+		     QObject::className(), QObject::name() );
+
+#endif	
+	return FALSE;
+    }
     activated = TRUE;
     invalidateRecursive( this );
     QSize s = mainWidget()->size();
