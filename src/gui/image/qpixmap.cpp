@@ -391,9 +391,12 @@ QPixmap QPixmap::copy(bool) const
     QPainter painter(&pm);
     painter.drawPixmap(QPoint(0, 0), *this, Qt::CopyPixmapNoMask);
     painter.end();
-#if defined(Q_WS_X11) // ### this needs to be done for mac as well
+#if defined(Q_WS_X11)
     if (data->alphapm)
         pm.data->copyAlpha(data);
+#elif defined(Q_WS_MAC)
+    if (data->alphapm)
+        pm.data->alphapm = new QPixmap(*pm.data->alphapm);
 #endif
 
 #if defined(Q_WS_X11)
