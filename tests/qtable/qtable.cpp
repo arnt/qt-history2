@@ -169,7 +169,7 @@ int QTableItem::alignment() const
 
 QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
     : QScrollView( parent, name, WRepaintNoErase | WNorthWestGravity ),
-      currentSelection( 0 )
+      currentSelection( 0 ), sGrid( TRUE )
 {
     setResizePolicy( Manual );
     selections.setAutoDelete( TRUE );
@@ -237,6 +237,17 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
 
 QTable::~QTable()
 {
+}
+
+void QTable::setShowGrid( bool b )
+{
+    sGrid = b;
+    viewport()->repaint( FALSE );
+}
+
+bool QTable::showGrid() const
+{
+    return sGrid;
 }
 
 /*!  Draws the contents of the table on the painter \a p. This
@@ -327,13 +338,15 @@ void QTable::paintCell( QPainter* p, int row, int col, const QRect &cr, bool sel
     // Draw cell background
     p->fillRect( 0, 0, w, h, selected ? colorGroup().brush( QColorGroup::Highlight ) : colorGroup().brush( QColorGroup::Base ) );
 
-    // Draw our lines
-    QPen pen( p->pen() );
-    p->setPen( colorGroup().mid().light() );
-    p->drawLine( x2, 0, x2, y2 );
-    p->drawLine( 0, y2, x2, y2 );
-    p->setPen( pen );
-
+    if ( sGrid ) {
+	// Draw our lines
+	QPen pen( p->pen() );
+	p->setPen( colorGroup().mid().light() );
+	p->drawLine( x2, 0, x2, y2 );
+	p->drawLine( 0, y2, x2, y2 );
+	p->setPen( pen );
+    }
+    
     QTableItem *item = cellContent( row, col );
     if ( item ) {
 	p->save();

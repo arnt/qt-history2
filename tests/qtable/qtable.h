@@ -108,6 +108,9 @@ public:
     bool isColSelected( int col, bool full = FALSE );
     void clearSelection();
 
+    void setShowGrid( bool b );
+    bool showGrid() const;
+    
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     void contentsMousePressEvent( QMouseEvent* );
@@ -170,7 +173,8 @@ private:
     QList<SelectionRange> selections;
     SelectionRange *currentSelection;
     QTimer *autoScrollTimer;
-
+    bool sGrid;
+    
 };
 
 class QTableHeader : public QHeader
@@ -198,7 +202,7 @@ protected:
 
 private slots:
     void doAutoScroll();
-    
+
 private:
     void updateSelections();
     void saveStates();
@@ -209,7 +213,7 @@ private:
     int pressPos, startPos, endPos;
     QTable *table;
     QTimer *autoScrollTimer;
-    
+
 };
 
 #endif // TABLE_H
