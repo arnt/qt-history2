@@ -5833,9 +5833,12 @@ void QFileDialog::insertEntry( const QValueList<QUrlInfo> &lst, QNetworkOperatio
 	    continue;
 
 #if defined(Q_WS_WIN)
- 	if ( !bShowHiddenFiles ) {
+	if ( !bShowHiddenFiles ) {
 	    if ( d->url.isLocalFile() ) {
-		QString file = d->url.path() + inf.name();
+		QString file = d->url.path();
+		if ( !file.endsWith( "/" ) )
+		    file.append( "/" );
+	        file += inf.name();
 		QT_WA( {
 		    if ( GetFileAttributesW( (TCHAR*)file.ucs2() ) & FILE_ATTRIBUTE_HIDDEN )
 			continue;
@@ -5847,7 +5850,7 @@ void QFileDialog::insertEntry( const QValueList<QUrlInfo> &lst, QNetworkOperatio
 		if ( inf.name() != ".." && inf.name()[0] == QChar('.') )
 		    continue;
 	    }
- 	}
+	}
 #else
  	if ( !bShowHiddenFiles && inf.name() != ".." ) {
  	    if ( inf.name()[ 0 ] == QChar( '.' ) )

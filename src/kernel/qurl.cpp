@@ -1035,8 +1035,6 @@ QString QUrl::path( bool correct ) const
 		if ( share ) {
 		    check = FALSE;
 		    d->cleanPath.prepend( "/" );
-		    if ( !d->cleanPath.endsWith( "/" ) )
-			d->cleanPath.append( "/" );
 		}
 	    }
 #endif
