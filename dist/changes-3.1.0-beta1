@@ -84,7 +84,7 @@ QAccel, like QButton and QPopupMenu, make use of this new
 functionality. Futhermore QAccel is able to handle multi key sequences
 known from editors like GNU Emacs, e.g. "Ctrl+X,Ctrl+F".
 
-- QClipboard was extended to simplify data exchange between programs. ###
+- QClipboard was extended to simplify data exchange between programs.
 
 - Thread support - almost all methods in the tools classes have been
 made reentrant. QApplication::postEvent() and a few other methods are
