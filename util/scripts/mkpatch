@@ -4,8 +4,8 @@
 # script. After that you have the new versions and the patches in the
 # directory.
 
-OLD_VERSION="3.1.0"
-NEW_VERSION="3.1.1"
+OLD_VERSION="3.1.1"
+NEW_VERSION="3.1.2"
 
 PLATFORMS="embedded-commercial embedded-free win-commercial x11-commercial x11-free"
 
