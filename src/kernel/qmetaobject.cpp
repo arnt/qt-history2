@@ -629,7 +629,7 @@ QClassInfo* QMetaObject::classInfo( int index, bool super ) const
 const char* QMetaObject::classInfo( const char* name, bool super ) const
 {
     for( int i = 0; i < d->numClassInfo; ++i ) {
-	if ( strcmp( d->classInfo[i].name, name ) == 0 )
+	if ( qstrcmp( d->classInfo[i].name, name ) == 0 )
 	    return d->classInfo[i].value;
     }
     if ( !super || !superclass )
@@ -646,7 +646,7 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
     while ( super ) {
 	const QMetaProperty* p = super->property( prop->n );
 	if( p ) {
-	    if ( strcmp( prop->type(), p->type() ) != 0 ) {
+	    if ( qstrcmp( prop->type(), p->type() ) != 0 ) {
 #if defined(CHECK_STATE)
 		qWarning( "QMetaObject::resolveProperty: Attempt to override property type: %s %s::%s clashes with %s %s::%s", p->type(), super->className(), p->name(), prop->type(), className(), prop->name() );
 #endif
@@ -727,7 +727,7 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
 const QMetaProperty* QMetaObject::property( const char* name, bool super ) const
 {
     for( int i = 0; i < d->numPropData; ++i ) {
-	if ( d->propData[i].isValid() && strcmp( d->propData[i].name(), name ) == 0 )
+	if ( d->propData[i].isValid() && qstrcmp( d->propData[i].name(), name ) == 0 )
 	    return &(d->propData[i]);
     }
     if ( !super || !superclass )
@@ -802,7 +802,7 @@ QStrList QMetaObject::slotNames( bool super ) const
 QMetaEnum* QMetaObject::enumerator( const char* name, bool super ) const
 {
     for( int i = 0; i < d->numEnumData; ++i )
-	if ( strcmp( d->enumData[i].name, name ) == 0 )
+	if ( qstrcmp( d->enumData[i].name, name ) == 0 )
 	    return &(d->enumData[i]);
     if ( !super || !superclass )
 	return 0;
@@ -820,7 +820,7 @@ bool QMetaObject::inherits( const char* clname ) const
 {
     const QMetaObject *meta = this;
     while ( meta ) {
-	if ( strcmp(clname, meta->className()) == 0 )
+	if ( qstrcmp(clname, meta->className()) == 0 )
 	    return TRUE;
 	meta = meta->superclass;
     }

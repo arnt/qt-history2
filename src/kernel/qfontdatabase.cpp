@@ -905,7 +905,7 @@ char ** readFontDump( const char *fileName, int *xFontCount )
 	    s = is.readLine();
 	    if ( !s.isEmpty() ) {
 		result[i] = new char[s.length() + 1]; // Memory hog, oink!
-		strcpy( result[i], s.latin1() );
+		qstrcpy( result[i], s.latin1() );
 	    }
 	    i++;
 	}
@@ -1236,7 +1236,7 @@ void QFontDatabase::createDatabase()
 #if 0
 static QFont::CharSet getCharSet( const char * registry, const char *encoding )
 {
-    if ( strcmp( registry, "iso8859" ) == 0 ) {
+    if ( qstrcmp( registry, "iso8859" ) == 0 ) {
 	if ( encoding[0] != 0 && encoding[1] == 0 ) {
 	    switch( encoding[0] ) {
 	    case '1': return QFont::ISO_8859_1;
@@ -1263,11 +1263,11 @@ static QFont::CharSet getCharSet( const char * registry, const char *encoding )
 	    }
 	}
 	return QFont::AnyCharSet;
-    } else if ( strcmp( registry, "koi8" ) == 0 &&
-		(strcmp( encoding, "r" ) == 0 ||
-		 strcmp( encoding, "1" ) == 0) ) {
+    } else if ( qstrcmp( registry, "koi8" ) == 0 &&
+		(qstrcmp( encoding, "r" ) == 0 ||
+		 qstrcmp( encoding, "1" ) == 0) ) {
 	return QFont::KOI8R;
-    } else if ( strcmp( registry, "iso10646" ) == 0 ) {
+    } else if ( qstrcmp( registry, "iso10646" ) == 0 ) {
 	return QFont::Unicode;
     }
     return QFont::AnyCharSet;

@@ -81,7 +81,7 @@ static const uchar magic[magic_length] = { // magic number for the file.
 
 static bool match( const char* found, const char* target )
 {
-    return found[0] == '\0' || strcmp(found, target) == 0;
+    return found[0] == '\0' || qstrcmp(found, target) == 0;
 }
 
 static int cmp_uint32_little( const void* target, const void* candidate )
@@ -700,7 +700,7 @@ void QTranslator::squeeze( SaveMode mode )
 	    } else {
 		hTable[i] = (Q_UINT16) ( upto >> 1 );
 		do {
-		    uint len = (uint) strlen( con );
+		    uint len = (uint) qstrlen( con );
 		    len = QMIN( len, 255 );
 		    t << (Q_UINT8) len;
 		    t.writeRawBytes( con, len );
@@ -919,7 +919,7 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
 		return QTranslatorMessage();
 	    t.readRawBytes( con, len );
 	    con[len] = '\0';
-	    if ( strcmp(con, context) == 0 )
+	    if ( qstrcmp(con, context) == 0 )
 		break;
 	}
     }

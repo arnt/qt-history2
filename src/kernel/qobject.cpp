@@ -170,7 +170,7 @@ static inline bool isSpace( char x )
 
 static QCString qt_rmWS( const char *src )
 {
-    QCString result( strlen(src)+1 );
+    QCString result( qstrlen(src)+1 );
     char *d = result.data();
     char *s = (char *)src;
     char last = 0;
@@ -187,7 +187,7 @@ static QCString qt_rmWS( const char *src )
     result.truncate( (int)(d - result.data()) );
     int void_pos = result.find("(void)");
     if ( void_pos >= 0 )
-	result.remove( void_pos+1, strlen("void") );
+	result.remove( void_pos+1, qstrlen("void") );
     return result;
 }
 
@@ -469,7 +469,7 @@ const char *QObject::className() const
 bool QObject::isA( const char *clname ) const
 {
     QMetaObject *meta = queryMetaObject();
-    return meta ? strcmp(clname,meta->className()) == 0 : FALSE;
+    return meta ? qstrcmp(clname,meta->className()) == 0 : FALSE;
 }
 
 /*!
@@ -1366,11 +1366,11 @@ bool QObject::checkConnectArgs( const char    *signal,
     const char *s2 = member;
     while ( *s1++ != '(' ) { }			// scan to first '('
     while ( *s2++ != '(' ) { }
-    if ( *s2 == ')' || strcmp(s1,s2) == 0 )	// member has no args or
+    if ( *s2 == ')' || qstrcmp(s1,s2) == 0 )	// member has no args or
 	return TRUE;				//   exact match
-    int s1len = strlen(s1);
-    int s2len = strlen(s2);
-    if ( s2len < s1len && strncmp(s1,s2,s2len-1)==0 && s1[s2len-1]==',' )
+    int s1len = qstrlen(s1);
+    int s2len = qstrlen(s2);
+    if ( s2len < s1len && qstrncmp(s1,s2,s2len-1)==0 && s1[s2len-1]==',' )
 	return TRUE;				// member has less args
     return FALSE;
 }
@@ -1709,7 +1709,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 		    c = clist->next();
 		} else if ( r == c->object() &&
 			    (member == 0 ||
-			     strcmp(member,c->memberName()) == 0) ) {
+			     qstrcmp(member,c->memberName()) == 0) ) {
 		    removeObjFromList( c->object()->senderObjects, s );
 		    clist->remove();
 		    c = clist->current();
@@ -1749,7 +1749,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 		removeObjFromList( c->object()->senderObjects, s, TRUE );
 		c = clist->next();
 	    } else if ( r == c->object() && (member == 0 ||
-				      strcmp(member,c->memberName()) == 0) ) {
+				      qstrcmp(member,c->memberName()) == 0) ) {
 		removeObjFromList( c->object()->senderObjects, s, TRUE );
 		clist->remove();
 		c = clist->current();

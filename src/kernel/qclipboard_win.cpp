@@ -74,7 +74,7 @@ void QClipboard::ownerDestroyed()
 
 void QClipboard::connectNotify( const char *signal )
 {
-    if ( strcmp(signal,SIGNAL(dataChanged())) == 0 && !inClipboardChain ) {
+    if ( qstrcmp(signal,SIGNAL(dataChanged())) == 0 && !inClipboardChain ) {
 	QWidget *owner = clipboardOwner();
 	inClipboardChain = TRUE;
 	nextClipboardViewer = SetClipboardViewer( owner->winId() );

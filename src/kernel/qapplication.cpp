@@ -356,27 +356,27 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	if ( arg == "-qdevel" || arg == "-qdebug") {
 	    makeqdevel = !makeqdevel;
 #ifndef QT_NO_STYLE_WINDOWS
-	} else if ( stricmp(arg, "-style=windows") == 0 ) {
+	} else if ( qstricmp(arg, "-style=windows") == 0 ) {
 	    setStyle( new QWindowsStyle );
 #endif
 #ifndef QT_NO_STYLE_MOTIF
-	} else if ( stricmp(arg, "-style=motif") == 0 ) {
+	} else if ( qstricmp(arg, "-style=motif") == 0 ) {
 	    setStyle( new QMotifStyle );
 #endif
 #ifndef QT_NO_STYLE_PLATINUM
-	} else if ( stricmp(arg, "-style=platinum") == 0 ) {
+	} else if ( qstricmp(arg, "-style=platinum") == 0 ) {
 	    setStyle( new QPlatinumStyle );
 #endif
 #ifndef QT_NO_STYLE_CDE
-	} else if ( stricmp(arg, "-style=cde") == 0 ) {
+	} else if ( qstricmp(arg, "-style=cde") == 0 ) {
 	    setStyle( new QCDEStyle );
 #endif
 #ifndef QT_NO_STYLE_SGI
-	} else if ( stricmp(arg, "-style=sgi") == 0 ) {
+	} else if ( qstricmp(arg, "-style=sgi") == 0 ) {
 	    setStyle( new QSGIStyle );
 #endif
 #ifndef QT_NO_COMPLEXWIDGETS
-	} else if ( strcmp(arg,"-style") == 0 && i < argc-1 ) {
+	} else if ( qstrcmp(arg,"-style") == 0 && i < argc-1 ) {
 	    QCString s = argv[++i];
 	    s = s.lower();
 #ifndef QT_NO_STYLE_WINDOWS
@@ -407,7 +407,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	    qWarning("Invalid -style option");
 #endif
 #ifndef QT_NO_SESSIONMANAGER
-	} else if ( strcmp(arg,"-session") == 0 && i < argc-1 ) {
+	} else if ( qstrcmp(arg,"-session") == 0 && i < argc-1 ) {
 	    QCString s = argv[++i];
 	    if ( !s.isEmpty() ) {
 		session_id = QString::fromLatin1( s );

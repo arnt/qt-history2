@@ -273,7 +273,7 @@ void QSignal::initMetaObject()			// initialize meta object
 {
     if ( metaObj )
 	return;
-    if ( strcmp(QObject::className(), "QObject") != 0 )
+    if ( qstrcmp(QObject::className(), "QObject") != 0 )
 	badSuperclassWarning("QWidget","QObject");
     (void)staticMetaObject();
 }

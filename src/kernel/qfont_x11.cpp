@@ -454,42 +454,42 @@ static bool fillFontDef( const QCString &xlfd, QFontDef *fd,
     fd->pointSize = atoi(tokens[PointSize]);
     fd->styleHint = QFont::AnyStyle;	// ### any until we match families
 
-    if ( strcmp( tokens[CharsetRegistry], "iso8859" ) == 0 ) {
-	if ( strcmp( tokens[CharsetEncoding], "1" ) == 0 )
+    if ( qstrcmp( tokens[CharsetRegistry], "iso8859" ) == 0 ) {
+	if ( qstrcmp( tokens[CharsetEncoding], "1" ) == 0 )
 	    fd->charSet = QFont::ISO_8859_1;
-	else if ( strcmp( tokens[CharsetEncoding], "2" ) == 0 )
+	else if ( qstrcmp( tokens[CharsetEncoding], "2" ) == 0 )
 	    fd->charSet = QFont::ISO_8859_2;
-	else if ( strcmp( tokens[CharsetEncoding], "3" ) == 0 )
+	else if ( qstrcmp( tokens[CharsetEncoding], "3" ) == 0 )
 	    fd->charSet = QFont::ISO_8859_3;
-	else if ( strcmp( tokens[CharsetEncoding], "4" ) == 0 )
+	else if ( qstrcmp( tokens[CharsetEncoding], "4" ) == 0 )
 	    fd->charSet = QFont::ISO_8859_4;
-	else if ( strcmp( tokens[CharsetEncoding], "5" ) == 0 )
+	else if ( qstrcmp( tokens[CharsetEncoding], "5" ) == 0 )
 	    fd->charSet = QFont::ISO_8859_5;
-	else if ( strcmp( tokens[CharsetEncoding], "6" ) == 0 )
+	else if ( qstrcmp( tokens[CharsetEncoding], "6" ) == 0 )
 	    fd->charSet = QFont::ISO_8859_6;
-	else if ( strcmp( tokens[CharsetEncoding], "7" ) == 0 )
+	else if ( qstrcmp( tokens[CharsetEncoding], "7" ) == 0 )
 	    fd->charSet = QFont::ISO_8859_7;
-	else if ( strcmp( tokens[CharsetEncoding], "8" ) == 0 )
+	else if ( qstrcmp( tokens[CharsetEncoding], "8" ) == 0 )
 	    fd->charSet = QFont::ISO_8859_8;
-	else if ( strcmp( tokens[CharsetEncoding], "9" ) == 0 )
+	else if ( qstrcmp( tokens[CharsetEncoding], "9" ) == 0 )
 	    fd->charSet = QFont::ISO_8859_9;
-	else if ( strcmp( tokens[CharsetEncoding], "10" ) == 0 )
+	else if ( qstrcmp( tokens[CharsetEncoding], "10" ) == 0 )
 	    fd->charSet = QFont::ISO_8859_10;
-	else if ( strcmp( tokens[CharsetEncoding], "11" ) == 0 )
+	else if ( qstrcmp( tokens[CharsetEncoding], "11" ) == 0 )
 	    fd->charSet = QFont::ISO_8859_11;
-	else if ( strcmp( tokens[CharsetEncoding], "12" ) == 0 )
+	else if ( qstrcmp( tokens[CharsetEncoding], "12" ) == 0 )
 	    fd->charSet = QFont::ISO_8859_12;
-	else if ( strcmp( tokens[CharsetEncoding], "13" ) == 0 )
+	else if ( qstrcmp( tokens[CharsetEncoding], "13" ) == 0 )
 	    fd->charSet = QFont::ISO_8859_13;
-	else if ( strcmp( tokens[CharsetEncoding], "14" ) == 0 )
+	else if ( qstrcmp( tokens[CharsetEncoding], "14" ) == 0 )
 	    fd->charSet = QFont::ISO_8859_14;
-	else if ( strcmp( tokens[CharsetEncoding], "15" ) == 0 )
+	else if ( qstrcmp( tokens[CharsetEncoding], "15" ) == 0 )
 	    fd->charSet = QFont::ISO_8859_15;
-    } else if( strcmp( tokens[CharsetRegistry], "koi8" ) == 0 &&
-	       (strcmp( tokens[CharsetEncoding], "r" ) == 0 ||
-		strcmp( tokens[CharsetEncoding], "1" ) == 0) ) {
+    } else if( qstrcmp( tokens[CharsetRegistry], "koi8" ) == 0 &&
+	       (qstrcmp( tokens[CharsetEncoding], "r" ) == 0 ||
+		qstrcmp( tokens[CharsetEncoding], "1" ) == 0) ) {
 	fd->charSet = QFont::KOI8R;
-    } else if( strcmp( tokens[CharsetRegistry], "iso10646" ) == 0 ) {
+    } else if( qstrcmp( tokens[CharsetRegistry], "iso10646" ) == 0 ) {
 	fd->charSet = QFont::Unicode;
     } else {
 	fd->charSet = QFont::AnyCharSet;
@@ -870,7 +870,7 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
     *weightDiff	      = 0;
     *pointSizeDiff    = 0;
 
-    strcpy( buffer.data(), fontName );	// NOTE: buffer must be large enough
+    qstrcpy( buffer.data(), fontName );	// NOTE: buffer must be large enough
     if ( !qParseXFontName( buffer, tokens ) )
 	return 0;	// Name did not conform to X Logical Font Description
 
@@ -889,101 +889,101 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
 	// 2. if the program explicitly asks for AnyCharSet
 	score |= CharSetScore;
     } else if ( charSet() == KOI8R ) {
-       if ( strcmp( tokens[CharsetRegistry], "koi8" ) == 0 &&
-	    (strcmp( tokens[CharsetEncoding], "r" ) == 0
-	     || strcmp( tokens[CharsetEncoding], "1" ) == 0) )
+       if ( qstrcmp( tokens[CharsetRegistry], "koi8" ) == 0 &&
+	    (qstrcmp( tokens[CharsetEncoding], "r" ) == 0
+	     || qstrcmp( tokens[CharsetEncoding], "1" ) == 0) )
 	       score |= CharSetScore;
        else
 	       exactMatch = FALSE;
-    } else if ( strcmp( tokens[CharsetRegistry], "iso8859" ) == 0 ) {
+    } else if ( qstrcmp( tokens[CharsetRegistry], "iso8859" ) == 0 ) {
 	// need to mask away non-8859 charsets here
 	switch( charSet() ) {
 	case ISO_8859_1:
-	    if ( strcmp( tokens[CharsetEncoding], "1" ) == 0 )
+	    if ( qstrcmp( tokens[CharsetEncoding], "1" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
 	case ISO_8859_2:
-	    if ( strcmp( tokens[CharsetEncoding], "2" ) == 0 )
+	    if ( qstrcmp( tokens[CharsetEncoding], "2" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
 	case ISO_8859_3:
-	    if ( strcmp( tokens[CharsetEncoding], "3" ) == 0 )
+	    if ( qstrcmp( tokens[CharsetEncoding], "3" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
 	case ISO_8859_4:
-	    if ( strcmp( tokens[CharsetEncoding], "4" ) == 0 )
+	    if ( qstrcmp( tokens[CharsetEncoding], "4" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
 	case ISO_8859_5:
-	    if ( strcmp( tokens[CharsetEncoding], "5" ) == 0 )
+	    if ( qstrcmp( tokens[CharsetEncoding], "5" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
 	case ISO_8859_6:
-	    if ( strcmp( tokens[CharsetEncoding], "6" ) == 0 )
+	    if ( qstrcmp( tokens[CharsetEncoding], "6" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
 	case ISO_8859_7:
-	    if ( strcmp( tokens[CharsetEncoding], "7" ) == 0 )
+	    if ( qstrcmp( tokens[CharsetEncoding], "7" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
 	case ISO_8859_8:
-	    if ( strcmp( tokens[CharsetEncoding], "8" ) == 0 )
+	    if ( qstrcmp( tokens[CharsetEncoding], "8" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
 	case ISO_8859_9:
-	    if ( strcmp( tokens[CharsetEncoding], "9" ) == 0 )
+	    if ( qstrcmp( tokens[CharsetEncoding], "9" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
 	case ISO_8859_10:
-	    if ( strcmp( tokens[CharsetEncoding], "10" ) == 0 )
+	    if ( qstrcmp( tokens[CharsetEncoding], "10" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
 	case ISO_8859_11:
-	    if ( strcmp( tokens[CharsetEncoding], "11" ) == 0 )
+	    if ( qstrcmp( tokens[CharsetEncoding], "11" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
 	case ISO_8859_12:
-	    if ( strcmp( tokens[CharsetEncoding], "12" ) == 0 )
+	    if ( qstrcmp( tokens[CharsetEncoding], "12" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
 	case ISO_8859_13:
-	    if ( strcmp( tokens[CharsetEncoding], "13" ) == 0 )
+	    if ( qstrcmp( tokens[CharsetEncoding], "13" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
 	case ISO_8859_14:
-	    if ( strcmp( tokens[CharsetEncoding], "14" ) == 0 )
+	    if ( qstrcmp( tokens[CharsetEncoding], "14" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
 	case ISO_8859_15:
-	    if ( strcmp( tokens[CharsetEncoding], "15" ) == 0 )
+	    if ( qstrcmp( tokens[CharsetEncoding], "15" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
@@ -992,7 +992,7 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
 	    exactMatch = FALSE;
 	    break;
 	}
-    } else if ( strcmp( tokens[CharsetRegistry], "iso10646" ) == 0 ) {
+    } else if ( qstrcmp( tokens[CharsetRegistry], "iso10646" ) == 0 ) {
 	// Yes...
 	score |= CharSetScore;
 	// But it's big...
@@ -1063,7 +1063,7 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
 	else
 	    exactMatch = FALSE;
     }
-    if ( stricmp( tokens[Width], "normal" ) == 0 )
+    if ( qstricmp( tokens[Width], "normal" ) == 0 )
 	score |= WidthScore;
     else
 	exactMatch = FALSE;
@@ -1136,7 +1136,7 @@ QCString QFont_Private::bestMatch( const char *pattern, int *score )
 	 bestScalable.score == best.score &&
 	 bestScalable.pointDiff == best.pointDiff &&
 	 bestScalable.weightDiff < best.weightDiff ) {
-	strcpy( matchBuffer.data(), bestScalable.name );
+	qstrcpy( matchBuffer.data(), bestScalable.name );
 	if ( qParseXFontName( matchBuffer, tokens ) ) {
 	    int resx;
 	    int resy;
@@ -2018,7 +2018,7 @@ void QFontInternal::computeLineWidth()
 {
     char *tokens[fontFields];
     QCString buffer(256);		// X font name always <= 255 chars
-    strcpy( buffer.data(), name() );
+    qstrcpy( buffer.data(), name() );
     if ( !qParseXFontName(buffer, tokens) ) {
 	lw   = 1;                   // name did not conform to X LFD
 	xres = QPaintDevice::x11AppDpiX();

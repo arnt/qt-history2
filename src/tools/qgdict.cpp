@@ -386,13 +386,13 @@ QCollection::Item QGDict::look_ascii( const char *key, QCollection::Item d, int 
 	if ( cases ) {
 	    for ( n=(QAsciiBucket*)vec[index]; n;
 		  n=(QAsciiBucket*)n->getNext() ) {
-		if ( strcmp(n->getKey(),key) == 0 )
+		if ( qstrcmp(n->getKey(),key) == 0 )
 		    return n->getData();	// item found
 	    }
 	} else {
 	    for ( n=(QAsciiBucket*)vec[index]; n;
 		  n=(QAsciiBucket*)n->getNext() ) {
-		if ( stricmp(n->getKey(),key) == 0 )
+		if ( qstricmp(n->getKey(),key) == 0 )
 		    return n->getData();	// item found
 	    }
 	}
@@ -627,8 +627,8 @@ QAsciiBucket *QGDict::unlink_ascii( const char *key, QCollection::Item d )
     QAsciiBucket *prev = 0;
     int index = hashKeyAscii(key) % vlen;	
     for ( n=(QAsciiBucket *)vec[index]; n; n=(QAsciiBucket *)n->getNext() ) {
-	bool found = (cases ? strcmp(n->getKey(),key)
-		       : stricmp(n->getKey(),key)) == 0;
+	bool found = (cases ? qstrcmp(n->getKey(),key)
+		       : qstricmp(n->getKey(),key)) == 0;
 	if ( found && d )
 	    found = (n->getData() == d);
 	if ( found ) {

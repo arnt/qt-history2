@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#179 $
+** $Id: //depot/qt/main/src/moc/moc.y#180 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1160,9 +1160,9 @@ prop_statements:	  /* empty */
 			| STORED IDENTIFIER prop_statements { propStored = $2; }
 			| DESIGNABLE IDENTIFIER
 				{
-					if ( strcmp( $2, "true" ) == 0 )
+					if ( qstrcmp( $2, "true" ) == 0 )
 						propDesignable = 1;
-					else if ( strcmp( $2, "false" ) == 0 )
+					else if ( qstrcmp( $2, "false" ) == 0 )
 						propDesignable = 0;
 					else
 						moc_err( "DESIGNABLE may only be followed by 'true' or 'false'" );
@@ -2436,7 +2436,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#179 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#180 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2516,7 +2516,7 @@ void generateClass()		      // generate C++ source code for a class
 //
     fprintf( out, "void %s::initMetaObject()\n{\n", (const char*)qualifiedClassName() );
     fprintf( out, "    if ( metaObj )\n\treturn;\n" );
-    fprintf( out, "    if ( strcmp(%s::className(), \"%s\") != 0 )\n"
+    fprintf( out, "    if ( qstrcmp(%s::className(), \"%s\") != 0 )\n"
 	          "\tbadSuperclassWarning(\"%s\",\"%s\");\n",
              (const char*)qualifiedSuperclassName(), (const char*)qualifiedSuperclassName(),
              (const char*)qualifiedClassName(), (const char*)qualifiedSuperclassName() );

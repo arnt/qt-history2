@@ -303,18 +303,18 @@ static QString lettersAndNumbers( const char * input )
 int QTextCodec::simpleHeuristicNameMatch(const char* name, const char* hint)
 {
     // if they're the same, return a perfect score.
-    if ( name && hint && strcmp( name, hint ) == 0 )
-	return strlen( hint );
+    if ( name && hint && qstrcmp( name, hint ) == 0 )
+	return qstrlen( hint );
 
     // if the letters and numbers are the same, we have an "almost"
     // perfect match.
     QString h( lettersAndNumbers( hint ) );
     QString n( lettersAndNumbers( name ) );
     if ( h == n )
-	return strlen( hint )-1;
+	return qstrlen( hint )-1;
 
     if ( h.stripWhiteSpace() == n.stripWhiteSpace() )
-	return strlen( hint )-2;
+	return qstrlen( hint )-2;
 
     // could do some more here, but I don't think it's worth it
 
@@ -460,7 +460,7 @@ static const char * const iso8859_15locales[] = {
 static bool try_locale_list( const char * const locale[], const char * lang )
 {
     int i;
-    for( i=0; locale[i] && strcmp(locale[i], lang); i++ )
+    for( i=0; locale[i] && qstrcmp(locale[i], lang); i++ )
     { }
     return locale[i] != 0;
 }
@@ -533,7 +533,7 @@ QTextCodec* QTextCodec::codecForLocale()
 	char *ctype = qstrdup( setlocale( LC_CTYPE, 0 ) );
 	// Some Linux distributions have broken locales which will return
 	// "C" for LC_CTYPE
-	if ( strcmp( ctype, "C" ) == 0 ) {
+	if ( qstrcmp( ctype, "C" ) == 0 ) {
 	    delete [] ctype;
 	} else {
 	    if ( lang )
@@ -785,7 +785,7 @@ QString QTextCodec::toUnicode(const QByteArray& a) const
 */
 QString QTextCodec::toUnicode(const char* chars) const
 {
-    return toUnicode(chars,strlen(chars));
+    return toUnicode(chars,qstrlen(chars));
 }
 
 /*!
@@ -945,13 +945,13 @@ public:
 	char esc='\\';
 	bool incmap = FALSE;
 	while (iod->readLine(line,maxlen) > 0) {
-	    if (0==strnicmp(line,"<code_set_name>",15))
+	    if (0==qstrnicmp(line,"<code_set_name>",15))
 		n = line+15;
-	    else if (0==strnicmp(line,"<escape_char>",13))
+	    else if (0==qstrnicmp(line,"<escape_char>",13))
 		esc = line[14];
-	    else if (0==strnicmp(line,"% alias ",8)) {
+	    else if (0==qstrnicmp(line,"% alias ",8)) {
 		aliases.append(line+8);
-	    } else if (0==strnicmp(line,"CHARMAP",7)) {
+	    } else if (0==qstrnicmp(line,"CHARMAP",7)) {
 		if (!from_unicode_page) {
 		    from_unicode_page = new char*[256];
 		    for (int i=0; i<256; i++)
@@ -961,7 +961,7 @@ public:
 		    to_unicode = new ushort[256];
 		}
 		incmap = TRUE;
-	    } else if (0==strnicmp(line,"END CHARMAP",11))
+	    } else if (0==qstrnicmp(line,"END CHARMAP",11))
 		break;
 	    else if (incmap) {
 		char* cursor = line;

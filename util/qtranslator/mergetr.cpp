@@ -244,7 +244,7 @@ Status compare( const Item &i1, const Item &i2 )
     QString s2 = extractContents( i2.msgid );
     if ( s2.isEmpty() )
 	return SecondJunk;
-    int i = strcmp( s1.ascii(), s2.ascii() );
+    int i = cstrcmp( s1.ascii(), s2.ascii() );
     if ( i < 0 )
 	return First;
     if ( i == 0 )

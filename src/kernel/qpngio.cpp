@@ -317,7 +317,7 @@ static void set_text(const QImage& image, png_structp png_ptr, png_infop info_pt
 		    text_ptr[i].compression = PNG_TEXT_COMPRESSION_zTXt;
 		text_ptr[i].key = (png_charp)(*it).key.data();
 		text_ptr[i].text = (png_charp)t.latin1();
-		//text_ptr[i].text = strdup(t.latin1());
+		//text_ptr[i].text = qstrdup(t.latin1());
 		i++;
 	    }
 	}
@@ -994,7 +994,7 @@ int QPNGFormat::user_chunk(png_structp png, png_infop,
 {
 #if 0 // NOT SUPPORTED: experimental PNG animation.
     // debug("Got %ld-byte %s chunk", length, png->chunk_name);
-    if ( 0==strcmp((char*)png->chunk_name, "gIFg")
+    if ( 0==qstrcmp((char*)png->chunk_name, "gIFg")
 	    && length == 4 ) {
 
 	//QPNGImageWriter::DisposalMethod disposal =
@@ -1003,9 +1003,9 @@ int QPNGFormat::user_chunk(png_structp png, png_infop,
 	int ms_delay = ((data[2] << 8) | data[3])*10;
 	consumer->setFramePeriod(ms_delay);
 	return 1;
-    } else if ( 0==strcmp((char*)png->chunk_name, "gIFx")
+    } else if ( 0==qstrcmp((char*)png->chunk_name, "gIFx")
 	    && length == 13 ) {
-	if ( strncmp((char*)data,"NETSCAPE2.0",11)==0 ) {
+	if ( qstrncmp((char*)data,"NETSCAPE2.0",11)==0 ) {
 	    int looping = (data[0xC]<<8)|data[0xB];
 	    consumer->setLooping(looping);
 	    return 1;
@@ -1014,7 +1014,7 @@ int QPNGFormat::user_chunk(png_structp png, png_infop,
 #endif
 
 #ifndef QT_NO_IMAGE_TEXT
-    if ( 0==strcmp((char*)png->chunk_name, "iTXt") && length>=6 ) {
+    if ( 0==qstrcmp((char*)png->chunk_name, "iTXt") && length>=6 ) {
 	const char* keyword = (const char*)data;
 	if ( !skip(length,data) ) return 0;
 	if ( length >= 4 ) {
