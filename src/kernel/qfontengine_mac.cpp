@@ -266,34 +266,6 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 #endif
     return ret;
 }
-int 
-QFontEngineMac::doTextTask(QString s, int pos, int len, uchar task,
-			   int x, int y, QPaintDevice *dev, const QRegion *rgn, int dir, const QFontMetrics *fm) const
-{
-    if(!len)
-	return 0;
-    else if(pos + len > (int)s.length())
-	len = s.length() - pos;
-
-    if(!s.simpleText()) {
-	if(!fm) {
-	    QFontMetrics int_fm(QFont(fdef.family, fdef.pointSize, fdef.weight, fdef.italic));
-	    s = QComplexText::shapedString(s, pos, len, (QPainter::TextDirection)dir, &int_fm);
-	} else {
-	    s = QComplexText::shapedString(s, pos, len, (QPainter::TextDirection)dir, fm);
-	}
-	pos = 0;
-	len = s.length();
-    }
-    return doTextTask(s.unicode(), pos, len, s.length(), task, x, y, dev, rgn);
-}
-
-int 
-QFontEngineMac::doTextTask(const QChar &c, uchar task,
-			   int x, int y, QPaintDevice *dev, const QRegion *rgn) const
-{
-    return doTextTask(&c, 0, 1, 1, task, x, y, dev, rgn);
-}
 
 
 

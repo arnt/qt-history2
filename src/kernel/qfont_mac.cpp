@@ -241,7 +241,7 @@ bool QFontMetrics::inFont(QChar ch) const
 int QFontMetrics::width(QChar c) const
 {
     Q_ASSERT(FI->fin->type() == QFontStruct::Mac);
-    return ((QFontEngineMac*)FI->fin)->doTextTask(c, QFontEngineMac::WIDTH);
+    return ((QFontEngineMac*)FI->fin)->doTextTask(&c, 0, 1, 1, QFontEngineMac::WIDTH);
 }
 
 int QFontMetrics::charWidth(const QString &str, int pos) const
