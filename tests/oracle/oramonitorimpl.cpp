@@ -30,9 +30,9 @@ OraMonitorImpl::~OraMonitorImpl()
 
 void OraMonitorImpl::clickedConfig()
 {
-    ConfigDialog dlg = new ConfigDialog( this );
+    ConfigDialog* dlg = new ConfigDialog( this );
     
-    if( dlg.exec() ) {
+    if( dlg->exec() ) {
 	QSettings config;
 	config.insertSearchPath( QSettings::Windows, "/Breiflabb" );
 	net8Name = config.readEntry( "/OraMonitor/Net8Name" );
