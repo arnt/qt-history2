@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#19 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#20 $
 **
 ** Definition of QPopupMenu class
 **
@@ -44,6 +44,7 @@ protected:
     int		cellWidth( int );
     void	paintCell( QPainter *, int, int );
 
+    void	paintEvent( QPaintEvent * );
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
@@ -63,6 +64,7 @@ private:
     void	menuDelPopup( QPopupMenu * );
     void	frameChanged();
 
+    void	paintAll();
     void	actSig( int );
     void	hilitSig( int );
     void	setFirstItemActive();
@@ -77,6 +79,7 @@ private:
     void	updateAccel( QWidget * );
     void	enableAccel( bool );
 
+    QMenuItem  *selfItem;
     QAccel     *autoaccel;
     bool	accelDisabled;
     int		popupActive;
