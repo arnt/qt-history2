@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#81 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#82 $
 **
 ** Definition of QWidget class
 **
@@ -321,14 +321,11 @@ inline QRect QWidget::rect() const
 inline void QWidget::setSizeIncrement( const QSize &s )
 { setSizeIncrement(s.width(),s.height()); }
 
-
 inline void QWidget::setMinimumSize( const QSize &s )
 { setMinimumSize(s.width(),s.height()); }
 
 inline void QWidget::setMaximumSize( const QSize &s )
 { setMaximumSize(s.width(),s.height()); }
-
-
 
 inline const QColor &QWidget::backgroundColor() const
 { return bg_col; }
@@ -396,6 +393,7 @@ inline void QWidget::setWFlags( WFlags f )
 inline void QWidget::clearWFlags( WFlags f )
 { flags &= ~f; }
 
+
 #if defined(OBSOLETE)
 inline WId QWidget::id() const
 { qObsolete("QWidget","id","winId"); return winid; }
@@ -433,8 +431,7 @@ inline bool QWidget::maximumSize( int *w, int *h ) const
 
 inline bool QWidget::sizeIncrement( int *w, int *h ) const
 {
-    qObsolete( "QWidget", "sizeIncrement(int*,int*)", 
-	       "sizeIncrement()" );
+    qObsolete( "QWidget", "sizeIncrement(int*,int*)", "sizeIncrement()" );
     if ( extra && extra->incw >= 0 && w && h ) {
 	*w = extra->incw;
 	*h = extra->inch;
@@ -450,10 +447,7 @@ inline bool QWidget::enableUpdates( bool enable )
     setUpdatesEnabled(enable);
     return last;
 }
-
-#endif
-
-
+#endif // OBSOLETE
 
 
 #endif // QWIDGET_H
