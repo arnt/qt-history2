@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#40 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#39 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#40 $");
 
 
 static HANDLE stock_sysfont = 0;
@@ -519,7 +519,7 @@ int QFontMetrics::rightBearing(char ch) const
 {
     ABC abc;
     GetCharABCWidths(hdc(),ch,ch,&abc);
-    return abc.abcC;
+    return -abc.abcC;
 }
 
 
@@ -547,10 +547,10 @@ int QFontMetrics::rightBearing() const
 	ABC *abc = new ABC[n];
 	GetCharABCWidths(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
 	int ml = abc[0].abcA;
-	int mr = abc[0].abcC;
+	int mr = -abc[0].abcC;
 	for (int i=1; i<n; i++) {
 	    ml = QMIN(ml,abc[i].abcA);
-	    mr = QMAX(mr,abc[i].abcC);
+	    mr = QMAX(mr,-abc[i].abcC);
 	}
 	def->lbearing = ml;
 	def->rbearing = mr;
@@ -597,7 +597,12 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
     SIZE s;
     TEXTMETRIC *tm = TM;
     GetTextExtentPoint32( hdc(), str, len, &s );
-    return QRect(0, -tm->tmAscent, s.cx, tm->tmAscent+tm->tmDescent);
+
+    // To be safer, could check bearings of next-to-end characters too.
+    int l = len ? leftBearing(*str) : 0;
+    int r = len ? rightBearing(str[len-1]) : 0;
+
+    return QRect(l, -tm->tmAscent, s.cx+r-l, tm->tmAscent+tm->tmDescent);
 }
 
 HDC QFontMetrics::hdc() const
