@@ -25,8 +25,6 @@ public:
     QSqlRecord( const QSqlRecord& other );
     QSqlRecord& operator=( const QSqlRecord& other );
     virtual ~QSqlRecord();
-    QVariant&            operator[]( int i );
-    QVariant&            operator[]( const QString& name );
     virtual QVariant     value( int i );
     virtual QVariant     value( const QString& name );
     virtual void         setValue( int i, const QVariant& val );

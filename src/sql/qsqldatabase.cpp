@@ -1,4 +1,5 @@
 #include "qsqldatabase.h"
+
 #ifndef QT_NO_SQL
 
 #ifdef QT_SQL_POSTGRES
@@ -219,6 +220,10 @@ QSqlDatabase* QSqlDatabase::database( const QString& name )
     return QSqlDatabaseManager::database( name );
 }
 
+void QSqlDatabase::removeDatabase( const QString& name )
+{
+    QSqlDatabaseManager::removeDatabase( name );
+}
 
 /*!  Creates a QSqlDatabase with name \a databaseName that uses the
      driver described by \a type.  If the \a type is not recognized,

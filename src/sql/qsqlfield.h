@@ -11,7 +11,6 @@
 
 class Q_EXPORT QSqlField
 {
-    friend class QSqlRecord;
 public:
     QSqlField( const QString& fieldName = QString::null, int fieldNumber = -1, QVariant::Type type = QVariant::Invalid );
     QSqlField( const QSqlField& other );

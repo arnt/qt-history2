@@ -13,6 +13,7 @@
 
 class QSqlDatabase;
 class QSqlCursorPrivate;
+
 class Q_EXPORT QSqlCursor : public QSqlRecord, public QSqlQuery
 {
 public:
@@ -37,9 +38,11 @@ public:
     QSqlIndex         index( const char* fieldName ) const;
     void              setPrimaryIndex( const QSqlIndex& idx );
 
-    virtual int       insert( bool invalidate = TRUE );
-    virtual int       update( const QSqlIndex & filter = QSqlIndex(), bool invalidate = TRUE );
-    virtual int       del( const QSqlIndex & filter = QSqlIndex(), bool invalidate = TRUE );
+    virtual QSqlRecord* insertBuffer( bool clearValues = TRUE, bool prime = TRUE );
+    virtual int         insert( bool invalidate = TRUE );
+    virtual QSqlRecord* updateBuffer( bool copyCursor = TRUE, bool prime = TRUE );
+    virtual int         update( bool invalidate = TRUE );
+    virtual int         del( bool invalidate = TRUE );
 
     void              setMode( int flags );
     int               mode() const;
@@ -60,11 +63,11 @@ public:
 
 protected:
     void              afterSeek();
-
-    QSqlRecord&       operator=( const QSqlRecord & list );
     bool              exec( const QString & str );
-    QString           fieldEqualsValue( const QString& prefix, const QString& fieldSep, const QSqlIndex & i = QSqlIndex() );
 
+    virtual void      primeInsert( QSqlRecord* buf );
+    virtual void      primeUpdate( QSqlRecord* buf );
+    
     virtual QVariant  calculateField( uint fieldNumber );
     virtual int       update( const QString & filter, bool invalidate = TRUE );
     virtual int       del( const QString & filter, bool invalidate = TRUE );
@@ -72,6 +75,8 @@ protected:
 private:
     void              sync();
     int               apply( const QString& q, bool invalidate );
+    QSqlRecord&       operator=( const QSqlRecord & list );    
+    QString           fieldEqualsValue( QSqlRecord* rec, const QString& prefix, const QString& fieldSep, const QSqlIndex & i = QSqlIndex() );    
     QSqlCursorPrivate*  d;
 };
 

@@ -18,6 +18,7 @@ public:
     QString           ftr;
     int               md;
     QSqlIndex         priIndx;
+    QSqlRecord        editBuffer;
 };
 
 QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::null )
@@ -115,7 +116,8 @@ void QSqlCursor::setName( const QString& name, bool autopopulate )
 {
     d->nm = name;
     if ( autopopulate ) {
-	*this = driver()->record( name );
+	d->editBuffer = driver()->record( name );
+	*this = d->editBuffer;
 	d->priIndx = driver()->primaryIndex( name );
 #ifdef QT_CHECK_RANGE
 	if ( !count() )
@@ -292,7 +294,7 @@ bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
 */
 bool QSqlCursor::select( const QSqlIndex & filter, const QSqlIndex & sort )
 {
-    return select( fieldEqualsValue( d->nm, "and", filter ), sort );
+    return select( fieldEqualsValue( this, d->nm, "and", filter ), sort );
 }
 
 /*!
@@ -387,35 +389,66 @@ QString qMakeFieldValue( const QSqlDriver* driver, const QString& prefix, QSqlFi
   \internal
 
 */
-QString QSqlCursor::fieldEqualsValue( const QString& prefix, const QString& fieldSep, const QSqlIndex & i )
+QString QSqlCursor::fieldEqualsValue( QSqlRecord* rec, const QString& prefix, const QString& fieldSep, const QSqlIndex & i )
 {
     QString filter;
     int k = i.count();
 
-    if ( k ) { // use index
+    if ( k ) { /* use index */
 	for( int j = 0; j < k; ++j ){
 	    if( j > 0 )
 		filter += " " + fieldSep + " " ;
 	    QString fn = i.field(j)->name();
-	    QSqlField* f = field( fn );
+	    QSqlField* f = rec->field( fn );
 	    filter += qMakeFieldValue( driver(), prefix, f );
 	}
-    } else { // use all fields
+    } else { /* use all fields */
  	for ( uint j = 0; j < count(); ++j ) {
-	    if ( j > 0 )
-		filter += " " + fieldSep + " " ;
-	    filter += qMakeFieldValue( driver(), prefix, field( j ) );
+	    if ( !rec->field(j)->isCalculated() ) {
+		if ( j > 0 )
+		    filter += " " + fieldSep + " " ;
+		filter += qMakeFieldValue( driver(), prefix, rec->field( j ) );
+	    }
 	}
     }
     return filter;
 }
 
-/*!  Inserts the current contents of the cursor record buffer into the
-  database, if the cursor allows inserts.  If \a invalidate is TRUE, the
-  current cursor can no longer be navigated (i.e., any prior select
-  statements will no longer be active or valid).  Returns the number
-  of rows affected by the insert.  For error information, use
-  lastError().
+/*!  Returns a pointer to the internal record buffer used for
+  inserting records.  If \a clearValues is TRUE, the insert record
+  buffer values are cleared.  If \a prime is TRUE, the buffer is
+  primed using primeInsert().
+
+*/
+QSqlRecord* QSqlCursor::insertBuffer( bool clearValues, bool prime )
+{
+    if ( clearValues )
+	d->editBuffer.clearValues();
+    if ( prime )
+	primeInsert( &d->editBuffer );
+    return &d->editBuffer;
+}
+
+/*!
+
+  Protected virtual function provided for derived classes to 'prime'
+  the field values of an insert record buffer (for example, to
+  correctly initialize auto-incremented numeric fields).  The default
+  implementation does nothing.
+
+*/
+
+void QSqlCursor::primeInsert( QSqlRecord* )
+{
+
+}
+
+/*!  Inserts the current contents of the cursor's insert record buffer
+  into the database, if the cursor allows inserts.  If \a invalidate
+  is TRUE, the current cursor can no longer be navigated (i.e., any
+  prior select statements will no longer be active or valid).  Returns
+  the number of rows affected by the insert.  For error information,
+  use lastError().
 
   \sa setMode
 */
@@ -424,28 +457,64 @@ int QSqlCursor::insert( bool invalidate )
 {
     if ( ( d->md & Insert ) != Insert )
 	return FALSE;
-    int k = count();
+    int k = d->editBuffer.count();
     if( k == 0 ) return 0;
     QString str = "insert into " + name();
-    str += " (" + QSqlRecord::toString() + ")";
+    str += " (" + d->editBuffer.toString() + ")";
     str += " values (";
     QString vals;
     for( int j = 0; j < k; ++j ){
-	if( j > 0 )
-	    vals += ",";
-	vals += driver()->formatValue( field(j) );
+	if ( !d->editBuffer.field(j)->isCalculated() ) {
+	    if( j > 0 )
+		vals += ",";
+	    vals += driver()->formatValue( d->editBuffer.field(j) );
+	}
     }
     str += vals + ");";
+    if ( invalidate )
+	QSqlRecord::operator=( d->editBuffer );
     return apply( str, invalidate );
 }
 
-/*!  Updates the database with the current contents of the record
-  buffer, using the specified \a filter.  Only records which meet the
-  filter criteria are updated, otherwise all records in the table are
-  updated.  If \a invalidate is TRUE, the current cursor can no longer
-  be navigated (i.e., any prior select statements will no longer be
-  active or valid). Returns the number of records which were updated.
-  For error information, use lastError().
+/*!  Returns a pointer to the internal record buffer used for updating
+  record.  If \a copyCursor is TRUE, the value of the current cursor
+  buffer is copied into the update buffer.  If \a prime is TRUE, the
+  buffer is primed using primeUpdate().
+
+*/
+
+QSqlRecord* QSqlCursor::updateBuffer( bool copyCursor, bool prime )
+{
+    if ( copyCursor ) {
+	d->editBuffer.clear();
+	d->editBuffer = *((QSqlRecord*)this);
+    }
+    if ( prime )
+	primeUpdate( &d->editBuffer );
+    return &d->editBuffer;
+}
+
+/*!
+
+  Protected virtual function provided for derived classes to 'prime'
+  the field values of an update record buffer.  The default
+  implementation does nothing.
+
+*/
+
+void QSqlCursor::primeUpdate( QSqlRecord* )
+{
+
+}
+
+
+/*!  Updates the database with the current contents of the update
+  record buffer, using the specified \a filter.  Only records which
+  meet the filter criteria are updated, otherwise all records in the
+  table are updated.  If \a invalidate is TRUE, the current cursor can
+  no longer be navigated (i.e., any prior select statements will no
+  longer be active or valid). Returns the number of records which were
+  updated.  For error information, use lastError().
 
 */
 
@@ -456,40 +525,48 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
     int k = count();
     if( k == 0 ) return 0;
     QString str = "update " + name();
-    str += " set " + fieldEqualsValue( "", "," );
+    str += " set " + fieldEqualsValue( &d->editBuffer, "", "," );
     if ( filter.length() )
  	str+= " where " + filter;
     str += ";";
+    if ( invalidate )
+	QSqlRecord::operator=( d->editBuffer );
     return apply( str, invalidate );
 }
 
-/*!  Updates the database with the current contents of the record
-  buffer, using the filter index \a filter.  Only records which meet
-  the filter criteria specified by the index are updated.  If no index
-  is specified, the primary index of the underlying cursor is used.
-  If \a invalidate is TRUE, the current cursor can no longer be
-  navigated (i.e., any prior select statements will no longer be
-  active or valid). Returns the number of records which were
-  updated. For error information, use lastError().  For example:
+/*!  Updates the database with the current contents of the update
+  buffer.  Only records which meet the filter criteria specified by
+  the cursor's primary index are updated.  If the cursor does not
+  contain a primary index, no update is performed.  If \a invalidate
+  is TRUE, the current cursor can no longer be navigated (i.e., any
+  prior select statements will no longer be active or valid). Returns
+  the number of records which were updated, or -1 if there was an
+  error (for example, if the cursor has no primary index). For error
+  information, use lastError().  For example:
 
   \code
-  QSqlDatabase* db;
-  ...
-  QSqlCursor empCursor ( db, "Employee" );
-  empCursor["id"] = 10;  // set the primary index field
-  empCursor["firstName"] = "Dave";
-  empCursor.update();  // update an employee name using primary index
+
+  QSqlCursor empCursor ( "Employee" );
+  empCursor.select( "id=10");
+  if ( empCursor.next() ) {
+      QSqlRecord* buf = empCursor.updateBuffer();
+      buf->setValue( "firstName", "Dave" );
+      empCursor.update();  // update employee name using primary index
+  }
+
   \endcode
 
 */
 
-int QSqlCursor::update( const QSqlIndex & filter, bool invalidate )
+int QSqlCursor::update( bool invalidate )
 {
-    return update( fieldEqualsValue( "", "and", filter ), invalidate );
+    if ( !primaryIndex().count() )
+	return -1;
+    return update( fieldEqualsValue( &d->editBuffer, "", "and", primaryIndex() ), invalidate );
 }
 
 /*!  Deletes the record from the cursor using the filter \a filter.
-  Only records which meet the filter criteria specified by the index
+  Only records which meet the filter criteria specified by the filter
   are deleted.  Returns the number of records which were updated. If
   \a invalidate is TRUE, the current cursor can no longer be navigated
   (i.e., any prior select statements will no longer be active or
@@ -507,23 +584,37 @@ int QSqlCursor::del( const QString & filter, bool invalidate )
     if ( filter.length() )
  	str+= " where " + filter;
     str += ";";
+    if ( invalidate )
+	clearValues();
     return apply( str, invalidate );
 }
 
-/*!  Deletes the record from the cursor using the filter index \a
-  filter.  Only records which meet the filter criteria specified by
-  the index are updated.  If no index is specified, the primary index
-  of the underlying cursor is used.  If \a invalidate is TRUE, the
-  current cursor can no longer be navigated (i.e., any prior select
-  statements will no longer be active or valid). Returns the number of
-  records which were deleted.  For error information, use lastError().
-  For example:
+/*!  Deletes the current record from the cursor using the cursor's
+  primary index.  Only records which meet the filter criteria
+  specified by the cursor's primary index are updated.  If the cursor
+  does not contain a primary index, or if the cursor is not positioned
+  on a valid record, no delete is performed. If \a invalidate is TRUE,
+  the current cursor can no longer be navigated (i.e., any prior
+  select statements will no longer be active or valid). Returns the
+  number of records which were deleted.  For error information, use
+  lastError().  For example:
+
+  \code
+
+  QSqlCursor empCursor ( "Employee" );
+  empCursor.select( "id=10");
+  if ( empCursor.next() )
+      empCursor.delete();  // delete employee #10
+
+  \endcode
 
 */
 
-int QSqlCursor::del( const QSqlIndex & filter, bool invalidate )
+int QSqlCursor::del( bool invalidate )
 {
-    return del( fieldEqualsValue( "", "and", filter ), invalidate );
+    if ( !isActive() || !isValid() ||  !primaryIndex().count() )
+	return -1;
+    return del( fieldEqualsValue( &d->editBuffer, "", "and", primaryIndex() ), invalidate );
 }
 
 /*
@@ -546,8 +637,11 @@ int QSqlCursor::apply( const QString& q, bool invalidate )
 }
 
 /*!
-  Executes the SQL query \a str.  Returns TRUE of the cursor is active,
-  otherwise returns FALSE.
+
+  \reimpl
+
+  Executes the SQL query \a str.  Returns TRUE of the cursor is
+  active, otherwise returns FALSE.
 
 */
 bool QSqlCursor::exec( const QString & str )

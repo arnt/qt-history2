@@ -4,7 +4,6 @@
 #ifndef QT_H
 #include "qobject.h"
 #include "qstring.h"
-#include "qsqldatabase.h"
 #include "qsqlerror.h"
 #include "qsqlquery.h"
 #include "qsqlfield.h"
@@ -13,6 +12,8 @@
 #endif // QT_H
 
 #ifndef QT_NO_SQL
+
+class QSqlDatabase;
 
 class Q_EXPORT QSqlDriver : public QObject
 {

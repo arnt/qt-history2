@@ -9,7 +9,7 @@
 
 #ifndef QT_NO_SQL
 
-void qt_debug_buffer( const QString& msg, QSqlCursor* cursor )
+void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
 {
     qDebug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     qDebug(msg);
@@ -41,6 +41,7 @@ public:
 	  insertRowLast(-1),
 	  insertHeaderLabelLast(),
 	  insertPreRows(-1),
+	  editBuffer(0),
 	  confEdits( FALSE ),
 	  confCancs( FALSE ),
 	  cancelMode( FALSE ),
@@ -67,7 +68,7 @@ public:
     int insertRowLast;
     QString insertHeaderLabelLast;
     int insertPreRows;
-    QSqlCursor editBuffer;
+    QSqlRecord* editBuffer;
     bool confEdits;
     bool confCancs;
     bool cancelMode;
@@ -221,7 +222,7 @@ void QSqlTable::setReadOnly( bool b )
 /*!
 
   Returns TRUE if the table is readonly, otherwise FALSE is returned.
-  
+
   \sa setReadOnly()
 
 */
@@ -252,7 +253,7 @@ void QSqlTable::setColumnReadOnly( int col, bool b )
 
   Returns TRUE if the \a column is readonly, otherwise FALSE is
   returned.
-  
+
   \sa setColumnReadOnly()
 
 */
@@ -301,10 +302,10 @@ QWidget * QSqlTable::createEditor( int , int col, bool initFromCell ) const
     if ( d->mode == QSqlTable::None )
 	return 0;
     QWidget * w = 0;
-    if( initFromCell ){
-	w = d->editorFactory->createEditor( viewport(), d->editBuffer.value( indexOf( col ) ) );
+    if( initFromCell && d->editBuffer ){
+	w = d->editorFactory->createEditor( viewport(), d->editBuffer->value( indexOf( col ) ) );
 	if ( w )
-	    d->propertyMap->setProperty( w, d->editBuffer.value( indexOf( col ) ) );
+	    d->propertyMap->setProperty( w, d->editBuffer->value( indexOf( col ) ) );
     } else {
 	//	qDebug("not init from cell");
     }
@@ -500,9 +501,9 @@ void QSqlTable::endEdit( int row, int col, bool accept, bool )
 	updateCell( row, col );
 	return;
     }
-    if ( d->mode != QSqlTable::None ) {
-	d->editBuffer.setValue( indexOf( col ),  d->propertyMap->property( editor ) );
-	qt_debug_buffer("endEdit: edit buffer", &d->editBuffer);
+    if ( d->mode != QSqlTable::None && d->editBuffer ) {
+	d->editBuffer->setValue( indexOf( col ),  d->propertyMap->property( editor ) );
+	qt_debug_buffer("endEdit: edit buffer", d->editBuffer);
 	clearCellWidget( row, col );
 	if ( !d->continuousEdit ) {
 	    switch ( d->mode ) {
@@ -513,7 +514,6 @@ void QSqlTable::endEdit( int row, int col, bool accept, bool )
 		updateCurrent();
 		break;
 	    default:
-		ASSERT( FALSE );
 		break;
 	    }
 	}
@@ -545,8 +545,8 @@ void QSqlTable::endInsert()
 {
     //    qDebug("QSqlTable::endInsert()");
     d->mode = QSqlTable::None;
-    d->editBuffer.clear();
     int i;
+    d->editBuffer = 0;
     for ( i = d->editRow; i <= d->insertRowLast; ++i )
 	updateRow( i );
     for ( i = d->editRow; i < d->insertRowLast; ++i )
@@ -562,7 +562,7 @@ void QSqlTable::endUpdate()
 {
     //qDebug("endUpdate()");
     d->mode = QSqlTable::None;
-    d->editBuffer.clear();
+    d->editBuffer = 0;
     updateRow( d->editRow );
     d->editRow = -1;
     d->editCol = -1;
@@ -584,13 +584,8 @@ bool QSqlTable::beginInsert()
     ensureCellVisible( row, 0 );
     setCurrentCell( row, 0 );
     qt_debug_buffer("beginInsert: before creating edit buffer, CURSOR", d->cursor);
-    d->editBuffer.clear();
-    d->editBuffer = *d->cursor;
-    d->editBuffer.detach();
-    d->editBuffer.clearValues();
-    qt_debug_buffer("beginInsert: after creating edit buffer", &d->editBuffer);
-    if ( !primeInsert( &d->editBuffer ) )
-	return FALSE;
+    d->editBuffer = d->cursor->insertBuffer();
+    qt_debug_buffer("beginInsert: after creating edit buffer", d->editBuffer);
     d->mode = QSqlTable::Insert;
     int lastRow = row;
     int lastY = contentsY() + visibleHeight();
@@ -627,26 +622,9 @@ QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
     ensureCellVisible( row, col );
     setCurrentSelection( row, col );
     d->mode = QSqlTable::Update;
-    d->editBuffer.clear();
-    d->editBuffer = *d->cursor;
-    d->editBuffer.detach();
-    qt_debug_buffer("calling QTable::beginEdit", &d->editBuffer );
+    d->editBuffer = d->cursor->updateBuffer();
+    qt_debug_buffer("calling QTable::beginEdit", d->editBuffer );
     return QTable::beginEdit( row, col, replace );
-}
-
-/*!  Protected virtual method which is called to "prime" the record of
-  a cursor before an insert is performed.  This can be used, for
-  example, to prime any auto-numbering or unique index fields.
-  This method should return TRUE if the "prime" was successful and the
-  insert should continue.  Returning FALSE will prevent the insert from
-  proceeding.  The default implementation returns TRUE.
-
-  \sa insertCurrent()
-*/
-
-bool QSqlTable::primeInsert( QSqlCursor* )
-{
-    return TRUE;
 }
 
 /*!  For an editable table, issues an insert on the current cursor using
@@ -662,9 +640,9 @@ void QSqlTable::insertCurrent()
     //qDebug("QSqlTable::insertCurrent()");
     if ( d->mode != QSqlTable::Insert || ! numCols() )
 	return;
-    if ( !d->editBuffer.canInsert() ) {
+    if ( !d->cursor->canInsert() ) {
 #ifdef QT_CHECK_RANGE
-	qWarning("QSqlTable::insertCurrent: insert not allowed for " + d->editBuffer.name() );
+	qWarning("QSqlTable::insertCurrent: insert not allowed for " + d->cursor->name() );
 #endif
 	endInsert();
 	return;
@@ -676,11 +654,11 @@ void QSqlTable::insertCurrent()
     switch ( conf ) {
     case Yes: {
 	QApplication::setOverrideCursor( Qt::waitCursor );
-	b = d->editBuffer.insert();
+	b = d->cursor->insert();
 	QApplication::restoreOverrideCursor();
-	if ( !b || !d->editBuffer.isActive() )
-	    handleError( d->editBuffer.lastError() );
-	QSqlIndex idx = d->editBuffer.primaryIndex( TRUE );
+	if ( !b || !d->cursor->isActive() )
+	    handleError( d->cursor->lastError() );
+	QSqlIndex idx = d->cursor->primaryIndex( TRUE );
 	endInsert();
 	setEditMode( NotEditing, -1, -1 );
 	refresh( d->cursor, idx );
@@ -705,21 +683,6 @@ void QSqlTable::updateRow( int row )
 	updateCell( row, i );
 }
 
-/*!  Protected virtual method which is called to "prime" the record of
-  a cursor before an update is performed.  This method should return
-  TRUE if the "prime" was successful and the update should continue.
-  Returning FALSE will prevent the update from proceeding.  The
-  default implementation returns TRUE.
-
-  \sa updateCurrent()
-*/
-
-bool QSqlTable::primeUpdate( QSqlCursor* )
-{
-    return TRUE;
-}
-
-
 /*!  For an editable table, issues an update on the current cursor's
   primary index using the values of the edited selected row.  If
   there is no current cursor or there is no current selection, nothing
@@ -736,16 +699,16 @@ void QSqlTable::updateCurrent()
     //    qDebug("QSqlTable::updateCurrent()");
     if ( d->mode != QSqlTable::Update )
 	return;
-    if ( d->editBuffer.primaryIndex().count() == 0 ) {
+    if ( d->cursor->primaryIndex().count() == 0 ) {
 #ifdef QT_CHECK_RANGE
-	qWarning("QSqlTable::updateCurrent: no primary index for " + d->editBuffer.name() );
+	qWarning("QSqlTable::updateCurrent: no primary index for " + d->cursor->name() );
 #endif
 	endUpdate();
 	return;
     }
-    if ( !d->editBuffer.canUpdate() ) {
+    if ( !d->cursor->canUpdate() ) {
 #ifdef QT_CHECK_RANGE
-	qWarning("QSqlTable::updateCurrent: updates not allowed for " + d->editBuffer.name() );
+	qWarning("QSqlTable::updateCurrent: updates not allowed for " + d->cursor->name() );
 #endif
 	endUpdate();
 	return;
@@ -756,15 +719,13 @@ void QSqlTable::updateCurrent()
 	conf = confirmEdit( QSqlTable::Update );
     switch ( conf ) {
     case Yes: {
-	if ( !primeUpdate( &d->editBuffer ) )
-	    return;
-	qt_debug_buffer("updateCurrent: edit buffer (before update)", &d->editBuffer);
+	qt_debug_buffer("updateCurrent: edit buffer (before update)", d->editBuffer);
 	QApplication::setOverrideCursor( Qt::waitCursor );
-	b = d->editBuffer.update( d->editBuffer.primaryIndex() );
+	b = d->cursor->update();
 	QApplication::restoreOverrideCursor();
-	if ( !b || !d->editBuffer.isActive() )
-	    handleError( d->editBuffer.lastError() );
-	QSqlIndex idx = d->editBuffer.primaryIndex( TRUE );
+	if ( !b || !d->cursor->isActive() )
+	    handleError( d->cursor->lastError() );
+	QSqlIndex idx = d->cursor->primaryIndex( TRUE );
 	endUpdate();
 	refresh( d->cursor, idx );
 	setCurrentSelection( currentRow(), currentColumn() );
@@ -781,20 +742,6 @@ void QSqlTable::updateCurrent()
 	break;
     }
     return;
-}
-
-/*!  Protected virtual method which is called to "prime" the record of
-  a cursor before a delete is performed.  This method should return
-  TRUE if the "prime" was successful and the delete should continue.
-  Returning FALSE will prevent the delete from proceeding.  The
-  default implementation returns TRUE.
-
-  \sa deleteCurrent()
-*/
-
-bool QSqlTable::primeDelete( QSqlCursor* )
-{
-    return TRUE;
 }
 
 /*!  For an editable table, issues a delete on the current cursor's
@@ -828,13 +775,11 @@ void QSqlTable::deleteCurrent()
 	conf = confirmEdit( QSqlTable::Delete );
     switch ( conf ) {
     case Yes:
-	if ( !primeDelete( d->cursor ) )
-	    return;
 	QApplication::setOverrideCursor( Qt::waitCursor );
-	b = d->cursor->del( d->cursor->primaryIndex() );
+	b = d->cursor->del();
 	QApplication::restoreOverrideCursor();
 	if ( !b )
-	    handleError( d->editBuffer.lastError() );
+	    handleError( d->cursor->lastError() );
 	refresh( d->cursor );
 	setCurrentSelection( currentRow(), currentColumn() );
 	updateRow( currentRow() );
@@ -1320,10 +1265,10 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
     if ( !d->cursor )
 	return;
     if ( d->mode != QSqlTable::None ) {
-	if ( row == d->editRow ) {
+	if ( row == d->editRow && d->editBuffer ) {
 	    //	    qDebug("painting editRow:" + QString::number(row));
-	    //	    qDebug("field name:" + d->editBuffer.field( indexOf( col ) )->name() + " type:" + QString(d->editBuffer.field( indexOf( col ) )->value().typeName()));
-	    paintField( p, d->editBuffer.field( indexOf( col ) ), cr, selected );
+	    //	    qDebug("field name:" + d->editBuffer->field( indexOf( col ) )->name() + " type:" + QString(d->editBuffer->field( indexOf( col ) )->value().typeName()));
+	    paintField( p, d->editBuffer->field( indexOf( col ) ), cr, selected );
 	} else if ( row > d->editRow && d->mode == QSqlTable::Insert ) {
 	    //	    //qDebug("trying to paint row:" + QString::number(row));
 	    if ( d->cursor->seek( row - 1 ) )

@@ -18,32 +18,46 @@ class CustomerCursor : public QSqlCursor
 {
 public:
     CustomerCursor();
+protected:
+    void primeInsert( QSqlRecord* buf );    
+};
+
+class ProductCursor : public QSqlCursor
+{
+public:
+    ProductCursor();
+protected:
+    void primeInsert( QSqlRecord* buf );    
 };
 
 class InvoiceCursor : public QSqlCursor
 {
 public:
     InvoiceCursor();
+protected:
+    void primeInsert( QSqlRecord* buf );    
 };
 
 class InvoiceItemCursor : public QSqlCursor
 {
 public:
     InvoiceItemCursor();
-
-protected:
+protected:    
+    void primeInsert( QSqlRecord* buf );
     QVariant  calculateField( uint fieldNumber );
+private:
+    ProductCursor pr;    
 };
 
 
 class DatabaseDlg : public QDialog
 {
     Q_OBJECT
-    
+
 public:
     typedef enum Mode { Insert, Update, Delete };
-    
-    DatabaseDlg( QSqlCursor * view, Mode mode, QWidget * parent = 0, 
+
+    DatabaseDlg( QSqlCursor * view, Mode mode, QWidget * parent = 0,
 		 const char * name = 0 );
 public slots:
     void close();
@@ -57,21 +71,21 @@ private:
 class InvoiceDlg : public QDialog
 {
     Q_OBJECT
-    
+
 public:
     typedef enum Mode { Insert, Update, Delete };
-    
-    InvoiceDlg( QSqlCursor * view, Mode mode, QWidget * parent = 0, 
+
+    InvoiceDlg( QSqlCursor * view, Mode mode, QWidget * parent = 0,
 		const char * name = 0 );
 public slots:
     void updateInvoiceItem();
     void insertInvoiceItem();
     void deleteInvoiceItem();
-    
+
     void close();
     void execute();
     void updateProductTable( const QSqlRecord * r );
-    
+
 private:
     QVariant invoiceId;
     Mode mMode;
@@ -90,19 +104,19 @@ public:
     QFrame * customerBtnFrm, * invoiceBtnFrm;
     QSqlTable * invoices;
     QSqlTable * customers;
-    
+
     QLabel * customer, * customer_inf_lbl, * customer_lbl, * invoice_lbl;
     QSplitter * v_splitter, * h_splitter;
-    
+
 public slots:
     void insertCustomer();
     void updateCustomer();
     void deleteCustomer();
-    
+
     void insertInvoice();
     void updateInvoice();
     void deleteInvoice();
-    
+
 
 protected:
     void init();
@@ -111,21 +125,21 @@ protected:
 
 class DatabaseApp : public QMainWindow
 {
-    Q_OBJECT    
+    Q_OBJECT
 public:
     DatabaseApp( QWidget * parent = 0, const char * name = 0 );
-    
+
 protected:
     void init();
-    
+
 protected slots:
     void updateCustomerInfo( const QSqlRecord * );
     void createDB();
     void dropDB();
-    
+
 private:
     DatabaseWgt * d;
-    
+
     CustomerCursor customerCr;
     InvoiceCursor invoiceCr;
 };

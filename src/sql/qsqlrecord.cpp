@@ -48,32 +48,6 @@ QSqlRecord::~QSqlRecord()
 
 }
 
-
-/*!  Returns a reference to the value of the field located at position
-  \a i in the record.  It is up to you to check wether this item
-  really exists, or wether the field is null before using the field
-  value.
-
-*/
-
-QVariant& QSqlRecord::operator[]( int i )
-{
-    findField(i)->setNull( FALSE );
-    return findField(i)->val;
-}
-
-/*!  Returns a reference to the value of the field named \a name in
-  the record.  It is up to you to check wether this item really
-  exists, or wether the field is null before using the field value.
-
-*/
-
-QVariant& QSqlRecord::operator[]( const QString& name )
-{
-    findField( name )->setNull( FALSE );
-    return findField( name )->val;
-}
-
 /*!
   Returns the value of the field located at position \a i in the record.
   It is up to you to check wether this item really exists.
@@ -82,7 +56,7 @@ QVariant& QSqlRecord::operator[]( const QString& name )
 
 QVariant  QSqlRecord::value( int i )
 {
-    return findField(i)->val;
+    return findField(i)->value();
 }
 
 /*!
@@ -93,21 +67,24 @@ QVariant  QSqlRecord::value( int i )
 
 QVariant  QSqlRecord::value( const QString& name )
 {
-    return findField( name )->val;
+    return findField( name )->value();
 }
 
-/*!
-  Returns the position of the field named \a name within the record,
-  or -1 if it cannot be found.
+/*!  Returns the position of the field named \a name within the
+  record, or -1 if it cannot be found.  Field names are not
+  case-sensitive.
 
 */
 
 int QSqlRecord::position( const QString& name ) const
 {
     for ( uint i = 0; i < count(); ++i ) {
-	if ( field( i )->name() == name )
+	if ( field( i )->name().upper() == name.upper() )
 	    return i;
     }
+#ifdef QT_CHECK_RANGE
+    qWarning("QSqlRecord::position: unable to find field " + name );
+#endif    
     return -1;
 }
 

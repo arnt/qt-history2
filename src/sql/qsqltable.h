@@ -94,9 +94,6 @@ protected:
 
     virtual bool beginInsert();
     virtual QWidget* beginUpdate ( int row, int col, bool replace );
-    virtual bool primeInsert( QSqlCursor* cursor );
-    virtual bool primeUpdate( QSqlCursor* cursor );
-    virtual bool primeDelete( QSqlCursor* cursor );
 
     bool         eventFilter( QObject *o, QEvent *e );
     void         resizeEvent ( QResizeEvent * );

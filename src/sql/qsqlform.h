@@ -10,6 +10,7 @@
 #ifndef QT_NO_SQL
 
 class QSqlField;
+class QSqlRecord;
 class QSqlCursor;
 class QEditorFactory;
 
@@ -66,16 +67,16 @@ class Q_EXPORT QSqlForm : public QObject
     Q_OBJECT
 public:
     QSqlForm( QObject * parent = 0, const char * name = 0 );
-    QSqlForm( QWidget * widget, QSqlCursor * view, uint columns = 1,
-	      QObject * parent = 0, const char * name = 0 );
+    QSqlForm( QWidget * widget, QSqlCursor * cursor, QSqlRecord * fields, 
+	      uint columns = 1, QObject * parent = 0, const char * name = 0 );
     ~QSqlForm();
 
     void       associate( QWidget * widget, QSqlField * field );
 
-    void       setView( QSqlCursor * view );
-    QSqlCursor * view() const;
-    void       populate( QWidget * widget, QSqlCursor * view,
-			 uint columns = 1 );
+    void       setCursor( QSqlCursor * cursor );
+    QSqlCursor* cursor() const;
+    void       populate( QWidget * widget, QSqlCursor * cursor, 
+			 QSqlRecord* fields, uint columns = 1 );
 
     void       setReadOnly( bool enable );
     bool       isReadOnly() const;
@@ -88,7 +89,7 @@ public:
 
 public slots:
     void readRecord();
-    void writeRecord();   
+    void writeRecord();
     void clear();
 
     virtual void first();
