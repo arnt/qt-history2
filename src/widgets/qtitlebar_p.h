@@ -72,17 +72,16 @@ public:
     ~QTitleBar();
 
     bool isActive() const;
-    QString text() const { return txt; }
-    QString visibleText() const { return cuttext; }
+    virtual QString visibleText() const;
+
     QWidget *window() const;
 
     QSize sizeHint() const;
-
     QColor aleftc, ileftc, arightc, irightc, atextc, itextc;
 
 public slots:
     void setActive( bool );
-    void setText( const QString& title );
+    void setCaption( const QString& title );
     void setIcon( const QPixmap& icon );
 
 signals:
@@ -107,13 +106,12 @@ protected:
     void enterEvent( QEvent *e );
     void paintEvent( QPaintEvent *p );
 
+    virtual void cutText();
+
 private:
-    void cutText();
     void readColors();
 
     QTitleBarPrivate *d;
-
-    QString txt, cuttext;
 };
 
 #endif

@@ -1595,7 +1595,7 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	setCaption( childWidget->caption() );
 	if ( iconw )
-	    iconw->setText( childWidget->caption() );
+	    iconw->setCaption( childWidget->caption() );
 #endif
 	break;
     case QEvent::IconChange:
@@ -1830,7 +1830,7 @@ QWidget* QWorkspaceChild::iconWidget() const
     }
 #ifndef QT_NO_WIDGET_TOPEXTRA
     if ( windowWidget() ) {
-	iconw->setText( windowWidget()->caption() );
+	iconw->setCaption( windowWidget()->caption() );
 	if ( windowWidget()->icon() )
 	    iconw->setIcon( *windowWidget()->icon() );
     }
@@ -1911,7 +1911,7 @@ void QWorkspaceChild::adjustToFullscreen()
 void QWorkspaceChild::setCaption( const QString& cap )
 {
     if ( titlebar )
-	titlebar->setText( cap );
+	titlebar->setCaption( cap );
 #ifndef QT_NO_WIDGET_TOPEXTRA
     QWidget::setCaption( cap );
 #endif

@@ -116,8 +116,8 @@ public:
 	    }
 	}
 	if ( tipstring.isEmpty() ) {
-	    if ( t->visibleText() != t->text() )
-		tipstring = t->text();
+	    if ( t->visibleText() != t->caption() )
+		tipstring = t->caption();
 	}
 	if(!tipstring.isEmpty())
 	    tip( QRect(pos, controlSize), tipstring );
@@ -138,6 +138,7 @@ public:
     QToolTip *toolTip;
     bool act		    :1;
     QWidget* window;
+    QString cuttext;
 };
 
 QTitleBar::QTitleBar (QWidget* w, QWidget* parent, const char* name)
@@ -151,6 +152,8 @@ QTitleBar::QTitleBar (QWidget* w, QWidget* parent, const char* name)
     d->window = w;
     d->buttonDown = QStyle::SC_None;
     d->act = 0;
+    if ( w )
+	setCaption( w->caption() );
 
     readColors();
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
@@ -469,21 +472,24 @@ void QTitleBar::cutText()
 					      QStyle::SC_TitleBarLabel).width();
     if ( !d->window )
 	maxw = width() - 20;
-    cuttext = txt;
+    const QString txt = caption();
+    d->cuttext = txt;
     if ( fm.width( txt+"m" ) > maxw ) {
 	int i = txt.length();
-	while ( (fm.width(txt.left( i ) + "...")  > maxw) && i>0 )
+	int dotlength = fm.width( "..." );
+	while ( i>0 && fm.width(txt.left( i )) + dotlength > maxw )
 	    i--;
-	cuttext = txt.left( i ) + "...";
+	d->cuttext = txt.left( i ) + "...";
     }
 }
 
-void QTitleBar::setText( const QString& title )
+void QTitleBar::setCaption( const QString& title )
 {
-    if(txt == title)
+    if( caption() == title)
 	return;
-    txt = title;
+    QWidget::setCaption( title );
     cutText();
+
     repaint( FALSE );
 }
 
@@ -532,6 +538,11 @@ void QTitleBar::setActive( bool active )
 bool QTitleBar::isActive() const
 {
     return d->act;
+}
+
+QString QTitleBar::visibleText() const
+{ 
+    return d->cuttext;
 }
 
 QWidget *QTitleBar::window() const

@@ -1636,7 +1636,7 @@ bool QDockWindow::opaqueMoving() const
 
 void QDockWindow::setCaption( const QString &s )
 {
-    titleBar->setText( s );
+    titleBar->setCaption( s );
 #ifndef QT_NO_WIDGET_TOPEXTRA
     QFrame::setCaption( s );
 #endif
@@ -1690,7 +1690,7 @@ bool QDockWindow::eventFilter( QObject *o, QEvent *e )
 #ifdef QT_NO_WIDGET_TOPEXTRA
 QString QDockWindow::caption() const
 {
-    return titleBar->text();
+    return titleBar->caption();
 }
 #endif
 
