@@ -19,6 +19,8 @@
 **********************************************************************/
 
 #include "helpwindow.h"
+#include "mainwindow.h"
+
 #include <qurl.h>
 #include <qmessagebox.h>
 #include <qdragobject.h>
@@ -33,8 +35,6 @@
 #if defined(Q_OS_WIN32)
 #include <windows.h>
 #endif
-
-#include "mainwindow.h"
 
 HelpWindow::HelpWindow( MainWindow *w, QWidget *parent, const char *name )
     : QTextBrowser( parent, name ), mw( w ), shiftPressed( FALSE ), blockScroll( FALSE )

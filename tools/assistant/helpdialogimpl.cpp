@@ -17,14 +17,12 @@
 ** not clear to you.
 **
 **********************************************************************/
+
 #include "helpdialogimpl.h"
 #include "helpwindow.h"
 #include "topicchooserimpl.h"
 #include "docuparser.h"
 #include "mainwindow.h"
-
-#include <stdlib.h>
-#include <limits.h>
 
 #include <qprogressbar.h>
 #include <qfile.h>
@@ -51,6 +49,9 @@
 #include <qstatusbar.h>
 #include <qvalidator.h>
 #include <qsettings.h>
+
+#include <stdlib.h>
+#include <limits.h>
 
 struct IndexKeyword {
     IndexKeyword( const QString &kw, const QString &l )

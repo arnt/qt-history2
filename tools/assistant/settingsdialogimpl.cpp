@@ -18,6 +18,9 @@
 **
 **********************************************************************/
 
+#include "settingsdialogimpl.h"
+#include "docuparser.h"
+
 #include <qcolordialog.h>
 #include <qtoolbutton.h>
 #include <qfiledialog.h>
@@ -32,9 +35,6 @@
 #include <qfileinfo.h>
 #include <qtimer.h>
 #include <qapplication.h>
-
-#include "settingsdialogimpl.h"
-#include "docuparser.h"
 
 #define RTTI 3973
 

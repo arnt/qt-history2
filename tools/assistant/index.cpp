@@ -18,6 +18,8 @@
 **
 **********************************************************************/
 
+#include "index.h"
+
 #include <qfile.h>
 #include <qdir.h>
 #include <qstringlist.h>
@@ -25,8 +27,6 @@
 #include <qapplication.h>
 
 #include <ctype.h>
-
-#include "index.h"
 
 int TermList::compareItems( QPtrCollection::Item i1, QPtrCollection::Item i2 )
 {
