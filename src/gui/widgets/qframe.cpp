@@ -179,8 +179,6 @@ QFrame::QFrame(QWidget *parent, const char *name, WFlags f)
     setObjectName(name);
 }
 
-static const int wpwidth = 2; // WinPanel d->lineWidth
-
 /*!
     Returns the frame style.
 
@@ -262,7 +260,7 @@ void QFrame::setFrameStyle(int style)
 	clearWState(WState_OwnSizePolicy);
     }
     d->frameStyle = (short)style;
-    d->updateFrameWidth(TRUE);
+    d->updateFrameWidth();
 }
 
 /*!
@@ -341,29 +339,10 @@ int QFrame::margin() const
   Updated the frameWidth parameter.
 */
 
-void QFramePrivate::updateFrameWidth(bool resetLineMetrics)
+void QFramePrivate::updateFrameWidth()
 {
     int frameShape  = frameStyle & QFrame::MShape;
     int frameShadow = frameStyle & QFrame::MShadow;
-
-    if (resetLineMetrics) {
-	switch (frameShape) {
-	case QFrame::MenuBarPanel:
-	    margin = 0;
-	    lineWidth = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q);
-	    break;
-	case QFrame::ToolBarPanel:
-	    margin = 0;
-	    lineWidth = q->style().pixelMetric(QStyle::PM_DockWindowFrameWidth, q);
-	    break;
-	case QFrame::LineEditPanel:
-	case QFrame::TabWidgetPanel:
-	case QFrame::PopupPanel:
-	    margin = 0;
-	    lineWidth = q->style().pixelMetric(QStyle::PM_DefaultFrameWidth, q);
-	    break;
-	}
-    }
 
     frameWidth = -1;
 
@@ -374,6 +353,9 @@ void QFramePrivate::updateFrameWidth(bool resetLineMetrics)
 	break;
 
     case QFrame::Box:
+    case QFrame::HLine:
+    case QFrame::VLine:
+    case QFrame::GroupBoxPanel:
 	switch (frameShadow) {
 	case QFrame::Plain:
 	    frameWidth = lineWidth;
@@ -385,11 +367,24 @@ void QFramePrivate::updateFrameWidth(bool resetLineMetrics)
 	}
 	break;
 
-
     case QFrame::LineEditPanel:
     case QFrame::TabWidgetPanel:
     case QFrame::PopupPanel:
-    case QFrame::GroupBoxPanel:
+	frameWidth = q->style().pixelMetric(QStyle::PM_DefaultFrameWidth, q);
+	break;
+
+    case QFrame::MenuBarPanel:
+	frameWidth = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q);
+	break;
+    case QFrame::ToolBarPanel:
+	frameWidth = q->style().pixelMetric(QStyle::PM_DockWindowFrameWidth, q);
+	break;
+
+    case QFrame::WinPanel:
+	frameWidth = 2;
+	break;
+
+
     case QFrame::Panel:
     case QFrame::StyledPanel:
 	switch (frameShadow) {
@@ -397,34 +392,6 @@ void QFramePrivate::updateFrameWidth(bool resetLineMetrics)
 	case QFrame::Raised:
 	case QFrame::Sunken:
 	    frameWidth = lineWidth;
-	    break;
-	}
-	break;
-
-    case QFrame::WinPanel:
-	switch (frameShadow) {
-	case QFrame::Plain:
-	case QFrame::Raised:
-	case QFrame::Sunken:
-	    frameWidth =  wpwidth; //WinPanel does not use lineWidth!
-	    break;
-	}
-	break;
-    case QFrame::MenuBarPanel:
-	frameWidth = lineWidth;
-	break;
-    case QFrame::ToolBarPanel:
-	frameWidth = lineWidth;
-	break;
-    case QFrame::HLine:
-    case QFrame::VLine:
-	switch (frameShadow) {
-	case QFrame::Plain:
-	    frameWidth = lineWidth;
-	    break;
-	case QFrame::Raised:
-	case QFrame::Sunken:
-	    frameWidth = (short)(lineWidth*2 + midLineWidth);
 	    break;
 	}
 	break;
@@ -497,7 +464,7 @@ void QFrame::setFrameRect(const QRect &r)
 QRect QFrame::contentsRect() const
 {
     QRect r = frameRect();
-    int   w = frameWidth();                     // total width
+    int   w = d->frameWidth;
     int frameShape  = d->frameStyle & MShape;
     if (frameShape == PopupPanel) {
 	int vExtra = style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this);
@@ -594,38 +561,47 @@ void QFrame::drawFrame(QPainter *p)
 {
     QPoint      p1, p2;
     QRect       r     = frameRect();
-    int         type  = d->frameStyle & MShape;
-    int         cstyle = d->frameStyle & MShadow;
-#ifdef QT_NO_DRAWUTIL
-    p->setPen(black); // ####
-    p->drawRect(r); //### a bit too simple
-#else
+    int frameShape  = d->frameStyle & QFrame::MShape;
+    int frameShadow = d->frameStyle & QFrame::MShadow;
     const QPalette &pal = palette();
 
-#ifndef QT_NO_STYLE
-    QStyleOption opt(lineWidth(),midLineWidth());
+    int lw = 0;
+    int mlw = 0;
+    switch (frameShape) {
+    case QFrame::Box:
+    case QFrame::HLine:
+    case QFrame::VLine:
+    case QFrame::GroupBoxPanel:
+	lw = d->lineWidth;
+	mlw = d->midLineWidth;
+	break;
+    default:
+	// most frame styles do not handle customized line and midline widths
+	// (see updateFrameWidth()).
+	lw = d->frameWidth - d->margin;
+	break;
+    }
 
+    QStyleOption opt(lw, mlw);
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
 	flags |= QStyle::Style_Enabled;
-    if (cstyle == Sunken)
+    if (frameShadow == Sunken)
 	flags |= QStyle::Style_Sunken;
-    else if (cstyle == Raised)
+    else if (frameShadow == Raised)
 	flags |= QStyle::Style_Raised;
     if (hasFocus())
 	flags |= QStyle::Style_HasFocus;
     if (testAttribute(WA_UnderMouse))
 	flags |= QStyle::Style_MouseOver;
-#endif // QT_NO_STYLE
 
-    switch (type) {
+    switch (frameShape) {
 
     case Box:
-        if (cstyle == Plain)
-            qDrawPlainRect(p, r, pal.foreground(), d->lineWidth);
+        if (frameShadow == Plain)
+            qDrawPlainRect(p, r, pal.foreground(), lw);
         else
-            qDrawShadeRect(p, r, pal, cstyle == Sunken, d->lineWidth,
-                            midLineWidth());
+            qDrawShadeRect(p, r, pal, frameShadow == Sunken, lw, mlw);
         break;
 
     case LineEditPanel:
@@ -641,34 +617,26 @@ void QFrame::drawFrame(QPainter *p)
 	break;
 
     case MenuBarPanel:
-#ifndef QT_NO_STYLE
 	style().drawPrimitive(QStyle::PE_PanelMenuBar, p, r, pal, flags, opt);
 	break;
-#endif // fall through to Panel if QT_NO_STYLE
-
     case ToolBarPanel:
-#ifndef QT_NO_STYLE
 	style().drawPrimitive(QStyle::PE_PanelDockWindow, p, rect(), pal, flags, opt);
         break;
-#endif // fall through to Panel if QT_NO_STYLE
 
     case StyledPanel:
-#ifndef QT_NO_STYLE
-        if (cstyle == Plain)
-            qDrawPlainRect(p, r, pal.foreground(), d->lineWidth);
+        if (frameShadow == Plain)
+            qDrawPlainRect(p, r, pal.foreground(), lw);
         else
 	    style().drawPrimitive(QStyle::PE_Panel, p, r, pal, flags, opt);
         break;
-#endif // fall through to Panel if QT_NO_STYLE
 
     case PopupPanel:
-#ifndef QT_NO_STYLE
     {
 	int vextra = style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this),
 	    hextra = style().pixelMetric(QStyle::PM_PopupMenuFrameHorizontalExtra, this);
 	if(vextra > 0 || hextra > 0) {
 	    QRect fr = frameRect();
-	    int   fw = frameWidth();
+	    int   fw = d->frameWidth;
 	    if(vextra > 0) {
 		style().drawControl(QStyle::CE_PopupMenuVerticalExtra, p, this,
 				    QRect(fr.x() + fw, fr.y() + fw, fr.width() - (fw*2), vextra),
@@ -687,30 +655,29 @@ void QFrame::drawFrame(QPainter *p)
 	    }
 	}
 
-        if (cstyle == Plain)
-            qDrawPlainRect(p, r, pal.foreground(), d->lineWidth);
+        if (frameShadow == Plain)
+            qDrawPlainRect(p, r, pal.foreground(), lw);
         else
 	    style().drawPrimitive(QStyle::PE_PanelPopup, p, r, pal, flags, opt);
         break;
     }
-#endif // fall through to Panel if QT_NO_STYLE
 
     case Panel:
-        if (cstyle == Plain)
-            qDrawPlainRect(p, r, pal.foreground(), d->lineWidth);
+        if (frameShadow == Plain)
+            qDrawPlainRect(p, r, pal.foreground(), lw);
         else
-            qDrawShadePanel(p, r, pal, cstyle == Sunken, d->lineWidth);
+            qDrawShadePanel(p, r, pal, frameShadow == Sunken, lw);
         break;
 
     case WinPanel:
-        if (cstyle == Plain)
-            qDrawPlainRect(p, r, pal.foreground(), wpwidth);
+        if (frameShadow == Plain)
+            qDrawPlainRect(p, r, pal.foreground(), lw);
         else
-            qDrawWinPanel(p, r, pal, cstyle == Sunken);
+            qDrawWinPanel(p, r, pal, frameShadow == Sunken);
         break;
     case HLine:
     case VLine:
-        if (type == HLine) {
+        if (frameShape == HLine) {
             p1 = QPoint(r.x(), r.height()/2);
             p2 = QPoint(r.x()+r.width(), p1.y());
         }
@@ -718,18 +685,16 @@ void QFrame::drawFrame(QPainter *p)
             p1 = QPoint(r.x()+r.width()/2, 0);
             p2 = QPoint(p1.x(), r.height());
         }
-        if (cstyle == Plain) {
+        if (frameShadow == Plain) {
             QPen oldPen = p->pen();
-            p->setPen(QPen(pal.foreground(),d->lineWidth));
+            p->setPen(QPen(pal.foreground(),lw));
             p->drawLine(p1, p2);
             p->setPen(oldPen);
         }
         else
-            qDrawShadeLine(p, p1, p2, pal, cstyle == Sunken,
-                            d->lineWidth, midLineWidth());
+            qDrawShadeLine(p, p1, p2, pal, frameShadow == Sunken, lw, mlw);
         break;
     }
-#endif // QT_NO_DRAWUTIL
 }
 
 
@@ -776,7 +741,7 @@ void QFrame::frameChanged()
 void QFrame::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::StyleChange)
-	d->updateFrameWidth(TRUE);
+	d->updateFrameWidth();
     QWidget::changeEvent(ev);
 }
 

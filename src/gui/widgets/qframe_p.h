@@ -8,7 +8,7 @@ class QFramePrivate : public QWidgetPrivate
 public:
     QFramePrivate();
 
-    void        updateFrameWidth(bool=FALSE);
+    void        updateFrameWidth();
 
     QRect       frect;
     int         frameStyle;

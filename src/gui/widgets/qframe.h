@@ -27,31 +27,24 @@ class Q_GUI_EXPORT QFrame : public QWidget
 {
     Q_OBJECT
     Q_ENUMS(Shape Shadow)
-    Q_PROPERTY(int frameWidth READ frameWidth)
-    Q_PROPERTY(QRect contentsRect READ contentsRect)
+    QDOC_PROPERTY(int frameWidth READ frameWidth)
     Q_PROPERTY(Shape frameShape READ frameShape WRITE setFrameShape)
     Q_PROPERTY(Shadow frameShadow READ frameShadow WRITE setFrameShadow)
     Q_PROPERTY(int lineWidth READ lineWidth WRITE setLineWidth)
     Q_PROPERTY(int margin READ margin WRITE setMargin)
     Q_PROPERTY(int midLineWidth READ midLineWidth WRITE setMidLineWidth)
-    Q_PROPERTY(QRect frameRect READ frameRect WRITE setFrameRect DESIGNABLE false)
 
 public:
     QFrame(QWidget* parent = 0, WFlags f = 0);
-    QFrame(QFramePrivate &, QWidget* parent, WFlags f = 0);
 #ifdef QT_COMPAT
     QFrame(QWidget* parent, const char* name, WFlags f = 0);
 #endif
 
     int         frameStyle()    const;
-    virtual void setFrameStyle(int);
+    void setFrameStyle(int);
 
     int         frameWidth()    const;
     QRect       contentsRect()  const;
-
-#ifndef Q_QDOC
-    bool        lineShapesOk()  const { return TRUE; }
-#endif
 
     QSize       sizeHint() const;
 
@@ -62,12 +55,15 @@ public:
                  HLine    = 0x0004,             // horizontal line
                  VLine    = 0x0005,             // vertical line
                  StyledPanel = 0x0006,          // rectangular panel depending on the GUI style
+
                  PopupPanel = 0x0007,           // rectangular panel depending on the GUI style
                  MenuBarPanel = 0x0008,
                  ToolBarPanel = 0x0009,
 		 LineEditPanel = 0x000a,
 		 TabWidgetPanel = 0x000b,
 		 GroupBoxPanel = 0x000c,
+
+
                  MShape   = 0x000f              // mask for the shape
     };
     enum Shadow { Plain    = 0x0010,            // plain line
@@ -81,18 +77,19 @@ public:
     void        setFrameShadow(Shadow);
 
     int         lineWidth()     const;
-    virtual void setLineWidth(int);
+    void setLineWidth(int);
 
     int         margin()        const;
-    virtual void setMargin(int);
+    void setMargin(int);
 
     int         midLineWidth()  const;
-    virtual void setMidLineWidth(int);
+    void setMidLineWidth(int);
 
     QRect       frameRect()     const;
-    virtual void setFrameRect(const QRect &);
+    void setFrameRect(const QRect &);
 
 protected:
+    QFrame(QFramePrivate &, QWidget* parent, WFlags f = 0);
     void        paintEvent(QPaintEvent *);
     void        resizeEvent(QResizeEvent *);
     virtual void drawFrame(QPainter *);
