@@ -1855,6 +1855,12 @@ QString Doc::htmlCompactList( const QMap<QString, QString>& list )
     for ( j = 0; j < NumParagraphs; j++ )
 	paragraphOffset[j + 1] = paragraphOffset[j] + paragraph[j].count();
 
+    int firstOffset[NumColumns + 1];
+    int currentOffset[NumColumns];
+    int currentParagraphNo[NumColumns];
+    int currentOffsetInParagraph[NumColumns];
+
+#ifdef USE_DYNAMIC_ALGORITH
     /*
       Here comes the dynamic programming algorithm that does the job.
       The number of columns is fixed (NumColumns). We want to
@@ -1876,21 +1882,21 @@ QString Doc::htmlCompactList( const QMap<QString, QString>& list )
       algorithm.
     */
     int prevEnd[NumColumns][NumParagraphs];
-    int numRows[NumColumns][NumParagraphs];
+    int numRowss[NumColumns][NumParagraphs];
 
     for ( i = 1; i < NumColumns; i++ ) {
 	prevEnd[i][0] = 0;
-	numRows[i][0] = paragraphOffset[1];
+	numRowss[i][0] = paragraphOffset[1];
     }
     for ( j = 0; j < NumParagraphs; j++ ) {
 	prevEnd[0][j] = -1;
-	numRows[0][j] = paragraphOffset[j + 1];
+	numRowss[0][j] = paragraphOffset[j + 1];
     }
 
     /*
       Everything is, at last, set up properly for the real work. For
       any (i columns, j paragraphs) pair, we never use information on
-      the right or below in the prevEnd and numRows matrices, as this
+      the right or below in the prevEnd and numRowss matrices, as this
       information is not filled in yet.
     */
     for ( i = 1; i < NumColumns; i++ ) {
@@ -1908,7 +1914,7 @@ QString Doc::htmlCompactList( const QMap<QString, QString>& list )
 	      j - 1. We'll try them in order, but we'll stop as soon
 	      as the situation is not improving anymore.
 	    */
-	    numRows[i][j] = INT_MAX;
+	    numRowss[i][j] = INT_MAX;
 
 	    for ( k = prevEnd[i][j - 1]; k < j; k++ ) {
 		/*
@@ -1918,12 +1924,12 @@ QString Doc::htmlCompactList( const QMap<QString, QString>& list )
 		  columns and the cost of the last column.
 		*/
 		int m = paragraphOffset[j + 1] - paragraphOffset[k + 1];
-		if ( numRows[i - 1][k] > m )
-		    m = numRows[i - 1][k];
+		if ( numRowss[i - 1][k] > m )
+		    m = numRowss[i - 1][k];
 
-		if ( m <= numRows[i][j] ) {
+		if ( m <= numRowss[i][j] ) {
 		    prevEnd[i][j] = k;
-		    numRows[i][j] = m;
+		    numRowss[i][j] = m;
 		} else {
 		    break;
 		}
@@ -1935,15 +1941,10 @@ QString Doc::htmlCompactList( const QMap<QString, QString>& list )
       Finally, start at prevEnd[NumColumns - 1][NumParagraphs - 1]
       and find our way back home. The information we derive is put
       into firstOffset, which tells where each column should start.
-      We also initialize currentOffset, currentParagraphNo, and
-      prevParagraphNo by the same occasion; they will be useful
-      later.
+      We initialize currentOffset, currentParagraphNo, and
+      currentOffsetInParagraph by the same occasion; they will be
+      useful later.
     */
-    int firstOffset[NumColumns + 1];
-    int currentOffset[NumColumns];
-    int currentParagraphNo[NumColumns];
-    int prevParagraphNo[NumColumns];
-
     k = NumParagraphs - 1;
     firstOffset[NumColumns] = paragraphOffset[k + 1];
 
@@ -1952,8 +1953,30 @@ QString Doc::htmlCompactList( const QMap<QString, QString>& list )
 	firstOffset[i] = paragraphOffset[k + 1];
 	currentOffset[i] = firstOffset[i];
 	currentParagraphNo[i] = k + 1;
-	prevParagraphNo[i] = -1;
+	currentOffsetInParagraph[i] = 0;
     }
+
+    int numRows = numRowss[NumColumns - 1][NumParagraphs - 1];
+#else
+    int numRows = ( list.count() + NumColumns - 1 ) / NumColumns;
+    int curParagNo = 0;
+
+    for ( i = 0; i < NumColumns; i++ ) {
+	firstOffset[i] = i * numRows;
+	currentOffset[i] = firstOffset[i];
+
+	for ( j = curParagNo; j < NumParagraphs; j++ ) {
+	    if ( paragraphOffset[j] > firstOffset[i] )
+		break;
+	    if ( paragraphOffset[j] <= firstOffset[i] )
+		curParagNo = j;
+	}
+	currentParagraphNo[i] = curParagNo;
+	currentOffsetInParagraph[i] = firstOffset[i] -
+				      paragraphOffset[curParagNo];
+    }
+    firstOffset[NumColumns] = list.count();
+#endif
 
     /*
       At this point, Professor Bellman leaves us and Finn Arild
@@ -1961,35 +1984,40 @@ QString Doc::htmlCompactList( const QMap<QString, QString>& list )
       parallel. The offset array guides us.
     */
     html += QString( "<p><table width=\"100%\">\n" );
-    for ( k = 0; k < numRows[NumColumns - 1][NumParagraphs - 1]; k++ ) {
+    for ( k = 0; k < numRows; k++ ) {
 	html += QString( "<tr>\n" );
 	for ( i = 0; i < NumColumns; i++ ) {
 	    if ( currentOffset[i] >= firstOffset[i + 1] ) {
 		// this column is finished
 		html += QString( "<td>\n<td>\n" );
 	    } else {
-		while ( paragraph[currentParagraphNo[i]].isEmpty() )
+		while ( currentOffsetInParagraph[i] ==
+			(int) paragraph[currentParagraphNo[i]].count() ) {
 		    currentParagraphNo[i]++;
+		    currentOffsetInParagraph[i] = 0;
+		}
 
 		html += QString( "<td align=\"right\">" );
-		if ( currentParagraphNo[i] > prevParagraphNo[i] ) {
+		if ( currentOffsetInParagraph[i] == 0 ) {
 		    // start a new paragraph
 		    html += QString( "<b>" );
 		    html += paragraphName[currentParagraphNo[i]];
 		    html += QString( "</b>" );
-		    prevParagraphNo[i] = currentParagraphNo[i];
 		}
 		html += QChar( '\n' );
 
-		QMap<QString, QString>::Iterator first;
-		first = paragraph[currentParagraphNo[i]].begin();
+		// bad loop
+		QMap<QString, QString>::Iterator it;
+		it = paragraph[currentParagraphNo[i]].begin();
+		for ( j = 0; j < currentOffsetInParagraph[i]; j++ )
+		    ++it;
 
-		html += QString( "<td>%1\n" ).arg( href(*first) );
-		if ( classext.contains(*first) )
+		html += QString( "<td>%1\n" ).arg( href(*it) );
+		if ( classext.contains(*it) )
 		    html += QChar( '*' );
 
-		paragraph[currentParagraphNo[i]].remove( first );
 		currentOffset[i]++;
+		currentOffsetInParagraph[i]++;
 	    }
 	}
     }
