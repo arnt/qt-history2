@@ -1020,7 +1020,6 @@ void QCommonStyle::drawControl( ControlElement element,
 	    int alignment = AlignCenter|ShowPrefix|DontClip|SingleLine;
 	    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
 		alignment |= NoAccel;
-	    qDebug("drawing %s at %d %d %d %d", mi->text().latin1(), r.x(), r.y(), r.width(), r.height());
 	    drawItem( p, r, alignment, pal,
 		      flags & Style_Enabled, mi->pixmap(), mi->text(), -1,
 		      &pal.buttonText().color() );
