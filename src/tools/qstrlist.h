@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrlist.h#20 $
+** $Id: //depot/qt/main/src/tools/qstrlist.h#21 $
 **
 ** Definition of QStrList, QStrIList and QStrListIterator classes
 **
@@ -71,7 +71,7 @@ inline QStrList & QStrList::operator=( const QStrList &strList )
 }
 
 inline QStrList::QStrList( const QStrList &strList )
-    : QListT( strList )
+    : QStrListBase( strList )
 {
     dc = FALSE;
     operator=(strList);
