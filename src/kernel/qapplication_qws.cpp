@@ -2740,13 +2740,20 @@ void QETWidget::repaintHierarchy(QRegion r, bool post)
 void QETWidget::repaintDecoration(QRegion r, bool post)
 {
 #ifndef QT_NO_QWS_MANAGER
+    //please note that qwsManager is a QObject, not a QWidget.
+    //therefore, normal ways of painting do not work.
+    // However, it does listen to paint events.
+
     if ( testWFlags(WType_TopLevel) && d->topData()->qwsManager) {
 	r &= d->topData()->qwsManager->region();
 	r.translate(-crect.x(),-crect.y());
-	if (post)
+	//### something's very wrong here. What are we supposed to do with r?
+	if ( post) {
 	    QApplication::postEvent(d->topData()->qwsManager, new QPaintEvent( clipRegion() ));
-	else
-	    repaint(r);
+	} else {
+	    QPaintEvent e( clipRegion() );
+	    QApplication::sendEvent(d->topData()->qwsManager, &e );
+	}
     }
 #endif
 }
