@@ -1,14 +1,14 @@
 TEMPLATE = app
 
-CONFIG	+= uic3 qaxserver qaxserver_no_postlink qaxcontainer
+CONFIG	+= qaxserver qaxserver_no_postlink qaxcontainer
 QT += qt3support
 
 # ui_qaxselect.h
 INCLUDEPATH += ../../container/debug \
     ../../container/release
 
-SOURCES	 = main.cpp docuwindow.cpp
-HEADERS	 = docuwindow.h
+SOURCES	 = main.cpp docuwindow.cpp mainwindow.cpp invokemethod.cpp changeproperties.cpp ambientproperties.cpp controlinfo.cpp
+HEADERS	 = docuwindow.h mainwindow.h invokemethod.h changeproperties.h ambientproperties.h controlinfo.h
 FORMS	 = mainwindow.ui invokemethod.ui changeproperties.ui ambientproperties.ui controlinfo.ui
 RC_FILE	 = testcon.rc
 

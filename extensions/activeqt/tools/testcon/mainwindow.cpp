@@ -8,34 +8,37 @@
 **
 *****************************************************************************/
 
-#include <qaxobject.h>
-#include <qaxwidget.h>
-#include <qaxselect.h>
-#include <qinputdialog.h>
-#include <qlabel.h>
+#include "mainwindow.h"
+#include "changeproperties.h"
+#include "invokemethod.h"
+#include "ambientproperties.h"
+#include "controlinfo.h"
 #include "docuwindow.h"
 
-#include <qt_windows.h>
-#include <oaidl.h>
-#include "../../shared/qaxtypes.h"
-#include <qaxfactory.h>
-#include <qmenudata.h>
-#include <qtextedit.h>
-#include <qfiledialog.h>
+#include <ActiveQt>
+#include <QtGui>
 
 #include <q3workspace.h>
 
+#include "../../shared/qaxtypes.h"
+
+#include <qt_windows.h>
+#include <oaidl.h>
+
 QAxObject *ax_mainWindow = 0;
 
-static Q3TextEdit *debuglog = 0;
+static QTextEdit *debuglog = 0;
 
 static void redirectDebugOutput(QtMsgType type, const char*msg)
 {
     debuglog->append(msg);
 }
 
-void MainWindow::init()
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
 {
+    setupUi(this);
+
     QAxScriptManager::registerEngine("PerlScript", ".pl");
     QAxScriptManager::registerEngine("Python", ".py");
 
@@ -49,9 +52,11 @@ void MainWindow::init()
     workspace = new Q3Workspace(Workbase);
     layout->addWidget(workspace);
     connect(workspace, SIGNAL(windowActivated(QWidget*)), this, SLOT(windowActivated(QWidget*)));
+
+    connect(actionFileExit, SIGNAL(triggered()), this, SLOT(close()));
 }
 
-void MainWindow::destroy()
+MainWindow::~MainWindow()
 {
     qInstallMsgHandler(oldDebugHandler);
     debuglog = 0;
@@ -64,7 +69,7 @@ void MainWindow::changeProperties()
         return;
 
     if (!dlgProperties) {
-	dlgProperties = new ChangeProperties(this, 0, FALSE);
+	dlgProperties = new ChangeProperties(this);
 	connect(container, SIGNAL(propertyChanged(const QString&)), dlgProperties, SLOT(updateProperties()));
     }
     dlgProperties->setControl(container);
@@ -82,7 +87,7 @@ void MainWindow::clearControl()
 void MainWindow::containerProperties()
 {
     if (!dlgAmbient) {
-	dlgAmbient = new AmbientProperties(this, 0, FALSE);
+	dlgAmbient = new AmbientProperties(this);
 	dlgAmbient->setControl(workspace);
     }
     dlgAmbient->show();
@@ -95,7 +100,7 @@ void MainWindow::invokeMethods()
         return;
 
     if (!dlgInvoke)
-	dlgInvoke = new InvokeMethod(this, 0, FALSE);
+	dlgInvoke = new InvokeMethod(this);
     dlgInvoke->setControl(container);
     dlgInvoke->show();
 }
@@ -161,18 +166,31 @@ void MainWindow::setControl()
     updateGUI();
 }
 
-void MainWindow::controlInfo()
+void MainWindow::on_actionControlInfo_triggered()
 {
     QAxWidget *container = qt_cast<QAxWidget*>(workspace->activeWindow());
     if (!container)
         return;
 
-    ControlInfo info(this, 0, TRUE);
+    ControlInfo info(this);
     info.setControl(container);
     info.exec();
 }
 
-void MainWindow::fileLoad()
+void MainWindow::on_actionFileNew_triggered()
+{
+    QAxSelect select(this);
+    if (select.exec()) {
+        QAxWidget *container = new QAxWidget(workspace, Qt::WDestructiveClose);
+	container->setObjectName(container->windowTitle());
+        container->setControl(select.clsid());
+        workspace->addWindow(container);
+	container->show();
+    }
+    updateGUI();
+}
+
+void MainWindow::on_actionFileLoad_triggered()
 {
     QString fname = QFileDialog::getOpenFileName(QString::null, "*.qax", this);
     if (fname.isEmpty())
@@ -195,7 +213,7 @@ void MainWindow::fileLoad()
     updateGUI();
 }
 
-void MainWindow::fileSave()
+void MainWindow::on_actionFileSave_triggered()
 {
     QAxWidget *container = qt_cast<QAxWidget*>(workspace->activeWindow());
     if (!container)
@@ -260,18 +278,6 @@ void MainWindow::updateGUI()
 }
 
 
-void MainWindow::fileNew()
-{
-    QAxSelect select(this);
-    if (select.exec()) {
-        QAxWidget *container = new QAxWidget(workspace, Qt::WDestructiveClose);
-	container->setObjectName(container->windowTitle());
-        container->setControl(select.clsid());
-        workspace->addWindow(container);
-	container->show();
-    }
-    updateGUI();
-}
 
 
 void MainWindow::windowActivated(QWidget *window)
@@ -319,7 +325,7 @@ void MainWindow::runMacro()
     // If we have only one script loaded we can use the cool dialog
     QStringList scriptList = scripts->scriptNames();
     if (scriptList.count() == 1) {
-	InvokeMethod scriptInvoke(this, 0, TRUE);
+	InvokeMethod scriptInvoke(this);
 	scriptInvoke.setWindowTitle("Execute Script Function");
 	scriptInvoke.setControl(scripts->script(scriptList[0])->scriptEngine());
 	scriptInvoke.exec();

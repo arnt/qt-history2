@@ -8,14 +8,19 @@
 **
 *****************************************************************************/
 
+#include "ambientproperties.h"
+
+#include <QtGui>
+
 #include <q3workspace.h>
 
-void AmbientProperties::init()
+AmbientProperties::AmbientProperties(QWidget *parent)
+: QDialog(parent), container(0)
 {
-    container = 0;
+    setupUi(this);
 }
 
-void AmbientProperties::setControl( QWidget *widget )
+void AmbientProperties::setControl(QWidget *widget)
 {
     container = widget;
 

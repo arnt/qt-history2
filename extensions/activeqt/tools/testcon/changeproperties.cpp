@@ -8,36 +8,38 @@
 **
 *****************************************************************************/
 
-#include <qmessagebox.h>
-#include <qfiledialog.h>
-#include <qpixmap.h>
-#include <qregexp.h>
-#include <q3listview.h>
+#include "changeproperties.h"
 
-#if 0
+#include <QtGui>
+#include <ActiveQt>
 
-class CheckListItem : public Q3CheckListItem
+ChangeProperties::ChangeProperties(QWidget *parent)
+: QDialog(parent), activex(0)
+{
+    setupUi(this);
+}
+
+class CheckListItem : public QTreeWidgetItem
 {
 public:
-    CheckListItem( Q3ListView *parent, const QString &text )
-	    : Q3CheckListItem( parent, text, CheckBox )
+    CheckListItem(QTreeWidget *parent, const QString &text)
+	    : QTreeWidgetItem(parent)
     {
-	dialog = (ChangeProperties*)parent->window()->qt_metacast( "ChangeProperties" );
+        setCheckState(0, Qt::Unchecked);
+        setText(0, text);
+	dialog = (ChangeProperties*)parent->window()->qt_metacast("ChangeProperties");
     }
-    
+
 protected:
     void stateChange( bool on )
     {
 	if ( dialog )
-	    dialog->editRequestChanged( this );
+	    dialog->editRequestChanged(this);
     }
 
 private:
     ChangeProperties *dialog;
-    
 };
-
-#endif
 
 void ChangeProperties::setControl( QAxWidget *ax )
 {
@@ -45,8 +47,10 @@ void ChangeProperties::setControl( QAxWidget *ax )
     updateProperties();
 }
 
-void ChangeProperties::propertySelected( Q3ListViewItem *item )
+void ChangeProperties::propertySelected()
 {
+    QTreeWidgetItem *item = listProperties->currentItem();
+
     editValue->setEnabled( item != 0 );
     buttonSet->setEnabled( item != 0 );
     valueLabel->setEnabled( item != 0 );
@@ -68,7 +72,7 @@ void ChangeProperties::propertySelected( Q3ListViewItem *item )
 
 void ChangeProperties::setValue()
 {
-    Q3ListViewItem *item = listProperties->currentItem();
+    QTreeWidgetItem *item = listProperties->currentItem();
     if ( !item )
 	return;
     
@@ -160,65 +164,58 @@ void ChangeProperties::setValue()
  
     activex->setProperty(prop.latin1(), value);
     setControl( activex );
-    listProperties->setCurrentItem( listProperties->findItem( prop, 0 ) );
+    listProperties->setCurrentItem( listProperties->findItems(QRegExp(prop)).at(0) );
 }
 
-
-void ChangeProperties::init()
-{
-    activex = 0;
-}
-
-void ChangeProperties::editRequestChanged( Q3CheckListItem *item )
+void ChangeProperties::editRequestChanged(QTreeWidgetItem *item)
 {
     if ( !item )
 	return;
-    /*
-    QString property = item->text();
-    activex->setPropertyWritable(property.latin1(), item->isOn());
-    */
+
+    QString property = item->text(0);
+    activex->setPropertyWritable(property.latin1(), item->checkState(0) == Qt::Checked);
 }
 
 
 void ChangeProperties::updateProperties()
 {
     bool hasControl = activex && !activex->isNull();
-    tabWidget->setEnabled( hasControl );
+    tabWidget->setEnabled(hasControl);
     
     listProperties->clear();
     listEditRequests->clear();
-    if ( hasControl ) {
+    if (hasControl) {
 	const QMetaObject *mo = activex->metaObject();
 	const int numprops = mo->propertyCount();
-	for ( int i = mo->propertyOffset(); i < numprops; ++i ) {
+	for (int i = mo->propertyOffset(); i < numprops; ++i) {
 	    const QMetaProperty property = mo->property(i);
-	    Q3ListViewItem *item = new Q3ListViewItem(listProperties);
+	    QTreeWidgetItem *item = new QTreeWidgetItem(listProperties);
 	    item->setText(0, property.name());
 	    item->setText(1, property.typeName());
 	    QVariant var = activex->property(property.name());
 	    
-	    switch ( var.type() ) {
+	    switch (var.type()) {
 	    case QVariant::Color:
 		{
 		    QColor col = qVariant_to<QColor>(var);
-		    item->setText( 2, col.name() );
+		    item->setText(2, col.name());
 		}
 		break;
 	    case QVariant::Font:
 		{
 		    QFont fnt = qVariant_to<QFont>(var);
-		    item->setText( 2, fnt.toString() );
+		    item->setText(2, fnt.toString());
 		}
 		break;
 	    case QVariant::Bool:
 		{
-		    item->setText( 2, var.toBool() ? "true" : "false" );
+		    item->setText(2, var.toBool() ? "true" : "false");
 		}
 		break;
 	    case QVariant::Pixmap:
 		{
 		    QPixmap pm = qVariant_to<QPixmap>(var);
-		    item->setPixmap( 2, pm );
+		    item->setIcon(2, pm);
 		}
 		break;
 	    case QVariant::List:
@@ -229,7 +226,7 @@ void ChangeProperties::updateProperties()
 			QVariant var = varList.at(i);
 			strList << var.toString();
 		    }
-		    item->setText( 2, strList.join( ", " ) );
+		    item->setText(2, strList.join(", "));
 		}
 		break;
 	    case QVariant::Int:
@@ -240,17 +237,17 @@ void ChangeProperties::updateProperties()
 		}
 		//FALLTHROUGH
 	    default:
-		item->setText( 2, var.toString() );
+		item->setText(2, var.toString());
 		break;
 	    }
  /*
-	    if ( property.testFlags( PropRequesting ) ) {
-		CheckListItem *check = new CheckListItem( listEditRequests, property->name() );
-		check->setOn( activex->propertyWritable( property->name() ) );
+	    if (property.testFlags(PropRequesting)) {
+		CheckListItem *check = new CheckListItem(listEditRequests, property->name());
+		check->setOn(activex->propertyWritable(property->name()));
 	    }
 */
 	}
-	listProperties->setCurrentItem( listProperties->firstChild() );
+	listProperties->setCurrentItem(listProperties->topLevelItem(0));
     } else {
 	editValue->clear();
     }

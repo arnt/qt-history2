@@ -1,319 +1,307 @@
-<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
-<class>AmbientProperties</class>
-<widget class="QDialog">
-    <property name="name">
-        <cstring>AmbientProperties</cstring>
+<ui version="4.0" stdsetdef="1" >
+  <author></author>
+  <comment></comment>
+  <exportmacro></exportmacro>
+  <class>AmbientProperties</class>
+  <widget class="QDialog" name="AmbientProperties" >
+    <property name="objectName" >
+      <string notr="true" >AmbientProperties</string>
     </property>
-    <property name="geometry">
-        <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>185</width>
-            <height>173</height>
-        </rect>
+    <property name="geometry" >
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>185</width>
+        <height>173</height>
+      </rect>
     </property>
-    <property name="caption">
-        <string>Change Ambient Properties</string>
+    <property name="windowTitle" >
+      <string>Change Ambient Properties</string>
     </property>
-    <vbox>
-        <property name="name">
-            <cstring>unnamed</cstring>
-        </property>
-        <property name="margin">
-            <number>11</number>
-        </property>
-        <property name="spacing">
-            <number>6</number>
-        </property>
-        <widget class="QGroupBox">
-            <property name="name">
-                <cstring>boxProperties</cstring>
+    <layout class="QVBoxLayout" >
+      <property name="objectName" >
+        <string notr="true" >unnamed</string>
+      </property>
+      <property name="margin" >
+        <number>11</number>
+      </property>
+      <property name="spacing" >
+        <number>6</number>
+      </property>
+      <item>
+        <widget class="Q3GroupBox" name="boxProperties" >
+          <property name="objectName" >
+            <string notr="true" >boxProperties</string>
+          </property>
+          <property name="title" >
+            <string>&amp;Properties</string>
+          </property>
+          <layout class="QGridLayout" >
+            <property name="objectName" >
+              <string notr="true" >unnamed</string>
             </property>
-            <property name="title">
-                <string>&amp;Properties</string>
+            <property name="margin" >
+              <number>11</number>
             </property>
-            <grid>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <property name="margin">
-                    <number>11</number>
-                </property>
-                <property name="spacing">
-                    <number>6</number>
-                </property>
-                <widget class="QLabel" row="0" column="0">
-                    <property name="name">
-                        <cstring>TextLabel1</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Background:</string>
-                    </property>
-                </widget>
-                <widget class="QLabel" row="1" column="0">
-                    <property name="name">
-                        <cstring>TextLabel2</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Foreground:</string>
-                    </property>
-                </widget>
-                <widget class="QLabel" row="2" column="0">
-                    <property name="name">
-                        <cstring>TextLabel3</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Font:</string>
-                    </property>
-                </widget>
-                <widget class="QLabel" row="3" column="0">
-                    <property name="name">
-                        <cstring>TextLabel4</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Enabled:</string>
-                    </property>
-                </widget>
-                <widget class="QFrame" row="1" column="1">
-                    <property name="name">
-                        <cstring>foreSample</cstring>
-                    </property>
-                    <property name="frameShape">
-                        <enum>StyledPanel</enum>
-                    </property>
-                    <property name="frameShadow">
-                        <enum>Raised</enum>
-                    </property>
-                </widget>
-                <widget class="QFrame" row="0" column="1">
-                    <property name="name">
-                        <cstring>backSample</cstring>
-                    </property>
-                    <property name="frameShape">
-                        <enum>StyledPanel</enum>
-                    </property>
-                    <property name="frameShadow">
-                        <enum>Raised</enum>
-                    </property>
-                </widget>
-                <widget class="QToolButton" row="0" column="2">
-                    <property name="name">
-                        <cstring>backButton</cstring>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>1</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="text">
-                        <string>...</string>
-                    </property>
-                </widget>
-                <widget class="QToolButton" row="1" column="2">
-                    <property name="name">
-                        <cstring>foreButton</cstring>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>1</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="text">
-                        <string>...</string>
-                    </property>
-                </widget>
-                <widget class="QToolButton" row="2" column="2">
-                    <property name="name">
-                        <cstring>fontButton</cstring>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>1</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="text">
-                        <string>...</string>
-                    </property>
-                </widget>
-                <widget class="QFrame" row="3" column="1">
-                    <property name="name">
-                        <cstring>Frame6</cstring>
-                    </property>
-                    <property name="frameShape">
-                        <enum>StyledPanel</enum>
-                    </property>
-                    <property name="frameShadow">
-                        <enum>Raised</enum>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <property name="margin">
-                            <number>0</number>
-                        </property>
-                        <property name="spacing">
-                            <number>0</number>
-                        </property>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>enabledSample</cstring>
-                            </property>
-                            <property name="enabled">
-                                <bool>true</bool>
-                            </property>
-                            <property name="text">
-                                <string>&lt;sample&gt;</string>
-                            </property>
-                        </widget>
-                    </hbox>
-                </widget>
-                <widget class="QToolButton" row="3" column="2">
-                    <property name="name">
-                        <cstring>enabledButton</cstring>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>1</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="text">
-                        <string>...</string>
-                    </property>
-                    <property name="toggleButton">
-                        <bool>true</bool>
-                    </property>
-                </widget>
-                <widget class="QFrame" row="2" column="1">
-                    <property name="name">
-                        <cstring>fontSample</cstring>
-                    </property>
-                    <property name="frameShape">
-                        <enum>StyledPanel</enum>
-                    </property>
-                    <property name="frameShadow">
-                        <enum>Raised</enum>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <property name="margin">
-                            <number>0</number>
-                        </property>
-                        <property name="spacing">
-                            <number>6</number>
-                        </property>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>TextLabel6</cstring>
-                            </property>
-                            <property name="text">
-                                <string>&lt;sample&gt;</string>
-                            </property>
-                        </widget>
-                    </hbox>
-                </widget>
-            </grid>
-        </widget>
-        <widget class="QLayoutWidget">
-            <property name="name">
-                <cstring>Layout5</cstring>
+            <property name="spacing" >
+              <number>6</number>
             </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
+            <item row="0" column="0" >
+              <widget class="QLabel" name="TextLabel1" >
+                <property name="objectName" >
+                  <string notr="true" >TextLabel1</string>
                 </property>
-                <property name="margin">
+                <property name="text" >
+                  <string>Background:</string>
+                </property>
+              </widget>
+            </item>
+            <item row="1" column="0" >
+              <widget class="QLabel" name="TextLabel2" >
+                <property name="objectName" >
+                  <string notr="true" >TextLabel2</string>
+                </property>
+                <property name="text" >
+                  <string>Foreground:</string>
+                </property>
+              </widget>
+            </item>
+            <item row="2" column="0" >
+              <widget class="QLabel" name="TextLabel3" >
+                <property name="objectName" >
+                  <string notr="true" >TextLabel3</string>
+                </property>
+                <property name="text" >
+                  <string>Font:</string>
+                </property>
+              </widget>
+            </item>
+            <item row="3" column="0" >
+              <widget class="QLabel" name="TextLabel4" >
+                <property name="objectName" >
+                  <string notr="true" >TextLabel4</string>
+                </property>
+                <property name="text" >
+                  <string>Enabled:</string>
+                </property>
+              </widget>
+            </item>
+            <item row="1" column="1" >
+              <widget class="Q3Frame" name="foreSample" >
+                <property name="objectName" >
+                  <string notr="true" >foreSample</string>
+                </property>
+                <property name="frameShape" >
+                  <enum>StyledPanel</enum>
+                </property>
+                <property name="frameShadow" >
+                  <enum>Raised</enum>
+                </property>
+              </widget>
+            </item>
+            <item row="0" column="1" >
+              <widget class="Q3Frame" name="backSample" >
+                <property name="objectName" >
+                  <string notr="true" >backSample</string>
+                </property>
+                <property name="frameShape" >
+                  <enum>StyledPanel</enum>
+                </property>
+                <property name="frameShadow" >
+                  <enum>Raised</enum>
+                </property>
+              </widget>
+            </item>
+            <item row="0" column="2" >
+              <widget class="QToolButton" name="backButton" >
+                <property name="objectName" >
+                  <string notr="true" >backButton</string>
+                </property>
+                <property name="sizePolicy" >
+                  <sizepolicy>
+                    <hsizetype>5</hsizetype>
+                    <vsizetype>1</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                  </sizepolicy>
+                </property>
+                <property name="text" >
+                  <string>...</string>
+                </property>
+              </widget>
+            </item>
+            <item row="1" column="2" >
+              <widget class="QToolButton" name="foreButton" >
+                <property name="objectName" >
+                  <string notr="true" >foreButton</string>
+                </property>
+                <property name="sizePolicy" >
+                  <sizepolicy>
+                    <hsizetype>5</hsizetype>
+                    <vsizetype>1</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                  </sizepolicy>
+                </property>
+                <property name="text" >
+                  <string>...</string>
+                </property>
+              </widget>
+            </item>
+            <item row="2" column="2" >
+              <widget class="QToolButton" name="fontButton" >
+                <property name="objectName" >
+                  <string notr="true" >fontButton</string>
+                </property>
+                <property name="sizePolicy" >
+                  <sizepolicy>
+                    <hsizetype>5</hsizetype>
+                    <vsizetype>1</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                  </sizepolicy>
+                </property>
+                <property name="text" >
+                  <string>...</string>
+                </property>
+              </widget>
+            </item>
+            <item row="3" column="1" >
+              <widget class="Q3Frame" name="Frame6" >
+                <property name="objectName" >
+                  <string notr="true" >Frame6</string>
+                </property>
+                <property name="frameShape" >
+                  <enum>StyledPanel</enum>
+                </property>
+                <property name="frameShadow" >
+                  <enum>Raised</enum>
+                </property>
+                <layout class="QHBoxLayout" >
+                  <property name="objectName" >
+                    <string notr="true" >unnamed</string>
+                  </property>
+                  <property name="margin" >
                     <number>0</number>
+                  </property>
+                  <property name="spacing" >
+                    <number>0</number>
+                  </property>
+                  <item>
+                    <widget class="QLabel" name="enabledSample" >
+                      <property name="objectName" >
+                        <string notr="true" >enabledSample</string>
+                      </property>
+                      <property name="enabled" >
+                        <bool>true</bool>
+                      </property>
+                      <property name="text" >
+                        <string>&lt;sample></string>
+                      </property>
+                    </widget>
+                  </item>
+                </layout>
+              </widget>
+            </item>
+            <item row="3" column="2" >
+              <widget class="QToolButton" name="enabledButton" >
+                <property name="objectName" >
+                  <string notr="true" >enabledButton</string>
                 </property>
-                <property name="spacing">
+                <property name="sizePolicy" >
+                  <sizepolicy>
+                    <hsizetype>5</hsizetype>
+                    <vsizetype>1</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                  </sizepolicy>
+                </property>
+                <property name="text" >
+                  <string>...</string>
+                </property>
+                <property name="checkable" >
+                  <bool>true</bool>
+                </property>
+              </widget>
+            </item>
+            <item row="2" column="1" >
+              <widget class="Q3Frame" name="fontSample" >
+                <property name="objectName" >
+                  <string notr="true" >fontSample</string>
+                </property>
+                <property name="frameShape" >
+                  <enum>StyledPanel</enum>
+                </property>
+                <property name="frameShadow" >
+                  <enum>Raised</enum>
+                </property>
+                <layout class="QHBoxLayout" >
+                  <property name="objectName" >
+                    <string notr="true" >unnamed</string>
+                  </property>
+                  <property name="margin" >
+                    <number>0</number>
+                  </property>
+                  <property name="spacing" >
                     <number>6</number>
-                </property>
-                <spacer>
-                    <property name="name">
-                        <cstring>Spacer3</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                </spacer>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>PushButton3</cstring>
-                    </property>
-                    <property name="text">
-                        <string>C&amp;lose</string>
-                    </property>
-                </widget>
-            </hbox>
+                  </property>
+                  <item>
+                    <widget class="QLabel" name="TextLabel6" >
+                      <property name="objectName" >
+                        <string notr="true" >TextLabel6</string>
+                      </property>
+                      <property name="text" >
+                        <string>&lt;sample></string>
+                      </property>
+                    </widget>
+                  </item>
+                </layout>
+              </widget>
+            </item>
+          </layout>
         </widget>
-    </vbox>
-</widget>
-<connections>
-    <connection>
-        <sender>PushButton3</sender>
-        <signal>clicked()</signal>
-        <receiver>AmbientProperties</receiver>
-        <slot>close()</slot>
-    </connection>
-    <connection>
-        <sender>backButton</sender>
-        <signal>clicked()</signal>
-        <receiver>AmbientProperties</receiver>
-        <slot>backColor()</slot>
-    </connection>
-    <connection>
-        <sender>foreButton</sender>
-        <signal>clicked()</signal>
-        <receiver>AmbientProperties</receiver>
-        <slot>foreColor()</slot>
-    </connection>
-    <connection>
-        <sender>fontButton</sender>
-        <signal>clicked()</signal>
-        <receiver>AmbientProperties</receiver>
-        <slot>pickFont()</slot>
-    </connection>
-    <connection>
-        <sender>enabledButton</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>AmbientProperties</receiver>
-        <slot>toggleEnabled(bool)</slot>
-    </connection>
-</connections>
-<includes>
-    <include location="global" impldecl="in implementation">qfontdialog.h</include>
-    <include location="global" impldecl="in implementation">qaxwidget.h</include>
-    <include location="global" impldecl="in implementation">qcolordialog.h</include>
-    <include location="local" impldecl="in implementation">ambientproperties.ui.h</include>
-</includes>
-<variables>
-    <variable>QWidget *container;</variable>
-</variables>
-<slots>
-    <slot>init()</slot>
-    <slot>setControl( QWidget * widget )</slot>
-    <slot>backColor()</slot>
-    <slot>foreColor()</slot>
-    <slot>pickFont()</slot>
-    <slot>toggleEnabled( bool on )</slot>
-</slots>
-<pixmapinproject/>
-<layoutdefaults spacing="6" margin="11"/>
-</UI>
+      </item>
+      <item>
+        <layout class="QHBoxLayout" >
+          <property name="objectName" >
+            <string notr="true" >unnamed</string>
+          </property>
+          <property name="margin" >
+            <number>0</number>
+          </property>
+          <property name="spacing" >
+            <number>6</number>
+          </property>
+          <item>
+            <spacer name="Spacer3" >
+              <property name="sizeHint" >
+                <size>
+                  <width>1</width>
+                  <height>1729677848</height>
+                </size>
+              </property>
+              <property name="sizeType" >
+                <enum>Expanding</enum>
+              </property>
+              <property name="orientation" >
+                <enum>Horizontal</enum>
+              </property>
+            </spacer>
+          </item>
+          <item>
+            <widget class="QPushButton" name="PushButton3" >
+              <property name="objectName" >
+                <string notr="true" >PushButton3</string>
+              </property>
+              <property name="text" >
+                <string>C&amp;lose</string>
+              </property>
+            </widget>
+          </item>
+        </layout>
+      </item>
+    </layout>
+  </widget>
+  <layoutdefault spacing="6" margin="11" />
+  <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+</ui>

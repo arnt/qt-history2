@@ -8,6 +8,16 @@
 **
 *****************************************************************************/
 
+#include "invokemethod.h"
+
+#include <ActiveQt>
+
+InvokeMethod::InvokeMethod(QWidget *parent)
+: QDialog(parent), activex(0)
+{
+    setupUi(this);
+}
+
 void InvokeMethod::invoke()
 {
     if (!activex)
@@ -17,18 +27,16 @@ void InvokeMethod::invoke()
     QString method = comboMethods->currentText();
     QList<QVariant> vars;
 
-    Q3ListViewItemIterator it(listParameters);
-    while (it.current()) {
-	Q3ListViewItem *parameter = it.current();
-	++it;
+    int itemCount = listParameters->topLevelItemCount();
+    for (int i = 0; i < itemCount; ++i) {
+	QTreeWidgetItem *parameter = listParameters->topLevelItem(i);
 	vars << parameter->text(2);
     }
     QVariant result = activex->dynamicCall(method, vars);
-    it = Q3ListViewItemIterator(listParameters);
+
     int v = 0;
-    while (it.current()) {
-	Q3ListViewItem *parameter = it.current();
-	++it;
+    for (int i = 0; i < itemCount; ++i) {
+	QTreeWidgetItem *parameter = listParameters->topLevelItem(i);
 	parameter->setText(2, vars[v++].toString());
     }
 
@@ -42,7 +50,7 @@ void InvokeMethod::methodSelected(const QString &method)
     if (!activex)
 	return;
     listParameters->clear();
-    listParameters->setSorting(-1);
+
     const QMetaObject *mo = activex->metaObject();
     const QMetaMember slot = mo->member(mo->indexOfSlot(method.latin1()));
     QString signature = slot.signature();
@@ -59,15 +67,17 @@ void InvokeMethod::methodSelected(const QString &method)
 	QString pname(pnames.at(p));
 	if (pname.isEmpty())
 	    pname = QString("<unnamed %1>").arg(p);
-	Q3ListViewItem *item = new Q3ListViewItem(listParameters, pname, ptype);
+	QTreeWidgetItem *item = new QTreeWidgetItem(listParameters);
+        item->setText(0, pname);
+        item->setText(1, ptype);
     }
 
-    if (listParameters->firstChild())
-	listParameters->setCurrentItem(listParameters->firstChild());
+    if (listParameters->topLevelItemCount())
+	listParameters->setCurrentItem(listParameters->topLevelItem(0));
     editReturn->setText(slot.typeName());
 }
 
-void InvokeMethod::parameterSelected(Q3ListViewItem *item)
+void InvokeMethod::parameterSelected(QTreeWidgetItem *item)
 {
     if (!activex)
 	return;
@@ -82,15 +92,10 @@ void InvokeMethod::setValue()
 {
     if (!activex)
 	return;
-    Q3ListViewItem *item = listParameters->currentItem();
+    QTreeWidgetItem *item = listParameters->currentItem();
     if (!item)
 	return;
     item->setText(2, editValue->text());
-}
-
-void InvokeMethod::init()
-{
-    setControl(0);
 }
 
 void InvokeMethod::setControl(QAxBase *ax)

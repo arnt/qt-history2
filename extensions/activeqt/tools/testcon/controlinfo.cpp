@@ -8,44 +8,70 @@
 **
 *****************************************************************************/
 
+#include "controlinfo.h"
 
-void ControlInfo::setControl( QAxWidget *activex )
+#include <QtGui>
+
+ControlInfo::ControlInfo(QWidget *parent)
+: QDialog(parent)
+{
+    setupUi(this);
+}
+
+void ControlInfo::setControl(QWidget *activex)
 {
     listInfo->clear();
 
     const QMetaObject *mo = activex->metaObject();
-    Q3ListViewItem *item = new Q3ListViewItem(listInfo, "Class Info", QString::number(mo->classInfoCount()));
+    QTreeWidgetItem *group = new QTreeWidgetItem(listInfo);
+    group->setText(0, "Class Info");
+    group->setText(1, QString::number(mo->classInfoCount()));
+
+    QTreeWidgetItem *item = 0;
     int i;
     int count;
     for (i = mo->classInfoOffset(); i < mo->classInfoCount(); ++i) {
 	const QMetaClassInfo info = mo->classInfo(i);
-	(void)new Q3ListViewItem(item, info.name(), info.value());
+	item = new QTreeWidgetItem(group);
+        item->setText(0, info.name());
+        item->setText(1, info.value());
     }
-    item = new Q3ListViewItem(listInfo, "Signals", QString());
+    group = new QTreeWidgetItem(listInfo);
+    group->setText(0, "Signals");
+
     count = 0;
     for (i = mo->memberOffset(); i < mo->memberCount(); ++i) {
 	const QMetaMember member = mo->member(i);
         if (member.memberType() == QMetaMember::Signal) {
             ++count;
-	    (void)new Q3ListViewItem(item, member.signature());
+	    item = new QTreeWidgetItem(group);
+            item->setText(0, member.signature());
         }
     }
-    item->setText(2, QString::number(count));
+    group->setText(1, QString::number(count));
 
-    item = new Q3ListViewItem(listInfo, "Slots", QString());
+    group = new QTreeWidgetItem(listInfo);
+    group->setText(0, "Slots");
+
     count = 0;
     for (i = mo->memberOffset(); i < mo->memberCount(); ++i) {
 	const QMetaMember member = mo->member(i);
         if (member.memberType() == QMetaMember::Slot) {
             ++count;
-	    (void)new Q3ListViewItem(item, member.signature());
+	    item = new QTreeWidgetItem(group);
+            item->setText(0, member.signature());
         }
     }
-    item->setText(2, QString::number(count));
+    group->setText(1, QString::number(count));
 
-    item = new Q3ListViewItem(listInfo, "Properties", QString::number(mo->propertyCount()));    
+    group = new QTreeWidgetItem(listInfo);
+    group->setText(0, "Properties");
+    group->setText(1, QString::number(mo->propertyCount()));
+
     for (i = mo->propertyOffset(); i < mo->propertyCount(); ++i) {
 	const QMetaProperty property = mo->property(i);
-	(void)new Q3ListViewItem(item, property.name(), property.typeName());
+	item = new QTreeWidgetItem(item);
+        item->setText(0, property.name());
+        item->setText(1, property.typeName());
     }
 }
