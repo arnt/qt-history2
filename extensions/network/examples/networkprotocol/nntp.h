@@ -32,19 +32,20 @@ protected:
     bool readGroups;
     bool readHead;
     bool readBody;
-    
+
 private:
     bool checkConnection( QNetworkOperation *op );
     void close();
     void parseGroups();
     void readArticle();
+    void reinitCommandSocket();
     
 protected slots:
     void hostFound();
     void connected();
     void closed();
     void readyRead();
-    
+
 };
 
 #endif

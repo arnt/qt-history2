@@ -130,7 +130,7 @@ void Nntp::readyRead()
 	readArticle();
 	return;
     }
-    
+
     QCString s;
     s.resize( commandSocket->bytesAvailable() );
     commandSocket->readBlock( s.data(), commandSocket->bytesAvailable() );
@@ -155,7 +155,7 @@ void Nntp::parseGroups()
 	    return;
 	}
 	
-	if ( s.left( 3 ) == "215" ) {
+	if ( s.left( 3 ) == "215" || s.left( 3 ) == "211" ) {
 	    operationInProgress()->setState( StInProgress );
 	    emit start( operationInProgress() );
 	    continue;
@@ -195,9 +195,32 @@ void Nntp::readArticle()
 	    }
 	    return;
 	}
-    
+
 	if ( s.right( 1 ) == "\n" )
 	    s.remove( s.length() - 1, 1 );
 	emit data( QCString( s.ascii() ), operationInProgress() );
     }
+}
+
+void Nntp::reinitCommandSocket()
+{
+    commandSocket->close();
+    disconnect( commandSocket, SIGNAL( hostFound() ),
+		this, SLOT( hostFound() ) );
+    disconnect( commandSocket, SIGNAL( connected() ),
+		this, SLOT( connected() ) );
+    disconnect( commandSocket, SIGNAL( closed() ),
+		this, SLOT( closed() ) );
+    disconnect( commandSocket, SIGNAL( readyRead() ),
+		this, SLOT( readyRead() ) );
+    delete commandSocket;
+    commandSocket = new QSocket( this );
+    connect( commandSocket, SIGNAL( hostFound() ),
+	     this, SLOT( hostFound() ) );
+    connect( commandSocket, SIGNAL( connected() ),
+	     this, SLOT( connected() ) );
+    connect( commandSocket, SIGNAL( closed() ),
+	     this, SLOT( closed() ) );
+    connect( commandSocket, SIGNAL( readyRead() ),
+	     this, SLOT( readyRead() ) );
 }
