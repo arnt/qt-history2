@@ -900,7 +900,7 @@ class QTreeWidgetPrivate : public QTreeViewPrivate
 {
     Q_DECLARE_PUBLIC(QTreeWidget)
 public:
-    QTreeWidgetPrivate() : QTreeViewPrivate() {}
+    QTreeWidgetPrivate() : QTreeViewPrivate(), sortingEnabled(false) {}
     inline QTreeModel *model() const { return ::qt_cast<QTreeModel*>(q_func()->model()); }
     void emitPressed(const QModelIndex &index, int button);
     void emitClicked(const QModelIndex &index, int button);
@@ -913,6 +913,8 @@ public:
     void emitItemEntered(const QModelIndex &index, Qt::ButtonState state);
     void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
     void emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+
+    bool sortingEnabled;
 };
 
 void QTreeWidgetPrivate::emitPressed(const QModelIndex &index, int button)
@@ -1165,12 +1167,14 @@ void QTreeWidget::sortItems(int column, Qt::SortOrder order)
 
 void QTreeWidget::setSortingEnabled(bool enable)
 {
-    header()->showSortIndicator(enable);
+    d->sortingEnabled = enable;
+    if (!enable && header()->isSortIndicatorShown())
+        header()->setSortIndicatorShown(false);
 }
 
 bool QTreeWidget::isSortingEnabled() const
 {
-    return header()->isSortIndicatorShown();
+    return d->sortingEnabled;
 }
 
 void QTreeWidget::openPersistentEditor(QTreeWidgetItem *item, int column)
@@ -1270,6 +1274,8 @@ void QTreeWidget::sortItems(int column)
                  ? Qt::DescendingOrder : Qt::AscendingOrder);
         header()->setSortIndicator(column, order);
         d->model()->sortAll(column, order);
+        if (!header()->isSortIndicatorShown())
+            header()->setSortIndicatorShown(true);
     }
 }
 

@@ -1431,7 +1431,7 @@ void QFileDialogPrivate::setup(const QString &directory,
     tview->header()->setResizeMode(QHeaderView::Custom);
     tview->header()->setResizeMode(QHeaderView::Stretch, 0);
     tview->header()->setSortIndicator(0, Qt::DescendingOrder);
-    tview->header()->showSortIndicator(true);
+    tview->header()->setSortIndicatorShown(true);
     tview->hide();
     tview->setBeginEditActions(QAbstractItemView::EditKeyPressed);
     grid->addWidget(tview, 1, 0, 1, 6);

@@ -22,7 +22,7 @@ class Q_GUI_EXPORT QHeaderView : public QAbstractItemView
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QHeaderView)
-    Q_PROPERTY(bool showSortIndicator READ isSortIndicatorShown WRITE showSortIndicator)
+    Q_PROPERTY(bool showSortIndicator READ isSortIndicatorShown WRITE setSortIndicatorShown)
     Q_PROPERTY(bool highlightCurrentSection READ highlightCurrentSection WRITE setHighlightCurrentSection)
     Q_ENUMS(ResizeMode)
 
@@ -85,7 +85,7 @@ public:
     ResizeMode resizeMode(int section) const;
     int stretchSectionCount() const;
 
-    void showSortIndicator(bool show);
+    void setSortIndicatorShown(bool show);
     bool isSortIndicatorShown() const;
 
     void setSortIndicator(int section, Qt::SortOrder order);

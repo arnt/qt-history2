@@ -1274,7 +1274,7 @@ int QHeaderView::stretchSectionCount() const
   \brief whether the sort indicator is shown
 */
 
-void QHeaderView::showSortIndicator(bool show)
+void QHeaderView::setSortIndicatorShown(bool show)
 {
     d->sortIndicatorShown = show;
     if (d->sections.at(sortIndicatorSection()).mode == Custom) {
