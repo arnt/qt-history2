@@ -1826,6 +1826,11 @@ QMetaObject* QObject::staticMetaObject()
     QMetaData *slot_tbl = new QMetaData[1];
     slot_tbl[0].name = "cleanupEventFilter()";
     slot_tbl[0].ptr = *((QMember*)&v1_0);
+    
+    //### remove 3.0, replace with slot_tbl[0].access = QMetaData::Private;
+    QMetaData::Access *slot_tbl_access = new QMetaData::Access[1];
+    slot_tbl_access[0] = QMetaData::Private;
+    
     typedef void(QObject::*m2_t0)();
     m2_t0 v2_0 = &QObject::destroyed;
     QMetaData *signal_tbl = new QMetaData[1];
@@ -1888,6 +1893,7 @@ QMetaObject* QObject::staticMetaObject()
 	props_tbl, 1,
 	enum_tbl, 3,
         0, 0 );
+    metaObj->set_slot_access( slot_tbl_access ); // ### remove 3.0
     return metaObj;
 }
 

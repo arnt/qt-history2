@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#172 $
+** $Id: //depot/qt/main/src/moc/moc.y#173 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -56,7 +56,7 @@ void yyerror( const char *msg );
 
 static QCString rmWS( const char * );
 
-enum AccessPerm { _PRIVATE, _PROTECTED, _PUBLIC };
+enum Access { Private, Protected, Public };
 
 
 struct Argument					// single arg meta data
@@ -80,7 +80,7 @@ public:
 
 struct Function					// member function meta data
 {						//   used for signals and slots
-    AccessPerm accessPerm;
+    Access access;
     QCString    qualifier;			// const or volatile
     QCString    name;
     QCString    type;
@@ -88,6 +88,13 @@ struct Function					// member function meta data
     ArgList   *args;
     Function() { args=0; }
    ~Function() { delete args; }
+    const char* accessAsString() {
+	switch ( access ) {
+	case Private: return "Private";
+	case Protected: return "Protected";
+	default: return "Public";
+	}
+    }
 };
 
 class FuncList : public QList<Function> {	// list of member functions
@@ -263,8 +270,8 @@ bool	   templateClassOld;			// previous class is a template
 ArgList	  *tmpArgList;				// current argument list
 Function  *tmpFunc;				// current member function
 Enum      *tmpEnum;				// current enum
-AccessPerm tmpAccessPerm;			// current access permission
-AccessPerm subClassPerm;			// current access permission
+Access tmpAccess;			// current access permission
+Access subClassPerm;			// current access permission
 
 bool	   Q_OBJECTdetected;			// TRUE if current class
 						// contains the Q_OBJECT macro
@@ -280,7 +287,7 @@ int	   tmpYYStart;				// Used to store the lexers current mode
 int	   tmpYYStart2;				// Used to store the lexers current mode
 						// (if tmpYYStart is already used)
 
-const int  formatRevision = 7;			// moc output format revision
+const int  formatRevision = 8;			// moc output format revision
 
 %}
 
@@ -290,7 +297,7 @@ const int  formatRevision = 7;			// moc output format revision
     int		int_val;
     double	double_val;
     char       *string;
-    AccessPerm	access;
+    Access	access;
     Function   *function;
     ArgList    *arg_list;
     Argument   *arg;
@@ -790,7 +797,7 @@ obj_member_list:	  obj_member_list obj_member_area
 			;
 
 
-qt_access_specifier:	  access_specifier	{ tmpAccessPerm = $1; }
+qt_access_specifier:	  access_specifier	{ tmpAccess = $1; }
 			| SLOTS	      { moc_err( "Missing access specifier"
 						   " before \"slots:\"." ); }
 			;
@@ -800,7 +807,7 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 			| SIGNALS		{ BEGIN QT_DEF; }
 			  ':'  opt_signal_declarations
 			| Q_OBJECT		{
-			      if ( tmpAccessPerm )
+			      if ( tmpAccess )
 				  moc_warn("Q_OBJECT is not in the private"
 					   " section of the class.\n"
 					   "Q_OBJECT is a macro that resets"
@@ -845,7 +852,7 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 slot_area:		  SIGNALS ':'	{ moc_err( "Signals cannot "
 						 "have access specifiers" ); }
 			| SLOTS	  ':' opt_slot_declarations
-			| ':'		{ if ( tmpAccessPerm == _PUBLIC && Q_PROPERTYdetected )
+			| ':'		{ if ( tmpAccess == Public && Q_PROPERTYdetected )
                                                   BEGIN QT_DEF;
                                               else
                                                   BEGIN IN_CLASS;
@@ -925,9 +932,9 @@ base_specifier:		  complete_class_name			       {$$=$1;}
 			| access_specifier qt_macro_name	       {$$=$2;}
 			;
 
-access_specifier:	  PRIVATE		{ $$=_PRIVATE; }
-			| PROTECTED		{ $$=_PROTECTED; }
-			| PUBLIC		{ $$=_PUBLIC; }
+access_specifier:	  PRIVATE		{ $$=Private; }
+			| PROTECTED		{ $$=Protected; }
+			| PUBLIC		{ $$=Public; }
 			;
 
 operator_name:		  decl_specs_opt IDENTIFIER ptr_operators_opt
@@ -1087,7 +1094,7 @@ opt_komma:		  /*empty*/
 
 enum_tail:		  IDENTIFIER '{'   enum_list opt_komma
 			  '}'   { BEGIN QT_DEF;
-				  if ( tmpAccessPerm == _PUBLIC) {
+				  if ( tmpAccess == Public) {
 				      tmpEnum->name = $1;
 				      addEnum();
 				  }
@@ -1105,9 +1112,9 @@ enum_list:		  /* empty */
 			| enum_list ',' enumerator
 			;
 
-enumerator:		  IDENTIFIER { if ( tmpAccessPerm == _PUBLIC) tmpEnum->append( $1 ); }
+enumerator:		  IDENTIFIER { if ( tmpAccess == Public) tmpEnum->append( $1 ); }
 			| IDENTIFIER '=' { expLevel=0; }
-			  enumerator_expression {  if ( tmpAccessPerm == _PUBLIC) tmpEnum->append( $1 );  }
+			  enumerator_expression {  if ( tmpAccess == Public) tmpEnum->append( $1 );  }
 			;
 
 property:		IDENTIFIER IDENTIFIER
@@ -1441,8 +1448,8 @@ void init()					// initialize
 
 void initClass()				 // prepare for new class
 {
-    tmpAccessPerm      = _PRIVATE;
-    subClassPerm       = _PRIVATE;
+    tmpAccess      = Private;
+    subClassPerm       = Private;
     Q_OBJECTdetected   = FALSE;
     Q_PROPERTYdetected = FALSE;
     skipClass	       = FALSE;
@@ -1807,15 +1814,39 @@ void generateFuncs( FuncList *list, char *functype, int num )
 	fprintf( out, "    m%d_t%d v%d_%d = Q_AMPERSAND %s::%s;\n",
 		 num, list->at(), num, list->at(),
 		 (const char*)qualifiedClassName(), (const char*)f->name);
-    if ( list->count() )
+    if ( list->count() ) {
 	fprintf(out,"    QMetaData *%s_tbl = QMetaObject::new_metadata(%d);\n",
 		functype, list->count() );
-    for ( f=list->first(); f; f=list->next() )
+
+    }
+    
+    //### remove 3.0
+    if ( qstrcmp( functype, "slot" )  == 0 ) {
+	if ( list->count() )
+	    fprintf(out,"    QMetaData::Access *%s_tbl_access = QMetaObject::new_metaaccess(%d);\n",
+		    functype, list->count() );
+	else
+	    fprintf(out,"    QMetaData::Access *%s_tbl_access = 0;\n",
+		    functype );
+    }
+    
+
+    for ( f=list->first(); f; f=list->next() ) {
 	fprintf( out, "    %s_tbl[%d].name = \"%s\";\n",
 		 functype, list->at(), (const char*)f->type );
-    for ( f=list->first(); f; f=list->next() )
 	fprintf( out, "    %s_tbl[%d].ptr = *((QMember*)&v%d_%d);\n",
 		 functype, list->at(), num, list->at() );
+	
+/* ### do this in 3.0:
+	fprintf( out, "    %s_tbl[%d].access = QMetaData::%s;\n",
+		 functype, list->at(), f->accessAsString() );
+
+### for now:
+*/
+	if ( qstrcmp( functype, "slot" ) == 0 )
+	    fprintf( out, "    %s_tbl_access[%d] = QMetaData::%s;\n",
+		     functype, list->at(), f->accessAsString() );
+    }
 }
 
 
@@ -2397,7 +2428,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#172 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#173 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2554,6 +2585,11 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "\tclassinfo_tbl, %d );\n", n_infos );
     else
 	fprintf( out, "\t0, 0 );\n" );
+    
+    
+    //### remove 3.0
+    fprintf( out, "    metaObj->set_slot_access( slot_tbl_access );\n" );
+    
 //
 // Finish property array in staticMetaObject()
 //
@@ -2738,7 +2774,7 @@ void addMember( Member m )
 	return;
     }
 
-    tmpFunc->accessPerm = tmpAccessPerm;
+    tmpFunc->access = tmpAccess;
     tmpFunc->args	= tmpArgList;
     tmpFunc->lineNo	= lineNo;
 
@@ -2752,7 +2788,7 @@ void addMember( Member m )
 	slots.append( tmpFunc );
 	// fall trough
     case PropertyCandidateMember:
-	if ( !tmpFunc->name.isEmpty() && tmpFunc->accessPerm == _PUBLIC )
+	if ( !tmpFunc->name.isEmpty() && tmpFunc->access == Public )
 	    propfuncs.append( tmpFunc );
     }
 
@@ -2762,11 +2798,8 @@ void addMember( Member m )
     tmpArgList = new ArgList;
 }
 
-/**
- * Used to check property names. They must match
- * the pattern [A-Za-z][A-Za-z0-9_]*
- *
- * @author Torben Weis <weis@trolltech.com>
+/* Used to check property names. They must match the pattern
+ * [A-Za-z][A-Za-z0-9_]*
  */
 void checkIdentifier( const char* ident )
 {

@@ -117,6 +117,7 @@ public:
     int            numPropData;
     QClassInfo    *classInfo;			// class information
     int            numClassInfo;
+    QMetaData::Access* slotAccess; // ### remove 3.0
 };
 
 
@@ -198,6 +199,7 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
     d->numPropData = 0;
     d->classInfo = 0;
     d->numClassInfo = 0;
+    d->slotAccess = 0;
 }
 
 /*!\internal
@@ -253,6 +255,8 @@ QMetaObject::~QMetaObject()
 	delete [] d->propData;
     if ( d->classInfo )
 	delete [] d->classInfo;
+    if ( d->slotAccess )
+	delete [] d->slotAccess;
     delete slotDict;				// delete dicts
     delete signalDict;
     delete d;
@@ -403,6 +407,59 @@ QMetaData *QMetaObject::new_metadata( int numEntries )
     return numEntries > 0 ? new QMetaData[numEntries] : 0;
 }
 
+/*!\internal
+  
+  Binary compatibility workaround, removed in 3.0 ###
+ */
+QMetaData::Access *QMetaObject::new_metaaccess( int numEntries )
+{
+    return numEntries > 0 ? new QMetaData::Access[numEntries] : 0;
+}
+
+/*!\internal
+  
+  Binary compatibility workaround, removed in 3.0 ###
+ */
+void QMetaObject::set_slot_access( QMetaData::Access* access )
+{
+    d->slotAccess = access;
+}
+
+/*!\internal
+  
+  Binary compatibility workaround, removed in 3.0 ###
+ */
+QMetaData::Access QMetaObject::slot_access(int index, bool super )
+{
+    register QMetaObject *meta = (QMetaObject *)this;
+    QMetaData::Access *md;
+    QMemberDict *dict;
+    while ( TRUE ) {
+	dict = meta->slotDict;
+	int n = dict ? dict->count() : 0;
+	if ( super ) {
+	    if ( index >= n ) {			// try the superclass
+		index -= n;
+		meta = meta->superclass;
+		if ( !meta )			// there is no superclass
+		    return QMetaData::Private;
+		continue;
+	    }
+	}
+	if ( index >= 0 && index < n ) {
+	    md = meta->d->slotAccess;
+	    if ( md )
+		return md[n-index-1];
+	    else
+		return QMetaData::Private;
+	} else {				// bad index
+	    return QMetaData::Private;
+	}
+    }
+#if !defined(Q_NO_DEAD_CODE)
+    return QMetaData::Private;
+#endif
+}
 
 /*!\internal
  */
@@ -787,19 +844,19 @@ QStrList QMetaProperty::enumKeys() const
      return l;
 }
 
-/*!  
+/*!
   Converts the enumeration key \a key to its integer
   value.
-  
+
   For set types, use keysToValue().
-  
+
 \sa valueToKey(), isSetType(), keysToValue()
  */
 int QMetaProperty::keyToValue( const char* key ) const
 {
     if ( !isEnumType() )
 	return -1;
-    
+
     for( uint i = enumData->count; i > 0; --i ) {
 	if ( !qstrcmp( key, enumData->items[i-1].key) )
 	    return enumData->items[i-1].value;
@@ -807,18 +864,18 @@ int QMetaProperty::keyToValue( const char* key ) const
     return -1;
 }
 
-/*!  
+/*!
   Converts the enumeration value \a value to its literal key.
 
   For set types, use valueToKeys().
-  
+
 \sa valueToKey(), isSetType(), valueToKeys()
  */
 const char* QMetaProperty::valueToKey( int value ) const
 {
     if ( !isEnumType() )
 	return 0;
-    
+
     for( uint i = enumData->count; i > 0; --i ) {
 	if ( value == enumData->items[i-1].value )
 	    return enumData->items[i-1].key ;
@@ -826,7 +883,7 @@ const char* QMetaProperty::valueToKey( int value ) const
     return 0;
 }
 
-/*!  
+/*!
   Converts the list of keys \a keys to their combined integer
   value.
 
@@ -836,7 +893,7 @@ int QMetaProperty::keysToValue( const QStrList& keys ) const
 {
     if ( !isEnumType() )
 	return -1;
-    
+
     int value = 0;
     for ( QStrListIterator it( keys ); it.current(); ++it ) {
 	value |= keyToValue( it.current() );
@@ -844,18 +901,18 @@ int QMetaProperty::keysToValue( const QStrList& keys ) const
     return value;
 }
 
-/*!  
+/*!
   Converts the set value \a value to a list of keys.
-  
+
 \sa isSetType(), valueToKey(), valueToKeys()
  */
 QStrList QMetaProperty::valueToKeys( int value ) const
 {
     QStrList keys;
-    
+
     if ( !isEnumType() )
 	return keys;
-    
+
     for( uint i = enumData->count; i > 0; --i ) {
 	int k = enumData->items[i-1].value;
 	if ( (value & k) == k ) {

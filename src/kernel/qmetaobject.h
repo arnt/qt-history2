@@ -33,10 +33,14 @@
 
 class QObject;
 
-struct QMetaData				// member function meta data
+struct QMetaData				// - member function meta data
 {						//   for signal and slots
     const char *name;				// - member name
     QMember ptr;				// - member pointer
+    enum Access { Private, Protected, Public };
+    /* ### add this in 3.0 
+       Access access;				// - access permission
+    */
 };
 
 
@@ -55,7 +59,7 @@ struct QMetaEnum 				// enumerator meta data
     bool set;					// Wether enum has to be treated as a set
 };
 
-class QMetaProperty 				// property meta data
+class  Q_EXPORT  QMetaProperty 				// property meta data
 {
 public:
     QMetaProperty();
@@ -173,6 +177,9 @@ public:
 					QMetaData *, int,
 					QMetaData *, int );
     static QMetaData		*new_metadata( int );
+    static QMetaData::Access		*new_metaaccess( int ); // ### remove in 3.0
+    void set_slot_access( QMetaData::Access* ); // ### remove in 3.0
+    QMetaData::Access slot_access(int index, bool super = FALSE ); // ### remove in 3.0
     static QMetaEnum 		*new_metaenum( int );
     static QMetaEnum::Item 	*new_metaenum_item( int );
     static QMetaProperty 	*new_metaproperty( int );
