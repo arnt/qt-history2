@@ -1093,9 +1093,7 @@ items.
     \quotefile stringlistmodel/model.h
 
     \skipto class
-    \printto isEditable
-    \skipto private
-    \printuntil }
+    \printuntil /^\};/
 
     Apart from the model's constructor, we only need to implement two
     functions: \l{QAbstractItemModel::rowCount()}{rowCount()} returns the
@@ -1163,7 +1161,7 @@ items.
     These are added to the class declaration:
 
     \quotefile stringlistmodel/model.h
-    \skipto bool flags
+    \skipto ItemFlags flags
     \printuntil setData
 
     \section2 Making The Model Editable
@@ -1175,7 +1173,7 @@ items.
     selectable and editable:
 
     \quotefile stringlistmodel/model.cpp
-    \skipto bool StringListModel::flags
+    \skipto ItemFlags StringListModel::flags
     \printuntil }
 
     Note that we do not have to know how the delegate performs the actual
