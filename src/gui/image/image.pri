@@ -69,11 +69,9 @@ contains(QT_CONFIG, mng) {
 		  ../3rdparty/libmng/libmng_zlib.c
         }
 	contains(QT_CONFIG, no-jpeg)|!contains(QT_CONFIG, jpeg) {
-		message(Use of mng requires support for jpeg)
-		QT_CONFIG += jpeg
+	    error(Use of mng requires support for jpeg)
 	}
 }
-else:DEFINES += QT_NO_IMAGEIO_MNG
 
 #jpeg support..
 HEADERS += image/qjpegio.h
@@ -132,7 +130,6 @@ contains(QT_CONFIG, jpeg) {
 		  ../3rdparty/libjpeg/jmemnobs.c
         }
 }
-else:DEFINES += QT_NO_IMAGEIO_JPEG
 
 #png support
 HEADERS += image/qpngio.h
@@ -160,8 +157,3 @@ contains(QT_CONFIG, png) {
 		  ../3rdparty/libpng/pngwutil.c
         }
 }
-else:DEFINES += QT_NO_IMAGEIO_PNG
-
-#use Qt gif
-contains(QT_CONFIG,gif):DEFINES += QT_BUILTIN_GIF_READER=1
-

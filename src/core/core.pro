@@ -4,8 +4,6 @@ QT         =
 
 DEFINES += QT_BUILD_CORE_LIB
 
-!exceptions::DEFINES += QT_NO_EXCEPTIONS
-
 include(../qbase.pri)
 include(arch/$$ARCH/arch.pri)
 include(global/global.pri)

@@ -86,7 +86,7 @@ QScreen *QGfxDriverFactory::create(const QString& key, int displayId)
     if (driver == "mach64")
         return new QMachScreen(displayId);
 #endif
-#ifndef QT_NO_QWS_VOODOO3
+#ifndef QT_NO_QWS_VOODOO
     if (driver == "voodoo3")
         return new QVoodooScreen(displayId);
 #endif
@@ -147,7 +147,7 @@ QStringList QGfxDriverFactory::keys()
     if (!list.contains("Mach64"))
         list << "Mach64";
 #endif
-#ifndef QT_NO_QWS_VOODOO3
+#ifndef QT_NO_QWS_VOODOO
     if (!list.contains("Voodoo3"))
         list << "Voodoo3";
 #endif

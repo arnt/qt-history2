@@ -524,12 +524,9 @@
 #  define Q_WS_PM
 #  error "Qt does not work with OS/2 Presentation Manager or Workplace Shell"
 #elif defined(Q_OS_UNIX)
-#  if defined(QWS)
-#    define Q_WS_QWS
-//#    define QT_NO_QWS_IM
-#  elif defined(Q_OS_DARWIN) && !defined(__USE_WS_X11__)
+#  if defined(Q_OS_DARWIN) && !defined(__USE_WS_X11__)
 #    define Q_WS_MAC
-#  else
+#  elif !defined(Q_WS_QWS)
 #    define Q_WS_X11
 #  endif
 #endif

@@ -67,7 +67,7 @@ QWSKeyboardHandler *QKbdDriverFactory::create(const QString& key, const QString&
     if (driver == "yopy" || driver.isEmpty())
         return new QWSYopyKeyboardHandler(device);
 #endif
-#ifndef QT_NO_QWS_KBD_VR41
+#ifndef QT_NO_QWS_KBD_VR41XX
     if (driver == "vr41xx" || driver.isEmpty())
         return new QWSVr41xxKeyboardHandler(device);
 #endif
@@ -108,7 +108,7 @@ QStringList QKbdDriverFactory::keys()
     if (!list.contains("YOPY"))
         list << "YOPY";
 #endif
-#ifndef QT_NO_QWS_KBD_VR41
+#ifndef QT_NO_QWS_KBD_VR41XX
     if (!list.contains("VR41xx"))
         list << "VR41xx";
 #endif

@@ -147,64 +147,54 @@ embedded {
 	        HEADERS += embedded/qgfxlinuxfb_qws.h 
 		SOURCES += embedded/qgfxlinuxfb_qws.cpp 
 	} 
-	else:DEFINES += QT_NO_QWS_LINUXFB
 
 	contains( gfx-drivers, qvfb ) {
 		HEADERS += embedded/qgfxvfb_qws.h
 		SOURCES += embedded/qgfxvfb_qws.cpp
 	}
-	else:DEFINES += QT_NO_QWS_VFB
 
 	contains( gfx-drivers, vnc ) {
 		HEADERS += embedded/qgfxvnc_qws.h
 		SOURCES += embedded/qgfxvnc_qws.cpp
 	}
-	else:DEFINES += QT_NO_QWS_VNC
 
 	!contains( DEFINES, QT_NO_QWS_LINUXFB):contains( gfx-drivers, vga16 ) {
 		HEADERS += embedded/qgfxvga16_qws.h
 		SOURCES += embedded/qgfxvga16_qws.cpp
 	}
-	else:DEFINES += QT_NO_QWS_VGA16
 
 	contains( gfx-drivers, transformed ) {
 		HEADERS += embedded/qgfxtransformed_qws.h
 		SOURCES += embedded/qgfxtransformed_qws.cpp
 	}
-	else:DEFINES += QT_NO_QWS_TRANSFORMED
 
 	contains( gfx-drivers, mach64 ) {
 		HEADERS += embedded/qgfxmach64_qws.h \
 			   embedded/qgfxmach64defs_qws.h
 		SOURCES += embedded/qgfxmach64_qws.cpp
 	}
-	else:DEFINES += QT_NO_QWS_MACH64
 
 	contains( gfx-drivers, voodoo ) {
 		HEADERS += embedded/qgfxvoodoo_qws.h \
 			   embedded/qgfxvoodoodefs_qws.h
 		SOURCES += embedded/qgfxvoodoo_qws.cpp
 	}
-	else:DEFINES += QT_NO_QWS_VOODOO3
 
 	contains( gfx-drivers, matrox ) {
 		HEADERS += embedded/qgfxmatrox_qws.h \
 			   embedded/qgfxmatroxdefs_qws.h
 		SOURCES += embedded/qgfxmatrox_qws.cpp
 	}
-	else:DEFINES += QT_NO_QWS_MATROX
 
 	contains( gfx-drivers, shadowfb ) {
 		HEADERS += embedded/qgfxshadow_qws.h
 		SOURCES += embedded/qgfxshadow_qws.cpp
 	}
-	else:DEFINES += QT_NO_QWS_SHADOWFB
 
 	contains( gfx-drivers, repeater ) {
 		HEADERS += embedded/qgfxrepeater_qws.h
 		SOURCES += embedded/qgfxrepeater_qws.cpp
 	}
-	else:DEFINES += QT_NO_QWS_REPEATER
 
 #
 # Keyboard drivers
@@ -216,7 +206,6 @@ embedded {
 		    kbd-drivers += tty
 		}
 	}
-	else:DEFINES += QT_NO_QWS_KBD_SL5000
 
 	contains( kbd-drivers, tty ) {
 		HEADERS +=embedded/qkbdtty_qws.h
@@ -225,7 +214,6 @@ embedded {
 		    kbd-drivers += pc101
 		}
 	}
-	else:DEFINES += QT_NO_QWS_KBD_TTY
 
 	contains( kbd-drivers, usb ) {
 		HEADERS +=embedded/qkbdusb_qws.h
@@ -234,7 +222,6 @@ embedded {
 		    kbd-drivers += pc101
 		}
 	}
-	else:DEFINES += QT_NO_QWS_KBD_USB
 
 	contains( kbd-drivers, pc101 ) {
 		HEADERS +=embedded/qkbdpc101_qws.h
@@ -246,13 +233,11 @@ embedded {
 		HEADERS +=embedded/qkbdyopy_qws.h
 		SOURCES +=embedded/qkbdyopy_qws.cpp
 	}
-	else:DEFINES += QT_NO_QWS_KBD_YOPY
 
 	contains( kbd-drivers, vr41xx ) {
 		HEADERS +=embedded/qkbdvr41xx_qws.h
 		SOURCES +=embedded/qkbdvr41xx_qws.cpp
 	}
-	else:DEFINES += QT_NO_QWS_KBD_VR41
 
 #
 # Mouse drivers
@@ -261,29 +246,24 @@ embedded {
 		HEADERS +=embedded/qmousepc_qws.h
 		SOURCES +=embedded/qmousepc_qws.cpp
 	}
-	else:DEFINES += QT_NO_QWS_MOUSE_PC
 
 	contains( mouse-drivers, bus ) {
 		HEADERS +=embedded/qmousebus_qws.h
 		SOURCES +=embedded/qmousebus_qws.cpp
 	}
-	else:DEFINES += QT_NO_QWS_MOUSE_BUS
 
 	contains( mouse-drivers, linuxtp ) {
 		HEADERS +=embedded/qmouselinuxtp_qws.h
 		SOURCES +=embedded/qmouselinuxtp_qws.cpp
 	}
-	else:DEFINES += QT_NO_QWS_MOUSE_LINUXTP
 
 	contains( mouse-drivers, vr41xx ) {
 		HEADERS +=embedded/qmousevr41xx_qws.h
 		SOURCES +=embedded/qmousevr41xx_qws.cpp
 	}
-	else:DEFINES += QT_NO_QWS_MOUSE_VR41
 
 	contains( mouse-drivers, yopy ) {
 		HEADERS +=embedded/qmouseyopy_qws.h
 		SOURCES +=embedded/qmouseyopy_qws.cpp
 	}
-	else:DEFINES += QT_NO_QWS_MOUSE_YOPY
 }

@@ -15,6 +15,8 @@
 #define QT_CLEAN_NAMESPACE
 #endif
 
+#include "qmngio.h"
+
 #ifndef QT_NO_IMAGEIO_MNG
 
 #include "qcoreapplication.h"
@@ -22,7 +24,6 @@
 #include "qimage.h"
 #include "qasyncimageio.h"
 #include "qiodevice.h"
-#include "qmngio.h"
 
 // Define XMD_H prohibits the included headers of libmng.h to typedef INT32.
 // This is needed for Borland with STL support, since in that case, INT32 is

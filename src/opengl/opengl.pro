@@ -16,9 +16,7 @@ SOURCES	+= qgl.cpp \
 	   qpaintengine_opengl.cpp
 x11 {
     SOURCES += qgl_x11.cpp
-    !contains(QT_CONFIG, xft):DEFINES += QT_NO_XFT
-    else:INCLUDEPATH += $$FREETYPE2_INCDIR
-    !contains(QT_CONFIG, xrandr):DEFINES += QT_NO_XRANDR
+    contains(QT_CONFIG, xft):INCLUDEPATH += $$FREETYPE2_INCDIR
 }
 
 mac {

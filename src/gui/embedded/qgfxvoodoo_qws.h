@@ -18,7 +18,7 @@
 #include "qgfxlinuxfb_qws.h"
 #endif // QT_H
 
-#ifndef QT_NO_QWS_VOODOO3
+#ifndef QT_NO_QWS_VOODOO
 
 class QVoodooScreen : public QLinuxFbScreen
 {
@@ -37,6 +37,6 @@ public:
     unsigned char * voodoo_regbase;
 };
 
-#endif // QT_NO_QWS_VOODOO3
+#endif // QT_NO_QWS_VOODOO
 
 #endif // QGFXVOODOO_QWS_H

@@ -139,7 +139,7 @@
 //#define QT_NO_QWS_VGA_16
 
 // Voodoo3 acceleration
-//#define QT_NO_QWS_VOODOO3
+//#define QT_NO_QWS_VOODOO
 
 // Range-control widgets
 //#define QT_NO_RANGECONTROL

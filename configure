@@ -220,7 +220,7 @@ fi
 
 QMAKE_VARS="$QMAKE_VARS \"styles += cde mac motif motifplus platinum pocketpc sgi windows windowsxp\""
 QMAKE_VARS="$QMAKE_VARS \"decorations += default windows kde kde2 beos hydro\""
-QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty\" \"mouse-drivers += pc\""
+QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty\" \"mouse-drivers += pc\"" # adjust below as well
 QMAKE_VARS="$QMAKE_VARS \"styles -= pocketpc\""  # experimental
 QMAKE_VARS="$QMAKE_VARS \"styles -= windowsxp\"" # only on Windows
 
@@ -249,7 +249,7 @@ CFG_QCONFIG=full
 CFG_EMBEDDED=no
 CFG_DEBUG=no
 CFG_SHARED=yes
-CFG_GIF=no
+CFG_GIF=yes
 CFG_SM=auto
 CFG_XSHAPE=auto
 CFG_XINERAMA=auto
@@ -268,8 +268,17 @@ CFG_OPENGL=auto
 CFG_XFT=auto
 CFG_QWS_FREETYPE=yes
 CFG_SQL_AVAILABLE=
+CFG_SQL_ON=
 CFG_SQL_AUTODETECTED=
-CFG_GFX_AVAILABLE=
+CFG_GFX_AVAILABLE="repeater"
+CFG_GFX_ON=""
+CFG_GFX_OFF=""
+CFG_KBD_AVAILABLE="tty usb sl5000 yopy vr41xx"
+CFG_KBD_ON="tty"    #default, see QMAKE_VARS above
+CFG_KBD_OFF=
+CFG_MOUSE_AVAILABLE="pc bus linuxtp yopy vr41xx"
+CFG_MOUSE_ON="pc"   #default, see QMAKE_VARS above
+CFG_MOUSE_OFF=
 CFG_STYLE_AVAILABLE=
 CFG_DECORATION_AVAILABLE=
 CFG_DECORATION_ON=
@@ -288,6 +297,7 @@ CFG_USER_BUILD_KEY=
 CFG_ACCESSIBILITY=auto
 CFG_COMPAT=yes
 CFG_ENDIAN=auto
+CFG_GETADDRINFO=auto
 D_FLAGS=
 I_FLAGS=
 L_FLAGS=
@@ -321,17 +331,13 @@ QT_INSTALL_SYSCONF=
 #-------------------------------------------------------------------------------
 
 CFG_SQL_AVAILABLE=`find $relpath/src/plugins/sqldrivers/* -prune -type d -exec basename {} \;`
-# normalize whitespace
-CFG_SQL_AVAILABLE=`echo $CFG_SQL_AVAILABLE`
-
+CFG_SQL_AVAILABLE=`echo $CFG_SQL_AVAILABLE`               # normalize whitespace
 CFG_STYLE_AVAILABLE=`find $relpath/src/plugins/styles/* -prune -type d -exec basename {} \;`
-# normalize whitespace
-CFG_STYLE_AVAILABLE=`echo $CFG_STYLE_AVAILABLE`
-
+CFG_STYLE_AVAILABLE=`echo $CFG_STYLE_AVAILABLE`           # normalize whitespace
 CFG_DECORATION_AVAILABLE=`find $relpath/src/plugins/decorations/* -prune -type d -exec basename {} \;`
-# normalize whitespace
-CFG_DECORATION_AVAILABLE=`echo $CFG_DECORATION_AVAILABLE`
-CFG_DECORATION_ON=`echo $CFG_DECORATION_AVAILABLE`
+CFG_DECORATION_AVAILABLE=`echo $CFG_DECORATION_AVAILABLE` # normalize whitespace
+CFG_DECORATION_ON=`echo $CFG_DECORATION_AVAILABLE`        # All on by default
+
 
 #-------------------------------------------------------------------------------
 # parse command line arguments
@@ -557,7 +563,7 @@ while [ "$#" -gt 0 ]; do
 	;;
     qvfb) # left for commandline compatibility, not documented
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
-	    [ "$VAL" = "yes" ] && QMAKE_VARS="$QMAKE_VARS \"gfx-drivers += qvfb\""
+	    [ "$VAL" = "yes" ] && QMAKE_VARS="$QMAKE_VARS \"gfx-drivers += qvfb\"" && CFG_GFX_ON="$CFG_GFX_ON qvfb"
 	else
 	    UNKNOWN_OPT=yes
         fi
@@ -949,8 +955,12 @@ while [ "$#" -gt 0 ]; do
 		    VAR="${VAR}-${OPT}"
 		else
 		    if [ "$VAR" = "sql" ] || [ "$VAR" = "gfx" ] || [ "$VAR" = "kbd" ] || [ "$VAR" = "mouse" ]; then
-			VAR="${VAR}-driver"
-		    fi
+                        [ "$VAR" = "sql" ] && CFG_SQL_ON="$CFG_SQL_ON $VAL"
+                        [ "$VAR" = "gfx" ] && CFG_GFX_ON="$CFG_GFX_ON $VAL"
+                        [ "$VAR" = "kbd" ] && CFG_KBD_ON="$CFG_KBD_ON $VAL"
+                        [ "$VAR" = "mouse" ] && CFG_MOUSE_ON="$CFG_MOUSE_ON $VAL"
+                        VAR="${VAR}-driver"
+                    fi
 		fi
 		QMAKE_VARS="$QMAKE_VARS \"${VAR}s += $VAL\""
 	    elif [ "$OPT" = "no" ]; then
@@ -961,6 +971,10 @@ while [ "$#" -gt 0 ]; do
 		    IN_VAR="${VAR}"
 		fi
 	        [ "$VAR" = "decoration" ] && CFG_DECORATION_ON=`echo "${CFG_DECORATION_ON} " | sed "s,${VAL} ,,g"`
+                [ "$VAR" = "sql" ] && CFG_SQL_ON=`echo "${CFG_SQL_ON} " | sed "s,${VAL} ,,g"`
+                [ "$VAR" = "gfx" ] && CFG_GFX_ON=`echo "${CFG_GFX_ON} " | sed "s,${VAL} ,,g"`
+                [ "$VAR" = "kbd" ] && CFG_KBD_ON=`echo "${$CFG_KBD_ON} " | sed "s,${VAL} ,,g"`
+                [ "$VAR" = "mouse" ] && CFG_MOUSE_ON=`echo "${$CFG_MOUSE_ON} " | sed "s,${VAL} ,,g"`
 		QMAKE_VARS="$QMAKE_VARS \"${IN_VAR}s -= $VAL\" \"${PLUG_VAR}s -= $VAL\""
 	    fi
 	fi
@@ -1152,7 +1166,7 @@ if [ "$CFG_ZLIB" = "auto" ]; then
     fi
 fi
 
-#detect how jpeg should be built
+#detect how png should be built
 if [ "$CFG_PNG" = "auto" ]; then
     if [ "$CFG_EMBEDDED" = "yes" ]; then
 	CFG_PNG=no
@@ -1932,17 +1946,18 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	    CFG_XKB=yes
 	fi
     fi
-fi
+fi # X11
 
 # embedded graphics
 if [ "$PLATFORM_QWS" = "yes" ]; then
-    CFG_GFX_AVAILABLE=`find $relpath/src/plugins/gfxdrivers/* -prune -type d -print | awk -F/ '{print $NF}'`
-    CFG_GFX_AVAILABLE=`echo $CFG_GFX_AVAILABLE`
+    CFG_GFX_PLUGINS_AVAILABLE=`find $relpath/src/plugins/gfxdrivers/* -prune -type d -print | awk -F/ '{print $NF}'`
+    CFG_GFX_AVAILABLE=`echo $CFG_GFX_PLUGINS_AVAILABLE $CFG_GFX_AVAILABLE`
+    CFG_GFX_OFF=`echo $CFG_GFX_AVAILABLE` # assume all off
     # No OpenGL for Qt/Embedded
     if [ "$CFG_OPENGL" = "auto" ]; then
 	CFG_OPENGL=no
     fi
-fi
+fi # QWS
 
 
 #-------------------------------------------------------------------------------
@@ -2343,7 +2358,7 @@ fi
 
    [ "x$ERROR" = "xyes" ] && exit 1
    exit 0
-fi
+fi # Help
 
 
 # -----------------------------------------------------------------------------
@@ -2716,7 +2731,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
     (cd $outpath/qmake; $MAKE) || QMAKE_BUILD_ERROR=yes
     [ '!' -z "$OLD_QCONFIG_H" ] && mv -f "${OLD_QCONFIG_H}.old" "$OLD_QCONFIG_H" #put back qconfig.h
     [ "$QMAKE_BUILD_ERROR" = "yes" ] && exit 2
-fi
+fi # Build qmake
 
 #-------------------------------------------------------------------------------
 # tests that need qmake
@@ -2783,10 +2798,12 @@ if [ "$CFG_IPV6" = "auto" ]; then
 fi
 
 # find if the platform provides getaddrinfo (ipv6 dns lookups)
-if $unixtests/getaddrinfo.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
-    CFG_GETADDRINFO=no
-else
-    CFG_GETADDRINFO=yes
+if [ "$CFG_GETADDRINFO" = "auto" ]; then
+    if $unixtests/getaddrinfo.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
+        CFG_GETADDRINFO=no
+    else
+        CFG_GETADDRINFO=yes
+    fi
 fi
 
 # find if the platform supports X/Open Large File compilation environment
@@ -3268,38 +3285,37 @@ fi
 
 $unixtests/ptrsize.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath
 echo "#define QT_POINTER_SIZE $?" >>$outpath/src/core/global/qconfig.h.new
+echo "" >>$outpath/src/core/global/qconfig.h.new
 
 ## find excluded styles and add this to $QCONFIG_FLAGS
-
 VSTYLE=no
 VNO=no
 for QMVAR in $QMAKE_VARS; do
-
-STRIPPED=`echo $QMVAR | sed 's,^",,' | sed 's,"$,,'`
-
-if [ "$VSTYLE" = "yes" ]; then
-	if [ "$VNO" = "yes" ]; then
-		NOSTYLE=`echo $STRIPPED | tr '[:lower:]' '[:upper:]'`
-		QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_STYLE_$NOSTYLE"
-		VSTYLE=no
-		VNO=no
-    	else
-		if [ "$STRIPPED" = "-=" ]; then
-			VNO=yes
-		else
-			VSTYLE=no
-		fi
-	fi
-else
-	if [ "$STRIPPED" = "styles" ]; then
-		VSTYLE=yes
-	fi
-fi
+    STRIPPED=`echo $QMVAR | sed 's,^",,' | sed 's,"$,,'`
+    if [ "$VSTYLE" = "yes" ]; then
+        if [ "$VNO" = "yes" ]; then
+            NOSTYLE=`echo $STRIPPED | tr '[:lower:]' '[:upper:]'`
+            QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_STYLE_$NOSTYLE"
+            VSTYLE=no
+            VNO=no
+        else
+            if [ "$STRIPPED" = "-=" ]; then
+                VNO=yes
+            else
+                VSTYLE=no
+            fi
+        fi
+    else
+        if [ "$STRIPPED" = "styles" ]; then
+            VSTYLE=yes
+        fi
+    fi
 done
 
+# Embedded compile time options
 if [ "$PLATFORM_QWS" = "yes" ]; then
-    # Add QWS to config flags
-    QCONFIG_FLAGS="$QCONFIG_FLAGS QWS"
+    # Add QWS to config.h
+    QCONFIG_FLAGS="$QCONFIG_FLAGS Q_WS_QWS"
 
     # Add excluded decorations to $QCONFIG_FLAGS
     VDECORATION=no
@@ -3325,17 +3341,103 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
             fi
         fi
     done
-fi
+
+    # Figure which embedded drivers which are turned off
+    CFG_GFX_OFF="$CFG_GFX_AVAILABLE"
+    for ADRIVER in $CFG_GFX_ON; do
+        CFG_GFX_OFF=`echo "${CFG_GFX_OFF} " | sed "s,${ADRIVER} ,,g"`
+    done
+    
+    CFG_KBD_OFF="$CFG_KBD_AVAILABLE"
+    for ADRIVER in $CFG_KBD_ON; do
+        CFG_KBD_OFF=`echo "${CFG_KBD_OFF} " | sed "s,${ADRIVER} ,,g"`
+    done
+    
+    CFG_MOUSE_OFF="$CFG_MOUSE_AVAILABLE"
+    for ADRIVER in $CFG_MOUSE_ON; do
+        CFG_MOUSE_OFF=`echo "${CFG_MOUSE_OFF} " | sed "s,${ADRIVER} ,,g"`
+    done
+    
+    for DRIVER in $CFG_GFX_OFF; do
+        NODRIVER=`echo $DRIVER | tr '[:lower:]' '[:upper:]'`
+        QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_$NODRIVER"
+    done
+    
+    for DRIVER in $CFG_KBD_OFF; do
+        NODRIVER=`echo $DRIVER | tr '[:lower:]' '[:upper:]'`
+        QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_KBD_$NODRIVER"
+    done
+    
+    for DRIVER in $CFG_MOUSE_OFF; do
+        NODRIVER=`echo $DRIVER | tr '[:lower:]' '[:upper:]'`
+        QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_MOUSE_$NODRIVER"
+    done
+fi # QWS
+
+# Add turned on SQL drivers
+for DRIVER in $CFG_SQL_ON; do
+    ONDRIVER=`echo $DRIVER | tr '[:lower:]' '[:upper:]'`
+    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_SQL_$ONDRIVER"
+done
+
+# Add other configuration options to the qconfig.h file
+[ "$CFG_BIG_CODECS" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_BIG_CODECS"
+[ "$CFG_CUPS" = "no" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_CUPS"
+[ "$CFG_EXCEPTION_SUPPORT" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_EXCEPTIONS"
+[ "$CFG_GETADDRINFO" = "no" ]&& QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_GETADDRINFO"
+[ "$CFG_GIF" = "yes" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_BUILTIN_GIF_READER=1"
+[ "$CFG_JPEG" != "yes" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IMAGEIO_JPEG"
+[ "$CFG_MNG" != "yes" ]      && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IMAGEIO_MNG"
+[ "$CFG_NAS" = "yes" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NAS_SUPPORT"
+[ "$CFG_NIS" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_NIS"
+[ "$CFG_PNG" != "yes" ]      && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IMAGEIO_PNG"
+[ "$CFG_SM" = "no" ]         && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_SM_SUPPORT"
+[ "$CFG_TABLET" = "yes" ]    && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_TABLET_SUPPORT"
+[ "$CFG_XCURSOR" = "no" ]    && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_XCURSOR"
+[ "$CFG_XFT" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_XFT"
+[ "$CFG_XINERAMA" = "no" ]   && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_XINERAMA"
+[ "$CFG_XKB" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_XKB"
+[ "$CFG_XRANDR" = "no" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_XRANDR"
+[ "$CFG_XRENDER" = "no" ]    && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_XRENDER"
+[ "$CFG_XSHAPE" = "no" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_SHAPE"
+[ "$CFG_IPV6" = "no" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IPV6"
+
+# sort QCONFIG_FLAGS for neatness
+QCONFIG_FLAGS=`echo $QCONFIG_FLAGS | sed 's/\ /\n/g' | sort`
+QCONFIG_FLAGS=`echo $QCONFIG_FLAGS`
 
 if [ -n "$QCONFIG_FLAGS" ]; then
     for cfg in $QCONFIG_FLAGS; do
-
+        cfgd=`echo $cfg | sed 's/=.*$//'` # trim pushed 'Foo=Bar' defines
+        cfg=`echo $cfg | sed 's/=/ /'`    # turn first '=' into a space
+        # figure out define logic, so we can output the correct
+        # ifdefs to override the global defines in a project
+        cfgdNeg=
+        if [ true ] && echo "$cfgd" | grep 'QT_NO_' >/dev/null 2>&1; then
+            # QT_NO_option can be forcefully turned on by QT_option
+            cfgdNeg=`echo $cfgd | sed "s,QT_NO_,QT_,"`
+        elif [ true ] && echo "$cfgd" | grep 'QT_' >/dev/null 2>&1; then
+            # QT_option can be forcefully turned off by QT_NO_option
+            cfgdNeg=`echo $cfgd | sed "s,QT_,QT_NO_,"`
+        fi
+        
+        if [ -z $cfgdNeg ]; then
 cat >>$outpath/src/core/global/qconfig.h.new << EOF
-#ifndef $cfg
+#ifndef $cfgd
 # define $cfg
 #endif
 
 EOF
+        else
+cat >>$outpath/src/core/global/qconfig.h.new << EOF
+#if defined($cfgd) && defined($cfgdNeg)
+# undef $cfgd
+#elif !defined($cfgd)
+# define $cfg
+#endif
+
+EOF
+        fi
     done
 fi
 
@@ -3804,13 +3906,14 @@ fi
 #-------------------------------------------------------------------------------
 if [ `basename $0` != "config.status" ]; then
     [ -f $outpath/config.status ] && rm -f $outpath/config.status
-    CONFIG_OPTIONS_READ="-confirm-license"
-    
+    if [ true ] && !(echo "$OPT_CMDLINE" | grep '\-confirm\-license' >/dev/null 2>&1); then
+        OPT_CMDLINE="-confirm-license $OPT_CMDLINE"
+    fi
     echo "#!/bin/sh" >$outpath/config.status
     echo "if [ \"\$#\" -gt 0 ]; then" >>$outpath/config.status
-    echo "  $relpath/$relconf $CONFIG_OPTIONS_READ $OPT_CMDLINE \"\$@\"" >>$outpath/config.status
+    echo "  $relpath/$relconf $OPT_CMDLINE \"\$@\"" >>$outpath/config.status
     echo "else" >>$outpath/config.status
-    echo "  $relpath/$relconf $CONFIG_OPTIONS_READ $OPT_CMDLINE" >>$outpath/config.status
+    echo "  $relpath/$relconf $OPT_CMDLINE" >>$outpath/config.status
     echo "fi" >>$outpath/config.status
     chmod +x $outpath/config.status
 fi

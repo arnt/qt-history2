@@ -15,6 +15,7 @@
 #define QMNGIO_H
 
 #ifndef QT_H
+#include "qglobal.h"
 #endif // QT_H
 
 #ifndef QT_NO_IMAGEIO_MNG

@@ -5,12 +5,8 @@ DEFINES += QT_BUILD_GUI_LIB
 include(../qbase.pri)
 
 QT = core 
-!win32:!embedded:!mac:CONFIG	   += x11
+!win32:!embedded:!mac:CONFIG	  += x11
 contains(QT_CONFIG, x11sm):CONFIG += x11sm
-
-!contains(QT_CONFIG, cups):DEFINES += QT_NO_CUPS
-!contains(QT_CONFIG, nis):DEFINES += QT_NO_NIS
-contains(QT_CONFIG, tablet):DEFINES += QT_TABLET_SUPPORT
 
 #platforms
 x11:include(kernel/x11.pri)

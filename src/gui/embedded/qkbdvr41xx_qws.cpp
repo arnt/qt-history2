@@ -13,7 +13,7 @@
 
 #include "qkbdvr41xx_qws.h"
 
-#ifndef QT_NO_QWS_KBD_VR41
+#ifndef QT_NO_QWS_KBD_VR41XX
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -147,5 +147,5 @@ void QWSVr41xxKbPrivate::readKeyboardData()
 
 #include "qkbdvr41xx_qws.moc"
 
-#endif // QT_NO_QWS_KBD_VR41
+#endif // QT_NO_QWS_KBD_VR41XX
 

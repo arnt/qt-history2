@@ -13,7 +13,7 @@
 
 #include "qgfxvoodoodefs_qws.h"
 
-#ifndef QT_NO_QWS_VOODOO3
+#ifndef QT_NO_QWS_VOODOO
 
 #include "qgfxvoodoo_qws.h"
 #include "qgfxraster_qws.h"
@@ -1078,4 +1078,4 @@ void QVoodooCursor::move(int x,int y)
 
 #endif // QT_NO_QWS_CURSOR
 
-#endif // QT_NO_QWS_VOODOO3
+#endif // QT_NO_QWS_VOODOO

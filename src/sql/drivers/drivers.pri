@@ -5,7 +5,6 @@ contains(sql-drivers, all ) {
 contains(sql-drivers, psql) {
         HEADERS +=      drivers/psql/qsql_psql.h
         SOURCES +=      drivers/psql/qsql_psql.cpp
-        DEFINES +=      QT_SQL_POSTGRES
         unix:!contains(LIBS, .*pq.*):LIBS *= -lpq
 
         win32 {
@@ -23,7 +22,6 @@ contains(sql-drivers, psql) {
 contains(sql-drivers, mysql) {
         HEADERS +=      drivers/mysql/qsql_mysql.h
         SOURCES +=      drivers/mysql/qsql_mysql.cpp
-        DEFINES +=      QT_SQL_MYSQL
         unix:!contains(LIBS, .*mysql.*):LIBS    *= -lmysqlclient
 
         win32 {
@@ -42,7 +40,6 @@ contains(sql-drivers, mysql) {
 contains(sql-drivers, odbc) {
         HEADERS += drivers/odbc/qsql_odbc.h
         SOURCES += drivers/odbc/qsql_odbc.cpp
-        DEFINES += QT_SQL_ODBC
 
         mac:!contains( LIBS, .*odbc.* ):LIBS        *= -liodbc
         unix:!contains( LIBS, .*odbc.* ):LIBS        *= -lodbc
@@ -56,7 +53,6 @@ contains(sql-drivers, odbc) {
 contains(sql-drivers, oci) {
         HEADERS += drivers/oci/qsql_oci.h
         SOURCES += drivers/oci/qsql_oci.cpp
-        DEFINES += QT_SQL_OCI
         unix:!contains( LIBS, .*clnts.* ):LIBS += -lclntsh -lwtc8
 
         win32 {
@@ -74,7 +70,6 @@ contains(sql-drivers, oci) {
 contains(sql-drivers, tds) {
         HEADERS += drivers/tds/qsql_tds.h
         SOURCES += drivers/tds/qsql_tds.cpp
-        DEFINES += QT_SQL_TDS
 
         unix:LIBS += -L$SYBASE/lib -lsybdb
 
@@ -94,7 +89,6 @@ contains(sql-drivers, tds) {
 contains(sql-drivers, db2) {
         HEADERS += drivers/db2/qsql_db2.h
         SOURCES += drivers/db2/qsql_db2.cpp
-        DEFINES += QT_SQL_DB2
         unix {
                 LIBS += -ldb2
         }
@@ -107,7 +101,6 @@ contains(sql-drivers, db2) {
 contains(sql-drivers, ibase) {
         HEADERS += drivers/ibase/qsql_ibase.h
         SOURCES += drivers/ibase/qsql_ibase.cpp
-        DEFINES += QT_SQL_IBASE
         unix {
                 LIBS *= -lgds
         }
@@ -169,5 +162,4 @@ contains(sql-drivers, sqlite) {
  
         HEADERS +=      drivers/sqlite/qsql_sqlite.h
         SOURCES +=      drivers/sqlite/qsql_sqlite.cpp
-        DEFINES +=      QT_SQL_SQLITE
 }

@@ -18,7 +18,7 @@
 #include "qkbd_qws.h"
 #endif // QT_H
 
-#ifndef QT_NO_QWS_KBD_VR41
+#ifndef QT_NO_QWS_KBD_VR41XX
 
 class QWSVr41xxKbPrivate;
 
@@ -32,7 +32,7 @@ private:
     QWSVr41xxKbPrivate *d;
 };
 
-#endif // QT_NO_QWS_KBD_VR41
+#endif // QT_NO_QWS_KBD_VR41XX
 
 #endif // QKBDVR41XX_QWS_H
 

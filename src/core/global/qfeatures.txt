@@ -486,7 +486,7 @@ Requires:
 Name: Mach64 acceleration
 SeeAlso: ???
 
-Feature: QWS_VOODOO3
+Feature: QWS_VOODOO
 Section: Qt/Embedded-specific
 Requires:
 Name: Voodoo3 acceleration

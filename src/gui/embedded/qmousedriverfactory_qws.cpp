@@ -67,7 +67,7 @@ QWSMouseHandler *QMouseDriverFactory::create(const QString& key, const QString &
     if (driver == "yopy" || driver.isEmpty())
         return new QWSYopyMouseHandler(key, device);
 #endif
-#ifndef QT_NO_QWS_MOUSE_VR41
+#ifndef QT_NO_QWS_MOUSE_VR41XX
     if (driver == "vr41xx" || driver.isEmpty())
         return new QWSVr41xxMouseHandler(key, device);
 #endif
@@ -110,7 +110,7 @@ QStringList QMouseDriverFactory::keys()
     if (!list.contains("Yopy"))
         list << "Yopy";
 #endif
-#ifndef QT_NO_QWS_MOUSE_VR41
+#ifndef QT_NO_QWS_MOUSE_VR41XX
     if (!list.contains("VR41xx"))
         list << "VR41xx";
 #endif
