@@ -328,6 +328,7 @@ void QDesignerWorkbench::switchToWorkspaceMode()
 
 #ifndef Q_WS_MAC
     mw->setMenuBar(m_globalMenuBar);
+    m_globalMenuBar->show();
 #endif
     mw->addToolBar(m_editToolBar);
     mw->addToolBar(m_toolToolBar);
