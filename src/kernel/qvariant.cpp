@@ -1220,9 +1220,9 @@ void QVariant::load( QDataStream& s )
 #ifndef QT_NO_ICONSET
     case IconSet:
 	{
-	    QPixmap* x = new QPixmap;
-	    s >> *x;
-	    d->value.ptr = x;
+	    QPixmap x;
+	    s >> x;
+	    d->value.ptr = new QIconSet( x );
 	}
 	break;
 #endif
