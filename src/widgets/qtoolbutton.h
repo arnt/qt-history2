@@ -78,14 +78,16 @@ public:
 
     QSize sizeHint() const;
 
+#ifndef QT_NO_COMPAT
     void setOnIconSet( const QIconSet& );
     void setOffIconSet( const QIconSet& );
+    void setIconSet( const QIconSet &, bool on );
     QIconSet onIconSet() const;
     QIconSet offIconSet( ) const;
-    virtual void setIconSet( const QIconSet & );
-    void setIconSet( const QIconSet &, bool on );
-    QIconSet iconSet() const;
     QIconSet iconSet( bool on ) const;
+#endif
+    virtual void setIconSet( const QIconSet & );
+    QIconSet iconSet() const;
 
     bool usesBigPixmap() const { return ubp; }
     bool usesTextLabel() const { return utl; }

@@ -764,6 +764,16 @@ QToolBar
 
 Inherits QDockWindow now, previously only QWidget.
 
+QToolButton
+
+New property:
+	QIconSet iconSet
+
+New functions:
+	QIconSet iconSet() const
+	virtual void setIconSet( const QIconSet & )
+
+
 QWizard
 
 New property: QString titleFont
@@ -898,8 +908,6 @@ Obsolete functions:
 	QActionGroup::insert( QAction * ),  use QActionGroup::add( QAction* ) instead.
 	QApplication::setWinStyleHighlightColor( const QColor &c ), use setPalette() instead
 	QApplication::winStyleHighlightColor(), use palette() instead
-	QXmlInputSource::QXmlInputSource( QFile& file ), use QXmlInputSource( QIODevice *dev ) instead.
-	QXmlInputSource::QXmlInputSource( QTextStream& stream ), use QXmlInputSource( QIODevice *dev ) instead.
 	QMainWindow::addToolBar( QDockWindow *, Dock = Top, bool newLine = FALSE );
 	QMainWindow::addToolBar( QDockWindow *, const QString &label,  Dock = Top, bool newLine = FALSE );
 	QMainWindow::moveToolBar( QDockWindow *, Dock = Top );
@@ -908,6 +916,16 @@ Obsolete functions:
 	QMainWindow::toolBarsMovable() const;
 	QMainWindow::toolBars( Dock dock ) const;
 	QMainWindow::lineUpToolBars( bool keepNewLines = FALSE );
+	QRegExp::match( const QString& str, int index = 0, int *len = 0,
+			bool indexIsStart = TRUE );
+	QToolButton::setOnIconSet( const QIconSet & )
+	QToolButton::setOffIconSet( const QIconSet & )
+	QToolButton::onIconSet() const
+	QToolButton::offIconSet() const
+	QToolButton::setIconSet( const QIconSet & set, bool on )
+	QToolButton::iconSet( bool on ) const
+	QXmlInputSource::QXmlInputSource( QFile& file ), use QXmlInputSource( QIODevice *dev ) instead.
+	QXmlInputSource::QXmlInputSource( QTextStream& stream ), use QXmlInputSource( QIODevice *dev ) instead.
 
 Removed functions:
 	QRegExp::find( const QString& str, int index ) const; - has been renamed QRegExp::search()
