@@ -719,11 +719,6 @@ void QOpenGLPaintEngine::drawPolyInternal(const QPointArray &a, bool close)
         }
         dgl->qglColor(d->cbrush.color());
         drawPolygon(a, false, 0, a.size());
-        if (d->cpen.style() == Qt::NoPen) { // draw fake outline
-            drawPolyline(a, 0, a.size());
-            if (do_close)
-                drawLine(QPoint(x1,y1), QPoint(x2,y2));
-        }
     }
     if (d->cpen.style() != Qt::NoPen) { // draw outline
         dgl->qglColor(d->cpen.color());
