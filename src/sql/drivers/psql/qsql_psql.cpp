@@ -956,7 +956,7 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
 		    break;
 		}
 		default:
-	    // Escape '\' characters
+		    // Escape '\' characters
 		    r = QSqlDriver::formatValue( field );
 		    r.replace( "\\", "\\\\" );
 		    break;
