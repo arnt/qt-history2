@@ -534,6 +534,8 @@ int QTextLayout::nextCursorPosition(int oldPos, CursorMode mode) const
 {
 //      qDebug("looking for next cursor pos for %d", oldPos);
     const QCharAttributes *attributes = d->attributes();
+    if (!attributes)
+        return 0;
     int len = d->layoutData->string.length();
     if (oldPos >= len)
         return oldPos;
@@ -559,7 +561,7 @@ int QTextLayout::previousCursorPosition(int oldPos, CursorMode mode) const
 {
 //     qDebug("looking for previous cursor pos for %d", oldPos);
     const QCharAttributes *attributes = d->attributes();
-    if (oldPos <= 0)
+    if (!attributes || oldPos <= 0)
         return 0;
     oldPos--;
     if (mode == SkipCharacters) {
@@ -591,7 +593,7 @@ int QTextLayout::previousCursorPosition(int oldPos, CursorMode mode) const
 bool QTextLayout::validCursorPosition(int pos) const
 {
     const QCharAttributes *attributes = d->attributes();
-    if (pos < 0 || pos > (int)d->layoutData->string.length())
+    if (!attributes || pos < 0 || pos > (int)d->layoutData->string.length())
         return false;
     return attributes[pos].charStop;
 }
