@@ -133,6 +133,8 @@ QFSFileEngine::open(int fd)
 bool
 QFSFileEngine::close()
 {
+    if (d->fd == -1)
+        return false;
     int ret = QT_CLOSE(d->fd);
     d->fd = -1;
     return ret != -1;
