@@ -558,13 +558,16 @@ static void remove_multiline_contents( QString &contents, const QString &s, int 
 
 void Project::save( bool onlyProjectFile )
 {
+    bool anythingModified = FALSE;
     if ( !onlyProjectFile ) {
 	for ( SourceFile *sf = sourcefiles.first(); sf; sf = sourcefiles.next() ) {
+	    anythingModified = anythingModified || sf->isModified();
 	    if ( !sf->save() )
 		return;
 	}
 
 	for ( FormFile *ff = formfiles.first(); ff; ff = formfiles.next() ) {
+	    anythingModified = anythingModified || ff->isModified();
 	    if ( !ff->save() )
 		return;
 	}
@@ -577,7 +580,7 @@ void Project::save( bool onlyProjectFile )
 	if ( MainWindow::self->singleProjectMode() ) {
 	    LanguageInterface *iface = MetaDataBase::languageInterface( language() );
 	    if ( iface && iface->supports( LanguageInterface::CompressProject ) )
-		iface->compressProject( makeAbsolute( filename ), singleProFileName );
+		iface->compressProject( makeAbsolute( filename ), singleProFileName, anythingModified );
 	}
  	return;
     }
@@ -692,7 +695,7 @@ void Project::save( bool onlyProjectFile )
     if ( MainWindow::self->singleProjectMode() ) {
 	LanguageInterface *iface = MetaDataBase::languageInterface( language() );
 	if ( iface && iface->supports( LanguageInterface::CompressProject ) )
-	    iface->compressProject( makeAbsolute( filename ), singleProFileName );
+	    iface->compressProject( makeAbsolute( filename ), singleProFileName, TRUE );
     }
 }
 

@@ -118,7 +118,8 @@ struct LanguageInterface : public QUnknownInterface
 
     virtual bool canConnect( const QString &signal, const QString &slot ) = 0;
 
-    virtual 	void compressProject( const QString &projectFile, const QString &compressedFile ) = 0;
+    virtual 	void compressProject( const QString &projectFile, const QString &compressedFile,
+				      bool withWarning ) = 0;
     virtual QString uncompressProject( const QString &projectFile, const QString &destDir ) = 0;
     virtual QString aboutText() const = 0;
 

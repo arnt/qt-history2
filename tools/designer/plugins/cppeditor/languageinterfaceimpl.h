@@ -66,7 +66,7 @@ public:
 		       QValueList<Connection> & );
     QString formCodeExtension() const { return ".h"; }
     bool canConnect( const QString &signal, const QString &slot );
-    void compressProject( const QString &, const QString & ) {}
+    void compressProject( const QString &, const QString &, bool ) {}
     QString uncompressProject( const QString &, const QString & ) { return QString::null; }
     QString aboutText() const { return ""; }
 
