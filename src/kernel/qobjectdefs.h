@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#13 $
+** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#14 $
 **
 ** Macros and definitions related to QObject
 **
@@ -36,7 +36,7 @@ private:								      \
     static QMetaObject *metaObj;
 
 						// macro for naming members
-#if defined(_CC_SUN_)
+#if defined(_OLD_CPP_)
 #define METHOD(a)	"0""a"
 #define SLOT(a)		"1""a"
 #define SIGNAL(a)	"2""a"
