@@ -23,7 +23,7 @@ struct QValueListIterator
    * Typedefs
    */
   typedef QValueListIterator<T, T&, T*> Iterator;
-  typedef QValueListIterator<T, const T&, const T*> ConstIterator;
+  // typedef QValueListIterator<T, const T&, const T*> ConstIterator;
   typedef QValueListIterator<T, Ref, Ptr> Type;
   typedef QValueListNode<T>* NodePtr;
 
@@ -37,7 +37,7 @@ struct QValueListIterator
    */
   QValueListIterator() : node( 0 ) {}
   QValueListIterator( NodePtr p ) : node( p ) {}
-  QValueListIterator( ConstIterator& c ) : node( c.node ) {}
+  // QValueListIterator( ConstIterator& c ) : node( c.node ) {}
   QValueListIterator( const Iterator& i ) : node( i.node ) {}
 
   bool operator==( const Type& x ) const { return node == x.node; }
@@ -113,6 +113,29 @@ public:
     return Iterator( next );
   }
 
+  Iterator find( Iterator it, const T& x ) const {
+    Iterator first = it;
+    Iterator last = Iterator( node );
+    while( first != last) {
+      if ( *first == x )
+	return first;
+      ++first;
+    }
+    return last;
+  }
+
+  uint contains( const T& x ) const {
+    uint result = 0;
+    Iterator first = Iterator( node->next );
+    Iterator last = Iterator( node );
+    while( first != last) {
+      if ( *first == x )
+	++result;
+      ++first;
+    }
+    return result;
+  }
+
   void remove( const T& x ) {
     Iterator first = Iterator( node->next );
     Iterator last = Iterator( node );
@@ -155,7 +178,7 @@ public:
    * Typedefs
    */
   typedef QValueListIterator< T, T&, T* > Iterator;
-  typedef QValueListIterator< T, const T&, const T* > ConstIterator;
+  // typedef QValueListIterator< T, const T&, const T* > ConstIterator;
   typedef T ValueType;
 
   /**
@@ -165,12 +188,20 @@ public:
   QValueList( const QValueList& _l ) { sh = _l.sh; sh->ref(); }
   ~QValueList() { if ( sh->deref() ) delete sh; }
 
-  Iterator begin() const { return Iterator( sh->node->next ); }
-  Iterator end() const { return Iterator( sh->node ); }
+  QValueList<T>& operator= ( const QValueList<T>& _list )
+  {
+    if ( sh->deref() ) delete sh;
+    sh = _list.sh;
+    sh->ref();
+  }
+
+  Iterator begin() { detach(); return Iterator( sh->node->next ); }
+  Iterator end() { detach(); return Iterator( sh->node ); }
+  Iterator last() { detach(); return Iterator( sh->node->prev ); }
 
   bool isEmpty() const { return ( sh->nodes == 0 ); }
 
-  Iterator insert( Iterator it, const T& x ) { return sh->insert( it, x ); }
+  Iterator insert( Iterator it, const T& x ) { detach(); return sh->insert( it, x ); }
 
   Iterator append( const T& x ) { detach(); return sh->insert( end(), x ); }
   Iterator prepend( const T& x ) { detach(); return sh->insert( begin(), x ); }
@@ -178,14 +209,19 @@ public:
   Iterator remove( Iterator it ) { detach(); return sh->remove( it ); }
   void remove( const T& x ) { detach(); sh->remove( x ); }
 
-  T& getFirst() const { return sh->node->next->data; }
-  T& getLast() const { return sh->node->prev->data; }
+  T& getFirst() { detach(); detach(); return sh->node->next->data; }
+  T& getLast() { detach(); detach(); return sh->node->prev->data; }
 
-  T& operator[] ( uint i ) const { return *sh->at(i); }
-  Iterator at( uint i ) const { return sh->at(i); }
+  T& operator[] ( uint i ) { detach(); return *sh->at(i); }
+  const T& operator[] ( uint i ) const { return *sh->at(i); }
+  Iterator at( uint i ) { detach(); return sh->at(i); }
+  Iterator find ( const T& x ) { detach(); return sh->find( begin(), x); }
+  Iterator find ( Iterator it, const T& x ) { detach(); return sh->find( it, x ); }
+  uint contains( const T& x ) const { return sh->contains( x ); }
+
   uint count() const { return sh->nodes; }
 
-  void clear() { detach(); sh->clear(); }
+  void clear() { if ( sh->count == 1 ) sh->clear(); else { sh->deref(); sh = new QValueListPrivate<T>; } }
 
 protected:
   /**
