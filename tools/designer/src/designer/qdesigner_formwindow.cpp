@@ -69,6 +69,7 @@ QDesignerFormWindow::~QDesignerFormWindow()
 void QDesignerFormWindow::activated(bool active)
 {
     if (active == true) {
+        setWindowState(windowState() & ~Qt::WindowMinimized);
         raise();
         activateWindow();
     }
