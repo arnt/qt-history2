@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#231 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#232 $
 **
 ** Implementation of QApplication class
 **
@@ -1931,11 +1931,11 @@ void QApplication::exit_loop()
 
   If the application has been restored from an earlier session, this
   identifier is the same as it was in that previous session.
-  
+
   The session identifier is guaranteed to be unique for both different
   applications and different instances of the same application.
 
-\sa isSessionRestored(), commitData(), saveState()
+  \sa isSessionRestored(), commitData(), saveState()
  */
 
 
@@ -2043,7 +2043,7 @@ void QApplication::saveState( QSessionManager& /* sm */ )
   If the application has been restored from an earlier session, this
   identifier is the same as it was in that previous session.
 
-  \sa QApplication::sessionId();
+  \sa QApplication::sessionId()
  */
 
 /*! \fn     bool QSessionManager::allowsInteraction()
@@ -2096,6 +2096,8 @@ void MyApplication::commitData( QSessionManager& sm ) {
 }
 \endcode
 
+  If an error occured within the application while saving its data,
+  you may want to use allowsErrorInteraction() instead.
 
    \sa QApplication::commitData(), release(), cancel()
 */
@@ -2144,8 +2146,6 @@ void MyApplication::commitData( QSessionManager& sm ) {
           - This is the default hint. If the application still
              runs by the time the session is shut down, it shall be
              restarted.
-	
-	
   <li> \c RestartAnyway
             - Restart the application in the next session, regardless
             whether it runs at the end of this session or not. This is
@@ -2178,30 +2178,31 @@ void MyApplication::commitData( QSessionManager& sm ) {
 
   If the session manager is capable of restoring sessions, it will
   execute \a command in order to restore the application. The command
-  defaults to 
-  
+  defaults to
+
   \code
-               appname \c -session \e <session-identifier>
+               appname -session  id
   \endcode
-  
-  The \c -session options is mandatory, otherwise QApplication can not
-  tell whether it QApplication::isSessionRestored() or what the
-  QApplication::sessionId() is. If your application is very simply, it
-  may be possible to store the entire application state in additional
-  command line options. In general, this is a very bad idea, since
-  command lines are often limited to a few hundred bytes.  Instead,
-  use temporary files or a database for this purpose. By marking the
-  data with the unique sessionId(), you will be able to restore the
-  application in a future session.
-  
-  
+
+  The \c -session option is mandatory, otherwise QApplication can not
+  tell whether it has been restored or what the current session
+  identifier is. See QApplication::isSessionRestored() and
+  QApplication::sessionId() for details.  If your application is very
+  simply, it may be possible to store the entire application state in
+  additional command line options. In general, this is a very bad
+  idea, since command lines are often limited to a few hundred bytes.
+  Instead, use temporary files or a database for this purpose. By
+  marking the data with the unique sessionId(), you will be able to
+  restore the application in a future session.
+
+
   \sa restartCommand(), setDiscardCommand(), setRestartHint()
  */
 
 /*! \fn     QStringList QSessionManager::restartCommand() const
 
   Returns the currently set restart command.
-  
+
   \sa setRestartCommand(), restartHint()
  */
 
@@ -2214,25 +2215,46 @@ void MyApplication::commitData( QSessionManager& sm ) {
 /*! \fn     QStringList QSessionManager::discardCommand() const
 
   Returns the currently set discard command.
-  
+
   \sa setDiscardCommand(), restartCommand(), setRestartCommand()
  */
 
 /*! \fn     void QSessionManager::setProperty( const QString& name, const QString& value )
 
+  Low-level write access to the application's identification and state
+  record kept in the session manager. 
+  
  */
 
 /*! \fn     void QSessionManager::setProperty( const QString& name, const QStringList& value )
 
+  Low-level write access to the application's identification and state
+  record kept in the session manager. 
 
  */
 
 /*! \fn     bool QSessionManager::isPhase2()
+  
+  Returns whether the session manager is currently performing a second
+  session management phase.
 
+  \sa requestPhase2()
  */
 
 /*! \fn     void QSessionManager::requestPhase2()
+  
+  Requests a second session management phase for the application. The
+  application may then simply return from the
+  QApplication::commitData() or QApplication::saveState()
+  function. The respective function will be called again after the
+  first session management phase has been finished, this time with
+  isPhase2() returning TRUE.
+
+  The two phases are useful for applications like X11 window manager,
+  that need to store informations about other application's windows
+  and therefore have to wait until these applications finished their
+  respective session management tasks.
+  
+  \sa isPhase2()
  */
-
-
 
