@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.cpp#24 $
+** $Id: //depot/qt/main/src/tools/qcollection.cpp#25 $
 **
 ** Implementation of base class for all collection classes
 **
@@ -139,6 +139,13 @@ GCI QCollection::newItem( GCI d )
 
   This function is always reimplemented in the collection template
   classes.
+
+  ***NOTE*** If you reimplement this function you must also reimplement the
+  destructor and call the virtual function clear() from your
+  destructor. This is due to the way virtual functions and destructors
+  work in C++, virtual functions in derived classes cannot be called from
+  a destructor. If you do not do this your deleteItem() function will not
+  be called if the container is not empty when it is destructed.
 
   \sa newItem(), setAutoDelete()
 */
