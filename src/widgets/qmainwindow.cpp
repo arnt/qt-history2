@@ -230,7 +230,7 @@ public:
     bool movable;
     bool opaque;
     bool inMovement;
-    
+
     QMap< int, bool > dockable;
 };
 
@@ -2001,7 +2001,7 @@ void QMainWindow::paintEvent( QPaintEvent * )
 bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 {
     if ( e->type() == QEvent::MouseButtonPress &&
-	 o == this && !d->inMovement && 
+	 o == this && !d->inMovement &&
 	 ( (QMouseEvent*)e )->button() == RightButton ) {
 	QMouseEvent *me = (QMouseEvent*)e;
 	rightMouseButtonMenu( me->globalPos() );
@@ -2755,7 +2755,7 @@ void QMainWindow::lineUpToolBars( bool keepNewLines )
 	    continue;
 	QMainWindowPrivate::ToolBar *t = 0;
 	for ( t = l->first(); t; t = l->next() ) {
-	    t->extraOffset = 0;
+	    t->extraOffset = -1;
 	    if ( !keepNewLines )
 		t->nl = FALSE;
 	}
@@ -2798,7 +2798,7 @@ void QMainWindow::rightMouseButtonMenu( const QPoint &p )
     }
     int lineUp1 = m.insertItem( tr( "Line Up Toolbars (compact)" ) );
     int lineUp2 = m.insertItem( tr( "Line Up Toolbars (normal)" ) );
-	    
+	
     int id = m.exec( p );
     if ( id == lineUp1 ) {
 	lineUpToolBars( FALSE );
