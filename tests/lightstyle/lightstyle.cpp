@@ -860,19 +860,19 @@ void LightStyle::drawToolBarHandle(QPainter *p, const QRect &rect,
 				   bool, const QColorGroup &g, bool)
 {
     p->save();
-    p->setPen(g.highlight());
-    p->setBrush(g.brush(QColorGroup::Highlight));
+    p->setPen(g.mid());
+    p->setBrush(g.brush(QColorGroup::Mid));
 
     if (orientation == Qt::Horizontal) {
 	QRect l, r;
-	l.setRect(rect.x(), rect.y(), rect.width() - 3, rect.height());
+	l.setRect(rect.x() + 1, rect.y() + 1, rect.width() - 5, rect.height() - 2);
 	r.setRect(l.right() + 1, l.y(), 3, l.height());
 
 	p->drawRect(l);
        	qDrawShadePanel(p, r, g, FALSE);
     } else {
 	QRect t, b;
-	t.setRect(rect.x(), rect.y(), rect.width(), rect.height() - 3);
+	t.setRect(rect.x() + 1, rect.y() + 1, rect.width() - 2, rect.height() - 5);
 	b.setRect(t.x(), t.bottom() + 1, t.width(), 3);
 
 	p->drawRect(t);
