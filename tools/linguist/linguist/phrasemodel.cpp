@@ -20,7 +20,7 @@ void PhraseModel::removePhrases()
 {
     int r = plist.count();
     if (r > 0) {
-        emit rowsAboutToBeRemoved(QModelIndex::Null, 0, r-1);
+        emit rowsAboutToBeRemoved(QModelIndex(), 0, r-1);
         plist.clear();
     }
 }
@@ -49,14 +49,14 @@ QModelIndex PhraseModel::addPhrase(Phrase p)
     plist.append(p);
 
     // update phrases as we add them
-    emit rowsInserted(QModelIndex::Null, r, r);
+    emit rowsInserted(QModelIndex(), r, r);
     return QAbstractTableModel::index(r, 0);
 }
 
 void PhraseModel::removePhrase(const QModelIndex &index)
 {
     int r = index.row();
-    emit rowsAboutToBeRemoved(QModelIndex::Null, r, r);
+    emit rowsAboutToBeRemoved(QModelIndex(), r, r);
     plist.removeAt(r);
 }
 
@@ -76,7 +76,7 @@ void PhraseModel::resort()
     if (sortColumn == -1)
         return;
 
-    sort(sortColumn, QModelIndex::Null, sortOrder);
+    sort(sortColumn, QModelIndex(), sortOrder);
 }
 
 QModelIndex PhraseModel::index(const Phrase phr) const
@@ -88,12 +88,12 @@ QModelIndex PhraseModel::index(const Phrase phr) const
     return QAbstractTableModel::index(row,0);
 }
 
-int PhraseModel::rowCount() const
+int PhraseModel::rowCount(const QModelIndex &) const
 {
     return plist.count();
 }
 
-int PhraseModel::columnCount() const
+int PhraseModel::columnCount(const QModelIndex &) const
 {
     return 3;
 }

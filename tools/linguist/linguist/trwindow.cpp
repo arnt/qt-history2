@@ -286,7 +286,7 @@ void TrWindow::sortContexts(int section, Qt::MouseButton state)
             tv->clearSelection();
             tv->header()->setSortIndicator(section, order);
             tv->header()->setSortIndicatorShown(true);
-            cmdl->sort(section, QModelIndex::Null, order);
+            cmdl->sort(section, QModelIndex(), order);
             mmdl->setContextItem(0);
         }
     }
@@ -314,7 +314,7 @@ void TrWindow::sortMessages(int section, Qt::MouseButton state)
             stv->clearSelection();
             stv->header()->setSortIndicator(section, order);
             stv->header()->setSortIndicatorShown(true);
-            mmdl->sort(section, QModelIndex::Null, order);
+            mmdl->sort(section, QModelIndex(), order);
         }
     }
 }
@@ -340,7 +340,7 @@ void TrWindow::sortPhrases(int section, Qt::MouseButton state)
 
         ptv->header()->setSortIndicator(section, order);
         ptv->header()->setSortIndicatorShown(true);
-        pmdl->sort(section, QModelIndex::Null, order);
+        pmdl->sort(section, QModelIndex(), order);
     }
 }
 
@@ -816,7 +816,7 @@ void TrWindow::revertSorting()
     tv->clearSelection();
     tv->header()->setSortIndicator(1, Qt::AscendingOrder);
     tv->header()->setSortIndicatorShown(true);
-    cmdl->sort(1, QModelIndex::Null, Qt::AscendingOrder);
+    cmdl->sort(1, QModelIndex(), Qt::AscendingOrder);
     mmdl->setContextItem(0);
 
     foreach(ContextItem *c, cmdl->contextList()) {

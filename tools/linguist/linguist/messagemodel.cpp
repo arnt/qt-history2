@@ -66,14 +66,14 @@ void MessageModel::setContextItem(ContextItem *ctxtI)
 
     if (cntxtItem != 0) {
         int r = cntxtItem->messageItemsInList();
-        emit rowsAboutToBeRemoved(QModelIndex::Null, 0, r-1);
+        emit rowsAboutToBeRemoved(QModelIndex(), 0, r-1);
         cntxtItem = 0;
     }
 
     cntxtItem = ctxtI;
 
     if (cntxtItem != 0)
-        emit rowsInserted(QModelIndex::Null, 0, cntxtItem->messageItemsInList()-1);
+        emit rowsInserted(QModelIndex(), 0, cntxtItem->messageItemsInList()-1);
 }
 
 void MessageModel::updateItem(QModelIndex indx)
@@ -84,7 +84,7 @@ void MessageModel::updateItem(QModelIndex indx)
     emit dataChanged(strtindx, endindx);
 }
 
-int MessageModel::rowCount() const
+int MessageModel::rowCount(const QModelIndex &) const
 {
     if (cntxtItem != 0)
         return cntxtItem->messageItemsInList();
@@ -92,7 +92,7 @@ int MessageModel::rowCount() const
     return 0;
 }
 
-int MessageModel::columnCount() const
+int MessageModel::columnCount(const QModelIndex &) const
 {
     return 3;
 }

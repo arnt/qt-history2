@@ -92,7 +92,7 @@ void PhraseBookBox::sortPhrases(int section, Qt::MouseButton state)
 
         phraseList->header()->setSortIndicator(section, order);
         phraseList->header()->setSortIndicatorShown(true);
-        phrMdl->sort(section, QModelIndex::Null, order);
+        phrMdl->sort(section, QModelIndex(), order);
     }
 }
 

@@ -117,7 +117,7 @@ void ContextModel::updateItem(QModelIndex indx)
 void ContextModel::clearContextList()
 {
     int r = cntxtList.count();
-    emit rowsAboutToBeRemoved(QModelIndex::Null, 0, r-1);
+    emit rowsAboutToBeRemoved(QModelIndex(), 0, r-1);
 
     if (r <= 0) // no items
         return;
@@ -131,15 +131,15 @@ void ContextModel::clearContextList()
 // since we don't add or remove single rows, update all at once...
 void ContextModel::updateAll()
 {
-    emit rowsInserted(QModelIndex::Null, 0, cntxtList.count()-1);
+    emit rowsInserted(QModelIndex(), 0, cntxtList.count()-1);
 }
 
-int ContextModel::rowCount() const
+int ContextModel::rowCount(const QModelIndex &) const
 {
     return cntxtList.count();
 }
 
-int ContextModel::columnCount() const
+int ContextModel::columnCount(const QModelIndex &) const
 {
     return 3;
 }
