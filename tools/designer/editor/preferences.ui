@@ -478,22 +478,22 @@
     <variable>ConfigStyle currentStyle;</variable>
     <variable>QString currentElement;</variable>
 </variables>
-<functions>
-    <function type="slot">init()</function>
-    <function type="slot">destroy()</function>
-    <function type="slot">colorClicked()</function>
-    <function type="slot">reInit()</function>
-    <function type="slot">save()</function>
-    <function type="slot">updatePreview()</function>
-    <function type="slot">boldChanged( bool b )</function>
-    <function type="slot">elementChanged( const QString &amp; element )</function>
-    <function type="slot">familyChanged( const QString &amp; f )</function>
-    <function type="slot">italicChanged( bool b )</function>
-    <function type="slot">setColorPixmap( const QColor &amp; c )</function>
-    <function type="slot">setPath( const QString &amp; p )</function>
-    <function type="slot">sizeChanged( int s )</function>
-    <function type="slot">underlineChanged( bool b )</function>
-</functions>
+<slots>
+    <slot>init()</slot>
+    <slot>destroy()</slot>
+    <slot>colorClicked()</slot>
+    <slot>reInit()</slot>
+    <slot>save()</slot>
+    <slot>updatePreview()</slot>
+    <slot>boldChanged( bool b )</slot>
+    <slot>elementChanged( const QString &amp; element )</slot>
+    <slot>familyChanged( const QString &amp; f )</slot>
+    <slot>italicChanged( bool b )</slot>
+    <slot>setColorPixmap( const QColor &amp; c )</slot>
+    <slot>setPath( const QString &amp; p )</slot>
+    <slot>sizeChanged( int s )</slot>
+    <slot>underlineChanged( bool b )</slot>
+</slots>
 <exportmacro>EDITOR_EXPORT</exportmacro>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

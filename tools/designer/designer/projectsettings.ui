@@ -282,14 +282,14 @@
     <tabstop>buttonOk</tabstop>
     <tabstop>buttonCancel</tabstop>
 </tabstops>
-<functions>
-    <function type="slot" access="protected">chooseDatabaseFile()</function>
-    <function type="slot" access="protected">chooseProjectFile()</function>
-    <function type="slot" access="protected">destroy()</function>
-    <function type="slot" access="protected">helpClicked()</function>
-    <function type="slot" access="protected">init()</function>
-    <function type="slot" access="protected">languageChanged( const QString &amp; )</function>
-    <function type="slot" access="protected">okClicked()</function>
-</functions>
+<slots>
+    <slot access="protected">chooseDatabaseFile()</slot>
+    <slot access="protected">chooseProjectFile()</slot>
+    <slot access="protected">destroy()</slot>
+    <slot access="protected">helpClicked()</slot>
+    <slot access="protected">init()</slot>
+    <slot access="protected">languageChanged( const QString &amp; )</slot>
+    <slot access="protected">okClicked()</slot>
+</slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -62,10 +62,12 @@
     <variable>bool sessions;</variable>
     <variable>QString log_filename;</variable>
 </variables>
+<slots>    
+    <slot>optionsDlg()</slot>
+    <slot>quit()</slot>
+<slots>
 <functions>
-    <function type="function" access="private">init()</function>
-    <function type="slot">optionsDlg()</function>
-    <function type="slot">quit()</function>
+    <function access="private">init()</function>
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>

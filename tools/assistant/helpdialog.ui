@@ -476,22 +476,22 @@
     <tabstop>helpButton</tabstop>
     <tabstop>resultBox</tabstop>
 </tabstops>
-<functions>
-    <function type="slot" access="protected">init()</function>
-    <function type="slot" access="protected">destroy()</function>
-    <function type="slot" access="protected">addBookmark()</function>
-    <function type="slot" access="protected">currentBookmarkChanged( QListViewItem * )</function>
-    <function type="slot" access="protected">currentIndexChanged( QListBoxItem * )</function>
-    <function type="slot" access="protected">currentTabChanged( const QString &amp; )</function>
-    <function type="slot" access="protected">loadIndexFile()</function>
-    <function type="slot" access="protected">currentContentsChanged( QListViewItem * )</function>
-    <function type="slot" access="protected">removeBookmark()</function>
-    <function type="slot" access="protected">searchInIndex( const QString &amp; )</function>
-    <function type="slot" access="protected">showTopic()</function>
-    <function type="slot" access="protected">showSearchHelp()</function>
-    <function type="slot" access="protected">startSearch()</function>
-    <function type="slot" access="protected">showResultPage( int )</function>
-</functions>
+<slots>
+    <slot access="protected">init()</slot>
+    <slot access="protected">destroy()</slot>
+    <slot access="protected">addBookmark()</slot>
+    <slot access="protected">currentBookmarkChanged( QListViewItem * )</slot>
+    <slot access="protected">currentIndexChanged( QListBoxItem * )</slot>
+    <slot access="protected">currentTabChanged( const QString &amp; )</slot>
+    <slot access="protected">loadIndexFile()</slot>
+    <slot access="protected">currentContentsChanged( QListViewItem * )</slot>
+    <slot access="protected">removeBookmark()</slot>
+    <slot access="protected">searchInIndex( const QString &amp; )</slot>
+    <slot access="protected">showTopic()</slot>
+    <slot access="protected">showSearchHelp()</slot>
+    <slot access="protected">startSearch()</slot>
+    <slot access="protected">showResultPage( int )</slot>
+</slots>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

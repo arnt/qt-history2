@@ -262,16 +262,16 @@
 <variables>
     <variable>QPixmap pix</variable>
 </variables>
-<functions>
-    <function type="slot" access="protected">init()</function>
-    <function type="slot" access="protected">destroy()</function>
-    <function type="slot">updatePreview()</function>
-    <function type="slot">flip( bool )</function>
-    <function type="slot">invertColors( bool )</function>
-    <function type="slot">mirror( bool )</function>
-    <function type="slot">rotateLeft( bool )</function>
-    <function type="slot">rotateRight( bool )</function>
-    <function type="slot">setPixmap( const QPixmap &amp; pm )</function>
-</functions>
+<slots>
+    <slot access="protected">init()</slot>
+    <slot access="protected">destroy()</slot>
+    <slot>updatePreview()</slot>
+    <slot>flip( bool )</slot>
+    <slot>invertColors( bool )</slot>
+    <slot>mirror( bool )</slot>
+    <slot>rotateLeft( bool )</slot>
+    <slot>rotateRight( bool )</slot>
+    <slot>setPixmap( const QPixmap &amp; pm )</slot>
+</slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

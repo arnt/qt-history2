@@ -289,11 +289,11 @@
         <slot>recentItemChanged(QIconViewItem*)</slot>
     </connection>
 </connections>
-<functions>
-    <function type="slot">recentItemChanged( QIconViewItem * )</function>
-    <function type="slot">clearFileInfo()</function>
-    <function type="slot">accept()</function>
-    <function type="slot">reject()</function>
-</functions>
+<slots>
+    <slot>recentItemChanged( QIconViewItem * )</slot>
+    <slot>clearFileInfo()</slot>
+    <slot>accept()</slot>
+    <slot>reject()</slot>
+</slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

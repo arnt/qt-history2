@@ -355,9 +355,11 @@
 <includes>
     <include location="local" impldecl="in implementation">metric.ui.h</include>
 </includes>
+<slots>
+    <slot>convert()</slot>
+</slots>
 <functions>
-    <function type="function" access="private">init()</function>
-    <function type="slot">convert()</function>
+    <function access="private">init()</function>
 </functions>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -561,34 +561,36 @@
     <variable>QGuardedPtr&lt;FindDialog&gt; findDialog;</variable>
     <variable>static QPtrList&lt;MainWindow&gt; *windows;</variable>
 </variables>
+<slots>
+    <slot>init()</slot>
+    <slot>setup()</slot>
+    <slot>setObjectsEnabled( bool )</slot>
+    <slot>destroy()</slot>
+    <slot>about()</slot>
+    <slot>aboutQt()</slot>
+    <slot>find()</slot>
+    <slot>goHome()</slot>
+    <slot>showAssistantHelp()</slot>
+    <slot>showLinguistHelp()</slot>
+    <slot>print()</slot>
+    <slot>updateBookmarkMenu()</slot>
+    <slot>setupBookmarkMenu()</slot>
+    <slot>showBookmark( int id )</slot>
+    <slot>showDesignerHelp()</slot>
+    <slot>showLinkFromClient( const QString &amp; link )</slot>
+    <slot>showLink( const QString &amp; link )</slot>
+    <slot>showQtHelp()</slot>
+    <slot>setFamily( const QString &amp; f )</slot>
+    <slot>showSettingsDialog()</slot>
+    <slot>hide()</slot>
+    <slot returnType="MainWindow *">newWindow()</slot>
+    <slot>saveSettings()</slot>
+    <slot>saveToolbarSettings()</slot>
+</slots>
 <functions>
-    <function type="slot">init()</function>
-    <function type="slot">setup()</function>
-    <function type="function" access="private" returnType="bool">insertActionSeparator()</function>
-    <function type="function" access="private" returnType="void">setupGoActions( const QStringList &amp;, const QStringList &amp; )</function>
-    <function type="slot">setObjectsEnabled( bool )</function>
-    <function type="slot">destroy()</function>
-    <function type="slot">about()</function>
-    <function type="slot">aboutQt()</function>
-    <function type="slot">find()</function>
-    <function type="slot">goHome()</function>
-    <function type="slot">showAssistantHelp()</function>
-    <function type="slot">showLinguistHelp()</function>
-    <function type="slot">print()</function>
-    <function type="slot">updateBookmarkMenu()</function>
-    <function type="slot">setupBookmarkMenu()</function>
-    <function type="slot">showBookmark( int id )</function>
-    <function type="slot">showDesignerHelp()</function>
-    <function type="slot">showLinkFromClient( const QString &amp; link )</function>
-    <function type="slot">showLink( const QString &amp; link )</function>
-    <function type="slot">showQtHelp()</function>
-    <function type="slot">setFamily( const QString &amp; f )</function>
-    <function type="slot">showSettingsDialog()</function>
-    <function type="slot">hide()</function>
-    <function type="slot" returnType="MainWindow *">newWindow()</function>
-    <function type="slot">saveSettings()</function>
-    <function type="slot">saveToolbarSettings()</function>
-    <function type="function" returnType="bool">close( bool )</function>
+    <function access="private" returnType="bool">insertActionSeparator()</function>
+    <function access="private" returnType="void">setupGoActions( const QStringList &amp;, const QStringList &amp; )</function>
+    <function returnType="bool">close( bool )</function>
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>

@@ -174,7 +174,7 @@ public:
 				const QString &access, const QString &type, const QString &language,
 				const QString &returnType );
     static void removeFunction( QObject *o, const QString &function );
-    static QValueList<Function> functionList( QObject *o );
+    static QValueList<Function> functionList( QObject *o, bool onlyFunctions = FALSE );
     static QValueList<Function> slotList( QObject *o );
     static bool isSlotUsed( QObject *o, const QCString &slot );
     static bool hasFunction( QObject *o, const QCString &function, bool onlyCustom = FALSE );

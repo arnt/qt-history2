@@ -746,7 +746,7 @@ void MetaDataBase::removeFunction( QObject *o, const QString &function )
     }
 }
 
-QValueList<MetaDataBase::Function> MetaDataBase::functionList( QObject *o )
+QValueList<MetaDataBase::Function> MetaDataBase::functionList( QObject *o, bool onlyFunctions )
 {
     setupDataBase();
     MetaDataBaseRecord *r = db->find( (void*)o );
@@ -755,8 +755,14 @@ QValueList<MetaDataBase::Function> MetaDataBase::functionList( QObject *o )
 		  o, o->name(), o->className() );
 	return QValueList<Function>();
     }
-
-    return r->functionList;
+    if ( !onlyFunctions )
+	return r->functionList;
+    QValueList<Function> fList;
+    for ( QValueList<Function>::Iterator it = r->functionList.begin(); it != r->functionList.end(); ++it ) {
+	if ( (*it).type == "function" )
+	    fList.append( *it );
+    }
+    return fList;
 }
 
 QValueList<MetaDataBase::Function> MetaDataBase::slotList( QObject *o )

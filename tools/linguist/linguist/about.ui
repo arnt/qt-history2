@@ -202,8 +202,8 @@
         <slot>accept()</slot>
     </connection>
 </connections>
-<functions>
-    <function type="slot" access="protected" language="C++">init()</function>    
-    <function type="slot" access="protected" language="C++">destroy()</function>   
-</functions>
+<slots>
+    <slot access="protected" language="C++">init()</slot>    
+    <slot access="protected" language="C++">destroy()</slot>   
+</slots>
 </UI>

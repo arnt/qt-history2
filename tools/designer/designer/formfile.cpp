@@ -572,14 +572,17 @@ void FormFile::parseCode( const QString &txt, bool allowModify )
 	    function.function = make_func_pretty( (*it).name );
 	    function.specifier = "virtual";
 	    function.access = "public";
-	    if ( function.function == "init()" || function.function == "destroy()" )
-		function.access = "private";
 	    function.language = pro->language();
 	    function.returnType = (*it).returnType;
 	    if ( function.returnType == "void" )
 		function.type = "slot";
 	    else
 		function.type = "function";
+	    if ( function.function == "init()" || function.function == "destroy()" ) {
+		function.type = "function";
+		function.access = "private";
+		function.specifier = "non virtual";
+	    }
 	    newFunctions << function;
 	    funcs.insert( (*it).name, (*it).body );
 	    if ( allowModify )

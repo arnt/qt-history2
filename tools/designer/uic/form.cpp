@@ -351,16 +351,10 @@ void Uic::createFormDecl( const QDomElement &e )
     if ( hadOutput )
 	out << endl;
 
-    // find functions...
     QStringList publicSlots, protectedSlots, privateSlots;
     QStringList publicSlotTypes, protectedSlotTypes, privateSlotTypes;
     QStringList publicSlotSpecifier, protectedSlotSpecifier, privateSlotSpecifier;
 
-    QStringList publicFuncts, protectedFuncts, privateFuncts;
-    QStringList publicFunctRetTyp, protectedFunctRetTyp, privateFunctRetTyp;
-    QStringList publicFunctSpec, protectedFunctSpec, privateFunctSpec;
-
-    // for compatibility
     nl = e.parentNode().toElement().elementsByTagName( "slot" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
@@ -390,6 +384,10 @@ void Uic::createFormDecl( const QDomElement &e )
 	}
     }
 
+    QStringList publicFuncts, protectedFuncts, privateFuncts;
+    QStringList publicFunctRetTyp, protectedFunctRetTyp, privateFunctRetTyp;
+    QStringList publicFunctSpec, protectedFunctSpec, privateFunctSpec;
+
     nl = e.parentNode().toElement().elementsByTagName( "function" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item( i ).toElement();
@@ -397,42 +395,24 @@ void Uic::createFormDecl( const QDomElement &e )
 	    continue;
 	if ( n.attribute( "language", "C++" ) != "C++" )
 	    continue;
-	QString functType = n.attribute( "type", "function" );
 	QString returnType = n.attribute( "returnType", "void" );
 	QString functionName = n.firstChild().toText().data().stripWhiteSpace();
 	if ( functionName.endsWith( ";" ) )
 	    functionName = functionName.left( functionName.length() - 1 );
 	QString specifier = n.attribute( "specifier" );
 	QString access = n.attribute( "access" );
-
-	if ( functType == "slot" ) {
-	    if ( access == "protected" ) {
-		protectedSlots += functionName;
-		protectedSlotTypes += returnType;
-		protectedSlotSpecifier += specifier;
-	    } else if ( access == "private" ) {
-		privateSlots += functionName;
-		privateSlotTypes += returnType;
-		privateSlotSpecifier += specifier;
-	    } else {
-		publicSlots += functionName;
-		publicSlotTypes += returnType;
-		publicSlotSpecifier += specifier;
-	    }
+	if ( access == "protected" ) {
+	    protectedFuncts += functionName;
+	    protectedFunctRetTyp += returnType;
+	    protectedFunctSpec += specifier;
+	} else if ( access == "private" ) {
+	    privateFuncts += functionName;
+	    privateFunctRetTyp += returnType;
+	    privateFunctSpec += specifier;
 	} else {
-	    if ( access == "protected" ) {
-		protectedFuncts += functionName;
-		protectedFunctRetTyp += returnType;
-		protectedFunctSpec += specifier;
-	    } else if ( access == "private" ) {
-		privateFuncts += functionName;
-		privateFunctRetTyp += returnType;
-		privateFunctSpec += specifier;
-	    } else {
-		publicFuncts += functionName;
-		publicFunctRetTyp += returnType;
-		publicFunctSpec += specifier;
-	    }
+	    publicFuncts += functionName;
+	    publicFunctRetTyp += returnType;
+	    publicFunctSpec += specifier;
 	}
     }
 
@@ -594,7 +574,6 @@ void Uic::createFormImpl( const QDomElement &e )
     QStringList extraFuncts;
     QStringList extraFunctTyp;
 
-    // for compatibility
     nl = e.parentNode().toElement().elementsByTagName( "slot" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
@@ -1033,7 +1012,7 @@ void Uic::createFormImpl( const QDomElement &e )
     // take sizeHint() into account, for height-for-width widgets
     if ( !geometry.isNull() )
 	out << indent << "resize( QSize(" << geometry.width() << ", "
-	    << geometry.height() << ").boundedTo(sizeHint()) );" << endl;
+	    << geometry.height() << ").expandedTo(sizeHint()) );" << endl;
 
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "connections" ) {

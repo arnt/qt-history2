@@ -642,14 +642,14 @@
     <tabstop>buttonOk</tabstop>
     <tabstop>buttonCancel</tabstop>
 </tabstops>
-<functions>
-    <function type="slot">selectColor()</function>
-    <function type="slot">addDocuFile()</function>
-    <function type="slot">removeDocuFile()</function>
-    <function type="slot">addCategory()</function>
-    <function type="slot">deleteCategory()</function>
-    <function type="slot">browseWebApp()</function>
-</functions>
+<slots>
+    <slot>selectColor()</slot>
+    <slot>addDocuFile()</slot>
+    <slot>removeDocuFile()</slot>
+    <slot>addCategory()</slot>
+    <slot>deleteCategory()</slot>
+    <slot>browseWebApp()</slot>
+</slots>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

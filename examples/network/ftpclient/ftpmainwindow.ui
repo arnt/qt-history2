@@ -259,21 +259,23 @@
     <variable access="private">QLabel *stateFtp</variable>
     <variable access="private">QString currentFtpDir</variable>
 </variables>
+<slots>
+    <slot access="public">connectToHost()</slot>
+    <slot access="private">uploadFile()</slot>
+    <slot access="private">downloadFile()</slot>
+    <slot access="private">removeFile()</slot>
+    <slot access="private">changePath( const QString &amp; newPath )</slot>
+    <slot access="private">ftp_commandStarted()</slot>
+    <slot access="private">ftp_commandFinished()</slot>
+    <slot access="private">ftp_done( bool error )</slot>
+    <slot access="private">ftp_stateChanged( int state )</slot>
+    <slot access="private">ftp_listInfo( const QUrlInfo &amp; i )</slot>
+    <slot access="private">ftp_rawCommandReply( int code, const QString &amp; text )</slot>
+    <slot access="private">changePathOrDownload(  QListViewItem * )</slot>
+</slots>
 <functions>
-    <function type="function" access="private">init()</function>
-    <function type="function" access="private">destroy()</function>
-    <function type="slot" access="public">connectToHost()</function>
-    <function type="slot" access="private">uploadFile()</function>
-    <function type="slot" access="private">downloadFile()</function>
-    <function type="slot" access="private">removeFile()</function>
-    <function type="slot" access="private">changePath( const QString &amp; newPath )</function>
-    <function type="slot" access="private">ftp_commandStarted()</function>
-    <function type="slot" access="private">ftp_commandFinished()</function>
-    <function type="slot" access="private">ftp_done( bool error )</function>
-    <function type="slot" access="private">ftp_stateChanged( int state )</function>
-    <function type="slot" access="private">ftp_listInfo( const QUrlInfo &amp; i )</function>
-    <function type="slot" access="private">ftp_rawCommandReply( int code, const QString &amp; text )</function>
-    <function type="slot" access="private">changePathOrDownload(  QListViewItem * )</function>
+    <function access="private">init()</function>
+    <function access="private">destroy()</function>
 </functions>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

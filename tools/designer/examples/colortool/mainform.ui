@@ -551,36 +551,40 @@
     <variable>QClipboard *clipboard;</variable>
     <variable>FindForm *findForm;</variable>
 </variables>
+<slots>
+    <slot>fileNew()</slot>
+    <slot>fileOpen()</slot>
+    <slot>fileSave()</slot>
+    <slot>fileSaveAs()</slot>
+    <slot>fileExit()</slot>
+    <slot>editCut()</slot>
+    <slot>editCopy()</slot>
+    <slot>editFind()</slot>
+    <slot>lookfor( const QString &amp; text )</slot>
+    <slot>helpIndex()</slot>
+    <slot>helpContents()</slot>
+    <slot>helpAbout()</slot>
+    <slot>changedTableColor( int row, int )</slot>
+    <slot>changedIconColor( QIconViewItem * item )</slot>
+    <slot>changeView( QAction * action )</slot>
+    <slot>editAdd()</slot>
+    <slot>editOptions()</slot>
+    <slot>aboutToShow()</slot>
+</slots>
 <functions>
-    <function type="function" access="private">init()</function>
-    <function type="function">clearData( bool fillWithDefaults )</function>
-    <function type="function">populate()</function>
-    <function type="function" returnType="QPixmap">colorSwatch( QColor color )</function>
-    <function type="slot">fileNew()</function>
-    <function type="slot">fileOpen()</function>
-    <function type="slot">fileSave()</function>
-    <function type="slot">fileSaveAs()</function>
-    <function type="function">load( const QString &amp; filename )</function>
-    <function type="function" returnType="bool">okToClear()</function>
-    <function type="slot">fileExit()</function>
-    <function type="slot">editCut()</function>
-    <function type="slot">editCopy()</function>
-    <function type="slot">editFind()</function>
-    <function type="slot">lookfor( const QString &amp; text )</function>
-    <function type="slot">helpIndex()</function>
-    <function type="slot">helpContents()</function>
-    <function type="slot">helpAbout()</function>
-    <function type="slot">changedTableColor( int row, int )</function>
-    <function type="slot">changedIconColor( QIconViewItem * item )</function>
-    <function type="function">changedColor( const QString &amp; name )</function>
-    <function type="slot">changeView( QAction * action )</function>
-    <function type="function" returnType="bool">isWebColor( QColor color )</function>
-    <function type="slot">editAdd()</function>
-    <function type="slot">editOptions()</function>
-    <function type="function">loadSettings()</function>
-    <function type="function">saveSettings()</function>
-    <function type="slot">aboutToShow()</function>
+    <function access="private">init()</function>
+    <function returnType="bool">okToClear()</function>
+    <function>load( const QString &amp; filename )</function>
+    <function returnType="QPixmap">colorSwatch( QColor color )</function>
+    <function>populate()</function>
+    <function returnType="bool">isWebColor( QColor color )</function>
+    <function>clearData( bool fillWithDefaults )</function>
+    <function>changedColor( const QString &amp; name )</function>
+    <function">saveSettings()</function>
+    <function>loadSettings()</function>
 </functions>
+
+
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -113,9 +113,11 @@
 <signals>
     <signal>lookfor(const QString&amp;)</signal>
 </signals>
+<slots>
+    <slot>find()</slot>
+</slots>
 <functions>
-    <function type="slot">find()</function>
-    <function type="function">notfound()</function>
+    <function>notfound()</function>
 </functions>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

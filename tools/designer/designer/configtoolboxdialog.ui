@@ -270,14 +270,16 @@
 <includes>
     <include location="local" impldecl="in implementation">configtoolboxdialog.ui.h</include>
 </includes>
+<slots>
+    <slot>addTool()</slot>
+    <slot>removeTool()</slot>
+    <slot>moveToolUp()</slot>
+    <slot>moveToolDown()</slot>
+    <slot>currentToolChanged( QListViewItem * i )</slot>
+    <slot>currentCommonToolChanged( QListViewItem * i )</slot>
+</slots>
 <functions>
-    <function type="function" access="private">init()</function>
-    <function type="slot">addTool()</function>
-    <function type="slot">removeTool()</function>
-    <function type="slot">moveToolUp()</function>
-    <function type="slot">moveToolDown()</function>
-    <function type="slot">currentToolChanged( QListViewItem * i )</function>
-    <function type="slot">currentCommonToolChanged( QListViewItem * i )</function>
+    <function access="private">init()</function> 
 </functions>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

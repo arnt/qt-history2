@@ -157,9 +157,11 @@
 <includes>
     <include location="local" impldecl="in implementation">colornameform.ui.h</include>
 </includes>
+<slots>
+    <slot>validate()</slot>
+</slots>
 <functions>
-    <function type="function">setColors( const QMap&lt;QString, QColor&gt; &amp; colors )</function>
-    <function type="slot">validate()</function>
+    <function>setColors( const QMap&lt;QString, QColor&gt; &amp; colors )</function>
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>

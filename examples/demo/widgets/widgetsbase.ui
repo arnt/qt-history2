@@ -1246,15 +1246,15 @@
 <includes>
     <include location="local" impldecl="in implementation">widgetsbase.ui.h</include>
 </includes>
-<functions>
-    <function type="slot" access="protected">init()</function>
-    <function type="slot" access="protected">destroy()</function>
-    <function type="slot">resetColors()</function>
-    <function type="slot" access="protected">setColor( const QString &amp; color )</function>
-    <function type="slot">setColor()</function>
-    <function type="slot">updateClock()</function>
-    <function type="slot" access="protected">updateColorTest( const QString &amp; color )</function>
-    <function type="slot" access="protected">updateDateTimeString()</function>
-</functions>
+<slots>
+    <slot access="protected">init()</slot>
+    <slot access="protected">destroy()</slot>
+    <slot>resetColors()</slot>
+    <slot access="protected">setColor( const QString &amp; color )</slot>
+    <slot>setColor()</slot>
+    <slot>updateClock()</slot>
+    <slot access="protected">updateColorTest( const QString &amp; color )</slot>
+    <slot access="protected">updateDateTimeString()</slot>
+</slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

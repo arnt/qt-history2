@@ -74,7 +74,6 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
     QStringList publicFunctRetTyp, protectedFunctRetTyp, privateFunctRetTyp;
     QStringList publicFunctSpec, protectedFunctSpec, privateFunctSpec;
 
-    // for compatibility
     nl = e.parentNode().toElement().elementsByTagName( "slot" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
@@ -111,41 +110,24 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 	    continue;
 	if ( n.attribute( "language", "C++" ) != "C++" )
 	    continue;
-	QString type = n.attribute( "type", "function" );
 	QString returnType = n.attribute( "returnType", "void" );
 	QString functionName = n.firstChild().toText().data().stripWhiteSpace();
 	if ( functionName.endsWith( ";" ) )
 	    functionName = functionName.left( functionName.length() - 1 );
 	QString specifier = n.attribute( "specifier" );
 	QString access = n.attribute( "access" );
-	if ( type == "slot" ) {
-	    if ( access == "protected" ) {
-		protectedSlots += functionName;
-		protectedSlotTypes += returnType;
-		protectedSlotSpecifier += specifier;
-	    } else if ( access == "private" ) {
-		privateSlots += functionName;
-		privateSlotTypes += returnType;
-		privateSlotSpecifier += specifier;
-	    } else {
-		publicSlots += functionName;
-		publicSlotTypes += returnType;
-		publicSlotSpecifier += specifier;
-	    }
+	if ( access == "protected" ) {
+	    protectedFuncts += functionName;
+	    protectedFunctRetTyp += returnType;
+	    protectedFunctSpec += specifier;
+	} else if ( access == "private" ) {
+	    privateFuncts += functionName;
+	    privateFunctRetTyp += returnType;
+	    privateFunctSpec += specifier;
 	} else {
-	    if ( access == "protected" ) {
-		protectedFuncts += functionName;
-		protectedFunctRetTyp += returnType;
-		protectedFunctSpec += specifier;
-	    } else if ( access == "private" ) {
-		privateFuncts += functionName;
-		privateFunctRetTyp += returnType;
-		privateFunctSpec += specifier;
-	    } else {
-		publicFuncts += functionName;
-		publicFunctRetTyp += returnType;
-		publicFunctSpec += specifier;
-	    }
+	    publicFuncts += functionName;
+	    publicFunctRetTyp += returnType;
+	    publicFunctSpec += specifier;
 	}
     }
 
@@ -255,8 +237,6 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
     QStringList publicFunctRetTyp, protectedFunctRetTyp, privateFunctRetTyp;
     QStringList publicFunctSpec, protectedFunctSpec, privateFunctSpec;
 
-
-    // for compatibility
     nl = e.parentNode().toElement().elementsByTagName( "slot" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
@@ -293,41 +273,24 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	    continue;
 	if ( n.attribute( "language", "C++" ) != "C++" )
 	    continue;
-	QString type = n.attribute( "type", "function" );
 	QString returnType = n.attribute( "returnType", "void" );
 	QString functionName = n.firstChild().toText().data().stripWhiteSpace();
 	if ( functionName.endsWith( ";" ) )
 	    functionName = functionName.left( functionName.length() - 1 );
 	QString specifier = n.attribute( "specifier" );
 	QString access = n.attribute( "access" );
-	if ( type == "slot" ) {
-	    if ( access == "protected" ) {
-		protectedSlots += functionName;
-		protectedSlotTypes += returnType;
-		protectedSlotSpecifier += specifier;
-	    } else if ( access == "private" ) {
-		privateSlots += functionName;
-		privateSlotTypes += returnType;
-		privateSlotSpecifier += specifier;
-	    } else {
-		publicSlots += functionName;
-		publicSlotTypes += returnType;
-		publicSlotSpecifier += specifier;
-	    }
+	if ( access == "protected" ) {
+	    protectedFuncts += functionName;
+	    protectedFunctRetTyp += returnType;
+	    protectedFunctSpec += specifier;
+	} else if ( access == "private" ) {
+	    privateFuncts += functionName;
+	    privateFunctRetTyp += returnType;
+	    privateFunctSpec += specifier;
 	} else {
-	    if ( access == "protected" ) {
-		protectedFuncts += functionName;
-		protectedFunctRetTyp += returnType;
-		protectedFunctSpec += specifier;
-	    } else if ( access == "private" ) {
-		privateFuncts += functionName;
-		privateFunctRetTyp += returnType;
-		privateFunctSpec += specifier;
-	    } else {
-		publicFuncts += functionName;
-		publicFunctRetTyp += returnType;
-		publicFunctSpec += specifier;
-	    }
+	    publicFuncts += functionName;
+	    publicFunctRetTyp += returnType;
+	    publicFunctSpec += specifier;
 	}
     }
 

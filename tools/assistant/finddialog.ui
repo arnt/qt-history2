@@ -254,12 +254,12 @@
     <variable>bool onceFound;</variable>
     <variable>QString findExpr;</variable>
 </variables>
-<functions>
-    <function type="slot" access="protected">init()</function>
-    <function type="slot" access="protected">destroy()</function>
-    <function type="slot">doFind()</function>
-    <function type="slot">setBrowser( QTextBrowser * b )</function>
-</functions>
+<slots>
+    <slot access="protected">init()</slot>
+    <slot access="protected">destroy()</slot>
+    <slot>doFind()</slot>
+    <slot>setBrowser( QTextBrowser * b )</slot>
+</slots>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

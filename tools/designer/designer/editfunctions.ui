@@ -667,19 +667,19 @@
     <tabstop>addFunction</tabstop>
     <tabstop>deleteFunction</tabstop>
 </tabstops>
-<functions>
-    <function type="slot" access="protected">currentItemChanged( QListViewItem * )</function>
-    <function type="slot" access="protected">currentSpecifierChanged( const QString &amp; )</function>
-    <function type="slot" access="protected">currentTextChanged( const QString &amp; )</function>
-    <function type="slot" access="protected">currentReturnTypeChanged( const QString &amp; )</function>
-    <function type="slot" access="protected">destroy()</function>
-    <function type="slot" access="protected">init()</function>
-    <function type="slot" access="protected">currentAccessChanged( const QString &amp; )</function>
-    <function type="slot" access="protected">currentTypeChanged( const QString &amp; )</function>
-    <function type="slot" access="protected">okClicked()</function>
-    <function type="slot" access="protected">functionAdd()</function>
-    <function type="slot" access="protected">functionRemove()</function>
-    <function type="slot" access="protected">displaySlots( bool )</function>
-</functions>
+<slots>
+    <slot access="protected">currentItemChanged( QListViewItem * )</slot>
+    <slot access="protected">currentSpecifierChanged( const QString &amp; )</slot>
+    <slot access="protected">currentTextChanged( const QString &amp; )</slot>
+    <slot access="protected">currentReturnTypeChanged( const QString &amp; )</slot>
+    <slot access="protected">destroy()</slot>
+    <slot access="protected">init()</slot>
+    <slot access="protected">currentAccessChanged( const QString &amp; )</slot>
+    <slot access="protected">currentTypeChanged( const QString &amp; )</slot>
+    <slot access="protected">okClicked()</slot>
+    <slot access="protected">functionAdd()</slot>
+    <slot access="protected">functionRemove()</slot>
+    <slot access="protected">displaySlots( bool )</slot>
+</slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

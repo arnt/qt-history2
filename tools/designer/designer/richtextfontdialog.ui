@@ -309,14 +309,14 @@
     <variable>QColor color</variable>
     <variable>QString size</variable>
 </variables>
-<functions>
-    <function type="slot">init()</function>
-    <function type="slot">selectColor()</function>
-    <function type="slot">accept()</function>
-    <function type="slot">reject()</function>
-    <function type="slot" returnType="QString">getSize()</function>
-    <function type="slot" returnType="QString">getColor()</function>
-    <function type="slot" returnType="QString">getFont()</function>
-</functions>
+<slots>
+    <slot>init()</slot>
+    <slot>selectColor()</slot>
+    <slot>accept()</slot>
+    <slot>reject()</slot>
+    <slot returnType="QString">getSize()</slot>
+    <slot returnType="QString">getColor()</slot>
+    <slot returnType="QString">getFont()</slot>
+</slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

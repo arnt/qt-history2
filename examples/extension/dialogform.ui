@@ -195,9 +195,11 @@
 <variables>
     <variable>bool extensionShown;</variable>
 </variables>
+<slots>
+    <slot>toggleDetails()</slot>
+</slots>
 <functions>
-    <function type="function" access="private">init()</function>
-    <function type="slot">toggleDetails()</function>
+    <function access="private">init()</function>
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>

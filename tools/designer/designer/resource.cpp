@@ -372,7 +372,7 @@ bool Resource::load( FormFile *ff, QIODevice* dev, Project *defProject )
 	    if ( n.tagName() == "signal" )
 		metaSignals << n.firstChild().toText().data();
     }
-    if ( !slots.isNull() ) {  // for compatibility
+    if ( !slots.isNull() ) {
 	for ( QDomElement n = slots.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() )
 	    if ( n.tagName() == "slot" ) {
 		MetaDataBase::Function function;
@@ -386,6 +386,7 @@ bool Resource::load( FormFile *ff, QIODevice* dev, Project *defProject )
 		function.returnType = n.attribute( "returnType", "void" );
 		if ( function.returnType.isEmpty() )
 		    function.returnType = "void";
+		function.type = "slot";
 		function.function = n.firstChild().toText().data();
 		if ( !MetaDataBase::hasFunction( formwindow, function.function, TRUE ) )
 		    MetaDataBase::addFunction( formwindow, function.function, function.specifier,
@@ -409,8 +410,7 @@ bool Resource::load( FormFile *ff, QIODevice* dev, Project *defProject )
 		if ( function.access.isEmpty() )
 		    function.access = "public";
 		function.type = n.attribute( "type", "function" );
-		if ( function.type.isEmpty() )
-		    function.type = "function";
+		function.type = "function";
 		function.language = n.attribute( "language", "C++" );
 		function.returnType = n.attribute( "returnType", "void" );
 		if ( function.returnType.isEmpty() )
@@ -2374,7 +2374,31 @@ void Resource::saveMetaInfoAfter( QTextStream &ts, int indent )
 	    indent--;
 	    ts << makeIndent( indent ) << "</signals>" << endl;
 	}
-	QValueList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formwindow );
+
+	QValueList<MetaDataBase::Function> slotList = MetaDataBase::slotList( formwindow );
+	if ( !slotList.isEmpty() ) {
+	    ts << makeIndent( indent ) << "<slots>" << endl;
+	    indent++;
+	    QString lang = formwindow->project()->language();
+	    QValueList<MetaDataBase::Function>::Iterator it = slotList.begin();
+	    for ( ; it != slotList.end(); ++it ) {
+		MetaDataBase::Function function = *it;
+		ts << makeIndent( indent ) << "<slot";
+		if ( function.access != "public" )
+		    ts << " access=\"" << function.access << "\"";
+		if ( function.specifier != "virtual" )
+		    ts << " specifier=\"" << function.specifier << "\"";
+		if ( function.language != "C++" )
+		    ts << " language=\"" << function.language<< "\"";
+		if ( function.returnType != "void" )
+		    ts << " returnType=\"" << entitize( function.returnType ) << "\"";
+		ts << ">" << entitize( function.function ) << "</slot>" << endl;
+	    }
+	    indent--;
+	    ts << makeIndent( indent ) << "</slots>" << endl;
+	}
+
+	QValueList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formwindow, TRUE );
 	if ( !functionList.isEmpty() ) {
 	    ts << makeIndent( indent ) << "<functions>" << endl;
 	    indent++;
@@ -2383,7 +2407,6 @@ void Resource::saveMetaInfoAfter( QTextStream &ts, int indent )
 	    for ( ; it != functionList.end(); ++it ) {
 		MetaDataBase::Function function = *it;
 		ts << makeIndent( indent ) << "<function";
-		ts << " type=\"" << function.type << "\"";
 		if ( function.access != "public" )
 		    ts << " access=\"" << function.access << "\"";
 		if ( function.specifier != "virtual" )
