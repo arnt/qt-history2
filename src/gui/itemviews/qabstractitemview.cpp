@@ -229,7 +229,7 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-  \fn void QAbstractItemView::onItem(const QModelIndex &index, int button)
+  \fn void QAbstractItemView::onItem(const QModelIndex &index, Qt::ButtonState button)
 
   This signal is emitted when the cursor is positioned on the item
   specified by \a index.
@@ -237,7 +237,7 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn void QAbstractItemView::pressed(const QModelIndex &index, int button)
+    \fn void QAbstractItemView::pressed(const QModelIndex &index, Qt::ButtonState button)
 
     This signal is emitted when a mouse button is pressed. The button
     is specified by \a button (see \l{Qt::ButtonState}), and the item the
@@ -246,7 +246,7 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn void QAbstractItemView::clicked(const QModelIndex &index, int button)
+    \fn void QAbstractItemView::clicked(const QModelIndex &index, Qt::ButtonState button)
 
     This signal is emitted when a mouse button is clicked. The button
     is specified by \a button (see \l{Qt::ButtonState}), and the item the
@@ -255,7 +255,7 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn void QAbstractItemView::doubleClicked(const QModelIndex &index, int button)
+    \fn void QAbstractItemView::doubleClicked(const QModelIndex &index, Qt::ButtonState button)
 
     This signal is emitted when a mouse button is double-clicked. The
     button is specified by \a button (see \l{Qt::ButtonState}), and the

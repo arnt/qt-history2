@@ -470,9 +470,9 @@ class QTableWidgetPrivate : public QTableViewPrivate
 public:
     QTableWidgetPrivate() : QTableViewPrivate() {}
     inline QTableModel *model() const { return ::qt_cast<QTableModel*>(q_func()->model()); }
-    void emitPressed(const QModelIndex &index, int button);
-    void emitClicked(const QModelIndex &index, int button);
-    void emitDoubleClicked(const QModelIndex &index, int button);
+    void emitPressed(const QModelIndex &index, Qt::ButtonState button);
+    void emitClicked(const QModelIndex &index, Qt::ButtonState button);
+    void emitDoubleClicked(const QModelIndex &index, Qt::ButtonState button);
     void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state);
     void emitReturnPressed(const QModelIndex &index);
     void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
@@ -481,17 +481,17 @@ public:
     void emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 };
 
-void QTableWidgetPrivate::emitPressed(const QModelIndex &index, int button)
+void QTableWidgetPrivate::emitPressed(const QModelIndex &index, Qt::ButtonState button)
 {
     emit q->pressed(model()->item(index), button);
 }
 
-void QTableWidgetPrivate::emitClicked(const QModelIndex &index, int button)
+void QTableWidgetPrivate::emitClicked(const QModelIndex &index, Qt::ButtonState button)
 {
     emit q->clicked(model()->item(index), button);
 }
 
-void QTableWidgetPrivate::emitDoubleClicked(const QModelIndex &index, int button)
+void QTableWidgetPrivate::emitDoubleClicked(const QModelIndex &index, Qt::ButtonState button)
 {
     emit q->doubleClicked(model()->item(index), button);
 }
@@ -529,7 +529,7 @@ void QTableWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMod
 }
 
 /*!
-    \fn void QTableWidget::pressed(QTableWidgetItem *item, int button)
+    \fn void QTableWidget::pressed(QTableWidgetItem *item, Qt::ButtonState button)
 
     This signal is emitted when a item has been pressed (mouse click
     and release). The \a item may be 0 if the mouse was not pressed on
@@ -538,7 +538,7 @@ void QTableWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMod
 */
 
 /*!
-    \fn void QTableWidget::clicked(QTableWidgetItem *item, int button)
+    \fn void QTableWidget::clicked(QTableWidgetItem *item, Qt::ButtonState button)
 
     This signal is emitted when a mouse button is clicked. The \a item
     may be 0 if the mouse was not clicked on an item.  The button
@@ -546,7 +546,7 @@ void QTableWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMod
 */
 
 /*!
-    \fn void QTableWidget::doubleClicked(QTableWidgetItem *item, int button);
+    \fn void QTableWidget::doubleClicked(QTableWidgetItem *item, Qt::ButtonState button);
 
     This signal is emitted when a mouse button is double clicked. The
     \a item may be 0 if the mouse was not clicked on an item.  The
@@ -982,12 +982,12 @@ void QTableWidget::setModel(QAbstractItemModel *model)
 */
 void QTableWidget::setup()
 {
-    connect(this, SIGNAL(pressed(const QModelIndex&, int)),
-            SLOT(emitPressed(const QModelIndex&, int)));
-    connect(this, SIGNAL(clicked(const QModelIndex&, int)),
-            SLOT(emitClicked(const QModelIndex&, int)));
-    connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),
-            SLOT(emitDoubleClicked(const QModelIndex&, int)));
+    connect(this, SIGNAL(pressed(const QModelIndex&, Qt::ButtonState)),
+            SLOT(emitPressed(const QModelIndex&, Qt::ButtonState)));
+    connect(this, SIGNAL(clicked(const QModelIndex&, Qt::ButtonState)),
+            SLOT(emitClicked(const QModelIndex&, Qt::ButtonState)));
+    connect(this, SIGNAL(doubleClicked(const QModelIndex&, Qt::ButtonState)),
+            SLOT(emitDoubleClicked(const QModelIndex&, Qt::ButtonState)));
     connect(this, SIGNAL(keyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)),
             SLOT(emitKeyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)));
     connect(this, SIGNAL(returnPressed(const QModelIndex&)),

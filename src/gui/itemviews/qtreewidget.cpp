@@ -555,7 +555,6 @@ void QTreeModel::remove(QTreeWidgetItem *item)
 
 void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
 {
-    qDebug("emitRowsInserted");
     QModelIndex idx = index(item);
     QModelIndex parentIndex = parent(idx);
     emit rowsInserted(parentIndex, idx.row(), idx.row());
@@ -1038,9 +1037,9 @@ class QTreeWidgetPrivate : public QTreeViewPrivate
 public:
     QTreeWidgetPrivate() : QTreeViewPrivate(), sortingEnabled(false) {}
     inline QTreeModel *model() const { return ::qt_cast<QTreeModel*>(q_func()->model()); }
-    void emitPressed(const QModelIndex &index, int button);
-    void emitClicked(const QModelIndex &index, int button);
-    void emitDoubleClicked(const QModelIndex &index, int button);
+    void emitPressed(const QModelIndex &index, Qt::ButtonState button);
+    void emitClicked(const QModelIndex &index, Qt::ButtonState button);
+    void emitDoubleClicked(const QModelIndex &index, Qt::ButtonState button);
     void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state);
     void emitReturnPressed(const QModelIndex &index);
     void emitExpanded(const QModelIndex &index);
@@ -1054,17 +1053,17 @@ private:
     bool sortingEnabled;
 };
 
-void QTreeWidgetPrivate::emitPressed(const QModelIndex &index, int button)
+void QTreeWidgetPrivate::emitPressed(const QModelIndex &index, Qt::ButtonState button)
 {
     emit q->pressed(model()->item(index), index.column(), button);
 }
 
-void QTreeWidgetPrivate::emitClicked(const QModelIndex &index, int button)
+void QTreeWidgetPrivate::emitClicked(const QModelIndex &index, Qt::ButtonState button)
 {
     emit q->clicked(model()->item(index), index.column(), button);
 }
 
-void QTreeWidgetPrivate::emitDoubleClicked(const QModelIndex &index, int button)
+void QTreeWidgetPrivate::emitDoubleClicked(const QModelIndex &index, Qt::ButtonState button)
 {
     emit q->doubleClicked(model()->item(index), index.column(), button);
 }
@@ -1144,7 +1143,7 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 */
 
 /*!
-    \fn void QTreeWidget::clicked(QTreeWidgetItem *item, int column, int button)
+    \fn void QTreeWidget::clicked(QTreeWidgetItem *item, int column, Qt::ButtonState button)
 
     This signal is emitted when a mouse button is clicked. The \a item
     may be 0 if the mouse was not clicked on an item. The \a column
@@ -1154,7 +1153,7 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 */
 
 /*!
-    \fn void QTreeWidget::doubleClicked(QTreeWidgetItem *item, int column, int button)
+    \fn void QTreeWidget::doubleClicked(QTreeWidgetItem *item, int column, Qt::ButtonState button)
 
     This signal is emitted when a mouse button is double clicked. The
     \a item may be 0 if the mouse was not clicked on an item. The \a
@@ -1172,12 +1171,12 @@ QTreeWidget::QTreeWidget(QWidget *parent)
     : QTreeView(*new QTreeWidgetPrivate(), parent)
 {
     setModel(new QTreeModel(1, this)); // default is 1 column
-    connect(this, SIGNAL(pressed(const QModelIndex&, int)),
-            SLOT(emitPressed(const QModelIndex&, int)));
-    connect(this, SIGNAL(clicked(const QModelIndex&, int)),
-            SLOT(emitClicked(const QModelIndex&, int)));
-    connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),
-            SLOT(emitDoubleClicked(const QModelIndex&, int)));
+    connect(this, SIGNAL(pressed(const QModelIndex&, Qt::ButtonState)),
+            SLOT(emitPressed(const QModelIndex&, Qt::ButtonState)));
+    connect(this, SIGNAL(clicked(const QModelIndex&, Qt::ButtonState)),
+            SLOT(emitClicked(const QModelIndex&, Qt::ButtonState)));
+    connect(this, SIGNAL(doubleClicked(const QModelIndex&, Qt::ButtonState)),
+            SLOT(emitDoubleClicked(const QModelIndex&, Qt::ButtonState)));
     connect(this, SIGNAL(keyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)),
             SLOT(emitKeyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)));
     connect(this, SIGNAL(returnPressed(const QModelIndex&)),

@@ -499,9 +499,9 @@ class QListWidgetPrivate : public QListViewPrivate
 public:
     QListWidgetPrivate() : QListViewPrivate() {}
     inline QListModel *model() const { return ::qt_cast<QListModel*>(q_func()->model()); }
-    void emitPressed(const QModelIndex &index, int button);
-    void emitClicked(const QModelIndex &index, int button);
-    void emitDoubleClicked(const QModelIndex &index, int button);
+    void emitPressed(const QModelIndex &index, Qt::ButtonState button);
+    void emitClicked(const QModelIndex &index, Qt::ButtonState button);
+    void emitDoubleClicked(const QModelIndex &index, Qt::ButtonState button);
     void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state);
     void emitReturnPressed(const QModelIndex &index);
     void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
@@ -510,17 +510,17 @@ public:
     void emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 };
 
-void QListWidgetPrivate::emitPressed(const QModelIndex &index, int button)
+void QListWidgetPrivate::emitPressed(const QModelIndex &index, Qt::ButtonState button)
 {
     emit q->pressed(model()->at(index.row()), button);
 }
 
-void QListWidgetPrivate::emitClicked(const QModelIndex &index, int button)
+void QListWidgetPrivate::emitClicked(const QModelIndex &index, Qt::ButtonState button)
 {
     emit q->clicked(model()->at(index.row()), button);
 }
 
-void QListWidgetPrivate::emitDoubleClicked(const QModelIndex &index, int button)
+void QListWidgetPrivate::emitDoubleClicked(const QModelIndex &index, Qt::ButtonState button)
 {
     emit q->doubleClicked(model()->at(index.row()), button);
 }
@@ -610,7 +610,7 @@ void QListWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 */
 
 /*!
-    \fn void QListWidget::pressed(QListWidgetItem *item, int button)
+    \fn void QListWidget::pressed(QListWidgetItem *item, Qt::ButtonState button)
 
     This signal is emitted when a item has been pressed (mouse click
     and release). The \a item may be 0 if the mouse was not pressed on
@@ -619,7 +619,7 @@ void QListWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 */
 
 /*!
-    \fn void QListWidget::clicked(QListWidgetItem *item, int button)
+    \fn void QListWidget::clicked(QListWidgetItem *item, Qt::ButtonState button)
 
     This signal is emitted when a mouse button is clicked. The \a item
     may be 0 if the mouse was not clicked on an item.  The button
@@ -627,7 +627,7 @@ void QListWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 */
 
 /*!
-    \fn void QListWidget::doubleClicked(QListWidgetItem *item, int button);
+    \fn void QListWidget::doubleClicked(QListWidgetItem *item, Qt::ButtonState button);
 
     This signal is emitted when a mouse button is double clicked. The
     \a item may be 0 if the mouse was not clicked on an item.  The
@@ -938,12 +938,12 @@ void QListWidget::setModel(QAbstractItemModel *model)
 void QListWidget::setup()
 {
     setModel(new QListModel(this));
-    connect(this, SIGNAL(pressed(const QModelIndex&, int)),
-            SLOT(emitPressed(const QModelIndex&, int)));
-    connect(this, SIGNAL(clicked(const QModelIndex&, int)),
-            SLOT(emitClicked(const QModelIndex&, int)));
-    connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),
-            SLOT(emitDoubleClicked(const QModelIndex&, int)));
+    connect(this, SIGNAL(pressed(const QModelIndex&, Qt::ButtonState)),
+            SLOT(emitPressed(const QModelIndex&,Qt::ButtonState)));
+    connect(this, SIGNAL(clicked(const QModelIndex&, Qt::ButtonState)),
+            SLOT(emitClicked(const QModelIndex&, Qt::ButtonState)));
+    connect(this, SIGNAL(doubleClicked(const QModelIndex&, Qt::ButtonState)),
+            SLOT(emitDoubleClicked(const QModelIndex&, Qt::ButtonState)));
     connect(this, SIGNAL(keyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)),
             SLOT(emitKeyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)));
     connect(this, SIGNAL(returnPressed(const QModelIndex&)),

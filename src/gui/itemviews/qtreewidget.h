@@ -177,9 +177,9 @@ public slots:
     void clear();
 
 signals:
-    void pressed(QTreeWidgetItem *item, int column, int button);
-    void clicked(QTreeWidgetItem *item, int column, int button);
-    void doubleClicked(QTreeWidgetItem *item, int column, int button);
+    void pressed(QTreeWidgetItem *item, int column, Qt::ButtonState button);
+    void clicked(QTreeWidgetItem *item, int column, Qt::ButtonState button);
+    void doubleClicked(QTreeWidgetItem *item, int column, Qt::ButtonState button);
     void keyPressed(QTreeWidgetItem *item, int column, Qt::Key, Qt::ButtonState);
     void returnPressed(QTreeWidgetItem *item, int column);
     void expanded(QTreeWidgetItem *item);
@@ -196,9 +196,9 @@ protected:
     void setModel(QAbstractItemModel *model);
 
 private:
-    Q_PRIVATE_SLOT(d, void emitPressed(const QModelIndex &index, int button));
-    Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, int button));
-    Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, int button));
+    Q_PRIVATE_SLOT(d, void emitPressed(const QModelIndex &index, Qt::ButtonState button));
+    Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, Qt::ButtonState button));
+    Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, Qt::ButtonState button));
     Q_PRIVATE_SLOT(d, void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state));
     Q_PRIVATE_SLOT(d, void emitReturnPressed(const QModelIndex &index));
     Q_PRIVATE_SLOT(d, void emitExpanded(const QModelIndex &index));

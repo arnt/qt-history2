@@ -134,9 +134,9 @@ protected slots:
 
 signals:
     void rootChanged(const QModelIndex &old, const QModelIndex &root);
-    void pressed(const QModelIndex &index, int button);
-    void clicked(const QModelIndex &index, int button);
-    void doubleClicked(const QModelIndex &index, int button);
+    void pressed(const QModelIndex &index, Qt::ButtonState button);
+    void clicked(const QModelIndex &index, Qt::ButtonState button);
+    void doubleClicked(const QModelIndex &index, Qt::ButtonState button);
     void keyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state);
     void returnPressed(const QModelIndex &index);
     void aboutToShowContextMenu(QMenu *menu, const QModelIndex &index);

@@ -153,9 +153,9 @@ public slots:
     void clear();
 
 signals:
-    void pressed(QListWidgetItem *item, int button);
-    void clicked(QListWidgetItem *item, int button);
-    void doubleClicked(QListWidgetItem *item, int button);
+    void pressed(QListWidgetItem *item, Qt::ButtonState button);
+    void clicked(QListWidgetItem *item, Qt::ButtonState button);
+    void doubleClicked(QListWidgetItem *item, Qt::ButtonState button);
     void keyPressed(QListWidgetItem *item, Qt::Key key, Qt::ButtonState state);
     void returnPressed(QListWidgetItem *item);
     void currentChanged(QListWidgetItem *current, QListWidgetItem *previous);
@@ -170,9 +170,9 @@ protected:
     void setup();
 
 private:
-    Q_PRIVATE_SLOT(d, void emitPressed(const QModelIndex &index, int button));
-    Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, int button));
-    Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, int button));
+    Q_PRIVATE_SLOT(d, void emitPressed(const QModelIndex &index, Qt::ButtonState button));
+    Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, Qt::ButtonState button));
+    Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, Qt::ButtonState button));
     Q_PRIVATE_SLOT(d, void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state));
     Q_PRIVATE_SLOT(d, void emitReturnPressed(const QModelIndex &index));
     Q_PRIVATE_SLOT(d, void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current));
