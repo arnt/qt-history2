@@ -1656,7 +1656,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     In addition to groups, QSettings also supports an "array"
     concept. See beginReadArray() and beginWriteArray() for details.
 
-    \section1 Locations for Storing Settings
+    \section1 Fallback Mechanism
 
     Let's assume that you have created a QSettings object with
     the organization domain name "software.org" and the application
@@ -1897,7 +1897,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     The scope is QSettings::UserScope and the format is QSettings::NativeFormat.
 
-    \sa {Locations for Storing Settings}
+    \sa {Fallback Mechanism}
 */
 QSettings::QSettings(const QString &organization, const QString &application, QObject *parent)
     : QObject(*QSettingsPrivate::create(NativeFormat, UserScope, organization, application),
@@ -1919,8 +1919,7 @@ QSettings::QSettings(const QString &organization, const QString &application, QO
     The storage format is always QSettings::NativeFormat.
 
     If no application name is given, the QSettings object will
-    only access the organization-wide
-    \l{Locations for Storing Settings}{locations}.
+    only access the organization-wide \l{Fallback Mechanism}{locations}.
 */
 QSettings::QSettings(Scope scope, const QString &organization, const QString &application,
                      QObject *parent)
@@ -1944,8 +1943,7 @@ QSettings::QSettings(Scope scope, const QString &organization, const QString &ap
     is used.
 
     If no application name is given, the QSettings object will
-    only access the organization-wide
-    \l{Locations for Storing Settings}{locations}.
+    only access the organization-wide \l{Fallback Mechanism}{locations}.
 */
 QSettings::QSettings(Format format, Scope scope, const QString &organization,
                      const QString &application, QObject *parent)
