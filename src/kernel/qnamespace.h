@@ -629,7 +629,9 @@ public:
 	AutoText
     };
 
-    enum ToolBarDock { Unmanaged, TornOff, Top, Bottom, Right, Left, Minimized };
+    enum Dock { Unmanaged, TornOff, Top, Bottom, Right, Left, Minimized };
+    // compatibility
+    typedef Dock ToolBarDock;
     
     enum DateFormat {
 	TextDate,      // default Qt

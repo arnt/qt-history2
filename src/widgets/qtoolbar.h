@@ -39,7 +39,7 @@
 #define QTOOLBAR_H
 
 #ifndef QT_H
-#include "qwidget.h"
+#include "qdockwidget.h"
 #endif // QT_H
 
 #ifndef QT_NO_COMPLEXWIDGETS
@@ -49,13 +49,10 @@ class QButton;
 class QBoxLayout;
 class QToolBarPrivate;
 
-class Q_EXPORT QToolBar: public QWidget
+class Q_EXPORT QToolBar: public QDockWidget
 {
     Q_OBJECT
     Q_PROPERTY( QString label READ label WRITE setLabel )
-    Q_PROPERTY( bool hStretchable READ isHorizontalStretchable WRITE setHorizontalStretchable )
-    Q_PROPERTY( bool vStretchable READ isVerticalStretchable WRITE setVerticalStretchable )
-    Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
 
 public:
     QToolBar( const QString &label,
@@ -68,18 +65,12 @@ public:
 
     void addSeparator();
 
-    Orientation orientation() const { return o; }
-
     void show();
     void hide();
 
     QMainWindow * mainWindow();
 
     virtual void setStretchableWidget( QWidget * );
-    void setHorizontalStretchable( bool b );
-    void setVerticalStretchable( bool b );
-    bool isHorizontalStretchable() const;
-    bool isVerticalStretchable() const;
 
     bool event( QEvent * e );
 
@@ -91,35 +82,13 @@ public:
     QSize minimumSize() const;
     QSize minimumSizeHint() const;
 
-    void setShowHandle( bool b ); // ### just for experiencing
-    
 public slots:
-    virtual void setOrientation( Orientation );
-
-protected:
-    void paintEvent( QPaintEvent * );
-    void resizeEvent( QResizeEvent * );
-
-signals:
-    void orientationChanged( Orientation );
-
-private slots:
-    void startMoving( QToolBar *tb );
-    void endMoving( QToolBar *tb );
-    void popupSelected( int );
-    void emulateButtonClicked();
-    void updateArrowStuff();
-    void setupArrowMenu();
+    void setOrientation( Orientation o );
 
 private:
     void init();
-    virtual void setUpGM();
-    void paintToolBar();
-    QBoxLayout *boxLayout();
 
-    QBoxLayout * bl;
     QToolBarPrivate * d;
-    Orientation o;
     QMainWindow * mw;
     QWidget * sw;
     QString l;
