@@ -1,9 +1,9 @@
 /*
 $Id$
-*/  
+*/
 
 #ifndef STRUCTUREPARSER_H
-#define STRUCTUREPARSER_H   
+#define STRUCTUREPARSER_H
 
 #include <qxml.h>
 #include <qptrstack.h>
@@ -16,7 +16,7 @@ class StructureParser: public QXmlDefaultHandler
 {
 public:
     StructureParser( QListView * );
-    bool startElement( const QString&, const QString&, const QString& , 
+    bool startElement( const QString&, const QString&, const QString& ,
                        const QXmlAttributes& );
     bool endElement( const QString&, const QString&, const QString& );
 
@@ -25,6 +25,6 @@ public:
 private:
     QPtrStack<QListViewItem> stack;
     QListView * table;
-};                   
+};
 
 #endif

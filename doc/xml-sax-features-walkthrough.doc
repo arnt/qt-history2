@@ -324,6 +324,11 @@ create a new \l QListViewItem as a child of QPtrStack::stack.top() with
 the new element's qualified name in the first column and the according
 namespace URI (or nothing) in the second one.
 
+The QListViewItem is usally inserted as the first child. This means that we
+would get the elements in reverse order. So we first search for the last
+child of the QPtrStack::stack.top() element and insert it after this
+element.
+
 In a valid XML document this applies to all elements except
 the document root.
 

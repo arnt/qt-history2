@@ -6,9 +6,9 @@ $Id$
 
 #include <qstring.h>
 #include <qlistview.h>
- 
+
 StructureParser::StructureParser( QListView * t )
-                : QXmlDefaultHandler() 
+                : QXmlDefaultHandler()
 {
     setListView( t );
 }
@@ -21,15 +21,20 @@ void StructureParser::setListView( QListView * t )
     table->addColumn( "Namespace" );
 }
 
-bool StructureParser::startElement( const QString& namespaceURI, 
-                                    const QString& , 
-                                    const QString& qName, 
+bool StructureParser::startElement( const QString& namespaceURI,
+                                    const QString& ,
+                                    const QString& qName,
                                     const QXmlAttributes& attributes)
 {
     QListViewItem * element;
 
     if ( ! stack.isEmpty() ){
-	element = new QListViewItem( stack.top(), qName, namespaceURI );
+	QListViewItem *lastChild = stack.top()->firstChild();
+	if ( lastChild ) {
+	    while ( lastChild->nextSibling() )
+		lastChild = lastChild->nextSibling();
+	}
+	element = new QListViewItem( stack.top(), lastChild, qName, namespaceURI );
     } else {
 	element = new QListViewItem( table, qName, namespaceURI );
     }
@@ -44,7 +49,7 @@ bool StructureParser::startElement( const QString& namespaceURI,
     return TRUE;
 }
 
-bool StructureParser::endElement( const QString&, const QString&, 
+bool StructureParser::endElement( const QString&, const QString&,
                                   const QString& )
 {
     stack.pop();
