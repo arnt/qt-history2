@@ -164,8 +164,9 @@ void QSqlForm::remove( QWidget * widget )
 
 /*!
 
-  Clears the values in all widgets/fields in the form.  If \a nullify
-  is TRUE (the default is FALSE), each field is also set to null.
+  Clears the values in all the widgets, and the fields they are mapped
+  to, in the form.  If \a nullify is TRUE (the default is FALSE), each
+  field is also set to null.
 
 */
 void QSqlForm::clearValues( bool nullify )
