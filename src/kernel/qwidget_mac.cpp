@@ -545,7 +545,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 		    wattr |= kWindowStandardDocumentAttributes;
 	    } else {
 		grp = GetWindowGroupOfClass(wclass);
-		if(wclass == kDocumentWindowClass || wclass == kFloatingWindowClass) 
+		if(wclass == kDocumentWindowClass)
+		    wclass = kSheetWindowClass;
+		else if(wclass == kFloatingWindowClass) 
 		    wclass = kToolbarWindowClass;
 		if( testWFlags( WStyle_Maximize ) ) 
 		    wattr |= kWindowFullZoomAttribute;
