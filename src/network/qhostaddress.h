@@ -29,11 +29,7 @@
 class QHostAddressPrivate;
 
 typedef struct {
-    union {
-	Q_UINT8 c[16];
-	Q_UINT16 s[8];
-	Q_UINT32 u[4];
-    };
+    Q_UINT8 c[16];
 } Q_IPV6ADDR;
 
 class QM_EXPORT_NETWORK QHostAddress

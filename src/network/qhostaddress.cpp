@@ -32,15 +32,13 @@ public:
     {
 	a = from.a;
 	isIp4 = from.isIp4;
-	for ( int i=0; i<16; i++ ) {
-	    a6[i] = from.a6[i];
-	}
+	a6 = from.a6;
 	return *this;
     }
 
 private:
     Q_UINT32 a;     // ip 4 address
-    Q_UINT8 a6[16]; // ip 6 address
+    Q_IPV6ADDR a6; // ip 6 address
     bool isIp4;
 
     friend class QHostAddress;
@@ -49,15 +47,13 @@ private:
 QHostAddressPrivate::QHostAddressPrivate(Q_UINT8 *a_) : a(0), isIp4(FALSE)
 {
     for ( int i=0; i<16; i++ ) {
-	a6[i] = a_[i];
+	a6.c[i] = a_[i];
     }
 }
 
 QHostAddressPrivate::QHostAddressPrivate(const Q_IPV6ADDR &a_) : a(0), isIp4(FALSE)
 {
-    for (int i = 0; i < 16; i++) {
-	a6[i] = a_.c[i];
-    }
+    a6 = a_;
 }
 
 /*!
@@ -349,14 +345,11 @@ bool QHostAddress::isIPv6Address() const
 
 /*!
     Returns the IPv6 address as a Q_IPV6ADDR structure. The structure
-    consists of a union of 16 unsigned characters, 8 unsigned short
-    integers or 4 unsigned integers.
+    consists of 16 unsigned characters.
 
     \code
         Q_IPV6ADDR addr = hostAddr.ip6Addr();
         // addr.c[] contains 16 unsigned characters
-        // addr.s[] contains 8 unsigned shorts
-        // addr.u[] contains 4 unsigned ints
 
         for (int i = 0; i < 16; ++i) {
             // process addr.c[i]
@@ -369,12 +362,7 @@ bool QHostAddress::isIPv6Address() const
 */
 Q_IPV6ADDR QHostAddress::toIPv6Address() const
 {
-    Q_IPV6ADDR tmp;
-
-    for (int i = 0; i < 16; ++i)
-	tmp.c[i] = d->a6[i];
-
-    return tmp;
+    return d->a6;
 }
 
 #ifndef QT_NO_SPRINTF
@@ -397,8 +385,8 @@ QString QHostAddress::toString() const
     } else {
 	Q_UINT16 ugle[8];
 	for ( int i=0; i<8; i++ ) {
-	    ugle[i] = ( (Q_UINT16)( d->a6[2*i] ) << 8 ) |
-		( (Q_UINT16)( d->a6[2*i+1] ) );
+	    ugle[i] = ( (Q_UINT16)( d->a6.c[2*i] ) << 8 ) |
+		( (Q_UINT16)( d->a6.c[2*i+1] ) );
 	}
 	QString s;
 	s.sprintf( "%X:%X:%X:%X:%X:%X:%X:%X",
@@ -431,7 +419,7 @@ bool QHostAddress::isNull() const
 	return d->a == 0;
     int i = 0;
     while( i < 16 ) {
-	if ( d->a6[i++] != 0 )
+	if ( d->a6.c[i++] != 0 )
 	    return FALSE;
     }
     return TRUE;
