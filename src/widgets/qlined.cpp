@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#27 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#26 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#27 $";
 #endif
 
 
@@ -183,6 +183,8 @@ int QLineEdit::maxLength() const
 The key press event handler converts a key press to some line editor
 action.
 
+If return or enter is pressed, the signal returnPressed will be emitted.
+
 Here are the default key bindings:
 <dl compact>
 <dt> Left Arrow <dd> Move the cursor one character leftwards
@@ -208,7 +210,11 @@ All other keys with valid ASCII codes insert themselves into the line.
 
 void QLineEdit::keyPressEvent( QKeyEvent *e )
 {
-    if ( e->ascii() >= 32 && e->key() != Key_Delete ) {
+    if ( e->key() == Key_Enter || e->key() == Key_Return ) {
+        emit returnPressed();
+        return;
+    }
+     if ( e->ascii() >= 32 && e->key() != Key_Delete ) {
 	if ( tbuf.length() < maxLen ) {
 	    tbuf.insert( cursorPos, e->ascii() );
 	    cursorRight();			// will repaint
