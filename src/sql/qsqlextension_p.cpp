@@ -87,20 +87,35 @@ void QSqlExtension::clearValues()
     bindCount = 0;
 }
 
+void QSqlExtension::resetBindCount()
+{
+    bindCount = 0;
+}
+
 void QSqlExtension::clearIndex()
 {
     index.clear();
     holders.clear();
 }
 
-QVariant QSqlExtension::parameterValue( const QString& /* holder */ )
+QVariant QSqlExtension::parameterValue( const QString& holder )
 {
-    return QVariant();
+    return values[ holder ].value;
 }
 
-QVariant QSqlExtension::parameterValue( int /* pos */ )
+QVariant QSqlExtension::parameterValue( int pos )
 {
-    return QVariant();
+    return values[ index[ pos ] ].value;
+}
+
+QVariant QSqlExtension::boundValue( const QString& holder ) const
+{
+    return values[ holder ].value;
+}
+
+QVariant QSqlExtension::boundValue( int pos ) const
+{
+    return values[ index[ pos ] ].value;
 }
 
 QSqlExtension::BindMethod QSqlExtension::bindMethod()
