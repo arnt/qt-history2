@@ -256,12 +256,14 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 }
 
 bool
-QMakeProject::read(const char *file, QMap<QString, QStringList> &place)
+QMakeProject::read(QString file, QMap<QString, QStringList> &place)
 {
     /* scope blocks start at true */
     scope_flag = 0x01;
     scope_block = 0;
 
+    file = Option::fixPathToLocalOS(file);
+    doVariableReplace(file, place);
     bool ret = FALSE, using_stdin = FALSE;
     QFile qfile;
     if(!strcmp(file, "-")) {

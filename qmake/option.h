@@ -49,6 +49,7 @@ void debug_msg(int level, const char *fmt, ...);
 struct Option
 {
     //simply global convenience
+    static QString prl_ext;
     static QString ui_ext;
     static QString h_ext;
     static QString moc_ext;

@@ -47,7 +47,6 @@ class QMakeProject
 
     QString pfile, cfile;
     QMap<QString, QStringList> vars, base_vars, cache;
-    bool read(const char *file, QMap<QString, QStringList> &place);
     bool parse(QString file, QString text, QMap<QString, QStringList> &place);
     bool doProjectTest(QString func, const QStringList &args, QMap<QString, QStringList> &place);
     void doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringList> &place);
@@ -65,6 +64,10 @@ public:
     QString first(const QString &v);
     QMap<QString, QStringList> &variables();
     bool isActiveConfig(const QString &x);
+
+protected:
+    friend class MakefileGenerator;
+    bool read(QString file, QMap<QString, QStringList> &place);
 
 };
 

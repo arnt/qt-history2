@@ -42,6 +42,7 @@
 #include <stdarg.h>
 
 //convenience
+QString Option::prl_ext;
 QString Option::ui_ext;
 QString Option::h_ext;
 QString Option::moc_ext;
@@ -240,6 +241,7 @@ Option::parseCommandLine(int argc, char **argv)
     Option::moc_mod = "moc_";
     Option::lex_mod = "_lex";
     Option::yacc_mod = "_yacc";
+    Option::prl_ext = ".prl";
     Option::ui_ext = ".ui";
     Option::h_ext = ".h";
     Option::moc_ext = ".moc";
@@ -261,6 +263,8 @@ Option::parseCommandLine(int argc, char **argv)
 
 bool Option::postProcessProject(QMakeProject *project)
 {
+    if(!project->isEmpty("QMAKE_EXT_PRL"))
+	Option::prl_ext = project->first("QMAKE_EXT_PRL");
     if(!project->isEmpty("QMAKE_EXT_UI"))
 	Option::ui_ext = project->first("QMAKE_EXT_UI");
     if(!project->isEmpty("QMAKE_EXT_H"))

@@ -729,7 +729,6 @@ MakefileGenerator::init()
     }
 
     //moc files
-
     if ( mocAware() ) {
 	if(!project->variables()["MOC_DIR"].isEmpty())
 	    project->variables()["INCLUDEPATH"].append(project->first("MOC_DIR"));
@@ -746,6 +745,39 @@ MakefileGenerator::init()
 bool
 MakefileGenerator::write()
 {
+#if 0
+    //create my prl file?
+    if(project->isActiveConfig("create_prl")) {
+	QString foo = var("DESTDIR") + Option::dir_sep + var("TARGET") + Option::prl_ext;
+	QFile ft(foo);
+	if(ft.open(IO_WriteOnly)) {
+	    QTextStream t(&ft);
+	    QStringList exprt;
+	    if(project->first("TEMPLATE") == "app")
+		fprintf(stderr, "Cannot create a prl file for an application!");
+	    else if ( project->isActiveConfig("staticlib") ) 
+		exprt << "LIBS" << "DEFINES" << "CONFIG";
+	    else 
+		exprt << "DEFINES" << "CONFIG";
+	    for(QStringList::Iterator it = exprt.begin(); it != exprt.end(); ++it) 
+		t << (*it) << " += " << project->variables()[(*it)].join(" ") << endl;
+	    ft.close();
+	}
+    }
+    //read in any prl fiels included..
+    QStringList &libs = project->variables()["LIBS"];
+    for(QStringList::Iterator it = libs.begin(); it != libs.end(); ) {
+	bool remove_it = FALSE;
+	if((*it).right(Option::prl_ext.length()) == Option::prl_ext) {
+	    project->read((*it), project->variables());
+	    remove_it = TRUE;
+	}
+	if(remove_it)
+	    it = libs.remove(it);
+	else
+	    ++it;
+    }
+#endif
     init();
 
     QTextStream t(&Option::output);
