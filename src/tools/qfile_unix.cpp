@@ -53,6 +53,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include <errno.h>
 #include <limits.h>
 
+extern const char* qt_fileerr_read;
 
 bool qt_file_access( const QString& fn, int t )
 {
@@ -259,7 +260,7 @@ bool QFile::open( int m )
 	    }
 	}
 	if ( fh ) {
-	    ::fstat( fileno(fh), &st ); 	// get the stat for later usage
+	    ::fstat( fileno(fh), &st );		// get the stat for later usage
 	} else {
 	    ok = FALSE;
 	}
@@ -294,6 +295,7 @@ bool QFile::open( int m )
 	    setStatus( IO_ResourceError );
 	else
 	    setStatus( IO_OpenError );
+	setErrorStringErrno( errno );
     }
     return ok;
 }
@@ -554,12 +556,15 @@ Q_LONG QFile::readBlock( char *p, Q_ULONG len )
 	    if ( len && nread <= 0 ) {
 		nread = 0;
 		setStatus(IO_ReadError);
+		setErrorStringErrno( errno );
 	    }
 	} else {					// buffered file
 	    nread += fread( p, 1, len-nread, fh );
 	    if ( (uint)nread != len ) {
-		if ( ferror( fh ) || nread==0 )
+		if ( ferror( fh ) || nread==0 ) {
 		    setStatus(IO_ReadError);
+		    setErrorString( qt_fileerr_read );
+		}
 	    }
 	}
     }
@@ -609,6 +614,7 @@ Q_LONG QFile::writeBlock( const char *p, Q_ULONG len )
 	    setStatus( IO_ResourceError );
 	else
 	    setStatus( IO_WriteError );
+	setErrorStringErrno( errno );
 	if ( !isSequentialAccess() ) {
 	    if ( isRaw() )			// recalc file position
 		ioIndex = (Offset)::lseek( fd, 0, SEEK_CUR );
@@ -632,7 +638,7 @@ Q_LONG QFile::writeBlock( const char *p, Q_ULONG len )
   Returns the file handle of the file.
 
   This is a small positive integer, suitable for use with C library
-  functions such as fdopen() and fcntl(). On systems that use file 
+  functions such as fdopen() and fcntl(). On systems that use file
   descriptors for sockets (ie. Unix systems, but not Windows) the handle
   can be used with QSocketNotifier as well.
 
@@ -685,8 +691,10 @@ void QFile::close()
 	}
 	init();					// restore internal state
     }
-    if (!ok)
+    if (!ok) {
 	setStatus( IO_UnspecifiedError );
+	setErrorStringErrno( errno );
+    }
 
     return;
 }

@@ -45,7 +45,7 @@
 #endif // QT_H
 
 class QDir;
-
+class QFilePrivate;
 
 class Q_EXPORT QFile : public QIODevice			// file I/O device class
 {
@@ -94,16 +94,20 @@ public:
 
     int		handle() const;
 
+    QString	errorString() const; // ### Qt 4: move into QIODevice
+
 protected:
+    void	setErrorString( const QString& ); // ### Qt 4: move into QIODevice
     QString	fn;
     FILE       *fh;
     int		fd;
     Offset	length;
     bool	ext_f;
-    void * 	d;
+    QFilePrivate *d; // ### Qt 4: make private
 
 private:
     void	init();
+    void	setErrorStringErrno( int );
     QCString	ungetchBuffer;
 
 private:	// Disabled copy constructor and operator=

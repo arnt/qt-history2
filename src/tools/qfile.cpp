@@ -48,7 +48,25 @@
 #endif
 
 #include "qfile.h"
+#include <errno.h>
 
+// needed for QT_TRANSLATE_NOOP:
+#include "qobject.h"
+
+const char* qt_fileerr_unknown	= QT_TRANSLATE_NOOP( "QFile", "Unknown error" );
+const char* qt_fileerr_read	= QT_TRANSLATE_NOOP( "QFile", "Could not read from the file" );
+const char* qt_fileerr_write	= QT_TRANSLATE_NOOP( "QFile", "Could not write to the file" );
+
+#define QFILEERR_EACCES		QT_TRANSLATE_NOOP( "QFile", "Permission denied" )
+#define QFILEERR_EMFILE		QT_TRANSLATE_NOOP( "QFile", "Too many open files" )
+#define QFILEERR_ENOENT		QT_TRANSLATE_NOOP( "QFile", "No such file or directory" )
+#define QFILEERR_ENOSPC		QT_TRANSLATE_NOOP( "QFile", "No space left on device" )
+
+class QFilePrivate
+{
+public:
+    QString errorString;
+};
 
 extern bool qt_file_access( const QString& fn, int t );
 
@@ -160,6 +178,7 @@ QFile::QFile( const QString &name )
 QFile::~QFile()
 {
     close();
+    delete d;
 }
 
 
@@ -170,8 +189,10 @@ QFile::~QFile()
 
 void QFile::init()
 {
+    d = new QFilePrivate;
     setFlags( IO_Direct );
     setStatus( IO_Ok );
+    setErrorString( qt_fileerr_unknown );
     fh	   = 0;
     fd	   = 0;
     length = 0;
@@ -352,6 +373,7 @@ Q_LONG QFile::readLine( char *p, Q_ULONG maxlen )
 	} else {
 	    nread = -1;
 	    setStatus(IO_ReadError);
+	    setErrorString( qt_fileerr_read );
 	}
     }
     return nread;
@@ -424,11 +446,13 @@ int QFile::getch()
 	char buf[1];
 	ch = readBlock( buf, 1 ) == 1 ? buf[0] : EOF;
     } else {					// buffered file
-	if ( (ch = getc( fh )) != EOF )
+	if ( (ch = getc( fh )) != EOF ) {
 	    if ( !isSequentialAccess() )
 		ioIndex++;
-	else
+	} else {
 	    setStatus(IO_ReadError);
+	    setErrorString( qt_fileerr_read );
+	}
     }
     return ch;
 }
@@ -465,6 +489,7 @@ int QFile::putch( int ch )
 		length = ioIndex;
 	} else {
 	    setStatus(IO_WriteError);
+	    setErrorString( qt_fileerr_write );
 	}
     }
     return ch;
@@ -511,11 +536,13 @@ int QFile::ungetch( int ch )
 	else
 	    ch = EOF;
     } else {					// buffered file
-	if ( (ch = ungetc(ch, fh)) != EOF )
+	if ( (ch = ungetc(ch, fh)) != EOF ) {
 	    if ( !isSequentialAccess() )
 		ioIndex--;
-	else
+	} else {
 	    setStatus( IO_ReadError );
+	    setErrorString( qt_fileerr_read );
+	}
     }
     return ch;
 }
@@ -613,3 +640,68 @@ void QFile::setDecodingFunction( DecoderFn f )
     decoder = f;
 }
 
+/*!
+    Returns a human readable description of the reason of an error that occured
+    on the device. The error described by the string corresponds to changes of
+    QIODevice::status(). If the status is reset, the error string is also reset.
+
+    The returned strings are not translated with the QObject::tr() or
+    QApplication::translate() functions. They are marked as translatable
+    strings in the context \c QFile. Before you show the string to the user you
+    should translate it first, e.g:
+
+    \code
+	QFile f( "foo.txt" );
+	if ( !f.open( IO_ReadOnly ) {
+	    QMessageBox::critical(
+		this,
+		tr("Open failed"),
+		tr("Could not open file for reading: %1").arg( qApp->translate("QFile",f.errorString()) )
+		);
+	    return;
+	}
+    \endcode
+
+    \sa QIODevice::status(), QIODevice::resetStatus(), setErrorString()
+*/
+
+QString	QFile::errorString() const
+{
+    if ( status() == IO_Ok )
+	return qt_fileerr_unknown;
+    return d->errorString;
+}
+
+/*!
+    \nonreentrant
+
+    Sets the error string returned by the errorString() function to \a str.
+
+    \sa errorString(), QIODevice::status()
+*/
+
+void QFile::setErrorString( const QString& str )
+{
+    d->errorString = str;
+}
+
+void QFile::setErrorStringErrno( int errnum )
+{
+    switch ( errnum ) {
+	case EACCES:
+	    d->errorString = QFILEERR_EACCES;
+	    break;
+	case EMFILE:
+	    d->errorString = QFILEERR_EMFILE;
+	    break;
+	case ENOENT:
+	    d->errorString = QFILEERR_ENOENT;
+	    break;
+	case ENOSPC:
+	    d->errorString = QFILEERR_ENOSPC;
+	    break;
+	default:
+	    d->errorString = QString::fromLocal8Bit( strerror( errnum ) );
+	    break;
+    }
+}
