@@ -1,43 +1,42 @@
-The Qt 3.0 release adds a lot of new features and improvements over
-the Qt 2.x series. Some internals have undergone major redesign and
-new classes and methods have been added. All this has been done while
-at the same time trying to keep the API of Qt 3.0 as compatible as
-possible to the Qt 2.x series. For most applications using Qt only
-minor adaptions will be needed to compile and run it successfully with
-Qt 3.0.
+Qt 3.0 adds a lot of new features and improvements over the Qt 2.x
+series. Some internals have undergone major redesign and new classes
+and methods have been added. 
 
-One of the major new features that have been added in the 3.0 release
-is a module allowing you to easily connect and talk to databases. The
-API is platform independent and database neutral. A seamless
-integration into the Qt Designer is provided, greatly simplifying the
-process of designing data aware widgets.
+We have tried to keep the API of Qt 3.0 as compatible as possible with
+the Qt 2.x series. For most applications only minor changes will be
+needed to compile and run them successfully using Qt 3.0.
 
-Other major new features are a component architecture allowing to
-build cross platform components with Qt and using plugins in your
-application. The Unicode support of Qt 2.x has been greatly enhanced,
-now including full support for scripts written from right to left (as
-eg. Arabic and Hebrew) and better support for Asian languages.
+One of the major new features that has been added in the 3.0 release
+is a module allowing you to easily work with databases. The API is
+platform independent and database neutral. This module is seamlessly
+integrated into Qt Designer, greatly simplifying the process of
+building database applications and using data aware widgets.
+
+Other major new features include a component architecture allowing you
+to build cross platform components, 'plugins' with Qt. You can use
+your own and third party plugins your own applications. The Unicode
+support of Qt 2.x has been greatly enhanced, it now includes full
+support for scripts written from right to left (e.g. Arabic and
+Hebrew) and also provides improved support for Asian languages.
 
 Many new classes have been added to the Qt Library. Amongst them are
 classes that provide a docking architecture (QDockArea/QDockWindow), a
 powerful rich text editor (QTextEdit), a class to store and access
 application settings (QSettings) and a class to create and communicate
-with new processes (QProcess).
+with processes (QProcess).
 
 Apart from the changes in the library itself a lot has been done to
 make the development of Qt applications with Qt 3.0 even easier than
-it used to be. Two new applications specially designed for this
-purpose have been added. The Qt Linguist is a tool to help you
-translating your application into different languages. The Qt
-Assistant is an easy to use help browser for the Qt documentation
-including index search and bookmarks.
+before. Two new applications have been added: Qt Linguist is a tool to
+help you translate your application into different languages; Qt
+Assistant is an easy to use help browser for the Qt documentation that
+supports bookmarks and can search by keyword.
 
-Another change concerns the Qt build system, that now makes it a lot
-easier to port Qt to new platforms. At the same time it can be used by
-your application as a platform independent build system for your
-application.
+Another change concerns the Qt build system, which has been reworked
+to make it a lot easier to port Qt to new platforms. You can use this
+platform independent build system for your own applications.
 
-The following will give a more detailed overview over the main new
+The following notes give a more detailed overview of the key new
 features added in the 3.0 series of the Qt toolkit.
 
 
@@ -45,9 +44,10 @@ The Qt Library
 ========================================
 
 A large number of new features has been added to Qt 3.0. The following
-list gives an overview over the most important news inside the Qt
-library. A more detailed list mentioning every new method can be found
-further down.
+list gives an overview of the most important new and changed aspects
+of the Qt library. A full list of every new method follows the
+overview.
+
 
 Database support
 ----------------
@@ -62,7 +62,7 @@ A collection of tightly focused C++ classes are provided to give the
 programmer direct access to SQL databases. Developers can send raw SQL
 to the database server or have the Qt SQL classes generate SQL queries
 automatically.  Drivers for Oracle, PostgreSQL, MySQL and ODBC are
-available and writing new drivers is rather easy.
+available and writing new drivers is straightforward.
 
 Tying the results of SQL queries to GUI components is fully supported
 by the Qt SQL widgets. These classes include a tabular data widget
@@ -71,29 +71,28 @@ form-based data browser (which provides data navigation and edit
 functions) and a form-based data viewer (which provides read-only
 forms). This framework can be extended by using custom field editors,
 allowing for example, a data table to use custom widgets for in-place
-editing. In addition, the Qt signal/slot mechanism is used, making it
-easy for developers to include their own data validation and auditing
-code.
+editing. The SQL module fully supports Qt's signal/slots mechanism,
+making it easy for developers to include their own data validation and
+auditing code.
 
-The Qt Designer fully supports the Qt SQL framework. All SQL widgets
-can be edited within the Designer, and relationships can be
-established between controls visually. Many interactions can be
-defined purely in terms of Qt's signals/slots mechanism directly in Qt
-Designer.
+Qt Designer fully supports the Qt SQL module. All SQL widgets can be
+laid out within the Designer, and relationships can be established
+between controls visually. Many interactions can be defined purely in
+terms of Qt's signals/slots mechanism directly in Qt Designer.
 
 
 Component model - plugins
 -------------------------
 
-The QLibrary class provides a platform independent wrapper for
-runtime loading of shared libraries and accessing of functionality
-using a COM-like interface concept. QPluginManager makes it trivial to
-implement plugin support in applications.
-The Qt library is capable to load additional styles, database drivers and
-text codecs from plugins implementing interfaces QStyleFactoryInterface,
-QSqlDriverInterface or QTextCodecInterface. Thus it is both possible
-to remove unused components from the Qt library, and easy to extend any
-application with 3rd party styles or text codecs.
+The QLibrary class provides a platform independent wrapper for runtime
+loading of shared libraries. Access to the shared libraries uses a
+COM-like interface. QPluginManager makes it trivial to implement
+plugin support in applications. The Qt library is able to load
+additional styles, database drivers and text codecs from plugins which
+implement the relevant interfaces, e.g. QStyleFactoryInterface,
+QSqlDriverInterface or QTextCodecInterface. It is possible to remove
+unused components from the Qt library, and easy to extend any
+application with 3rd party styles, database drivers or text codecs.
 
 The Qt Designer supports custom widgets in plugins, and will use the
 widgets both when designing and previewing forms.
@@ -106,137 +105,141 @@ component.
 Rich text engine and editor
 ---------------------------
 
-The rich text engine originally introduced in in Qt 2.0 has been
-further optimized and extended to support editing. It allows editing
-formatted text with different fonts, colors, paragraph styles, tables,
-images. Different word wrap modes, command-based undo/redo, multiple
-selections, drag&drop, and other features are supported.  The engine
-is highly optimized for procesing and displaying large documents fast
-and efficiently.
+The rich text engine originally introduced in Qt 2.0 has been further
+optimized and extended to support editing. It allows editing formatted
+text with different fonts, colors, paragraph styles, tables and
+images. The editor supports different word wrap modes, command-based
+undo/redo, multiple selections, drag and drop, and many other
+features.  The engine is highly optimized for procesing and displaying
+large documents quickly and efficiently.
 
 
 Unicode
 -------
 
 Apart from the rich text engine, another new feature of Qt 3.0 that
-relates to handling of text is the much improved Unicode support.
-Qt 3.0 does include an implementation of the bidirectional algorithm
-(BiDi) as defined in the Unicode standard and a shaping engine for
-Arabic, which gives full native language support to Arabic and Hebrew
-speaking people. At the same time the support for Asian languages has
-been greatly enhanced.
+relates to text handling is the greatly improved Unicode support. Qt
+3.0 includes an implementation of the bidirectional algorithm (BiDi)
+as defined in the Unicode standard and a shaping engine for Arabic,
+which gives full native language support to Arabic and Hebrew speaking
+people. At the same time the support for Asian languages has been
+greatly enhanced.
 
 The support is almost transparent for the developer using Qt to
-develop his applications. This means that developers who developed
+develop their applications. This means that developers who developed
 applications using Qt 2.x will automatically gain the full support for
 these languages when switching to Qt 3.0. Developers can rely on their
 application to work for people using writing systems different from
 Latin, without having to worry about the complexities involved with
-these scripts, as Qt hides these from the application developer.
+these scripts, as Qt takes care of this automatically.
 
 
-Docked & Floating Windows
--------------------------
+Docked and Floating Windows
+---------------------------
 
 Qt 3.0 introduces the concept of Dock Windows and Dock Areas. Dock
-Windows are widgets, that can be attached to and detached from Dock
-Areas. A main window can have a certain collection of dock areas. The
-user can freely move around the sub widgets of an application, place
-them at a convenient place in the Dock Area, have them freely floating
-or hide them.  This concept is known from many modern GUI
-applications, esp. IDEs.
+windows are widgets, that can be attached to, and detached from, dock
+areas. The commonest kind of dock window is a tool bar. Any number of
+dock windows may be placed in a dock area. A main window can have dock
+areas, for example, QMainWindow provides four dock areas (top, left,
+bottom, right) by default. The user can freely move dock windows and
+place them at a convenient place in a dock area, or drag them out of
+the application and have them float freely as top level windows in
+their own right. Dock windows can also be minimized or hidden.
 
-For the developer the Dock Windows behave just like an ordinary
-widgets. QToolbar for example is now just a specialized subclass of a
-Dock Window.  The API of QMainWindow and QToolBar stays source
-compatible, so existing code which uses these classes continues to
-work.
+For developer dock windows behave just like ordinary widgets. QToolbar
+for example is now a specialized subclass of a dock window.  The API
+of QMainWindow and QToolBar is source compatible with Qt 2.x, so
+existing code which uses these classes continues to work.
 
 
 Regular Expresions
 ------------------
 
-Qt always had regular expression support, but that support was pretty
-much limited to what was required in common GUI control elements such
-as file dialogs. With Qt 3.0, we introduce a new regular expression
-engine that supports most of Perl's regexp features plus Unicode.
-Most noticeable is the support for capturing parentheses and
-backreferences.
+Qt has always provided regular expression support, but that support
+was pretty much limited to what was required in common GUI control
+elements such as file dialogs. Qt 3.0 introduces a new regular
+expression engine that supports most of Perl's regex features and is
+Unicode based. The most useful additions are support for parentheses
+(capturing and non-capturing) and backreferences.
 
 
-storing application settings
+Storing application settings
 ----------------------------
 
-Most programs will need to remember some settings as for example user
-selected fonts, colors, preferences or a list of recently used files
-and documents.  The new QSettings class provides a platform
-independent way to achieve this goal. The API allows easy storing and
-retrieval of most of the basic data types used in Qt (such as basic
+Most programs will need to store some settings between runs, for
+example, user selected fonts, colors and other preferences, or a list
+of recently used files.  The new QSettings class provides a platform
+independent way to achieve this goal. The API makes it easy to store
+and retrieve most of the basic data types used in Qt (such as basic
 C++ types, strings, lists, colors, etc). The class uses the registry
 on the Windows platform and traditional resource files on Unix.
 
 
-creating and controlling other processes
+Creating and controlling other processes
 ----------------------------------------
 
-QProcess is a class to allow you to start other programs from within a Qt
-application in a platform independent manner. It gives you full control over
-the started program as for example redirection of input and output of console
-applications.
+QProcess is a class that allows you to start other programs from
+within a Qt application in a platform independent manner. It gives you
+full control over the started program, for example you can redirect
+the input and output of console applications.
 
 
 Accessibility (not part of the beta1)
 -------------------------------------
 
-Accessibility means making software usable and accessible to a wide range of
-users, including those with disabilities. In Qt 3.0, most widgets provide
-accessibility information for assistive tools that can be used by a wide range
-of handicapped users. Qt standard widgets like buttons or range controls are
-fully supported. Support for complex widgets, like e.g. QListView, is in development.
-Existing applications that make use of standard widgets will become accessible just
-by using Qt 3.0.
+Accessibility means making software usable and accessible to a wide
+range of users, including those with disabilities. In Qt 3.0, most
+widgets provide accessibility information for assistive tools that can
+be used by a wide range of disabled users. Qt standard widgets like
+buttons or range controls are fully supported. Support for complex
+widgets, like e.g. QListView, is in development. Existing applications
+that make use of standard widgets will become accessible just by using
+Qt 3.0.
 
-Qt uses the Active Accessibility infrastructure on Windows, and needs the MSAA SDK,
-which is part of most Platform SDKs. With improving standardization of accessibility
-on other platforms, Qt will support assistive technologies on other systems, too.
+Qt uses the Active Accessibility infrastructure on Windows, and needs
+the MSAA SDK, which is part of most platform SDKs. With improving
+standardization of accessibility on other platforms, Qt will support
+assistive technologies on other systems, too.
 
-The accessibility API in Qt is not yet stable, which is why we decided not to make
-it a part of the beta1 release.
+The accessibility API in Qt is not yet stable, which is why we decided
+not to make it a part of the beta1 release.
 
 
 XML Improvements
 ----------------
 
-The XML framework introduced in Qt-2.2 has been vastly improved. Qt
+The XML framework introduced in Qt 2.2 has been vastly improved. Qt
 2.2 already supported level 1 of the Document Object Model (DOM), a
-W3C standard for accessing and modifying XML documents.  Qt 3.0 added
-support for DOM Level 2 and XML namespaces.
+W3C standard for accessing and modifying XML documents.  Qt 3.0 has
+added support for DOM Level 2 and XML namespaces.
 
 The XML parser has been extended to allow incremental parsing of XML
-documents. This allows to start parsing the document directly after
-the first parts of the data have arrived, and continue whenever new
-data is available.  This is especially useful if the XML document
-comes from a slow source, e.g. over the network, as it allows the
-application to start working on the data at a very early stage.
+documents. This allows you to start parsing the document directly
+after the first parts of the data have arrived, and to continue
+whenever new data is available.  This is especially useful if the XML
+document is read from a slow source, e.g. over the network, as it
+allows the application to start working on the data at a very early
+stage.
 
 
 SVG support
 -----------
 
-SVG is a W3C standard for "Scalable Vector Graphics". XML support
-pre-requisited, QPicture can optionally generate and import static
-SVG documents. Supported are those SVG features that have an equivalent
-counterpart in QPainter.
+SVG is a W3C standard for "Scalable Vector Graphics". Qt 3.0's XML
+support means that QPicture can optionally generate and import static
+SVG documents. All the SVG features that have an equivalent in
+QPainter are supported.
 
 
 Multihead support
 -----------------
 
-Many professional applications as eg. DTP or CAD software use the
-possibility to display data on two or more monitors. In Qt 3.0 the
-QDesktopWidget class provides the application with runtime information
-about number and geometry of the desktops on the different monitors
-and such allows applications to efficiently use a multi monitor setup.
+Many professional applications, such as DTP and CAD software, are able
+to display data on two or more monitors. In Qt 3.0 the QDesktopWidget
+class provides the application with runtime information about the
+number and geometry of the desktops on the different monitors and such
+allows applications to efficiently use a multi-monitor setup.
 
 The virtual desktop of Windows 98 and 2000 is supported, as well as
 the traditional multi-screen and the newer Xinerama multihead setups
@@ -246,9 +249,9 @@ on X11.
 X11 specific enhancements
 -------------------------
 
-Qt 3.0 does now comply with the NET WM Specification, recently adopted
+Qt 3.0 now complies with the NET WM Specification, recently adopted
 by KDE 2.0.  This allows easy integration and proper execution with
-desktop environments that support the NET WM Spec.
+desktop environments that support the NET WM specification.
 
 The font handling on X11 has undergone major changes.  QFont no longer
 has a one-to-one relation with window system fonts.  QFont is now a
@@ -259,8 +262,8 @@ programmer.  For end-users, any font can be used in any locale.  For
 example, a user in Norway will be able to see Korean text without
 having to set their locale to Korean.
 
-Qt 3.0 does also support the new render extension added to XFree86
-recently. This adds support for anti aliased text and pixmaps with
+Qt 3.0 also supports the new render extension recently added to
+XFree86. This adds support for anti aliased text and pixmaps with
 alpha channel (semi transparency) on the systems that support the
 rendering extension (at the moment XFree 4.0.3 and later).
 
@@ -270,137 +273,147 @@ Printing
 
 Printing support has been enhanced on all platforms. The QPrinter
 class now supports setting a virtual resolution for the painting
-process. This makes WYSIWYG printing trivial, and also allows to take
-full advantage of the high resolution of a printer when painting on
-it.
+process. This makes WYSIWYG printing trivial, and also allows you to
+take full advantage of the high resolution of a printer when painting
+on it.
 
 The postscript driver built into Qt and used on Unix has been greatly
-enhanced. It supports embedding of true/open type and type1 fonts into
-the document and can correctly handle and display Unicode. Support for
-fonts built into the printer has been enhanced and Qt does now know
-about the most common printer fonts used for Asian languages.
+enhanced. It supports the embedding of true/open type and type1 fonts
+into the document, and can correctly handle and display Unicode.
+Support for fonts built into the printer has been enhanced and Qt now
+knows about the most common printer fonts used for Asian languages.
 
 
 QHttp
 -----
 
-This class provides a simple interface for HTTP down-/uploads.
+This class provides a simple interface for HTTP downloads and uploads.
 
 
 Qt Designer
 ========================================
 
-The Qt Designer being a pure dialog editor in Qt 2.2 has been extended
-to now provide the full functionality of a GUI desig tool.
+Qt Designer was a pure dialog editor in Qt 2.2 but has now been
+extended to provide the full functionality of a GUI design tool.
 
-This includes the possibility to edit main windows, menu and tool
-bars. Actions can be edited inside the designer and then plugged into
-tool and menu bars via drag and drop. Splitters can now be used in a
-way similar to layouts to group widgets horizontally or vertically.
+This includes the ability to lay out main windows with menus and
+toolbars. Actions can be edited within Qt Designer and then plugged
+into toolbars and menu bars via drag and drop. Splitters can now be
+used in a way similar to layouts to group widgets horizontally or
+vertically.
 
-In Qt 2.2, many of the created dialogs had to be subclassed to
-implement functionality for the dialog that goes beyond predefined
-singal and slot connections. To eliminate this need for subclassing,
-Qt Designer now includes a plugin for editing of C++ slots. The editor
-offers features as syntax highlighting, completion, matching of
-parantheses and incremental search.
+In Qt 2.2, many of the dialogs created by Qt Designer had to be
+subclassed to implement functionality beyond the predefined signal and
+slot connections. Whilst the subclassing approach is fully supported,
+Qt Designer now offers an alternative: a plugin for editing C++
+slots. The editor offers features such as syntax highlighting,
+completion, parentheses matching and incremental search.
 
-The functionality of Qt Designer can now be extended via
-plugins. Using the DesignerInterface or by implementing one of the
-provided interfaces in the plugin, a two way communication between
-plugin and designer can be established. This functionality is used to
-implement plugins for custom widgets, and use them as real widgets
+The functionality of Qt Designer can now be extended via plugins.
+Using the DesignerInterface or by implementing one of the provided
+interfaces in a plugin, a two way communication between plugin and Qt
+Designer can be established. This functionality is used to implement
+plugins for custom widgets, so that they can be used as real widgets
 inside the designer.
 
 Basic support for project management has been added. This allows you
-to read and edit *.pro files, add and remove files to the project and
-do some global operations on the project.
+to read and edit *.pro files, add and remove files to/from the project
+and do some global operations on the project. You can now open the
+project file and have one-click access to all the *.ui forms in the
+project.
 
 In addition to generating code via uic, Qt Designer now supports the
-dynamic creation of widgets directly from the XML user interface
-description files at runtime. This eliminates the need of recompiling
-your application when the GUI changes, and thus might even enable your
-customers to do customizations on their own. Technically, the feature
-is provided by a new class QWidgetFactory in the QResource library.
+dynamic creation of widgets directly from XML user interface
+description files (*.ui files) at runtime. This eliminates the need of
+recompiling your application when the GUI changes, and could be used
+to enable your customers to do their own customizations. Technically,
+the feature is provided by a new class, QWidgetFactory in the
+QResource library.
 
 
 Qt Linguist
 ========================================
 
-Qt Linguist is a utility for translating applications written with
-Qt. It comes with two command-line tools: lupdate and lrelease.
+Qt Linguist is a GUI utility to support translating the user-visible
+text in applications written with Qt. It comes with two command-line
+tools: lupdate and lrelease.
 
 Translation of a Qt application is a three-step process:
 
-  * Run lupdate to extract translatable text from the C++ source
-    code of the Qt application, resulting in a translation source file
-    (a TS file).
-  * Provide translations for the source texts in the TS file.
-  * Run lrelease to obtain a light-weight message file (a QM file)
-    from the TS file, suitable only for released applications.
+  1) Run lupdate to extract user-visible text from the C++ source
+     code of the Qt application, resulting in a translation source file
+     (a *.ts file).
+  2) Provide translations for the source texts in the *.ts file using
+     Qt Linguist.
+  3) Run lrelease to obtain a light-weight message file (a *.qm file)
+     from the *.ts file, which provides very fast lookup for released
+     applications.
 
-Qt Linguist's role is to let you provide translations for source
-texts (step 2 above). Each source text is characterized by the text
-itself, a context (usually the name of the C++ class containing the
-text), and an optional comment to help you distinguish the text.
+Qt Linguist is a tool suitable for use by translators. Each
+user-visible (source) text is characterized by the text itself, a
+context (usually the name of the C++ class containing the text), and
+an optional comment to help the translator. The C++ class name will
+usually be the name of the relevant dialog, and the comment will often
+contain instructions that describe how to navigate to the relevant
+dialog.
 
-When translating an item, you have the following information close at
-hand:
-  * the source text;
-  * the comment for the source text;
-  * the context in which the source text appears, possibly with an
-    explanation of where to find the context in the Qt application or
-    other comment;
-  * relevant phrases from phrase books, with translations and
-    definitions.
+You can create phrase books for Qt Linguist to provide common
+translations to help ensure consistency and to speed up the
+translation process. Whenever a translator navigates to a new text to
+translate, Qt Linguist uses an intelligent algorithm to provide a list
+of possible translations: the list is composed of relevant text from
+any open phrase books and also from identical or similar text that has
+already been translated.
 
-Phrase books provide instant information about technical terms, and
-can be edited using Qt Linguist.  There is also a "done" flag that
-you may turn on when you are satisfied with a translation, in which
-case the translation is used instead of the source text when running
-the Qt application with the QM file.
+Once a translation is complete it can be marked as "done"; such
+translations are included in the *.qm file. Text that has not been
+"done" is included in the *.qm file in its original form. Although Qt
+Linguist is a GUI application with dock windows and mouse control,
+toolbars, etc., it has a full set of keyboard shortcuts to make
+translation as fast and efficient as possible.
 
-When the Qt application evolves (say, from release 1.0 to release
-1.1), the utility lupdate merges the current source texts with the
-previous translation source file, to reuse existing translations. In
-some typical cases, lupdate may suggest translations. These
-translations are marked as unfinished, so you can easily go over
-them.
+When the Qt application that you're developing evolves (e.g. from
+version 1.0 to version 1.1), the utility lupdate merges the source
+texts from the new version with the previous translation source file,
+reusing existing translations. In some typical cases, lupdate may
+suggest translations. These translations are marked as unfinished, so
+you can easily find and check them.
 
 
 Qt Assistant
 ========================================
 
-Due to the positive feedback we got about the help system build into
-the Qt Designer, we decided to offer this part as a separate
-application called Qt Assistant. The Qt Assistant can be used to
-browse the Qt Class Documentation as well as the manuals for the Qt
-Designer and Qt Linguist. It offers index searching, a contents
-overview, bookmarks history and incremental search in the single help
-pages.  The Qt Assistant is used by both the Qt Designer and Linguist
-for browsing the help documentation.
+Due to the positive feedback we received about the help system built
+into Qt Designer, we decided to offer this part as a separate
+application called Qt Assistant. Qt Assistant can be used to browse
+the Qt class documentation as well as the manuals for Qt Designer and
+Qt Linguist. It offers index searching, a contents overview, bookmarks
+history and incremental search. Qt Assistant is used by both Qt
+Designer and Qt Linguist for browsing their help documentation.
 
 
 QMake
 ========================================
 
-To easy portability qmake has been offered to take up where tmake has left
-off. QMake is a C++ version of tmake which uses Qt and offers extended
-syntax as well as functionallity difficult to reproduce in tmake. TrollTech
-uses qmake in its build system for Qt and related products and we have
-released it as free software.
+To ease portability we now provide the qmake utility to replace tmake.
+QMake is a C++ version of tmake which offers additional functionallity
+that is difficult to reproduce in tmake. TrollTech uses qmake in its
+build system for Qt and related products and we have released it as
+free software.
 
 
 Qt Functions
 ========================================
 
-QAction:
+QAction
+-------
 
 All new functions:
 	void addedTo( QWidget *actionWidget, QWidget *container );
 	void addedTo( int index, QPopupMenu *menu );
 
-QActionGroup:
+QActionGroup
+------------
 
 New mode "uses drop down", where members are shown in a separate
 subwidget such as a combobox or a submenu (enable with
@@ -415,10 +428,12 @@ All new functions:
 	bool usesDropDown() const;
 
 
-QApplication:
+QApplication
+------------
 
-Added setStyle(const QString&) overload that takes the name of the
-style as argument. Will load a style plugin via a QStyleFactory.
+Added the setStyle(const QString&) overload that takes the name of the
+style as its argument. This will load a style plugin via a
+QStyleFactory.
 
 desktop() now returns a QDesktopWidget that provides access to
 multi-head information. Prior to 3.0, it returned a normal QWidget.
@@ -444,6 +459,7 @@ All new functions:
 
 
 QClipboard
+----------
 
 On systems that support it, for example X11, QClipboard now
 differentiates between the primary selection and the data in the clipboard.
@@ -458,19 +474,23 @@ New signals:
 	
 
 
-
 QCursor
+-------
 
-Inherits the Qt namespace now. Enum values like ArrowCursor,
+Now inherits Qt namespace. Enum values like ArrowCursor,
 UpArrowCursor, CrossCursor etc. are now part of that namespace.
 
 
 QDataStream
+-----------
+
 Added missing operators for Q_LONG and Q_ULONG
 
-QDateTime / QDate / QTime
 
-More sophisticated function toString() that takes a DateFormat, where
+QDateTime / QDate / QTime
+-------------------------
+
+More sophisticated toString() function that takes a DateFormat, where
 DateFormat can be either TextDate (the default), ISODate (IDO 8601) or
 LocalDate (locale dependent).
 
@@ -481,11 +501,11 @@ All new functions:
 
 
 QDialog
+-------
 
 Merged with QSemiModal. Calling show() on a modal dialog will return
 immediately, not enter a local event loop. Showing a modal dialog in
-its own event loop is done using exec(). Trolltech always recommended
-this in the documentation.
+its own event loop is achieved using exec(). 
 
 exec() is now a public slot.
 
@@ -493,8 +513,8 @@ Usability: For widgets supporting What's This help, QDialog
 automatically offers a context menu containing a "What's This?" entry.
 
 
-
 QEvent
+------
 
 Mouse events are now propagated (like key events used to).
 Enter/Leave handling fixed.
@@ -507,6 +527,7 @@ QFocusEvent: new reason Backtab (previously only Tab). ###
 
 
 QFile
+-----
 
 Ported from int to Q_LONG to prepare for large file sizes on 64 bit
 systems.
@@ -514,8 +535,9 @@ systems.
 Filter handling made more flexible.
 
 
-
 QFileDialog
+-----------
+
 All new Functions:
 	void setSelectedFilter( const QString& );
 	void setSelectedFilter( int );
@@ -524,7 +546,9 @@ New signals:
 	void filterSelected( const QString& );
 	
 
-QCanvas Module:
+QCanvas Module
+--------------
+
 	New classes:
 		QCanvasSpline - a multi-bezier spline
 
@@ -552,43 +576,48 @@ QCanvas Module:
 		int rightEdge(int nx) const;
 		int bottomEdge(int ny) const;
 
+QCanvasSprite can now be set to animate its frames without the need to
+subclass.
 
 
 QFont, QFontDatabase, QFontInfo, QFontMetrics
 ---------------------------------------------
 
-The QFont::CharSet enum was removed and replaced with the QFont::Script enum.
-With this change, a QFont is not associated with a specific character set.
-Instead, QFont uses Unicode Scripts for loading fonts.  On platforms where
-most fonts do not use the Unicode encoding (currently only X11), multiple
-locale and character-set dependent fonts can be loaded for the individual
-Unicode Scripts.
+The QFont::CharSet enum has been removed and replaced with the
+QFont::Script enum. With this change, a QFont is not associated with a
+specific character set. Instead, QFont uses Unicode Scripts for
+loading fonts.  On platforms where most fonts do not use the Unicode
+encoding (currently only X11), multiple locale and character-set
+dependent fonts can be loaded for the individual Unicode Scripts.
 
-Another new feature of QFont is a much more flexible substitution mechanism.
-Each family can have a list of appropriate substitutes. The font substitution
-feature that allows you to specify a list of substitute fonts. Substitute fonts
-are used when a font cannot be loaded, or if the specified font doesn't have a
-particular character (X11 only).
+Another new feature of QFont is a much more flexible substitution
+mechanism. Each family can have a list of appropriate substitutes. The
+font substitution feature allows you to specify a list of substitute
+fonts. Substitute fonts are used when a font cannot be loaded, or if
+the specified font doesn't have a particular character (X11 only).
 
-For example (on X11), you select the font Lucida, which doesn't have Korean
-characters. For Korean text, you want to use the Mincho font family. By
-adding Mincho to the list, any Korean characters not found in Lucida will be
-used from Mincho. Because the font substitutions are lists, you can also select
-multiple families, such as Song Ti (for use with Chinese text).
+For example (on X11), you select the font Lucida, which doesn't have
+Korean characters. For Korean text, you want to use the Mincho font
+family. By adding Mincho to the list, any Korean characters not found
+in Lucida will be used from Mincho. Because the font substitutions are
+lists, you can also select multiple families, such as Song Ti (for use
+with Chinese text).
 
-QFontInfo and QFontMetrics had small API changes related to the disappearance
-of QFont::CharSet.  In terms of functionality, the behavior of these classes
-is unchanged.
+QFontInfo and QFontMetrics had small API changes related to the
+disappearance of QFont::CharSet.  In terms of functionality, the
+behavior of these classes is unchanged.
 
-QFontDatabase had rather significant API cleanups related to the disappearance
-of QFont::CharSet.  Most QFontDatabase member functions take one less argument,
-yet compatibility functions still exist to keep old source working.
+QFontDatabase had several API cleanups related to the disappearance of
+QFont::CharSet.  Most QFontDatabase member functions take one less
+argument, yet compatibility functions still exist to keep old source
+code working.
 
-Family and style names returned from QFontDatabase are now process and formatted
-in a way that is suitable for display to users.  Family and foundry names are
-capitalized and foundry names are enclosed in square brackets after the family
-name.  For example, the Helvetica font family could have 3 different foundries:
-Adobe, Cronyx and Phaisarn.  In 2.x, QFontDatabase listed them like this:
+Family and style names returned from QFontDatabase are now processed
+and formatted in a way that is suitable for display to users.  Family
+and foundry names are capitalized and foundry names are enclosed in
+square brackets after the family name.  For example, the Helvetica
+font family might have 3 different foundries: Adobe, Cronyx and
+Phaisarn. In 2.x, QFontDatabase listed them like this:
 
 	adobe-helvetica
 	cronyx-helvetica
@@ -602,25 +631,28 @@ Starting with 3.0, QFontDatabase lists them like this:
 
 
 QFrame
+------
 
 Two new frame shapes for more sophisticated style features:
 MenuBarPanel and ToolBarPanel.
 
 
 QGrid
+-----
 
 The member type
 
     enum Direction { Horizontal, Vertical };
 
-has been eliminated, as it is redundant with Qt::Orientation. Old
-code referring to QGrid::Horizontal or QGrid::Vertical will
-still work, as QGrid counts Qt among its ancestors.
+has been eliminated, as it is redundant: use Qt::Orientation instead.
+Old code referring to QGrid::Horizontal or QGrid::Vertical will still
+work, as QGrid counts Qt among its ancestors.
 
 
 QGroupBox
+---------
 
-More functionality of the builtin layout is exposed:
+More functionality of the built-in layout is exposed:
 
 	int insideMargin() const;
 	int insideSpacing() const;
@@ -629,6 +661,7 @@ More functionality of the builtin layout is exposed:
 
 
 QHeader
+-------
 
 New property: bool stretching
 
@@ -638,21 +671,23 @@ New functions:
 	
 
 QIconSet
+--------
 
 In addition to the mode - which can be either Normal, Disabled or
-Active - QIconSet now also supports different pixmaps for a state,
-i.e. On or Off. The functions pixmap() and setPixmap() have been
-extended accordingly.
+Active - QIconSet now supports different pixmaps for a state, i.e. On
+or Off. The functions pixmap() and setPixmap() have been extended
+accordingly.
 
-The default constructor does no longer initialize the iconset to
+The default constructor no longer initializes the iconset to
 contain a null pixmap. QIconSet::isNull() returns TRUE for un-
-initialized iconsets, but pixmap() still returns a null pixmap for
+initialized iconsets, and pixmap() still returns a null pixmap for
 pixmaps that couldn't be generated.
 
 
 QIconView
+---------
 
-Extended findItem() to support ComparismFlags. Support for
+Extended findItem() to support ComparisonFlags. Support for
 soft-hyphens when doing word wrap.
 
 New signal:
@@ -660,6 +695,7 @@ New signal:
 
 
 QIconViewItem
+-------------
 
 Added support for explicit rtti.
 
@@ -669,13 +705,16 @@ New function:
 
 
 QListBox
+--------
 
-Extended findItem() to support ComparismFlags.
+Extended findItem() to support ComparisonFlags.
 
 New signal:
 	void contextMenu( QListBoxItem *, const QPoint & );
 
+
 QListBoxItem
+------------
 
 Added support for explicit rtti.
 
@@ -684,15 +723,15 @@ New function:
 
 
 
-
 QListView
+---------
 
 It was never really hard to implement drag and drop with QListView,
 but since many applications demand this functionality today, we
 decided to add it to the listview itself.
 
-In addition, inplace editing and per-item tooltips have been added.
-Extended findItem() to support ComparismFlags
+In addition, in-place editing and per-item tooltips have been added.
+Extended findItem() to support ComparisonFlags
 
 New properties:
 	bool showToolTips
@@ -713,6 +752,7 @@ New functions:
 
 
 QListViewItem
+-------------
 
 Added support for explicit rtti.
 
@@ -739,16 +779,19 @@ New functions:
 
 
 QLabel
+------
 
 In addition to text, rich text, pixmaps and movies, QLabel can now
-also display QPicture vectorgraphics.
+display QPicture vector graphics.
 
 New functions:
 
 	QPicture *picture() const;
 	void setPicture( const QPicture & );
 
+
 QLineEdit
+---------
 
 New property: bool dragEnabled
 
@@ -763,7 +806,9 @@ New functions:
 	bool dragEnabled();
 	void setDragEnabled( bool b );
 
+
 QMainWindow
+-----------
 
 Added a dock window architecture. Previous versions of QMainWindow
 could only deal with toolbars, now they handle generalized dock
@@ -804,25 +849,30 @@ New functions:
 
 
 QMetaObject
+-----------
 
 ###TODO
 
 
 QMimeSourceFactory
+------------------
 
 New static functions:
 	QMimeSourceFactory* takeDefaultFactory();
 	static void addFactory( QMimeSourceFactory *f );
 
 
-QNetworkProtocol:
+QNetworkProtocol
+----------------
 
 Spelling fix in Error::ErrListChildren enum.
 
-QRegExp
 
-QRegExp grew to a fully blown regular expression engine similar to the
-one in Perl, with full Unicode and backreference support.
+QRegExp
+-------
+
+QRegExp now has a more complete regular expression engine similar to
+Perl's, with full Unicode and backreference support.
 
 New functions:
 	bool minimal() const;
@@ -840,11 +890,14 @@ New functions:
 
 
 QSessionManager
+---------------
 
 Renamed the missnamed setProperty() overloads to setManagerProperty()
 to resolve the conflict with the now virtual QObject::setProperty().
 
+
 QString
+-------
 
 New functions:
 	bool endsWith( const QString & );
@@ -853,10 +906,12 @@ New functions:
 ### TODO
 
 QStyle
+------
 
 ### TODO
 
 QTabBar
+-------
 
 The extended QTabWidget support in Qt Designer made two more
 functions handy to have:
@@ -866,10 +921,13 @@ functions handy to have:
 
 
 QToolBar
+--------
 
 Inherits QDockWindow now, previously only QWidget.
 
+
 QToolButton
+-----------
 
 New property:
 	QIconSet iconSet
@@ -879,6 +937,7 @@ New functions:
 	virtual void setIconSet( const QIconSet & )
 
 QWidget
+-------
 
 New Functions:
 
@@ -890,6 +949,7 @@ New Functions:
 
 
 QWizard
+-------
 
 New property: QString titleFont
 
@@ -900,24 +960,28 @@ New functions:
 
 
 QWMatrix
+--------
 
 New Function:
 	bool isIdentity() const;
 	
 
 QGL Module
+----------
 
 QGLWidget
 New functions:
 	QGLFormat requestedFormat() const;
 	QImage grabFrameBuffer( bool withAlpha = FALSE );
 
+
 QWorkspace Module
+-----------------
 
 A new property scrollbarsEnabled makes it possible to add on-demand
 scrollbars to the workspace. We define this property in Qt Designer to
-allows our users to edit forms larger than the remaining space on
-their desktops more comfortable.
+make designing forms larger than the available space on the desktop
+more comfortable.
 
 
 QXML Module
@@ -983,7 +1047,8 @@ Many new functions have been added:
 
 	
 
-New classes:
+New classes
+-----------
 
 QAquaStyle (only on MacOS X)
 QCleanupHandler
@@ -1011,7 +1076,9 @@ QUuid
 QRegExpValidator
 QTextEdit
 
-Renamed Classes:
+
+Renamed Classes
+---------------
 
 QArray has been renamed QMemArray
 QCollection has been renamed QPtrCollection
@@ -1023,7 +1090,9 @@ QVector has been renamed QPtrVector
 
 The include file names have changed accordingly (e.g., <qmemarray.h>).
 
-New Modules:
+
+New Modules
+-----------
 
 SQL
 	QDataBrowser
@@ -1032,13 +1101,18 @@ SQL
 	QDateTimeEdit
 	QEditFactory
 
-Obsolete classes:
+
+Obsolete classes
+----------------
+
 	QSemiModal, use QDialog instead.
 	QMultiLineEdit, use QTextEdit instead.
 	QTableView, use QScrollView or QTable instead.
 	QAsyncIO, QDataSink, QDataSource, QDataPump and QIODeviceSource
 
-Obsolete functions:
+
+Obsolete functions
+------------------
 	QActionGroup::insert( QAction * ),  use QActionGroup::add( QAction* ) instead.
 	QApplication::setWinStyleHighlightColor( const QColor &c ), use setPalette() instead
 	QApplication::winStyleHighlightColor(), use palette() instead
@@ -1066,7 +1140,10 @@ Removed functions:
 	QFont::charSet() const, not needed anymore
 	QFont::setCharSet( QFont::CharSet ), not needed anymore
 
-Removed preprocessor directives:
+
+Removed preprocessor directives
+-------------------------------
+
 	qcstring.h no longer contains the following defines:
 
 		#define strlen qstrlen
@@ -1108,3 +1185,6 @@ Removed preprocessor directives:
 		_OS_*_ becomes Q_OS_*
 		_WS_*_ becomes Q_WS_*
 		_CC_*_ becomes Q_CC_*
+
+
+[Qt 3.0]
