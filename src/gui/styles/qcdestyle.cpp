@@ -94,6 +94,17 @@ void QCDEStyle::drawControl( ControlElement element,
 {
 
     switch( element ) {
+    case CE_MenuBarItem:
+	{
+	    if ( how & Style_Active )  // active item
+		qDrawShadePanel( p, r, pal, TRUE, 1,
+				 &pal.brush( QPalette::Button ) );
+	    else  // other item
+		p->fillRect( r, pal.brush( QPalette::Button ) );
+	    QCommonStyle::drawControl( element, p, widget, r, pal, how, opt );
+	    break;
+	}
+#ifdef QT_COMPAT
     case CE_Q3MenuBarItem:
 	{
 	    if ( how & Style_Active )  // active item
@@ -104,6 +115,7 @@ void QCDEStyle::drawControl( ControlElement element,
 	    QCommonStyle::drawControl( element, p, widget, r, pal, how, opt );
 	    break;
 	}
+#endif
     default:
 	QMotifStyle::drawControl( element, p, widget, r, pal, how, opt );
     break;

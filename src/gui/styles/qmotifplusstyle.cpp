@@ -698,6 +698,27 @@ void QMotifPlusStyle::drawControl(ControlElement element,
 	    break;
 	}
 
+    case CE_MenuBarItem:
+	{
+#ifndef QT_NO_MENUDATA
+	    if (opt.isDefault())
+		break;
+
+	    if ((flags & Style_Enabled) && (flags & Style_Active))
+		drawMotifPlusShade(p, r, pal, FALSE, TRUE);
+	    else
+		p->fillRect(r, pal.button());
+
+	    QAction *mi = opt.action();
+	    QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
+	    drawItem(p, r, AlignCenter | ShowPrefix | DontClip | SingleLine,
+		     pal, flags & Style_Enabled, pix.isNull() ? 0 : &pix, mi->text(), -1,
+		     &pal.buttonText().color());
+#endif
+	    break;
+	}
+
+#ifdef QT_COMPAT
     case CE_Q3MenuBarItem:
 	{
 #ifndef QT_NO_MENUDATA
@@ -716,7 +737,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
 #endif
 	    break;
 	}
-
+#endif
 
 #ifndef QT_NO_MENU
     case CE_MenuItem:

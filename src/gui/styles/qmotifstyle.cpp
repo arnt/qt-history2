@@ -1254,6 +1254,18 @@ void QMotifStyle::drawControl(ControlElement element,
 #endif // QT_NO_POPUPMENU
 #endif
 
+    case CE_MenuBarItem:
+	{
+	    if (flags & Style_Active)  // active item
+		qDrawShadePanel(p, r, pal, FALSE, motifItemFrame,
+				 &pal.brush(QPalette::Button));
+	    else  // other item
+		p->fillRect(r, pal.brush(QPalette::Button));
+	    QCommonStyle::drawControl(element, p, widget, r, pal, flags, opt);
+	    break;
+	}
+
+#ifdef QT_COMPAT
     case CE_Q3MenuBarItem:
 	{
 	    if (flags & Style_Active)  // active item
@@ -1264,6 +1276,7 @@ void QMotifStyle::drawControl(ControlElement element,
 	    QCommonStyle::drawControl(element, p, widget, r, pal, flags, opt);
 	    break;
 	}
+#endif
 
     default:
 	QCommonStyle::drawControl(element, p, widget, r, pal, flags, opt);

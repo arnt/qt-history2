@@ -1230,6 +1230,47 @@ void QSGIStyle::drawControl(ControlElement element,
 	break;
 #endif
 
+    case CE_MenuBarItem:
+	{
+#ifndef QT_NO_MENUDATA
+	    if (opt.isDefault())
+		break;
+
+	    bool active = flags & Style_Active;
+	    int x, y, w, h;
+	    r.rect(&x, &y, &w, &h);
+
+	    if (active) {
+		p->setPen(QPen(pal.shadow(), 1));
+		p->drawRect(x, y, w, h);
+		qDrawShadePanel(p, QRect(x+1,y+1,w-2,h-2), pal, FALSE, 2,
+				 &pal.brush(QPalette::Light));
+	    } else {
+		p->fillRect(x, y, w, h, pal.brush(QPalette::Button));
+	    }
+
+	    QAction *mi = opt.action();
+	    if (!mi->icon().isNull()) {
+		QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
+		drawItem(p, r, AlignCenter|DontClip|SingleLine,
+			pal, mi->isEnabled(), &pix, "", -1, &pal.buttonText().color());
+	    }
+
+	    if (!!mi->text()) {
+		QString* text = new QString(mi->text());
+		QRect br = p->fontMetrics().boundingRect(x, y-2, w+1, h,
+			AlignCenter|DontClip|SingleLine|ShowPrefix, mi->text());
+
+		drawSGIPrefix(p, br.x()+p->fontMetrics().leftBearing((*text)[0]),
+			br.y()+br.height()+p->fontMetrics().underlinePos()-2, text);
+		p->drawText(x, y-2, w+1, h, AlignCenter|DontClip|SingleLine, *text, text->length());
+		delete text;
+	    }
+#endif
+	}
+	break;
+
+#ifdef QT_COMPAT
     case CE_Q3MenuBarItem:
 	{
 #ifndef QT_NO_MENUDATA
@@ -1268,6 +1309,7 @@ void QSGIStyle::drawControl(ControlElement element,
 #endif
 	}
 	break;
+#endif
 
     case CE_CheckBox:
 	QMotifStyle::drawControl(element, p, widget, r, pal, flags, opt);

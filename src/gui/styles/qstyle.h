@@ -519,6 +519,7 @@ public:
 
 #ifdef QT_COMPAT
 	PM_Q3PopupMenuScrollerHeight,
+	PM_Q3MenuBarItemSpacing = PM_MenuBarItemSpacing,
 	PM_PopupMenuFrameHorizontalExtra = PM_MenuFrameVerticalExtra,
 	PM_PopupMenuFrameVerticalExtra = PM_MenuFrameHorizontalExtra,
 #endif
@@ -541,11 +542,12 @@ public:
 	CT_DockWindow,
 	CT_ProgressBar,
 	CT_MenuItem,
+	CT_MenuBarItem,
+	CT_MenuBar,
 	CT_TabBarTab,
 	CT_Slider,
 	CT_Header,
 	CT_LineEdit,
-	CT_MenuBar,
 	CT_SpinBox,
 	CT_SizeGrip,
 	CT_TabWidget,

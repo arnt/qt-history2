@@ -1194,30 +1194,53 @@ void QWindowsStyle::drawControl(ControlElement element,
 #endif
 #endif
 
-    case CE_Q3MenuBarItem:
-	{
-	    bool active = flags & Style_Active;
-	    bool hasFocus = flags & Style_HasFocus;
-	    bool down = flags & Style_Down;
-	    QRect pr = r;
+    case CE_MenuBarItem: {
+	bool active = flags & Style_Active;
+	bool hasFocus = flags & Style_HasFocus;
+	bool down = flags & Style_Down;
+	QRect pr = r;
 
-	    p->fillRect(r, pal.brush(QPalette::Button));
-	    if (active || hasFocus) {
-		QBrush b = pal.brush(QPalette::Button);
-		if (active && down)
-		    p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
-		if (active && hasFocus)
-		    qDrawShadeRect(p, r.x(), r.y(), r.width(), r.height(),
-				    pal, active && down, 1, 0, &b);
-		if (active && down) {
-		    pr.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
-			       pixelMetric(PM_ButtonShiftVertical, widget));
-		    p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
-		}
+	p->fillRect(r, pal.brush(QPalette::Button));
+	if (active || hasFocus) {
+	    QBrush b = pal.brush(QPalette::Button);
+	    if (active && down)
+		p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
+	    if (active && hasFocus)
+		qDrawShadeRect(p, r.x(), r.y(), r.width(), r.height(),
+			       pal, active && down, 1, 0, &b);
+	    if (active && down) {
+		pr.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
+			  pixelMetric(PM_ButtonShiftVertical, widget));
+		p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
 	    }
-	    QCommonStyle::drawControl(element, p, widget, pr, pal, flags, opt);
-	    break;
 	}
+	QCommonStyle::drawControl(element, p, widget, pr, pal, flags, opt);
+	break; }
+
+#ifdef QT_COMPAT
+    case CE_Q3MenuBarItem: {
+	bool active = flags & Style_Active;
+	bool hasFocus = flags & Style_HasFocus;
+	bool down = flags & Style_Down;
+	QRect pr = r;
+
+	p->fillRect(r, pal.brush(QPalette::Button));
+	if (active || hasFocus) {
+	    QBrush b = pal.brush(QPalette::Button);
+	    if (active && down)
+		p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
+	    if (active && hasFocus)
+		qDrawShadeRect(p, r.x(), r.y(), r.width(), r.height(),
+			       pal, active && down, 1, 0, &b);
+	    if (active && down) {
+		pr.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
+			  pixelMetric(PM_ButtonShiftVertical, widget));
+		p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
+	    }
+	}
+	QCommonStyle::drawControl(element, p, widget, pr, pal, flags, opt);
+	break; }
+#endif
 
     default:
 	QCommonStyle::drawControl(element, p, widget, r, pal, flags, opt);

@@ -1550,6 +1550,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value CT_DockWindow
     \value CT_ProgressBar
     \value CT_MenuItem
+    \value CT_MenuBarItem
     \value CT_MenuBar
     \value CT_TabBarTab
     \value CT_Slider

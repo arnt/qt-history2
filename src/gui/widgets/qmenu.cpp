@@ -62,7 +62,6 @@ QList<Q4MenuAction*> Q4MenuPrivate::calcActionRects() const
 
     int max_column_width = 0, max_column_height = 0,
 		      dh = QApplication::desktop()->height(), ncols = 1;
-    QFontMetrics fm = q->fontMetrics();
     QList<Q4MenuAction*> ret;
     QList<QAction*> items = q->actions();
 
@@ -78,6 +77,7 @@ QList<Q4MenuAction*> Q4MenuPrivate::calcActionRects() const
     }
 
     //calculate size
+    const QFontMetrics fm = q->fontMetrics();
     for(int i = 0, y = 0; i < items.count(); i++) {
 	QAction *action = items.at(i);
 	if(!action->isVisible())
@@ -89,14 +89,11 @@ QList<Q4MenuAction*> Q4MenuPrivate::calcActionRects() const
 	if(action->isSeparator()) {
 	    sz = QSize(2, 2);
 	} else {
-	    QFontMetrics fm = q->fontMetrics();
-	    {
-		QString s = action->text();
-		int w = fm.width( s );
-		w -= s.count('&') * fm.width('&');
-		w += s.count("&&") * fm.width('&');
-		sz.setWidth(w);
-	    }
+	    QString s = action->text();
+	    int w = fm.width( s );
+	    w -= s.count('&') * fm.width('&');
+	    w += s.count("&&") * fm.width('&');
+	    sz.setWidth(w);
 	    sz.setHeight(fm.height());
 
 	    QIconSet is = action->icon();
@@ -729,10 +726,8 @@ void Q4Menu::paintEvent(QPaintEvent *e)
 	p.restore(); //restore paint run
     }
 
-    p.save();
     p.setClipRegion(emptyArea);
     style().drawControl(QStyle::CE_MenuEmptyArea, &p, this, rect(), palette());
-    p.restore();
 }
 
 void Q4Menu::mousePressEvent(QMouseEvent *e)
@@ -1214,38 +1209,47 @@ QList<Q4MenuAction*> Q4MenuBarPrivate::calcActionRects(int max_width) const
     QList<QAction*> items = q->actions();
 
     //calculate size
-    QFontMetrics fm = q->fontMetrics();
+    const QFontMetrics fm = q->fontMetrics();
     for(int i = 0; i < items.count(); i++) {
 	QAction *action = items.at(i);
 	if(!action->isVisible())
 	    continue;
-	int w = 0, h = 0;
+
+	QSize sz;
+
+	//calc what I think the size is..
 	if(action->isSeparator()) {
 	    if(doMenuBarSeparator)
 		separator = ret.count();
-	} else if(!action->text().isNull()) {
+	} else {
 	    QString s = action->text();
-	    w = fm.boundingRect(s).width() + 2*motifItemHMargin;
-	    w -= (s.count('&')-s.count("&&"))*fm.width('&');
-	    w = qMax(w, QApplication::globalStrut().width());
-	    h = qMax(fm.height() + motifItemVMargin, QApplication::globalStrut().height());
+	    int w = fm.width( s );
+	    w -= s.count('&') * fm.width('&');
+	    w += s.count("&&") * fm.width('&');
+	    sz.setWidth(w);
+	    sz.setHeight(fm.height());
 	}
-	if(w && h) {
+
+	//let the style modify the above size..
+	sz = q->style().sizeFromContents(QStyle::CT_MenuBarItem, q, sz, QStyleOption(action));
+
+	if(!sz.isEmpty()) {
 	    if(separator == -1)
-		separator_start += w;
+		separator_start += sz.width();
 	    else
-		separator_len += w;
-	    max_item_height = qMax(max_item_height, h);
+		separator_len += sz.width();
+	    max_item_height = qMax(max_item_height, sz.height());
 	    //append
 	    Q4MenuAction *item = new Q4MenuAction;
 	    item->action = action;
-	    item->rect = QRect(0, 0, w, h);
+	    item->rect = QRect(0, 0, sz.width(), sz.height());
 	    ret.append(item);
 	}
     }
 
     //calculate position
     int x = 0, y = 0;
+    const int itemSpacing = q->style().pixelMetric(QStyle::PM_MenuBarItemSpacing, q);
     for(int i = 0; i != ret.count(); i++) {
 	Q4MenuAction *item = ret.at(i);
 
@@ -1268,7 +1272,7 @@ QList<Q4MenuAction*> Q4MenuBarPrivate::calcActionRects(int max_width) const
 	}
 	item->rect.moveTop(y);
 
-	x += item->rect.width(); //keep moving along..
+	x += item->rect.width() + itemSpacing; //keep moving along..
 	item->rect.setHeight(max_item_height); //uniform height
     }
     return ret;
@@ -1308,22 +1312,32 @@ void Q4MenuBar::paintEvent(QPaintEvent *e)
     d->updateActions();
     QPainter p(this);
 
-    p.fillRect(e->rect(), blue);
+    QRegion emptyArea(rect());
     for(int i=0; i<(int)d->actionItems.count(); i++) {
 	Q4MenuAction *action = d->actionItems.at(i);
 	if(!e->rect().intersects(action->rect))
 	   continue;
+
+	QPalette pal = palette();
+	QStyle::SFlags flags = QStyle::Style_Default;
+	if(isEnabled() && action->action->isEnabled() )
+	    flags |= QStyle::Style_Enabled;
+	else
+	    pal.setCurrentColorGroup(QPalette::Disabled);
 	if(d->currentAction == action) {
+	    flags |= QStyle::Style_Active;
 	    if(d->popupState)
-		p.fillRect(action->rect, green);
-	    else
-		p.fillRect(action->rect, yellow);
-	} else {
-	    p.fillRect(action->rect, red);
+		flags |= QStyle::Style_Down;
 	}
-	p.setPen(black);
-	p.drawText(action->rect, AlignCenter, action->action->text());
+	if(hasFocus() || d->currentAction)
+	    flags |= QStyle::Style_HasFocus;
+	emptyArea -= action->rect;
+	p.setClipRect(action->rect);
+	style().drawControl(QStyle::CE_MenuBarItem, &p, this,
+			    action->rect, pal, flags, QStyleOption(action->action));
     }
+    p.setClipRegion(emptyArea);
+    style().drawControl(QStyle::CE_MenuBarEmptyArea, &p, this, rect(), palette());
 }
 
 void Q4MenuBar::mousePressEvent(QMouseEvent *e)

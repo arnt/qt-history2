@@ -1337,6 +1337,25 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 #endif
 #endif
 
+    case CE_MenuBarItem:
+	{
+	    if (opt.isDefault())
+		break;
+
+	    if (flags & Style_Active)
+		p->fillRect(r, pal.brush( QPalette::Highlight) );
+	    else
+		p->fillRect(r, pal.brush( QPalette::Button) );
+
+	    QAction *mi = opt.action();
+	    QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
+	    drawItem(p, r, AlignCenter | ShowPrefix | DontClip | SingleLine, pal,
+		     flags & Style_Enabled, pix.isNull() ? 0 : &pix, mi->text(), -1,
+		     flags & Style_Active ? &pal.highlightedText().color() : &pal.buttonText().color());
+	}
+	return;
+
+#ifdef QT_COMPAT
     case CE_Q3MenuBarItem:
 	{
 	    if (opt.isDefault())
@@ -1353,6 +1372,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 		     flags & Style_Active ? &pal.highlightedText().color() : &pal.buttonText().color());
 	}
 	return;
+#endif
 
     case CE_ToolButtonLabel:
 	if ( !opt.isDefault() )

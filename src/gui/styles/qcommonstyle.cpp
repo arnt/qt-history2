@@ -970,6 +970,23 @@ void QCommonStyle::drawControl( ControlElement element,
 	break;
 #endif // QT_NO_PROGRESSBAR
 
+    case CE_MenuBarItem:
+	{
+	    if (opt.isDefault())
+		break;
+
+	    QAction *mi = opt.action();
+	    qDebug("render.. %s", mi->text().latin1());
+	    int alignment = AlignCenter|ShowPrefix|DontClip|SingleLine;
+	    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
+		alignment |= NoAccel;
+	    QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
+	    drawItem( p, r, alignment, pal, flags & Style_Enabled, pix.isNull() ? 0 : &pix, mi->text(), -1,
+		      &pal.buttonText().color() );
+	    break;
+	}
+
+#ifdef QT_COMPAT
     case CE_Q3MenuBarItem:
 	{
 #ifndef QT_NO_MENUDATA
@@ -980,12 +997,14 @@ void QCommonStyle::drawControl( ControlElement element,
 	    int alignment = AlignCenter|ShowPrefix|DontClip|SingleLine;
 	    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
 		alignment |= NoAccel;
+	    qDebug("drawing %s at %d %d %d %d", mi->text().latin1(), r.x(), r.y(), r.width(), r.height());
 	    drawItem( p, r, alignment, pal,
 		      flags & Style_Enabled, mi->pixmap(), mi->text(), -1,
 		      &pal.buttonText().color() );
 #endif
 	    break;
 	}
+#endif
 
 #ifndef QT_NO_TOOLBUTTON
     case CE_ToolButtonLabel:
@@ -2660,6 +2679,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	}
 #endif
 
+    case CT_MenuBarItem:
     case CT_LineEdit:
     case CT_Header:
     case CT_Slider:

@@ -884,7 +884,7 @@ int QMenuBar::calculateRects( int max_width )
 
     int i = 0;
     int separator = -1;
-    const int itemSpacing = style().pixelMetric(QStyle::PM_MenuBarItemSpacing);
+    const int itemSpacing = style().pixelMetric(QStyle::PM_Q3MenuBarItemSpacing);
     const int lastItem = reverse ? 0 : mitems->count() - 1;
 
     while ( i < (int)mitems->count() ) {	// for each menu item...

@@ -1008,6 +1008,23 @@ void QMacStyleQD::drawControl(ControlElement element,
 	}
 	break; }
 #endif
+    case CE_MenuBarItem: {
+	if(!widget)
+	    break;
+	const Q4MenuBar *mbar = (const Q4MenuBar *)widget;
+	QRect ir(r.x(), 0, r.width(), mbar->height());
+	Rect mrect = *qt_glb_mac_rect(mbar->rect(), p),
+	     irect = *qt_glb_mac_rect(ir, p, FALSE);
+	ThemeMenuState tms = kThemeMenuActive;
+	if(!(how & Style_Active))
+	    tms |= kThemeMenuDisabled;
+	if(how & Style_Down)
+	    tms |= kThemeMenuSelected;
+	((QMacStyleQDPainter *)p)->setport();
+	DrawThemeMenuTitle(&mrect, &irect, tms, 0, NULL, 0);
+	QWindowsStyle::drawControl(element, p, widget, r, pal, how, opt);
+	break; }
+#ifdef QT_COMPAT
     case CE_Q3MenuBarItem: {
 	if(!widget)
 	    break;
@@ -1024,6 +1041,7 @@ void QMacStyleQD::drawControl(ControlElement element,
 	DrawThemeMenuTitle(&mrect, &irect, tms, 0, NULL, 0);
 	QWindowsStyle::drawControl(element, p, widget, r, pal, how, opt);
 	break; }
+#endif
     case CE_ProgressBarContents: {
 	if(!widget)
 	    break;

@@ -2534,6 +2534,41 @@ void QPocketPCStyle::drawControl(ControlElement	     control,
 	}
 #endif
 
+    case CE_MenuBarItem:
+	{
+	    bool active = flags & Style_Active;
+	    bool hasFocus = flags & Style_HasFocus;
+	    bool down = flags & Style_Down;
+	    QRect pr = r;
+
+	    //p->fillRect( r, pal.brush( QPalette::Button ) );
+	    if ( active || hasFocus ) {
+		QBrush b = pal.brush( QPalette::Button );
+		if ( active && down )
+		    p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
+		if ( active && hasFocus )
+		    qDrawShadeRect( p, r.x(), r.y(), r.width(), r.height(),
+				    pal, active && down, 1, 0, &b );
+		if ( active && down ) {
+		    pr.setRect( r.x() + 2 + PM_BUTTONSHIFTHORIZONTAL, //  pixelMetric(PM_ButtonShiftHorizontal, widget)
+				r.y() + 2 + PM_BUTTONSHIFTVERTICAL,   // pixelMetric(PM_ButtonShiftVertical, widget)
+				r.width()-4, r.height()-4 );
+		    p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
+		}
+	    }
+	    if (opt.isDefault())
+		break;
+
+	    QAction *mi = opt.action();
+	    QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
+	    drawItem( p, r, AlignCenter|ShowPrefix|DontClip|SingleLine, pal,
+		      mi->isEnabled(), pix.isNull() ? 0 : &pix, mi->text(), -1,
+		      &pal.color(QPalette::ButtonText) );
+	    //QCommonStyle::drawControl(element, p, widget, pr, pal, how, opt);
+	    break;
+	}
+
+#ifdef QT_COMPAT
     case CE_Q3MenuBarItem:
 	{
 	    bool active = flags & Style_Active;
@@ -2566,6 +2601,7 @@ void QPocketPCStyle::drawControl(ControlElement	     control,
 	    //QCommonStyle::drawControl(element, p, widget, pr, pal, how, opt);
 	    break;
 	}
+#endif
 
     case CE_CheckBox:
 	{
