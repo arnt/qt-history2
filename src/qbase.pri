@@ -12,6 +12,7 @@ win32 {
     QT_LIBS_OVERRIDE ~= s/\.//g
     for(lib, $$list(qcore qt qnetwork qxml qopengl qsql core qcompat)) {
         eval(QMAKE_$${upper($$lib)}_VERSION_OVERRIDE = $$QT_LIBS_OVERRIDE)
+	eval(QMAKE_$${upper($$lib)}D_VERSION_OVERRIDE = $$QT_LIBS_OVERRIDE)
     }
 }
 DESTDIR		= $$QMAKE_LIBDIR_QT
@@ -21,6 +22,8 @@ CONFIG		+= qt warn_on depend_includepath
 CONFIG          += qmake_cache target_qt
 
 #mac:QMAKE_LFLAGS += -undefined suppress -flat_namespace
+
+mac:QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.2 #enables weak linking for 10.2 (exported)
 
 win32:!shared:CONFIG += staticlib
 
