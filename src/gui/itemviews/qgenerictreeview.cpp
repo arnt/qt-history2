@@ -388,12 +388,16 @@ void QGenericTreeView::ensureItemVisible(const QModelIndex &index)
 void QGenericTreeView::paintEvent(QPaintEvent *e)
 {
     QItemOptions options = viewOptions();
+    QBrush base = options.palette.base();
+    QRect area = e->rect();
+    
+    if (d->items.isEmpty() || d->header->count() == 0) {
+        QPainter painter(d->viewport);
+        painter.fillRect(area, base);
+        return;
+    }
 
     QPainter painter(&d->backBuffer);
-    QRect area = e->rect();
-
-    if (d->items.isEmpty())
-        return;
 
     d->left = d->header->indexAt(d->header->offset() + area.left());
     d->right = d->header->indexAt(d->header->offset() + area.right() - 1);
@@ -439,9 +443,9 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
     QRect bottom(0, y, w, h - y);
     QRect left(x, 0, w - x, h);
     if (y < h && area.intersects(bottom))
-        painter.fillRect(bottom, options.palette.base());
+        painter.fillRect(bottom, base);
     if (x < w && area.intersects(left))
-        painter.fillRect(left, options.palette.base());
+        painter.fillRect(left, base);
 
     painter.end();
     painter.begin(d->viewport);
@@ -458,9 +462,9 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
 
 void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const QModelIndex &index) const
 {
+    QBrush base = options->palette.base();
     int y = options->itemRect.y();
     int width, height = options->itemRect.height();
-    QBrush base = options->palette.base();
 
     QModelIndex parent = model()->parent(index);
     QGenericHeader *header = d->header;

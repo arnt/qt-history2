@@ -91,34 +91,19 @@ QGenericHeader::QGenericHeader(QAbstractItemModel *model, Qt::Orientation o, QWi
     setMouseTracking(true);
     setFocusPolicy(Qt::NoFocus);
 
-#if 1
-    if (d->orientation == Qt::Horizontal)
-        initializeSections(0, model->columnCount() - 1);
-    else
-        initializeSections(0, model->rowCount() - 1);
-#else
-    QObject::disconnect(model, SIGNAL(rowsInserted(const QModelIndex&, int, int)),
-                        this, SLOT(rowsInserted(const QModelIndex&, int, int)));
-    QObject::disconnect(model, SIGNAL(columnsInserted(const QModelIndex&, int, int)),
-                        this, SLOT(columnsInserted(const QModelIndex&, int, int)));
-    QObject::disconnect(model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
-                        this, SLOT(rowsInserted(const QModelIndex&, int, int)));
-    QObject::disconnect(model, SIGNAL(columnsRemoved(const QModelIndex&, int, int)),
-                        this, SLOT(columnsInserted(const QModelIndex&, int, int)));
     if (d->orientation == Qt::Horizontal) {
-        initializeSections(0, model->columnCount() - 1);
+        initializeSections(0, model->columnCount(root()) - 1);
         QObject::connect(model, SIGNAL(columnsInserted(const QModelIndex&, int, int)),
                          this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
         QObject::connect(model, SIGNAL(columnsRemoved(const QModelIndex&, int, int)),
                          this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
     } else {
-        initializeSections(0, model->rowCount() - 1);
+        initializeSections(0, model->rowCount(root()) - 1);
         QObject::connect(model, SIGNAL(rowsInserted(const QModelIndex&, int, int)),
                          this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
         QObject::connect(model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
                          this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
     }
-#endif
 }
 
 QGenericHeader::~QGenericHeader()
@@ -294,7 +279,8 @@ void QGenericHeader::paintSection(QPainter *painter, QItemOptions *options, cons
             opt.rect.setRect(x + secSize - border * 2 - (h / 2), y + 5, h / 2, h - border * 2);
         else
             opt.rect.setRect(x + 5, y + secSize - h, h / 2, h - border * 2);
-        arrowFlags |= (sortIndicatorOrder() == Qt::AscendingOrder ? QStyle::Style_Down : QStyle::Style_Up);
+        arrowFlags |= (sortIndicatorOrder() == Qt::AscendingOrder
+                       ? QStyle::Style_Down : QStyle::Style_Up);
         opt.state = arrowFlags;
         style().drawPrimitive(QStyle::PE_HeaderArrow, &opt, painter, this);
     }
@@ -427,7 +413,7 @@ void QGenericHeader::initializeSections(int start, int end)
 
 void QGenericHeader::sectionsInserted(const QModelIndex &parent, int start, int end)
 {
-    if (parent != root())
+    if (parent != root() || start < 0 || end < 0)
         return; // we only handle changes in the top level
     initializeSections(start, end);
 }
@@ -437,9 +423,9 @@ void QGenericHeader::sectionsRemoved(const QModelIndex &parent, int start, int)
     if (parent != root())
         return; // we only handle changes in the top level
     if (d->orientation == Qt::Horizontal)
-        initializeSections(start, d->model->columnCount(root()));
+        initializeSections(start, d->model->columnCount(root()) - 1);
     else
-        initializeSections(start, d->model->rowCount(root()));
+        initializeSections(start, d->model->rowCount(root()) - 1);
 }
 
 void QGenericHeader::ensureItemVisible(const QModelIndex &)
@@ -684,7 +670,6 @@ void QGenericHeader::resizeSection(int section, int size)
         r.setRect(pos, 0, w - pos, h);
     else
         r.setRect(0, pos, w, h - pos);
-//    d->viewport->update(r.normalize());
     if (d->stretchSections) {
         resizeSections();
         r = d->viewport->rect();
@@ -695,20 +680,22 @@ void QGenericHeader::resizeSection(int section, int size)
 
 void QGenericHeader::hideSection(int section)
 {
-    resizeSection(section, 0); // FIXME: see below
+    resizeSection(section, 0);
     d->sections[index(section)].hidden = true;
 }
 
 void QGenericHeader::showSection(int section)
 {
-    d->sections[index(section)].hidden = false;
+    int i = index(section);
+    d->sections[i].hidden = false;
     resizeSection(section, orientation() == Qt::Horizontal ? default_width : default_height);
     // FIXME: when you show a section, you should get the old section size bach
 }
 
 bool QGenericHeader::isSectionHidden(int section) const
 {
-    return d->sections[index(section)].hidden;
+    int i = index(section);
+    return d->sections.at(i).hidden;
 }
 
 QModelIndex QGenericHeader::itemAt(int x, int y) const

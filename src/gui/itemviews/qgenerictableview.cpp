@@ -169,8 +169,16 @@ void QGenericTableView::scrollContentsBy(int dx, int dy)
 void QGenericTableView::paintEvent(QPaintEvent *e)
 {
     QItemOptions options = viewOptions();
-    QPainter painter(&d->backBuffer);
+    QBrush base = options.palette.base();
     QRect area = e->rect();
+
+    if (d->topHeader->count() == 0 || d->leftHeader->count() == 0) {
+        QPainter painter(d->viewport);
+        painter.fillRect(area, base);
+        return;
+    }
+
+    QPainter painter(&d->backBuffer);
 
     int colfirst = columnAt(area.left());
     int collast = columnAt(area.right() - 1);
@@ -226,8 +234,7 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
                 options.selected = sels->isSelected(item);
                 options.focus = (focus && item == current);
                 painter.fillRect(colp, rowp, colw, rowh,
-                                 (options.selected ? options.palette.highlight() :
-                                  options.palette.base()));
+                                 (options.selected ? options.palette.highlight() : base));
                 itemDelegate()->paint(&painter, options, item);
             }
             if (r == rowfirst && showGrid) {
@@ -252,9 +259,9 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
     QRect bottom(0, y, w, h - y);
     QRect left(x, 0, w - x, h);
     if (y < h && area.intersects(bottom))
-        painter.fillRect(bottom, options.palette.base());
+        painter.fillRect(bottom, base);
     if (x < w && area.intersects(left))
-        painter.fillRect(left, options.palette.base());
+        painter.fillRect(left, base);
 
     painter.end();
     painter.begin(d->viewport);

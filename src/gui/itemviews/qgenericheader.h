@@ -11,6 +11,7 @@ class Q_GUI_EXPORT QGenericHeader : public QAbstractItemView
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QGenericHeader)
+    Q_ENUMS(ResizeMode)
 
 public:
 
@@ -79,14 +80,13 @@ signals:
 protected slots:
     void updateSection(int section);
     void resizeSections();
+    void sectionsInserted(const QModelIndex &parent, int start, int end);
+    void sectionsRemoved(const QModelIndex &parent, int start, int end);
 
 protected:
-    void sectionsInserted(const QModelIndex &parent, int start, int end);
-    void sectionsRemoved(const QModelIndex &parent, int start, int end);    
     void initializeSections(int start, int end);
 
     void paintEvent(QPaintEvent *e);
-
     void mousePressEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);

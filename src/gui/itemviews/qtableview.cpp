@@ -74,7 +74,7 @@ void QTableModel::setRowCount(int rows)
     int s = rows * c;
     r = rows;
 
-    int top = qMax(r - 1, 0);
+    int top = qMax(_r - 1, 0);
     int bottom = qMax(r - 1, 0);
 
     if (r < _r)

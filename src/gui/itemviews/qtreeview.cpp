@@ -85,12 +85,12 @@ void QTreeModel::setColumnCount(int columns)
     int _c = c;
     c = columns;
     if (c < _c)
-        emit columnsRemoved(QModelIndex(), c - 1, _c - 1);
+        emit columnsRemoved(QModelIndex(), qMax(_c - 1, 0), qMax(c - 1, 0));
     topHeader.setColumnCount(c);
     for (int i = _c; i < c; ++i)
         topHeader.setText(i, QString::number(i));
     if (c > _c)
-        emit columnsInserted(QModelIndex(), _c - 1, c - 1);
+        emit columnsInserted(QModelIndex(), qMax(_c - 1, 0), qMax(c - 1, 0));
 }
 
 /*!
