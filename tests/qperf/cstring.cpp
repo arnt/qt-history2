@@ -1,5 +1,5 @@
 #include "qperf.h"
-#include <qstring.h>
+#include <qcstring.h>
 
 
 #if QT_VERSION < 200
@@ -98,7 +98,11 @@ static int cstring_find()
     QCString s = "This quite long string contains magic here";
     QCString f = "magic";
     for ( i=0; i<1000; i++ ) {
+#ifdef QT_4x
+	(void)s.indexOf(f);
+#else
 	(void)s.find(f);
+#endif
     }
     return i;    
 }

@@ -60,7 +60,11 @@ static int string_lower()
     QString s = "CONVERT me To lowerCASE";
     QString s2;
     for ( i=0; i<1000; i++ ) {
+#ifdef QT_4x
+	s2 = s.toLower();
+#else
 	s2 = s.lower();
+#endif
     }
     return i;    
 }
@@ -71,7 +75,11 @@ static int string_upper()
     QString s = "convert ME tO UPPERcase";
     QString s2;
     for ( i=0; i<1000; i++ ) {
+#ifdef QT_4x
+	s2 = s.toUpper();
+#else
 	s2 = s.upper();
+#endif
     }
     return i;    
 }
@@ -82,7 +90,11 @@ static int string_simplify_ws()
     QString s = "  convert M\t E tO UPPERcase   ";
     QString s2;
     for ( i=0; i<1000; i++ ) {
+#ifdef QT_4x
+	s2 = s.simplified();
+#else
 	s2 = s.simplifyWhiteSpace();
+#endif
     }
     return i;    
 }
@@ -93,7 +105,11 @@ static int string_find()
     QString s = "This quite long string contains magic here";
     QString f = "magic";
     for ( i=0; i<1000; i++ ) {
+#ifdef QT_4x
+	(void)s.indexOf(f);
+#else
 	(void)s.find(f);
+#endif
     }
     return i;    
 }

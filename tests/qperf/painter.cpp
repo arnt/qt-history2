@@ -129,19 +129,6 @@ static int painter_save()
 }
 
 
-static int painter_save_wx()
-{
-    int i;
-    QPainter *p = qperf_painter();
-    for ( i=0; i<10000; i++ ) {
-	p->saveWorldMatrix();
-	p->saveWorldMatrix();
-	p->restoreWorldMatrix();
-	p->restoreWorldMatrix();
-    }
-    return i;
-}
-
 QPERF_BEGIN(painter,"QPainter tests")
     QPERF(painter_drawline,"Draw line")
     QPERF(painter_drawrect,"Draw rectangle outline")
@@ -156,5 +143,4 @@ QPERF_BEGIN(painter,"QPainter tests")
     QPERF(painter_drawunicode_right,"Draw unicode-text, right aligned")
     QPERF(painter_drawunicode_center,"Draw unicode-text, centered")
     QPERF(painter_save,"Save and restore")
-    QPERF(painter_save_wx,"Save and restore world matrix")
 QPERF_END(painter)

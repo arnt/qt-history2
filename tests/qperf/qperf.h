@@ -10,10 +10,16 @@
 #include <stdlib.h>
 
 
-#if QT_VERSION < 200
+#if QT_VERSION >= 0x040000
+#define QT_4x
+#elif QT_VERSION >= 0x030000
+#define QT_3x
+#elif QT_VERSION >= 200
+#define QT_2x
+#else
+#define QT_1x
 #define Qt
 #endif
-
 
 /*
   Outputs a message to stderr, compatible with printf.
