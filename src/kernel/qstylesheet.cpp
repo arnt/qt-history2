@@ -1039,7 +1039,7 @@ void QStyleSheet::init()
      
      
      // tables
-     style = new QStyleSheetItem( this, QString::fromLatin1("tabel") );
+     style = new QStyleSheetItem( this, QString::fromLatin1("table") );
      style = new QStyleSheetItem( this, QString::fromLatin1("tr") );
      style->setContexts(QString::fromLatin1("table"));
      style = new QStyleSheetItem( this, QString::fromLatin1("td") );
