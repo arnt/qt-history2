@@ -579,11 +579,21 @@ QString::QString(const std::wstring &s)
     if (sizeof(wchar_t) == sizeof(QChar)) {
         *this = fromUtf16((ushort *)s.c_str());
     } else {
-        resize(s.length());
+        resize(s.length()*2); // worst case
         QChar *uc = data();
         for (int i = 0; i < (int)s.length(); ++i) {
-            uc[i] = QChar(s[i]);
+            uint u = s[i];
+            if (u > 0xffff) {
+                // decompose into a surrogate pair
+                u -= 0x10000;
+                *uc = QChar(u/0x400 + 0xd800);
+                ++uc;
+                u = u%0x400 + 0xdc00;
+            }
+            *uc = QChar(u);
+            ++uc;
         }
+        resize(uc - data());
     }
 }
 
@@ -610,7 +620,15 @@ std::wstring QString::toStdWString() const
         std::wstring std_string;
         const unsigned short *uc = utf16();
         for (int i = 0; i < length(); ++i) {
-            std_string += wchar_t(uc[i]);
+            uint u = uc[i];
+            if (u >= 0xd800 && u < 0xdc00 && i < length()-1) {
+                ushort low = uc[i+1];
+                if (low >= 0xdc00 && low < 0xe000) {
+                    ++i;
+                    u = (u - 0xd800)*0x400 + (low - 0xdc00) + 0x10000;
+                }
+            }
+            std_string += wchar_t(u);
         }
         return std_string;
     }
