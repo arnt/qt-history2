@@ -58,15 +58,13 @@ public:
 };
 
 
-QColormap::QColormap()
-{
-}
-
-QColormap::QColormap( QWidget * w )
+QColormap::QColormap( QWidget * w, const char * name )
+    : QObject( w, name )
 {
 }
 
 QColormap::QColormap( const QColormap & map )
+    : QObject( map.d->widget, map.name() )
 {
 }
 
@@ -74,30 +72,31 @@ QColormap::~QColormap()
 {
 }
 
-QColormap & QColormap::operator=( const QColormap & map )
+QColormap & QColormap::operator=( const QColormap & )
 {
-    QColormap dummy;
-    return dummy;
+    return *this;
 }
 
 void QColormap::detach()
 {
 }
 
-void QColormap::setRgb( int idx, QRgb color )
+void QColormap::setRgb( int, QRgb )
 {    
 }
 
-void QColormap::setColor( int idx, QColor color )
+void QColormap::setColor( int, const QColor & )
 {    
 }
 
-QRgb QColormap::rgb( int idx ) const
+QRgb QColormap::rgb( int ) const
 {
+    return Qt::black.rgb();
 }
 
-QColor QColormap::color( int idx ) const
+QColor QColormap::color( int ) const
 {
+    return Qt::black;
 }
 
 bool QColormap::isValid() const
