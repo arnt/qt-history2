@@ -5,7 +5,9 @@ QCONFIG         =
 CONFIG += console
 CONFIG -= opengl x11sm
 
-DEFINES += QT_BUILD_CORE_LIB 
+DEFINES += QT_BUILD_CORE_LIB
+
+!exceptions::DEFINES += QT_NO_EXCEPTIONS
 
 include(../qbase.pri)
 include(arch/$$ARCH/arch.pri)
