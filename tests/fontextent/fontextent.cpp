@@ -73,6 +73,7 @@ void Main::draw(QPainter& p)
     br.moveBy(hmarg,vmarg);
     QRect r(hmarg,vmarg+h-80,w/2,80);
     QRect pbr = p.boundingRect(r,align,line);
+    int right = fm.width(line)+hmarg-1;
 
     p.setPen(yellow);
     p.drawLine(hmarg,0,hmarg,height());
@@ -81,6 +82,25 @@ void Main::draw(QPainter& p)
 
     p.setPen(black);
     p.drawRect(br);
+    p.setPen(green);
+    p.drawLine(hmarg, br.bottom(), hmarg, br.bottom()+10);
+    p.drawLine(right, br.bottom(), right, br.bottom()+10);
+    if (line.length()==1) {
+	QString str;
+	str.sprintf("%c: lb = %d, rb = %d, width=%d\n"
+		    "    ml = %d, mr = %d",
+	    line[0],
+	    fm.leftBearing(line[0]),
+	    fm.rightBearing(line[0]),
+	    fm.width(line[0]),
+	    fm.minLeftBearing(),
+	    fm.minRightBearing());
+	QFont f = p.font();
+	QFontMetrics fm = p.fontMetrics();
+	p.setFont(QFont("Helvetica", 10));
+	p.drawText(hmarg, br.bottom()+fm.lineSpacing()+10, str);
+	p.setFont(f);
+    }
     p.setPen(blue);
     p.drawText(hmarg,vmarg,line);
 
@@ -95,7 +115,7 @@ void Main::draw(QPainter& p)
 main(int argc, char** argv)
 {
     QApplication app(argc, argv);
-    app.setFont(QFont("Times", 100, QFont::Normal, TRUE));
+    app.setFont(QFont("Charter", 100, QFont::Normal, TRUE));
 
     Main m;
     m.show();
