@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.h#9 $
+** $Id: //depot/qt/main/src/widgets/qdial.h#10 $
 **
 ** Definition of the dial widget
 **
 ** Created : 990104
 **
-** Copyright (C) 1999 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1999 by Troll Tech AS.	 All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -85,6 +85,9 @@ protected:
     void valueChange();
     void rangeChange();
 
+    void repaintScreen();
+    void paint( QPainter &p );
+    
 protected slots:
     void blink();
 
