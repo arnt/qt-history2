@@ -148,6 +148,7 @@ private slots:
     void objectClicked( QListViewItem *i );
     void showRMBMenu( QListViewItem *, const QPoint & );
     void renamed( QListViewItem *i );
+    void editVars();
 
 private:
     bool popupOpen;

@@ -46,6 +46,7 @@
 #include "../interfaces/languageinterface.h"
 #include "../interfaces/classbrowserinterface.h"
 #include <qworkspace.h>
+#include <qaccel.h>
 
 #include <stdlib.h>
 
@@ -558,6 +559,8 @@ FormDefinitionView::FormDefinitionView( QWidget *parent, FormWindow *fw )
     connect( this, SIGNAL( itemRenamed( QListViewItem *, int, const QString & ) ),
 	     this, SLOT( renamed( QListViewItem * ) ) );
     popupOpen = FALSE;
+    QAccel *a = new QAccel( MainWindow::self );
+    a->connectItem( a->insertItem( ALT + Key_V ), this, SLOT( editVars() ) );
 }
 
 void FormDefinitionView::setup()
@@ -783,8 +786,13 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
     const int DEL_ITEM = 2;
     const int EDIT_ITEM = 3;
     menu.insertItem( PixmapChooser::loadPixmap( "filenew" ), tr( "New" ), NEW_ITEM );
-    if ( i->rtti() == HierarchyItem::Definition || i->rtti() == HierarchyItem::DefinitionParent )
-	menu.insertItem( tr( "Edit..." ), EDIT_ITEM );
+    if ( i->rtti() == HierarchyItem::Definition || i->rtti() == HierarchyItem::DefinitionParent ) {
+	if ( i->text( 0 ) == "Class Variables" ||
+	     i->parent() && i->parent()->text( 0 ) == "Class Variables" )
+	    menu.insertItem( tr( "Edit...\tALT+V" ), EDIT_ITEM );
+	else
+	    menu.insertItem( tr( "Edit..." ), EDIT_ITEM );
+    }
     if ( i->parent() && i->rtti() != HierarchyItem::Public &&
 	 i->rtti() != HierarchyItem::Protected &&
 	 i->rtti() != HierarchyItem::Private ) {
@@ -870,6 +878,23 @@ void FormDefinitionView::save( QListViewItem *p, QListViewItem *i )
     lIface->setDefinitionEntries( p->text( 0 ), lst, formWindow->mainWindow()->designerInterface() );
     lIface->release();
     setup();
+    formWindow->commandHistory()->setModified( TRUE );
+}
+
+void FormDefinitionView::editVars()
+{
+    if ( !formWindow )
+	return;
+    LanguageInterface *lIface = MetaDataBase::languageInterface( formWindow->project()->language() );
+    if ( !lIface )
+	return;
+    ListEditor dia( this, 0, TRUE );
+    dia.setCaption( tr( "Edit Class Variables" ) );
+    QStringList entries = lIface->definitionEntries( "Class Variables", MainWindow::self->designerInterface() );
+    dia.setList( entries );
+    dia.exec();
+    lIface->setDefinitionEntries( "Class Variables", dia.items(), MainWindow::self->designerInterface() );
+    refresh( TRUE );
     formWindow->commandHistory()->setModified( TRUE );
 }
 
