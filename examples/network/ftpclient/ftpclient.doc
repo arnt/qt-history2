@@ -8,9 +8,17 @@ $Id: $
 
   \title An FTP client
  
-  This example implements a FTP client. It uses QUrlOperator (which in
-  turn uses QFtp) to perform its FTP commands.
+  This example implements a FTP client. It uses QFtp to perform its FTP
+  commands. The GUI parts are done in the Designer.
+ 
+  <hr>
+ 
+  Main (main.cpp):
+ 
+  \include network/ftpclient/main.cpp
+*/
 
+/*
   <hr>
  
   The API of the FtpMainWindow class (ftpmainwindow.h):

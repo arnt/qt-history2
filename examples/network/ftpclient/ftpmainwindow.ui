@@ -1,0 +1,246 @@
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>FtpMainWindow</class>
+<widget class="QMainWindow">
+    <property name="name">
+        <cstring>FtpMainWindow</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>600</width>
+            <height>480</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Ftp client example</string>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QListView" row="1" column="0" rowspan="1" colspan="2">
+            <column>
+                <property name="text">
+                    <string>Name</string>
+                </property>
+                <property name="clickable">
+                    <bool>true</bool>
+                </property>
+                <property name="resizable">
+                    <bool>true</bool>
+                </property>
+            </column>
+            <column>
+                <property name="text">
+                    <string>Size</string>
+                </property>
+                <property name="clickable">
+                    <bool>true</bool>
+                </property>
+                <property name="resizable">
+                    <bool>true</bool>
+                </property>
+            </column>
+            <column>
+                <property name="text">
+                    <string>Last Modified</string>
+                </property>
+                <property name="clickable">
+                    <bool>true</bool>
+                </property>
+                <property name="resizable">
+                    <bool>true</bool>
+                </property>
+            </column>
+            <property name="name">
+                <cstring>remoteView</cstring>
+            </property>
+            <property name="showSortIndicator">
+                <bool>true</bool>
+            </property>
+        </widget>
+        <widget class="QComboBox" row="0" column="1">
+            <property name="name">
+                <cstring>remotePath</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>7</hsizetype>
+                    <vsizetype>0</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                </sizepolicy>
+            </property>
+            <property name="editable">
+                <bool>true</bool>
+            </property>
+        </widget>
+        <widget class="QLabel" row="0" column="0">
+            <property name="name">
+                <cstring>TextLabel4</cstring>
+            </property>
+            <property name="text">
+                <string>&amp;Remote Path:</string>
+            </property>
+            <property name="buddy" stdset="0">
+                <cstring>remotePath</cstring>
+            </property>
+        </widget>
+    </grid>
+</widget>
+<menubar>
+    <property name="name">
+        <cstring>menubar</cstring>
+    </property>
+    <item text="&amp;File" name="fileMenu">
+        <action name="fileConnectAction"/>
+        <action name="fileDownloadAction"/>
+        <action name="fileUploadAction"/>
+        <action name="fileRemoveAction"/>
+        <separator/>
+        <separator/>
+        <action name="fileExitAction"/>
+    </item>
+</menubar>
+<toolbars>
+    <toolbar dock="2">
+        <property name="name">
+            <cstring>toolBar</cstring>
+        </property>
+        <property name="label">
+            <string>Tools</string>
+        </property>
+        <action name="fileConnectAction"/>
+        <action name="fileDownloadAction"/>
+        <action name="fileUploadAction"/>
+        <action name="fileRemoveAction"/>
+    </toolbar>
+</toolbars>
+<actions>
+    <action>
+        <property name="name">
+            <cstring>fileDownloadAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image0</iconset>
+        </property>
+        <property name="text">
+            <string>Download...</string>
+        </property>
+        <property name="accel">
+            <number>0</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileExitAction</cstring>
+        </property>
+        <property name="text">
+            <string>Exit</string>
+        </property>
+        <property name="menuText">
+            <string>E&amp;xit</string>
+        </property>
+        <property name="accel">
+            <number>0</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileRemoveAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image1</iconset>
+        </property>
+        <property name="text">
+            <string>Remove</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileUploadAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image2</iconset>
+        </property>
+        <property name="text">
+            <string>Upload...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileConnectAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image3</iconset>
+        </property>
+        <property name="text">
+            <string>Connect...</string>
+        </property>
+    </action>
+</actions>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="1217">789ccdd2c96e83301405d07dbe0225bba84a8c3118547591796cd565a5aa0b301020f33c54fdf7f26e142b919a4577b110f2d1357e0f43b56c7cbcbf1ae56a61bdf137a93254e2af8c72b89d4e8f9f5f2fdf8522e7467e096698c5a742b16228e36d3e8b68dec9e725e6329707c4b6a622b634b1b80b7accb32c62130c5860f9c45433243634f16c1f544c09f4b0d3e4c4a526769e83210b854d1c684ae242d325ce343d6202462c12686308c62cb651b7ae8942634d413c124d6632db21669aa85b03f361c7c4d1850e231e40cbb41c2cde6aa2ab10f44ccf41571b5099cac1566b22679c4934d903f32171380128b89068720fdadc3e730a3adc91382b1ff4b827d18602031e489cd509545c497415132ddbb225da2811f32ad2c5075d81bef05dfc0c11188ad0c5079d8091885c3c5bf9733c5e52f20315de2611dde25192a64936be4926f9cae90cd3f962799dacd69bede2b2e7ee26d91f8ebadaf83a39d5eab3c625c9ae93acd96a77bae7a0d7bff33efbc1bd371dfef30c1e2af9792efc020beaf3ca</data>
+    </image>
+    <image name="image1">
+        <data format="XPM.GZ" length="2397">789c95d4596f1a311007f0773ec52a7e8baa89edbd55f521f7d15ce44eaa3e2c7b0442201739ab7ef79affec8ea216120a09ebdf32d8e3f1c0c2bc77b6bfe3cd2fb41e46d9a8977b7937bbf7e68bc7c1e0f5c7cf6fbf5a73d67aee2f319e9dfbd29a6b8fbcdcdbbd199663d08383d2810e8c0f0fc401fc240ee14738d4a1c9e01e1ce9c8f07cb7e20abe6c6c79fe3e1cebd8f27ca5388287e204cee14427b5efc5297c27463eea52ccf95cc3a94e6d0e77e04c67b6407cd1d8e77c9ec5c847ddc01dddf13b783f11633e3510f37c4331ef3f83739dd7f998c6818123310e472931f2515caf4217418cf82331d77f0497baf435e2b3c601e7eb8bb1beea8a919fe2fa54ba0a918fea88910f5d88b91f0ec45caf93b18d363ae47cb661f708b91e5762de7f28e6f52bd81a1bf1f99fc3bef123deefa698cf5b8b79bdefb0ebd688cff750ccf57f834313c6e83fd513f37eda62de0fe71b99c8e7f5571bc7a8a7cac5d81fedc0b189635e2f6e9c70bf9fc189496aaf88b1be2231af877e34a9497ddedf56e398eb73dc38e1ef8315a33eaa14f3f9ef8b395ff497c94c56f733d7bf34a5cfe7b30c57a64ab81ee87fabadfb0980d3c609eff7150e6c50e7b30747364ab9bf37e08eeda45c6ff49fcd6d5ef7ef125cd822e17e0be0ca5629ef77776c37bd4d79fe53380cc2943fff024741547b1dce833ce3cf2fc2aefb53ce776decd03d329f7f0cdf3f494d1ef373427cf66edcf9cff87c86f8e2ddb89c21bea2cb7ad4a5de0cf157d4af47d734f83cdec50dc779d00dddfefdce94f83bba77af7d7a982ddec58eff1fffbd3f35bea2929e668f779f789e7477eafc2ff44a6fb3c6d3222db9d7655aa1d5cfe2698dd6698336dd688bbed336add2cef478daa53ddaa7361db8f1211de1de319d4c8ea7533ac3f59c2edcab260359f2a7c40714e2caf3871441312553e2d3715c7ba448b9ef89ca14ba5fe5aa981caf4adac6b552e850d5c52c07d3f6ab7aea0ad7beac78a2aed5605abc7bff480dd5cde493fde87c3f88fffdb5f5071fbf7716</data>
+    </image>
+    <image name="image2">
+        <data format="XPM.GZ" length="1172">789ccdd14b4bc3401405e07d7f45687745e23c3313c445dfba505c0ae22233d3f49956fbd056f1bf9b7bc4d042ddb8ea50c87c1c72674e7ad98c1e1feea2e6656dbdc936131ff971b68a9a615b14fba7e7ebcf5a5d88a8fc4913f1fa45ad1e473eba5f2e86b4ef97fb06d34cf340ec81861961880bd0322b90eec194a512732660c632a989e38a09f1b66246dc828e39e989a38ab8c60de8995792d805030b0aa30a3067b9463aa888744ae48c339d123b60b9b423ee2aa2425e11e7be82828b048d4245345a56c4411e545c256834032db7091ab541c75d82c90e0c3c2439f18328ca650471036aa18d226644c92433b8f33b582e835173d04967f1ee0a0c32587c8d37a2d24a5bd46f8156598b5143d02b6f51ff85581e2b52f45d83469b147d1ba0d32ec5bf1f9f5c67953432e7c3a964988fc693d1d4d37e7698cc8b059ef9328e5f8ac3e4f5778a5bad37db9349fcf6bedb1f261fbf41abdde9f68e92dd4f302bb6fb5effe86e839b3ffbdcfee31b9c5ff27555fb0668b1ea1c</data>
+    </image>
+    <image name="image3">
+        <data format="XPM.GZ" length="1547">789ccdd3496fda4018c6f13b9fc2821baa883d1e2fa8ea210b90050849484252f5608f3d812406c74058a27ef7fa798c2bb5e1d25be7cfc13fbd2c83070eeac668d033ea0795f922584c94a1c64166d4a365926cbefff8f651a90a61e40f571856f54ba5da3094d19f4d635ccbfcba663a087c2928a4c7e96447c717a0265dd1f43518929e6d8736784cfa0874c9108141411945648d544e3356a04d46087c2735021f41cb4460460a040ad246a0474a043aa483c0373244e033a9a515703a06859441c85d9d934d04c664e804313fe8898c9c38e69ecf488dc039689b08dc923e0217a01408bc246d0446a4e36bcd4d9e921102535223d0041d1b8187a48bc03bd243a045fa085464fe6d358f7b4086085c920a8109c837e6bd9a921e02efc900817d3244e015a91078047a5ce035e923f0960c1038047d13c70fbe92bc95608f94e5f4a120024724df1a9c910a811db029cc3cf0060cfcf2b7b10143b79c76496de5816b30523860b00dc6aec8ff2be08a8ccae905a82de1096ea34546b6b2b98d1352cb58f2141af9aa0561e3cfb59bd45414ebbd93207a1a4ff64ec278fcfcb277d2d093bf06bf279fd76ef29a24c974df6496be65f374f179b24cdf57ebcd363d3c2ad77437d91eaf4e5aedce69ca7586d79f979fb36e5d747bfd6272997bb09b5c5d6fdadd9be16d31b9bb1f3da48fc5c44cad4e6f384b855d2e59eecd49f13c77dff7f1b22c93ff780ffecff3f9f9b5f20bcbcc4a51</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>fileExitAction</sender>
+        <signal>activated()</signal>
+        <receiver>FtpMainWindow</receiver>
+        <slot>close()</slot>
+    </connection>
+    <connection>
+        <sender>fileDownloadAction</sender>
+        <signal>activated()</signal>
+        <receiver>FtpMainWindow</receiver>
+        <slot>downloadFile()</slot>
+    </connection>
+    <connection>
+        <sender>fileRemoveAction</sender>
+        <signal>activated()</signal>
+        <receiver>FtpMainWindow</receiver>
+        <slot>removeFile()</slot>
+    </connection>
+    <connection>
+        <sender>fileUploadAction</sender>
+        <signal>activated()</signal>
+        <receiver>FtpMainWindow</receiver>
+        <slot>uploadFile()</slot>
+    </connection>
+    <connection>
+        <sender>fileConnectAction</sender>
+        <signal>activated()</signal>
+        <receiver>FtpMainWindow</receiver>
+        <slot>openConnectDialog()</slot>
+    </connection>
+    <connection>
+        <sender>remotePath</sender>
+        <signal>activated(const QString&amp;)</signal>
+        <receiver>FtpMainWindow</receiver>
+        <slot>changePath(const QString&amp;)</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in implementation">ftpmainwindow3.ui.h</include>
+</includes>
+<functions>
+    <function type="slot" access="protected">uploadFile()</function>
+    <function type="slot" access="protected">downloadFile()</function>
+    <function type="slot" access="protected">removeFile()</function>
+    <function type="slot" access="protected">openConnectDialog()</function>
+    <function type="slot" access="protected">changePath( const QString&amp; )</function>
+</functions>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
