@@ -63,12 +63,12 @@ class Q_EXPORT QPainter : public Qt
 {
 public:
     QPainter();
-    QPainter( const QPaintDevice * );
-    QPainter( const QPaintDevice *, const QWidget * );
+    QPainter( const QPaintDevice *, bool unclipped = FALSE );
+    QPainter( const QPaintDevice *, const QWidget *, bool unclipped = FALSE );
    ~QPainter();
 
-    bool	begin( const QPaintDevice * );
-    bool	begin( const QPaintDevice *, const QWidget * );
+    bool	begin( const QPaintDevice *, bool unclipped = FALSE );
+    bool	begin( const QPaintDevice *, const QWidget *, bool unclipped = FALSE );
     bool	end();
     QPaintDevice *device() const;
 

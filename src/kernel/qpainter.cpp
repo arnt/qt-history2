@@ -376,7 +376,8 @@ QPainter::QPainter()
 
 /*!
   Constructs a painter that begins painting the paint device \a pd
-  immediately.
+  immediately. Depending on the underlying graphic system the painter 
+  will not be clipped to the boundaries of the paint device when \a unclipped is TRUE.
 
   This constructor is convenient for short-lived painters, e.g. in
   a \link QWidget::paintEvent() paint event\endlink and should be
@@ -406,10 +407,10 @@ QPainter::QPainter()
   \sa begin(), end()
 */
 
-QPainter::QPainter( const QPaintDevice *pd )
+QPainter::QPainter( const QPaintDevice *pd, bool unclipped )
 {
     init();
-    if ( begin( pd ) )
+    if ( begin( pd, unclipped ) )
 	flags |= CtorBegin;
 }
 
@@ -417,15 +418,17 @@ QPainter::QPainter( const QPaintDevice *pd )
 /*!
   Constructs a painter that begins painting the paint device \a pd
   immediately, with the default arguments taken from \a copyAttributes.
+  The painting will not be clipped at the boundaries of the paint device
+  when \a unclipped is TRUE (Note that this is not supported on all platforms).
 
   \sa begin()
 */
 
 QPainter::QPainter( const QPaintDevice *pd,
-		    const QWidget *copyAttributes )
+		    const QWidget *copyAttributes, bool unclipped )
 {
     init();
-    if ( begin( pd, copyAttributes ) )
+    if ( begin( pd, copyAttributes, unclipped ) )
 	flags |= CtorBegin;
 }
 
@@ -448,11 +451,11 @@ QPainter::~QPainter()
 
 
 /*!
-  \overload bool QPainter::begin( const QPaintDevice *pd, const QWidget *copyAttributes )
+  \overload bool QPainter::begin( const QPaintDevice *pd, const QWidget *copyAttributes, bool unclipped )
 
   This version opens the painter on a paint device \a pd and sets the initial
-  pen, background color and font from \a copyAttributes.  This is equivalent
-  with:
+  pen, background color and font from \a copyAttributes, not clipping at the paint devices'
+  boundaries when \a unclipped is TRUE. This is equivalent with:
   \code
     QPainter p;
     p.begin( pd );
@@ -482,7 +485,7 @@ QPainter::~QPainter()
   \sa end()
 */
 
-bool QPainter::begin( const QPaintDevice *pd, const QWidget *copyAttributes )
+bool QPainter::begin( const QPaintDevice *pd, const QWidget *copyAttributes, bool unclipped )
 {
     if ( copyAttributes == 0 ) {
 #if defined(QT_CHECK_NULL)
@@ -491,7 +494,7 @@ bool QPainter::begin( const QPaintDevice *pd, const QWidget *copyAttributes )
 #endif
 	return FALSE;
     }
-    if ( begin(pd) ) {
+    if ( begin( pd, unclipped ) ) {
 	setPen( copyAttributes->foregroundColor() );
 	setBackgroundColor( copyAttributes->backgroundColor() );
 	setFont( copyAttributes->font() );

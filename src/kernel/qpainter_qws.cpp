@@ -368,7 +368,7 @@ static uchar *pat_tbl[] = {
 }
 
 
-bool QPainter::begin( const QPaintDevice *pd )
+bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 {
     if ( isActive() ) {				// already active painting
 #if defined(QT_CHECK_STATE)
@@ -472,7 +472,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	ww = vw = w->width();			// default view size
 	wh = vh = w->height();
 #endif
-	if ( w->testWFlags(WPaintUnclipped) ) { // paint direct on device
+	if ( unclipped || w->testWFlags( WPaintUnclipped ) ) { // paint direct on device
 	    setf( NoCache );
 	    updatePen();
 	    updateBrush();

@@ -378,7 +378,7 @@ void QPainter::updateBrush()
 
 typedef QIntDict<QPaintDevice> QPaintDeviceDict;
 
-bool QPainter::begin( const QPaintDevice *pd )
+bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
 {
     if ( isActive() ) {                         // already active painting
 #if defined(QT_CHECK_STATE)
@@ -480,7 +480,7 @@ bool QPainter::begin( const QPaintDevice *pd )
         bg_col = w->backgroundColor();          // use widget bg color
         ww = vw = w->width();                   // default view size
         wh = vh = w->height();
-	unclipped = w->testWFlags(WPaintUnclipped);
+	unclipped = unclipp || w->testWFlags(WPaintUnclipped);
         if ( unclipped ) // paint direct on device
             setf( NoCache );
 

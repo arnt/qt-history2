@@ -924,7 +924,9 @@ static uchar *pat_tbl[] = {
 
 /*!
   Begins painting the paint device \a pd and returns TRUE if successful,
-  or FALSE if an error occurs.
+  or FALSE if an error occurs. If \a unclipped is TRUE, the painting
+  will not be clipped at the paint device's boundaries, yet note that
+  this is not supported by all platforms.
 
   The errors that can occur are serious problems, such as these:
 
@@ -947,7 +949,7 @@ static uchar *pat_tbl[] = {
   \sa end(), flush()
 */
 
-bool QPainter::begin( const QPaintDevice *pd )
+bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 {
     if ( isActive() ) {				// already active painting
 #if defined(QT_CHECK_STATE)
@@ -1052,7 +1054,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	bg_col = w->backgroundColor();		// use widget bg color
 	ww = vw = w->width();			// default view size
 	wh = vh = w->height();
-	if ( w->testWFlags(WPaintUnclipped) ) { // paint direct on device
+	if ( unclipped || w->testWFlags( WPaintUnclipped ) ) {	// paint direct on device
 	    setf( NoCache );
 	    setf(UsePrivateCx);
 	    updatePen();
@@ -1135,8 +1137,8 @@ bool QPainter::end()				// end painting
 	QFontInfo::reset( this );
 
     //#### This should not be necessary:
-    if ( pdev->devType() == QInternal::Widget  &&
-	 ((QWidget*)pdev)->testWFlags(WPaintUnclipped) ) {
+    if ( pdev->devType() == QInternal::Widget  &&	// #####
+	 ((QWidget*)pdev)->testWFlags(WPaintUnclipped) ) { 
 	if ( gc )
 	    XSetSubwindowMode( dpy, gc, ClipByChildren );
 	if ( gc_brush )

@@ -647,7 +647,7 @@ void QPainter::updateBrush()
 }
 
 
-bool QPainter::begin( const QPaintDevice *pd )
+bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 {
     if ( isActive() ) {				// already active painting
 #if defined(QT_CHECK_STATE)
@@ -745,7 +745,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	if ( w->testWState(Qt::WState_InPaintEvent) ) {
 	    hdc = w->hdc;			// during paint event
 	} else {
-	    if ( w->testWFlags(Qt::WPaintUnclipped) ) {
+	    if ( unclipped || w->testWFlags( WPaintUnclipped ) ) {
 		hdc = GetWindowDC( w->winId() );
 		if ( w->isTopLevel() ) {
 		    int dx = w->geometry().x() - w->frameGeometry().x();
