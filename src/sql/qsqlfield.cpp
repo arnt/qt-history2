@@ -164,21 +164,14 @@ QSqlFieldList::QSqlFieldList()
 */
 
 QSqlFieldList::QSqlFieldList( const QSqlFieldList& other )
-    : fieldList( other.fieldList ), fieldListStr( other.fieldListStr ), posMap( other.posMap )
+    : fieldList( other.fieldList )
 {
 
 }
 
-//QSqlFieldList::QSqlFieldList( const QSqlField& t )
-//{
-//    append( t );
-//}
-
 QSqlFieldList& QSqlFieldList::operator=( const QSqlFieldList& other )
 {
     fieldList = other.fieldList;
-    fieldListStr = other.fieldListStr;
-    posMap = other.posMap;
     return *this;
 }
 
@@ -237,9 +230,6 @@ QVariant  QSqlFieldList::value( const QString& name )
     return findField( name )->val;
 }
 
-
-
-
 /*!
   Returns the position of the field named \a name within the list,
   or -1 if it cannot be found.
@@ -248,8 +238,10 @@ QVariant  QSqlFieldList::value( const QString& name )
 
 int QSqlFieldList::position( const QString& name ) const
 {
-    if ( posMap.contains( name ) )
-	return posMap[ name ];
+    for ( uint i = 0; i < count(); ++i ) {
+	if ( field( i )->name() == name )
+	    return i;
+    }
     return -1;
 }
 
@@ -281,12 +273,38 @@ const QSqlField* QSqlFieldList::field( const QString& name ) const
 
 void QSqlFieldList::append( const QSqlField* field )
 {
-    if ( fieldListStr.isNull() )
-	fieldListStr = field->name();
-    else
-	fieldListStr += ", " + field->name();
-    posMap[ field->name() ] = fieldList.count();
     fieldList.append( *field );
+}
+
+/*!
+  Prepends a copy of \a field to the beginning of the list.
+
+*/
+
+void QSqlFieldList::prepend( const QSqlField* field )
+{
+    fieldList.prepend( *field );
+    
+}
+
+/*!  Inserts a copy of \q field before \a pos.  If \a pos does not
+  exist, it is appended to the end of the list.
+
+*/
+
+void QSqlFieldList::insert( int pos, const QSqlField* field )
+{
+    fieldList.insert( fieldList.at( pos ), *field );
+}
+
+/*!  Removes all the field at \a pos.  If \a pos does not exist,
+  nothing happens.
+
+*/
+
+void QSqlFieldList::remove( int pos )
+{
+    fieldList.remove( fieldList.at( pos ) );    
 }
 
 /*!
@@ -296,25 +314,22 @@ void QSqlFieldList::append( const QSqlField* field )
 
 void QSqlFieldList::clear()
 {
-    fieldListStr = QString::null;
     fieldList.clear();
-    posMap.clear();
 }
 
-/*!
-  Returns a comma-separated list of field names as a string.  This
+/*!  Returns a comma-separated list of field names as a string.  This
   string is suitable for use in, for example, generating a select
-  statement.
+  statement.  If a \a prefix is specified, it is prepended before all
+  field names.
 
 */
 
 QString QSqlFieldList::toString( const QString& prefix ) const
 {
-    if ( prefix.isNull() )
-	return fieldListStr;
-    QString pfix =  prefix + ".";
-    QString pflist = fieldListStr;
-    pflist = pfix + pflist.replace( QRegExp(", "), QString(", ") + pfix );
+    QString pflist;
+    QString pfix =  prefix.isNull() ? QString::null : prefix + ".";
+    for ( uint i = 0; i < count(); ++i ) 
+	pflist += pfix + field( i )->name() + ", ";
     return pflist;
 }
 

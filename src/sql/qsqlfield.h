@@ -11,9 +11,9 @@
 
 #ifndef QT_NO_SQL
 
-class Q_EXPORT QSqlField 
+class Q_EXPORT QSqlField
 {
-    friend class QSqlFieldList;    
+    friend class QSqlFieldList;
 public:
     QSqlField( const QString& fieldName = QString::null, int fieldNumber = -1, QVariant::Type type = QVariant::Invalid );
     QSqlField( const QSqlField& other );
@@ -82,9 +82,13 @@ public:
     const QSqlField*     field( int i ) const;
     QSqlField*           field( const QString& name );
     const QSqlField*     field( const QString& name ) const;
-    
+
     virtual void         append( const QSqlField* field );
-    
+    virtual void         prepend( const QSqlField* field );
+    virtual void         insert( int pos, const QSqlField* field );
+    virtual void         remove( int pos );
+
+    bool                 isEmpty() const { return fieldList.isEmpty(); }
     void                 clear();
     uint                 count() const;
     virtual QString      toString( const QString& prefix = QString::null ) const;
@@ -93,8 +97,6 @@ private:
     QSqlField*           findField( int i );
     QSqlField*           findField( const QString& name );
     QValueList< QSqlField > fieldList;
-    QString              fieldListStr;
-    QMap< QString, int > posMap;
 };
 
 #endif	// QT_NO_SQL
