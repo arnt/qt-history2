@@ -108,6 +108,7 @@ public:
     bool isFile() const;
     bool isDir() const;
     bool isSymLink() const;
+    bool isRoot() const;
 
     QString readLink() const;
 

@@ -110,8 +110,8 @@ QIconSet QFileIconProvider::computerIcons() const
 
 QIconSet QFileIconProvider::icons(const QFileInfo &info) const
 {
-//     if (info.isDrive())
-//         return driveHD;
+    if (info.isRoot())
+        return driveHD;
     if (info.isFile())
         return info.isSymLink() ? fileLink : file;
     if (info.isDir())
@@ -125,8 +125,8 @@ QIconSet QFileIconProvider::icons(const QFileInfo &info) const
 
 QString QFileIconProvider::type(const QFileInfo &info) const
 {
-//     if (info.isDrive())
-//         return "Drive";
+    if (info.isRoot())
+        return "Drive";
     if (info.isFile())
         return info.suffix() + " File";
     if (info.isDir())
@@ -403,11 +403,12 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
     }
 
     if (role == DisplayRole || role == EditRole) {
+        QFileInfo info = node->info;
         switch (index.column()) {
-        case 0: return node->info.fileName();
-        case 1: return node->info.size();
-        case 2: return d->iconProvider->type(node->info);
-        case 3: return node->info.lastModified();
+        case 0: return info.isRoot() ? info.absoluteFilePath() : info.fileName();
+        case 1: return info.size();
+        case 2: return d->iconProvider->type(info);
+        case 3: return info.lastModified();
         default:
             qWarning("data: invalid display value column %d", index.column());
             return QVariant();
@@ -918,7 +919,10 @@ QString QDirModel::name(const QModelIndex &index) const
 {
     if (!index.isValid())
         return d->rootName();
-    return fileInfo(index).fileName(); // FIXME: "test/" returns ""
+    QFileInfo info = fileInfo(index);
+    if (info.isRoot())
+        return info.absoluteFilePath();
+    return info.fileName();
 }
 
 /*!

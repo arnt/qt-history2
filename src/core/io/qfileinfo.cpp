@@ -792,6 +792,20 @@ QFileInfo::isSymLink() const
 }
 
 /*!
+  Returns true if the object points to a directory or to a symbolic
+  link to a directory, and that directory is the riit directory; otherwise
+  returns false.
+*/
+
+bool
+QFileInfo::isRoot() const
+{
+    if (!d->data->fileEngine)
+        return true;
+    return d->data->fileEngine->isRoot();
+}
+
+/*!
     Returns the name a symlink (or shortcut on Windows) points to, or
     a an empty string if the object isn't a symbolic link.
 
