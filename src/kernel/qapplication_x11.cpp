@@ -259,6 +259,9 @@ Window		*qt_net_virtual_root_list	= 0;
 // Display
 bool	qt_use_xrender	= FALSE;
 
+// flags for extensions for special Languages, currently only for RTL languages
+static bool 	qt_use_rtl_extensions = FALSE;
+
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
 static int	mouseButtonState     = 0;	// mouse button state
@@ -987,6 +990,9 @@ bool QApplication::x11_apply_settings()
     qt_resolve_symlinks =
 	settings.readBoolEntry("/qt/resolveSymlinks", TRUE);
 
+    qt_use_rtl_extensions =
+    	settings.readBoolEntry("/qt/useRtlExtensions", FALSE);
+    
     if (update_timestamp) {
 	QBuffer stamp;
 	QDataStream s(stamp.buffer(), IO_WriteOnly);
@@ -1773,18 +1779,21 @@ void qt_init_internal( int *argcptr, char **argv,
 		QPaintDevice::x_appcolormap = 0;
 		QPaintDevice::x_appcolormap_arr[appScreen] = 0;
 
-		if (XGetRGBColormaps(appDpy, QPaintDevice::x11AppRootWindow(),
+		QString serverVendor( ServerVendor( appDpy) );
+                if ( ! serverVendor.contains( "Hewlett-Packard" ) ) {
+		    // on HPUX 10.20 local displays, the RGB_DEFAULT_MAP colormap
+		    // doesn't give us correct colors.  Why this happens, I have
+		    // no clue, so we disable this for HPUX
+		    if (XGetRGBColormaps(appDpy, QPaintDevice::x11AppRootWindow(),
 				     &stdcmap, &count, XA_RGB_DEFAULT_MAP)) {
-		    i = 0;
-		    while (i < count && QPaintDevice::x_appcolormap == 0) {
-			if (stdcmap[i].visualid == vid)
-			    QPaintDevice::x_appcolormap = stdcmap[i].colormap;
-			    QPaintDevice::x_appcolormap_arr[appScreen] =
-				stdcmap[i].colormap;
-			i++;
+		        i = 0;
+			while (i < count && QPaintDevice::x_appcolormap == 0) {
+			    if (stdcmap[i].visualid == vid)
+				QPaintDevice::x_appcolormap = stdcmap[i].colormap;
+				QPaintDevice::x_appcolormap_arr[appScreen] = stdcmap[i].colormap;
+				i++;
+			}
 		    }
-
-		    XFree( (char *)stdcmap );
 		}
 
 		if (QPaintDevice::x_appcolormap == 0) {
@@ -1979,14 +1988,18 @@ void qt_init_internal( int *argcptr, char **argv,
 	XAnyClassPtr any;
 	XValuatorInfoPtr v;
 	XAxisInfoPtr a;
-
+	const char XFREENAME[] = "stylus";
 
 	if ( (devices = XListInputDevices( appDpy, &ndev)) == NULL ) {
 	    qWarning( "Failed to get list of devices" );
 	    ndev = -1;
 	}
 	for ( i = 0; i < ndev; i++, devices++ ) {
+#if defined(Q_OS_IRIX)
 	    if ( !strncmp( devices->name, WACOM_NAME, sizeof(WACOM_NAME) - 1 ) ) {
+#else
+	    if ( !strncmp(devices->name, XFREENAME, sizeof(XFREENAME) - 1 ) ) {
+#endif
 		dev = XOpenDevice( appDpy, devices->id );
 		if ( dev == NULL ) {
 		    qWarning( "Failed to open device" );
@@ -2030,7 +2043,11 @@ void qt_init_internal( int *argcptr, char **argv,
 			v = (XValuatorInfoPtr) any;
 			a = (XAxisInfoPtr) ((char *) v +
 					    sizeof (XValuatorInfo));
+#if defined (Q_OS_IRIX)
 			max_pressure = a[WAC_PRESSURE_I].max_value;
+#else
+			max_pressure = a[2].max_value;
+#endif
 			// got the max pressure no need to go further...
 			break;
 		    }
@@ -4987,7 +5004,6 @@ bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int 
 #if defined (QT_TABLET_SUPPORT)
 bool QETWidget::translateXinputEvent( const XEvent *ev )
 {
-#if defined (Q_OS_IRIX)
     // Wacom has put defines in their wacom.h file so it would be quite wise
     // to use them, need to think of a decent way of getting rid of not using
     // it when it doesn't exist...
@@ -5027,6 +5043,7 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
 	if ( iClass->c_class == ValuatorClass ) {
 	    vs = (XValuatorState *)iClass;
 	    // figure out what device we have, based on bitmasking...
+#if defined (Q_OS_IRIX)
 	    if ( vs->valuators[WAC_TRANSDUCER_I]
 		 & WAC_TRANSDUCER_PROX_MSK ) {
 		switch ( vs->valuators[WAC_TRANSDUCER_I]
@@ -5056,6 +5073,17 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
 	    // why not use the high res values for global?
 	    global = QPoint( vs->valuators[WAC_XCOORD_I],
 			     vs->valuators[WAC_YCOORD_I] );
+#else
+	    // we are just doing stylus now...
+	    deviceType = QTabletEvent::Stylus;
+	    xTilt = short(vs->valuators[3]);
+	    yTilt = short(vs->valuators[4]);
+	    if ( max_pressure > PRESSURE_LEVELS )
+		pressure = vs->valuators[2] / scaleFactor;
+	    else
+		pressure = vs->valuators[2] * scaleFactor;
+	    global = QPoint( vs->valuators[0], vs->valuators[1] );
+#endif
 	}
 	iClass = (XInputClass*)((char*)iClass + iClass->length);
     }
@@ -5067,9 +5095,6 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
     QApplication::sendSpontaneousEvent( w, &e );
     XFreeDeviceState( s );
     return TRUE;
-#else   // nothing else is implemented for anything but Irix
-    return FALSE;
-#endif
 }
 #endif
 
@@ -5298,9 +5323,12 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	    }
 	    if ( mib != -1 ) {
 		mapper = QTextCodec::codecForMib( mib );
-		chars[0] = (unsigned char) (key & 0xff );
+		chars[0] = (unsigned char) (key & 0xff); // get only the fourth bit for conversion later
 		count++;
 	    }
+	} else if ( key >= 0x1000000 && key <= 0x100ffff ) {
+	    converted = (ushort) (key - 0x1000000);
+	    mapper = 0;
 	}
 	if ( count < (int)chars.size()-1 )
 	    chars[count] = '\0';
@@ -5326,7 +5354,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
     state = translateButtonState( event->xkey.state );
 
     static int directionKeyEvent = 0;
-    if ( type == QEvent::KeyRelease ) {
+    if ( qt_use_rtl_extensions && type == QEvent::KeyRelease ) {
 	if (directionKeyEvent == Key_Direction_R || directionKeyEvent == Key_Direction_L ) {
 	    type = QEvent::KeyPress;
 	    code = directionKeyEvent;
@@ -5396,7 +5424,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	    chars[0] = 0;
 	}
 
-	if ( type  == QEvent::KeyPress ) {
+	if ( qt_use_rtl_extensions && type  == QEvent::KeyPress ) {
 	    if ( directionKeyEvent ) {
 		if ( key == XK_Shift_L && directionKeyEvent == XK_Control_L ||
 		     key == XK_Control_L && directionKeyEvent == XK_Shift_L ) {
