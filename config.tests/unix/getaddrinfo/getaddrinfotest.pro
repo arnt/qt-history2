@@ -1,7 +1,5 @@
-TEMPLATE = app
+TARGET=getaddrinfotest
 CONFIG -= moc qt
 QT =
-INCLUDEPATH += .
-
-# Input
-SOURCES += main.cpp
+TEMPLATE = app
+SOURCES += getaddrinfotest.cpp
