@@ -1467,6 +1467,8 @@ void FormWindow::resizeEvent( QResizeEvent *e )
     QWidget::resizeEvent( e );
     if ( currTool == ORDER_TOOL )
 	repositionOrderIndicators();
+    if ( isVisible() )
+	formFile()->setModified( TRUE, FormFile::WFormWindow );
 
 #if defined(Q_WS_WIN32)
     windowsRepaintWorkaroundTimer->start( 100, TRUE );
