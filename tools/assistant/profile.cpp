@@ -20,6 +20,8 @@
 #include "profile.h"
 #include <qxml.h>
 
+// #define PROFILE_DEBUG
+
 class ProfileHandler : public QXmlDefaultHandler
 {
 public:
@@ -91,12 +93,12 @@ bool ProfileHandler::characters( const QString &chars )
 {
     switch( state ) {
     case StateProperty:
-	profile->props.insert( propertyName, chars );
+	profile->props[propertyName.lower()] = chars;
 	break;
     case StateDocfile:
 	profile->docs.append( chars );
 	if( !propertyName.isNull() )
-	    profile->icons[chars] = propertyName;
+	    profile->icons[chars.lower()] = propertyName;
 	break;
     default:
 	break;
@@ -104,12 +106,40 @@ bool ProfileHandler::characters( const QString &chars )
     return TRUE;
 }
 
-
-Profile::Profile( const QString &filename )
-    : valid( FALSE )
+Profile *Profile::createProfile( const QString &filename )
 {
-    if ( !filename.isNull() )
-	load( filename );
+    Profile *profile = new Profile;
+    profile->load( filename );
+    return profile;
+}
+
+Profile *Profile::createDefaultProfile()
+{
+    Profile *profile = new Profile;
+    profile->valid = TRUE;
+    profile->defProf = TRUE;
+    profile->props["name"] = "defaultprofile";
+
+    QString path = QString( qInstallPathDocs() ) + "/html/";
+
+    profile->addDocFile( path + "qt.xml" );
+    profile->addDocFile( path + "designer.xml" );
+    profile->addDocFile( path + "assistant.xml" );
+    profile->addDocFile( path + "linguist.xml" );
+    profile->addDocFile( path + "qmake.xml" );
+
+    profile->addDocFileIcon( path + "qt.xml", "qt.png" );
+    profile->addDocFileIcon( path + "designer.xml", "designer.png" );
+    profile->addDocFileIcon( path + "assistant.xml", "assistant.png" );
+    profile->addDocFileIcon( path + "linguist.xml", "linguist.png" );
+
+    return profile;
+}
+
+
+Profile::Profile()
+    : valid( FALSE ), defProf( FALSE )
+{
 }
 
 void Profile::load( const QString &name )
@@ -131,7 +161,13 @@ void Profile::load( const QString &name )
 
     if( !valid ) {
 	qWarning( "Failed to parse profile: ", name.latin1() );
-    } else {
+    } else if ( props["name"].isNull() ) {
+	qWarning( "Profile does not contain required property 'name'" );
+	valid = FALSE;
+	return;
+    }
+#ifdef PROFILE_DEBUG
+    else {
 	QValueList<QString> keys = props.keys();
 	QValueList<QString>::ConstIterator it = keys.begin();
 	while( it != keys.end() ) {
@@ -152,6 +188,8 @@ void Profile::load( const QString &name )
 	    it++;
 	}
     }
+#endif
+
 }
 
 

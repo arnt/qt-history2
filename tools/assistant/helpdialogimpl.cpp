@@ -229,12 +229,19 @@ void HelpDialog::lastWinClosed()
 
 void HelpDialog::generateNewDocu()
 {
+    QString dir = QDir::homeDirPath() + "/.assistant";
+    if( !QFile::exists( dir ) && !QDir().mkdir( dir ) ) {
+	qWarning( "Failed to created assistant directory" );
+	return;
+    }
+    QString pname = "." + Config::configuration()->profileName();
+
     QStringList fileList;
-    fileList <<  ".indexdb" << ".indexdb.dict" << ".indexdb.doc" << ".contentdb";
+    fileList <<  "indexdb" << "indexdb.dict" << "indexdb.doc" << "contentdb";
     QStringList::iterator it = fileList.begin();
     for ( ; it != fileList.end(); ++it ) {
-	if( QFile::exists( QDir::homeDirPath() + "/" + *it ) ){
-	    QFile f( QDir::homeDirPath() + "/" + *it );
+	if( QFile::exists( QDir::homeDirPath() + "/.assistant/" + *it + pname ) ){
+	    QFile f( QDir::homeDirPath() + "/.assistant/" + *it + pname );
 	    f.remove();
 	}
     }
@@ -287,7 +294,8 @@ void HelpDialog::loadIndexFile()
 
     QValueList<IndexKeyword> lst;
 
-    QFile indexFile( QDir::homeDirPath() + "/.indexdb" );
+    QFile indexFile( QDir::homeDirPath() + "/.assistant/indexdb." +
+		     Config::configuration()->profileName() );
     if ( !indexFile.open( IO_ReadOnly ) ) {
 	buildKeywordDB();
 	indexFile.open( IO_ReadOnly );
@@ -403,7 +411,7 @@ void HelpDialog::buildKeywordDB()
     if ( !lst.isEmpty() )
 	qHeapSort( lst );
 
-    QFile indexout( QDir::homeDirPath() + "/.indexdb" );
+    QFile indexout( QDir::homeDirPath() + "/.assistant/indexdb." + Config::configuration()->profileName() );
     if ( indexout.open( IO_WriteOnly ) ) {
 	QDataStream s( &indexout );
 	s << fileAges;
@@ -436,7 +444,7 @@ void HelpDialog::setupTitleMap()
 
 void HelpDialog::getAllContents()
 {
-    QFile contentFile( QDir::homeDirPath() + "/.contentdb" );
+    QFile contentFile( QDir::homeDirPath() + "/.assitant/contentdb." + Config::configuration()->profileName() );
     contentList.clear();
     if ( !contentFile.open( IO_ReadOnly ) ) {
 	buildContentDict();
@@ -498,7 +506,8 @@ void HelpDialog::buildContentDict()
 	}
     }
 
-    QFile contentOut( QDir::homeDirPath() + "/.contentdb" );
+    QFile contentOut( QDir::homeDirPath() + "/.assistant/contentdb." +
+		      Config::configuration()->profileName() );
     if ( contentOut.open( IO_WriteOnly ) ) {
 	QDataStream s( &contentOut );
 	s << fileAges;
@@ -670,7 +679,8 @@ void HelpDialog::insertBookmarks()
     if ( bookmarksInserted )
 	return;
     bookmarksInserted = TRUE;
-    QFile f( QDir::homeDirPath() + "/.bookmarks" );
+    QFile f( QDir::homeDirPath() + "/.assistant/bookmarks." +
+	     Config::configuration()->profileName() );
     if ( !f.open( IO_ReadOnly ) )
 	return;
     QTextStream ts( &f );
@@ -701,7 +711,8 @@ void HelpDialog::showBookmarkTopic()
 
 void HelpDialog::saveBookmarks()
 {
-    QFile f( QDir::homeDirPath() + "/.bookmarks" );
+    QFile f( QDir::homeDirPath() + "/.assistant/bookmarks." +
+	     Config::configuration()->profileName() );
     if ( !f.open( IO_WriteOnly ) )
 	return;
     QTextStream ts( &f );
@@ -875,12 +886,13 @@ void HelpDialog::setupFullTextIndex()
     for ( ; it != titleMap.end(); ++it )
 	documentList << it.key();
 
+    QString pname = Config::configuration()->profileName();
     fullTextIndex = new Index( documentList, QDir::homeDirPath() );
-    fullTextIndex->setDictionaryFile( QDir::homeDirPath() + "/.indexdb.dict" );
-    fullTextIndex->setDocListFile( QDir::homeDirPath() + "/.indexdb.doc" );
+    fullTextIndex->setDictionaryFile( QDir::homeDirPath() + "/.assistant/indexdb.dict." + pname );
+    fullTextIndex->setDocListFile( QDir::homeDirPath() + "/.assistant/indexdb.doc." + pname );
     connect( fullTextIndex, SIGNAL( indexingProgress( int ) ),
 	     this, SLOT( setIndexingProgress( int ) ) );
-    QFile f( QDir::homeDirPath() + "/.indexdb.dict" );
+    QFile f( QDir::homeDirPath() + "/.assistant/indexdb.dict." + pname );
     if ( !f.exists() || newFullTextIndex ) {
 	help->statusBar()->clear();
 	setCursor( waitCursor );

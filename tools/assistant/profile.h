@@ -33,18 +33,23 @@ class Profile
     friend class Config;
 
 public:
-    Profile( const QString &str );
+    inline bool isDefaultProfile() const;
     inline bool isValid() const;
 
     inline void addDocFile( const QString &docfile );
     inline void addDocFileIcon( const QString docfile, const QString &icon );
     inline void addProperty( const QString &name, const QString &value );
 
+    static Profile* createProfile( const QString &file );
+    static Profile* createDefaultProfile();
+
 private:
+    Profile();
     void load( const QString &str );
 
 private:
     int valid:1;
+    int defProf:1;
     QMap<QString,QString> props;
     QMap<QString,QString> icons;
     QStringList docs;
@@ -71,6 +76,11 @@ inline void Profile::addProperty( const QString &name,
 				  const QString &value )
 {
     props[name] = value;
+}
+
+inline bool Profile::isDefaultProfile() const
+{
+    return defProf;
 }
 
 #endif

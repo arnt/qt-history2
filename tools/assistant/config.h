@@ -1,6 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include "profile.h"
+
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qpixmap.h>
@@ -12,9 +14,14 @@ class Profile;
 class Config
 {
 public:
+
+    Config( Profile *p );
+
     void load();
     void save();
-    void setProfile( Profile *prof );
+    Profile *profile() const { return profil; }
+    QString profileName() const { return profil->props["name"]; }
+    bool isDefaultProfile() const { return profil->isDefaultProfile(); }
 
     // From profile, read only
     QString title() const;
@@ -23,6 +30,7 @@ public:
     QStringList docFiles() const;
     QString docTitle( const QString & ) const;
     QString docCategory( const QString & ) const;
+    QString docContentsURL( const QString & ) const;
     QPixmap docIcon( const QString & ) const;
     QPixmap applicationIcon() const;
 
@@ -69,18 +77,18 @@ public:
     QString mainWindowLayout() const { return mainWinLayout; }
     void setMainWindowLayout( const QString &layout ) { mainWinLayout = layout; }
 
+    bool isDifferentProfile() const { return profDiffer; }
+
     static Config *configuration();
 
 private:
-    Config();
     Config( const Config &c );
     Config& operator=( const Config &c );
 
     DocuParser *parser( const QString & ) const;
-    void initDefault();
 
 private:
-    Profile *profile;
+    Profile *profil;
     QMap<QString,DocuParser*> parserCache;
 
     QStringList selCat;
@@ -97,6 +105,7 @@ private:
     int fontSiz;
     bool maximized;
     bool linkUnder;
+    bool profDiffer;
 };
 
 #endif

@@ -90,6 +90,7 @@
     <slot>closeTab()</slot>
 </slots>
 <functions>
+    <function returnType="QMimeSourceFactory*" specifier="non virtual">mimeSourceFactory()</function>
     <function returnType="HelpWindow *">currentBrowser()</function>
     <function access="private">init()</function>
     <function returnType="MainWindow *">mainWindow()</function>

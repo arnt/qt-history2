@@ -22,20 +22,21 @@
 #include "docuparser.h"
 #include "config.h"
 
+#include <qapplication.h>
+#include <qpushbutton.h>
+#include <qcheckbox.h>
 #include <qcolordialog.h>
-#include <qtoolbutton.h>
+#include <qdir.h>
 #include <qfiledialog.h>
-#include <qmessagebox.h>
+#include <qfileinfo.h>
+#include <qlineedit.h>
 #include <qlistbox.h>
 #include <qlistview.h>
-#include <qcheckbox.h>
-#include <qlineedit.h>
-#include <qdir.h>
+#include <qmessagebox.h>
 #include <qptrstack.h>
 #include <qsettings.h>
-#include <qfileinfo.h>
 #include <qtimer.h>
-#include <qapplication.h>
+#include <qtoolbutton.h>
 
 #define RTTI 3973
 
@@ -135,6 +136,12 @@ void SettingsDialog::init()
     catListSel = config->selectedCategories();
 
     insertCategories();
+
+    if( !config->isDefaultProfile() ) {
+	buttonDelete->setEnabled( FALSE );
+	buttonAdd->setEnabled( FALSE );
+	docuFileBox->setEnabled( FALSE );
+    }
 }
 
 void SettingsDialog::insertCategories()

@@ -67,6 +67,7 @@ bool DocuParser::startElement( const QString &, const QString &,
     if( qname == "DCF" && state == StateInit ) {
 	state = StateContent;
 	contentRef = attr.value( "ref" );
+	conURL = contentRef;
 	docTitle = attr.value( "title" );
 	title = docTitle;
 	category = attr.value( "category" );

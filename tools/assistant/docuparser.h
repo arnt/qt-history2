@@ -63,6 +63,7 @@ public:
     bool characters( const QString & );
     bool fatalError( const QXmlParseException& exception );
     QString errorProtocol() const;
+    QString contentsURL() const { return conURL; }
 
     QValueList<ContentItem> getContentItems();
     QPtrList<IndexItem> getIndexItems();
@@ -75,7 +76,7 @@ public:
     static const QString DocumentKey;
 
 private:
-    QString category, contentRef, indexRef, errorProt;
+    QString category, contentRef, indexRef, errorProt, conURL;
     QString docTitle, title;
     int depth;
     States state;

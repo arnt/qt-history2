@@ -2,6 +2,7 @@
 #include "profile.h"
 #include "docuparser.h"
 
+#include <qapplication.h>
 #include <qfile.h>
 #include <qsettings.h>
 #include <qxml.h>
@@ -9,48 +10,56 @@
 
 static Config *static_configuration = 0;
 
-Config::Config()
-    : profile( 0 )
+Config::Config( Profile *p )
+    : profil( p )
 {
+    Q_ASSERT( p );
+
+    if( !static_configuration ) {
+	static_configuration = this;
+    } else {
+	qWarning( "Can only have one instance of Config at a time!" );
+    }
+
     load();
 }
 
-Config* Config::configuration()
+Config *Config::configuration()
 {
-    if( static_configuration == 0 ) {
-	static_configuration = new Config();
-	static_configuration->initDefault();
-    }
+    Q_ASSERT( static_configuration );
     return static_configuration;
-}
-
-void Config::initDefault()
-{
-}
-
-void Config::setProfile( Profile *prof )
-{
-    delete profile;
-    profile = prof;
 }
 
 void Config::load()
 {
     const QString key = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/";
+    const QString profkey = key + profil->props["name"] + "/";
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
-    selCat = settings.readListEntry( key + "CategoriesSelected" );
+    bool ok = FALSE;
+    selCat = settings.readListEntry( profkey + "/CategoriesSelected", &ok );
+    if( !ok ) {
+	selCat.clear();
+	selCat << "all";
+	QStringList docs = docFiles();
+	QStringList::ConstIterator it = docs.begin();
+	while( it!=docs.end() ) {
+	    selCat << docCategory( *it );
+	    ++it;
+	}
+    }
+
     webBrows = settings.readEntry( key + "Webbrowser" );
-    home = settings.readEntry( key + "Homepage", "index.html" );
+    home = settings.readEntry( profkey + "Homepage" );
     pdfApp = settings.readEntry( key + "PDFApplication" );
-    fontFam = settings.readEntry( key + "Family", "sansserif,helvetica" );
+    fontFam = settings.readEntry( key + "Family", qApp->font().family() );
 
     fontFix = settings.readEntry( key + "FixedFamily", "courier" );
-    fontSiz = settings.readNumEntry( key + "Size", 10 );
+    fontSiz = settings.readNumEntry( key + "Size", qApp->font().pointSize() );
     linkUnder = settings.readBoolEntry( key + "LinkUnderline", TRUE );
     linkCol = settings.readEntry( key + "LinkColor", "#0000FF" );
-    src = settings.readEntry( key + "Source" );
+    src = settings.readEntry( profkey + "Source" );
     sideBar = settings.readNumEntry( key + "SideBarPage" );
     geom.setRect( settings.readNumEntry( key + "GeometryX", 0 ),
 		  settings.readNumEntry( key + "GeometryY", 0 ),
@@ -58,24 +67,27 @@ void Config::load()
 		  settings.readNumEntry( key + "GeometryHeight", -1 ) );
     maximized = settings.readBoolEntry( key + "GeometryMaximized", FALSE );
     mainWinLayout = settings.readEntry( key + "MainwindowLayout" );
+
+    profDiffer = ( settings.readEntry( key + "LastProfile" ) != profil->props["name"] );
 }
 
 void Config::save()
 {
     const QString key = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/";
+    const QString profkey = key + profil->props["name"] + "/";
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
-    settings.writeEntry( key + "CategoriesSelected", selCat );
+    settings.writeEntry( key + profil->props["name"] + "/CategoriesSelected", selCat );
     settings.writeEntry( key + "Webbrowser", webBrows );
-    settings.writeEntry( key + "Homepage", home );
+    settings.writeEntry( profkey + "Homepage", home );
     settings.writeEntry( key + "PDFApplication", pdfApp );
     settings.writeEntry( key + "Family",  fontFam );
     settings.writeEntry( key + "Size",  fontSiz );
     settings.writeEntry( key + "FixedFamily", fontFix );
     settings.writeEntry( key + "LinkUnderline", linkUnder );
     settings.writeEntry( key + "LinkColor", linkCol );
-    settings.writeEntry( key + "Source", src );
+    settings.writeEntry( profkey + "Source", src );
     settings.writeEntry( key + "SideBarPage", sideBarPage() );
     settings.writeEntry( key + "GeometryX", geom.x() );
     settings.writeEntry( key + "GeometryY", geom.y() );
@@ -83,38 +95,38 @@ void Config::save()
     settings.writeEntry( key + "GeometryHeight", geom.height() );
     settings.writeEntry( key + "GeometryMaximized", maximized );
     settings.writeEntry( key + "MainwindowLayout", mainWinLayout );
-
+    settings.writeEntry( key + "LastProfile", profil->props["name"] );
 }
 
 QString Config::title() const
 {
-    return profile->props[ "title" ];
+    return profil->props[ "title" ];
 }
 
 QString Config::aboutName() const
 {
-    return profile->props[ "aboutname" ];
+    return profil->props[ "aboutname" ];
 }
 
 
 QString Config::aboutURL() const
 {
-    return profile->props[ "abouturl" ];
+    return profil->props[ "abouturl" ];
 }
 
 QStringList Config::docFiles() const
 {
-    return profile->docs;
+    return profil->docs;
 }
 
 QPixmap Config::docIcon( const QString &docfile ) const
 {
-    return QPixmap::fromMimeSource( profile->icons[docfile] );
+    return QPixmap::fromMimeSource( profil->icons[docfile] );
 }
 
 QPixmap Config::applicationIcon() const
 {
-    return QPixmap::fromMimeSource( profile->props["applicationicon"] );
+    return QPixmap::fromMimeSource( profil->props["applicationicon"] );
 }
 
 
@@ -150,4 +162,9 @@ QString Config::docTitle( const QString &docfile ) const
 QString Config::docCategory( const QString &docfile ) const
 {
     return parser( docfile )->getCategory();
+}
+
+QString Config::docContentsURL( const QString &docfile ) const
+{
+    return parser( docfile )->contentsURL();
 }

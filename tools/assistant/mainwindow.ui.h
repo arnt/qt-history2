@@ -28,6 +28,8 @@
 #include <qdragobject.h>
 #include <qfontinfo.h>
 #include <qaccel.h>
+#include <qmetaobject.h>
+
 
 QPtrList<MainWindow> *MainWindow::windows = 0;
 
@@ -37,6 +39,10 @@ void MainWindow::init()
     setIcon( QPixmap::fromMimeSource( "appicon.png" ) );
 #endif
     setupCompleted = FALSE;
+
+    goActions = new QPtrList<QAction>;
+    goActionDocFiles = new QMap<QAction*,QString>;
+    goActions->setAutoDelete( TRUE );
 
     if ( !windows )
 	windows = new QPtrList<MainWindow>;
@@ -132,7 +138,6 @@ void MainWindow::setup()
     helpDock->tabWidget->setCurrentPage( config->sideBarPage() );
 
     setObjectsEnabled( TRUE );
-
     setupCompleted = TRUE;
 }
 
@@ -142,21 +147,45 @@ void MainWindow::setupGoActions( const QStringList &docList, const QStringList &
     QStringList docFiles = config->docFiles();
     QAction * action = 0;
 
-    bool separatorInserted = FALSE;
+    static bool separatorInserted = FALSE;
+
+    QAction *cur = goActions->first();
+    while( cur ) {
+	cur->removeFrom( goMenu );
+	cur->removeFrom( goActionToolbar );
+	cur = goActions->next();
+    }
+    goActions->clear();
+    goActionDocFiles->clear();
+
+    int addCount = 0;
 
     QStringList::ConstIterator it = docFiles.begin();
     for ( ; it != docFiles.end(); ++it ) {
-	QString cat = config->docCategory( *it );
-	QString title = config->docTitle( *it );
-	QPixmap pix = config->docIcon( *it );
-	if ( catList.contains( cat ) && !pix.isNull() ) {
-	    if( !separatorInserted )
-		separatorInserted = insertActionSeparator();
+	QString cur = *it;
+	QString cat = config->docCategory( cur );
+	QString title = config->docTitle( cur );
+	QPixmap pix = config->docIcon( cur );
+	if( catList.contains( cat ) && !pix.isNull() ) {
+	    if( !separatorInserted ) {
+		goMenu->insertSeparator();
+		separatorInserted = TRUE;
+	    }
 	    action = new QAction( title, QIconSet( pix ), title, 0, 0 );
 	    action->addTo( goMenu );
-	    action->addTo( Toolbar );
+	    action->addTo( goActionToolbar );
+	    goActions->append( action );
+	    goActionDocFiles->insert( action, cur );
+	    connect( action, SIGNAL( activated() ),
+		     this, SLOT( showGoActionLink() ) );
+	    ++addCount;
 	}
     }
+    if( !addCount )
+	goActionToolbar->hide();
+    else
+	goActionToolbar->show();
+
 }
 
 bool MainWindow::insertActionSeparator()
@@ -199,6 +228,8 @@ void MainWindow::destroy()
 	delete windows;
 	windows = 0;
     }
+    delete goActions;
+    delete goActionDocFiles;
 }
 
 void MainWindow::about()
@@ -328,15 +359,19 @@ void MainWindow::showLinkFromClient( const QString &link )
 
 void MainWindow::showLink( const QString &link )
 {
-    QString filename = link.left( link.find( '#' ) );
-    QFileInfo fi( filename );
-    // ### introduce a default-not-found site
-    if ( !fi.exists() ) {
-	statusBar()->message( tr( "Failed to open link: '%1'" ).arg( link ) );
-	tabs->setSource( "index.html" );
+    if( link.isEmpty() ) {
+	qDebug( "The link is empty!" );
     }
-    else {
+
+    QMimeSourceFactory *factory = tabs->mimeSourceFactory();
+    int find = link.find( '#' );
+    QString name = find >= 0 ? link.left( find ) : link;
+    const QMimeSource *mime = factory->data( name );
+    if( mime ) {
 	tabs->setSource( link );
+    } else {
+	// ### Default 404 site!
+	statusBar()->message( tr( "Failed to open link: '%1'" ).arg( link ) );
     }
 }
 
@@ -511,4 +546,18 @@ void MainWindow::showSearchLink( const QString &link, const QStringList &terms )
     hw->viewport()->setUpdatesEnabled( TRUE );
     hw->setCursorPosition( minPar, minIndex );
     hw->updateContents();
+}
+
+
+void MainWindow::showGoActionLink()
+{
+    const QObject *origin = sender();
+    if( !origin ||
+	origin->metaObject()->className() != QString( "QAction" ) )
+	return;
+
+    QAction *action = (QAction*) origin;
+    QString docfile = *( goActionDocFiles->find( action ) );
+    QString ref = Config::configuration()->docContentsURL( docfile );
+    showLink( ref );
 }

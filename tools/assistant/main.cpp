@@ -144,7 +144,6 @@ bool EditDocs::addDocFile( const QString &file )
 // 	printf( "error: file %s is not readable!\n\n", file.latin1() );
 // 	return FALSE;
 //     }
-
 //     initDocFiles();
 //     DocuParser handler;
 //     QFile f( file );
@@ -161,7 +160,6 @@ bool EditDocs::addDocFile( const QString &file )
 //     }
 //     if ( handler.getCategory().isEmpty() )
 // 	return TRUE;
-
 //     QString title = handler.getDocumentationTitle();
 //     if ( title.isEmpty() )
 // 	title = fi.absFilePath();
@@ -210,25 +208,6 @@ void EditDocs::initDocFiles()
     settings.writeEntry( DocuParser::DocumentKey + "NewDoc", TRUE );
 }
 
-Profile *createDefaultProfile()
-{
-    Profile *pro = new Profile( QString::null );
-    QString path = QString( qInstallPathDocs() ) + "/html/";
-
-    pro->addDocFile( path + "qt.xml" );
-    pro->addDocFile( path + "designer.xml" );
-    pro->addDocFile( path + "assistant.xml" );
-    pro->addDocFile( path + "linguist.xml" );
-    pro->addDocFile( path + "qmake.xml" );
-
-    pro->addDocFileIcon( path + "qt.xml", "qt.png" );
-    pro->addDocFileIcon( path + "designer.xml", "designer.png" );
-    pro->addDocFileIcon( path + "assistant.xml", "assistant.png" );
-    pro->addDocFileIcon( path + "linguist.xml", "linguist.png" );
-
-    return pro;
-}
-
 int main( int argc, char ** argv )
 {
     bool withGUI = TRUE;
@@ -273,7 +252,7 @@ int main( int argc, char ** argv )
 		ed.removeDocFile( argv[i] );
 		exit( 0 );
 	    } else if ( QString( argv[i] ).lower() == "-profile" ) {
-		profile = new Profile( argv[++i] );
+		profile = Profile::createProfile( argv[++i] );
 	    } else if ( QString( argv[i] ).lower() == "-help" ) {
 		printf( "Usage: assistant [option]\n" );
 		printf( "Options:\n" );
@@ -300,55 +279,56 @@ int main( int argc, char ** argv )
 	}
     }
 
-    Config *conf = Config::configuration();
-
-    QSettings *config = new QSettings();
-    config->insertSearchPath( QSettings::Windows, "/Trolltech" );
-    QStringList oldSelected = config->readListEntry( DocuParser::DocumentKey
-						     + "CategoriesSelectedOld" );
     if ( profile ) {
-	if ( !profile->isValid() )
+	if ( !profile->isValid() ) {
+	    qWarning( "There was an error while reading the profile!" );
 	    return 1;
-	conf->setProfile( profile );
+	}
     } else {
-	profile = createDefaultProfile();
-	conf->setProfile( profile );
+	profile = Profile::createDefaultProfile();
     }
 
-    if ( !catlist.isEmpty() ) {
-	QStringList buf;
-	QStringList oldCatList = config->readListEntry( DocuParser::DocumentKey
-							+ "CategoriesAvailable" );
-	for ( QStringList::iterator it1 = catlist.begin(); it1 != catlist.end(); ++it1 ) {
-	    for ( QStringList::Iterator it2 = oldCatList.begin(); it2 != oldCatList.end(); ++it2 ) {
-		if ( (*it2).startsWith( *it1 ) )
-		    buf << (*it2);
-	    }
-	}
-	if ( oldSelected.isEmpty() ) {
-	    QStringList selected = config->readListEntry( DocuParser::DocumentKey
-							  + "CategoriesSelected" );
-	    config->writeEntry( DocuParser::DocumentKey
-				+ "CategoriesSelectedOld", selected );
-	}
-	config->writeEntry( DocuParser::DocumentKey + "CategoriesSelected", buf );
-	config->writeEntry( DocuParser::DocumentKey + "NewDoc", TRUE );
-    } else if ( !oldSelected.isEmpty() ) {
-	config->removeEntry( DocuParser::DocumentKey + "CategoriesSelectedOld" );
-	config->writeEntry( DocuParser::DocumentKey + "CategoriesSelected", oldSelected );
-	config->writeEntry( DocuParser::DocumentKey + "NewDoc", TRUE );
-    }
-    bool max = config->readBoolEntry( DocuParser::DocumentKey  + "GeometryMaximized", FALSE );
-    QString link = config->readEntry( DocuParser::DocumentKey + "Source", "" );
 
-    QString firstRunString = config->readEntry( DocuParser::DocumentKey + "FirstRunString" );
-    if ( firstRunString != QString( QT_VERSION_STR ) ) {
-	EditDocs ed;
-	ed.initDocFiles();
-    }
+    Config *conf = new Config( profile );
 
-    delete config;
-    config = 0;
+//     QSettings *config = new QSettings();
+//     config->insertSearchPath( QSettings::Windows, "/Trolltech" );
+//     QStringList oldSelected = config->readListEntry( DocuParser::DocumentKey
+// 						     + "CategoriesSelectedOld" );
+//     if ( !catlist.isEmpty() ) {
+// 	QStringList buf;
+// 	QStringList oldCatList = config->readListEntry( DocuParser::DocumentKey
+// 							+ "CategoriesAvailable" );
+// 	for ( QStringList::iterator it1 = catlist.begin(); it1 != catlist.end(); ++it1 ) {
+// 	    for ( QStringList::Iterator it2 = oldCatList.begin(); it2 != oldCatList.end(); ++it2 ) {
+// 		if ( (*it2).startsWith( *it1 ) )
+// 		    buf << (*it2);
+// 	    }
+// 	}
+// 	if ( oldSelected.isEmpty() ) {
+// 	    QStringList selected = config->readListEntry( DocuParser::DocumentKey
+// 							  + "CategoriesSelected" );
+// 	    config->writeEntry( DocuParser::DocumentKey
+// 				+ "CategoriesSelectedOld", selected );
+// 	}
+// 	config->writeEntry( DocuParser::DocumentKey + "CategoriesSelected", buf );
+// 	config->writeEntry( DocuParser::DocumentKey + "NewDoc", TRUE );
+//     } else if ( !oldSelected.isEmpty() ) {
+// 	config->removeEntry( DocuParser::DocumentKey + "CategoriesSelectedOld" );
+// 	config->writeEntry( DocuParser::DocumentKey + "CategoriesSelected", oldSelected );
+// 	config->writeEntry( DocuParser::DocumentKey + "NewDoc", TRUE );
+//     }
+    bool max = conf->isMaximized();
+    QString link = conf->source();
+
+//     QString firstRunString = config->readEntry( DocuParser::DocumentKey + "FirstRunString" );
+//     if ( firstRunString != QString( QT_VERSION_STR ) ) {
+// 	EditDocs ed;
+// 	ed.initDocFiles();
+//     }
+
+//     delete config;
+//     config = 0;
 
     QGuardedPtr<MainWindow> mw = new MainWindow( 0, "Assistant", Qt::WDestructiveClose );
 

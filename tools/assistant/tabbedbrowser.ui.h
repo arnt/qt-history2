@@ -234,3 +234,8 @@ QStringList TabbedBrowser::sources()
     }
     return lst;
 }
+
+QMimeSourceFactory *TabbedBrowser::mimeSourceFactory()
+{
+    return tabMimeFactory;
+}
