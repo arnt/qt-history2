@@ -257,6 +257,7 @@ public:
 	findForm = 0;
 	m_currentcolorname = "white";
 	m_currentcolor = white;
+	m_changed = false;
 	m_dirty[VIEW_TABLE] = true;
 	m_dirty[VIEW_ICONS] = true;
 	m_dirty[VIEW_TEXT] = true;
