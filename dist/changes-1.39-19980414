@@ -37,10 +37,7 @@ extensions/opengl/src/qgl.pro    1.8  warwick  +1 -1  (1998/04/08)
 src/dialogs/qfiledlg.cpp    2.54  agulbra  +74 -21
 src/dialogs/qfiledlg.h    2.14  agulbra  +5 -3
 
-  allow setting of initial file name when using statics.  will break
-  windows - I didn't know how to do it there so I put #error messages
-  where the correct line needs inserting.
-
+  allow setting of initial file name when using statics.  
 
 src/dialogs/qfiledlg.cpp    2.55  agulbra  +11 -11
 
