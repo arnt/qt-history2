@@ -34,21 +34,37 @@ public:
     QDecoration() {}
     virtual ~QDecoration() {}
 
-    enum DecorItem { None = 0, All = 1, Title = 2, Top = 3, Bottom = 4, Left = 5, Right = 6,
-                     TopLeft = 7, TopRight = 8, BottomLeft = 9, BottomRight = 10,
-                     Close = 11, Minimize = 12, Maximize = 13, Normalize = 14, Menu = 15,
-                     Help = 16, Border = 17, LastDecorItem = Border };
+    /* AABBBBBBBBBBCC   Items in DecorationRegion:
+       AijjjjjjjklmnC
+       A            C   A = TopLeft      B = Top        C = TopRight
+       D            E   D = Left                        E = Right
+       D            E   F = BottomLeft   H = Bottom     G = BottomRight
+       F            G   i = Menu         j = Title      k = Help
+       FFHHHHHHHHHHGG   l = Minimize     m = Maximize   n = Close
 
-    enum DecoreState { Normal = 0x04, Disabled = 0x08, Hover = 0x01, Pressed = 0x02 };
+    */
 
-    virtual QRegion region(const QWidget *, const QRect &rect, DecorItem r=All) = 0;
+    enum DecorationRegion {
+        None        = 0x0000000000, All      = 0xffffffff,
+        TopLeft     = 0x0000000001, Top      = 0x0000000002, TopRight    = 0x0000000004,
+        Left        = 0x0000000008,                          Right       = 0x0000000010,
+        BottomLeft  = 0x0000000020, Bottom   = 0x0000000040, BottomRight = 0x0000000080,
+        Borders     = 0x00000000ff,
+        Menu        = 0x0000000100, Title    = 0x0000000200, Help        = 0x0000000400,
+        Minimize    = 0x0000000800, Maximize = 0x0000001000, Close       = 0x0000002000
+    };
 
-    virtual void close(QWidget *);
-    virtual void minimize(QWidget *);
-    virtual void maximize(QWidget *);
+    enum DecorationState { Normal = 0x04, Disabled = 0x08, Hover = 0x01, Pressed = 0x02 };
 
-    virtual void paintItem(QPainter *, const QWidget *, DecorItem item = All,
-                           DecoreState state = Normal) = 0;
+    virtual QRegion region(const QWidget *w, int decorationRegion = All ) = 0;
+    virtual QRegion region(const QWidget *w, const QRect &rect, int decorationRegion = All ) = 0; // #### Shouldn't be here!
+    virtual int regionAt(const QWidget *w, const QPoint &point);
+    virtual void close(QWidget *w);
+    virtual void minimize(QWidget *w);
+    virtual void maximize(QWidget *w);
+
+    virtual void paint(QPainter *p, const QWidget *w, int decorationRegion = All,
+                       DecorationState state = Normal) = 0;
 };
 
 #endif // QDECORATION_QWS_H

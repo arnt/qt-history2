@@ -173,8 +173,7 @@ void QDecoration::maximize(QWidget *widget)
 #endif
 */
     {
-        QRect dummy(0, 0, 1, 1);
-        QRegion r = region(widget, dummy);
+        QRegion r = region(widget);
         if (r.isEmpty()) {
             nr = desk;
         } else {
@@ -209,5 +208,30 @@ void QDecoration::maximize(QWidget *widget)
     \endlist
 */
 
+/*!
+    Returns first region which contains \a point.
+    If none of the regions contain the point it returns None.
+*/
+int QDecoration::regionAt(const QWidget *w, const QPoint &point)
+{
+    int regions[] = {
+        TopLeft, Top, TopRight, Left, Right, BottomLeft, Bottom, BottomRight, // Borders first
+        Menu, Title, Help, Minimize, Maximize, Close,                         // then buttons
+        None };
+
+    // First check to see if within all regions at all
+    QRegion reg = region(w, All);
+    if (!reg.contains(point))
+        return None;
+
+    int i = 0;
+    while (regions[i]) {
+        reg = region(w, regions[i]);
+        if (reg.contains(point))
+            return regions[i];
+        ++i;
+    }
+    return None;
+}
 
 #endif

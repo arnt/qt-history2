@@ -229,7 +229,8 @@ const char **QDecorationDefault::normalizePixmap()
 #endif
 
 
-QPixmap QDecorationDefault::pixmapFor(const QWidget* w, QDecoration::DecorItem type, bool on, int& xoff, int& /*yoff*/)
+QPixmap QDecorationDefault::pixmapFor(const QWidget *widget, int decorationRegion, bool on,
+                                      int &xoff, int &/*yoff*/)
 {
 #ifndef QT_NO_IMAGEIO_XPM
     static const char** staticHelpPixmapXPM=0;
@@ -269,14 +270,14 @@ QPixmap QDecorationDefault::pixmapFor(const QWidget* w, QDecoration::DecorItem t
 
     const QPixmap *pm = 0;
 
-    switch (type) {
+    switch (decorationRegion) {
         case Help:
             pm = staticHelpPixmap;
             break;
         case Menu:
 #ifndef QT_NO_WIDGET_TOPEXTRA
-            if (!w->windowIcon().isNull())
-                return w->windowIcon();
+            if (!widget->windowIcon().isNull())
+                return widget->windowIcon();
 #endif
             if (!pm) {
                 xoff = 1;
@@ -314,16 +315,19 @@ int QDecorationDefault::getTitleHeight(const QWidget *)
     return 20;
 }
 
-QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, QDecoration::DecorItem type)
+QRegion QDecorationDefault::region(const QWidget *widget, int decorationRegion)
 {
-//    int titleWidth = getTitleWidth(widget);
+    QRect rect(widget->geometry());
+    return region(widget, rect, decorationRegion);
+}
+
+QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, int decorationRegion)
+{
     int titleHeight = getTitleHeight(widget);
-
-    QRegion region;
-
     int bw = BORDER_WIDTH;
 
-    switch (type) {
+    QRegion region;
+    switch (decorationRegion) {
         case All: {
                 if (widget->isMaximized()) {
                     QRect r(rect.left(), rect.top() - titleHeight,
@@ -488,65 +492,33 @@ QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, QDe
     return region;
 }
 
-void QDecorationDefault::paintItem(QPainter *painter, const QWidget *widget, DecorItem item,
-                                   DecoreState state)
+void QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int decorationRegion,
+                               DecorationState state)
 {
-    if (item == None)
+    if (decorationRegion == None)
         return;
 
-    if (item == All) {
-        paintItem(painter, widget, Border, state);
-        paintItem(painter, widget, Title, state);
-        paintItem(painter, widget, Menu, state);
-        paintItem(painter, widget, Help, state);
-        paintItem(painter, widget, Minimize, state);
-        paintItem(painter, widget, Maximize, state);
-        paintItem(painter, widget, Normalize, state);
-        paintItem(painter, widget, Close, state);
-        return;
+    bool paintAll = (decorationRegion == All);
+    if (paintAll || decorationRegion & Borders) {
+        qWarning("QDecorationDefault::paint(): Border - NYI!");
     }
-
-    switch(item) {
-    case Border:
-    {
-        qWarning("QDecorationDefault::paintEvent(): Border - NYI!");
-        break;
+    if (paintAll || decorationRegion & Title) {
+        qWarning("QDecorationDefault::paint(): Title - NYI!");
     }
-    case Title:
-    {
-        qWarning("QDecorationDefault::paintEvent(): Title - NYI!");
-        break;
+    if (paintAll || decorationRegion & Menu) {
+        qWarning("QDecorationDefault::paint(): Menu - NYI!");
     }
-    case Menu:
-    {
-        qWarning("QDecorationDefault::paintEvent(): Menu - NYI!");
-        break;
+    if (paintAll || decorationRegion & Help) {
+        qWarning("QDecorationDefault::paint(): Help - NYI!");
     }
-    case Help:
-    {
-        qWarning("QDecorationDefault::paintEvent(): Help - NYI!");
-        break;
+    if (paintAll || decorationRegion & Minimize) {
+        qWarning("QDecorationDefault::paint(): Minimize - NYI!");
     }
-    case Minimize:
-    {
-        qWarning("QDecorationDefault::paintEvent(): Minimize - NYI!");
-        break;
+    if (paintAll || decorationRegion & Maximize) {
+        qWarning("QDecorationDefault::paint(): Maximize - NYI!");
     }
-    case Maximize:
-    {
-        qWarning("QDecorationDefault::paintEvent(): Maximize - NYI!");
-        break;
-    }
-    case Normalize:
-    {
-        qWarning("QDecorationDefault::paintEvent(): Normalize - NYI!");
-        break;
-    }
-    case Close:
-    {
-        qWarning("QDecorationDefault::paintEvent(): Close - NYI!");
-        break;
-    }
+    if (paintAll || decorationRegion & Close) {
+        qWarning("QDecorationDefault::paint(): Close - NYI!");
     }
 }
 

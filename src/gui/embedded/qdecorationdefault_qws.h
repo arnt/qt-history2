@@ -31,16 +31,18 @@ public:
     QDecorationDefault();
     virtual ~QDecorationDefault();
 
-    virtual QRegion region(const QWidget *, const QRect &rect, DecorItem);
-    virtual void paintItem(QPainter *, const QWidget *, DecorItem item = All,
-                           DecoreState state = Normal);
+    virtual QRegion region(const QWidget *widget, int decorationRegion);
+    virtual QRegion region(const QWidget *widget, const QRect &rect, int decorationRegion); // ### Shouldn't be here!
+    virtual void paint(QPainter *painter, const QWidget *widget, int decorationRegion = All,
+                       DecorationState state = Normal);
 
 protected:
-    virtual QPixmap pixmapFor(const QWidget *, DecorItem, bool, int&, int&);
+    virtual QPixmap pixmapFor(const QWidget *widget, int decorationRegion, bool on, int &xoff,
+                              int &yoff);
 
     /* Added these virtual functions to enable other styles to be added more easily */
-    virtual int getTitleWidth(const QWidget *);
-    virtual int getTitleHeight(const QWidget *);
+    virtual int getTitleWidth(const QWidget *widget);
+    virtual int getTitleHeight(const QWidget *widget);
 
 #ifndef QT_NO_IMAGEIO_XPM
     virtual const char **helpPixmap();

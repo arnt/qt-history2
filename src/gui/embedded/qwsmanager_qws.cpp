@@ -46,7 +46,7 @@ class QWSManagerPrivate : public QObjectPrivate
 public:
     QWSManagerPrivate();
 
-    QDecoration::DecorItem activeItem;
+    int activeRegion;
     QWidget *managed;
     QMenu *popup;
     QWSButton *menuBtn;
@@ -76,7 +76,7 @@ QPoint QWSManagerPrivate::mousePos;
 
 
 QWSManagerPrivate::QWSManagerPrivate()
-    : QObjectPrivate(), activeItem(QDecoration::None), managed(0), popup(0), menuBtn(0),
+    : QObjectPrivate(), activeRegion(QDecoration::None), managed(0), popup(0), menuBtn(0),
       closeBtn(0), minimizeBtn(0), maximizeBtn(0), dx(0), dy(0)
 {
 }
@@ -121,20 +121,7 @@ QWidget *QWSManager::grabbedMouse()
 
 QRegion QWSManager::region()
 {
-    return QApplication::qwsDecoration().region(d->managed, d->managed->geometry());
-}
-
-QDecoration::DecorItem QWSManager::pointInDecorItem(const QPoint &p)
-{
-    QDecoration &dec = QApplication::qwsDecoration();
-    QRect rect(d->managed->geometry());
-
-    for (int i = QDecoration::LastDecorItem; i >= QDecoration::Title; i--) {
-        if (dec.region(d->managed, rect, (QDecoration::DecorItem)i).contains(p))
-            return (QDecoration::DecorItem)i;
-    }
-
-    return QDecoration::None;
+    return QApplication::qwsDecoration().region(d->managed);
 }
 
 bool QWSManager::event(QEvent *e)
@@ -177,8 +164,8 @@ void QWSManager::mousePressEvent(QMouseEvent *e)
     d->mousePos = e->globalPos();
     d->dx = 0;
     d->dy = 0;
-    d->activeItem = pointInDecorItem(d->mousePos);
-    switch (d->activeItem) {
+    d->activeRegion = QApplication::qwsDecoration().regionAt(d->managed, d->mousePos);
+    switch (d->activeRegion) {
     case QDecoration::Menu:
         menu(d->managed->geometry().topLeft());
         break;
@@ -194,15 +181,15 @@ void QWSManager::mousePressEvent(QMouseEvent *e)
     default:
         break;
     }
-    if (d->activeItem != QDecoration::None &&
-         d->activeItem != QDecoration::Menu) {
+    if (d->activeRegion != QDecoration::None &&
+         d->activeRegion != QDecoration::Menu) {
         d->active = d->managed;
         d->managed->grabMouse();
     }
-    if (d->activeItem != QDecoration::None &&
-         d->activeItem != QDecoration::Close &&
-         d->activeItem != QDecoration::Minimize &&
-         d->activeItem != QDecoration::Menu) {
+    if (d->activeRegion != QDecoration::None &&
+         d->activeRegion != QDecoration::Close &&
+         d->activeRegion != QDecoration::Minimize &&
+         d->activeRegion != QDecoration::Menu) {
         d->managed->raise();
     }
     if (e->button() == Qt::RightButton) {
@@ -216,9 +203,9 @@ void QWSManager::mouseReleaseEvent(QMouseEvent *e)
     if (e->button() == Qt::LeftButton) {
         handleMove();
         d->mousePos = e->globalPos();
-        QDecoration::DecorItem itm = pointInDecorItem(e->globalPos());
-        QDecoration::DecorItem activatedItem = d->activeItem;
-        d->activeItem = QDecoration::None;
+        int itm = QApplication::qwsDecoration().regionAt(d->managed, e->globalPos());
+        int activatedItem = d->activeRegion;
+        d->activeRegion = QDecoration::None;
         d->active = 0;
         switch (activatedItem) {
             case QDecoration::Close:
@@ -241,7 +228,7 @@ void QWSManager::mouseReleaseEvent(QMouseEvent *e)
             default:
                 break;
         }
-    } else if (d->activeItem == QDecoration::None) {
+    } else if (d->activeRegion == QDecoration::None) {
         d->active = 0;
     }
 }
@@ -257,14 +244,14 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
 
     // cursor
     QWSDisplay *qwsd = QApplication::desktop()->qwsDisplay();
-    if (d->activeItem == QDecoration::None)
+    if (d->activeRegion == QDecoration::None)
     {
         if (!QWidget::mouseGrabber()) {
-            QDecoration::DecorItem r = pointInDecorItem(e->globalPos());
+            int r = QApplication::qwsDecoration().regionAt(d->managed, e->globalPos());
             qwsd->selectCursor(d->managed, shape[r]);
         }
     } else
-        qwsd->selectCursor(d->managed, shape[d->activeItem]);
+        qwsd->selectCursor(d->managed, shape[d->activeRegion]);
 #endif //QT_NO_CURSOR
     // resize/move regions
 
@@ -288,7 +275,7 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
     handleMove();
 
     // button regions
-    QDecoration::DecorItem r = pointInDecorItem(e->globalPos());
+    int r = QApplication::qwsDecoration().regionAt(d->managed, e->globalPos());
     setMouseOver(d->menuBtn, r == QDecoration::Menu);
     setMouseOver(d->closeBtn, r == QDecoration::Close);
     setMouseOver(d->minimizeBtn, r == QDecoration::Minimize);
@@ -310,7 +297,7 @@ void QWSManager::handleMove()
 
     QRect geom(d->managed->geometry());
 
-    switch (d->activeItem) {
+    switch (d->activeRegion) {
         case QDecoration::Title:
             geom = QRect(x + d->dx, y + d->dy, w, h);
             break;
@@ -415,10 +402,10 @@ void QWSManager::paintEvent(QPaintEvent *)
     }
     pe->setWidgetDeviceRegion(r);
 
-    painter.setClipRegion(dec.region(d->managed, d->managed->rect()));
-    dec.paintItem(&painter, d->managed, QDecoration::Border, QDecoration::Normal);
+    painter.setClipRegion(dec.region(d->managed));
+    dec.paint(&painter, d->managed, QDecoration::Borders, QDecoration::Normal);
 //    dec.paint(&painter, d->managed);
-    painter.setClipRegion(dec.region(d->managed, d->managed->rect()));
+    painter.setClipRegion(dec.region(d->managed));
 //     dec.paintButton(&painter, d->managed, QDecoration::Help, d->menuBtn->state());
 //     dec.paintButton(&painter, d->managed, QDecoration::Menu, d->menuBtn->state());
 //     dec.paintButton(&painter, d->managed, QDecoration::Close, d->closeBtn->state());
@@ -500,12 +487,12 @@ void QWSManager::menuTriggered(QAction *item)
         toggleMaximize();
     } else if (item == d->menuActions[QWSManagerPrivate::TitleAction]) {
         d->mousePos = QCursor::pos();
-        d->activeItem = QDecoration::Title;
+        d->activeRegion = QDecoration::Title;
         d->active = d->managed;
         d->managed->grabMouse();
     } else if (item == d->menuActions[QWSManagerPrivate::BottomRightAction]) {
         d->mousePos = QCursor::pos();
-        d->activeItem = QDecoration::BottomRight;
+        d->activeRegion = QDecoration::BottomRight;
         d->active = d->managed;
         d->managed->grabMouse();
     } else {
@@ -569,15 +556,15 @@ void QWSManager::repaintButton(QWSButton *b)
     //### This isn't really inside a paint event
     //optimization instead of calling paintEvent()
     QPainter painter(d->managed);
-    painter.setClipRegion(dec.region(d->managed, d->managed->rect()));
+    painter.setClipRegion(dec.region(d->managed));
 //    dec.paintButton(&painter, d->managed, b->type(), b->state());
     d->managed->clearWState(Qt::WState_InPaintEvent);
 }
 
 /*
 */
-QWSButton::QWSButton(QWSManager *m, QDecoration::DecorItem t, bool tb)
-    : flags(0), toggle(tb), typ(t), manager(m)
+QWSButton::QWSButton(QWSManager *m,int decorationRegion, bool tb)
+    : flags(0), toggle(tb), typ(decorationRegion), manager(m)
 {
 }
 

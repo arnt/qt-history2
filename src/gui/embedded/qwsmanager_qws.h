@@ -52,7 +52,6 @@ protected slots:
 
 protected:
     void handleMove();
-    virtual QDecoration::DecorItem pointInDecorItem(const QPoint &);
 
     virtual bool event(QEvent *e);
     virtual void mouseMoveEvent(QMouseEvent *);
@@ -78,11 +77,11 @@ private:
 class QWSButton
 {
 public:
-    QWSButton(QWSManager *m, QDecoration::DecorItem t, bool tb = false);
+    QWSButton(QWSManager *m, int decorationRegion, bool tb = false);
 
     enum State { MouseOver = 0x01, Clicked = 0x02, On = 0x04 };
     int state() { return flags; }
-    QDecoration::DecorItem type() { return typ; }
+    int type() { return typ; }
     bool setMouseOver(bool);
     bool setClicked(bool);
     bool setOn(bool);
@@ -90,7 +89,7 @@ public:
 private:
     int  flags;
     bool toggle;
-    QDecoration::DecorItem typ;
+    int  typ;
     QWSManager *manager;
 };
 
