@@ -35,30 +35,65 @@ int res = 0;
 #else
 #endif
 
-void spectest()
+void test_cclass()
 {
-    QRegExp wc("*", TRUE, TRUE);
-    TEST( wc.isValid(), TRUE );
-    //TEST( wc.match(s), FALSE );
-    TEST( wc.match(QString((QChar *)0,0)), 0 );
+  QString string = "[]";
+  QString restr1 = "[!,\\.=:\\*()\\-\\[\\]/\\${}a-zA-Z0-9_]";
+  QString restr3 = "[\\[\\]]";
+  QString restr2 = "[\\]\\[]";
+  QString restr4 = "[\\]\\[!,\\.=:\\*()\\-/\\${}a-zA-Z0-9_]";
+  QString restr5 = "[\\[\\]!,\\.=:\\*()\\-/\\${}a-zA-Z0-9_]";
+
+  QRegExp re1( restr1 );
+  TEST( string.contains( re1 ), 2 );
+  QRegExp re2( restr2 );
+  TEST( string.contains( re2 ), 2 );
+  QRegExp re3( restr3 );
+  TEST( string.contains( re3 ), 2 );
+  QRegExp re4( restr4 );
+  TEST( string.contains( re4 ), 2 );
+  QRegExp re5( restr5 );
+  TEST( string.contains( re5 ), 2 );
 }
 
-void spectest2()
+void test_16bit()
 {
-    QString a("Heisan Hoppsan");
-    QRegExp r14( "He?", FALSE );
+#if QT_VERSION > 190
+    QChar ucstr[3];
+    ucstr[0] = QChar( 5, 5 );
+    ucstr[1] = QChar( 6, 5 );
+    ucstr[2] = QChar( 6, 6 );
+    QString str( ucstr, 3 );
     
-    TEST( a.find(r14), 0 );
+    QChar ucrx[2];
+    ucrx[0] = QChar( '^' );
+    ucrx[1] = QChar( 5, 5 );
+    QString rx( ucrx, 2 );
+
+    QRegExp r( rx );
+
+    TEST( str.find( r ), 0 );
+#endif
 }
 
-int main()
+void test_bruteforce( int argc, const char** argv );
+
+int main( int argc, const char** argv )
 {
-    spectest();
+
+    if ( argc > 1 && !strcmp( argv[1], "-brute" ) ) {
+	test_bruteforce( argc, argv );
+	return 0;
+    }
 
 #ifndef EMPTYRXWORKS
-    qWarning("Not testing Empty regexp; in 1.x it crashes.");
+    warning("Not testing Empty regexp; in 1.x it crashes.");
 #endif
 
+    test_16bit();
+
+    test_cclass();
+    
     int len = -1;
 
     QRegExp r0;
@@ -116,30 +151,74 @@ int main()
     QString f("dill  og dall");
     QString g(" Heeei og Hooooopp");
     QString h(" hEeEi og Heeei og hEEEi");
+    QString k("A1");
+    QString l("1");
     QString ns;
     QString es( "" );
     QRegExp r;
+
+    QRegExp r21( "[a-zA-Z]*" );
+    r = r21;
+    TEST( r.match( k ), 0 );
+    TEST( r.match( l ), 0 );
+
+
+    QRegExp r20( ".?" );
+    r = r20;
+    TEST( a.find(r), 0 );
+    TEST( a.findRev(r), 13 );
+    TEST( a.contains(r), 14 );
+    TEST( r.match( ns ), 0 );
+    TEST( r.match( es ), 0 );
+    TEST( es.find(r), 0 );
+    TEST( es.findRev(r), 0 );
+    TEST( es.contains(r), 1 );
+    TEST( ns.find(r), 0 );
+    TEST( ns.findRev(r), 0 );
+    TEST( ns.contains(r), 1 );
 
     QRegExp r19( ".*a" );
     r = r19;
     TEST( r.match( ns ), -1 );
     TEST( r.match( es ), -1 );
+    TEST( es.find(r), -1 );
+    TEST( es.findRev(r), -1 );
+    TEST( es.contains(r), 0 );
+    TEST( ns.find(r), -1 );
+    TEST( ns.findRev(r), -1 );
+    TEST( ns.contains(r), 0 );
 
     QRegExp r18( ".*" );
     r = r18;
     TEST( a.find(r), 0 );
     TEST( a.findRev(r), 13 );
     TEST( a.contains(r), 14 );
+    TEST( r.match( a, 0, &len ), 0 );
+    TEST( len, 14 );
     TEST( r.match( ns ), 0 );
     TEST( r.match( es ), 0 );
+    TEST( es.find(r), 0 );
+    TEST( es.findRev(r), 0 );
+    TEST( es.contains(r), 1 );
+    TEST( ns.find(r), 0 );
+    TEST( ns.findRev(r), 0 );
+    TEST( ns.contains(r), 1 );
 
     QRegExp r17( "^.*$" );
     r = r17;
     TEST( a.find(r), 0 );
-    TEST( a.findRev(r), 13 );		// Should be 0? (IndexIsStart)
-    TEST( a.contains(r), 14 );		// Should be 14? (IndexIsStart)
+    TEST( a.findRev(r), 13 );
+    TEST( a.contains(r), 14 );
+    TEST( r.match( a, 0, &len ), 0 );
+    TEST( len, 14 );
     TEST( r.match( ns ), 0 );
     TEST( r.match( es ), 0 );
+    TEST( es.find(r), 0 );
+    TEST( es.findRev(r), 0 );
+    TEST( es.contains(r), 1 );
+    TEST( ns.find(r), 0 );
+    TEST( ns.findRev(r), 0 );
+    TEST( ns.contains(r), 1 );
 
     QRegExp r16( "^$" );
     r = r16;
@@ -148,14 +227,27 @@ int main()
     TEST( a.contains(r), 0 );
     TEST( r.match( ns ), 0 );
     TEST( r.match( es ), 0 );
+    TEST( es.find(r), 0 );
+    TEST( es.findRev(r), 0 );
+    TEST( es.contains(r), 1 );
+    TEST( ns.find(r), 0 );
+    TEST( ns.findRev(r), 0 );
+    TEST( ns.contains(r), 1 );
 
     QRegExp r15( "$" );
     r = r15;
     TEST( a.find(r), 14 );
-    //TEST( a.findRev(r), 14 );  // Should this work?
+    TEST( r.match( a, 0, &len ), 14 );
+    TEST( len, 0 );
     TEST( a.contains(r), 1 );
     TEST( r.match( ns ), 0 );
     TEST( r.match( es ), 0 );
+    TEST( es.find(r), 0 );
+    TEST( es.findRev(r), 0 );
+    TEST( es.contains(r), 1 );
+    TEST( ns.find(r), 0 );
+    TEST( ns.findRev(r), 0 );
+    TEST( ns.contains(r), 1 );
 
     QRegExp r14( "He?", FALSE );
     r = r14;
@@ -418,7 +510,87 @@ int main()
     
 
 
-    printf("\n%d error%s\n",err,"s"+(err==1));
+    warning("\n%d error%s\n",err,"s"+(err==1));
 
     return 0;
 }
+
+
+
+
+void test_bruteforce( int argc, const char** argv )
+{
+    const char* chars = ".^$[]*+?\\rnts";
+    const int maxIdx = strlen( chars ) - 1;
+    const int l = argc - 2;
+    if ( !l ) {
+	warning( "Cannot test 0 length regexps" );
+	return;
+    }
+    int* idx = new int[l];
+    for ( int i = 0; i < l; i++ ) {
+	QString arg( argv[i+2] );
+	bool ok = TRUE;
+	idx[i] = arg.toInt( &ok );
+	if ( !ok ) {
+	    warning( "Argument %i not a number", i+1 );
+	    return;
+	}
+    }
+
+    QString lmsg = "BF: ";
+    QString nums;
+    QString msg;
+    QString ns;
+    QString es( "" );
+    QString fs( "A normal string." );
+    int maxCnt = 10000;
+    int cnt = maxCnt;
+    bool done = FALSE;
+    while( !done ) {
+
+	// build RE
+	QString rxs;
+	for ( int i = 0; i < l; i++ )
+	    rxs += chars[idx[i]];
+
+	// output
+	if ( !cnt-- ) {
+	    cnt = maxCnt;
+	    msg = lmsg;
+	    for ( int i = 0; i < l; i++ ) {
+		nums.setNum( idx[i] );
+		msg += nums;
+		msg += " ";
+	    }
+	    msg += "RE: ";
+	    msg += rxs;
+	    warning( "%s", (const char*)msg );
+	}
+	// do test
+	
+	QRegExp rx( rxs );
+	if ( rx.isValid() ) {
+	    int res = rx.match( ns );
+	    res = rx.match( es );
+	    res = rx.match( fs );
+	    res = rx.match( rxs );	// hehe...
+	}
+
+	// Increment
+	for ( int i = l-1; i >= 0; i-- ) {
+	    if ( idx[i] == maxIdx ) {
+		if ( !i )
+		    done = TRUE;
+		idx[i] = 0;
+		continue;
+	    }
+	    idx[i]++;
+	    break;
+	}
+    }
+
+    warning( "Brute Force test of length %i completed", l );
+
+}
+    
