@@ -1249,7 +1249,7 @@ void QPrintDialog::setNumCopies( int copies )
 void QPrintDialog::browseClicked()
 {
 #ifndef QT_NO_FILEDIALOG
-    QString fn = QFileDialog::getSaveFileName( QString::null, tr( "Postscript files (*.ps);;All files (*)" ), this );
+    QString fn = QFileDialog::getSaveFileName( QString::null, tr( "Postscript Files (*.ps);;All Files (*)" ), this );
     if ( !fn.isNull() )
         d->fileName->setText( fn );
 #endif

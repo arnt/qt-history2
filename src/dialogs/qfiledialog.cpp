@@ -2190,7 +2190,7 @@ QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
 {
     init();
     d->mode = ExistingFile;
-    d->types->insertItem( QFileDialog::tr( "All files (*)" ) );
+    d->types->insertItem( tr( "All Files (*)" ) );
     emit dirEntered( d->url.dirPath() );
     rereadDir();
 }
@@ -2235,7 +2235,7 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
 	    }
 	}
     } else {
-	d->types->insertItem( QFileDialog::tr( "All files (*)" ) );
+	d->types->insertItem( tr( "All Files (*)" ) );
     }
 }
 
