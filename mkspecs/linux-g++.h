@@ -34,6 +34,8 @@
 #include <stdio.h>
 #include <time.h>
 
+#include <netinet/in.h>
+
 #include <sys/ioctl.h>
 #include <sys/ipc.h>
 #include <sys/time.h>
@@ -76,7 +78,7 @@
 
 #define QT_SOCKLEN_T	socklen_t
 
-#define QT_NREAD	I_NREAD
+#define QT_NREAD	FIONREAD
 
 inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
 { return ::accept(s, addr, addrlen); }
