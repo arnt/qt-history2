@@ -392,13 +392,14 @@ void QWidgetStack::show()
 
 	while( (o=it.current()) != 0 ) {
 	    ++it;
-	    if ( o->isWidgetType() )
+	    if ( o->isWidgetType() ) {
 		if ( !topWidget && o != invisible )
 		    topWidget = (QWidget*)o;
 		if ( o == topWidget )
 		    ((QWidget *)o)->show();
 		else
 		    ((QWidget *)o)->hide();
+	    }
 	}
     }
     QFrame::show();
