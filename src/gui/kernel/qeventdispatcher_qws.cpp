@@ -56,6 +56,8 @@ bool QEventDispatcherQWS::processEvents(QEventLoop::ProcessEventsFlags flags)
         }
 #endif
         QWSEvent *event = qt_fbdpy->getEvent();        // get next event
+        if (filterEvent(event))
+            continue;
         nevents++;
 
         bool ret = qApp->qwsProcessEvent(event) == 1;

@@ -2014,6 +2014,10 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
         mouse_state = mouse.state;
     }
 
+    long unused;
+    if (filterEvent(event, &unused))                  // send through app filter
+        return 1;
+
     if (qwsEventFilter(event))                        // send through app filter
         return 1;
 
