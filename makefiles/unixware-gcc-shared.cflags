@@ -1,0 +1,6 @@
+CC="gcc"
+CFLAGS="-O2 -D_UNIXWARE"
+LIBCFLAGS="-fPIC"
+YACCCFLAGS=""
+LFLAGS="-lqt"
+SHELL="/bin/sh"

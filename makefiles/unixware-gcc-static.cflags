@@ -1,0 +1,6 @@
+CC="gcc"
+CFLAGS="-O2 -D_UNIXWARE"
+LIBCFLAGS=""
+YACCCFLAGS=""
+LFLAGS="-lqt -L/usr/X/lib -lX11 -lnsl -lsocket"
+SHELL="/bin/sh"
