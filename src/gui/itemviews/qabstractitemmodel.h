@@ -210,7 +210,7 @@ signals:
     void reset();
 
 protected slots:
-    void resetPresistentIndexes();
+    void resetPersistentIndexes();
 
 protected:
     QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent);
