@@ -821,8 +821,6 @@ void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex
     if (d->currentEditor)
         endEdit(old, true);
 
-    QRect area = d->viewport->clipRegion().boundingRect();
-
     if (old.isValid())
         d->viewport->repaint(itemViewportRect(old));
         
