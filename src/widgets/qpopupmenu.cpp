@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#251 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#252 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -147,7 +147,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     maxPMWidth = 0;
 
     tab = 0;
-    reserved = 0;
+    ncols = 1;
     setFrameStyle( QFrame::PopupPanel | QFrame::Raised );
     style().polishPopupMenu( this );
     setBackgroundMode( PaletteButton );
@@ -284,7 +284,7 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     int x  = pos.x();
     int y  = pos.y();
     if ( indexAtPoint > 0 )			// don't subtract when < 0
-	y -= itemPos( indexAtPoint );		// (would subtract 2 pixels!)
+	y -= itemGeometry( indexAtPoint ).y();		// (would subtract 2 pixels!)
     int w  = width();
     int h  = height();
     if ( x+w > sw )				// the complete widget must
@@ -384,8 +384,8 @@ void QPopupMenu::actSig( int id, bool inwhatsthis )
     if ( !inwhatsthis )
 	emit activated( id );
     else {
-	int y = itemPos( indexOf( id ) ) + itemHeight( indexOf( id ) );
-	QWhatsThis::leaveWhatsThisMode( findItem( id )->whatsThis(), mapToGlobal( QPoint(0,y) ) );
+	QRect r( itemGeometry( indexOf( id ) ) );
+	QWhatsThis::leaveWhatsThisMode( findItem( id )->whatsThis(), mapToGlobal( r.bottomLeft() ) );
     }
 
     emit activatedRedirect( id );
@@ -491,12 +491,22 @@ int QPopupMenu::itemAtPos( const QPoint &pos ) const
 	return -1;
 
     int row = 0;
+    int x = contentsRect().x();
     int y = contentsRect().y();
+    int itemw = contentsRect().width() / ncols;
+    
     QMenuItem *mi;
     QMenuItemListIt it( *mitems );
-    while ( (mi=it.current()) && y + itemHeight( row ) < pos.y() ) {
+    while ( (mi=it.current()) ) {
 	++it;
-	y += itemHeight( row );
+	int itemh = itemHeight( row );
+	if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
+	    y = contentsRect().y();
+	    x +=itemw;
+	}
+	if ( QRect( x, y, itemw, itemh ).contains( pos ) )
+	    break;
+	y += itemh;
 	++row;
     }
 
@@ -507,25 +517,31 @@ int QPopupMenu::itemAtPos( const QPoint &pos ) const
 
 /*!
   \internal
-  Returns the y (top) position of item number \e index.
+  Returns the geometry of item number \e index.
 */
 
-int QPopupMenu::itemPos( int index )		// get y coord for item
+QRect QPopupMenu::itemGeometry( int index )
 {
     QMenuItem *mi;
     int row = 0;
+    int x = contentsRect().x();
     int y = contentsRect().y();
+    int itemw = contentsRect().width() / ncols;
     QMenuItemListIt it( *mitems );
-    while ( (mi=it.current()) && row < index ) {
+    while ( (mi=it.current()) ) {
 	++it;
-	y += itemHeight( mi );
+	int itemh = itemHeight( row );
+	if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
+	    y = contentsRect().y();
+	    x +=itemw;
+	}
+	if ( row == index )
+	    return QRect( x,y,itemw,itemh );
+	y += itemh;
 	++row;
     }
 
-    if ( row == index )
-	return y;
-    else
-	return 0;
+    return QRect(0,0,0,0);
 }
 
 
@@ -553,6 +569,8 @@ void QPopupMenu::updateSize()
 			       mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4 );
     }
 
+    int dh = QApplication::desktop()->height();
+    ncols = 1;
 
     for ( QMenuItemListIt it2( *mitems ); it2.current(); ++it2 ) {
 	mi = it2.current();
@@ -591,6 +609,11 @@ void QPopupMenu::updateSize()
 #endif
 	
 	height += itemHeight;
+	if ( height + 2*frameWidth()  >= dh ) {
+	    ncols++;
+	    height = 0;
+	}
+	
 	if ( w > max_width )
 	    max_width = w;
     }
@@ -600,7 +623,14 @@ void QPopupMenu::updateSize()
     else
 	max_width -= fontMetrics().minRightBearing();
 
-    resize( max_width + tab + 2*frameWidth(), height+2*frameWidth() );
+    
+    if ( ncols == 1 ) {
+	resize( max_width + tab + 2*frameWidth(), height + 2*frameWidth() );
+    }    
+    else {
+	resize( (ncols*(max_width + tab)) + 2*frameWidth(), dh );
+    }
+	
     badSize = FALSE;
 }
 
@@ -776,11 +806,18 @@ void QPopupMenu::drawContents( QPainter* p )
     QMenuItemListIt it(*mitems);
     QMenuItem *mi;
     int row = 0;
+    int x = contentsRect().x();
     int y = contentsRect().y();
+    int itemw = contentsRect().width() / ncols;
     while ( (mi=it.current()) ) {
 	++it;
-	drawItem(p, tab, mi, row == actItem, contentsRect().x(), y, contentsRect().width(), itemHeight(row) );
-	y += itemHeight( row );
+	int itemh = itemHeight( row );
+	if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
+	    y = contentsRect().y();
+	    x +=itemw;
+	}
+	drawItem( p, tab, mi, row == actItem, x, y, itemw, itemh );
+	y += itemh;
 	++row;
     }
 }
@@ -998,10 +1035,19 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    ((QPopupMenu *)parentMenu)->hidePopups();
 	    if ( singleSingleShot )
 		singleSingleShot->stop();
-	} else {
-	    ok_key = FALSE;
+	    break;
+	} 
+
+	if ( ncols > 1 && actItem >= 0 ) {
+	    QRect r( itemGeometry( actItem ) );
+	    int newActItem = itemAtPos( QPoint( r.left() - 1, r.center().y() ) );
+	    if ( newActItem >= 0 ) {
+		setActiveItem( newActItem );
+		break;
+	    }
 	}
-	break;
+	ok_key = FALSE;
+    	break;
 
     case Key_Right:
 	if ( actItem >= 0 && (popup=mitems->at( actItem )->popup()) ) {
@@ -1010,9 +1056,17 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		singleSingleShot->stop();
 	    popup->setFirstItemActive();
 	    subMenuTimer();
-	} else {
-	    ok_key = FALSE;
+	    break;
+	} 
+	if ( ncols > 1 && actItem >= 0 ) {
+	    QRect r( itemGeometry( actItem ) );
+	    int newActItem = itemAtPos( QPoint( r.right() + 1, r.center().y() ) );
+	    if ( newActItem >= 0 ) {
+		setActiveItem( newActItem );
+		break;
+	    }
 	}
+	ok_key = FALSE;
 	break;
 
     case Key_Space:
@@ -1048,8 +1102,8 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	if ( !mi->whatsThis().isNull() ){
 	    if ( !QWhatsThis::inWhatsThisMode() )
 		QWhatsThis::enterWhatsThisMode();
-	    int y = itemPos( actItem) + itemHeight( actItem );
-	    QWhatsThis::leaveWhatsThisMode( mi->whatsThis(), mapToGlobal( QPoint(0,y) ) );
+	    QRect r( itemGeometry( actItem) );
+	    QWhatsThis::leaveWhatsThisMode( mi->whatsThis(), mapToGlobal( r.bottomLeft()) );
 	}
     default:
 	ok_key = FALSE;
@@ -1184,10 +1238,11 @@ void QPopupMenu::subMenuTimer() {
     emit popup->aboutToShow();
     supressAboutToShow = TRUE;
 
-    QPoint p( width() - motifArrowHMargin, frameWidth() + motifArrowVMargin );
-    for ( int i=0; i<actItem; i++ )
-	p.setY( p.y() + (QCOORD)itemHeight( i ) );
+
+    QRect r( itemGeometry( actItem ) );
+    QPoint p( r.right() - motifArrowHMargin, r.top() + motifArrowVMargin );
     p = mapToGlobal( p );
+    
     QSize ps = popup->sizeHint();
     if (p.y() + ps.height() > QApplication::desktop()->height()
 	&& p.y() - ps.height()
@@ -1200,10 +1255,10 @@ void QPopupMenu::subMenuTimer() {
 	   ((QPopupMenu*)parentMenu)->geometry().x() > geometry().x() ) ||
 	 p.x() + ps.width() > QApplication::desktop()->width() )
 	left = TRUE;
-    if ( left && ps.width() > mapToGlobal( QPoint(0,0) ).x() )
+    if ( left && (ps.width() > mapToGlobal( r.topLeft() ).x() ) )
 	left = FALSE;
     if ( left )
-	p.setX( mapToGlobal(QPoint(0,0)).x() - ps.width() + frameWidth() );
+	p.setX( mapToGlobal( r.topLeft() ).x() - ps.width() );
     popup->popup( p );
 }
 
@@ -1221,12 +1276,19 @@ void QPopupMenu::updateRow( int row )
     QMenuItemListIt it(*mitems);
     QMenuItem *mi;
     int r = 0;
+    int x = contentsRect().x();
     int y = contentsRect().y();
+    int itemw = contentsRect().width() / ncols;
     while ( (mi=it.current()) ) {
 	++it;
+	int itemh = itemHeight( r );
+	if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
+	    y = contentsRect().y();
+	    x +=itemw;
+	}
 	if ( r == row )
-	    drawItem(&p, tab, mi, r == actItem, contentsRect().x(), y, contentsRect().width(), itemHeight(r) );
-	y += itemHeight( r );
+	    drawItem(&p, tab, mi, r == actItem, x, y, itemw, itemh );
+	y += itemh;
 	++r;
     }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#67 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#68 $
 **
 ** Definition of QPopupMenu class
 **
@@ -114,7 +114,7 @@ private:
     void	byeMenuBar();
 
     int		itemAtPos( const QPoint & ) const;
-    int		itemPos( int index );
+    QRect		itemGeometry( int index );
     void	updateSize();
     void	updateRow( int row );
     void	updateAccel( QWidget * );
@@ -128,7 +128,7 @@ private:
     uint checkable : 1;
     uint connectModalRecursionSafety : 1;
     int maxPMWidth;
-    int reserved;
+    int ncols;
 
     friend class QMenuData;
     friend class QMenuBar;
