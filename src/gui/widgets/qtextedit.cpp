@@ -1243,9 +1243,7 @@ void QTextEdit::setHtml(const QByteArray &text)
     d->init(fragment);
 }
 
-/*!
-    Processes the key event, \a e. By default key events are used to
-    provide keyboard navigation and text editing.
+/*! \reimp
 */
 void QTextEdit::keyPressEvent(QKeyEvent *e)
 {
