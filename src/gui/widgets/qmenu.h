@@ -34,7 +34,11 @@ public:
     QMenu(QWidget *parent = 0);
     ~QMenu();
 
+#ifdef Q_NO_USING_KEYWORD
+    void addAction(QAction *action) { QWidget::addAction(action); }
+#else
     using QWidget::addAction;
+#endif
     QAction *addAction(const QString &text);
     QAction *addAction(const QIconSet &icon, const QString &text);
     QAction *addAction(const QString &text, const QObject *receiver, const char* member);
@@ -131,7 +135,7 @@ public:
     }
     QT_COMPAT int insertSeparator(int index=-1);
     inline QT_COMPAT void removeItem(int id) { removeAction(findActionForId(id)); }
-    inline QT_COMPAT void removeItemAt(int index) { removeAction(findActionForIndex(index)); }
+    inline QT_COMPAT void removeItemAt(int index) { removeAction(actions().value(index)); }
 #ifndef QT_NO_ACCEL
     inline QT_COMPAT QKeySequence accel(int id) const { return findActionForId(id)->accel(); }
     inline QT_COMPAT void setAccel(const QKeySequence& key, int id) { findActionForId(id)->setAccel(key); }
@@ -157,7 +161,7 @@ public:
     inline QT_COMPAT bool isItemVisible(int id) const { return findActionForId(id)->isVisible(); }
     inline QT_COMPAT void setItemVisible(int id, bool visible) { findActionForId(id)->setVisible(visible); }
     inline QT_COMPAT QRect itemGeometry(int index) {
-        return actionGeometry(findActionForIndex(index));
+        return actionGeometry(actions().value(index));
     }
     inline QT_COMPAT int itemAtPos(const QPoint &p, bool ignoreSeparator = true) {
         return actionAtPos(p, ignoreSeparator)->id();
@@ -165,10 +169,11 @@ public:
 
     inline QT_COMPAT int indexOf(int id) const { return actions().indexOf(findActionForId(id)); }
     inline QT_COMPAT int idAt(int index) const {
-        return findActionForIndex(index)->id();
+        QAction * a = actions().value(index);
+        return a ? a->id() : 0;
     }
     inline QT_COMPAT void activateItemAt(int index) {
-        if(QAction *ret = findActionForIndex(index))
+        if(QAction *ret = actions().value(index))
             ret->activate(QAction::Trigger);
     }
     inline QT_COMPAT bool connectItem(int id, const QObject *receiver, const char* member) {
@@ -187,9 +192,9 @@ public:
     QT_COMPAT int frameWidth() const;
 
     //popupmenu
-    inline QT_COMPAT void popup(const QPoint & pos, int indexAtPoint) { popup(pos, findActionForIndex(indexAtPoint)); }
+    inline QT_COMPAT void popup(const QPoint & pos, int indexAtPoint) { popup(pos, actions().value(indexAtPoint)); }
     inline QT_COMPAT int exec(const QPoint & pos, int indexAtPoint) {
-        QAction *a = exec(pos, findActionForIndex(indexAtPoint));
+        QAction *a = exec(pos, actions().value(indexAtPoint));
         return a ? a->id() : 0;
     }
     inline QT_COMPAT int insertTearOffHandle(int = 0, int = 0) {
@@ -200,7 +205,7 @@ public:
 protected:
     inline QT_COMPAT int columns() const { return columnCount(); }
     inline QT_COMPAT int itemHeight(int index) {
-        return actionGeometry(findActionForIndex(index)).height();
+        return actionGeometry(actions().value(index)).height();
     }
     inline QT_COMPAT int itemHeight(QAction *act) {
         return actionGeometry(act).height();
@@ -210,9 +215,6 @@ private:
     int insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
                   const QKeySequence *accel, const QMenu *popup, int id, int index);
     QAction *findActionForId(int id) const;
-    inline QAction *findActionForIndex(int index) const {
-        return actions().value(index, 0);
-    }
 #endif
 
 private:

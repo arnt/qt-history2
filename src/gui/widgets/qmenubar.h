@@ -89,7 +89,7 @@ public:
     QT_COMPAT int insertSeparator(int index=-1);
 
     inline QT_COMPAT void removeItem(int id) { removeAction(findActionForId(id)); }
-    inline QT_COMPAT void removeItemAt(int index) { removeAction(findActionForIndex(index)); }
+    inline QT_COMPAT void removeItemAt(int index) { removeAction(actions().value(index)); }
 #ifndef QT_NO_ACCEL
     inline QT_COMPAT QKeySequence accel(int id) const { return findActionForId(id)->accel(); }
     inline QT_COMPAT void setAccel(const QKeySequence& key, int id) { findActionForId(id)->setAccel(key); }
@@ -115,7 +115,7 @@ public:
     inline QT_COMPAT bool isItemVisible(int id) const { return findActionForId(id)->isVisible(); }
     inline QT_COMPAT void setItemVisible(int id, bool visible) { findActionForId(id)->setVisible(visible); }
     inline QT_COMPAT QRect itemRect(int index) {
-        return actionGeometry(findActionForIndex(index));
+        return actionGeometry(actions().value(index));
     }
     inline QT_COMPAT int itemAtPos(const QPoint &p) {
         QAction *a = actionAtPos(p);
@@ -123,11 +123,11 @@ public:
     }
     inline QT_COMPAT int indexOf(int id) const { return actions().indexOf(findActionForId(id)); }
     inline QT_COMPAT int idAt(int index) const {
-        QAction *a = actions().value(index, 0);
+        QAction *a = actions().value(index);
         return a ? a->id() : 0;
     }
     inline QT_COMPAT void activateItemAt(int index) {
-        if(QAction *ret = findActionForIndex(index))
+        if(QAction *ret = actions().value(index))
             ret->activate(QAction::Trigger);
     }
     inline QT_COMPAT bool connectItem(int id, const QObject *receiver, const char* member) {
@@ -183,9 +183,6 @@ private:
     friend class QMenuPrivate;
 
     QAction *findActionForId(int id) const;
-    inline QAction *findActionForIndex(int index) const {
-        return actions().value(index, 0);
-    }
     int insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
                   const QKeySequence *accel, const QMenu *popup, int id, int index);
 

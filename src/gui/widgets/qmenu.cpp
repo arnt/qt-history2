@@ -1350,7 +1350,7 @@ int QMenu::insertAny(const QIconSet *icon, const QString *text, const QObject *r
     if(index == -1)
         addAction(act);
     else
-        insertAction(act, findActionForIndex(index+1));
+        insertAction(act, actions().value(index+1));
     return id;
 }
 
@@ -1364,7 +1364,7 @@ int QMenu::insertSeparator(int index)
     if(index == -1)
         addAction(act);
     else
-        insertAction(act, findActionForIndex(index+1));
+        insertAction(act, actions().value(index+1));
     return id;
 }
 
