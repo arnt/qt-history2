@@ -140,23 +140,9 @@
 */
 
 /*!
-    \fn void QAbstractSocket::closing()
+    \fn void QAbstractSocket::disconnected()
 
-    This signal is emitted when the connection is closing, before any
-    pending data has been written to the network.
-
-    QAbstractSocket stops receiving data (and no longer emits
-    readyRead()) after closing() has been emitted. Any pending data is
-    still available, and can still be read, but no more data will be
-    read from the network.
-
-    \sa closed()
-*/
-
-/*!
-    \fn void QAbstractSocket::closed()
-
-    This signal is emitted when the connection has been closed.
+    This signal is emitted when the socket has been disconnected.
 
     \sa connectToHost(), close()
 */
@@ -1519,7 +1505,10 @@ void QAbstractSocket::close()
     }
 }
 
-/*
+/*!
+    Disconnects the socket's connection with the host.
+
+    \sa connectToHost()
 */
 void QAbstractSocket::disconnectFromHost()
 {

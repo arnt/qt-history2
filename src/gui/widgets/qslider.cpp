@@ -149,7 +149,7 @@ QStyleOptionSlider QSliderPrivate::getStyleOption() const
 
     QSlider only provides integer ranges. Note that although
     QSlider handles very large numbers, it becomes difficult for users
-    to effectivley use a slider for very large ranges.
+    to use a slider accurately for very large ranges.
 
     A slider accepts focus on Tab and provides both a mouse wheel and a
     keyboard interface. The keyboard interface is the following:
@@ -163,8 +163,7 @@ QStyleOptionSlider QSliderPrivate::getStyleOption() const
         \i End moves to the end (maximum).
     \endlist
 
-    \inlineimage macintosh-slider.png Screenshot in Macintosh style
-    \inlineimage windows-slider.png Screenshot in Windows style
+    \image macintosh-slider.png Screenshot in Macintosh style
 
     \sa QScrollBar QSpinBox
     \link guibooks.html#fowler GUI Design Handbook: Slider\endlink

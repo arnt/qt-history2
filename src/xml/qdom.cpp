@@ -593,10 +593,10 @@ QDomImplementationPrivate* QDomImplementationPrivate::clone()
     You can create a new document type with createDocumentType() and a
     new document with createDocument().
 
-    For further information about the Document Object Model see \link
+    For further information about the Document Object Model see
     \l{http://www.w3.org/TR/REC-DOM-Level-1/}{Level 1} and
-    \l{http://www.w3.org/TR/DOM-Level-2-Core/}{Level 2 Core}. For a more general
-    introduction of the DOM implementation see the QDomDocument
+    \l{http://www.w3.org/TR/DOM-Level-2-Core/}{Level 2 Core}. For a more
+    general introduction of the DOM implementation see the QDomDocument
     documentation.
 
     \sa hasFeature()
@@ -896,7 +896,7 @@ uint QDomNodeListPrivate::length() const
     number of items in the list is returned by count() (and by
     length()).
 
-    For further information about the Document Object Model see \link
+    For further information about the Document Object Model see
     \l{http://www.w3.org/TR/REC-DOM-Level-1/}{Level 1} and
     \l{http://www.w3.org/TR/DOM-Level-2-Core/}{Level 2 Core}.
     For a more general introduction of the DOM implementation see the
@@ -1569,7 +1569,7 @@ void QDomNodePrivate::save(QTextStream& s, int depth, int indent) const
     }
     \endcode
 
-    For further information about the Document Object Model see \link
+    For further information about the Document Object Model see
     \l{http://www.w3.org/TR/REC-DOM-Level-1/}{Level 1} and
     \l{http://www.w3.org/TR/DOM-Level-2-Core/}{Level 2 Core}.
     For a more general introduction of the DOM implementation see the
