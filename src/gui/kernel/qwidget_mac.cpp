@@ -1270,12 +1270,22 @@ void QWidget::setWindowTitle(const QString &cap)
 
 void QWidgetPrivate::setWindowIcon_sys(const QPixmap &pixmap)
 {
-     QTLWExtra* x = d->topData();
-     delete x->icon;
-     x->icon = 0;
+    QTLWExtra* x = d->topData();
+    delete x->icon;
+    x->icon = 0;
     if(!pixmap.isNull())
         x->icon = new QPixmap(pixmap);
     if(q->isTopLevel()) {
+#ifdef QT_COMPAT
+        //I hate to do this but, I've moved the application icon to
+        //where it belongs in *gasp* QApplication but I'm afraid to
+        //break assumptions so I'll leave this in for now maybe we can
+        //consider its removal for 5.0 --Sam
+	if(qApp && qApp->mainWidget() == q && qApp->windowIcon().isNull()) {
+            void qt_mac_set_app_icon(const QPixmap &); //qapplication_mac.cpp
+            qt_mac_set_app_icon(pixmap);
+        }
+#endif
         if(pixmap.isNull()) {
             RemoveWindowProxy(qt_mac_window_for(q));
         } else {
