@@ -274,13 +274,13 @@ class P4Interface : public QObject, public ActionInterface
     Q_OBJECT
 
 public:
-    P4Interface();
+    P4Interface( QUnknownInterface *parent = 0 );
     ~P4Interface();
 
     bool connectNotify( QApplicationInterface* );
     QUnknownInterface* queryInterface( const QString& );
 
-    QStringList featureList();
+    QStringList featureList() const;
     QAction *create( const QString &actionname, QObject* parent = 0 );
     QString group( const QString &actionname );
 
@@ -311,10 +311,11 @@ private:
     QAction *actionDiff;
 
     QGuardedCleanUpHandler<QAction> actions;
-    QGuardedPtr<QApplicationInterface> appInterface;
+    QApplicationInterface* appInterface;
 };
 
-P4Interface::P4Interface()
+P4Interface::P4Interface( QUnknownInterface *parent )
+: ActionInterface( parent )
 {
     aware = FALSE;
 }
@@ -325,6 +326,7 @@ P4Interface::~P4Interface()
 
 bool P4Interface::connectNotify( QApplicationInterface* appIface )
 {
+    qDebug( "P4Interface::connectNotify" );
     if ( !( appInterface = appIface ) )
 	return FALSE;
 
@@ -348,7 +350,7 @@ QUnknownInterface* P4Interface::queryInterface( const QString& request )
     return 0;
 }
 
-QStringList P4Interface::featureList()
+QStringList P4Interface::featureList() const
 {
     QStringList list;
     list << "P4";
@@ -699,15 +701,15 @@ class P4PlugIn : public QPlugInInterface
 public:
     P4PlugIn() {}
 
-    QString name() { return "P4 Integration"; }
-    QString description() { return "Integrates P4 Source Control into the Qt Designer"; }
-    QString author() { return "Trolltech"; }
+    QString name() const { return "P4 Integration"; }
+    QString description() const { return "Integrates P4 Source Control into the Qt Designer"; }
+    QString author() const { return "Trolltech"; }
 
     QUnknownInterface* queryInterface( const QString& );
-    QStringList interfaceList();
+    QStringList interfaceList() const;
 };
 
-QStringList P4PlugIn::interfaceList()
+QStringList P4PlugIn::interfaceList() const
 {
     QStringList list;
 
@@ -719,7 +721,7 @@ QStringList P4PlugIn::interfaceList()
 QUnknownInterface* P4PlugIn::queryInterface( const QString &request )
 {
     if ( request == "P4Interface" )
-	return new P4Interface;
+	return new P4Interface( this );
 
     return 0;
 }
