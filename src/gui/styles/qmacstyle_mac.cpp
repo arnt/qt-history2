@@ -1621,6 +1621,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
                 break;
             } else {
                 q->QWindowsStyle::drawPrimitive(pe, opt, p, w);
+                break;
             }
         }
     case QStyle::PE_PanelTabWidget: {
@@ -1642,6 +1643,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
         break; }
     default:
         q->QWindowsStyle::drawPrimitive(pe, opt, p, w);
+        break;
     }
 #else
     q->QWindowsStyle::drawPrimitive(pe, opt, p, w);
