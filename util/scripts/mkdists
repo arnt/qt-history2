@@ -10,17 +10,12 @@ CREATED_MANIFEST=no
 MYNAME=`whoami`
 [ -z $MYNAME ] && MYNAME="shellssuck"
 
+TMP_DIR=/tmp
 # This is ugly, but it is faster to do a workaround than to aks a
 # sysadmin to increase the size of /tmp
-if [ "$MYNAME" = "reggie" ]; then
-    TMP_DIR=~/tmp
-    TMP_FILE=${TMP_DIR}/qt-tmpf-$$
-else
-    TMP_DIR=/tmp
-    TMP_FILE=${TMP_DIR}/qt-tmpf-$$
-fi
-
-echo $TMP_DIR
+[ "$MYNAME" = "reggie" ] && TMP_DIR=~/tmp
+TMP_FILE=${TMP_DIR}/qt-tmpf-$$
+echo "Temporary directory: $TMP_DIR"
 
 #version info
 REL_VERSION=0.0.0
@@ -687,6 +682,25 @@ copy_platform_files() {
     return 0
 }
 
+remove_file_and_includes() 
+{
+    file="$PLATDIR/$1"
+    include_dir="$PLATDIR/include"
+    [ "$#" -gt 1 ] && include_dir="$2"
+    [ ! -e "$file" ] && return 1
+    if [ -d "$file" ]; then
+	HEADER_FILES=`find $file -name *.h`
+	rm -rf $file
+	for a in $HEADER_FILES; do
+	    base=`basename $a`
+	    [ -e "$include_dir/$base" ] && rm -f "$include_dir/$base"
+	done
+    else
+	base=`basename $file`
+	rm -rf "$file" "$include_dir/$base"
+    fi
+}
+
 for plat in mac win x11 qnx6 embedded; do
     #handle commandline options
     platformname=$plat
@@ -776,6 +790,8 @@ for plat in mac win x11 qnx6 embedded; do
 	    rm -rf $PLATDIR/plugins/src/sqldrivers/tds
 	    ;;
 	esac
+	remove_file_and_includes "extensions/nsplugin" #we don't distribute the nsplugin anymore
+	
 	if [ "$plat" != "embedded" ] && [ "$plat" != "qnx6" ]; then
 	    #Remove embedded from mkspec so that configure does not think we are running embedded
 	    rm -rf "$PLATDIR/mkspecs/qws"
@@ -789,11 +805,10 @@ for plat in mac win x11 qnx6 embedded; do
 	rm -rf "$PLATDIR/util"
 	rm -rf "$PLATDIR/tests"
 	if [ "$plat" != "mac" ]; then
-	    rm -f "$PLATDIR/src/styles/qaquastyle.h" "$PLATDIR/include/qaquastyle.h"
-	    rm -f "$PLATDIR/src/styles/qaquastyle_p.h" "$PLATDIR/include/private/qaquastyle_p.h"
-	    rm -f "$PLATDIR/src/styles/qaquastylepix_p.h" "$PLATDIR/include/private/qaquastylepix_p.h"
-	    rm -f "$PLATDIR/src/styles/qaquastyle_p.cpp" "$PLATDIR/src/styles/qaquastyle.cpp"
-	    rm -rf "$PLATDIR/src/styles/src/aqua"
+	    remove_file_and_includes "src/styles/qaquastyle.h"
+	    remove_file_and_includes "src/styles/qaquastyle_p.h"
+	    remove_file_and_includes "src/styles/qaquastylepix_p.h"
+	    remove_file_and_includes "src/styles/qaquastyle_p.cpp"
 	    rm -rf "$PLATDIR/plugins/src/styles/aqua" "$PLATDIR/plugins/src/styles/mac"
 	fi
 
@@ -808,13 +823,15 @@ for plat in mac win x11 qnx6 embedded; do
 	    rm -f "$PLATDIR/Makefile" "$PLATDIR/qmake/Makefile" "$PLATDIR/qmake/GNUmakefile"
 	    mv "$PLATDIR/GNUmakefile" "$PLATDIR/Makefile"
 
+	    
 	    #Some code is specific to platform though..
+	    remove_file_and_includes "extensions/activeqt" #activeqt is windows only
 	    rm -rf "$PLATDIR/src/3rdparty/gsos"
 	    rm -f "$PLATDIR/src/kernel/qt_windows.h"
 	    if [ "$plat" = "embedded" ] || [ "$plat" = "qnx6" ]; then
 		rm -rf "$PLATDIR/examples/biff" "$PLATDIR/examples/desktop" "$PLATDIR/examples/overlay_x11"
-		rm -rf "$PLATDIR/extensions/xt" "$PLATDIR/include/qxt.h"
-		rm -rf "$PLATDIR/extensions/motif" "$PLATDIR/include/qmotif.h" "$PLATDIR/include/qmotifdialog.h" "$PLATDIR/include/qmotifeventloop.h" "$PLATDIR/include/qmotifwidget.h"
+		remove_file_and_includes "extensions/xt"
+		remove_file_and_includes "extensions/motif"
 	    elif [ "$plat" = "x11" ]; then
 		rm -rf "$PLATDIR/examples/winmanager" "$PLATDIR/examples/compact"
 		rm -rf "$PLATDIR/examples/notepad" "$PLATDIR/examples/launcher"
@@ -823,8 +840,8 @@ for plat in mac win x11 qnx6 embedded; do
 		rm -f "$PLATDIR/src/widgets/qcompactstyle.h" "$PLATDIR/src/widgets/qcompactstyle.cpp"
 	    elif [ "$plat" = "mac" ]; then
 		rm -rf "$PLATDIR/examples/biff" "$PLATDIR/examples/desktop" "$PLATDIR/examples/overlay_x11"
-		rm -rf "$PLATDIR/extensions/xt" "$PLATDIR/include/qxt.h" "$PLATDIR/extensions/imageio"
-		rm -rf "$PLATDIR/extensions/motif" "$PLATDIR/include/qmotif.h" "$PLATDIR/include/qmotifdialog.h" "$PLATDIR/include/qmotifeventloop.h" "$PLATDIR/include/qmotifwidget.h"
+		remove_file_and_includes "extensions/xt"
+		remove_file_and_includes "extensions/motif"
 		rm -rf "$PLATDIR/examples/winmanager" "$PLATDIR/examples/compact"
 		rm -rf "$PLATDIR/examples/notepad" "$PLATDIR/examples/launcher"
 		rm -rf "$PLATDIR/src/3rdparty/freetype2" "$PLATDIR/src/3rdparty/freetype"
@@ -842,8 +859,8 @@ for plat in mac win x11 qnx6 embedded; do
 	    #Unix only code
 	    rm -rf "$PLATDIR/src/3rdparty/gsos"
 	    rm -rf "$PLATDIR/examples/biff" "$PLATDIR/examples/desktop" "$PLATDIR/examples/overlay_x11"
-	    rm -rf "$PLATDIR/extensions/xt" "$PLATDIR/include/qxt.h" "$PLATDIR/extensions/imageio"
-            rm -rf "$PLATDIR/extensions/motif" "$PLATDIR/include/qmotif.h" "$PLATDIR/include/qmotifdialog.h" "$PLATDIR/include/qmotifeventloop.h" "$PLATDIR/include/qmotifwidget.h"
+	    remove_file_and_includes "extensions/xt"
+	    remove_file_and_includes "extensions/motif"
 	    rm -rf "$PLATDIR/examples/winmanager" "$PLATDIR/examples/compact"
 	    rm -rf "$PLATDIR/examples/notepad" "$PLATDIR/examples/launcher"
 	    rm -rf "$PLATDIR/src/3rdparty/freetype2" "$PLATDIR/src/3rdparty/freetype"
