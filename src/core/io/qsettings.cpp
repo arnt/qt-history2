@@ -1488,9 +1488,10 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     you own the software.org Internet domain name, you would
     construct the QSettings object as follows:
 
-    \code
-        QSettings settings("software.org", "DataMill");
-    \endcode
+    \quotefromfile snippets/settings/settings.cpp
+    \skipuntil snippet_ctor1
+    \skipline {
+    \printline QSettings settings
 
     QSettings objects can be created either on the stack or on
     the heap (i.e. using \c new). Constructing and destroying a
@@ -1502,21 +1503,19 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     and QCoreApplication::setApplicationName(), and then use the
     default QSettings constructor:
 
-    \code
-        QSettings::setOrganizationDomain("software.org");
-        QSettings::setApplicationName("DataMill");
-        ...
-        QSettings settings;
-    \endcode
+    \skipuntil snippet_ctor2
+    \skipline {
+    \printline setOrganizationDomain
+    \printline setApplicationName
+    \dots
+    \printline QSettings settings;
 
     QSettings stores settings. Each setting consists of a QString
     that specifies the setting's name (the \e key) and a QCoreVariant
     that stores the data associated with the key. To write a setting,
     use setValue(). For example:
 
-    \code
-        settings.setValue("wrapMargin", 68);
-    \endcode
+    \printline setValue(
 
     If there already exists a setting with the same key, the existing
     value is overwritten by the new value. For efficiency, the
@@ -1525,18 +1524,16 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     You can get a setting's value back using value():
 
-    \code
-        int margin = settings.value("wrapMargin").toInt();
-    \endcode
+    \printline settings.value(
 
     If there is no setting with the specified name, QSettings
     returns a null QCoreVariant (which converts to the integer 0).
     You can specify another default value by passing a second
     argument to value():
 
-    \code
-        int margin = settings.value("wrapMargin", 80).toInt();
-    \endcode
+    \skipline {
+    \printline /settings.value\(.*,.*\)/
+    \skipline }
 
     To test whether a given key exists, call contains(). To remove
     the setting associated with a key, call remove(). To obtain the
@@ -1551,11 +1548,11 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     avoid portability problems, follow these two simple rules:
 
     \list 1
-    \i Always refer to the same key using the same case. For example,
+    \o Always refer to the same key using the same case. For example,
        if you refer to a key as "text fonts" in one place in your
        code, don't refer to it as "Text Fonts" elsewhere.
 
-    \i Avoid key names that are identical except for the case. For
+    \o Avoid key names that are identical except for the case. For
        example, if you have a key called "MainWindow", don't try to
        save another key as "mainwindow".
     \endlist
@@ -1563,27 +1560,19 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     You can form hierarchical keys using the '/' character as a
     separator, similar to Unix file paths. For example:
 
-    \code
-        settings.setValue("mainwindow/size", win->size());
-        settings.setValue("mainwindow/fullScreen", win->isFullScreen());
-        settings.setValue("outputpanel/visible", panel->isVisible());
-    \endcode
+    \printline setValue
+    \printline setValue
+    \printline setValue
 
     If you want to save many settings with the same prefix, you can
     specify the prefix using beginGroup() and call endGroup() at the
     end. Here's the same example again, but this time using the group
     mechanism:
 
-    \code
-        settings.beginGroup("mainwindow");
-        settings.setValue("size", win->size());
-        settings.setValue("fullScreen", win->isFullScreen());
-        settings.endGroup();
-
-        settings.beginGroup("outputpanel");
-        settings.setValue("visible", panel->isVisible());
-        settings.endGroup();
-    \endcode
+    \printline beginGroup
+    \printuntil endGroup
+    \printline beginGroup
+    \printuntil endGroup
 
     If a group is set using beginGroup(), the behavior of most
     functions changes consequently. Groups can be set recursively.
@@ -1599,20 +1588,20 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     are searched in that order:
 
     \list 1
-    \i a user-specific location for the DataMill application
-    \i a user-spefific location for all applications by software.org
-    \i a system-wide location for the DataMill application
-    \i a system-wide location for all applications by software.org
+    \o a user-specific location for the DataMill application
+    \o a user-spefific location for all applications by software.org
+    \o a system-wide location for the DataMill application
+    \o a system-wide location for all applications by software.org
     \endlist
 
     On Unix with X11 and on embedded Linux, these locations are the
     following files:
 
     \list 1
-    \i \c{$HOME/.qt4/software.org/DataMill.conf}
-    \i \c{$HOME/.qt4/software.org.conf}
-    \i \c{$QTDIR/.qt4/software.org/DataMill.conf}
-    \i \c{$QTDIR/.qt4/software.org.conf}
+    \o \c{$HOME/.qt4/software.org/DataMill.conf}
+    \o \c{$HOME/.qt4/software.org.conf}
+    \o \c{$QTDIR/.qt4/software.org/DataMill.conf}
+    \o \c{$QTDIR/.qt4/software.org.conf}
     \endlist
 
     ($QTDIR is the location where Qt is installed.)
@@ -1620,20 +1609,20 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     On Mac OS X versions 10.2 and 10.3, these files are used:
 
     \list 1
-    \i \c{$HOME/Library/Preferences/org.software.DataMill.plist}
-    \i \c{$HOME/Library/Preferences/org.software.plist}
-    \i \c{/Library/Preferences/org.software.DataMill.plist}
-    \i \c{/Library/Preferences/org.software.plist}
+    \o \c{$HOME/Library/Preferences/org.software.DataMill.plist}
+    \o \c{$HOME/Library/Preferences/org.software.plist}
+    \o \c{/Library/Preferences/org.software.DataMill.plist}
+    \o \c{/Library/Preferences/org.software.plist}
     \endlist
 
     On Windows, the settings are stored in the following registry
     paths:
 
     \list 1
-    \i \c{HKEY_CURRENT_USER\Software\software.org\DataMill}
-    \i \c{HKEY_CURRENT_USER\Software\software.org}
-    \i \c{HKEY_LOCAL_MACHINE\Software\software.org\DataMill}
-    \i \c{HKEY_LOCAL_MACHINE\Software\software.org}
+    \o \c{HKEY_CURRENT_USER\Software\software.org\DataMill}
+    \o \c{HKEY_CURRENT_USER\Software\software.org}
+    \o \c{HKEY_LOCAL_MACHINE\Software\software.org\DataMill}
+    \o \c{HKEY_LOCAL_MACHINE\Software\software.org}
     \endlist
 
     If a key cannot be found in the first location, the search goes
@@ -1650,12 +1639,10 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     Let's see with an example:
 
-    \code
-        QSettings obj1("software.org", "DataMill");
-        QSettings obj2("software.org");
-        QSettings obj3(Qt::SystemScope, "software.org", "DataMill");
-        QSettings obj4(Qt::SystemScope, "software.org");
-    \endcode
+    \skipuntil snippet_locations
+    \skipline {
+    \printline obj1
+    \printuntil obj4
 
     The table below summarizes which QSettings objects access
     which location. "\bold{X}" means that the location is the main
@@ -1664,11 +1651,11 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     as a fallback when reading.
 
     \table
-    \header \i Locations               \i \c{obj1} \i \c{obj2} \i \c{obj3} \i \c{obj4}
-    \row    \i 1. User, Application    \i \bold{X} \i          \i          \i
-    \row    \i 2. User, Organization   \i o        \i \bold{X} \i          \i
-    \row    \i 3. System, Application  \i o        \i          \i \bold{X} \i
-    \row    \i 4. System, Organization \i o        \i o        \i o        \i \bold{X}
+    \header \o Locations               \o \c{obj1} \o \c{obj2} \o \c{obj3} \o \c{obj4}
+    \row    \o 1. User, Application    \o \bold{X} \o          \o          \o
+    \row    \o 2. User, Organization   \o o        \o \bold{X} \o          \o
+    \row    \o 3. System, Application  \o o        \o          \o \bold{X} \o
+    \row    \o 4. System, Organization \o o        \o o        \o o        \o \bold{X}
     \endtable
 
     The beauty of this mechanism is that it works on all platforms
@@ -1681,19 +1668,15 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     the QSettings constructor, followed by the scope, the
     organization domain name, and the application name:
 
-    \code
-        QSettings settings(Qt::IniFormat, Qt::UserScope,
-                               "software.org", "DataMill");
-    \endcode
+    \printline /settings\(.*,$/
+    \printline );
 
     Sometimes you do want to access settings stored in a specific
     file or registry path. In that case, you can use a constructor
     that takes a file name (or registry path) and a file format. For
     example:
 
-    \code
-        QSettings settings("datamill.ini", Qt::IniFormat);
-    \endcode
+    \printline /QSettings settings.*Ini/
 
     The file format can either be Qt::IniFormat or Qt::NativeFormat.
     On Mac OS X, the native format is an XML-based format called \e
@@ -1701,10 +1684,8 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     the first argument is a path in the registry rather than a file
     name, for example:
 
-    \code
-        QSettings settings("HKEY_CURRENT_USER\\Software\\Microsoft",
-                               Qt::NativeFormat);
-    \endcode
+    \printline HKEY
+    \printline Native
 
     On X11 and embedded Linux, Qt::IniFormat and Qt::NativeFormat have
     the same meaning.
@@ -1716,27 +1697,10 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     will use QSettings (actually, QSettings) to save and restore
     the geometry of an application's main window.
 
-    \code
-        void MainWindow::writeSettings()
-        {
-            QSettings settings("www.moose-soft.co.uk", "Clipper");
-
-            settings.beginGroup("MainWindow");
-            settings.setValue("size", size());
-            settings.setValue("pos", pos());
-            settings.endGroup();
-        }
-
-        void MainWindow::readSettings()
-        {
-            QSettings settings("www.moose-soft.co.uk", "Clipper");
-
-            settings.beginGroup("MainWindow");
-            resize(settings.value("size", QSize(400, 400)));
-            move(settings.value("pos", QPoint(200, 200)));
-            settings.endGroup();
-        }
-    \endcode
+    \skipto ::writeSettings
+    \printuntil /^\}$/
+    \skipto ::readSettings
+    \printuntil /^\}$/
 
     See \l{Window Geometry} for a discussion on why it is better to
     call resize() and move() rather than setGeometry() to restore a
@@ -1746,27 +1710,17 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     called from the main window's constructor and close event handler
     as follows:
 
-    \code
-        MainWindow::MainWindow(QWidget *parent)
-            : QMainWindow(parent)
-        {
-            ...
-            readSettings();
-        }
+    \skipto ::MainWindow
+    \printuntil {
+    \dots
+    \printline readSettings
+    \printline }
 
-        void MainWindow::closeEvent(QCloseEvent *event)
-        {
-            if (userReallyWantsToQuit()) {
-                writeSettings();
-                event->accept();
-            } else {
-                event->ignore();
-            }
-        }
-    \endcode
+    \skipto ::closeEvent
+    \printuntil /^\}/
 
-    See the \c gui/application example provided in Qt's \c example
-    directory for a self-contained example that uses QSettings.
+    See the \l mainwindow/application example for a self-contained
+    example that uses QSettings.
 
     \section1 Accessing Settings from Multiple Threads or Processes Simultaneously
 
@@ -1794,12 +1748,12 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     application:
 
     \list
-    \i  The Windows system registry has the following limitations: a
+    \o  The Windows system registry has the following limitations: a
         subkey may not exceed 255 characters, an entry's value may not
         exceed 16,383 characters, and all the values of a key may not
         exceed 65,535 characters.
 
-    \i  On Mac OS X, allKeys() will return some extra keys for global
+    \o  On Mac OS X, allKeys() will return some extra keys for global
         settings that apply to \e all applications. These keys can be
         read using value() but cannot be change, only shadowed. You
         can hide these global settings by calling
@@ -1828,7 +1782,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     Example:
     \code
-        QSettings settings("www.technopro.co.jp", "Facturo-Pro");
+        QSettings settings("technopro.co.jp", "Facturo-Pro");
     \endcode
 
     The scope is Qt::UserScope and the format is Qt::NativeFormat.
@@ -1926,13 +1880,13 @@ QSettings::QSettings(const QString &fileName, Qt::SettingsFormat format,
     The code
 
     \code
-        QSettings settings("www.technopro.co.jp", "Facturo-Pro");
+        QSettings settings("technopro.co.jp", "Facturo-Pro");
     \endcode
 
     is equivalent to
 
     \code
-        QApplication::setOrganizationDomain("www.technopro.co.jp");
+        QApplication::setOrganizationDomain("technopro.co.jp");
         QApplication::setApplicationName("Facturo-Pro");
         QSettings settings;
     \endcode
@@ -2072,9 +2026,9 @@ QSettings::Status QSettings::status() const
     This will set the value of three settings:
 
     \list
-    \i \c mainwindow/size
-    \i \c mainwindow/fullScreen
-    \i \c outputpanel/visible
+    \o \c mainwindow/size
+    \o \c mainwindow/fullScreen
+    \o \c outputpanel/visible
     \endlist
 
     Call endGroup() to reset the current group to what it was before
@@ -2206,13 +2160,13 @@ int QSettings::beginReadArray(const QString &prefix)
     The generated keys will have the form
 
     \list
-    \i \c logins/1/userName
-    \i \c logins/1/password
-    \i \c logins/2/userName
-    \i \c logins/2/password
-    \i \c logins/3/userName
-    \i \c logins/3/password
-    \i ...
+    \o \c logins/1/userName
+    \o \c logins/1/password
+    \o \c logins/2/userName
+    \o \c logins/2/password
+    \o \c logins/3/userName
+    \o \c logins/3/password
+    \o ...
     \endlist
 
     To read back an array, use beginReadArray().
@@ -2556,5 +2510,275 @@ QCoreVariant QSettings::value(const QString &key, const QCoreVariant &defaultVal
     d->get(k, &result);
     return result;
 }
+
+#ifdef QT_COMPAT
+/*! \fn bool QSettings::writeEntry(const QString &key, bool value)
+
+    Sets the value of setting \a key to \a value.
+
+    Use setValue() instead.
+*/
+
+/*! \fn bool QSettings::writeEntry(const QString &key, double value)
+
+    \overload
+*/
+
+/*! \fn bool QSettings::writeEntry(const QString &key, int value)
+
+    \overload
+*/
+
+/*! \fn bool QSettings::writeEntry(const QString &key, const char *value)
+
+    \overload
+*/
+
+/*! \fn bool QSettings::writeEntry(const QString &key, const QString &value)
+
+    \overload
+*/
+
+/*! \fn bool QSettings::writeEntry(const QString &key, const QStringList &value)
+
+    \overload
+*/
+
+/*! \fn bool QSettings::writeEntry(const QString &key, const QStringList &value, QChar separator)
+
+    \overload
+
+    Use setValue(\a key, \a value) instead. You don't need \a separator.
+*/
+
+/*! \fn QStringList QSettings::readListEntry(const QString &key, bool *ok = 0)
+
+    Returns the value of setting \a key converted to a QStringList.
+
+    If \a ok is not 0, *\a{ok} is set to true if the key exists,
+    otherwise *\a{ok} is set to false.
+
+    Use value() instead.
+
+    \oldcode
+        bool ok;
+        QStringList list = settings.readListEntry("recentFiles", &ok);
+    \newcode
+        bool ok = settings.contains("recentFiles");
+        QStringList list = settings.value("recentFiles").toStringList();
+    \endcode
+*/
+
+/*! \fn QStringList QSettings::readListEntry(const QString &key, QChar separator, bool *ok)
+
+    Returns the value of setting \a key converted to a QStringList.
+    \a separator is ignored.
+
+    If \a ok is not 0, *\a{ok} is set to true if the key exists,
+    otherwise *\a{ok} is set to false.
+
+    Use value() instead.
+
+    \oldcode
+        bool ok;
+        QStringList list = settings.readListEntry("recentFiles", ":", &ok);
+    \newcode
+        bool ok = settings.contains("recentFiles");
+        QStringList list = settings.value("recentFiles").toStringList();
+    \endcode
+*/
+
+/*! \fn QString QSettings::readEntry(const QString &key, const QString &defaultValue, bool *ok)
+
+    Returns the value for setting \a key converted to a QString. If
+    the setting doesn't exist, returns \a defaultValue.
+
+    If \a ok is not 0, *\a{ok} is set to true if the key exists,
+    otherwise *\a{ok} is set to false.
+
+    Use value() instead.
+
+    \oldcode
+        bool ok;
+        QString str = settings.readEntry("userName", "administrator", &ok);
+    \newcode
+        bool ok = settings.contains("userName");
+        QString str = settings.value("userName", "administrator").toString();
+    \endcode
+*/
+
+/*! \fn int QSettings::readNumEntry(const QString &key, int defaultValue, bool *ok)
+
+    Returns the value for setting \a key converted to an \c int. If
+    the setting doesn't exist, returns \a defaultValue.
+
+    If \a ok is not 0, *\a{ok} is set to true if the key exists,
+    otherwise *\a{ok} is set to false.
+
+    Use value() instead.
+
+    \oldcode
+        bool ok;
+        int max = settings.readNumEntry("maxConnections", 30, &ok);
+    \newcode
+        bool ok = settings.contains("maxConnections");
+        int max = settings.value("maxConnections", 30).toInt();
+    \endcode
+*/
+
+/*! \fn double QSettings::readDoubleEntry(const QString &key, double defaultValue, bool *ok)
+
+    Returns the value for setting \a key converted to a \c double. If
+    the setting doesn't exist, returns \a defaultValue.
+
+    If \a ok is not 0, *\a{ok} is set to true if the key exists,
+    otherwise *\a{ok} is set to false.
+
+    Use value() instead.
+
+    \oldcode
+        bool ok;
+        double pi = settings.readDoubleEntry("pi", 3.141592, &ok);
+    \newcode
+        bool ok = settings.contains("pi");
+        double pi = settings.value("pi", 3.141592).toDouble();
+    \endcode
+*/
+
+/*! \fn bool QSettings::readBoolEntry(const QString &key, bool defaultValue, bool *ok)
+
+    Returns the value for setting \a key converted to a \c bool. If
+    the setting doesn't exist, returns \a defaultValue.
+
+    If \a ok is not 0, *\a{ok} is set to true if the key exists,
+    otherwise *\a{ok} is set to false.
+
+    Use value() instead.
+
+    \oldcode
+        bool ok;
+        bool grid = settings.readBoolEntry("showGrid", true, &ok);
+    \newcode
+        bool ok = settings.contains("showGrid");
+        bool grid = settings.value("showGrid", true).toBool();
+    \endcode
+*/
+
+/*! \fn bool QSettings::removeEntry(const QString &key)
+
+    Use remove() instead.
+*/
+
+/*! \enum QSettings::System
+    \compat
+
+    \value Unix Unix/X11 systems
+    \value Windows Microsoft Windows systems
+    \value Mac Mac OS X systems
+
+    \sa insertSearchPath(), removeSearchPath()
+*/
+
+/*! \fn void QSettings::insertSearchPath(System system, const QString &path)
+
+    This function is implemented as a no-op. It is provided for
+    source compatibility with Qt 3. The new QSettings class has no
+    concept of "search path".
+*/
+
+/*! \fn void QSettings::removeSearchPath(System system, const QString &path)
+
+    This function is implemented as a no-op. It is provided for
+    source compatibility with Qt 3. The new QSettings class has no
+    concept of "search path".
+*/
+
+/*! \enum QSettings::Scope
+    \compat
+
+    \value User The settings are specific to the current user (same as Qt::UserScope).
+    \value Global The settings are shared by all users on the current machine (same as Qt::SystemScope).
+
+    \sa setPath()
+*/
+
+/*! \fn void QSettings::setPath(const QString &organization, const QString &application, \
+                                Scope scope)
+
+    Specifies the \a organization, \a application, and \a scope to
+    use by the QSettings object.
+
+    Use the appropriate constructor instead, with Qt::UserScope
+    instead of QSettings::User and Qt::SystemScope instead of
+    QSettings::Global.
+
+    \oldcode
+        QSettings settings;
+        settings.setPath("twikimaster.com", "Kanooth", QSettings::Global);
+    \newcode
+        QSettings settings(Qt::SystemScope, "twikimaster.com", "Kanooth");
+    \endcode
+*/
+
+/*! \fn void QSettings::resetGroup()
+
+    Sets the current group to be the empty string.
+
+    Use endGroup() instead (possibly multiple times).
+
+    \oldcode
+        QSettings settings;
+        settings.beginGroup("mainWindow");
+        settings.beginGroup("leftPanel");
+        ...
+        settings.resetGroup();
+    \newcode
+        QSettings settings;
+        settings.beginGroup("mainWindow");
+        settings.beginGroup("leftPanel");
+        ...
+        settings.endGroup();
+        settings.endGroup();
+    \endcode
+*/
+
+/*! \fn QStringList QSettings::entryList(const QString &key) const
+
+    Returns a list of all sub-keys of \a key.
+
+    Use childKeys() instead.
+
+    \oldcode
+        QSettings settings;
+        QStringList keys = settings.entryList("cities");
+        ...
+    \newcode
+        QSettings settings;
+        settings.beginGroup("cities");
+        QStringList keys = settings.childKeys();
+        ...
+        settings.endGroup();
+    \endcode
+*/
+
+/*! \fn QStringList QSettings::subkeyList(const QString &key) const
+
+    Returns a list of all sub-keys of \a key.
+
+    Use childGroups() instead.
+
+    \oldcode
+        QSettings settings;
+        QStringList groups = settings.entryList("cities");
+        ...
+    \newcode
+        QSettings settings;
+        settings.beginGroup("cities");
+        QStringList groups = settings.childKeys();
+        ...
+        settings.endGroup();
+    \endcode
+*/
+#endif
 
 #endif // QT_NO_SETTINGS
