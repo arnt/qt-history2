@@ -2288,9 +2288,9 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
 
     // calculate the docking areas
     QRect leftArea( -10, h1, left + 20, height() - h1 - h2 );
-    QRect topArea( -10, h1 - 10, width() + 10, top + 20 );
+    QRect topArea( -10, h1 - 10, width() + 20, top + 20 );
     QRect rightArea( width() - right - 10, h1, right + 20, height() - h1 - h2 );
-    QRect bottomArea( -10, height() - bottom - h2 - 10, width() + 10, bottom + 20 );
+    QRect bottomArea( -10, height() - bottom - h2 - 10, width() + 20, bottom + 20 );
     QRect leftTop = leftArea.intersect( topArea );
     QRect leftBottom = leftArea.intersect( bottomArea );
     QRect rightTop = rightArea.intersect( topArea );
@@ -2386,7 +2386,7 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
     }
 
     rect = QRect( pos, tb->size() );
-    
+
     // mouse pos outside of any docking area
     return Unmanaged;
 }
