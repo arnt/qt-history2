@@ -75,9 +75,9 @@
     int heuristicNameMatch(const char* hint) const;
 */
 
-#ifndef QT_NO_CODECS
-
 #include "qeuckrcodec.h"
+
+#if QT_FEATURE_I18N
 
 unsigned int qt_Ksc5601ToUnicode(unsigned int code);
 unsigned int qt_JohabToUnicode(unsigned int code);

@@ -96,9 +96,10 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-#ifndef QT_NO_CODECS
 
 #include "qeucjpcodec.h"
+
+#if QT_FEATURE_I18N
 
 static const uchar Esc = 0x1b;
 static const uchar Ss2 = 0x8e;	// Single Shift 2

@@ -534,7 +534,6 @@ TMAKE_CXXFLAGS    += -DQWS_DEPTH_8GRAYSCALE
 TMAKE_CXXFLAGS    += -DQWS_DEPTH_32
 TMAKE_CXXFLAGS    += -DQWS_DEPTH_16
 TMAKE_CXXFLAGS    += -DQWS -fno-exceptions -fno-rtti
-TMAKE_CXXFLAGS    += -DQT_NO_CODECS -DQT_LITE_UNICODE
 TMAKE_CXXFLAGS    += -felide-constructors
 QNETWORK=../extensions/network/src
 

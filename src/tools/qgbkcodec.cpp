@@ -60,9 +60,10 @@
   OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
   SUCH DAMAGE.
 */
-#ifndef QT_NO_CODECS
 
 #include "qgbkcodec.h"
+
+#if QT_FEATURE_I18N
 
 #define IsLatin(c)      (((c) <= 0x80))
 #define IsFirstByte(c)  (((c) >= 0x81) && ((c) <= 0xFE))

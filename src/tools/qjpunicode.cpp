@@ -107,9 +107,11 @@
   SUCH DAMAGE.
 
 */
-#ifndef QT_NO_CODECS
 
 #include "qcstring.h"
+
+#if QT_FEATURE_I18N
+
 #include <stdlib.h>
 #include <ctype.h>
 

@@ -50,11 +50,12 @@
 
 #ifndef QEUCKRCODEC_H
 #define QEUCKRCODEC_H
-#ifndef QT_NO_CODECS
 
 #ifndef QT_H
 #include "qtextcodec.h"
 #endif // QT_H
+
+#if QT_FEATURE_I18N
 
 class QEucKrCodec : public QTextCodec {
 public:

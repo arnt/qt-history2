@@ -29,11 +29,12 @@
 
 #ifndef QBIG5CODEC_H
 #define QBIG5CODEC_H
-#ifndef QT_NO_CODECS
 
 #ifndef QT_H
 #include "qtextcodec.h"
 #endif // QT_H
+
+#if QT_FEATURE_I18N
 
 class QBig5Codec : public QTextCodec {
 public:

@@ -70,9 +70,9 @@
   SUCH DAMAGE.
 */
 
-#ifndef QT_NO_CODECS
-
 #include "qjiscodec.h"
+
+#if QT_FEATURE_I18N
 
 static const uchar Esc = 0x1b;
 static const uchar So = 0x0e;	// Shift Out

@@ -54,12 +54,13 @@
 
 #ifndef QJISCODEC_H
 #define QJISCODEC_H
-#ifndef QT_NO_CODECS
 
 #ifndef QT_H
 #include "qtextcodec.h"
 #include "qjpunicode.h"
 #endif // QT_H
+
+#if QT_FEATURE_I18N
 
 class Q_EXPORT QJisCodec : public QTextCodec {
 public:

@@ -25,11 +25,12 @@
 
 #ifndef QKOI8CODEC_H
 #define QKOI8CODEC_H
-#ifndef QT_NO_CODECS
 
 #ifndef QT_H
 #include "qtextcodec.h"
 #endif // QT_H
+
+#if QT_FEATURE_I18N
 
 // ignore this file. it only exists so that some old applications can
 // link. please do not use it.

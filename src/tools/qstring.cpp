@@ -182,7 +182,7 @@ for $row ( 0..255 ) {
 }
 
 print "// START OF GENERATED DATA\n\n";
-print "#ifndef QT_LITE_UNICODE\n\n";
+print "#if QT_FEATURE_UNICODETABLES\n\n";
 
 # Print pages...
 #
@@ -355,7 +355,7 @@ __END__
 
 // START OF GENERATED DATA
 
-#ifndef QT_LITE_UNICODE
+#if QT_FEATURE_UNICODETABLES
 
 static const Q_UINT8 ui_00[] = {
     10, 10, 10, 10, 10, 10, 10, 10,
@@ -9808,7 +9808,7 @@ static const Q_UINT8 * const direction_info[256] = {
 
 // This is generated too. Script?
 
-#ifndef QT_LITE_UNICODE
+#if QT_FEATURE_UNICODETABLES
 
 static const Q_UINT16 case_0 [] = {
     0, 0, 0, 0, 0, 0, 0, 0,
@@ -11062,17 +11062,17 @@ bool QChar::isDigit() const
 */
 int QChar::digitValue() const
 {
-#ifdef QT_LITE_UNICODE
+#if QT_FEATURE_UNICODETABLES
+    const Q_INT8 *dec_row = decimal_info[row()];
+    if( !dec_row )
+	return -1;
+    return decimal_info[row()][cell()];
+#else
     // ##### just latin1
     if ( rw != 0 || cl < '0' || cl > '9' )
 	return -1;
     else
 	return cl - '0';
-#else
-    const Q_INT8 *dec_row = decimal_info[row()];
-    if( !dec_row )
-	return -1;
-    return decimal_info[row()][cell()];
 #endif
 }
 
@@ -11083,7 +11083,9 @@ int QChar::digitValue() const
 */
 QChar::Category QChar::category() const
 {
-#ifdef QT_LITE_UNICODE
+#if QT_FEATURE_UNICODETABLES
+    return (Category)(unicode_info[row()][cell()]);
+#else
 // ### just ASCII
     if ( rw == 0 ) {
 	if ( cl >= '0' && cl <='9' )
@@ -11101,8 +11103,6 @@ QChar::Category QChar::category() const
 	return Symbol_Other; //#######
     }
     return Letter_Uppercase; //#######
-#else
-    return (Category)(unicode_info[row()][cell()]);
 #endif
 }
 
@@ -11113,12 +11113,12 @@ QChar::Category QChar::category() const
 */
 QChar::Direction QChar::direction() const
 {
-#ifdef QT_LITE_UNICODE
-    return DirL;
+#if QT_FEATURE_UNICODETABLES
+    const Q_UINT8 *rowp = direction_info[row()];
+    if(!rowp) return QChar::DirL;
+    return (Direction) ( *(rowp+cell()) &0x1f );
 #else
-  const Q_UINT8 *rowp = direction_info[row()];
-  if(!rowp) return QChar::DirL;
-  return (Direction) ( *(rowp+cell()) &0x1f );
+    return DirL;
 #endif
 }
 
@@ -11131,13 +11131,13 @@ QChar::Direction QChar::direction() const
 */
 QChar::Joining QChar::joining() const
 {
-#ifdef QT_LITE_UNICODE
-    return OtherJoining;
+#if QT_FEATURE_UNICODETABLES
+    const Q_UINT8 *rowp = direction_info[row()];
+    if ( !rowp )
+	return QChar::OtherJoining;
+    return (Joining) ((*(rowp+cell()) >> 5) &0x3);
 #else
-  const Q_UINT8 *rowp = direction_info[row()];
-  if ( !rowp )
-      return QChar::OtherJoining;
-  return (Joining) ((*(rowp+cell()) >> 5) &0x3);
+    return OtherJoining;
 #endif
 }
 
@@ -11148,13 +11148,13 @@ QChar::Joining QChar::joining() const
 */
 bool QChar::mirrored() const
 {
-#ifdef QT_LITE_UNICODE
-    return FALSE;
+#if QT_FEATURE_UNICODETABLES
+    const Q_UINT8 *rowp = direction_info[row()];
+    if ( !rowp )
+	return FALSE;
+    return *(rowp+cell())>128;
 #else
-  const Q_UINT8 *rowp = direction_info[row()];
-  if ( !rowp )
-      return FALSE;
-  return *(rowp+cell())>128;
+    return FALSE;
 #endif
 }
 
@@ -11164,9 +11164,7 @@ bool QChar::mirrored() const
 */
 QChar QChar::mirroredChar() const
 {
-#ifdef QT_LITE_UNICODE
-    return *this;
-#else
+#if QT_FEATURE_UNICODETABLES
     if(!mirrored()) return *this;
 
     int i;
@@ -11176,6 +11174,8 @@ QChar QChar::mirroredChar() const
           return symmetricPairs[i+1];
     }
     return 0;
+#else
+    return *this;
 #endif
 }
 
@@ -11185,9 +11185,7 @@ QChar QChar::mirroredChar() const
 */
 QString QChar::decomposition() const
 {
-#ifdef QT_LITE_UNICODE
-    return null;
-#else
+#if QT_FEATURE_UNICODETABLES
     const Q_UINT16 *r = decomposition_info[row()];
     if(!r) return QString::null;
 
@@ -11200,6 +11198,8 @@ QString QChar::decomposition() const
     while((c = decomposition_map[pos++]) != 0) s += QChar(c);
 
     return s;
+#else
+    return null;
 #endif
 }
 
@@ -11209,9 +11209,7 @@ QString QChar::decomposition() const
 */
 QChar::Decomposition QChar::decompositionTag() const
 {
-#ifdef QT_LITE_UNICODE
-    return Single; // ########### FIX eg. just latin1
-#else
+#if QT_FEATURE_UNICODETABLES
     const Q_UINT16 *r = decomposition_info[row()];
     if(!r) return QChar::Single;
 
@@ -11219,6 +11217,8 @@ QChar::Decomposition QChar::decompositionTag() const
     if(!pos) return QChar::Single;
 
     return (QChar::Decomposition) decomposition_map[pos];
+#else
+    return Single; // ########### FIX eg. just latin1
 #endif
 }
 
@@ -11228,17 +11228,16 @@ QChar::Decomposition QChar::decompositionTag() const
 */
 QChar QChar::lower() const
 {
-#ifdef QT_LITE_UNICODE
-//    return *this; // ########### FIX eg. just latin1
-    if (row())
-	return *this;
-    else
-	return QChar(tolower(latin1()));
-#else
+#if QT_FEATURE_UNICODETABLES
     if(category() != Letter_Uppercase) return *this;
     Q_UINT16 lower = *(case_info[row()]+cell());
     if(lower == 0) return *this;
     return lower;
+#else
+    if (row())
+	return *this;
+    else
+	return QChar(tolower(latin1()));
 #endif
 }
 
@@ -11248,17 +11247,16 @@ QChar QChar::lower() const
 */
 QChar QChar::upper() const
 {
-#ifdef QT_LITE_UNICODE
-//    return *this; // ########### FIX eg. just latin1
-    if (row())
-	return *this;
-    else
-	return QChar(toupper(latin1()));
-#else
+#if QT_FEATURE_UNICODETABLES
     if(category() != Letter_Lowercase) return *this;
     Q_UINT16 upper = *(case_info[row()]+cell());
     if(upper == 0) return *this;
     return upper;
+#else
+    if (row())
+	return *this;
+    else
+	return QChar(toupper(latin1()));
 #endif
 }
 
@@ -11422,7 +11420,7 @@ QChar QChar::upper() const
   character \a ch is greater than that of \a c.
 */
 
-#ifndef QT_LITE_UNICODE
+#if QT_FEATURE_UNICODETABLES
 
 // small class used internally in QString::Compose()
 class QLigature
@@ -11545,7 +11543,7 @@ static inline bool format(QChar::Decomposition tag, QString & str,
 */
 void QString::compose()
 {
-#ifndef QT_LITE_UNICODE
+#if QT_FEATURE_UNICODETABLES
     unsigned int index=0, len;
     unsigned int cindex = 0;
 
@@ -11621,7 +11619,7 @@ static inline bool is_neutral(unsigned short dir) {
   */
 QChar::Direction QString::basicDirection()
 {
-#ifndef QT_LITE_UNICODE
+#if QT_FEATURE_UNICODETABLES
     // find base direction
     unsigned int pos = 0;
     while ((pos < length()) &&
@@ -11643,7 +11641,7 @@ QChar::Direction QString::basicDirection()
     return QChar::DirL;
 }
 
-#ifndef QT_LITE_UNICODE
+#if QT_FEATURE_UNICODETABLES
 // reverses part of the QChar array to get visual ordering
 // called from QString::visual()
 //
@@ -11705,9 +11703,7 @@ static QChar::Direction resolv[5][5] =
 */
 QString QString::visual(int index, int len)
 {
-#ifdef QT_LITE_UNICODE
-    return mid(index,len);
-#else
+#if QT_FEATURE_UNICODETABLES
     // #### This needs much more optimizing - it is called for
     // #### every text operation.
 
@@ -11935,6 +11931,8 @@ QString QString::visual(int index, int len)
     delete [] dir;
 
     return ret;
+#else
+    return mid(index,len);
 #endif
 }
 

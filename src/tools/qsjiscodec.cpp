@@ -70,9 +70,10 @@
   OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
   SUCH DAMAGE.
 */
-#ifndef QT_NO_CODECS
 
 #include "qsjiscodec.h"
+
+#if QT_FEATURE_I18N
 
 static const uchar Esc = 0x1b;
 

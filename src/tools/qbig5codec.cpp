@@ -29,9 +29,9 @@
 
 // (Note: Ming-Che's code is also QPL'd, ref mail to into@trolltech.com)
 
-#ifndef QT_NO_CODECS
-
 #include "qbig5codec.h"
+
+#if QT_FEATURE_I18N
 
 static unsigned int qt_UnicodeToBig5(unsigned int unicode);
 static unsigned int qt_Big5ToUnicode(unsigned int code);
