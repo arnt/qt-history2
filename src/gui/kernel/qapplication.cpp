@@ -2835,6 +2835,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             else
                 mouse->ignore();
 
+            w = static_cast<QWidget *>(receiver)
             if (w->testAttribute(Qt::WA_Hover)) {
                 QHoverEvent he(QEvent::HoverMove, w->mapFromGlobal(mouse->globalPos()), w->mapFromGlobal(d->hoverGlobalPos));
                 notify_helper(w, &he);
