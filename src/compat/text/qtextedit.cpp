@@ -2055,7 +2055,7 @@ void QTextEdit::viewportResizeEvent(QResizeEvent *e)
 void QTextEdit::ensureCursorVisible()
 {
     // Not visible or the user is draging the window, so don't position to caret yet
-    if (!isVisible() || isHorizontalSliderPressed() || isVerticalSliderPressed()) {
+    if (!isUpdatesEnabled() || !isVisible() || isHorizontalSliderPressed() || isVerticalSliderPressed()) {
         d->ensureCursorVisibleInShowEvent = true;
         return;
     }
