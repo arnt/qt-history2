@@ -885,7 +885,7 @@ bool QFontEngineQPF::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
         QGlyphLayout &g=glyphs[i];
         QPFGlyph *glyph = d->tree->get(g.glyph);
 
-        g.advance.rx() = glyph->metrics->advance;
+        g.advance.rx() = glyph ? glyph->metrics->advance : 0;
         g.advance.ry() = 0.;
     }
 
@@ -933,7 +933,8 @@ void QFontEngineQPF::draw(QPaintEngine *p, int x, int y, const QTextItemInt &si)
     for(int i = 0; i < si.num_glyphs; i++) {
         const QGlyphLayout *g = glyphs + (si.flags & QTextItem::RightToLeft ? -i : i);
         const QPFGlyph *glyph = d->tree->get(g->glyph);
-        Q_ASSERT(glyph);
+        if (!glyph)
+            continue;
         int myw = glyph->metrics->width;
         int myh = glyph->metrics->height;
         int myx = x + qRound(g->offset.x() + glyph->metrics->bearingx);
