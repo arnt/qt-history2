@@ -3705,6 +3705,7 @@ void QTextEdit::setText( const QString &text, const QString &context )
 
     lastFormatted = 0;
     cursor->restoreState();
+    delete cursor;
     doc->setText( text, context );
 
     if ( wrapMode == FixedPixelWidth ) {
@@ -3717,7 +3718,6 @@ void QTextEdit::setText( const QString &text, const QString &context )
     }
 
     lastFormatted = doc->firstParagraph();
-    delete cursor;
     cursor = new QTextCursor( doc );
     updateContents();
 

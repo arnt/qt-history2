@@ -135,8 +135,8 @@ struct QLineEditPrivate {
 
     ~QLineEditPrivate()
     {
-	delete parag;
 	delete cursor;
+	delete parag;
 	delete maskList;
     }
     QString displayText() const
@@ -179,8 +179,8 @@ struct QLineEditPrivate {
     {
 	if ( mode == QLineEdit::Password ) {
 	    cursor->setIndex( (*c)->index() );
-	    delete *p;
 	    delete *c;
+	    delete *p;
 	}
     }
 

@@ -1347,10 +1347,10 @@ void QTextDocument::init()
 
 QTextDocument::~QTextDocument()
 {
+    delete commandHistory;
     if ( par )
 	par->removeChild( this );
     clear();
-    delete commandHistory;
     delete flow_;
     if ( !par )
 	delete pFormatter;
