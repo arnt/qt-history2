@@ -309,6 +309,7 @@ void QSlider::mouseMoveEvent(QMouseEvent *ev)
         ev->ignore();
         return;
     }
+    ev->accept();
     int newPosition = d->pixelPosToRangeValue(d->pick(ev->pos()) - d->clickOffset);
     int m = style().pixelMetric(QStyle::PM_MaximumDragDistance, this);
     if (m >= 0) {
