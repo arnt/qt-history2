@@ -136,7 +136,8 @@ void QCursor::cleanup()
 
     int shape;
     for( shape = 0; shape <= LastCursor; shape++ ) {
-	delete cursorTable[shape].data;
+	if ( cursorTable[shape].data && cursorTable[shape].data->deref() )
+	    delete cursorTable[shape].data;
 	cursorTable[shape].data = 0;
     }
     initialized = FALSE;
