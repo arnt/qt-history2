@@ -1357,21 +1357,22 @@ void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperat
         return;
     }
 
+    QRegion region = clipRegion * d->matrix;
     switch (op) {
     case Qt::IntersectClip:
         if (d->has_clipping) {
-            d->crgn &= clipRegion;
+            d->crgn &= region;
             break;
         }
         // fall through
     case Qt::ReplaceClip:
         if (!sysClip.isEmpty())
-            d->crgn = clipRegion.intersect(sysClip);
+            d->crgn = region.intersect(sysClip);
         else
-            d->crgn = clipRegion;
+            d->crgn = region;
         break;
     case Qt::UniteClip:
-        d->crgn |= clipRegion;
+        d->crgn |= region;
         if (!sysClip.isEmpty())
             d->crgn = d->crgn.intersect(sysClip);
         break;
