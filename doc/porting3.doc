@@ -191,6 +191,7 @@ All these functions have been removed in Qt 3.x:
 \i QFont::setCharSet()
 \i QMenuBar::setActItem()
 \i QMenuBar::setWindowsAltMode()
+\i QObject::initMetaObject()
 \i QPainter::drawQuadBezier()
 \i QPointArray::quadBezier()
 \i QRegExp::find()
