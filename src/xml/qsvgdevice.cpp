@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#18 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#19 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -562,7 +562,7 @@ void QSVGDevice::drawPath( const QString &data )
     subIndex.append( 0 );
     // detect next command
     while ( idx < data.length() ) {
-	QChar ch = data[ idx++ ];
+	QChar ch = data[ (int)idx++ ];
 	if ( ch.isSpace() )
 	    continue;
 	QChar chUp = ch.upper();
@@ -624,7 +624,7 @@ void QSVGDevice::drawPath( const QString &data )
 	case 'C':				// cubic bezier curveto
 	case 'S':				// smooth shorthand
 	case 'Q':				// quadratic bezier curves
-	case 'T':				// smooth shorthand
+	case 'T': {				// smooth shorthand
 	    quad.setPoint( 0, x, y );
 	    // if possible, reflect last control point if smooth shorthand
 	    if ( mode == 'S' || mode == 'T' ) {
@@ -655,9 +655,10 @@ void QSVGDevice::drawPath( const QString &data )
 	    }
 	    // calculate points on curve
 	    bezier = quad.cubicBezier();
-	    for ( uint j = 0; j < bezier.size(); j ++ )
-		path.setPoint( pcount++, bezier[ j ] );
+	    for ( int k = 0; k < (int)bezier.size(); k ++ )
+		path.setPoint( pcount++, bezier[ k ] );
 	    break;
+	}
 	case 'A':				// elliptical arc curve
 	    // ### just a straight line
 	    x = int(arg[ 5 ]) + offsetX;
