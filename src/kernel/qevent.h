@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#22 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#23 $
 **
 ** Definition of event classes
 **
@@ -36,6 +36,7 @@
 #define Event_Destroy		   16		// during object destruction
 #define Event_Close		   19		// request to close widget
 #define Event_Quit		   20		// request to quit application
+#define Event_SockAct		   50		// socket activation
 #define Event_User		 1000		// first user event id
 
 
