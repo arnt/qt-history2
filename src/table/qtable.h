@@ -53,11 +53,6 @@
 
 #ifndef QT_NO_TABLE
 
-// workaround for a #define in X.h
-#ifdef Always
-#undef Always
-#endif
-
 class QTableHeader;
 class QValidator;
 class QTable;
