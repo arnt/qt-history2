@@ -36,7 +36,7 @@ static char ident[] = "$Id: indices.doc,v 2.35 1999/06/15 12:58:13 weis Exp $";
 Reference Documentation
 </h1><br clear="all">
 
-<br clear="all"><table border=0><tr>
+<br clear="all"><table border=0 cellpadding=10><tr>
 
 <td width="50%" valign="top">
 
@@ -67,11 +67,9 @@ Reference Documentation
 
 </td></tr><tr><td width="50%" valign="top">
 
-<strong>Qt Extensions:</strong><ul>
-<li><a href="opengl.html">OpenGL 3D Graphics Support</a>
-<li><a href="nsplugin.html">Netscape/Explorer Plugin Support</a>
-<li><a href="imageio.html">Image File Formats Support</a>
-<li><a href="xt.html">Xt/Motif Legacy Code Support</a>
+<strong>Other Troll Tech Products for Qt:</strong><ul>
+<li><a href="opengl.html">Qt OpenGL 3D Graphics</a>
+<li><a href="network.html">Qt Web Development Kit</a>
 </ul>
 
 <td width="50%" valign="top">
@@ -127,67 +125,69 @@ href="http://www.troll.no/dl/qtfree-dl.html">download</a>.
 
 <h1 align="center">API Structure Overview</h1><br clear="all">
 
-The Qt API consists the following modules:
+The Qt API consists of the following modules:
 
+<table cellpadding=10>
+<tr>
+<td valign="top">
 <h2>Ready-To-Use GUI Components</h2>
-
 <dl>
-
 <dt><a href="application.html">Application Classes</a>
 <dd>Top-level GUI classes.
-
 <dt><a href="realwidgets.html">Widgets</a>
 <dd>The GUI primitives like buttons, listboxes, scrollbars etc.
-
 <dt><a href="dialogs.html">Dialogs</a>
 <dd>Ready-made pop-up dialogs
-
 <dt><a href="geomanagement.html">Geometry Management</a>
 <dd>Classes handling automatic resizing and moving of widgets
-
 </dl>
-
-
+</td>
+<td valign="top">
 <h2>GUI Component Framework</h2>
-
 <dl>
-
 <dt><a href="abstractwidgets.html">Abstract Widgets</a>
 <dd>Abstract widget classes available for subclassing.
-
 <dt><a href="drawing.html">Drawing Classes</a>
 <dd>Classes providing drawing primitives
-
 <dt><a href="fonts.html">Font Classes</a>
 <dd>Classes related to the handling of text fonts
-
 <dt><a href="kernel.html">Kernel</a>
 <dd>Classes providing access to the low-level parts of Qt
-
 <dt><a href="misc.html">Miscellaneous</a>
 <dd>Various other useful classes
-
 </dl>
-
-
+</td>
+</tr>
+<tr>
+<td valign="top">
 <h2>Utilities</h2>
-
 <dl>
-
 <dt><a href="tools.html">General Tool Classes</a>
 <dd>Generic collection classes like list, queue, stack, string etc.
-
 <dt><a href="io.html">I/O Handling</a>
 <dd>Classes providing OS-independent I/O and file and directory handling.
-
 <dt><a href="images.html">Image Handling</a>
 <dd>Digital image coding, decoding and manipulation
-
 <dt><a href="time.html">Time And Date Handling</a>
 <dd>OS-independent Classes for handling date and time.
-
 </dl>
-
+</td>
+<td valign="top">
+<h2>Extensions:</h2>
+<dl>
+<dt><a href="imageio.html">Image IO Extension Package</a>
+<dd> Image input/output facilities for additional image file formats.
+<dt><a href="nsplugin.html">LiveConnect Plugins</a>
+<dd> Qt-based web browser plugins for Netscape and MS Internet Explorer</a>
+<dt><a href="xt.html">Xt/Motif Legacy Code Support (X11R6 only)</a>
+<dd> Assists the migration of old Xt and Motif based code to the more 
+comfortable Qt toolkit. 
+<dt><a href="xembed.html">X Window Embedding Support (X11 only)</a>
+<dd> Graphical embedding of external Qt applications running X11.
+</dl>
+</td>
+</tr>
+</table>
 */
 
 /*! \defgroup tools.html

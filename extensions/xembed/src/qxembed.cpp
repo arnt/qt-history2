@@ -53,87 +53,32 @@ public:
 /*!
   \class QXEmbed qxembed.h
 
-  \brief The QXEmbed class provides the base technology to embed
-  windows of different applications on the X Window System
+  \brief The QXEmbed widget is a container that can embed an external X-Window.
+  
+  \extension XEmbed
 
-  An xembed widget serves as a container that can manage one single
+  A QXEmbed widget serves as a container that can manage one single
   embedded X-window. These so-called client windows can be arbitrary
   QWidgets.
 
-  Using xembed has a couple of significant advantages compared to a
-  low-level call of XReparentWindow
+  There are two different ways of using QXembed, from the container or
+  from the client side.  When using it from the container side, you
+  already know the window identifier of the window that should be
+  embedded. Simply call embed() with this identifier as parameter.
+  
+  Embedding from the client side requires that the client knows the
+  window identifier of the respective container widget. Use either
+  embedClientIntoWindow() or the high-level wrapper
+  processClientCmdline(). 
 
-  <ul>
-  <li> The embedded window is integrated into the outer applications
-  focus chain. With a plain XReparentWindow, it's unpredictable which
-  application will get the focus and process key events.
-
-  <li> The outer application always receives keyevents
-  first. Therefore menu accelerators and other shortcuts continue to
-  work.
-
-  <li> The XDND drag and drop protocol is routed respectively. Plain
-  XReparentWindow would break drag and drop for the embedded window.
-  </ul>
-
-
-  QXembed, however, also manages non-Qt windows. But as long as these
-  windows do not support the Qt embedding protocol, the specific
-  advantages are lost. This will result in completely broken and
-  unpredictable focus handling, broken accelerators and disfunctional
-  XDND drag and drop.
-
-  Here's an overview of the Qt embedding protocol as implemented by
-  QXEmbed and Qt:
-
-  <ol>
-  <li> The following X-Atoms are required:
-          <ul>
-	  <li> \c qew ("_QT_EMBEDDED_WINDOW")
-	  <li> \c qew_take_focus ("_QT_EMBEDDED_WINDOW_TAKE_FOCUS")
-	  <li> \c qew_focus_in ("_QT_EMBEDDED_WINDOW_FOCUS_IN")
-	  <li> \c qew_focus_out ("_QT_EMBEDDED_WINDOW_FOCUS_OUT")
-	  <li> \c qew_tab_focus ("_QT_EMBEDDED_WINDOW_TAB_FOCUS")
-	  <li> \c qew_micro_focus_hint ("_QT_EMBEDDED_WINDOW_MICRO_FOCUS_HINT")
-	  <li> \c qt_wheel_event ("_QT_WHEEL_EVENT")
-	  <li> \c qt_unicode_key_press ("_QT_UNICODE_KEY_PRESS")
-	  <li> \c qt_unicode_key_release ("_QT_UNICODE_KEY_RELEASE")
-          <ul>
-
-  <li> An embedded widget has the \c qew property set to 1. The \c qew
-  property is of type \c XA_CARDINAL, format 32. It's the
-  responsibility of the embedding widget to set this property
-  respectively. When the window is released, the property should be
-  set to 0.
-
-  <li> If an embedded widget intents to take the focus (for example
-  after it has been clicked when it supports the ClickFocus focus
-  policy), it should send a \c qew_take_focus client message to its
-  parent window.  The \window parameter of the client message has to
-  be set to the window identifier of the parent window.
-
-  <li> An embedded textinput widget that supports a micro focus hint
-  may also want to inform the embedding application about this. For
-  this purpose it can send \c qew_micro_focus_hint client messages to
-  the parent window.  The \c window parameter should be set to the
-  parent's window identifier, \c format is 32 and \c data.l[0] and \c
-  data.l[1] contain the global x and y-coordinates.
-
-  <li> The embedding widget serves as a focus proxy for the embedded
-  window.  Therefore it has to route focus in/out message. Whenever it
-  gets or looses the logical application focus, it shall send
-  qew_focus_in or qew_focus_out to the embedded window.
-
-  <li> keypress and keyrelease TODO
-
-  <li> wheel events TODO
-
-  <li> tab-focus chain TODO
-
-  <li> Drag'n'drop XDND TODO
-
-  </ol>
-
+  If a window has been embedded succesfully, embeddedWinId() returns
+  its id.
+  
+  Reimplement the change handler windowChanged() to catch embedding or
+  the destruction of embedded windows. In the latter case, the
+  container also emits a signal embeddedWindowDestroyed() for
+  convenience.
+  
 */
 
 /*!
@@ -177,26 +122,20 @@ QXEmbed::~QXEmbed()
     static Atom wm_protocols = 0;
     if (!wm_protocols )
 	wm_protocols = XInternAtom( qt_xdisplay(), "WM_PROTOCOLS", False );
-//     if ( topLevelWidget()->isActiveWindow() ) {
-// 	XEvent e;
-// 	e.type = FocusIn;
-// 	e.xfocus.window = topLevelWidget()->winId();
-// 	e.xfocus.mode = NotifyNormal;
-// 	e.xfocus.detail = NotifyDetailNone;
-// 	XSendEvent(qt_xdisplay(), topLevelWidget()->winId(), 0, FALSE, &e);
-//     }
-
-
+    
     if ( window != 0 ) {
-	XEvent ev;
-	memset(&ev, 0, sizeof(ev));
-	ev.xclient.type = ClientMessage;
-	ev.xclient.window = window;
-	ev.xclient.message_type = wm_protocols;
-	ev.xclient.format = 32;
-	ev.xclient.data.s[0] = qt_wm_delete_window;
-	XSendEvent(qt_xdisplay(), window, FALSE, NoEventMask, &ev);
-    }
+ 	XUnmapWindow(qt_xdisplay(), window );
+ 	XReparentWindow(qt_xdisplay(), window, qt_xrootwin(), 0, 0);
+	 
+ 	XEvent ev;
+ 	memset(&ev, 0, sizeof(ev));
+ 	ev.xclient.type = ClientMessage;
+ 	ev.xclient.window = window;
+ 	ev.xclient.message_type = wm_protocols;
+ 	ev.xclient.format = 32;
+ 	ev.xclient.data.s[0] = qt_wm_delete_window;
+ 	XSendEvent(qt_xdisplay(), window, FALSE, NoEventMask, &ev);
+     }
     window = 0;
 }
 
@@ -543,6 +482,13 @@ QSize QXEmbed::sizeHint() const
     return minimumSizeHint();
 }
 
+/*!
+  \fn void QXEmbed::embeddedWindowDestroyed()
+
+  This signal is emitted when the embedded window has been destroyed.
+  
+  \sa embeddedWinId()
+*/
 
 /*!
   Returns a size sufficient for one character, and scroll bars.

@@ -1,4 +1,4 @@
-EXTENSIONS=imageio opengl xt nsplugin
+EXTENSIONS=imageio opengl xt nsplugin xembed
 
 EXAMPLES=\
 	nsplugin/examples/grapher \
@@ -12,12 +12,15 @@ EXAMPLES=\
 	xt/examples/mainlyMotif \
 	xt/examples/mainlyQt \
 	xt/examples/mainlyXt \
-	
+	\
+	xembed/examples/component \
+	xembed/examples/shell
+
 
 
 extensions:
 	for i in $(EXTENSIONS); do \
-	    if ( cd $$i; $(MAKE) ); then \
+	    if ( cd $$i/src; $(MAKE) ); then \
 		true; \
 	    else \
 		break; \
