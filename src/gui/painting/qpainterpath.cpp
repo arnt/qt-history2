@@ -122,18 +122,18 @@ void QPainterSubpath::addArc(const QRect &rect, int startAngle, int arcLength)
 }
 
 
-QPointArray QPainterSubpath::toPolygon() const
+QPointArray QPainterSubpath::toPolygon(const QWMatrix &matrix) const
 {
     if (elements.isEmpty())
 	return QPointArray();
     QPointArray p;
     fflush(stdout);
-    p << elements.at(0).firstPoint();
+    p << matrix * elements.at(0).firstPoint();
     for (int i=0; i<elements.size(); ++i) {
         const QPainterPathElement &elm = elements.at(i);
 	switch (elm.type) {
 	case QPainterPathElement::Line:
-	    p << QPoint(elm.lineData.x2, elm.lineData.y2);
+	    p << matrix * QPoint(elm.lineData.x2, elm.lineData.y2);
 	    break;
         case QPainterPathElement::Bezier: {
 	    QPointArray pa;
@@ -141,6 +141,7 @@ QPointArray QPainterSubpath::toPolygon() const
 			 elm.bezierData.x2, elm.bezierData.y2,
 			 elm.bezierData.x3, elm.bezierData.y3,
 			 elm.bezierData.x4, elm.bezierData.y4);
+            pa = matrix * pa;
 	    p += pa.cubicBezier();
 	    break;
 	}
@@ -148,7 +149,8 @@ QPointArray QPainterSubpath::toPolygon() const
             QPointArray ar;
             ar.makeArc(elm.arcData.x, elm.arcData.y,
                        elm.arcData.w, elm.arcData.h,
-                       elm.arcData.start, elm.arcData.length);
+                       elm.arcData.start, elm.arcData.length,
+                       matrix);
             p += ar;
             break;
         }
@@ -164,14 +166,17 @@ QPointArray QPainterSubpath::toPolygon() const
 
   Converts all the curves in the path to linear polylines.
 */
-void QPainterPathPrivate::flatten()
+QList<QPointArray> QPainterPathPrivate::flatten(const QWMatrix &matrix)
 {
+    QList<QPointArray> flatCurves;
     if (!flatCurves.isEmpty() || subpaths.isEmpty())
-        return;
+        return flatCurves;
 
     for (int i=0; i<subpaths.size(); ++i)
         if (subpaths.at(i).isClosed())
-            flatCurves.append(subpaths.at(i).toPolygon());
+            flatCurves.append(subpaths.at(i).toPolygon(matrix));
+
+    return flatCurves;
 }
 
 #define MAX_INTERSECTIONS 256
@@ -201,20 +206,21 @@ void QPainterPathPrivate::flatten()
   fill rule..
 */
 QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
-                                          const QWMatrix &/*xform*/,
+                                          const QWMatrix &xform,
                                           QRect *boundingRect)
 {
     Q_ASSERT(!bits);
 
-    flatten();
+    QList<QPointArray> flatCurves = flatten(xform);
 
     QRect pathBounds;
     for (int fc=0; fc<flatCurves.size(); ++fc)
         pathBounds |= flatCurves.at(fc).boundingRect();
 
-     QRect scanRect = pathBounds;
+    QRegion scanRegion(pathBounds);
     if (clipRect.isValid())
-        scanRect &= clipRect;
+        scanRegion &= xform * clipRect;
+    QRect scanRect = scanRegion.boundingRect();
     *boundingRect = scanRect;
     if (!scanRect.isValid())
         return QBitmap();

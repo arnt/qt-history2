@@ -1239,50 +1239,38 @@ void QPainter::drawPath(const QPainterPath &path)
     }
 
     QPainterPathPrivate *pd = path.d_ptr;
-    QList<QPointArray> polygons;
-    for (int i=0; i<pd->subpaths.size(); ++i) {
-	polygons.append(pd->subpaths.at(i).toPolygon());
-    }
+    QList<QPointArray> polygons = pd->flatten(d->state->matrix);
 
     if (polygons.isEmpty())
         return;
 
+    QWMatrix worldMatrix = d->state->matrix;
+
+    save();
+
+    // All path operations are transformed as they are...
+    resetXForm();
+
     // Fill the path...
     if (d->state->brush.style() != Qt::NoBrush) {
-	save();
+        save();
 	setPen(Qt::NoPen);
-#if 0
-        // This approach works for odd even but scanconverting is probably faster...
-        QRegion buildUp;
-        for (int i=0; i<polygons.size(); ++i)
-            buildUp ^= polygons.at(i);
-        setClipRegion(buildUp);
-        drawRect(buildUp.boundingRect());
-#else
         QRect outBounds;
         QRect pathBounds = d->state->clipRegion.boundingRect();
-        QBitmap scanlines = pd->scanToBitmap(pathBounds, d->state->matrix, &outBounds);
-        resetXForm();
+        QBitmap scanlines = pd->scanToBitmap(pathBounds, worldMatrix, &outBounds);
         translate(outBounds.left(), outBounds.top());
         setClipRegion(scanlines);
         drawRect(0, 0, outBounds.width(), outBounds.height());
-//         drawPixmap(outBounds.topLeft(), scanlines);
-#endif
-
-	restore();
+        restore();
     }
 
     // Draw the outline of the path...
     if (d->state->pen.style() != Qt::NoPen) {
-        if (pd->subpaths.size() > 0) {
-            save();
-            setBrush(Qt::NoBrush);
-        }
 	for (int i=0; i<polygons.size(); ++i)
 	    drawPolyline(polygons.at(i));
-        if (pd->subpaths.size() > 0)
-            restore();
     }
+
+    restore();
 }
 
 

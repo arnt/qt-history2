@@ -63,7 +63,7 @@ struct QPainterSubpath
     QPoint firstPoint() const { return elements.at(0).firstPoint(); }
 
     /*! Converts the path to a polygon */
-    QPointArray toPolygon() const;
+    QPointArray toPolygon(const QWMatrix &matrix) const;
 
     void addLine(const QPoint &p1, const QPoint &p2);
     void addBezier(const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPoint &p4);
@@ -82,15 +82,13 @@ public:
     }
 
     /* Flattens all the curves in the path to linear polygons */
-    void flatten();
+    QList<QPointArray> flatten(const QWMatrix &matrix);
 
     /* Scanline converts the path to a bitmap */
     QBitmap scanToBitmap(const QRect &clip, const QWMatrix &xform, QRect *boundingRect);
 
     QList<QPainterSubpath> subpaths;
     QPainterPath::FillMode fillMode;
-
-    QList<QPointArray> flatCurves;
 
     uchar *bits;
 
