@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#17 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#18 $
 **
 ** Internal rich text classes
 **
@@ -238,13 +238,21 @@ public:
 		      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to) = 0;
 
     virtual void realize( QPainter* ) { width = 0; }
+    
+    enum Placement { PlaceInline = 0, PlaceLeft, PlaceRight };
+    virtual Placement placement() { return PlaceInline; }
+    
+    bool placeInline() { return placement() == PlaceInline; }
 
     virtual bool noErase() const { return FALSE; };
     virtual bool expandsHorizontally() const { return FALSE; }
+    virtual bool ownLine() const { return expandsHorizontally(); };
     virtual void resize( QPainter*, int nwidth ){ width = nwidth; };
-    
+
     virtual QString anchorAt( QPainter* /*p*/, int /*x*/, int /*y*/)  { return QString::null; }
 
+    int y; // used for floating items
+    int x; // used for floating items
     int width;
     int height;
 };
@@ -255,12 +263,16 @@ public:
     QtTextImage(const QMap<QString, QString> &attr, const QString& context,
 		       const QMimeSourceFactory &factory);
     ~QtTextImage();
+    
+    Placement placement();
+    
     void draw(QPainter* p, int x, int y,
 	      int ox, int oy, int cx, int cy, int cw, int ch,
 	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
 private:
     QRegion* reg;
     QPixmap pm;
+    Placement place;
 };
 
 class QtTextTable;
@@ -296,9 +308,9 @@ public:
     void draw( int x, int y,
 	       int ox, int oy, int cx, int cy, int cw, int ch,
 	       QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
-    
+
     QString anchorAt( int x, int y ) const;
-    
+
 private:
 
     QPainter* painter() const;
@@ -413,7 +425,9 @@ class QtTextCursor {
     int fill;
     int lmargin;
     int rmargin;
-
+    
+    int static_lmargin;
+    int static_rmargin;
 
     bool adjustFlowMode;
 
@@ -446,6 +460,15 @@ public:
 
     void mapToView( int yp, int& gx, int& gy );
     int availableWidth( int yp );
+    int adjustLMargin( int yp, int margin );
+    int adjustRMargin( int yp, int margin );
+
+    
+    void registerFloatingItem( QtTextCustomItem* item, bool right = FALSE );
+
+    void drawFloatingItems(QPainter* p,
+			   int ox, int oy, int cx, int cy, int cw, int ch,
+			   QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
 
     void countFlow( int yp, int w, int h, bool pages = TRUE  );
     void adjustFlow( int  &yp, int w, int h, bool pages = TRUE );
@@ -463,6 +486,10 @@ public:
     int additional_height;
 
     QtTextFlow* parent;
+    
+private:
+    QList<QtTextCustomItem> leftItems;
+    QList<QtTextCustomItem> rightItems;
 };
 
 

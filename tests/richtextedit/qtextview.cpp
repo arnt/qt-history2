@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#17 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#18 $
 **
 ** Implementation of the QtTextView class
 **
@@ -498,7 +498,8 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
     QtTextCursor tc( richText() );
     tc.gotoParagraph( p, &richText() );
     QtTextParagraph* b = tc.paragraph;
-
+    QtTextFlow* flow = 0;
+    
     // TODO merge with update, this is only draw. Everything needs to be clean!
     QFontMetrics fm( p->fontMetrics() );
     while ( b && tc.referenceTop() <= cy + ch ) {
@@ -509,7 +510,10 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 	}
 
 	tc.gotoParagraph( p, b );
-
+	if ( tc.flow != flow ) {
+	    flow = tc.flow;
+	    flow->drawFloatingItems( p, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), QtTextOptions(&paper()) );
+	}
 	if ( tc.referenceBottom() > cy ) {
 	    do {
 		tc.makeLineLayout( p, fm );

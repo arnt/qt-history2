@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#22 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#23 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -75,10 +75,18 @@ QtTextImage::QtTextImage(const QMap<QString, QString> &attr, const QString& cont
     }
 
     if ( !img.isNull() ) {
-	if ( width == 0 )
+	if ( width == 0 ) {
 	    width = img.width();
-	if ( height == 0 )
+	    if ( height != 0 ) {
+		width = img.width() * height / img.height();
+	    }
+	}
+	if ( height == 0 ) {
 	    height = img.height();
+	    if ( width != img.width() ) {
+		height = img.height() * width / img.width();
+	    }
+	}
 
 	if ( img.width() != width || img.height() != height ){
 	    img = img.smoothScale(width, height);
@@ -96,12 +104,24 @@ QtTextImage::QtTextImage(const QMap<QString, QString> &attr, const QString& cont
     if ( pm.isNull() && (width*height)==0 ) {
 	width = height = 50;
     }
+    
+    place = PlaceInline;
+    if ( attr["align"] == "left" )
+	place = PlaceLeft;
+    else if ( attr["align"] == "right" )
+	place = PlaceRight;
+
 }
 
 QtTextImage::~QtTextImage()
 {
 }
 
+
+QtTextCustomItem::Placement QtTextImage::placement()
+{
+    return place;
+}
 
 void QtTextImage::draw(QPainter* p, int x, int y,
 		    int ox, int oy, int , int , int , int ,
@@ -111,6 +131,8 @@ void QtTextImage::draw(QPainter* p, int x, int y,
 	p->fillRect( x-ox , y-oy, width, height,  cg.dark() );
 	return;
     }
+    QRect r( x-ox, y-oy, width, height );
+    backgroundRegion = backgroundRegion.subtract( r );
     if ( reg ){
 	QRegion tmp( *reg );
 	tmp.translate( x-ox, y-oy );
@@ -180,7 +202,7 @@ QtRichText::QtRichText( const QString &doc, const QFont& font,
     base->setFontSize( font.pointSize() );
     base->setLogicalFontSize( 3 );
     base->setMargin( QStyleSheetItem::MarginAll, margin );
-    
+
     keep_going = TRUE;
     init( doc, pos );
 
@@ -305,7 +327,7 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
 	    QMap<QString, QString> attr;
 	    bool emptyTag = FALSE;
 	    QString tagname = parseOpenTag(doc, pos, attr, emptyTag);
-	    
+	
 	    const QStyleSheetItem* nstyle = sheet_->item(tagname);
  	    if ( nstyle && !nstyle->selfNesting() && ( tagname == curstyle->name() ) ) {
  		pos = beforePos;
@@ -435,7 +457,7 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
 static bool qt_is_cell_in_use( QList<QtTextTableCell>& cells, int row, int col )
 {
     for ( QtTextTableCell* c = cells.first(); c; c = cells.next() ) {
-	if ( row >= c->row() && row < c->row() + c->rowspan() 
+	if ( row >= c->row() && row < c->row() + c->rowspan()
 	     && col >= c->column() && col < c->column() + c->colspan() )
 	    return TRUE;
     }
@@ -451,7 +473,7 @@ QtTextCustomItem* QtRichText::parseTable( const QMap<QString, QString> &attr, co
 
     QString rowbgcolor;
     QString tablebgcolor = attr["bgcolor"];
-    
+
     QList<QtTextTableCell> multicells;
 
     QString tagname;
@@ -479,7 +501,7 @@ QtTextCustomItem* QtRichText::parseTable( const QMap<QString, QString> &attr, co
 		    while ( qt_is_cell_in_use( multicells, row, col ) ) {
 			col++;
 		    }
-		    
+		
 		    if ( row >= 0 && col >= 0 ) {
 			const QStyleSheetItem* style = sheet_->item(tagname);
 			if ( !attr2.contains("bgcolor") ) {
@@ -789,8 +811,13 @@ void QtRichText::draw(QPainter* p, int x, int y,
    QtTextCursor tc( *this );
    QtTextParagraph* b = this;
    QFontMetrics fm( p->fontMetrics() );
+   QtTextFlow*  tmpflow = 0;
    while ( b ) {
        tc.gotoParagraph( p, b );
+       if ( tc.flow != tmpflow ) {
+	   tmpflow = tc.flow;
+	   tmpflow->drawFloatingItems( p, ox-x, oy-y, cx-x, cy-y, cw, ch, backgroundRegion, cg, to );
+       }
        do {
 	   tc.makeLineLayout( p, fm );
 	   QRect geom( tc.lineGeometry() );
@@ -984,9 +1011,9 @@ void QtTextParagraph::init()
     }
     else
 	flow_ = 0;
-    
+
     align = QStyleSheetItem::Undefined;
-    
+
     if ( attributes_.contains("align") ) {
  	QString s = attributes_["align"].lower();
  	if ( s  == "center" )
@@ -1194,6 +1221,7 @@ QtTextCursor::QtTextCursor(QtRichText& document )
     last = first - 1;
     current = currentx = currentoffset = currentoffsetx = 0;
     lmargin = rmargin = 0;
+    static_lmargin = static_rmargin = 0;
     currentasc  = currentdesc = 0;
     xline_current = 0;
     xline = 0;
@@ -1256,11 +1284,13 @@ void QtTextCursor::gotoParagraph( QPainter* p, QtTextParagraph* b )
 	flow->countFlow( y_, widthUsed, m );
 
     y_ += m;
+
+    static_lmargin = paragraph->totalMargin( QStyleSheetItem::MarginLeft );
+    static_rmargin = paragraph->totalMargin( QStyleSheetItem::MarginRight );
+
     width = flow->availableWidth(y_ );
-
-    lmargin = paragraph->totalMargin( QStyleSheetItem::MarginLeft );
-    rmargin = paragraph->totalMargin( QStyleSheetItem::MarginRight );
-
+    lmargin = flow->adjustLMargin( y_, static_lmargin );
+    rmargin = flow->adjustRMargin( y_, static_rmargin );
 
     current = 0;
 
@@ -1304,6 +1334,8 @@ bool QtTextCursor::gotoNextLine( QPainter* p, const QFontMetrics& fm )
 	    y_ += m;
 	}
 	width = flow->availableWidth(y_ );
+	lmargin = flow->adjustLMargin( y_, static_lmargin );
+	rmargin = flow->adjustRMargin( y_, static_rmargin );
 	paragraph->height = y() - paragraph->y; //####
 	paragraph->dirty = FALSE;
 	return FALSE;
@@ -1312,6 +1344,8 @@ bool QtTextCursor::gotoNextLine( QPainter* p, const QFontMetrics& fm )
     currentx = lmargin;
     y_ += height;
     width = flow->availableWidth(y_ );
+    lmargin = flow->adjustLMargin( y_, static_lmargin );
+    rmargin = flow->adjustRMargin( y_, static_rmargin );
 
     height = 0;
     updateCharFormat( p, fm );
@@ -1338,12 +1372,14 @@ void QtTextCursor::updateCharFormat( QPainter* p, const QFontMetrics& fm )
     currentdesc = fm.descent();
     QtTextCustomItem* custom = fmt->customItem();
     if ( custom ) {
-	if ( custom->width < 0 )
+	if ( custom->width < 0 ) {
 	    custom->realize( p );
+	}
 	if ( width >= 0 && custom->expandsHorizontally() ) {
 	    custom->resize( p, width - lmargin - rmargin + fm.minRightBearing() - fm.width(' ' ) );
 	}
-	currentasc = custom->height;
+	if ( custom->placeInline() )
+	    currentasc = custom->height;
     }
 }
 
@@ -1433,16 +1469,15 @@ void QtTextCursor::drawLine( QPainter* p, int ox, int oy,
     flow->mapToView( y_, gx, gy );
 	
     int realWidth = QMAX( width, widthUsed );
-    QRegion r(gx-ox, gy-oy, realWidth, height);
-    p->setClipRegion( r );
+    QRect r(gx-ox+lmargin, gy-oy, realWidth-lmargin-rmargin, height);
 
     bool clipMode = currentFormat()->customItem() && currentFormat()->customItem()->noErase();
 
     if (!clipMode ) { //!onlyDirty && !onlySelection && to.paper) {
 	if ( to.paper->pixmap() )
-	    p->drawTiledPixmap(gx-ox, gy-oy, realWidth, height, *to.paper->pixmap(), gx, gy);
+	    p->drawTiledPixmap( r, *to.paper->pixmap(), QPoint(gx, gy));
 	else
-	    p->fillRect(gx-ox, gy-oy, realWidth, height, *to.paper);
+	    p->fillRect(r, *to.paper);
     }
 
     if ( first == 0 ) {
@@ -1474,10 +1509,12 @@ void QtTextCursor::drawLine( QPainter* p, int ox, int oy,
 		p->setFont( f );
 	    }
 	}
-	if ( format->customItem() ) {
-	    int h = format->customItem()->height;
-	    format->customItem()->draw(p, gx+currentx, gy+base-h, ox, oy,
-				       cx, cy, cw, ch, backgroundRegion, cg, to );
+	QtTextCustomItem* custom = format->customItem();
+	if ( custom ) {
+	    int h = custom->height;
+	    if ( custom->placeInline() )
+		custom->draw(p, gx+currentx, gy+base-h, ox, oy,
+			     cx, cy, cw, ch, backgroundRegion, cg, to );
 	}
 	else {
 	    c = paragraph->text.charAt( current );
@@ -1490,12 +1527,12 @@ void QtTextCursor::drawLine( QPainter* p, int ox, int oy,
     if (clipMode ) {
 	p->setClipRegion( backgroundRegion );
 	if ( to.paper->pixmap() )
-	    p->drawTiledPixmap(gx-ox, gy-oy, realWidth, height, *to.paper->pixmap(), gx, gy);
+	    p->drawTiledPixmap( r, *to.paper->pixmap(), QPoint(gx, gy) );
 	else
-	    p->fillRect(gx-ox, gy-oy, realWidth, height, *to.paper);
+	    p->fillRect( r, *to.paper );
+	p->setClipping( FALSE );
     }
     backgroundRegion = backgroundRegion.subtract(r);
-    p->setClipping( FALSE );
 }
 
 bool QtTextCursor::atEnd() const
@@ -1712,7 +1749,8 @@ void QtTextCursor::gotoNextItem( QPainter* p, const QFontMetrics& fm )
     QtTextCustomItem* custom = item->format->customItem();
 //     updateCharFormat( p, fm ); // optimize again
     if ( custom ) {
-	currentx += custom->width;
+	if ( custom->placeInline() )
+	    currentx += custom->width;
     }
     else {
 	QString c = item->c;
@@ -1759,6 +1797,8 @@ void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
     int fm_height = fm.height();
 
     widthUsed = 0;
+    
+    QList<QtTextCustomItem> floatingItems;
 
     while ( !pastEnd() ) {
 	
@@ -1780,8 +1820,12 @@ void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
 	if ( !custom && !item->c.isEmpty() ) {
 	    lastc = item->c[ item->c.length()-1];
 	}
+	
+	if ( custom && !custom->placeInline() ) {
+	    floatingItems.append( custom );
+	}
 
-	bool custombreak = custom && custom->expandsHorizontally();
+	bool custombreak = custom && custom->ownLine();
 	
 	if ( custombreak && current > first ) {
 	    // break _before_ a custom expander
@@ -1862,6 +1906,25 @@ void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
 	flow->adjustFlow( y_, widthUsed, height ) ;
     else
 	flow->countFlow( y_, widthUsed, height );
+    
+    
+    int fl = lmargin;
+    int fr = width - rmargin;
+    for ( QtTextCustomItem* item = floatingItems.first(); item; item = floatingItems.next() ) {
+	item->y = y_ + height;
+	if ( adjustFlowMode )
+	    flow->adjustFlow( item->y, item->width, item->height );
+	else
+	    flow->countFlow( item->y, item->width, item->height );
+	if ( item->placement() == QtTextCustomItem::PlaceRight ) {
+	    fr -= item->width;
+	    item->x = fr;
+	} else {
+	    item->x = fl;
+	    fl += item->width;
+	}
+	flow->registerFloatingItem( item, item->placement() == QtTextCustomItem::PlaceRight );
+    }
 }
 
 bool QtTextCursor::doLayout( QPainter* p, int ymax, QtTextFlow* backFlow )
@@ -1881,7 +1944,7 @@ bool QtTextCursor::doLayout( QPainter* p, int ymax, QtTextFlow* backFlow )
 	    while ( b && b->flow() != backFlow && oldFlow != flow ) { // a new flow, do it completely
 		{
 		    flow->initialize( oldFlow->availableWidth( y_ ) );
-		    flow->x = 0;
+		    flow->x = 0; 
 		    flow->y = y_;
 		    QtTextCursor other( *this );
 		    other.adjustFlowMode = FALSE;
@@ -1989,6 +2052,9 @@ void QtTextFlow::initialize( int w)
     width = w;
     widthUsed = 0;
     colwidth = width / ncols;
+    
+    leftItems.clear();
+    rightItems.clear();
 }
 
 void QtTextFlow::mapToView( int yp, int& gx, int& gy )
@@ -2019,13 +2085,35 @@ void QtTextFlow::mapToView( int yp, int& gx, int& gy )
 
 }
 
-int QtTextFlow::availableWidth( int yp )
+int QtTextFlow::availableWidth( int /* yp */  )
 {
-    if ( ncols == 1) {
-	return width;
+    int w = width;
+    
+    if ( ncols > 1 )
+	w = colwidth - 5;
+    
+    return w;
+}
+
+int QtTextFlow::adjustLMargin( int yp, int margin )
+{
+    QtTextCustomItem* item = 0;
+    for ( item = leftItems.first(); item; item = leftItems.next() ) {
+	if ( yp >= item->y && yp < item->y + item->height )
+	    margin = QMAX( margin, item->x + item->width);
     }
-    yp = 0; // shut up, compiler
-    return colwidth - 5;
+    return margin;
+}
+
+int QtTextFlow::adjustRMargin( int yp, int margin )
+{
+    QtTextCustomItem* item = 0;
+    int w = availableWidth( yp );
+    for ( item = rightItems.first(); item; item = rightItems.next() ) {
+	if ( yp >= item->y && yp < item->y + item->height )
+	    margin = QMAX( margin, w - item->x );
+    }
+    return margin;
 }
 
 
@@ -2084,12 +2172,40 @@ void QtTextFlow::countFlow( int yp, int w, int h, bool pages )
 
 }
 
+void QtTextFlow::registerFloatingItem( QtTextCustomItem* item, bool right   )
+{
+    if ( right ) {
+	if ( !rightItems.contains( item ) )
+	    rightItems.append( item );    
+    }
+    else if ( !leftItems.contains( item ) )
+	leftItems.append( item );
+}
+
+void QtTextFlow::drawFloatingItems(QPainter* p,
+				   int ox, int oy, int cx, int cy, int cw, int ch,
+				   QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to)
+{
+    QtTextCustomItem* item = 0;
+    int gx, gy;
+    for ( item = leftItems.first(); item; item = leftItems.next() ) {
+	mapToView( item->y, gx, gy );
+	item->draw( p, gx+item->x, gy, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to );
+    }
+    
+    for ( item = rightItems.first(); item; item = rightItems.next() ) {
+	mapToView( item->y, gx, gy );
+	item->draw( p, gx+item->x, gy, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to );
+    }
+}
+
+
 
 
 QtTextTable::QtTextTable(const QMap<QString, QString> & attr  )
 {
     cells.setAutoDelete( TRUE );
-    
+
     cellspacing = 2;
     if ( attr.contains("cellspacing") )
 	cellspacing = attr["cellspacing"].toInt();
@@ -2104,10 +2220,10 @@ QtTextTable::QtTextTable(const QMap<QString, QString> & attr  )
 	else
 	    border = attr["border"].toInt();
     }
-    
+
     outerborder = cellspacing + border;
     layout = new QGridLayout( 1, 1, cellspacing + (border > 0 ? 1 : 0 ) );
-    
+
     fixwidth = 0;
     if ( attr.contains("width") ) {
 	bool b;
@@ -2115,7 +2231,7 @@ QtTextTable::QtTextTable(const QMap<QString, QString> & attr  )
 	if ( b )
 	    fixwidth = w;
     }
-    
+
     cachewidth = 0;
 }
 
@@ -2143,12 +2259,12 @@ void QtTextTable::draw(QPainter* p, int x, int y,
 	    cell->draw( x+outerborder, y+outerborder, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to);
 	    if ( border ) {
 		const int w = 1;
-		qDrawShadePanel( p, QRect( x+outerborder+cell->geometry().x()-w-ox, 
+		qDrawShadePanel( p, QRect( x+outerborder+cell->geometry().x()-w-ox,
 					   y+outerborder+cell->geometry().y()-w-oy,
 					   cell->geometry().width()+2*w,
-					   cell->geometry().height()+2*w), 
+					   cell->geometry().height()+2*w),
 				 cg, TRUE );
-// 		QRect r(x+outerborder-ox+cell->geometry().x()-w, y+outerborder-oy+cell->geometry().y()-w, 
+// 		QRect r(x+outerborder-ox+cell->geometry().x()-w, y+outerborder-oy+cell->geometry().y()-w,
 // 			cell->geometry().width()+2*w, cell->geometry().height()+2*w );
 // 		backgroundRegion = backgroundRegion.subtract( r );
 		
@@ -2173,7 +2289,7 @@ void QtTextTable::resize( QPainter* p, int nwidth )
     int shw = layout->sizeHint().width() + 2*outerborder;
     int mw = layout->minimumSize().width() + 2*outerborder;
     width = QMAX( mw, QMIN( nwidth, shw ) );
-    
+
     if ( fixwidth )
 	width = fixwidth;
 
@@ -2233,7 +2349,7 @@ QtTextTableCell::QtTextTableCell(QtTextTable* table,
     if ( attr.contains("bgcolor") ) {
 	background = new QBrush(QColor( attr["bgcolor"] ));
     }
-    
+
     hasFixedWidth = FALSE;
     if ( attr.contains("width") ) {
 	bool b;
