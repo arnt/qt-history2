@@ -57,11 +57,11 @@ QTextCodec and \l QTextStream
 <li> Translation from Input Methods and 8-bit keyboard input
 <li> Translation to legacy character sets for on-screen display
 <li> A string class, \l QString, that stores unicode characters, with
-support for migrating from C strings, fast (cached) translation to and
-from the locale's usual 8-bit representation, and all the usual string
+support for migrating from C strings including fast (cached)
+translation to and from the US-ASCII, and all the usual string
 operations
 <li> Unicode-aware widgets where necessary
-<li> On Windows 95/98/NT/2000, unicodes upport detection, so that Qt
+<li> On Windows 95/98/NT/2000, unicodes support detection, so that Qt
 provides unicode even on Windows platforms that do not support it
 
 
