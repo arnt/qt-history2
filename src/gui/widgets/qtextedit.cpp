@@ -143,6 +143,7 @@ public:
 
     // ### helper for compat functions
     QTextBlock blockAt(int block) const;
+    QTextBlock blockAt(const QPoint &pos, int *documentPosition = 0) const;
 
     QTextDocument *doc;
     bool cursorOn;
@@ -368,6 +369,23 @@ QTextBlock QTextEditPrivate::blockAt(int blockNr) const
         --blockNr;
     }
     return block;
+}
+
+QTextBlock QTextEditPrivate::blockAt(const QPoint &pos, int *documentPosition) const
+{
+    const int docPos = doc->documentLayout()->hitTest(pos, QText::ExactHit);
+
+    if (docPos == -1) {
+        if (documentPosition)
+            *documentPosition = -1;
+        return QTextBlock();
+    }
+
+    if (documentPosition)
+        *documentPosition = docPos;
+
+    QTextDocumentPrivate *pt = doc->docHandle();
+    return QTextBlock(pt, pt->blockMap().findNode(docPos));
 }
 
 static int blockNr(QTextBlock block)
@@ -1271,6 +1289,15 @@ int QTextEdit::paragraphs() const
     return d->doc->docHandle()->numBlocks();
 }
 
+int QTextEdit::lines() const
+{
+    int l = 0;
+    for (QTextBlock block = d->doc->rootFrame()->begin().currentBlock();
+         block.isValid(); block = block.next())
+        l += block.layout()->numLines();
+    return l;
+}
+
 int QTextEdit::linesOfParagraph(int parag) const
 {
     return d->blockAt(parag).layout()->numLines();
@@ -1303,6 +1330,45 @@ void QTextEdit::getSelection(int *paraFrom, int *indexFrom, int *paraTo, int *in
     QTextBlock toBlock(pt, pt->blockMap().findNode(selEnd));
     *paraTo = blockNr(toBlock);
     *indexTo = selEnd - toBlock.position();
+}
+
+int QTextEdit::lineOfChar(int parag, int index) const
+{
+    QTextBlock block = d->blockAt(parag);
+    if (!block.isValid())
+        return -1;
+
+    QTextLine line = block.layout()->findLine(index);
+    if (!line.isValid())
+        return -1;
+
+    return line.line();
+}
+
+QRect QTextEdit::paragraphRect(int parag) const
+{
+    return d->blockAt(parag).layout()->rect();
+}
+
+int QTextEdit::paragraphAt(const QPoint &pos) const
+{
+    return blockNr(d->blockAt(pos));
+}
+
+int QTextEdit::charAt(const QPoint &pos, int *parag) const
+{
+    int docPos = 0;
+    QTextBlock block = d->blockAt(pos, &docPos);
+    if (!block.isValid()) {
+        if (parag)
+            *parag = -1;
+        return -1;
+    }
+
+    if (parag)
+        *parag = blockNr(block);
+
+    return docPos - block.position();
 }
 
 #endif

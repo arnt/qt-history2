@@ -258,12 +258,28 @@ public:
     QT_COMPAT QString text(int parag) const;
 
     QT_COMPAT int paragraphs() const;
-
+    QT_COMPAT int lines() const;
     QT_COMPAT int linesOfParagraph(int parag) const;
-
     QT_COMPAT int paragraphLength(int parag) const;
 
+    QT_COMPAT int lineOfChar(int parag, int index) const;
+
     QT_COMPAT void getSelection(int *paraFrom, int *indexFrom, int *paraTo, int *indexTo) const;
+
+    QT_COMPAT QRect paragraphRect(int parag) const;
+
+    QT_COMPAT int paragraphAt(const QPoint &pos) const;
+    QT_COMPAT int charAt(const QPoint &pos, int *parag) const;
+
+    inline QT_COMPAT bool hasSelectedText() const
+    { return cursor().hasSelection(); }
+    inline QT_COMPAT QString selectedText() const
+    { return cursor().selectedText(); }
+
+    inline QT_COMPAT bool isUndoAvailable() const
+    { return document()->isUndoAvailable(); }
+    inline QT_COMPAT bool isRedoAvailable() const
+    { return document()->isRedoAvailable(); }
 
 #endif
 };
