@@ -33,7 +33,7 @@ SOURCES		= ../tools/qbuffer.cpp	    \
 		  ../codecs/qtextcodec.cpp \
 		  ../codecs/qutfcodec.cpp
 
-contains(QT_PRODUCT, qt-internal) {
+isEmpty(QT_PRODUCT)|contains(QT_PRODUCT, qt-internal) {
     LEXSOURCES  = moc.l
     YACCSOURCES = moc.y
 } else {
