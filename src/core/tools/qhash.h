@@ -15,6 +15,7 @@
 #define QHASH_H
 
 #include "qatomic.h"
+#include "qchar.h"
 #include "qiterator.h"
 #include "qlist.h"
 
