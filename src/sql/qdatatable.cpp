@@ -699,13 +699,12 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 	    return TRUE;
 	}
 	if ( d->dat.mode() != QSql::None ) {
-	    if ( ( ke->key() == Key_Tab ) && ( c < numCols() - 1 ) ) {
+	    if ( (ke->key() == Key_Tab) && (c < numCols() - 1) && (!isColumnReadOnly( c+1 ) || d->dat.mode() == QSql::Insert) )
 		d->continuousEdit = TRUE;
-	    } else if ( ( ke->key() == Key_BackTab ) && ( c > 0 ) ) {
+	    else if ( (ke->key() == Key_BackTab) && (c > 0) && (!isColumnReadOnly( c-1 ) || d->dat.mode() == QSql::Insert) )
 		d->continuousEdit = TRUE;
-	    } else {
+	    else
 		d->continuousEdit = FALSE;
-	    }
 	}
 	QSqlCursor * sql = sqlCursor();
 	if ( sql && sql->driver() &&
@@ -783,7 +782,7 @@ void QDataTable::contentsContextMenuEvent( QContextMenuEvent* e )
 	id[ IdDelete ] = popup->insertItem( tr( "Delete" ) );
 	bool enableInsert = sqlCursor()->canInsert();
 	popup->setItemEnabled( id[ IdInsert ], enableInsert );
-	bool enableUpdate = currentRow() > -1 && sqlCursor()->canUpdate();
+	bool enableUpdate = currentRow() > -1 && sqlCursor()->canUpdate() && !isColumnReadOnly( currentColumn() );
 	popup->setItemEnabled( id[ IdUpdate ], enableUpdate );
 	bool enableDelete = currentRow() > -1 && sqlCursor()->canDelete();
 	popup->setItemEnabled( id[ IdDelete ], enableDelete );
@@ -823,7 +822,11 @@ QWidget* QDataTable::beginEdit ( int row, int col, bool replace )
     d->editRow = row;
     d->editCol = col;
     if ( d->continuousEdit ) {
+	// see comment in beginInsert()
+	bool fakeReadOnly = isColumnReadOnly( col );
+	setColumnReadOnly( col, FALSE );
 	QWidget* w = QTable::beginEdit( row, col, replace );
+	setColumnReadOnly( col, fakeReadOnly );
 	return w;
     }
     if ( d->dat.mode() == QSql::None && sqlCursor()->canUpdate() && sqlCursor()->primaryIndex().count() > 0 )
@@ -949,6 +952,7 @@ bool QDataTable::beginInsert()
 	return FALSE;
     int i = 0;
     int row = currentRow();
+        
     d->insertPreRows = numRows();
     if ( row < 0 || numRows() < 1 )
 	row = 0;
@@ -972,8 +976,14 @@ bool QDataTable::beginInsert()
     d->insertHeaderLabelLast = verticalHeader()->label( d->insertRowLast );
     verticalHeader()->setLabel( row, "*" );
     d->editRow = row;
+    // in the db world it's common to allow inserting new records
+    // into a table that has read-only columns - temporarily
+    // switch off read-only mode for such columns
+    bool fakeReadOnly = isColumnReadOnly( 0 );
+    setColumnReadOnly( 0, FALSE );
     if ( QTable::beginEdit( row, 0, FALSE ) )
 	setEditMode( Editing, row, 0 );
+    setColumnReadOnly( 0, fakeReadOnly );
     return TRUE;
 }
 
@@ -993,7 +1003,7 @@ bool QDataTable::beginInsert()
 
 QWidget* QDataTable::beginUpdate ( int row, int col, bool replace )
 {
-    if ( !sqlCursor() || isReadOnly() )
+    if ( !sqlCursor() || isReadOnly() || isColumnReadOnly( col ) )
 	return 0;
     setCurrentCell( row, col );
     d->dat.setMode( QSql::Update );
@@ -1846,9 +1856,8 @@ void QDataTable::setSqlCursor( QSqlCursor* cursor, bool autoPopulate, bool autoD
 	    for ( uint i = 0; i < sqlCursor()->count(); ++i ) {
 		//## need algorithm for better display label
 		addColumn( sqlCursor()->field( i )->name(), sqlCursor()->field( i )->name() );
-		if ( sqlCursor()->field( i )->isReadOnly() || idx.contains( sqlCursor()->field( i )->name() ) ) {
+		if ( sqlCursor()->field( i )->isReadOnly() || idx.contains( sqlCursor()->field( i )->name() ) )
 		    setColumnReadOnly( numCols()-1, TRUE );
-		}
 	    }
 	}
 	if ( sqlCursor()->isReadOnly() )
@@ -2051,17 +2060,17 @@ void QDataTable::refresh( QDataTable::Refresh mode )
 		field = cur->field( d->fld[ i ] );
 		if ( field && ( cur->isGenerated( field->name() ) ||
 				cur->isCalculated( field->name() ) ) )
-		    {
-			setNumCols( numCols() + 1 );
-			d->colIndex.append( cur->position( field->name() ) );
-			setColumnReadOnly( numCols()-1, field->isReadOnly() );
-			QHeader* h = horizontalHeader();
-			QString label = d->fldLabel[ i ];
-			QIconSet icons = d->fldIcon[ i ];
-			h->setLabel( numCols()-1, icons, label );
-			if ( d->fldWidth[ i ] > -1 )
-			    QTable::setColumnWidth( i, d->fldWidth[i] );
-		    }
+		{
+		    setNumCols( numCols() + 1 );
+		    d->colIndex.append( cur->position( field->name() ) );
+		    setColumnReadOnly( numCols()-1, field->isReadOnly() || isColumnReadOnly( numCols()-1 ) );
+		    QHeader* h = horizontalHeader();
+		    QString label = d->fldLabel[ i ];
+		    QIconSet icons = d->fldIcon[ i ];
+		    h->setLabel( numCols()-1, icons, label );
+		    if ( d->fldWidth[ i ] > -1 )
+			QTable::setColumnWidth( i, d->fldWidth[i] );
+		}
 	    }
 	}
     }
