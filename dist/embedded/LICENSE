@@ -1,11 +1,11 @@
-                QT/EMBEDDED PROFESSIONAL EDITION LICENSE AGREEMENT
+                QT/EMBEDDED BETA LICENSE AGREEMENT
 
 Copyright (C) 1999-2000 Troll Tech AS.  All rights reserved.
 
 This non-exclusive non-transferable License Agreement is between you
 ("Licensee") and Troll Tech AS, and pertains to the Qt/Embedded GUI
-Toolkit ("Software"), including the source code, example programs and
-the documentation.
+Toolkit ("Software") Beta release, including the source code, example
+programs and the documentation.
 
 
                         COPYRIGHT AND RESTRICTIONS
@@ -21,20 +21,12 @@ Licensee under any circumstances.
 copy. The Licensee may not alter or remove any details of ownership,
 copyright, trade mark or other property right connected with the
 Software. The Licensee may not disclose any source code or any concepts
-and methods therein for any purpose other than as specifically provided
-in this Agreement.
+and methods therein for any purpose.
 
-3. The Licensee may freely use the Software on the platform(s) specified
-in the license certificate, to develop any kind of product, except
-products which would compete with the Software. A product that satisfies
-this section will herein be referred to as the Product.
+3. The Licensee may not distribute, the Product in any form, including
+executables statically or dynamically linked with the Software.
 
-4. The Licensee may distribute, the Product in any form, including
-executables statically or dynamically linked with the Software, provided
-the Licensee has a sufficient number of valid run-time licenses.
-
-5. The Licensee may modify the Software. The modified Software is
-governed by this License Agreement as Software.
+4. The Licensee may use the Software solely for the purpose of evaluation.
 
 
                          LIMITATION OF LIABILITY
