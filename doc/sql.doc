@@ -151,8 +151,9 @@ the driver supports transactions):
 \endcode
 
 Login parameters such as the user name and password, database name and
-hostname must be set before a connection can be opened.  To open a
-connection to the database, use the open() function.  In the event of
+hostname must be set before a connection can be opened.  The calls to \c
+setDatabaseName(), and the other "set" functions always succeed. To open
+a connection to the database, use the open() function.  In the event of
 an error, lastError() will return error information.  For example:
 
 \code
@@ -224,7 +225,7 @@ following code:
 
 \code
     QSqlQuery q;
-    q.exec( "update Employee set name='Dave' where id=1" );
+    q.exec( "update Employee set name='Dave' where id=1;" );
 \endcode
 
 SQL statements can also be executed directly from an open database
@@ -360,7 +361,7 @@ connection, pass a pointer to the desired QSqlDatabase. For example:
 \code
     QSqlDatabase* alternateDb = QSqlDatabase::database( "alternate" );
     QSqlQuery q;
-    q.exec( "update Employee set name='Trond' where id=2", alternateDb );
+    q.exec( "update Employee set name='Trond' where id=2;", alternateDb );
 \endcode
 	
 <h2>Cursors</h2>
