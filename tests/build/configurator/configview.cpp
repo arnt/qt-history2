@@ -2,9 +2,9 @@
 ** Implementation of the config selection view
 */
 
-#include <QLayout.h>
-#include <QCheckBox.h>
-#include <QSignalMapper.h>
+#include <qlayout.h>
+#include <qcheckbox.h>
+#include <qsignalmapper.h>
 
 #include "configview.h"
 

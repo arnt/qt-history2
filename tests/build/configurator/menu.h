@@ -2,8 +2,8 @@
 ** Definitions for the menu bar
 */
 
-#include <QMenuBar.h>
-#include <QPopupMenu.h>
+#include <qmenubar.h>
+#include <qpopupmenu.h>
 
 class CConfiguratorMenu : public QMenuBar
 {

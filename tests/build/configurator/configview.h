@@ -2,8 +2,8 @@
 ** Definitions for the config selection widget
 */
 
-#include <QScrollView.h>
-#include <QStringList.h>
+#include <qscrollview.h>
+#include <qstringlist.h>
 
 class CConfigView : public QScrollView
 {

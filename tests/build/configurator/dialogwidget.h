@@ -2,9 +2,9 @@
 ** The class definition for the configurator main dialog
 */
 
-#include <QWidget.h>
-#include <QLineEdit.h>
-#include <QComboBox.h>
+#include <qwidget.h>
+#include <qlineedit.h>
+#include <qcombobox.h>
 
 #include "configview.h"
 

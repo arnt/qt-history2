@@ -2,14 +2,14 @@
 ** Implementation file for the configurator main dialog widget
 */
 
-#include <QLayout.h>
-#include <QGroupBox.h>
-#include <QRadioButton.h>
-#include <QPushButton.h>
-#include <QButtonGroup.h>
-#include <QLabel.h>
-#include <QHBox.h>
-#include <QVBox.h>
+#include <qlayout.h>
+#include <qgroupbox.h>
+#include <qradiobutton.h>
+#include <qpushbutton.h>
+#include <qbuttongroup.h>
+#include <qlabel.h>
+#include <qhbox.h>
+#include <qvbox.h>
 #include <stdlib.h>
 
 #include "dialogwidget.h"
