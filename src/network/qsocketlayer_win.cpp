@@ -701,35 +701,55 @@ bool QSocketLayerPrivate::nativeHasPendingDatagrams() const
 
 Q_LLONG QSocketLayerPrivate::nativePendingDatagramSize() const
 {
+    Q_LLONG ret = -1;
     int recvResult = 0;
-    Q_LONG msgSize = 0;
     DWORD flags;
-    do {
+    DWORD bufferCount = 5;
+    WSABUF * buf = 0;
+    for (;;) {
         // the data written to udpMessagePeekBuffer is discarded, so
         // this function is still reentrant although it might not look
         // so.
         static char udpMessagePeekBuffer[8192];
 
-        WSABUF buf;
-        buf.buf = udpMessagePeekBuffer;
-        buf.len = sizeof(udpMessagePeekBuffer);
+        buf = new WSABUF[bufferCount];
+        for (DWORD i=0; i<bufferCount; i++) {
+           buf[i].buf = udpMessagePeekBuffer;
+           buf[i].len = sizeof(udpMessagePeekBuffer);
+        }
         flags = MSG_PEEK;
         DWORD bytesRead = 0;
-        recvResult = ::WSARecvFrom(socketDescriptor, &buf, 1, &bytesRead, &flags, 0,0,0,0);
-        msgSize += bytesRead;
-    } while (recvResult != SOCKET_ERROR && flags & MSG_PARTIAL);
+        recvResult = ::WSARecv(socketDescriptor, buf, bufferCount, &bytesRead, &flags, 0,0);
+        
+        if (recvResult != SOCKET_ERROR) {
+            ret = Q_LLONG(bytesRead);
+            break;
+        } else if (recvResult == SOCKET_ERROR && WSAGetLastError() == WSAEMSGSIZE) {
+           bufferCount += 5;
+           delete buf;
+        } else if (recvResult == SOCKET_ERROR) {
+            WS_ERROR_DEBUG
+            ret = -1;
+            break;
+        }
+    }
+
+    if (buf)
+        delete buf;
 
 #if defined (QSOCKETLAYER_DEBUG)
-    qDebug("QSocketLayerPrivate::nativePendingDatagramSize() == %i", msgSize);
+    qDebug("QSocketLayerPrivate::nativePendingDatagramSize() == %li", ret);
 #endif
 
-    return msgSize;
+    return ret;
 }
 
 
 Q_LLONG QSocketLayerPrivate::nativeReceiveDatagram(char *data, Q_LLONG maxLength,
                                                    QHostAddress *address, Q_UINT16 *port)
 {
+    Q_LLONG ret = 0;
+
 #if !defined(QT_NO_IPV6)
     qt_sockaddr_storage aa;
 #else
@@ -743,27 +763,32 @@ Q_LLONG QSocketLayerPrivate::nativeReceiveDatagram(char *data, Q_LLONG maxLength
     buf.len = maxLength;
     DWORD flags = 0;
     DWORD bytesRead = 0;
-    if (::WSARecvFrom(socketDescriptor, &buf, 1, &bytesRead, &flags, (struct sockaddr *) &aa, &sz,0,0) == SOCKET_ERROR) {
+    if (::WSARecvFrom(socketDescriptor, &buf, 1, &bytesRead, &flags, (struct sockaddr *) &aa, &sz,0,0) == SOCKET_ERROR
+        && WSAGetLastError() != WSAEMSGSIZE) { // it is ok the buffer was to small
         WS_ERROR_DEBUG
-            setError(Qt::NetworkError, "Unable to receive a message");
+        setError(Qt::NetworkError, "Unable to receive a message");
+        ret = -1;
+    } else {
+        ret = Q_LLONG(bytesRead);
     }
 
     qt_socket_getPortAndAddress(socketDescriptor, (struct sockaddr *) &aa, port, address);
 
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayerPrivate::nativeReceiveDatagram(%p \"%s\", %li, %s, %i) == %li",
-           data, qt_prettyDebug(data, qMin((Q_LONG)bytesRead, 16), bytesRead).data(), maxLength,
+           data, qt_prettyDebug(data, qMin(ret, 16), ret).data(), maxLength,
            address ? address->toString().latin1() : "(nil)",
-           port ? *port : 0, (Q_LONG) bytesRead);
+           port ? *port : 0, ret);
 #endif
 
-    return bytesRead;
+    return ret;
 }
 
 
 Q_LLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LLONG len,
-                                                 const QHostAddress &address, Q_UINT16 port)
+                                                const QHostAddress &address, Q_UINT16 port)
 {
+    Q_LLONG ret = -1;
     struct sockaddr_in sockAddrIPv4;
     qt_sockaddr_in6 sockAddrIPv6;
     struct sockaddr *sockAddrPtr;
@@ -778,17 +803,26 @@ Q_LLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LLONG len,
     DWORD bytesSent = 0;
     if (::WSASendTo(socketDescriptor, &buf, 1, &bytesSent, flags, sockAddrPtr, sockAddrSize, 0,0) ==  SOCKET_ERROR) {
         WS_ERROR_DEBUG
-        bytesSent = -1;
-        setError(Qt::NetworkError, "Unable to send a message");
+        switch (WSAGetLastError()) {
+        case WSAEMSGSIZE:
+            setError(Qt::DatagramTooLargeError, "Datagram was to large to send");
+            break;
+        default:
+            setError(Qt::NetworkError, "Unable to send a message");
+            break;
+        }
+        ret = -1;
+    } else {
+        ret = Q_LLONG(bytesSent);
     }
 
 #if defined (QSOCKETLAYER_DEBUG)
-    qDebug("QSocketLayerPrivate::nativeSendDatagram(%p \"%s\", %lu, \"%s\", %i) == %li", data,
-           qt_prettyDebug(data, qMin(len, 16), len).data(), len, address.toString().latin1(),
-           port, (Q_LONG) bytesSent);
+    qDebug("QSocketLayerPrivate::nativeSendDatagram(%p \"%s\", %li, \"%s\", %i) == %li", data,
+           qt_prettyDebug(data, qMin(len, 16), len).data(), 0, address.toString().latin1(),
+           port, ret);
 #endif
 
-    return bytesSent;
+    return ret;
 }
 
 
