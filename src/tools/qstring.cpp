@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#238 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#239 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12244,14 +12244,16 @@ QString &QString::setNum( double n, char f, int prec )
     char format[20];
     register char *fs = format;			// generate format string
     *fs++ = '%';				//   "%.<prec>l<f>"
-    if ( prec > 99 )
-	prec = 99;
-    *fs++ = '.';
-    if ( prec >= 10 ) {
-	*fs++ = prec / 10 + '0';
-	*fs++ = prec % 10 + '0';
-    } else {
-	*fs++ = prec + '0';
+    if ( prec >= 0 ) {
+	if ( prec > 99 )
+	    prec = 99;
+	*fs++ = '.';
+	if ( prec >= 10 ) {
+	    *fs++ = prec / 10 + '0';
+	    *fs++ = prec % 10 + '0';
+	} else {
+	    *fs++ = prec + '0';
+	}
     }
     *fs++ = 'l';
     *fs++ = f;
