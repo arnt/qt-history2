@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#119 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#120 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -717,11 +717,11 @@ bool QPainter::begin( const QPaintDevice *pd )
 	    bg_col = color0;
 	    cpen.setColor( color1 );
 	}
-    } else if ( dt == QInternal::Printer ) {		// device is a printer
+    } else if ( dt == QInternal::Printer ) {	// device is a printer
 	if ( pdev->handle() )
 	    hdc = pdev->handle();
 	flags |= (NoCache | RGBColor);
-    } else if ( dt == PDT_SYSTEM ) {		// system-dependent device
+    } else if ( dt == QInternal::System ) {	// system-dependent device
 	hdc = pdev->handle();
 	if ( hdc ) {
 	    SIZE s;

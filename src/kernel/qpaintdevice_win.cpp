@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#48 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -144,7 +144,7 @@ static void qDrawTransparentPixmap( HDC hdc_dest, bool destIsPixmap,
 
 void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
-	     RasterOp rop, bool ignoreMask  )
+	     Qt::RasterOp rop, bool ignoreMask  )
 {
     if ( !src || !dst ) {
 #if defined(CHECK_NULL)
@@ -217,7 +217,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	DSTINVERT, BLACKNESS, WHITENESS, 0x00AA0029 /* D */,
 	SRCERASE, 0x00DD0228 /* SDno */, 0x007700E6 /* DSan */, NOTSRCERASE
     };
-    if ( rop > LastROP ) {
+    if ( rop > Qt::LastROP ) {
 #if defined(CHECK_RANGE)
 	warning( "bitBlt: Invalid ROP code" );
 #endif

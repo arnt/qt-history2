@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.h#1 $
+** $Id: //depot/qt/main/src/widgets/qdial.h#2 $
 **
 ** Definition of something or other
 **
@@ -18,7 +18,7 @@
 #endif // QT_H
 
 //class QTimer;
-struct QDialPrivate;
+class QDialPrivate;
 
 class Q_EXPORT QDial: public QWidget, public QRangeControl
 {

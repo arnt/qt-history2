@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#220 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#221 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1131,15 +1131,15 @@ static void drawTile( HANDLE hdc, int x, int y, int w, int h,
 Q_EXPORT
 void qt_fill_tile( QPixmap *tile, const QPixmap &pixmap )
 {
-    bitBlt( tile, 0, 0, &pixmap, 0, 0, -1, -1, CopyROP, TRUE );
+    bitBlt( tile, 0, 0, &pixmap, 0, 0, -1, -1, Qt::CopyROP, TRUE );
     int x = pixmap.width();
     while ( x < tile->width() ) {
-	bitBlt( tile, x, 0, tile, 0, 0, x, pixmap.height(), CopyROP, TRUE );
+	bitBlt( tile, x, 0, tile, 0, 0, x, pixmap.height(), Qt::CopyROP, TRUE);
 	x *= 2;
     }
     int y = pixmap.height();
     while ( y < tile->height() ) {
-	bitBlt( tile, 0, y, tile, 0, 0, tile->width(), y, CopyROP, TRUE );
+	bitBlt( tile, 0, y, tile, 0, 0, tile->width(), y, Qt::CopyROP, TRUE );
 	y *= 2;
     }
 }

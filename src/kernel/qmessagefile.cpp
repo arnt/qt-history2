@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#12 $
 **
 ** Localization database support.
 **
@@ -36,7 +36,7 @@
 // other qt stuff necessary for the implementation
 #include "qintdict.h"
 #include "qstring.h"
-#include "qapp.h"
+#include "qapplication.h"
 #include "qfile.h"
 #include "qdatastream.h"
 #include "qdict.h"

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#3 $
 **
 ** Implementation of something useful.
 **
@@ -26,7 +26,12 @@
 #include "qpainter.h"
 #include "qpointarray.h"
 
-#include <math.h> // M_PI, sin(), cos(), atan()
+#include <math.h> // M_PI, sin(), cos(), atan() 
+//### Forutsetter linking med math lib - Jfr kommentar i qpainter_x11.cpp!
+
+#ifdef _OS_WIN32_
+double M_PI = 3.14159265358979323846;
+#endif
 
 class QDialPrivate
 {
