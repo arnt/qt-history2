@@ -523,7 +523,7 @@ void QComboBoxPrivate::updateLineEditGeometry()
     QRect editorRect = QStyle::visualRect(opt.direction, opt.rect, q->style()->subControlRect(
                                               QStyle::CC_ComboBox, &opt,
                                               QStyle::SC_ComboBoxEditField, q));
-    const QPixmap &pix = q->pixmap(q->currentItem());
+    const QPixmap &pix = q->itemIcon(q->currentItem()).pixmap(Qt::SmallIconSize);
     if (!pix.isNull())
         editorRect.setLeft(editorRect.left() + pix.width() + 4);
     lineEdit->setGeometry(editorRect);
@@ -1166,7 +1166,7 @@ QSize QComboBox::sizeHint() const
     for (int i = 0; i < model()->rowCount(rootModelIndex()); ++i) {
         index = model()->index(i, 0, rootModelIndex());
         txt = itemText(index.row());
-        const QPixmap &pix = pixmap(index.row());
+        const QPixmap &pix = itemIcon(index.row()).pixmap(Qt::SmallIconSize);
         // check listview item width
         maxWidth = itemView()->sizeHintForIndex(index).width();
         // check combo text+pixmap width
@@ -1362,7 +1362,7 @@ void QComboBox::paintEvent(QPaintEvent *)
     // draw the icon and text
     if (d->currentIndex.isValid()) {
         QString txt = model()->data(d->currentIndex, QAbstractItemModel::DisplayRole).toString();
-        const QPixmap &pix = pixmap(currentItem());
+        const QPixmap &pix = itemIcon(currentItem()).pixmap(Qt::SmallIconSize);
         QRect editField = QStyle::visualRect(opt.direction, opt.rect, q->style()->subControlRect(
                                                  QStyle::CC_ComboBox, &opt,
                                                  QStyle::SC_ComboBoxEditField, this));
