@@ -10,6 +10,10 @@
 **
 ****************************************************************************/
 
+/****************************************************************************
+** Please remember to update the Qt/Windows and Qt/X11 INSTALL file.
+****************************************************************************/
+
 /*! \page installation.html
 
 \title Installation
@@ -143,6 +147,5 @@ You're done.  Qt is now installed.
 
 The Qt/Windows distribution is distributed as a self-extracting archive
 with a built-in installer. Just follow the installation wizard.
-
 
 */
