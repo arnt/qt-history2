@@ -46,8 +46,8 @@ public:
 	Accel = 30,				// accelerator event
 	Wheel = 31,				// wheel event
 	AccelAvailable = 32,			// accelerator available event
-	CaptionChange = 33,			// caption changed
-	IconChange = 34,			// icon changed
+	WindowTitleChange = 33,			// window title changed
+	WindowIconChange = 34,			// icon changed
 	ApplicationFontChange = 36,             // application font changed
 	ApplicationPaletteChange = 38,          // application palette changed
 	PaletteChange = 39,			// widget palette changed
@@ -104,8 +104,13 @@ public:
 	IconTextChange = 101,                   // icon text has changed
 	ModifiedChange = 102,                   // modified state has changed
 
+#ifndef QT_NO_COMPAT
+	CaptionChange = WindowTitleChange,
+	IconChange = WindowIconChange,
+#endif
 	User = 1000,				// first user event id
 	MaxUser = 65535				// last user event id
+
     };
 
     QEvent(Type type) : t(type), posted(FALSE), spont(FALSE) {}

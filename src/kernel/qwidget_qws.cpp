@@ -392,7 +392,7 @@ void QWidget::reparent_helper( QWidget *parent, WFlags f, const QPoint &p, bool 
 #ifndef QT_NO_WIDGET_TOPEXTRA
     if ( !capt.isNull() ) {
 	d->extra->topextra->caption = QString::null;
-	setWindowCaption( capt );
+	setWindowTitle( capt );
     }
 #endif
     if ( showIt )
@@ -502,14 +502,14 @@ bool QWidget::isWindowModified() const
 }
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
-void QWidget::setWindowCaption( const QString &caption )
+void QWidget::setWindowTitle( const QString &caption )
 {
     if ( d->extra && d->extra->topextra && d->extra->topextra->caption == caption )
 	return; // for less flicker
     d->createTLExtra();
     d->extra->topextra->caption = caption;
     qwsDisplay()->setWindowCaption(this, caption);
-    QEvent e( QEvent::CaptionChange );
+    QEvent e( QEvent::WindowTitleChange );
     QApplication::sendEvent( this, &e );
 }
 
@@ -534,7 +534,7 @@ void QWidget::setWindowIcon( const QPixmap &unscaledPixmap )
 	d->extra->topextra->icon = new QPixmap( pixmap );
 	mask = pixmap.mask() ? *pixmap.mask() : pixmap.createHeuristicMask();
     }
-    QEvent e( QEvent::IconChange );
+    QEvent e( QEvent::WindowIconChange );
     QApplication::sendEvent( this, &e );
 }
 

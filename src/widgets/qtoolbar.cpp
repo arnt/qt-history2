@@ -155,7 +155,7 @@ void QToolBarSeparator::setOrientation( Orientation o )
 
 void QToolBarSeparator::changeEvent( QEvent *ev )
 {
-    if(ev->type() == QEvent::StyleChange) 
+    if(ev->type() == QEvent::StyleChange)
 	setOrientation( orient );
     QWidget::changeEvent(ev);
 }
@@ -504,7 +504,7 @@ bool QToolBar::event( QEvent * e )
 void QToolBar::setLabel( const QString & label )
 {
     l = label;
-    setWindowCaption( l );
+    setWindowTitle( l );
 }
 
 QString QToolBar::label() const
@@ -625,11 +625,7 @@ void QToolBar::createPopup()
 	    } else if ( qt_cast<QComboBox*>(w) ) {
 		QComboBox *c = (QComboBox*)w;
 		if ( c->count() != 0 ) {
-#ifndef QT_NO_WIDGET_TOPEXTRA
-		    QString s = c->windowCaption();
-#else
-		    QString s;
-#endif
+		    QString s = c->windowTitle();
 		    if ( s.isEmpty() )
 		        s = c->currentText();
 		    uint maxItems = 0;

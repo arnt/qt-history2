@@ -295,7 +295,7 @@ public:
     QSizePolicy sizePolicy() const;
     void setOpaqueMoving( bool b ) { opaque = b; }
 
-    QString windowCaption() const { return dockWindow->windowCaption(); }
+    QString windowTitle() const { return dockWindow->windowTitle(); }
 
 signals:
     void doubleClicked();
@@ -1942,24 +1942,6 @@ bool QDockWindow::opaqueMoving() const
     return opaque;
 }
 
-/*! \reimp */
-
-void QDockWindow::setWindowCaption( const QString &s )
-{
-    titleBar->setWindowCaption( s );
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    QFrame::setWindowCaption( s );
-#endif
-#ifndef QT_NO_TOOLTIP
-    QToolTip::remove( horHandle );
-    QToolTip::remove( verHandle );
-    if ( !s.isEmpty() ) {
-	QToolTip::add( horHandle, s );
-	QToolTip::add( verHandle, s );
-    }
-#endif
-}
-
 void QDockWindow::updateSplitterVisibility( bool visible )
 {
     if ( area() && isResizeEnabled() ) {
@@ -2020,18 +2002,29 @@ bool QDockWindow::event( QEvent *e )
     case QEvent::ShowToParent:
 	emit visibilityChanged( TRUE );
 	break;
+    case QEvent::WindowTitleChange:
+    {
+	QString s = QFrame::windowTitle();
+	titleBar->setWindowTitle( s );
+#ifndef QT_NO_TOOLTIP
+	QToolTip::remove( horHandle );
+	QToolTip::remove( verHandle );
+	if ( s.isEmpty() ) {
+	    QToolTip::add( horHandle, s );
+	    QToolTip::add( verHandle, s );
+	}
+#endif
+    }
     default:
 	break;
     }
     return QFrame::event( e );
 }
 
-#ifdef QT_NO_WIDGET_TOPEXTRA
-QString QDockWindow::windowCaption() const
+QString QDockWindow::windowTitle() const
 {
-    return titleBar->windowCaption();
+    return titleBar->windowTitle();
 }
-#endif
 
 /*! \reimp */
 void QDockWindow::contextMenuEvent( QContextMenuEvent *e )

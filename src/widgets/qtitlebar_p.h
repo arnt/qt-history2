@@ -64,15 +64,8 @@ public:
 
     QSize sizeHint() const;
 
-#ifdef QT_NO_WIDGET_TOPEXTRA
-    // We provide one, since title bar is useless otherwise.
-    QString caption() const;
-#endif
-
 public slots:
     void setActive( bool );
-    void setWindowCaption( const QString& title );
-    void setWindowIcon( const QPixmap& icon );
 
 signals:
     void doActivate();

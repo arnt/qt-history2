@@ -29,6 +29,9 @@
 #include "qdesktopwidget.h"
 #endif
 
+#ifndef QT_NO_COMPAT
+#include "qwidget.h"
+#endif
 class QSessionManager;
 class QDesktopWidget;
 class QStyle;
@@ -84,12 +87,10 @@ public:
 #endif
 #ifndef QT_NO_PALETTE
     static QPalette  palette( const QWidget* = 0 );
-    static void	     setPalette( const QPalette &, bool informWidgets=FALSE,
-				 const char* className = 0 );
+    static void	     setPalette( const QPalette &, const char* className = 0 );
 #endif
     static QFont     font( const QWidget* = 0 );
-    static void	     setFont( const QFont &, bool informWidgets=FALSE,
-			      const char* className = 0 );
+    static void	     setFont( const QFont &, const char* className = 0 );
     static QFontMetrics fontMetrics();
 
     QWidget	    *mainWidget()  const;
@@ -109,32 +110,15 @@ public:
     QWidget	       *focusWidget() const;
     QWidget	       *activeWindow() const;
 
-    static QWidget  *widgetAt( int x, int y, bool child=FALSE );
-    static QWidget  *widgetAt( const QPoint &, bool child=FALSE );
+    static QWidget *widgetAt(int x, int y);
+    static inline QWidget *widgetAt(const QPoint &p) { return widgetAt(p.x(), p.y()); }
 
-#ifndef QT_NO_COMPAT
-    inline static void	     flushX() { flush(); }
-#endif
-    static void	     syncX();
-
-    static void	     beep();
+    static void syncX();
+    static void beep();
 
 #ifndef QT_NO_DIR
     QString   applicationDirPath();
     QString   applicationFilePath();
-#endif
-#ifndef QT_NO_COMPAT
-#ifndef QT_NO_PALETTE
-    // obsolete functions
-    static inline void setWinStyleHighlightColor( const QColor &c ) {
-	QPalette p( palette() );
-	p.setColor( QPalette::Highlight, c );
-	setPalette( p, TRUE);
-    }
-    static inline const QColor &winStyleHighlightColor() {
-	return palette().color(QPalette::Active, QPalette::Highlight);
-    }
-#endif
 #endif
     static void      setDesktopSettingsAware( bool );
     static bool      desktopSettingsAware();
@@ -229,6 +213,26 @@ protected:
 public:
     inline static bool hasGlobalMouseTracking() {return true;}
     inline static void setGlobalMouseTracking(bool) {};
+    inline static void flushX() { flush(); }
+#ifndef QT_NO_PALETTE
+    // obsolete functions
+    static inline void setWinStyleHighlightColor( const QColor &c ) {
+	QPalette p( palette() );
+	p.setColor( QPalette::Highlight, c );
+	setPalette( p, TRUE);
+    }
+    static inline const QColor &winStyleHighlightColor()
+	{ return palette().color(QPalette::Active, QPalette::Highlight); }
+    static inline void setPalette(const QPalette &pal, bool, const char* className = 0)
+	{ setPalette(pal, className); };
+#endif // QT_NO_PALETTE
+    static inline void setFont(const QFont &font, bool, const char* className = 0)
+	{ setFont(font, className); }
+
+    static inline QWidget *widgetAt(int x, int y, bool child)
+	{ QWidget *w = widgetAt(x, y); return child ? w : (w ? w->topLevelWidget() : 0); }
+    static inline QWidget *widgetAt(const QPoint &p, bool child)
+	{ return widgetAt(p.x(), p.y(), child); }
 
 #endif // QT_NO_COMPAT
 private:
@@ -327,11 +331,6 @@ inline QWidget *QApplication::focusWidget() const
 inline QWidget *QApplication::activeWindow() const
 {
     return active_window;
-}
-
-inline QWidget *QApplication::widgetAt( const QPoint &p, bool child )
-{
-    return widgetAt( p.x(), p.y(), child );
 }
 
 inline bool QApplication::inPopupMode() const

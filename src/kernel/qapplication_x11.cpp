@@ -2576,16 +2576,12 @@ Window qt_x11_findClientWindow( Window win, Atom property, bool leaf )
     Returns a pointer to the widget at global screen position \a
     (x, y), or 0 if there is no Qt widget there.
 
-    If \a child is FALSE and there is a child widget at position \a
-    (x, y), the top-level widget containing it is returned. If \a child
-    is TRUE the child widget at position \a (x, y) is returned.
-
     This function is normally rather slow.
 
     \sa QCursor::pos(), QWidget::grabMouse(), QWidget::grabKeyboard()
 */
 
-QWidget *QApplication::widgetAt( int x, int y, bool child )
+QWidget *QApplication::widgetAt(int x, int y)
 {
     int screen = QCursor::x11Screen();
     int lx, ly;
@@ -2637,22 +2633,16 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 	}
 #endif
     }
-    if ( child && w ) {
-	if ( (c = w->childAt( w->mapFromGlobal(QPoint(x, y ) ) ) ) )
-	    return c;
-    }
+    if (w && (c = w->childAt(w->mapFromGlobal(QPoint(x, y)))))
+	return c;
     return w;
 }
 
 /*!
-    \overload QWidget *QApplication::widgetAt( const QPoint &pos, bool child )
+    \overload QWidget *QApplication::widgetAt( const QPoint &pos )
 
     Returns a pointer to the widget at global screen position \a pos,
     or 0 if there is no Qt widget there.
-
-    If \a child is FALSE and there is a child widget at position \a
-    pos, the top-level widget containing it is returned. If \a child
-    is TRUE the child widget at position \a pos is returned.
 */
 
 

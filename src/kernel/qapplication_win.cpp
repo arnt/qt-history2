@@ -962,7 +962,7 @@ static QWidget *findChildWidget( const QWidget *p, const QPoint &pos )
     return 0;
 }
 
-QWidget *QApplication::widgetAt( int x, int y, bool child )
+QWidget *QApplication::widgetAt( int x, int y )
 {
     POINT p;
     HWND  win;
@@ -978,10 +978,6 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 	win = GetParent( win );
 	w = QWidget::find( win );
     }
-    if ( !w )
-	return 0;
-    if ( !child && !w->isTopLevel() )
-	w = w->topLevelWidget();
     return w;
 }
 

@@ -62,7 +62,7 @@
 
     Document windows (i.e. MDI windows) are also ordinary Qt widgets
     which have the workspace as their parent widget. When you call
-    show(), hide(), showMaximized(), setWindowCaption(), etc. on a document
+    show(), hide(), showMaximized(), setWindowTitle(), etc. on a document
     window, it is shown, hidden, etc. with a frame, caption, icon and
     icon text, just as you'd expect. You can provide widget flags
     which will be used for the layout of the decoration or the
@@ -100,7 +100,7 @@
     menu at the far left of the menu bar.
 */
 
-static bool inCaptionChange = FALSE;
+static bool inTitleChange = FALSE;
 
 class QWorkspaceChild : public QFrame
 {
@@ -141,7 +141,7 @@ public slots:
     void showMaximized();
     void showNormal();
     void showShaded();
-    void setWindowCaption( const QString& );
+    void setWindowTitle( const QString& );
     void internalRaise();
     void titleBarDoubleClicked();
 
@@ -199,7 +199,7 @@ public:
     QPopupMenu* toolPopup;
     int menuId;
     int controlId;
-    QString topCaption;
+    QString topTitle;
 
     QScrollBar *vbar, *hbar;
     QWidget *corner;
@@ -306,10 +306,7 @@ QWorkspace::init()
     setBackgroundRole( QPalette::Dark );
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    d->topCaption = topLevelWidget()->windowCaption();
-#endif
-
+    d->topTitle = topLevelWidget()->windowTitle();
     d->hbar = d->vbar = 0;
     d->corner = 0;
     d->xoffset = d->yoffset = 0;
@@ -465,9 +462,8 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 	 !d->active->windowWidget()->testWFlags( WStyle_Tool ) ) {
 	d->active->windowWidget()->showMaximized();
 	if ( d->maxtools ) {
-#ifndef QT_NO_WIDGET_TOPEXTRA
-	    if ( w->windowIcon() ) {
-		QPixmap pm(*w->windowIcon());
+	    if ( !!w->windowIcon() ) {
+		QPixmap pm(w->windowIcon());
 		if(pm.width() != 14 || pm.height() != 14) {
 		    QImage im;
 		    im = pm;
@@ -475,7 +471,6 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 		}
 		d->maxtools->setPixmap( pm );
 	    } else
-#endif
 	    {
 		QPixmap pm(14,14);
 		pm.fill( white );
@@ -744,12 +739,10 @@ void QWorkspace::minimizeWindow( QWidget* w)
 	if ( c == d->maxWindow ) {
 	    wasMax = TRUE;
 	    d->maxWindow = 0;
-	    inCaptionChange = TRUE;
-#ifndef QT_NO_WIDGET_TOPEXTRA
-	    if ( !!d->topCaption )
-		topLevelWidget()->setWindowCaption( d->topCaption );
-#endif
-	    inCaptionChange = FALSE;
+	    inTitleChange = TRUE;
+	    if ( !!d->topTitle )
+		topLevelWidget()->setWindowTitle( d->topTitle );
+	    inTitleChange = FALSE;
 	    if ( !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this) )
 		hideMaximizeControls();
 	    for (QList<QWorkspaceChild *>::Iterator it(d->windows.begin()); it != d->windows.end(); ++it) {
@@ -797,12 +790,10 @@ void QWorkspace::normalizeWindow( QWidget* w)
 	if ( c == d->maxWindow ) {
 	    c->setGeometry( d->maxRestore );
 	    d->maxWindow = 0;
-#ifndef QT_NO_WIDGET_TOPEXTRA
-	    inCaptionChange = TRUE;
-	    if ( !!d->topCaption )
-		topLevelWidget()->setWindowCaption( d->topCaption );
-	    inCaptionChange = FALSE;
-#endif
+	    inTitleChange = TRUE;
+	    if ( !!d->topTitle )
+		topLevelWidget()->setWindowTitle( d->topTitle );
+	    inTitleChange = FALSE;
 	} else {
 	    if ( c->iconw )
 		removeIcon( c->iconw->parentWidget() );
@@ -858,13 +849,11 @@ void QWorkspace::maximizeWindow( QWidget* w)
 	    if ( c->titlebar )
 		c->titlebar->setMovable( FALSE );
 	}
-#ifndef QT_NO_WIDGET_TOPEXTRA
-	inCaptionChange = TRUE;
-	if ( !!d->topCaption )
-	    topLevelWidget()->setWindowCaption( tr("%1 - [%2]")
-		.arg(d->topCaption).arg(c->windowCaption()) );
-	inCaptionChange = FALSE;
-#endif
+	inTitleChange = TRUE;
+	if ( !!d->topTitle )
+	    topLevelWidget()->setWindowTitle( tr("%1 - [%2]")
+		.arg(d->topTitle).arg(c->windowTitle()) );
+	inTitleChange = FALSE;
 	setUpdatesEnabled( TRUE );
 
 	updateWorkspace();
@@ -1005,12 +994,10 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e )
 		} else {
 		    hideMaximizeControls();
 		}
-#ifndef QT_NO_WIDGET_TOPEXTRA
-		inCaptionChange = TRUE;
-		if ( !!d->topCaption )
-		    topLevelWidget()->setWindowCaption( d->topCaption );
-		inCaptionChange = FALSE;
-#endif
+		inTitleChange = TRUE;
+		if ( !!d->topTitle )
+		    topLevelWidget()->setWindowTitle( d->topTitle );
+		inTitleChange = FALSE;
 	    }
 	}
 	break;
@@ -1019,24 +1006,22 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e )
 	    d->focus.append( (QWorkspaceChild*)o );
 	updateWorkspace();
 	break;
-    case QEvent::CaptionChange:
-	if ( inCaptionChange )
+    case QEvent::WindowTitleChange:
+	if ( inTitleChange )
 	    break;
 
-#ifndef QT_NO_WIDGET_TOPEXTRA
-	inCaptionChange = TRUE;
+	inTitleChange = TRUE;
 	if ( o == topLevelWidget() ) {
 	    QWidget *tlw = (QWidget*)o;
 	    if ( !d->maxWindow
-		|| tlw->windowCaption() != tr("%1 - [%2]").arg(d->topCaption).arg(d->maxWindow->windowCaption()) )
-		d->topCaption = tlw->windowCaption();
+		|| tlw->windowTitle() != tr("%1 - [%2]").arg(d->topTitle).arg(d->maxWindow->windowTitle()) )
+		d->topTitle = tlw->windowTitle();
 	}
 
-	if ( d->maxWindow && !!d->topCaption )
-	    topLevelWidget()->setWindowCaption( tr("%1 - [%2]")
-		.arg(d->topCaption).arg(d->maxWindow->windowCaption()));
-	inCaptionChange = FALSE;
-#endif
+	if ( d->maxWindow && !!d->topTitle )
+	    topLevelWidget()->setWindowTitle( tr("%1 - [%2]")
+		.arg(d->topTitle).arg(d->maxWindow->windowTitle()));
+	inTitleChange = FALSE;
 
 	break;
     case QEvent::Close:
@@ -1143,9 +1128,8 @@ void QWorkspace::showMaximizeControls()
 	    d->maxtools = new QLabel( topLevelWidget(), "qt_maxtools" );
 	    d->maxtools->installEventFilter( this );
 	}
-#ifndef QT_NO_WIDGET_TOPEXTRA
-	if ( d->active->windowWidget() && d->active->windowWidget()->windowIcon() ) {
-	    QPixmap pm(*d->active->windowWidget()->windowIcon());
+	if ( d->active->windowWidget() && !!d->active->windowWidget()->windowIcon() ) {
+	    QPixmap pm(d->active->windowWidget()->windowIcon());
 	    if(pm.width() != 14 || pm.height() != 14) {
 		QImage im;
 		im = pm;
@@ -1153,7 +1137,6 @@ void QWorkspace::showMaximizeControls()
 	    }
 	    d->maxtools->setPixmap( pm );
 	} else
-#endif
 	{
 	    QPixmap pm(14,14);
 	    pm.fill( white );
@@ -1664,14 +1647,12 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     if (!childWidget)
 	return;
 
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    setWindowCaption( childWidget->windowCaption() );
-#endif
+    setWindowTitle( childWidget->windowTitle() );
 
     QPoint p;
     QSize s;
     QSize cs;
-    
+
     bool hasBeenResized = childWidget->testAttribute(WA_Resized);
 
     if ( !hasBeenResized )
@@ -1681,10 +1662,9 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 
     int th = titlebar ? titlebar->sizeHint().height() : 0;
     if ( titlebar ) {
-#ifndef QT_NO_WIDGET_TOPEXTRA
 	int iconSize = th - frameWidth() * 2;
-	if( childWidget->windowIcon() ) {
-	    QPixmap pm(*childWidget->windowIcon());
+	if( !!childWidget->windowIcon() ) {
+	    QPixmap pm(childWidget->windowIcon());
 	    if(pm.width() != iconSize || pm.height() != iconSize) {
 		QImage im;
 		im = pm;
@@ -1692,7 +1672,6 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 	    }
 	    titlebar->setWindowIcon( pm );
 	}
-#endif
 	if ( !style().styleHint( QStyle::SH_TitleBar_NoBorder, titlebar ) )
 	    th += frameWidth();
 	else
@@ -1864,12 +1843,10 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	}
 	    hide();
     } break;
-    case QEvent::CaptionChange:
-#ifndef QT_NO_WIDGET_TOPEXTRA
-	setWindowCaption( childWidget->windowCaption() );
+    case QEvent::WindowTitleChange:
+	setWindowTitle( childWidget->windowTitle() );
 	if ( iconw )
-	    iconw->setWindowCaption( childWidget->windowCaption() );
-#endif
+	    iconw->setWindowTitle( childWidget->windowTitle() );
 	break;
     case QEvent::IconChange:
 	{
@@ -1879,16 +1856,14 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 
 	    QPixmap pm;
 	    int iconSize = titlebar->size().height() - frameWidth() * 2;
-#ifndef QT_NO_WIDGET_TOPEXTRA
-	    if ( childWidget->windowIcon() ) {
-		pm = *childWidget->windowIcon();
+	    if ( !!childWidget->windowIcon() ) {
+		pm = childWidget->windowIcon();
 		if(pm.width() != iconSize || pm.height() != iconSize) {
 		    QImage im;
 		    im = pm;
 		    pm = im.smoothScale( iconSize, iconSize );
 		}
 	    } else
-#endif
 	    {
 		pm.resize( iconSize, iconSize );
 		pm.fill( white );
@@ -2122,13 +2097,12 @@ QWidget* QWorkspaceChild::iconWidget() const
 	connect( iconw, SIGNAL( doubleClicked() ),
 		 this, SLOT( titleBarDoubleClicked() ) );
     }
-#ifndef QT_NO_WIDGET_TOPEXTRA
     if ( windowWidget() ) {
-	iconw->setWindowCaption( windowWidget()->windowCaption() );
-	if ( windowWidget()->windowIcon() ) {
+	iconw->setWindowTitle( windowWidget()->windowTitle() );
+	if ( !!windowWidget()->windowIcon() ) {
 	    int iconSize = iconw->sizeHint().height() - frameWidth()*2;
 
-	    QPixmap pm(*childWidget->windowIcon());
+	    QPixmap pm(childWidget->windowIcon());
 	    if(pm.width() != iconSize || pm.height() != iconSize) {
 		QImage im;
 		im = pm;
@@ -2137,7 +2111,6 @@ QWidget* QWorkspaceChild::iconWidget() const
 	    iconw->setWindowIcon( pm );
 	}
     }
-#endif
     return iconw->parentWidget();
 }
 
@@ -2230,13 +2203,11 @@ void QWorkspaceChild::adjustSize()
     resize( prefSize );
 }
 
-void QWorkspaceChild::setWindowCaption( const QString& cap )
+void QWorkspaceChild::setWindowTitle( const QString& cap )
 {
     if ( titlebar )
-	titlebar->setWindowCaption( cap );
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    QWidget::setWindowCaption( cap );
-#endif
+	titlebar->setWindowTitle( cap );
+    QWidget::setWindowTitle( cap );
 }
 
 void QWorkspaceChild::internalRaise()

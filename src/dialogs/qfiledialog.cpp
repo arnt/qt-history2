@@ -825,9 +825,7 @@ private:
 QFDProgressDialog::QFDProgressDialog( QWidget *parent, const QString &fn, int steps )
     : QDialog( parent, "", TRUE )
 {
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    setWindowCaption( QFileDialog::tr( "Copy or Move a File" ) );
-#endif
+    setWindowTitle( QFileDialog::tr( "Copy or Move a File" ) );
     QVBoxLayout *layout = new QVBoxLayout( this );
     layout->setSpacing( 5 );
     layout->setMargin( 5 );
@@ -3403,12 +3401,10 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name ? name : "qt_filedlg_gofn", TRUE );
 
-#ifndef QT_NO_WIDGET_TOPEXTRA
     if ( !caption.isNull() )
-	dlg->setWindowCaption( caption );
+	dlg->setWindowTitle( caption );
     else
-	dlg->setWindowCaption( QFileDialog::tr( "Open" ) );
-#endif
+	dlg->setWindowTitle( QFileDialog::tr( "Open" ) );
 
     dlg->setFilters( filters );
     if ( selectedFilter )
@@ -3521,12 +3517,10 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name ? name : "qt_filedlg_gsfn", TRUE );
 
-#ifndef QT_NO_WIDGET_TOPEXTRA
     if ( !caption.isNull() )
-	dlg->setWindowCaption( caption );
+	dlg->setWindowTitle( caption );
     else
-	dlg->setWindowCaption( QFileDialog::tr( "Save As" ) );
-#endif
+	dlg->setWindowTitle( QFileDialog::tr( "Save As" ) );
 
     QString result;
     dlg->setFilters( filters );
@@ -4408,12 +4402,10 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 
     QFileDialog *dlg = new QFileDialog( parent, name ? name : "qt_filedlg_ged", TRUE );
 
-#ifndef QT_NO_WIDGET_TOPEXTRA
     if ( !caption.isNull() )
-	dlg->setWindowCaption( caption );
+	dlg->setWindowTitle( caption );
     else
-	dlg->setWindowCaption( QFileDialog::tr("Find Directory") );
-#endif
+	dlg->setWindowTitle( QFileDialog::tr("Find Directory") );
 
     dlg->setMode( dirOnly ? DirectoryOnly : Directory );
 
@@ -5546,12 +5538,10 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name ? name : "qt_filedlg_gofns", TRUE );
 
-#ifndef QT_NO_WIDGET_TOPEXTRA
     if ( !caption.isNull() )
-	dlg->setWindowCaption( caption );
+	dlg->setWindowTitle( caption );
     else
-	dlg->setWindowCaption( QFileDialog::tr("Open") );
-#endif
+	dlg->setWindowTitle( QFileDialog::tr("Open") );
 
     dlg->setFilters( filters );
     if ( selectedFilter )

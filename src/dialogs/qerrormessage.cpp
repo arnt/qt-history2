@@ -201,7 +201,7 @@ QErrorMessage * QErrorMessage::qtHandler()
 	qAddPostRoutine( deleteStaticcQErrorMessage ); // clean up
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	if ( qApp->mainWidget() )
-	    qtMessageHandler->setWindowCaption( qApp->mainWidget()->windowCaption() );
+	    qtMessageHandler->setWindowTitle( qApp->mainWidget()->windowTitle() );
 #endif
 	qInstallMsgHandler( jump );
     }

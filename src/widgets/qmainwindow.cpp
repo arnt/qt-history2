@@ -458,8 +458,8 @@ void QHideToolTip::maybeTip( const QPoint &pos )
 	    continue;
 	if ( pos.x() >= x && pos.x() <= x + 30 ) {
 	    QDockWindow *dw = (QDockWindow*)o;
-	    if ( !dw->windowCaption().isEmpty() )
-		tip( QRect( x, 0, 30, dock->height() ), dw->windowCaption() );
+	    if ( !dw->windowTitle().isEmpty() )
+		tip( QRect( x, 0, 30, dock->height() ), dw->windowTitle() );
 	    return;
 	}
 	x += 30;
@@ -492,7 +492,7 @@ void QHideToolTip::maybeTip( const QPoint &pos )
     QMainWindow *mw = new QMainWindow;
     QTextEdit *edit = new QTextEdit( mw, "editor" );
     edit->setFocus();
-    mw->setWindowCaption( "Main Window" );
+    mw->setWindowTitle( "Main Window" );
     mw->setCentralWidget( edit );
     mw->show();
     \endcode
@@ -663,7 +663,7 @@ void QHideToolTip::maybeTip( const QPoint &pos )
     a minimized dock window by clicking the dock window handle. If the
     user hovers the mouse cursor over one of the handles, the caption of
     the dock window is displayed in a tool tip (see
-    QDockWindow::windowCaption() or QToolBar::label()), so if you enable the
+    QDockWindow::windowTitle() or QToolBar::label()), so if you enable the
     \c Minimized dock area, it is best to specify a meaningful caption
     or label for each dock window. To minimize a dock window
     programmatically use moveDockWindow() with an edge of \c Minimized.
@@ -2119,7 +2119,7 @@ void QMainWindow::menuAboutToShow()
 		QDockWindow *dw = (QDockWindow*)l.at(i);
 		if ( !appropriate( dw ) || qt_cast<QToolBar*>(dw) || !dockMainWindow( dw ) )
 		    continue;
-		QString label = dw->windowCaption();
+		QString label = dw->windowTitle();
 		if ( !label.isEmpty() ) {
 		    int id = menu->insertItem( label, dw, SLOT( toggleVisible() ) );
 		    menu->setItemChecked( id, dw->isVisible() );
@@ -2363,7 +2363,7 @@ static void saveDockArea( QTextStream &ts, QDockArea *a )
 {
     QPtrList<QDockWindow> l = a->dockWindowList();
     for ( QDockWindow *dw = l.first(); dw; dw = l.next() ) {
-	ts << QString( dw->windowCaption() );
+	ts << QString( dw->windowTitle() );
 	ts << ",";
     }
     ts << endl;
@@ -2388,19 +2388,19 @@ QTextStream &operator<<( QTextStream &ts, const QMainWindow &mainWindow )
     QPtrList<QDockWindow> l = mainWindow.dockWindows( Qt::DockMinimized );
     QDockWindow *dw = 0;
     for ( dw = l.first(); dw; dw = l.next() ) {
-	ts << dw->windowCaption();
+	ts << dw->windowTitle();
 	ts << ",";
     }
     ts << endl;
 
     l = mainWindow.dockWindows( Qt::DockTornOff );
     for ( dw = l.first(); dw; dw = l.next() ) {
-	ts << dw->windowCaption();
+	ts << dw->windowTitle();
 	ts << ",";
     }
     ts << endl;
     for ( dw = l.first(); dw; dw = l.next() ) {
-	ts << "[" << dw->windowCaption() << ","
+	ts << "[" << dw->windowTitle() << ","
 	   << (int)dw->geometry().x() << ","
 	   << (int)dw->geometry().y() << ","
 	   << (int)dw->geometry().width() << ","
@@ -2420,7 +2420,7 @@ static void loadDockArea( const QStringList &names, QDockArea *a, Qt::Dock d, QP
 {
     for ( QStringList::ConstIterator it = names.begin(); it != names.end(); ++it ) {
 	for ( QDockWindow *dw = l.first(); dw; dw = l.next() ) {
-	    if ( dw->windowCaption() == *it ) {
+	    if ( dw->windowTitle() == *it ) {
 		mw->addDockWindow( dw, d );
 		break;
 	    }
@@ -2447,7 +2447,7 @@ static void loadDockArea( const QStringList &names, QDockArea *a, Qt::Dock d, QP
 	    }
 	    if ( state == Visible && c == ']' ) {
 		for ( QDockWindow *dw = l.first(); dw; dw = l.next() ) {
-		    if ( QString( dw->windowCaption() ) == name ) {
+		    if ( QString( dw->windowTitle() ) == name ) {
 			if ( !qt_cast<QToolBar*>(dw) )
 			    dw->setGeometry( x.toInt(), y.toInt(), w.toInt(), h.toInt() );
 			else

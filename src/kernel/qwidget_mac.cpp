@@ -211,7 +211,7 @@ bool qt_mac_update_sizer(QWidget *w, int up=0)
 	    return TRUE;
     }
     bool remove_grip = (w->d->extraData()->topextra->resizer ||
-			(w->d->extraData()->maxw && w->d->extraData()->maxh && 
+			(w->d->extraData()->maxw && w->d->extraData()->maxh &&
 			 w->d->extraData()->maxw == w->d->extraData()->minw && w->d->extraData()->maxh == w->d->extraData()->minh));
 
     WindowAttributes attr;
@@ -1067,7 +1067,7 @@ void QWidget::reparent_helper(QWidget *parent, WFlags f, const QPoint &p, bool s
     setAcceptDrops(dropable);
     if(!capt.isNull()) {
 	d->topData()->caption = QString::null;
-	setWindowCaption(capt);
+	setWindowTitle(capt);
     }
     if(showIt)
 	show();
@@ -1229,7 +1229,7 @@ bool QWidget::isWindowModified() const
     return testAttribute(WA_WindowModified);
 }
 
-void QWidget::setWindowCaption(const QString &cap)
+void QWidget::setWindowTitle(const QString &cap)
 {
     if(d->topData() && d->topData()->caption == cap)
 	return; // for less flicker
@@ -1239,7 +1239,7 @@ void QWidget::setWindowCaption(const QString &cap)
 	CFStringRef str = CFStringCreateWithCharacters(0, (UniChar *)cap.unicode(), cap.length());
 	SetWindowTitleWithCFString((WindowPtr)hd, str);
     }
-    QEvent e(QEvent::CaptionChange);
+    QEvent e(QEvent::WindowTitleChange);
     QApplication::sendEvent(this, &e);
 }
 
@@ -1278,7 +1278,7 @@ void QWidget::setWindowIcon(const QPixmap &pixmap)
 	}
 	SetWindowProxyIcon((WindowRef)handle(), qt_mac_create_iconref(pixmap));
     } 
-    QEvent e( QEvent::IconChange );
+    QEvent e( QEvent::WindowIconChange );
     QApplication::sendEvent( this, &e );
 }
 
@@ -1543,7 +1543,7 @@ void QWidget::setWindowState(uint newstate)
 
     bool needShow = FALSE;
     if (isTopLevel()) {
-	if ((oldstate & WindowMinimized) != (newstate & WindowMinimized)) 
+	if ((oldstate & WindowMinimized) != (newstate & WindowMinimized))
 	    CollapseWindow((WindowPtr)hd, (newstate & WindowMinimized) ? TRUE : FALSE);
 
 	if ((oldstate & WindowFullScreen) != (newstate & WindowFullScreen)) {

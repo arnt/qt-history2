@@ -525,7 +525,7 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
     The \a parent, \a name, \a modal, and \a f arguments are passed to
     the QDialog constructor.
 
-    \sa setWindowCaption(), setText(), setIcon()
+    \sa setWindowTitle(), setText(), setIcon()
 */
 
 QMessageBox::QMessageBox( const QString& caption,
@@ -537,7 +537,7 @@ QMessageBox::QMessageBox( const QString& caption,
 {
     init( button0, button1, button2 );
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    setWindowCaption( caption );
+    setWindowTitle( caption );
 #endif
     setText( text );
     setIcon( icon );
@@ -1499,7 +1499,7 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
     QString c = caption;
     if ( c.isEmpty() )
         c = tr( "About Qt" );
-    mb->setWindowCaption( c );
+    mb->setWindowTitle( c );
 #endif
     mb->setText( *translatedTextAboutQt );
 #ifndef QT_NO_IMAGEIO

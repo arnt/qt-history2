@@ -1525,11 +1525,7 @@ QPalette QApplication::palette(const QWidget* w)
 }
 
 /*!
-  Changes the default application palette to \a palette. If \a
-  informWidgets is TRUE, then existing widgets are informed about the
-  change and may adjust themselves to the new application
-  setting. If \a informWidgets is FALSE, the change only affects newly
-  created widgets.
+  Changes the default application palette to \a palette.
 
   If \a className is passed, the change applies only to widgets that
   inherit \a className (as reported by QObject::inherits()). If
@@ -1542,8 +1538,7 @@ QPalette QApplication::palette(const QWidget* w)
   \sa QWidget::setPalette(), palette(), QStyle::polish()
 */
 
-void QApplication::setPalette( const QPalette &palette, bool informWidgets,
-			       const char* className )
+void QApplication::setPalette( const QPalette &palette, const char* className )
 {
     QPalette pal = palette;
     QPalette *oldpal = 0;
@@ -1570,7 +1565,7 @@ void QApplication::setPalette( const QPalette &palette, bool informWidgets,
 	oldpal = app_palettes->find( className );
 	app_palettes->insert( className, new QPalette( pal ) );
     }
-    if ( informWidgets && is_app_running && !is_app_closing ) {
+    if ( is_app_running && !is_app_closing ) {
 	if ( !oldpal || ( *oldpal != pal ) ) {
 	    QEvent e( QEvent::ApplicationPaletteChange );
 	    for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
@@ -1611,13 +1606,9 @@ QFont QApplication::font( const QWidget *w )
     return *app_font;
 }
 
-/*! Changes the default application font to \a font. If \a
-  informWidgets is TRUE, then existing widgets are informed about the
-  change and may adjust themselves to the new application
-  setting. If \a informWidgets is FALSE, the change only affects newly
-  created widgets. If \a className is passed, the change applies only
-  to classes that inherit \a className (as reported by
-  QObject::inherits()).
+/*! Changes the default application font to \a font.  If \a className
+  is passed, the change applies only to classes that inherit \a
+  className (as reported by QObject::inherits()).
 
   On application start-up, the default font depends on the window
   system. It can vary depending on both the window system version and
@@ -1628,8 +1619,7 @@ QFont QApplication::font( const QWidget *w )
   \sa font(), fontMetrics(), QWidget::setFont()
 */
 
-void QApplication::setFont( const QFont &font, bool informWidgets,
-			    const char* className )
+void QApplication::setFont( const QFont &font, const char* className )
 {
     bool all = FALSE;
     if ( !className ) {
@@ -1650,7 +1640,7 @@ void QApplication::setFont( const QFont &font, bool informWidgets,
 	QFont* fnt = new QFont(font);
 	app_fonts->insert(className, fnt);
     }
-    if ( informWidgets && is_app_running && !is_app_closing ) {
+    if ( is_app_running && !is_app_closing ) {
 	QEvent e( QEvent::ApplicationFontChange );
 	for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
 	    register QWidget *w = *it;

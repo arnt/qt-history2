@@ -829,7 +829,7 @@ void QWidget::reparent_helper( QWidget *parent, WFlags f, const QPoint &p, bool 
     bool     enable = isEnabled();		// remember status
     FocusPolicy fp = focusPolicy();
     QSize    s	    = size();
-    QString capt = windowCaption();
+    QString capt = windowTitle();
     widget_flags = f;
     clearWState(WState_Created | WState_Visible | WState_Hidden | WState_ExplicitShowHide);
     create();
@@ -870,7 +870,7 @@ void QWidget::reparent_helper( QWidget *parent, WFlags f, const QPoint &p, bool 
     setFocusPolicy( fp );
     if ( !capt.isNull() ) {
 	d->extra->topextra->caption = QString::null;
-	setWindowCaption( capt );
+	setWindowTitle( capt );
     }
     if ( showIt )
 	show();
@@ -1087,9 +1087,9 @@ bool QWidget::isWindowModified() const
     return testAttribute(WA_WindowModified);
 }
 
-void QWidget::setWindowCaption( const QString &caption )
+void QWidget::setWindowTitle( const QString &caption )
 {
-    if ( QWidget::windowCaption() == caption )
+    if ( QWidget::windowTitle() == caption )
 	return;
 
     d->topData()->caption = caption;
@@ -1100,7 +1100,7 @@ void QWidget::setWindowCaption( const QString &caption )
 		    PropModeReplace, (unsigned char *)net_wm_name.data(),
 		    net_wm_name.length());
 
-    QEvent e( QEvent::CaptionChange );
+    QEvent e( QEvent::WindowTitleChange );
     QApplication::sendEvent( this, &e );
 }
 
@@ -1136,7 +1136,7 @@ void QWidget::setWindowIcon( const QPixmap &pixmap )
     XSetWMHints( x11Display(), winId(), h );
     if ( got_hints )
 	XFree( (char *)h );
-    QEvent e( QEvent::IconChange );
+    QEvent e( QEvent::WindowIconChange );
     QApplication::sendEvent( this, &e );
 }
 

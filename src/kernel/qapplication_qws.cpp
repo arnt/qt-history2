@@ -1207,7 +1207,7 @@ QWSQCopMessageEvent* QWSDisplay::waitForQCopResponse()
 #endif
 
 
-void QWSDisplay::setWindowCaption( QWidget *w, const QString &c )
+void QWSDisplay::setWindowTitle( QWidget *w, const QString &c )
 {
     if ( w->isTopLevel() ) {
 	nameRegion( w->winId(), w->name(), c );
@@ -1915,7 +1915,7 @@ QWidget *QApplication::findChildWidget( const QWidget *p, const QPoint &pos )
     return findWidget( p->children(), pos, true );
 }
 
-QWidget *QApplication::widgetAt( int x, int y, bool child )
+QWidget *QApplication::widgetAt( int x, int y )
 {
     // XXX not a fast function...
     QWidgetList list = topLevelWidgets();
@@ -1927,8 +1927,6 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 	if ( w != QApplication::desktop() &&
 	     w->isVisible() && w->geometry().contains(pos)
 	     && w->allocatedRegion().contains( qt_screen->mapToDevice( w->mapToGlobal(w->mapFromParent(pos)), QSize(qt_screen->width(), qt_screen->height()) ) ) ) {
-	    if ( !child )
-		return w;
 	    QWidget *c = findChildWidget( w, w->mapFromParent(pos) );
 	    return c ? c  : w;
 	}

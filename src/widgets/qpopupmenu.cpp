@@ -1026,7 +1026,7 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 		maxPMWidth = qMax( maxPMWidth,
 				   mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4 );
 	}
-	
+
 	int dh = QApplication::desktop()->height();
 	ncols = 1;
 	for ( QMenuItemListIt it2( *mitems ); it2.current(); ++it2 ) {
@@ -1054,7 +1054,7 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 			    w += s.width();
 			}
 		    }
-		    
+
 		    w += maxPMWidth;
 
 		    if (! mi->text().isNull()) {
@@ -1083,7 +1083,7 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 			w = itemHeight = 2;
 		    }
 		}
-		
+
 		QSize sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
 						    QSize(w, itemHeight),
 						    QStyleOption(mi,maxPMWidth));
@@ -1119,15 +1119,15 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 	}
 	if( ncols == 1 && !max_height )
 	    max_height = height;
-	
+
 	if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this))
 	    setMouseTracking(TRUE);
-	
+
 	if ( tab )
 	    tab -= fontMetrics().minRightBearing();
 	else
 	    max_width -= fontMetrics().minRightBearing();
-	
+
 	if ( max_width + tab < maxWidgetWidth )
 	    max_width = maxWidgetWidth - tab;
 
@@ -1174,7 +1174,7 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 		sz = sz.expandedTo(QSize(itemw, sz.height()));
 		itemw = sz.width();
 		itemh = sz.height();
-		
+
 		if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
 		    y = contentsRect().y();
 		    x +=itemw;
@@ -1476,7 +1476,7 @@ void QPopupMenu::drawContents( QPainter* p )
     QStyle::SFlags flags;
     while ( (mi=it.current()) ) {
 	if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown &&
-	   y >= contentsRect().height() - style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this)) 
+	   y >= contentsRect().height() - style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this))
 	    break;
 	++it;
 	if ( !mi->isVisible() ) {
@@ -2505,7 +2505,7 @@ QSize QPopupMenu::sizeHint() const
 {
     constPolish();
     if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this))
-	return minimumSize(); //can be any size.. 
+	return minimumSize(); //can be any size..
 
     QPopupMenu* that = (QPopupMenu*) this;
     //We do not need a resize here, just the sizeHint..
@@ -2660,7 +2660,7 @@ void QPopupMenu::toggleTearOff()
 	QPopupMenu* p = new QPopupMenu( parentWidget(), "tear off menu" );
 	connect( p, SIGNAL( activated(int) ), this, SIGNAL( activated(int) ) );
 #ifndef QT_NO_WIDGET_TOPEXTRA
-	p->setWindowCaption( windowCaption() );
+	p->setWindowTitle( windowTitle() );
 #endif
 	p->setCheckable( isCheckable() );
 	p->reparent( parentWidget(), WType_TopLevel | WStyle_Tool |
@@ -2782,7 +2782,7 @@ QPopupMenu::updateScrollerState()
 	}
 	y += sz.height();
     }
-    if((d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp) && 
+    if((d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp) &&
        !(old_scrollable & QPopupMenuPrivate::Scroll::ScrollUp))
 	d->scroll.topScrollableIndex++;
 }

@@ -1334,7 +1334,7 @@ bool QPrintDialog::getPrinterSetup( QPrinter * p, QWidget* w  )
     if ( !globalPrintDialog ) {
 	globalPrintDialog = new QPrintDialog( 0, 0, "global print dialog" );
 #ifndef QT_NO_WIDGET_TOPEXTRA
-	globalPrintDialog->setWindowCaption( QPrintDialog::tr( "Setup Printer" ) );
+	globalPrintDialog->setWindowTitle( QPrintDialog::tr( "Setup Printer" ) );
 #endif
 	qAddPostRoutine( qpd_cleanup_globaldialog );
 	globalPrintDialog->setPrinter( p, TRUE );
@@ -1343,19 +1343,18 @@ bool QPrintDialog::getPrinterSetup( QPrinter * p, QWidget* w  )
 	globalPrintDialog->setPrinter( p, TRUE );
     }
     globalPrintDialog->adjustPosition( w );
- #ifndef QT_NO_WIDGET_TOPEXTRA
     if ( w ) {
-	const QPixmap *pm = w->windowIcon();
-	if ( pm && !pm->isNull() )
-	    globalPrintDialog->setWindowIcon( *pm );
+	QPixmap pm = w->windowIcon();
+	if ( !pm.isNull() )
+	    globalPrintDialog->setWindowIcon( pm );
 	else {
 	    w = w ? w->topLevelWidget() : 0;
-	    pm = w ? w->windowIcon() : 0;
-	    if ( pm && !pm->isNull() )
-		globalPrintDialog->setWindowIcon( *pm );
+	    if (w)
+		pm = w->windowIcon();
+	    if ( !pm.isNull() )
+		globalPrintDialog->setWindowIcon( pm );
 	}
     }
-#endif
    bool r = globalPrintDialog->exec() == QDialog::Accepted;
     globalPrintDialog->setPrinter( 0 );
     return r;

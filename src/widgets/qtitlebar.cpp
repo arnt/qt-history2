@@ -96,12 +96,11 @@ public:
 		break;
 	    }
 	}
-#ifndef QT_NO_WIDGET_TOPEXTRA
+
 	if ( tipstring.isEmpty() ) {
-	    if ( t->visibleText() != t->windowCaption() )
-		tipstring = t->windowCaption();
+	    if ( t->visibleText() != t->windowTitle() )
+		tipstring = t->windowTitle();
 	}
-#endif
 	if(!tipstring.isEmpty())
 	    tip( QRect(pos, controlSize), tipstring );
     }
@@ -125,9 +124,6 @@ public:
     bool pressed            :1;
     bool autoraise          :1;
     QString cuttext;
-#ifdef QT_NO_WIDGET_TOPEXTRA
-    QString cap;
-#endif
 };
 
 QTitleBar::QTitleBar(QWidget* w, QWidget* parent, const char* name)
@@ -145,9 +141,7 @@ QTitleBar::QTitleBar(QWidget* w, QWidget* parent, const char* name)
 	setWFlags( ((QTitleBar*)w)->getWFlags() );
 	if ( w->minimumSize() == w->maximumSize() )
 	    clearWFlags( WStyle_Maximize );
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    	setWindowCaption( w->windowCaption() );
-#endif
+    	setWindowTitle( w->windowTitle() );
     } else {
 	setWFlags( WStyle_Customize );
     }
@@ -493,14 +487,6 @@ void QTitleBar::mouseDoubleClickEvent( QMouseEvent *e )
     }
 }
 
-#ifdef QT_NO_WIDGET_TOPEXTRA
-// We provide one, since title bar is useless otherwise.
-QString QTitleBar::windowCaption() const
-{
-    return d->cap;
-}
-#endif
-
 void QTitleBar::cutText()
 {
     QFontMetrics fm( font() );
@@ -509,7 +495,7 @@ void QTitleBar::cutText()
 					      QStyle::SC_TitleBarLabel).width();
     if ( !d->window )
 	maxw = width() - 20;
-    const QString txt = windowCaption();
+    const QString txt = windowTitle();
     d->cuttext = txt;
     if ( fm.width( txt + "m" ) > maxw ) {
 	int i = txt.length();
@@ -521,52 +507,6 @@ void QTitleBar::cutText()
     }
 }
 
-void QTitleBar::setWindowCaption( const QString& title )
-{
-    if( windowCaption() == title)
-	return;
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    QWidget::setWindowCaption( title );
-#else
-    d->cap = title;
-#endif
-    cutText();
-
-    update();
-}
-
-
-void QTitleBar::setWindowIcon( const QPixmap& icon )
-{
-#ifndef QT_NO_WIDGET_TOPEXTRA
-#ifndef QT_NO_IMAGE_SMOOTHSCALE
-    QRect menur = style().querySubControlMetrics(QStyle::CC_TitleBar, this,
-						  QStyle::SC_TitleBarSysMenu);
-
-    QPixmap theIcon;
-    if (icon.width() > menur.width()) {
-	// try to keep something close to the same aspect
-	int aspect = (icon.height() * 100) / icon.width();
-	int newh = (aspect * menur.width()) / 100;
-	theIcon.convertFromImage( icon.convertToImage().smoothScale(menur.width(),
-								   newh) );
-    } else if (icon.height() > menur.height()) {
-	// try to keep something close to the same aspect
-	int aspect = (icon.width() * 100) / icon.height();
-	int neww = (aspect * menur.height()) / 100;
-	theIcon.convertFromImage( icon.convertToImage().smoothScale(neww,
-								   menur.height()) );
-    } else
-	theIcon = icon;
-
-    QWidget::setWindowIcon( theIcon );
-#else
-    QWidget::setWindowIcon( icon );
-#endif
-
-    update();
-#endif
-}
 
 void QTitleBar::leaveEvent( QEvent * )
 {
@@ -623,6 +563,32 @@ bool QTitleBar::event( QEvent* e )
 	bool wasActive = d->act;
 	setActive( FALSE );
 	d->act = wasActive;
+    } else if ( e->type() == QEvent::WindowIconChange ) {
+#ifndef QT_NO_IMAGE_SMOOTHSCALE
+	QRect menur = style().querySubControlMetrics(QStyle::CC_TitleBar, this,
+						     QStyle::SC_TitleBarSysMenu);
+	QPixmap icon = windowIcon();
+	if (icon.width() > menur.width()) {
+	    // try to keep something close to the same aspect
+	    int aspect = (icon.height() * 100) / icon.width();
+	    int newh = (aspect * menur.width()) / 100;
+	    icon.convertFromImage( icon.convertToImage().smoothScale(menur.width(),
+								     newh) );
+	    QWidget::setWindowIcon( icon );
+	} else if (icon.height() > menur.height()) {
+	    // try to keep something close to the same aspect
+	    int aspect = (icon.width() * 100) / icon.height();
+	    int neww = (aspect * menur.height()) / 100;
+	    icon.convertFromImage( icon.convertToImage().smoothScale(neww,
+								     menur.height()) );
+	    QWidget::setWindowIcon( icon );
+	}
+
+#endif
+	update();
+    } else if ( e->type() == QEvent::WindowTitleChange ) {
+	cutText();
+	update();
     }
 
     return QWidget::event( e );

@@ -1059,7 +1059,7 @@ QWidget *qt_recursive_match(QWidget *widg, int x, int y)
     return widg;
 }
 
-QWidget *QApplication::widgetAt(int x, int y, bool child)
+QWidget *QApplication::widgetAt(int x, int y)
 {
     //find the tld
     QWidget *widget;
@@ -1068,10 +1068,8 @@ QWidget *QApplication::widgetAt(int x, int y, bool child)
 	return 0;
 
     //find the child
-    if(child) {
-	QPoint p = widget->mapFromGlobal(QPoint(x, y));
-	widget = qt_recursive_match(widget, p.x(), p.y());
-    }
+    QPoint p = widget->mapFromGlobal(QPoint(x, y));
+    widget = qt_recursive_match(widget, p.x(), p.y());
     return widget;
 }
 
@@ -1981,7 +1979,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		int macButton = button;
 		static bool macButtonModified = false;
 		if(ekind == kEventMouseDown &&
-		   button == QMouseEvent::LeftButton && 
+		   button == QMouseEvent::LeftButton &&
 		   (modifiers & controlKey)) {
 		    macButton = QMouseEvent::RightButton;
 		    macButtonModified = true;

@@ -20,6 +20,7 @@
 #include "qobject.h"
 #include "qpaintdevice.h"
 #include "qpalette.h"
+#include "qpixmap.h" // ###remove me again when windowIcon returns const QPixmap&
 #include "qfont.h"
 #include "qfontmetrics.h"
 #include "qfontinfo.h"
@@ -96,12 +97,6 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
 #ifndef QT_NO_CURSOR
     Q_PROPERTY( QCursor cursor READ cursor WRITE setCursor RESET unsetCursor )
 #endif
-    Q_PROPERTY( bool modified READ isWindowModified WRITE setWindowModified )
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    Q_PROPERTY( QString caption READ windowCaption WRITE setWindowCaption )
-    Q_PROPERTY( QPixmap icon READ windowIcon WRITE setWindowIcon )
-    Q_PROPERTY( QString iconText READ windowIconText WRITE setWindowIconText )
-#endif
     Q_PROPERTY( bool mouseTracking READ hasMouseTracking WRITE setMouseTracking )
     Q_PROPERTY( bool isActiveWindow READ isActiveWindow )
     Q_PROPERTY( bool focusEnabled READ isFocusEnabled )
@@ -122,7 +117,11 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( bool autoMask READ autoMask WRITE setAutoMask DESIGNABLE false SCRIPTABLE false )
     Q_PROPERTY( bool customWhatsThis READ customWhatsThis )
     Q_PROPERTY( bool inputMethodEnabled READ isInputMethodEnabled WRITE setInputMethodEnabled DESIGNABLE false SCRIPTABLE false )
-    Q_PROPERTY( double windowTransparency READ windowTransparency WRITE setWindowTransparency DESIGNABLE false )
+    Q_PROPERTY( QString windowTitle READ windowTitle WRITE setWindowTitle DESIGNABLE isTopLevel )
+    Q_PROPERTY( QPixmap windowIcon READ windowIcon WRITE setWindowIcon DESIGNABLE isTopLevel )
+    Q_PROPERTY( QString windowIconText READ windowIconText WRITE setWindowIconText DESIGNABLE isTopLevel )
+    Q_PROPERTY( double windowTransparency READ windowTransparency WRITE setWindowTransparency DESIGNABLE false)
+    Q_PROPERTY( bool windowModified READ isWindowModified WRITE setWindowModified DESIGNABLE isTopLevel)
 
 public:
     explicit QWidget( QWidget* parent=0, const char* name=0, WFlags f=0 );
@@ -230,17 +229,6 @@ public:
     void unsetCursor();
 #endif
 
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    QString		windowCaption() const;
-    const QPixmap      *windowIcon() const;
-    QString		windowIconText() const;
-# ifndef QT_NO_COMPAT
-    inline QString             caption() const  { return windowCaption(); }
-    inline const QPixmap      *icon() const     { return windowIcon(); }
-    inline QString             iconText() const { return windowIconText(); }
-# endif
-#endif
-
     void setMouseTracking(bool enable);
     bool hasMouseTracking() const;
     bool underMouse() const;
@@ -249,26 +237,31 @@ public:
     void setMask( const QRegion & );
     void clearMask();
 
-public slots:
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    void setWindowCaption( const QString &);
+    void setWindowTitle( const QString &);
+    QString windowTitle() const;
     void setWindowIcon( const QPixmap & );
+    QPixmap windowIcon() const; // ### should be const QPixmap&, and QApplication::icon()
     void setWindowIconText( const QString &);
-# ifndef QT_NO_COMPAT
-    inline void setCaption( const QString &c)   { setWindowCaption(c); }
-    inline void setIcon( const QPixmap &i)      { setWindowIcon(i); }
-    inline void setIconText( const QString &it) { setWindowIconText(it); }
-# endif
-#endif
-    // Keyboard input focus functions
-
-    void setFocus();
-    void clearFocus();
+    QString windowIconText() const;
 
     void setWindowTransparency(double level);
     double windowTransparency() const;
 
+    bool isWindowModified() const;
+    void setWindowModified(bool);
+
+
+    // Keyboard input focus functions
+
+public slots:
+    void setFocus();
+
 public:
+    bool isActiveWindow() const;
+    void setActiveWindow();
+    bool isFocusEnabled() const;
+    void clearFocus();
+
     enum FocusPolicy {
 	NoFocus = 0,
 	TabFocus = 0x1,
@@ -276,13 +269,6 @@ public:
 	StrongFocus = TabFocus | ClickFocus | 0x8,
 	WheelFocus = StrongFocus | 0x4
     };
-
-    bool                isWindowModified() const;
-    void                setWindowModified(bool);
-
-    bool		isActiveWindow() const;
-    void setActiveWindow();
-    bool		isFocusEnabled() const;
 
     FocusPolicy		focusPolicy() const;
     void setFocusPolicy( FocusPolicy );
@@ -413,8 +399,8 @@ public:
     static QWidget *	find( WId );
     static QWidgetMapper *wmapper();
 
-    QWidget  *childAt( int x, int y, bool includeThis = FALSE ) const;
-    QWidget  *childAt( const QPoint &, bool includeThis = FALSE ) const;
+    QWidget *childAt(int x, int y) const;
+    inline QWidget *childAt(const QPoint &p) const { return childAt(p.x(), p.y()); }
 
 #if defined(Q_WS_QWS)
     virtual QGfx * graphicsContext(bool clip_children=TRUE) const;
@@ -512,18 +498,6 @@ protected:
     virtual void updateMask();
 
     // Misc. protected functions
-#ifndef QT_NO_COMPAT
-#ifndef QT_NO_STYLE
-    virtual void styleChange( QStyle& ) { }
-#endif
-    virtual void enabledChange( bool) { }
-#ifndef QT_NO_PALETTE
-    virtual void paletteChange( const QPalette & ) { }
-#endif
-    virtual void fontChange( const QFont & ) { }
-    virtual void windowActivationChange( bool ) { }
-    virtual void languageChange() { }
-#endif
     virtual void changeEvent( QEvent * );
 
     int		 metric( int )	const;
@@ -725,6 +699,28 @@ public:
     inline void drawText(int x, int y, const QString &s)
     { drawText(QPoint(x, y), s); }
     bool close(bool);
+    inline QWidget *childAt(int x, int y, bool includeThis) const
+    { QWidget *w = childAt(x, y);
+      return w ? w : ((includeThis && rect().contains(x,y))?const_cast<QWidget*>(this):0); }
+    inline QWidget *childAt(const QPoint &p, bool includeThis) const
+    { return childAt(p.x(), p.y(), includeThis); }
+    inline void setCaption( const QString &c)   { setWindowTitle(c); }
+    inline void setIcon( const QPixmap &i)      { setWindowIcon(i); }
+    inline void setIconText( const QString &it) { setWindowIconText(it); }
+    inline QString caption() const  { return windowTitle(); }
+    const QPixmap *icon() const;
+    inline QString iconText() const { return windowIconText(); }
+protected:
+#ifndef QT_NO_STYLE
+    virtual void styleChange( QStyle& ) { }
+#endif
+    virtual void enabledChange( bool) { }
+#ifndef QT_NO_PALETTE
+    virtual void paletteChange( const QPalette & ) { }
+#endif
+    virtual void fontChange( const QFont & ) { }
+    virtual void windowActivationChange( bool ) { }
+    virtual void languageChange() { }
 #endif
 };
 

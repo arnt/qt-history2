@@ -53,7 +53,103 @@ Table of contents:
 \tableofcontents
 
 
-\section1 Virtual Functions
+\section1 QWidget
+
+The following functions are obsolete. Most will continue to work in
+COMPAT mode, but we recommend not using them in new code.
+
+\list
+\i QWidget::hasMouse() - use QWidget::underMouse() instead.
+\i QWidget::ownPalette() - use QWidget::testAttribute(QWidget::WA_SetPalette) instead.
+\i QWidget::unsetPalette() - use QWidget::setPalette(QPalette()) instead.
+\i QWidget::ownFont() - use QWidget::testAttribute(QWidget::WA_SetFont) instead.
+\i QWidget::unsetFont() - use QWidget::setFont(QFont()) instead.
+\i QWidget::colorGroup() - use QWidget::palette() instead.
+\i QWidget::childAt(int x, int y, bool includeThis) - the \c includeThis boolean parameter is gone.
+\i QWidget::colorGroup() const
+\i QWidget::parentWidget(bool sameWindow) - \c sameWindow boolean parameter is gone.
+\i QWidget::drawText() - use QPainter::drawText() instead.
+\i QWidget::close(bool alsoDelete) - the \c alsoDelete boolean parameter is gone. 
+   Use QWidget::deleteLater().
+\i QWidget::isVisibleToTLW() const - use QWidget::isVisible()
+\i QWidget::visibleRect() const - use QWidget::clipRegion().boundingRect()
+\i QWidget::iconify() - use QWidget::showMinimized() instead.
+\i QWidget::constPolish() - use QWidget::ensurePolished() instead.
+\i QWidget::reparent() - use QWidget::setParent() instead.
+\i QWidget::recreate() - use QWidget::setParent() instead.
+\i QWidget::setCaption() - use QWidget::setWindowTitle() instead.
+\i QWidget::caption() - use QWidget::windowTitle() instead.
+\i QWidget::setIcon() - use QWidget::setWindowIcon() instead.
+\i QWidget::icon() - use QWidget::windowIcon() instead.
+\i QWidget::setIconText() - use QWidget::setWindowIconText() instead.
+\i QWidget::iconText() - use QWidget::windowIconText() instead.
+\endlist
+
+Widget background painting has been greatly improved, supporting
+flickerfree updates and making it possible to have half transparent
+widgets. This renders the following background handling functions
+obsolete:
+
+\list
+\i QWidget::repaint(bool noErase) - the \c noErase boolean parameter is gone
+\i QWidget::setBackgroundMode(BackgroundMode m)
+\i QWidget::backgroundBrush() const
+\i QWidget::setBackgroundPixmap(const QPixmap &pm)
+\i QWidget::backgroundPixmap() const
+\i QWidget::setBackgroundColor(const QColor &c)
+\i QWidget::backgroundColor() const
+\i QWidget::foregroundColor() const
+\i QWidget::eraseColor() const
+\i QWidget::setEraseColor(const QColor &c) 
+\i QWidget::erasePixmap() const
+\i QWidget::setErasePixmap(const QPixmap &p)
+\i QWidget::paletteForegroundColor()
+\i QWidget::setPaletteForegroundColor(const QColor &c)
+\i QWidget::paletteBackgroundColor()
+\i QWidget::setPaletteBackgroundColor(const QColor &c)
+\i QWidget::paletteBackgroundPixmap() const
+\i QWidget::setPaletteBackgroundPixmap(const QPixmap &p)
+\i QWidget::erase()
+\i QWidget::erase(const QRect &r)
+\i QWidget::setBackgroundOrigin( BackgroundOrigin )
+\i QWidget::BackgroundOrigin backgroundOrigin() const
+\i QWidget::backgroundOffset()
+\endlist
+
+A widget now receives change events in its QWidget::changeEvent()
+handler. This makes the following virtual change handlers obsolete:
+
+\list
+\i QWidget::styleChange - use QEvent::StyleChange
+\i QWidget::enabledChange - use QEvent::EnabledChange
+\i QWidget::paletteChange - use QEvent::PaletteChange
+\i QWidget::fontChange - use QEvent::FontChange
+\i QWidget::windowActivationChange - use QEvent::ActivationChange
+\i QWidget::languageChange - use QEvent::LanguageChange
+\endlist
+
+The following functions were slots, but are no more:
+\list
+\i QWidget::clearFocus()
+\i QWidget::setMouseTracking()
+\i QWidget::stackUnder( QWidget* );
+\i QWidget::move( int x, int y );
+\i QWidget::move( const QPoint & );
+\i QWidget::resize( int w, int h );
+\i QWidget::resize( const QSize & );
+\i QWidget::setGeometry( int x, int y, int w, int h );
+\i QWidget::setGeometry( const QRect & );
+\i QWidget::adjustSize();
+\i QWidget::update( int x, int y, int w, int h );
+\i QWidget::update(const QRect&);
+\i QWidget::repaint(bool erase);
+\i QWidget::repaint(int x, int y, int w, int h, bool erase);
+\i QWidget::repaint(const QRect &, bool erase);
+\i QWidget::repaint(const QRegion &, bool erase);
+\i QWidget::setCaption(const QString &);
+\i QWidget::setIcon(const QPixmap &);
+\i QWidget::setIconText(const QString &);
+\endlist
 
 The following functions were incorrectly marked as virtual:
 
@@ -107,45 +203,6 @@ The following functions were incorrectly marked as virtual:
 \endlist
 
 
-\section1 QWidget
-
-The following functions are obsolete. Most will continue to work in
-COMPAT mode, but we recommend not using them in new code.
-
-\list
-\i QWidget::hasMouse() - use QWidget::underMouse() instead.
-\i QWidget::ownPalette() - use QWidget::testAttribute(QWidget::WA_SetPalette) instead.
-\i QWidget::unsetPalette() - use QWidget::setPalette(QPalette()) instead.
-\i QWidget::ownFont() - use QWidget::testAttribute(QWidget::WA_SetFont) instead.
-\i QWidget::unsetFont() - use QWidget::setFont(QFont()) instead.
-\endlist
-
-\list
-\i QWidget::colorGroup() - use QWidget::palette() instead.
-\endlist
-
-\list
-\i QVariant::toColorGroup() - use QVariant::toPalette() instead.
-\endlist
-
-The following functions were slots, but are no more:
-\list
-\i QWidget::setMouseTracking()
-\i QWidget::stackUnder( QWidget* );
-\i QWidget::move( int x, int y );
-\i QWidget::move( const QPoint & );
-\i QWidget::resize( int w, int h );
-\i QWidget::resize( const QSize & );
-\i QWidget::setGeometry( int x, int y, int w, int h );
-\i QWidget::setGeometry( const QRect & );
-\i QWidget::adjustSize();
-\i QWidget::update( int x, int y, int w, int h );
-\i QWidget::update(const QRect&);
-\i QWidget::repaint(bool erase);
-\i QWidget::repaint(int x, int y, int w, int h, bool erase);
-\i QWidget::repaint(const QRect &, bool erase);
-\i QWidget::repaint(const QRegion &, bool erase);
-\endlist
 
 \section1 QApplication
 
@@ -155,7 +212,13 @@ COMPAT mode, but we recommend not using them in new code.
 \list
 \i QApplication::hasGlobalMouseTracking() - use true instead.
 \i QApplication::setGlobalMouseTracking() - no effect.
+\i QApplication::setFont() - the \c informAllWidgets boolean parameter is gone.
+\i QApplication::setPalette() - the \c informAllWidgets boolean parameter is gone.
+\i QApplication::widgetAt() - the \c child boolean parameter 
+   is gone. The function always returns the exact widget at a certain position. 
+   Use QWidget::topLevelWidget() to obtain this widgets's top level widget (the window).
 \endlist
+
 
 \section1 QString
 
@@ -265,36 +328,62 @@ issues using these methods.
 
 \section1 QColorGroup
 
-QColorGroup has been removed, its API has been merged into QPalette. You should
-now use a QPalette to implement all things that were used by QColorGroup.
-A default QPalette is no longer all-black, but uses the application palette.
+QColorGroup has been removed, its API has been merged into
+QPalette. You should now use a QPalette to implement all things that
+were used by QColorGroup.  A default QPalette is no longer all-black,
+but uses the application palette.
 
 \section1 QRegion
 
-Null QRegions have been removed, use isEmpty() in most places where you would
-have used a null Qregion. rects() now returns a QVector<QRect> instead of
-QMemArray<QRect>.
+Null QRegions have been removed, use isEmpty() in most places where
+you would have used a null Qregion. rects() now returns a
+QVector<QRect> instead of QMemArray<QRect>.
 
 \section1 QIconFactory
 
-QIconFactory has been removed in favor of using function pointers. Generally
-this involves taking the QIconFactory::createPixmap() function and making it a
-regular functions. Use QIconSet::setPixmapGeneratorFn() in place of
-QIconSet::installFactory() and QIconSet::setDefaultPixmapGeneratorFn() and
-QIconSet::defaultPixmapGeneratorFn() in place of
-QIconFactory::installDefaultFactory() and QIconFactory::defaultFactory()
-respectively.
+QIconFactory has been removed in favor of using function
+pointers. Generally this involves taking the
+QIconFactory::createPixmap() function and making it a regular
+functions. Use QIconSet::setPixmapGeneratorFn() in place of
+QIconSet::installFactory() and QIconSet::setDefaultPixmapGeneratorFn()
+and QIconSet::defaultPixmapGeneratorFn() in place of
+QIconFactory::installDefaultFactory() and
+QIconFactory::defaultFactory() respectively.
 
 \section1 QPtrDict<T>, QIntDict<T>, QDict<T>
-These classes have been removed use QHash<type *, T*> QHash<int, T*>, and QHash<QString, T*> respecitively. Please note that while the dictionary classes allowed for multiple entries with the same key, the current QHash implementation only allows this if insertMulti() is used to insert elements.
+These classes have been removed use QHash<type *, T*> QHash<int, T*>,
+and QHash<QString, T*> respecitively. Please note that while the
+dictionary classes allowed for multiple entries with the same key, the
+current QHash implementation only allows this if insertMulti() is used
+to insert elements.
 
-Note about QDict->QHash conversion: QDict has one []-operator which is const, but QHash has two. The non-const [] operator for QHash creates a default value if there is no pair that matches the passed key. So a = b[c]; will create an element if called in a non-const environment. Rather than [], use value(), which returns a default constructed value (or 0 for pointers) but does not insert it into the container.
+Note about QDict->QHash conversion: QDict has one []-operator which is
+const, but QHash has two. The non-const [] operator for QHash creates
+a default value if there is no pair that matches the passed key. So a
+= b[c]; will create an element if called in a non-const
+environment. Rather than [], use value(), which returns a default
+constructed value (or 0 for pointers) but does not insert it into the
+container.
 
-Note that there are two types of iterators for QHash, both STL-style and Qt-style. STL-style iterators are recommended for internal use, as these are more efficient.
+Note that there are two types of iterators for QHash, both STL-style
+and Qt-style. STL-style iterators are recommended for internal use, as
+these are more efficient.
 
 \section1 QPtrDict
 
-QPtrDict has been removed, please use QHash<type *, T *> instead. If you previously assigned a value with find use value() in this case instead, it will keep the same semantics (that it returns 0 if it can't find the pointer).
+QPtrDict has been removed, please use QHash<type *, T *> instead. If
+you previously assigned a value with find use value() in this case
+instead, it will keep the same semantics (that it returns 0 if it
+can't find the pointer).
+
+\section1 QVariant
+
+The following functions are obsolete. Most will continue to work in
+COMPAT mode, but we recommend not using them in new code.
+
+\list
+\i QVariant::toColorGroup() - use QVariant::toPalette() instead.
+\endlist
 
 
 */

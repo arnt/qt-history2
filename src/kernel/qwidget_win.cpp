@@ -491,7 +491,7 @@ void QWidget::reparent_helper( QWidget *parent, WFlags f, const QPoint &p, bool 
     setFocusPolicy( fp );
     if ( !capt.isNull() ) {
 	d->extra->topextra->caption = QString::null;
-	setWindowCaption( capt );
+	setWindowTitle( capt );
     }
     if ( showIt )
 	show();
@@ -617,9 +617,9 @@ bool QWidget::isWindowModified() const
     return testAttribute(WA_WindowModified);
 }
 
-void QWidget::setWindowCaption( const QString &caption )
+void QWidget::setWindowTitle( const QString &caption )
 {
-    if ( QWidget::windowCaption() == caption )
+    if ( QWidget::windowTitle() == caption )
 	return; // for less flicker
     d->topData()->caption = caption;
 
@@ -636,7 +636,7 @@ void QWidget::setWindowCaption( const QString &caption )
 	SetWindowTextA( winId(), cap.local8Bit() );
     } );
 
-    QEvent e( QEvent::CaptionChange );
+    QEvent e( QEvent::WindowTitleChange );
     QApplication::sendEvent( this, &e );
 }
 
@@ -695,7 +695,7 @@ void QWidget::setWindowIcon( const QPixmap &pixmap )
     SendMessageA( winId(), WM_SETICON, 1, /* ICON_BIG */
 		  (long)x->winIcon );
 
-    QEvent e( QEvent::IconChange );
+    QEvent e( QEvent::WindowIconChange );
     QApplication::sendEvent( this, &e );
 }
 

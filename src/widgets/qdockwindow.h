@@ -117,9 +117,7 @@ public:
 
     bool eventFilter( QObject *o, QEvent *e );
 
-#ifdef QT_NO_WIDGET_TOPEXTRA
-    QString caption() const;
-#endif
+    QString windowTitle() const;
 
 signals:
     void orientationChanged( Orientation o );
@@ -131,7 +129,6 @@ public slots:
     virtual void undock() { undock( 0 ); }
     virtual void dock();
     virtual void setOrientation( Orientation o );
-    void setWindowCaption( const QString &s );
 
 protected:
     void resizeEvent( QResizeEvent *e );

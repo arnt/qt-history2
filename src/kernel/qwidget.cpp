@@ -107,8 +107,8 @@ QWidgetPrivate::~QWidgetPrivate()
     \row \i Top level windows \i
         windowModified(),
 	setWindowModified(),
-        windowCaption(),
-	setWindowCaption(),
+        windowTitle(),
+	setWindowTitle(),
 	windowIcon(),
 	setWindowIcon(),
 	windowIconText(),
@@ -406,8 +406,8 @@ QWidgetPrivate::~QWidgetPrivate()
     other widgets can contain and manage yours easily. sizeHint()
     indicates a "good" size for the widget.
 
-    \i If your widget is a top-level window, setWindowCaption() and setWindowIcon() set
-    the title bar and icon respectively.
+    \i If your widget is a top-level window, setWindowTitle() and
+    setWindowIcon() set the title bar and icon respectively.
 
     \endlist
 
@@ -2253,10 +2253,10 @@ QPoint QWidget::mapFromParent( const QPoint &pos ) const
 
     If the widget is a top-level, the widget itself is returned.
 
-    Typical usage is changing the window caption:
+    Typical usage is changing the window title:
 
     \code
-	aWidget->topLevelWidget()->setWindowCaption( "New Caption" );
+	aWidget->topLevelWidget()->setWindowTitle( "New Window Title" );
     \endcode
 
     \sa isTopLevel()
@@ -2653,17 +2653,16 @@ QCursor QWidget::cursor() const
     return parentWidget()->cursor();
 }
 #endif
-#ifndef QT_NO_WIDGET_TOPEXTRA
 /*!
-    \property QWidget::caption
-    \brief the window caption (title)
+    \property QWidget::windowTitle
+    \brief the window title (caption)
 
     This property only makes sense for top-level widgets. If no
-    caption has been set, the caption is QString::null.
+    caption has been set, the title is QString::null.
 
     \sa icon iconText
 */
-QString QWidget::windowCaption() const
+QString QWidget::windowTitle() const
 {
     return d->extra && d->extra->topextra
 	? d->extra->topextra->caption
@@ -2671,18 +2670,20 @@ QString QWidget::windowCaption() const
 }
 
 /*!
-    \property QWidget::icon
+    \property QWidget::windowIcon
     \brief the widget's icon
 
     This property only makes sense for top-level widgets. If no icon
-    has been set, windowIcon() returns 0.
+    has been set, windowIcon() returns a null pixmap.
 
-    \sa iconText, caption,
-      \link appicon.html Setting the Application Icon\endlink
+    \sa windowIconText, windowTitle
+    \link appicon.html Setting the Application Icon\endlink
 */
-const QPixmap *QWidget::windowIcon() const
+QPixmap QWidget::windowIcon() const
 {
-    return ( d->extra && d->extra->topextra ) ? d->extra->topextra->icon : 0;
+    if (d->extra && d->extra->topextra && d->extra->topextra->icon)
+	return *d->extra->topextra->icon;
+    return QPixmap();
 }
 
 /*!
@@ -2700,7 +2701,6 @@ QString QWidget::windowIconText() const
     return ( d->extra && d->extra->topextra ) ? d->extra->topextra->iconText
 	: QString();
 }
-#endif //QT_NO_WIDGET_TOPEXTRA
 
 /*!
     \property QWidget::mouseTracking
@@ -3529,23 +3529,27 @@ void QWidget::show_helper()
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
     // make sure toplevels have an icon
-    if ( isTopLevel() ) {
-	const QPixmap *pm = windowIcon();
-	if ( !pm || pm->isNull() ) {
+    //#### just use application icon instead
+    if ( isTopLevel() ){
+	QPixmap pm = windowIcon();
+	if ( !pm.isNull() ) {
 	    QWidget *mw = (QWidget *)parent();
-	    pm = mw ? mw->windowIcon() : 0;
-	    if ( pm && !pm->isNull() )
-		setWindowIcon( *pm );
+	    if (mw)
+		pm = mw->windowIcon();
+	    if ( !pm.isNull() )
+		setWindowIcon( pm );
 	    else {
 		mw = mw ? mw->topLevelWidget() : 0;
-		pm = mw ? mw->windowIcon() : 0;
-		if ( pm && !pm->isNull() )
-		    setWindowIcon( *pm );
+		if (mw)
+		    pm = mw->windowIcon();
+		if ( !pm.isNull() )
+		    setWindowIcon( pm );
 		else {
 		    mw = qApp ? qApp->mainWidget() : 0;
-		    pm = mw ? mw->windowIcon() : 0;
-		    if ( pm && !pm->isNull() )
-			setWindowIcon( *pm );
+		    if (mw)
+			pm = mw->windowIcon();
+		    if ( !pm.isNull() )
+			setWindowIcon( pm );
 		}
 	    }
 	}
@@ -5190,12 +5194,10 @@ bool QWidget::customWhatsThis() const
 
 /*!
     Returns the visible child widget at pixel position \a (x, y) in
-    the widget's own coordinate system.
-
-    If \a includeThis is TRUE, and there is no child visible at \a (x,
-    y), the widget itself is returned.
+    the widget's own coordinate system. If there is no visible child
+    widget at the specified position, returns 0.
 */
-QWidget  *QWidget::childAt( int x, int y, bool includeThis ) const
+QWidget *QWidget::childAt(int x, int y) const
 {
     if ( !rect().contains( x, y ) )
 	return 0;
@@ -5204,29 +5206,19 @@ QWidget  *QWidget::childAt( int x, int y, bool includeThis ) const
 	QWidget *w = static_cast<QWidget *>(d->children.at(i));
 	QWidget *t;
 	if ( w->isWidgetType() && !w->isTopLevel() && !w->isHidden() ) {
-	    if ( ( t = w->childAt( x - w->x(), y - w->y(), TRUE ) ) )
-		return t;
+	    if ( ( t = w->childAt( x - w->x(), y - w->y()) ) )
+		return t?t:w;
 	}
     }
-    if ( includeThis )
-	return const_cast<QWidget*>(this);
     return 0;
 }
 
 /*!
-    \overload
+    \overload \fn QWidget *QWidget::childAt(const QPoint & p) const
 
     Returns the visible child widget at point \a p in the widget's own
     coordinate system.
-
-    If \a includeThis is TRUE, and there is no child visible at \a p,
-    the widget itself is returned.
-
 */
-QWidget  *QWidget::childAt( const QPoint & p, bool includeThis ) const
-{
-    return childAt( p.x(), p.y(), includeThis );
-}
 
 /*!
     Notifies the layout system that this widget has changed and may
@@ -5461,6 +5453,12 @@ bool QWidget::close( bool alsoDelete )
 	deleteLater();
     return accepted;
 }
+
+const QPixmap *QWidget::icon() const
+{
+    return ( d->extra && d->extra->topextra ) ? d->extra->topextra->icon : 0;
+}
+
 #endif // QT_NO_COMPAT
 
 /*!
