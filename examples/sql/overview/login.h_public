@@ -1,0 +1,22 @@
+/****************************************************************************
+** $Id$
+**
+** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
+**
+** This file is part of an example program for Qt.  This example
+** program may be used, distributed and modified without limitation.
+**
+*****************************************************************************/
+
+#define DB_SALES_DRIVER	    "QODBC"
+#define DB_SALES_DBNAME	    "sales"
+#define DB_SALES_USER	    "salesuser"
+#define DB_SALES_PASSWD	    "salespw"
+#define DB_SALES_HOST	    "saleshost"
+
+#define DB_ORDERS_DRIVER    "QOCI"
+#define DB_ORDERS_DBNAME    "orders"
+#define DB_ORDERS_USER	    "ordersuser"
+#define DB_ORDERS_PASSWD    "orderspw"
+#define DB_ORDERS_HOST	    "ordershost"
+
