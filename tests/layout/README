@@ -1,0 +1,9 @@
+This directory contains simple programs demonstrating the layout classes.
+
+  bex - QBoxLayout example: boxes that go "backwards" (i.e. RightToLeft)
+  cex - Geometry Management example: putting a QGridLayout inside a QBoxLayout
+  gex - QGridLayout example
+  hex - Geometry management example: Putting a QBoxLayout inside a QGridLayout
+  qex - QBoxLayout example
+  mex - Example with a QMenuBar
+
