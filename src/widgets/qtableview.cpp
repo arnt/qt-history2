@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#73 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#72 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#73 $");
 
 
 const int sbDim = 16;
@@ -847,7 +847,7 @@ void QTableView::clearTableFlags( uint f )
 	int maxX = maxXOffset();
 	if ( xOffs > maxX ) {
 	    setOffset( maxX, yOffs );
-	    repaintMask |= Tbl_scrollLastVCell;
+	    repaintMask |= Tbl_scrollLastHCell;
 	}
 	updateScrollBars( horRange );
     }
@@ -1418,6 +1418,7 @@ const QScrollBar *QTableView::verticalScrollBar() const
     QTableView *that = (QTableView*)this; // semantic const
     if ( !vScrollBar ) {
 	QScrollBar *sb = new QScrollBar( QScrollBar::Vertical, that );
+	sb->resize( 32, 16 ); // 16 is the important bit
 	CHECK_PTR(sb);
 	sb->setTracking( FALSE );
 	sb->setFocusPolicy( NoFocus );
@@ -1445,6 +1446,7 @@ const QScrollBar *QTableView::horizontalScrollBar() const
     QTableView *that = (QTableView*)this; // semantic const
     if ( !hScrollBar ) {
 	QScrollBar *sb = new QScrollBar( QScrollBar::Horizontal, that );
+	sb->resize( 16, 32 ); // 16 is the important bit
 	sb->setFocusPolicy( NoFocus );
 	CHECK_PTR(sb);
 	sb->setTracking( FALSE );
@@ -2175,17 +2177,20 @@ int QTableView::maxXOffset()
 	    if ( cellW ) {
 		maxOffs =  tw - (viewWidth()/cellW)*cellW;
 	    } else {
-		int  ww	   = viewWidth();
-		int  oldWw = ww;
-		int i = nCols - 1;
-		while ( i >= 0 ) {
-		    ww -= cellWidth( i );
-		    if ( ww < 0 )
-			break;
-		    i--;
-		    oldWw = ww;
+		int goal = tw - viewWidth();
+		int pos = tw;
+		int nextCol = nCols - 1;
+		int nextCellWidth = cellWidth( nextCol );
+		while( nextCol > 0 && pos > goal + nextCellWidth ) {
+		    pos -= nextCellWidth;
+		    nextCellWidth = cellWidth( --nextCol );
 		}
-		maxOffs = tw - oldWw;
+		if ( goal + nextCellWidth == pos )
+		    maxOffs = goal;
+		 else if ( goal < pos )
+		   maxOffs = pos;
+		 else
+		   maxOffs = 0;
 	    }
 	} else {
 	    maxOffs = tw - viewWidth();
@@ -2218,17 +2223,20 @@ int QTableView::maxYOffset()
 	    if ( cellH ) {
 		maxOffs =  th - (viewHeight()/cellH)*cellH;
 	    } else {
-		int  wh	   = viewHeight();
-		int  oldWh = wh;
-		int i = nRows - 1;
-		while ( i >= 0 ) {
-		    wh -= cellHeight( i );
-		    if ( wh < 0 )
-			break;
-		    i--;
-		    oldWh = wh;
+		int goal = th - viewHeight();
+		int pos = th;
+		int nextRow = nRows - 1;
+		int nextCellHeight = cellHeight( nextRow );
+		while( nextRow > 0 && pos > goal + nextCellHeight ) {
+		    pos -= nextCellHeight;
+		    nextCellHeight = cellHeight( --nextRow );
 		}
-		maxOffs = th - oldWh;
+		if ( goal + nextCellHeight == pos )
+		    maxOffs = goal;
+		 else if ( goal < pos )
+		   maxOffs = pos;
+		 else
+		   maxOffs = 0;
 	    }
 	} else {
 	    maxOffs = th - viewHeight();
