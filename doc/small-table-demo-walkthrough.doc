@@ -61,11 +61,11 @@ load and scale the icon, \l QPixmap to show it, and \l QStringList
 to store the combo box items.
 
 \skipto qtlogo.xpm
-\printline qtlogo.xpm
+\printline "qtlogo.xpm"
 
 \e qtlogo.xpm contains the \e qtlogo_xpm pixmap we're going to use.
 
-\skipto 100
+\skipto 30
 \printuntil numCols
 
 Next we define the table size: 100 columns and 100 rows.
@@ -76,10 +76,12 @@ Next we define the table size: 100 columns and 100 rows.
 In the main program the first thing for us to do is to create 
 "the application" itself.
 
+\skipto table
 \printline table
 
 Then we create a \e table widget of the defined size.
 
+\skipto img
 \printline img
 
 Next we load the pixmap we want to show. We use a QImage for this purpose
@@ -113,6 +115,7 @@ row and third column meet.
 Then we add the text string \e{A Pixmap} 
 to the right of the pixmap.
 
+\skipto QStringList
 \printline QStringList
 
 We mentioned earlier that we intend to populate the entire sixth
@@ -125,6 +128,7 @@ Thus we define a string list \e comboEntries to store them.
 The combo boxes will hold four entries, boringly named \e one to
 \e four.
 
+\skipto < numRows
 \printline < numRows
 
 Beginning with the first row, row after row, until we are done
@@ -141,6 +145,7 @@ Thus we create a QComboTableItem object for every column.
 As we set the last parameter to TRUE the user has the possibility to
 change the text of the combo box entries. 
 
+\skipto setCurrentItem
 \printline setCurrentItem
 
 Although all of the combo table items are the same we want them
@@ -153,17 +158,20 @@ initially show the first menu entry (the row number modulo 4 equals
 0 and therefore uses the \e one entry), the second and every fourth
 combo table item show \e two, and so forth.
 
+\skipto setItem
 \printline setItem
 \printline }
 
 Finally we fill the 5th column with the prepared combo box items. 
 
+\skipto for
 \printline for
 \printline QCheckTableItem
 
 Similarly the entire second column is filled with unchecked
 check boxes of the title \e{Check me}. 
 
+\skipto app
 \printline app
 
 So we are done with creating the table. We make it the main window of

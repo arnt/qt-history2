@@ -52,7 +52,6 @@
 #include "qaccessible.h"
 #endif
 
-// NOT REVISED
 /*!
   \class QPushButton qpushbutton.h
   \brief The QPushButton widget provides a command button.
@@ -179,10 +178,16 @@
     \brief whether the push button is toggled
 
   This property should only be set for toggle push buttons.
+  \sa isOn(), toggle(), toggled(), isToggleButton()
 */
 
 /*! \property QPushButton::toggleButton
     \brief whether the button is a toggle button
+
+  Toggle buttons have an on/off state similar to \link QCheckBox check
+  boxes. \endlink A push button is initially not a toggle button.
+
+  \sa setOn(), toggle(), isToggleButton() toggled()
 */
 
 /*! \property QPushButton::menuButton
@@ -279,7 +284,7 @@ void QPushButton::init()
 }
 
 
-/*!
+/*
   Makes the push button a toggle button if \a enable is TRUE or a normal
   push button if \a enable is FALSE.
 
@@ -295,7 +300,7 @@ void QPushButton::setToggleButton( bool enable )
 }
 
 
-/*!
+/*
   Switches a toggle button on if \a enable is TRUE or off if \a enable is
   FALSE.
   \sa isOn(), toggle(), toggled(), isToggleButton()

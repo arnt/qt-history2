@@ -87,47 +87,47 @@
 
   The QApplication object is accessible through the global variable \c
   qApp. Its main areas of responsibility are:
-  <ul>
+  \list
 
-  <li> It initializes the application with the user's desktop settings
+  \i It initializes the application with the user's desktop settings
   such as palette(), font() and doubleClickInterval(). It keeps track
   of these properties in case the user changes the desktop globally, for
   example through some kind of control panel.
 
-  <li> It performs event handling, meaning that it receives events
+  \i It performs event handling, meaning that it receives events
   from the underlying window system and dispatches them to the relevant
   widgets.  By using sendEvent() and postEvent() you can send your own
   events to widgets.
 
-  <li> It parses common command line arguments and sets its internal
+  \i It parses common command line arguments and sets its internal
   state accordingly. See the constructor documentation below for more
   details about this.
 
-  <li> It defines the application's look and feel, which is
+  \i It defines the application's look and feel, which is
   encapsulated in a QStyle object. This can be changed at runtime
   with setStyle().
 
-  <li> It specifies how the application is to allocate colors.
+  \i It specifies how the application is to allocate colors.
   See setColorSpec() for details.
 
-  <li> It specifies the default text encoding (see setDefaultCodec() )
+  \i It specifies the default text encoding (see setDefaultCodec() )
   and provides localization of strings that are visible to the user via
   translate().
 
-  <li> It provides some magical objects like the desktop() and the
+  \i It provides some magical objects like the desktop() and the
   clipboard().
 
-  <li> It knows about the application's windows. You can ask which
+  \i It knows about the application's windows. You can ask which
   widget is at a certain position using widgetAt(), get a list of
   topLevelWidgets() and closeAllWindows(), etc.
 
-  <li> It manages the application's mouse cursor handling,
+  \i It manages the application's mouse cursor handling,
   see setOverrideCursor() and setGlobalMouseTracking().
 
-  <li> On the X window system, it provides functions to flush and sync
+  \i On the X window system, it provides functions to flush and sync
   the communication stream, see flushX() and syncX().
 
-  <li> It provides support for sophisticated \link
+  \i It provides support for sophisticated \link
   session.html session management \endlink. This makes it possible
   for applications to terminate gracefully when the user logs out, to
   cancel a shutdown process if termination isn't possible and even to
@@ -135,7 +135,7 @@
   isSessionRestored(), sessionId() and commitData() and saveState()
   for details.
 
-  </ul>
+  \endlist
 
   The <a href="simple-application.html">Application walk-through
   example</a> contains a typical complete main() that does the usual
@@ -154,8 +154,8 @@
   any overrides after.)
 
   <strong>Groups of functions:</strong>
-  <ul>
-     <li> System settings:
+  \list
+     \i System settings:
 	desktopSettingsAware(),
 	setDesktopSettingsAware(),
 	cursorFlashTime(),
@@ -170,7 +170,7 @@
 	setFont(),
 	fontMetrics().
 
-     <li> Event handling:
+     \i Event handling:
 	exec(),
 	processEvents(),
 	processOneEvent(),
@@ -187,22 +187,22 @@
 	x11ProcessEvent(),
 	winEventFilter().
 
-     <li> GUI Styles:
+     \i GUI Styles:
 	style(),
 	setStyle(),
 	polish().
 
-     <li> Color usage:
+     \i Color usage:
 	colorSpec(),
 	setColorSpec().
 
-     <li> Text handling:
+     \i Text handling:
 	setDefaultCodec(),
 	installTranslator(),
 	removeTranslator()
 	translate().
 
-     <li> Widgets:
+     \i Widgets:
 	mainWidget(),
 	setMainWidget(),
 	allWidgets(),
@@ -215,28 +215,28 @@
 	activeWindow(),
 	widgetAt().
 
-     <li> Advanced cursor handling:
+     \i Advanced cursor handling:
 	hasGlobalMouseTracking(),
 	setGlobalMouseTracking(),
 	overrideCursor(),
 	setOverrideCursor(),
 	restoreOverrideCursor().
 
-     <li> X Window System synchronization:
+     \i X Window System synchronization:
 	flushX(),
 	syncX().
 
-     <li> Session management:
+     \i Session management:
 	isSessionRestored(),
 	sessionId(),
 	commitData(),
 	saveState()
 
-     <li> Miscellaneous:
+     \i Miscellaneous:
 	closeAllWindows(),
 	startingUp(),
 	closingDown(),
-  </ul>
+  \endlist
 
   <strong>Non-GUI programs</strong><br> While Qt is not optimized or
   designed for writing non-GUI programs, it's possible to use <a
@@ -247,6 +247,10 @@
   \header qnamespace.h
   \header qwindowdefs.h
   \header qglobal.h
+*/
+
+/*! \enum Qt::HANDLE
+    \internal
 */
 
 /*!
@@ -508,52 +512,52 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 
   Qt debugging options (not available if Qt was compiled with the
   QT_NO_DEBUG flag defined):
-  <ul>
-  <li> \c -nograb, tells Qt that it must never grab the mouse or the keyboard.
-  <li> \c -dograb (only under X11), running under a debugger can cause
+  \list
+  \i -nograb, tells Qt that it must never grab the mouse or the keyboard.
+  \i -dograb (only under X11), running under a debugger can cause
   an implicit -nograb, use -dograb to override.
-  <li> \c -sync (only under X11), switches to synchronous mode for
+  \i -sync (only under X11), switches to synchronous mode for
 	debugging.
-  </ul>
+  \endlist
 
   See \link debug.html Debugging Techniques \endlink for a more
   detailed explanation.
 
   All Qt programs automatically support the following command line options:
-  <ul>
-  <li> \c -style= \e style, sets the application GUI style. Possible values
+  \list
+  \i -style= \e style, sets the application GUI style. Possible values
        are \c motif, \c windows, and \c platinum. If you compiled Qt
        with additional styles or have additional styles as plugins these
        will be available to the \c -style command line option.
-  <li> \c -session= \e session, restores the application from an earlier
+  \i -session= \e session, restores the application from an earlier
        \link session.html session \endlink.
-  </ul>
+  \endlist
 
   The X11 version of Qt also supports some traditional X11
   command line options:
-  <ul>
-  <li> \c -display \e display, sets the X display (default is $DISPLAY).
-  <li> \c -geometry \e geometry, sets the client geometry of the
+  \list
+  \i -display \e display, sets the X display (default is $DISPLAY).
+  \i -geometry \e geometry, sets the client geometry of the
 	\link setMainWidget() main widget\endlink.
-  <li> \c -fn or \c -font \e font, defines the application font. The
+  \i -fn or \c -font \e font, defines the application font. The
   font should be specified using an X logical font description.
-  <li> \c -bg or \c -background \e color, sets the default background color
+  \i -bg or \c -background \e color, sets the default background color
 	and an application palette (light and dark shades are calculated).
-  <li> \c -fg or \c -foreground \e color, sets the default foreground color.
-  <li> \c -btn or \c -button \e color, sets the default button color.
-  <li> \c -name \e name, sets the application name.
-  <li> \c -title \e title, sets the application title (caption).
-  <li> \c -visual \c TrueColor, forces the application to use a TrueColor visual
+  \i -fg or \c -foreground \e color, sets the default foreground color.
+  \i -btn or \c -button \e color, sets the default button color.
+  \i -name \e name, sets the application name.
+  \i -title \e title, sets the application title (caption).
+  \i -visual \c TrueColor, forces the application to use a TrueColor visual
        on an 8-bit display.
-  <li> \c -ncols \e count, limits the number of colors allocated in the
+  \i -ncols \e count, limits the number of colors allocated in the
        color cube on an 8-bit display, if the application is using the
        \c QApplication::ManyColor color specification.  If \e count is
        216 then a 6x6x6 color cube is used (ie. 6 levels of red, 6 of green,
        and 6 of blue); for other values, a cube
        approximately proportional to a 2x3x1 cube is used.
-  <li> \c -cmap, causes the application to install a private color map
+  \i -cmap, causes the application to install a private color map
        on an 8-bit display.
-  </ul>
+  \endlist
 
   \sa argc(), argv()
 */
@@ -1200,22 +1204,22 @@ int QApplication::colorSpec()
   object.
 
   The choices are:
-  <ul>
-  <li> \c QApplication::NormalColor.
+  \list
+  \i QApplication::NormalColor.
     This is the default color allocation strategy. Use this choice if
     your application uses buttons, menus, texts and pixmaps with few
     colors. With this choice, the application uses system global
     colors. This works fine for most applications under X11, but on
     Windows machines it may cause dithering of non-standard colors.
-  <li> \c QApplication::CustomColor.
+  \i QApplication::CustomColor.
     Use this choice if your application needs a small number of custom
     colors. On X11, this choice is the same as NormalColor. On Windows, Qt
     creates a Windows palette, and allocates colors to it on demand.
-  <li> \c QApplication::ManyColor.
+  \i QApplication::ManyColor.
     Use this choice if your application is very color hungry
     (e.g. it wants thousands of colors).
-    Under X11 the effect is: <ul>
-      <li> For 256-color displays which have at best a 256 color true color
+    Under X11 the effect is: \list
+      \i For 256-color displays which have at best a 256 color true color
 	    visual, the default visual is used, and colors are allocated
 	    from a color cube.
 	    The color cube is the 6x6x6 (216 color) "Web palette", but the
@@ -1223,14 +1227,14 @@ int QApplication::colorSpec()
 	    The user can force the application to use the true color visual by
 	    the \link QApplication::QApplication() -visual \endlink
 	    option.
-      <li> For 256-color displays which have a true color visual with more
+      \i For 256-color displays which have a true color visual with more
 	    than 256 colors, use that visual.  Silicon Graphics X
 	    servers have this feature, for example.  They provide an 8
 	    bit visual by default but can deliver true color when
 	    asked.
-    </ul>
+    \endlist
     On Windows, Qt creates a Windows palette, and fills it with a color cube.
-  </ul>
+  \endlist
 
   Be aware that the CustomColor and ManyColor choices may lead to colormap
   flashing: The foreground application gets (most) of the available
@@ -1860,12 +1864,12 @@ void QApplication::closeAllWindows()
 
   Reimplementing this virtual function is one of five ways to process
   an event:
-  <ol>
-  <li> Reimplementing this function.  Very powerful,
+  \list 1
+  \i Reimplementing this function.  Very powerful,
   you get \e complete control, but of course only one subclass can be
   qApp.
 
-  <li> Installing an event filter on qApp.  Such an event filter gets
+  \i Installing an event filter on qApp.  Such an event filter gets
   to process all events for all widgets, so it's just as powerful as
   reimplementing notify(), and in this way it's possible to have more
   than one application-global event filter.  Global event filters get
@@ -1873,16 +1877,16 @@ void QApplication::closeAllWindows()
   widgets, \endlink and if \link setGlobalMouseTracking() global mouse
   tracking \endlink is enabled, mouse move events for all widgets.
 
-  <li> Reimplementing QObject::event() (as QWidget does).  If you do
+  \i Reimplementing QObject::event() (as QWidget does).  If you do
   this you get tab key presses, and you get to see the events before
   any widget-specific event filters.
 
-  <li> Installing an event filter on the object.  Such an even filter
+  \i Installing an event filter on the object.  Such an even filter
   gets all the events except Tab and Shift-Tab key presses.
 
-  <li> Finally, reimplementing paintEvent(), mousePressEvent() and so
+  \i Finally, reimplementing paintEvent(), mousePressEvent() and so
   on.  This is the normal, easiest and least powerful way.
-  </ol>
+  \endlist
 
   \sa QObject::event(), installEventFilter()
 */
@@ -2204,14 +2208,14 @@ void QApplication::syncX()	{}		// do nothing
 
   Returns the version of the Windows operating system running:
 
-  <ul>
-  <li> \c Qt::WV_95 - Windows 95
-  <li> \c Qt::WV_98 - Windows 98
-  <li> \c Qt::WV_ME - Windows ME
-  <li> \c Qt::WV_NT - Windows NT 4.x
-  <li> \c Qt::WV_2000 - Windows 2000 (NT5)
-  <li> \c Qt::WV_XP - Windows XP
-  </ul>
+  \list
+  \i Qt::WV_95 - Windows 95
+  \i Qt::WV_98 - Windows 98
+  \i Qt::WV_ME - Windows ME
+  \i Qt::WV_NT - Windows NT 4.x
+  \i Qt::WV_2000 - Windows 2000 (NT5)
+  \i Qt::WV_XP - Windows XP
+  \endlist
 
   Note that this function is implemented for the Windows version
   of Qt only.
@@ -2724,7 +2728,7 @@ void QApplication::setActiveWindow( QWidget* act )
 	    for(QObjectListIt it(*chldnlst); it.current(); ++it) {
 		if((*it)->isWidgetType()) {
 		    QWidget *w = (QWidget *)(*it);
-		    if(w->isTopLevel() && w->isVisible() && w->inherits("QDockWindow")) 
+		    if(w->isTopLevel() && w->isVisible() && w->inherits("QDockWindow"))
 			ShowHide((WindowPtr)w->handle(), 0);
 		}
 	    }
@@ -2741,7 +2745,7 @@ void QApplication::setActiveWindow( QWidget* act )
 	    for(QObjectListIt it(*chldnlst); it.current(); ++it) {
 		if((*it)->isWidgetType()) {
 		    QWidget *w = (QWidget *)(*it);
-		    if(w->isTopLevel() && w->isVisible() && w->inherits("QDockWindow")) 
+		    if(w->isTopLevel() && w->isVisible() && w->inherits("QDockWindow"))
 			ShowHide((WindowPtr)w->handle(), 1);
 		}
 	    }

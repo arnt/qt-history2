@@ -814,7 +814,7 @@ the
 \link QScrollView::viewport() viewport()\endlink of a QListView,
 in which case,
 override the
-\link QScrollView::viewportDragMoveEvent() viewportDragMoveEvent()\endlink,
+\link QScrollView::contentsDragMoveEvent() contentsDragMoveEvent()\endlink,
 etc.
 functions rather than QListView's dragMoveEvent() etc.  For other
 cases, you will need to use an event filter to act on the drag/drop events

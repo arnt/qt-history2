@@ -734,14 +734,14 @@ QSizePolicy QSlider::sizePolicy() const
   \brief the tickmark settings for this slider
 
   This property can have the following values:
-  <ul>
-  <li> \c NoMarks
-  <li> \c Above
-  <li> \c Left
-  <li> \c Below
-  <li> \c Right
-  <li> \c Both
-  </ul>
+  \list
+  \i NoMarks
+  \i Above
+  \i Left
+  \i Below
+  \i Right
+  \i Both
+  \endlist
   The initial value is \c NoMarks.
   \sa tickInterval
 */

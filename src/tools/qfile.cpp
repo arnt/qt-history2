@@ -96,7 +96,7 @@ extern bool qt_file_access( const QString& fn, int t );
   Qt uses Unicode file names. If you want to do your own I/O on Unix systems
   you may want to use encodeName() (and decodeName()) to convert the file name
   into the local encoding.
-  
+
   \sa QDataStream, QTextStream
 */
 
@@ -157,7 +157,7 @@ void QFile::init()
 
 /*!
   Sets the name of the file to \a name. The name may have no path, a
-  relative path or an absolute absolute directory path. 
+  relative path or an absolute absolute directory path.
 
   Do not call this function if the file has already been opened.
 
@@ -250,8 +250,9 @@ void QFile::flush()
 }
 
 /*!
-    \fn Offset	QFile::at() const
+    \overload QIODevice::Offset QFile::at() const
     Returns the position in the file.
+  \sa size()
 */
 
 /*!

@@ -152,8 +152,8 @@
   Since end() returns a past-the-end iterator, the size() of the list
   is equal to end() - begin().
 
-  Another way to find an element in the list is by using the <a
-  href="qtl.h#qFind">qFind()\endlink algorithm.  For example:
+  Another way to find an element in the list is by using the 
+  \link qtl.html#qFind qFind()\endlink algorithm.  For example:
 
 \code
   QValueList<int> list;
@@ -246,9 +246,6 @@
 	The const reference to T type. */
 /*! \enum QValueList::size_type 
 	An unsigned integral type, used to represent various sizes. */
-/*! \enum QValueList::size_type
-    \internal
-*/
 /*! \enum QValueList::difference_type
     \internal
 */
@@ -1009,7 +1006,7 @@
 */
 
 /*!
-  \fn QValueListConstIterator<T> QValueListConstIterator::operator--(int) 
+  \overload QValueListConstIterator<T> QValueListConstIterator::operator--(int) 
   
   Postfix -- makes the
   previous item current and returns an iterator pointing to the new

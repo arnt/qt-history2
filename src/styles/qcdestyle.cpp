@@ -106,6 +106,8 @@ int QCDEStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
     return ret;
 }
 
+/*! \reimp
+*/
 void QCDEStyle::drawControl( ControlElement element,
 			     QPainter *p,
 			     const QWidget *widget,
@@ -134,6 +136,8 @@ void QCDEStyle::drawControl( ControlElement element,
 
 }
 
+/*! \reimp
+*/
 void QCDEStyle::drawPrimitive( PrimitiveElement pe,
 			       QPainter *p,
 			       const QRect &r,

@@ -1319,7 +1319,7 @@ bool qt_xdnd_handle_badwindow()
   When a widget \link QWidget::setAcceptDrops() accepts drop events\endlink,
   it will receive this event repeatedly while the drag is within the
   widget's boundaries.  The widget should examine the event to see what data
-  it \link QDragMoveEvent::provides provides\endlink, and accept() the drop if
+  it \link QDragMoveEvent::provides() provides\endlink, and accept() the drop if
   appropriate.
 
   Note that this class inherits most of its functionality from QDropEvent.

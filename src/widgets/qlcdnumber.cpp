@@ -503,8 +503,6 @@ int QLCDNumber::intValue() const
 }
 
 
-//### Why duplicate code? What's wrong with:
-// void QLCDNumber::display( int num ) { display((double)num)); }
 /*!
     \overload
     Displays the number \a num.

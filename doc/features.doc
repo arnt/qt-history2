@@ -244,10 +244,6 @@ The available options are:
     The color selection dialog - \l QColorDialog
     <td valign=top>QT_NO_DIALOGS
 
-<tr><td valign=top>QT_NO_PRINTDIALOG <td valign=top>
-    The print selection dialog - \l QPrintDialog
-    <td valign=top>QT_NO_DIALOGS, QT_NO_LISTVIEW
-
 <tr><td valign=top>QT_NO_INPUTDIALOG <td valign=top>
     Text input dialog - \l QInputDialog
     <td valign=top>QT_NO_DIALOGS

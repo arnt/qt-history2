@@ -129,8 +129,25 @@
 */
 
 /*!
-    \fn virtual void     QPtrCollection::deleteItem( Item )
+    \fn void     QPtrCollection::deleteItem( Item )
     Reimplement this function if you want to be able to delete items.
+
+  Deletes an item that is about to be removed from
+  the collection.
+
+  This function has to reimplemented in the collection template
+  classes, and should delete \a d if and only if auto-delete has been
+  enabled.
+
+  \warning If you reimplement this function you must also reimplement
+  the destructor and call the virtual function clear() from your
+  destructor.  This is due to the way virtual functions and
+  destructors work in C++: Virtual functions in derived classes cannot
+  be called from a destructor.  If you do not do this, your
+  deleteItem() function will not be called when the container is
+  destructed.
+
+  \sa newItem(), setAutoDelete()
 */
 
 /*!
@@ -151,23 +168,3 @@ QPtrCollection::Item QPtrCollection::newItem( Item d )
 {
     return d;					// just return reference
 }
-
-/*!
-  Virtual function that deletes an item that is about to be removed from
-  the collection.
-
-  This function has to reimplemented in the collection template
-  classes, and should delete \a d if and only if auto-delete has been
-  enabled.
-
-  \warning If you reimplement this function you must also reimplement
-  the destructor and call the virtual function clear() from your
-  destructor.  This is due to the way virtual functions and
-  destructors work in C++: Virtual functions in derived classes cannot
-  be called from a destructor.  If you do not do this, your
-  deleteItem() function will not be called when the container is
-  destructed.
-
-  \sa newItem(), setAutoDelete()
-*/
-

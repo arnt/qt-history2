@@ -56,8 +56,9 @@
   QPrinter supports a number of settable parameters, most of which can be
   changed by the end user when the application calls QPrinter::setup().
 
-  The most important parameters are: \list
-  \i setOrientation() tells QPrinter to turn the page (virtual).
+  The most important parameters are:
+  \list
+  \i setOrientation() tells QPrinter which page orientation to use (virtual).
   \i setPageSize() tells QPrinter what page size to expect from the
   printer.
   \i setResolution() tells QPrinter what resolution you wish the
@@ -75,13 +76,15 @@
   \endlist
 
   Except where noted, you can only call the set functions before
-  setup(), or between QPainter::end() and setup(). (Some may have
+  setup(), or between QPainter::end() and setup(). (Some may take
   effect between setup() and begin(), or between begin() and end(),
   but that's strictly undocumented and such behaviour may differ
   depending on platform.)
 
   There are also some settings that the user sets (through the printer
-  dialog) and that applications are expected to obey: \list
+  dialog) and that applications are expected to obey:
+
+  \list
 
   \i pageOrder() tells the application program whether to print
   first-page-first or last-page-first.
@@ -105,17 +108,47 @@
 
   Once you start printing, newPage() is essential.  You will
   probably also need to look at the QPaintDeviceMetrics for the
-  printer (see the <a href="simple-application.html#printer">simple
-  print function</a> in the Application walk-through). Note that the
+  printer (see the \link simple-application.html#printersimple print
+  function\endlink in the Application walk-through). Note that the
   paint device metrics are valid only after the QPrinter has been set
-  up, i.e., after setup() has returned successfully. If you want
-  high-quality printing with accurate margins, setFullPage(TRUE) is
-  a must.
+  up, i.e. after setup() has returned successfully. If you want
+  high-quality printing with accurate margins, it is essential to call
+  setFullPage(TRUE).
 
-  If you want to abort the print job, abort() will make a best effort.
-  It may cancel the entire job or just some of it.
+  If you want to abort the print job, abort() will try its best to
+  stop printing. It may cancel the entire job or just some of it.
 
-  \omit Need a function to setup() without a dialog (ie. use defaults).
+  \omit Need a function to setup() without a dialog (i.e. use defaults).
+  \endomit
+
+  The true type font embedding for Qt's post script driver uses code
+  by David Chappell of Trinity College Computing Center.
+
+  \legalese
+
+ Copyright 1995, Trinity College Computing Center.
+ Written by David Chappell.
+
+ Permission to use, copy, modify, and distribute this software and its
+ documentation for any purpose and without fee is hereby granted, provided
+ that the above copyright notice appear in all copies and that both that
+ copyright notice and this permission notice appear in supporting
+ documentation.  This software is provided "as is" without express or
+ implied warranty.
+
+ TrueType font support.  These functions allow PPR to generate
+ PostScript fonts from Microsoft compatible TrueType font files.
+
+ The functions in this file do most of the work to convert a
+ TrueType font to a type 3 PostScript font.
+
+ Most of the material in this file is derived from a program called
+ "ttf2ps" which L. S. Ng posted to the usenet news group
+ "comp.sources.postscript".  The author did not provide a copyright
+ notice or indicate any restrictions on use.
+
+ Last revised 11 July 1995.
+
 */
 
 /*! \enum QPrinter::PrinterMode
@@ -124,9 +157,9 @@
   presets a certain resolution and working mode.
 
   \value ScreenResolution Sets the resolution of the print device to the
-  screen resolution. This has the big advantage, that the results obtained
+  screen resolution. This has the big advantage that the results obtained
   when painting on the printer will match more or less exactly the visible
-  output on the screen. It is the easiest to use, as fontmetrics on the
+  output on the screen. It is the easiest to use, as font metrics on the
   screen and on the printer are the same. This is the default value.
 
   \value PrinterResolution Use the physical resolution of the printer on
@@ -136,8 +169,8 @@
   of the postscript driver to 600dpi.
 
   \value Compatible Almost the same as PrinterResolution, but keeps some
-  peculiarities of the printer dirver of Qt-2.x. This is useful, when porting an
-  application from Qt-2.x to Qt-3.
+  peculiarities of the printer dirver of Qt 2.x. This is useful, when porting an
+  application from Qt 2.x to Qt 3.x.
 
 
  */
@@ -145,7 +178,7 @@
 /*! \enum QPrinter::Orientation
 
   This enum type (not to be confused with Qt::Orientation) is used to
-  decide how Qt should print on each sheet.
+  specify each page's orientation.
 
   \value Portrait the page's height is greater than its width (the
   default).
@@ -160,12 +193,13 @@
 
 /*! \enum QPrinter::PageSize
 
-  This enum type decides what paper size QPrinter is to use.  QPrinter
+  This enum type specifies what paper size QPrinter should use.  QPrinter
   does not check that the paper size is available; it just uses this
-  information, together with Orientation and QPrinter::setFullPage(), to
-  determine the printable area (see QPaintDeviceMetrics).
+  information, together with QPrinter::Orientation and
+  QPrinter::setFullPage(), to determine the printable area (see
+  QPaintDeviceMetrics).
 
-  The defined sizes (with setFullPage( TRUE )) are
+  The defined sizes (with setFullPage(TRUE)) are:
 
   \value A0 841 x 1189 mm
   \value A1 594 x 841 mm
@@ -207,7 +241,7 @@
 
 /*! \enum QPrinter::PageOrder
 
-  This enum type is used by QPrinter/QPrintDialog to tell the
+  This enum type is used by QPrinter to tell the
   application program how to print.  The possible values are
 
   \value FirstPageFirst  the lowest-numbered page should
@@ -231,12 +265,12 @@
 
 /*! \enum QPrinter::PaperSource
 
-  This enum type decides what paper source QPrinter is to use.  QPrinter
+  This enum type specifies what paper source QPrinter is to use.  QPrinter
   does not check that the paper source is available; it just uses this
   information to try and set the paper source.  Whether it will set the
   paper source depends on whether the printer has that particular source.
 
-  Note: It is currently only implemented for Windows.
+  Note: this is currently only implemented for Windows.
 
   \value OnlyOne
   \value Lower
@@ -268,7 +302,7 @@
   output should be sent directly to the printer.
   The default setting is FALSE.
 
-  This function is currently supported only under X11.
+  This function is currently only supported under X11.
 
   \sa setOutputToFile(), setOutputFileName()
 */
@@ -280,7 +314,7 @@
   Will output to a file if \a enable is TRUE, or will output directly
   to the printer if \a enable is FALSE.
 
-  This function is currently supported only under X11.
+  This function is currently only supported under X11.
 
   \sa outputToFile(), setOutputFileName()
 */
@@ -306,11 +340,11 @@ void QPrinter::setOutputToFile( bool enable )
 /*!
   Sets the name of the output file to \a fileName.
 
-  Setting a null name (0 or "") disables output to a file, i.e., calls
-  setOutputToFile(FALSE). Setting a non-null name enables output to a
-  file, i.e. calls setOutputToFile(TRUE).
+  Setting a null or empty name (0 or "") disables output to a file,
+  i.e. calls setOutputToFile(FALSE). Setting a non-empty name enables
+  output to a file, i.e. calls setOutputToFile(TRUE).
 
-  This function is currently supported only under X11.
+  This function is currently only supported under X11.
 
   \sa outputFileName(), setOutputToFile()
 */
@@ -382,17 +416,16 @@ void QPrinter::setDocName( const QString &name )
 
 /*!
   \fn QString QPrinter::creator() const
-  Returns the creator name.
+  Returns the name of the application that created the document.
   \sa setCreator()
 */
 
 /*!
-  Sets the creator name to \a creator.
+  Sets the name of the application that created the document to \a creator.
 
-  Calling this function has effect only for the X11 version of Qt.
-  The creator name is the name of the application that created the
-  document.  If no creator name is specified, the creator will be
-  set to "Qt" with some version number.
+    This function is only applicable to the X11 version of Qt. If no
+    creator name is specified, the creator will be set to "Qt"
+    followed by some version number.
 
   \sa creator()
 */
@@ -419,7 +452,7 @@ void QPrinter::setCreator( const QString &creator )
 
   The printer driver reads this setting and prints using the specified
   orientation.  On Windows however, this setting won't take effect until
-  the printer dialog is shown (using QPrinter::setup() ).
+  the printer dialog is shown (using QPrinter::setup()).
 
   \sa orientation()
 */
@@ -491,7 +524,7 @@ QPrinter::PageOrder QPrinter::pageOrder() const
 
 
 /*!  Sets the printer's color mode to \a newColorMode, which can be
-  one of \c Color (the default) and \c GrayScale.
+  one of \c Color (the default) or \c GrayScale.
 
   \sa colorMode()
 */
@@ -518,6 +551,9 @@ QPrinter::ColorMode QPrinter::colorMode() const
   \fn int QPrinter::fromPage() const
   Returns the from-page setting.  The default value is 0.
 
+  If fromPage() and toPage() both return 0 this should signify 'print
+  the whole document'.
+
   The programmer is responsible for reading this setting and printing
   accordingly.
 
@@ -527,6 +563,9 @@ QPrinter::ColorMode QPrinter::colorMode() const
 /*!
   \fn int QPrinter::toPage() const
   Returns the to-page setting.  The default value is 0.
+
+  If fromPage() and toPage() both return 0 this should signify 'print
+  the whole document'.
 
   The programmer is responsible for reading this setting and printing
   accordingly.
@@ -539,6 +578,9 @@ QPrinter::ColorMode QPrinter::colorMode() const
   respectively.
 
   The from-page and to-page settings specify what pages to print.
+
+  If \a fromPage and \a toPage are both 0 this should signify 'print
+  the whole document'.
 
   This function is useful mostly to set a default value that the
   user can override in the print dialog when you call setup().
@@ -561,16 +603,16 @@ void QPrinter::setFromTo( int fromPage, int toPage )
 
 /*!
   \fn int QPrinter::minPage() const
-  Returns the min-page setting, i.e. the lowest pagenumber a user
+  Returns the min-page setting, i.e. the lowest page number a user
   is allowed to choose.  The default value is 0.
-  \sa maxPage(), setMinMax()
+  \sa maxPage(), setMinMax() setFromTo()
 */
 
 /*!
   \fn int QPrinter::maxPage() const
-  Returns the max-page setting. A user can't choose a higher pagenumber
-  than maxPage() when he or she selects a printrange. The default value is 0.
-  \sa minPage(), setMinMax()
+  Returns the max-page setting. A user can't choose a higher page number
+  than maxPage() when they select a print range. The default value is 0.
+  \sa minPage(), setMinMax() setFromTo()
 */
 
 /*!
@@ -578,9 +620,9 @@ void QPrinter::setFromTo( int fromPage, int toPage )
   respectively.
 
   The min-page and max-page restrict the from-page and to-page
-  settings.  When the printer setup dialog comes up, the user cannot
-  select from and to that are outside the range specified by min and
-  max pages.
+  settings.  When the printer setup dialog appears, the user cannot
+  select a from page or a to page that are outside the range specified
+  by min and max pages.
 
   \sa minPage(), maxPage(), setFromTo(), setup()
 */
@@ -616,10 +658,10 @@ void QPrinter::setNumCopies( int numCopies )
 /*!  Returns the printer options selection string.  This is
 useful only if the print command has been explicitly set.
 
-The default value (a null string) implies to select printer in a
-system-dependent manner.
+The default value (a null string) implies that the printer should be
+selected in a system-dependent manner.
 
-Any other value implies to use that value.
+Any other value implies that the given value should be used.
 
 \sa setPrinterSelectionOption()
 */
@@ -630,9 +672,10 @@ QString QPrinter::printerSelectionOption() const
 }
 
 
-/*!  Sets the printer to use \a option to select printer.  \a option
-is null by default (meaning to be a little smart), but it can be set to
-other values to use a specific printer selection option.
+/*!  Sets the printer to use \a option to select the printer.  \a option
+is null by default (which implies that Qt should be smart enough to
+guess correctly), but it can be set to other values to use a specific
+printer selection option.
 
 If the printer selection option is changed while the printer is
 active, the current print job may or may not be affected.
@@ -653,9 +696,9 @@ QPaintDeviceMetrics will report something smaller than the size
 indicated by PageSize.  (Note that QPrinter may be wrong - it does not
 have perfect knowledge of the physical printer.)
 
-If you set it to TRUE, QPaintDeviceMetrics will report the exact same size
-as indicated by PageSize, but you cannot print on all of that - you have
-to take care of the output margins yourself.
+If you set \a fp to TRUE, QPaintDeviceMetrics will report the exact
+same size as indicated by PageSize, but you cannot print on all of
+that - you have to take care of the output margins yourself.
 
 \sa PageSize setPageSize() QPaintDeviceMetrics fullPage()
 */
@@ -670,7 +713,7 @@ void QPrinter::setFullPage( bool fp )
 at the corner of the sheet and FALSE if it is at the edge of the
 printable area.
 
-See setFullPage() for more detail and some warnings.
+See setFullPage() for details and caveats.
 
 \sa setFullPage() PageSize QPaintDeviceMetrics
 */
@@ -681,8 +724,8 @@ bool QPrinter::fullPage() const
 }
 
 
-/*! Requests the printer to operate at \a dpi if possible, or do the
-best it can.
+/*! Requests that the printer prints at \a dpi or as near to \a dpi as
+    possible.
 
 This setting affects the coordinate system as returned by
 e.g. QPaintDeviceMetrics and QPainter::viewport().
@@ -702,7 +745,7 @@ void QPrinter::setResolution( int dpi )
 
 
 /*! Returns the current assumed resolution of the printer, as set by
-setResolution() or the printer subsystem.
+setResolution() or by the printer subsystem.
 
 \sa setResolution()
 */

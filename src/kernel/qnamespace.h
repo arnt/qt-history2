@@ -714,7 +714,8 @@ public:
         ExactMatch      = 0x00010  // 1 0000
     };
 
-    // "handle" type for system objects
+    // "handle" type for system objects. Documented as \internal in
+    // qapplication.cpp
 #if defined(Q_WS_MAC)
     typedef void * HANDLE;
 #elif defined(Q_WS_WIN)

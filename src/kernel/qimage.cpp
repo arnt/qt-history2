@@ -3584,12 +3584,11 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
   raw format. PPM and PGM files with more than 256 levels of intensity
   are scaled down when reading.
 
-  \warning Unisys's position regarding the GIF file format.  If you
-  are in a country which recognizes software patents and in which
-  Unisys holds a patent on LZW compression and/or decompression and
-  you want to use GIF, Unisys may require you to license the
-  technology.  Such countries include Canada, Japan, the USA, France,
-  Germany, Italy and the UK.
+  \warning If you are in a country which recognizes software patents
+  and in which Unisys holds a patent on LZW compression and/or
+  decompression and you want to use GIF, Unisys may require you to
+  license the technology.  Such countries include Canada, Japan, the
+  USA, France, Germany, Italy and the UK.
 
   GIF support may be removed completely in a future version of Qt.  We
   recommend using the PNG format.

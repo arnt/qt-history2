@@ -736,6 +736,8 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 }
 
 
+/*! \reimp
+*/
 void QMotifPlusStyle::drawControl( ControlElement element,
 				   QPainter *p,
 				   const QWidget *widget,
@@ -974,6 +976,8 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 }
 
 
+/*! \reimp
+*/
 QRect QMotifPlusStyle::subRect(SubRect r, const QWidget *widget) const
 {
     QRect rect;
@@ -1269,6 +1273,8 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 }
 
 
+/*! \reimp
+*/
 QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 					      const QWidget *widget,
 					      SubControl subcontrol,

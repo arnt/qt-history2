@@ -57,25 +57,45 @@
   \ingroup io
   \ingroup misc
 
-  You can write to standard input of the started program. You can read the
-  output of the program on standard output and standard error. You are notified
-  when the program exits.
+  You can write to the started program's standard input, and can read the
+  program's standard output and standard error. You can pass command line
+  arguments to the program either in the constructor or with
+  setArguments() or addArgument(). The program's working directory can
+  be set with setWorkingDirectory(). The processExited() signal is
+  emitted if the program exits. The program's exit status is available
+  from exitStatus(), although you could simply call normalExit() to
+  see if the program terminated normally.
 
-  There are two different ways to run a process: If you use start(), you have
-  full control over the process; you can write to the standard input via the
-  writeToStdin() slots whenever you want, and you can close standard input via
-  the closeStdin() slot.
+  There are two different ways to start a process. If you just want to
+  run a program, optionally passing data to its standard input at the
+  beginning, use one of the launch() functions. If you want full
+  control of the program's standard input, standard output and
+  standard error, use the start() function.
 
-  If you know the data that should be written to the standard input of the
-  process already when you want to run the process, you can use the launch()
-  functions instead. These functions take the data that should be written to
-  standard input as an argument, write it to standard input and automatically
-  close standard input if all data was written.
+  If you use start() you can write to the program's standard input
+  using writeToStdin(). Use closeStdin() when you wish to close the
+  program's standard input. You can read from the program's standard
+  output using readStdout() or readLineStdout(). These functions
+  return an empty QByteArray if there is no data to read. The
+  readyReadStdout() signal is emitted when there is data available
+  from standard output. Standard error has a set of functions that
+  correspond to the standard output functions, i.e. readStderr(),
+  readLineStderr() and readyReadStderr().
 
-  If you use a launch() function to run the process, you should not use the
-  slots writeToStdin() and closeStdin(), since the result is not well-defined.
+  If you use one of the launch() functions the data you pass will be
+  sent to the program's standard input. Once all the data has been
+  writtend the program's standard input will be closed automatically.
+  You should not use writeToStdin() or closeStdin() if you use
+  launch(). If you need to send data to the program's standard input
+  after it has started running use start() instead of launch().
 
-  Example: If you want to start the \c uic command (Qt commandline tool used
+  You can test to see if a program is running with isRunning(). The
+  program's process identifier is available from processIdentifier().
+  If you want to terminate a running program use hangUp(); the program
+  may ignore this. If you \e really want to terminate the program,
+  without it having any chance to clean up, use kill().
+
+  Example: If you want to start the \c uic command (Qt command line tool used
   with the Qt Designer) and make some operations on the output (the \c uic
   outputs the code it generates to standard output by default). Consider the
   case, that you want to start it with the command line options "-tr i18n" on

@@ -593,10 +593,12 @@ static QCleanupHandler<QPrintDialog> qpd_cleanup_globaldialog;
   \class QPrintDialog qprintdialog.h
 
   \brief The QPrintDialog class provides a dialog for specifying
-  print-out details.
+  the printer's configuration.
 
-  \warning This class is not present on all platforms; use
-  QPrinter::setup() instead for portability.
+  \internal
+
+  \warning The use of this class is not recommended since it is not
+  present on all platforms; use QPrinter::setup() instead.
 
   \omit
 

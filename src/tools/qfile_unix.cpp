@@ -397,16 +397,10 @@ QIODevice::Offset QFile::size() const
     return st.st_size;
 }
 
-/*!
-    \overload
-  QIODevice::Offset QFile::at() const
-  Returns the file index.
-  \sa size()
-*/
 
 /*!
-    \overload
-  Sets the file index to \a pos. Returns TRUE if successful, otherwise FALSE.
+  Sets the file index to \a pos. Returns TRUE if successful; otherwise
+  returns FALSE.
 
   Example:
   \code
@@ -417,6 +411,8 @@ QIODevice::Offset QFile::size() const
     f.at( f.size()-80 );			// set index to 80 before EOF
     f.close();
   \endcode
+
+  Use \c at() without arguments to retrieve the file offset.
 
   \warning The result is undefined if the file was open()'ed
   using the \c IO_Append specifier.

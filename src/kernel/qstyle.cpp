@@ -321,6 +321,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
   \value PE_ButtonCommand  button used to initiate an action, for
   example, a QPushButton.
+    \value PE_ButtonDefault  this button is the default button, e.g.
+    in a dialog.
   \value PE_ButtonBevel  generic button bevel.
   \value PE_ButtonTool  tool button, for example, a QToolButton.
   \value PE_ButtonDropDown  drop down button, for example, a tool
