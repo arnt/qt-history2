@@ -106,6 +106,21 @@ void QPaintEngine::drawTextItem(const QPoint &, const QTextItem &, int)
 {
 }
 
+QPainter::RenderHints QPaintEngine::supportedRenderHints() const
+{
+    return 0;
+}
+
+QPainter::RenderHints QPaintEngine::renderHints() const
+{
+    return 0;
+}
+
+void QPaintEngine::setRenderHint(QPainter::RenderHint, bool)
+{
+}
+
+
 void QWrapperPaintEngine::updatePen(QPainterState *ps) { wrap->updatePen(ps); }
 void QWrapperPaintEngine::updateBrush(QPainterState *ps) { wrap->updateBrush(ps); }
 void QWrapperPaintEngine::updateFont(QPainterState *ps) { wrap->updateFont(ps); }

@@ -45,6 +45,11 @@ class Q_GUI_EXPORT QPainter : public Qt
 public:
     enum CoordinateMode { CoordDevice, CoordPainter };
     enum TextDirection { Auto, RTL, LTR };
+    enum RenderHint {
+	LineAntialiasing = 1,
+    };
+
+    Q_DECLARE_FLAGS(RenderHints, RenderHint);
 
     QPainter();
     QPainter(QPaintDevice *, bool unclipped = false);
@@ -216,6 +221,10 @@ public:
     QRect 	xFormDev(const QRect &)  const;
     QPointArray xFormDev(const QPointArray &) const;
     QPointArray xFormDev(const QPointArray &, int index, int npoints) const;
+
+    void setRenderHint(RenderHint hint, bool enable);
+    RenderHints supportedRenderHints() const;
+    RenderHints renderHints() const;
 
 #if defined Q_WS_WIN // ### not liking this!!
     HDC handle() const;

@@ -113,6 +113,10 @@ public:
     virtual Qt::HANDLE handle() const = 0;
 #endif
 
+    virtual QPainter::RenderHints supportedRenderHints() const;
+    virtual QPainter::RenderHints renderHints() const;
+    virtual void setRenderHint(QPainter::RenderHint hint, bool enable);
+
     enum Type {
 	//X11
 	X11,

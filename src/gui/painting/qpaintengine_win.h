@@ -127,6 +127,10 @@ public:
     void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
 
+    QPainter::RenderHints supportedRenderHints() const;
+    QPainter::RenderHints renderHints() const;
+    void setRenderHint(QPainter::RenderHint hint, bool enable);
+
     HDC handle() const;
     Type type() const { return Gdiplus; }
 

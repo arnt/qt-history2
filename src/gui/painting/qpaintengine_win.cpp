@@ -1469,7 +1469,6 @@ bool QGdiplusPaintEngine::begin(QPaintDevice *pdev, QPainterState *, bool)
 
     d->graphics = new Graphics(d->hdc);
     Q_ASSERT(d->graphics);
-    d->graphics->SetSmoothingMode(SmoothingModeHighQuality);
 
     d->pen = new Pen(Color(0, 0, 0), 0);
 
@@ -1791,6 +1790,28 @@ void QGdiplusPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
 }
 #endif
 
+QPainter::RenderHints QGdiplusPaintEngine::supportedRenderHints() const
+{
+    return QPainter::LineAntialiasing;
+}
+
+QPainter::RenderHints QGdiplusPaintEngine::renderHints() const
+{
+    QPainter::RenderHints hints;
+    if (d->graphics->GetSmoothingMode() == SmoothingModeHighQuality)
+	hints |= QPainter::LineAntialiasing;
+    return hints;
+}
+
+void QGdiplusPaintEngine::setRenderHint(QPainter::RenderHint hint, bool enable)
+{
+    if (hint & QPainter::LineAntialiasing) {
+	qDebug() << "setting rendering hing..." << hint << "to" << enable;
+	d->graphics->SetSmoothingMode(enable ? SmoothingModeHighQuality : SmoothingModeHighSpeed);
+    }
+}
+
+
 /* Some required initialization of GDI+ needed prior to
    doing anything GDI+ related. Called by qt_init() in
    qapplication_win.cpp
@@ -1809,4 +1830,5 @@ void QGdiplusPaintEngine::cleanup()
 {
     GdiplusShutdown(gdiplusToken);
 }
+
 #endif // QT_GDIPLUS_SUPPORT

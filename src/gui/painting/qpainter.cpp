@@ -2903,6 +2903,34 @@ QPointArray QPainter::xFormDev( const QPointArray &ad, int index, int npoints ) 
 #endif
 }
 
+void QPainter::setRenderHint(QPainter::RenderHint hint, bool enable)
+{
+    if (!isActive()) {
+	qWarning("Painter must be active to set rendering hints");
+	return;
+    }
+    d->engine->setRenderHint(hint, enable);
+}
+
+QPainter::RenderHints QPainter::supportedRenderHints() const
+{
+    if (!isActive()) {
+	qWarning("Painter must be active to set rendering hints");
+	return 0;
+    }
+    return d->engine->supportedRenderHints();
+}
+
+QPainter::RenderHints QPainter::renderHints() const
+{
+    if (!isActive()) {
+	qWarning("Painter must be active to set rendering hints");
+	return 0;
+    }
+    d->engine->renderHints();
+}
+
+
 #if defined Q_WS_WIN
 /*! \internal */
 HDC QPainter::handle() const
