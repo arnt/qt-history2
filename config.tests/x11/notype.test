@@ -37,7 +37,7 @@ NOTYPE=yes
 
 # done
 
-if [ "$NOTYPE" != "yes" ]
+if [ "$NOTYPE" = "yes" ]
 then
     if [ "$VERBOSE" = "yes" ]
     then
