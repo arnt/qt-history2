@@ -405,7 +405,7 @@ bool Config::matchLine( QString *key, QStringList *val )
     }
 
     if ( yyPos < (int) yyIn.length() )
-	warning( 0, "Bad syntax in configuration file at line %d\n",
+	warning( 0, "Bad syntax in configuration file at line %d",
 		 yyIn.left(yyPos).contains(QChar('\n')) + 1 );
     return FALSE;
 }

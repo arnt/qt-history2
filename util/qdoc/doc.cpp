@@ -721,7 +721,9 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    footnotes.append( yyOut.mid(footnoteBegin) );
 		    yyOut.truncate( footnoteBegin );
 		    yyOut += QString( "<a href=\"#footnote%1\"><sup>(%2)"
-				      "</sup></a> " )
+				      "</sup></a>"
+				      "<a name=\"footnote-call%3\"></a> " )
+			     .arg( footnotes.count() )
 			     .arg( footnotes.count() )
 			     .arg( footnotes.count() );
 		    footnoteBegin = -1;
@@ -1181,21 +1183,20 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	}
     }
 
-    // ###
-
     if ( numBugs > 0 || inValue )
 	yyOut += QString( "</ul>" );
     flushWalkthrough( walk, &included, &thruwalked );
 
     if ( footnotes.count() > 0 ) {
-	int no = 1;
-
 	yyOut += QString( "\n<hr>\n<ol>" );
 
 	QStringList::Iterator f = footnotes.begin();
+	int no = 1;
 	while ( f != footnotes.end() ) {
 	    yyOut += QString( " <li><a name=\"footnote%1\"></a>\n" ).arg( no );
 	    yyOut += *f;
+	    yyOut += QString( " <a href=\"#footnote-call%1\">Back...</a>" )
+		     .arg( no );
 	    no++;
 	    ++f;
 	}

@@ -534,6 +534,8 @@ static bool matchProperty( ClassDecl *classDecl )
 static bool matchDeclList( Decl *context )
 {
     int braceDepth0 = yyTokenizer->braceDepth();
+    if ( yyTok == Tok_RightBrace ) // prevents failure on empty body
+	braceDepth0++;
 
     while ( yyTokenizer->braceDepth() >= braceDepth0 && yyTok != Tok_Eoi ) {
 	switch ( yyTok ) {
