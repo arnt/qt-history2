@@ -332,7 +332,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetTypeInfo( unsigned int, unsigne
     return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetIDsOfNames( const _GUID &, wchar_t **, unsigned int, unsigned long, long * )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetIDsOfNames( const _GUID &, wchar_t **rgszNames, unsigned int, unsigned long, long *rgdispid )
 {
 #ifndef Q_CC_BOR
     // PROPERTIES:  Hierarchical
@@ -383,6 +383,9 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetIDsOfNames( const _GUID &, wcha
 
     return S_OK;
 #else
+    Q_UNUSED( rgszNames );
+    Q_UNUSED( rgdispid );
+
     return DISP_E_MEMBERNOTFOUND;
 #endif
 }
