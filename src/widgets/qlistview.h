@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#33 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#34 $
 **
 ** Definition of QListView widget class
 **
@@ -210,6 +210,7 @@ protected:
 			     int cx, int cy, int cw, int ch );
 
     virtual void paintEmptyArea( QPainter *, const QRect & );
+    void enabledChange( bool );
 
 protected slots:
     void updateContents();

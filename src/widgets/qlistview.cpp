@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#72 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#71 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#72 $");
 
 
 const int Unsorted = 32767;
@@ -1608,6 +1608,11 @@ void QListView::resizeEvent( QResizeEvent *e )
 {
     QScrollView::resizeEvent( e );
     d->h->resize( viewport()->width(), d->h->height() );
+}
+
+void QListView::enabledChange( bool )
+{
+    triggerUpdate();
 }
 
 
