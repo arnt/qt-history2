@@ -85,8 +85,8 @@ public:
         bgOrigin = QPoint(0, 0);
         brush = bgBrush = QBrush();
         font = deviceFont = QFont();
-        tmpClipRegion;
-        tmpClipPath;
+        tmpClipRegion = QRegion();
+        tmpClipPath = QPainterPath();
         tmpClipOp = Qt::ReplaceClip;
 #ifndef QT_NO_TRANSFORMATIONS
         worldMatrix.reset();
