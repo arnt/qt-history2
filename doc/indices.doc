@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 1.6 1996/02/04 22:57:32 agulbra Exp $
+** $Id: indices.doc,v 1.7 1996/02/11 22:36:12 agulbra Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 1.6 1996/02/04 22:57:32 agulbra Exp $";
+static char ident[] = "$Id: indices.doc,v 1.7 1996/02/11 22:36:12 agulbra Exp $";
 #endif
 
 /*! \page index.html
@@ -67,10 +67,8 @@ within a few minutes.
 <ul>
 <li><a href=tools.html>General utility classes</a>
 <li><a href=fonts.html>Classes related to fonts</a>
-<li><a href=colors.html>Colorful classes</a>
 <li><a href=realwidgets.html>Widgets</a>
 <li><a href=abstractwidgets.html>Abstract widget classes</a>
-<li><a href=uiclasses.html>User interface classes (except widgets)</a>
 <li><a href=drawing.html>Low-level drawing classes</a>
 <li><a href=headers.html>Header files</a>
 <li><a href=enums.html>enum types</a>
