@@ -2725,11 +2725,11 @@ void QApplication::flush()
 	request_updates_pending_list.clear(); //clear now and let it get filled elsewhere
 	for(QList<WId>::Iterator it = update_list.begin(); it != update_list.end(); ++it) {
 	    QWidget *widget = QWidget::find((*it));
-	    if(widget && widget->extra && widget->extra->has_dirty_area &&
+	    if(widget && widget->d->extra && widget->d->extra->has_dirty_area &&
 	       widget->topLevelWidget()->isVisible()) {
-		widget->extra->has_dirty_area = FALSE;
-		QRegion r = widget->extra->dirty_area;
-		widget->extra->dirty_area = QRegion();
+		widget->d->extra->has_dirty_area = FALSE;
+		QRegion r = widget->d->extra->dirty_area;
+		widget->d->extra->dirty_area = QRegion();
 		QRegion cr = widget->clippedRegion();
 		if(!widget->isTopLevel()) {
 		    QPoint point(posInWindow(widget));
@@ -2739,12 +2739,12 @@ void QApplication::flush()
 		    widget->repaint(r & cr, !widget->testWFlags(WRepaintNoErase));
 	    }
 	}
-	if(QWidgetList *list = qApp->topLevelWidgets()) {
-	    for(QWidget *tlw = list->first(); tlw; tlw = list->next()) {
-		if(tlw->isVisible()) {
-		    tlw->propagateUpdates();
-		    QMacSavedPortInfo::flush(tlw);
-		}
+	QWidgetList tlws = QApplication::topLevelWidgets();
+	for(int i = 0; i < tlws.size(); i++) {
+	    QWidget *tlw = tlws.at(i);
+	    if(tlw->isVisible()) {
+		tlw->propagateUpdates();
+		QMacSavedPortInfo::flush(tlw);
 	    }
 	}
     }
