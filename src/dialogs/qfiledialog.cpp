@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#275 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#276 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1494,8 +1494,8 @@ void QFileDialog::init()
     d->mode = AnyFile;
     d->last = 0;
     d->moreFiles = 0;
-    d->infoPreview = TRUE;
-    d->contentsPreview = TRUE;
+    d->infoPreview = FALSE;
+    d->contentsPreview = FALSE;
     d->hadDotDot = FALSE;
     d->ignoreNextKeyPress = FALSE;
 
@@ -1524,10 +1524,7 @@ void QFileDialog::init()
 	     this,  SLOT(fileNameEditDone()) );
     nameEdit->installEventFilter( this );
 
-    if ( d->infoPreview || d->contentsPreview )
-	d->splitter = new QSplitter( this );
-    else
-	d->splitter = 0;
+    d->splitter = new QSplitter( this );
 
     d->stack = new QWidgetStack( d->splitter ? d->splitter :  this , "files and more files" );
 
@@ -1645,21 +1642,18 @@ void QFileDialog::init()
     d->mcView->setToggleButton( TRUE );
     d->stack->addWidget( d->moreFiles, d->modeButtons->insert( d->mcView ) );
 
-    if ( d->infoPreview ) {
-	d->previewInfo = new QPushButton( this, "preview info view" );
-	QToolTip::add( d->previewInfo, tr( "Preview File Info" ) );
-	d->previewInfo->setPixmap( *previewInfoViewIcon );
-	d->previewInfo->setToggleButton( TRUE );
-	d->modeButtons->insert( d->previewInfo );
-    }
-    if ( d->contentsPreview ) {
-	d->previewContents = new QPushButton( this, "preview info view" );
-	QToolTip::add( d->previewContents, tr( "Preview File Contents" ) );
-	d->previewContents->setPixmap( *previewContentsViewIcon );
-	d->previewContents->setToggleButton( TRUE );
-	d->modeButtons->insert( d->previewContents );
-    }
-
+    d->previewInfo = new QPushButton( this, "preview info view" );
+    QToolTip::add( d->previewInfo, tr( "Preview File Info" ) );
+    d->previewInfo->setPixmap( *previewInfoViewIcon );
+    d->previewInfo->setToggleButton( TRUE );
+    d->modeButtons->insert( d->previewInfo );
+    
+    d->previewContents = new QPushButton( this, "preview info view" );
+    QToolTip::add( d->previewContents, tr( "Preview File Contents" ) );
+    d->previewContents->setPixmap( *previewContentsViewIcon );
+    d->previewContents->setToggleButton( TRUE );
+    d->modeButtons->insert( d->previewContents );
+    
     connect( d->detailView, SIGNAL( clicked() ),
 	     d->moreFiles, SLOT( cancelRename() ) );
     connect( d->detailView, SIGNAL( clicked() ),
@@ -1681,15 +1675,10 @@ void QFileDialog::init()
 
     QHBoxLayout * h;
 
-    if ( d->infoPreview || d->contentsPreview ) {
-	d->preview = new QWidgetStack( d->splitter ? d->splitter : this );
+    d->preview = new QWidgetStack( d->splitter ? d->splitter : this );
 	
-	if ( d->infoPreview )
-	    d->infoPreviewWidget = new QWidget( d->preview );
-	if ( d->contentsPreview )
-	    d->contentsPreviewWidget = new QWidget( d->preview );
-    } else
-	d->preview = 0;
+    d->infoPreviewWidget = new QWidget( d->preview );
+    d->contentsPreviewWidget = new QWidget( d->preview );
 
     h = new QHBoxLayout( 0 );
     d->topLevelLayout->addLayout( h );
@@ -1703,16 +1692,11 @@ void QFileDialog::init()
     h->addSpacing( 8 );
     h->addWidget( d->detailView );
     h->addWidget( d->mcView );
-    if ( d->infoPreview )
-	h->addWidget( d->previewInfo );
-    if ( d->contentsPreview )
-	h->addWidget( d->previewContents );
+    h->addWidget( d->previewInfo );
+    h->addWidget( d->previewContents );
     h->addSpacing( 16 );
 
-    if ( d->splitter && d->infoPreview || d->contentsPreview )
-	d->topLevelLayout->addWidget( d->splitter );
-    else
-	d->topLevelLayout->addWidget( d->stack );
+    d->topLevelLayout->addWidget( d->splitter );
 	
     h = new QHBoxLayout();
     d->topLevelLayout->addLayout( h );
@@ -2493,9 +2477,22 @@ r.setHeight( QMAX(r.height(),t.height()) )
     d->newFolder->setFixedSize( r );
     d->mcView->setFixedSize( r );
     d->detailView->setFixedSize( r );
-    d->previewInfo->setFixedSize( r );
-    d->previewContents->setFixedSize( r );
-    // ...
+    if ( d->infoPreview ) {
+	d->previewInfo->show();
+	d->previewInfo->setFixedSize( r );
+    } else {
+	d->previewInfo->hide();
+	d->previewInfo->setFixedSize( QSize( 0, 0 ) );
+    }
+	
+    if ( d->contentsPreview ) {
+	d->previewContents->show();
+	d->previewContents->setFixedSize( r );
+    } else {
+	d->previewContents->hide();
+	d->previewContents->setFixedSize( QSize( 0, 0 ) );
+    }
+	
 
     // open/save, cancel
     r = QSize( 75, 20 );
@@ -3577,24 +3574,28 @@ void QFileDialog::itemChanged( const QString &oldname, const QString &newname )
 /*!
   Sets the file preview modes. If \a info is TRUE, a widget for
   showing file information can be shown, else not.
-  If \a contents is TRUE, a widget for showing a file preview 
+  If \a contents is TRUE, a widget for showing a file preview
   can be shown, else not.
 */
 
 void QFileDialog::setPreviewMode( bool info, bool contents )
 {
+    d->geometryDirty = TRUE;
+    d->infoPreview = info;
+    d->contentsPreview = contents;
+    updateGeometries();
 }
 
 /*!
   Sets the widget which should be used for displaying information
   of a file.
-  
-  This widget should implement a public slot 
-  
+
+  This widget should implement a public slot
+
   void showPreview( const QUrl & );
-  
+
   A signal of the filedialog will then be automatically connected to
-  this slot. If the user selects a file then, this signal is emitted, 
+  this slot. If the user selects a file then, this signal is emitted,
   so that the preview widget can show information of this file (url).
 */
 
@@ -3620,13 +3621,13 @@ void QFileDialog::setInfoPreviewWidget( QWidget *w )
 /*!
   Sets the widget which should be used for displaying the preview
   of a file.
-  
-  This widget should implement a public slot 
-  
+
+  This widget should implement a public slot
+
   void showPreview( const QUrl & );
-  
+
   A signal of the filedialog will then be automatically connected to
-  this slot. If the user selects a file then, this signal is emitted, 
+  this slot. If the user selects a file then, this signal is emitted,
   so that the preview widget can show a preview of this file (url).
 */
 
