@@ -197,7 +197,8 @@ public:
     enum WidthMode { Manual, Maximum };
     virtual void setColumnWidthMode( int column, WidthMode );
     WidthMode columnWidthMode( int column ) const;
-
+    int columns() const;
+    
     virtual void setColumnAlignment( int, int );
     int columnAlignment( int ) const;
 

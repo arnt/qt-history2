@@ -177,7 +177,7 @@ struct QListViewPrivate
     // holds a list of iterators
     QList<QListViewItemIterator> *iterators;
     QListViewItem *pressedItem;
-    
+
     QTimer *scrollTimer;
 
     bool clearing;
@@ -1708,7 +1708,7 @@ QListView::QListView( QWidget * parent, const char *name )
     d->ellipsisWidth = fontMetrics().width( "..." ) * 2;
     d->highlighted = 0;
     d->pressedItem = 0;
-    
+
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
 
@@ -2216,6 +2216,17 @@ int QListView::addColumn( const QIconSet& iconset, const QString &label, int wid
     d->column.insert( c, new QListViewPrivate::Column );
     d->column[c]->wmode = width >=0 ? Manual : Maximum;
     return c;
+}
+
+/*!
+  Returns the number of columns of this list view. 
+  
+  \sa addColumn(), removeColumn()
+*/
+
+int QListView::columns() const
+{
+    d->column.count();
 }
 
 /*!
@@ -2953,7 +2964,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 
     d->ignoreDoubleClick = FALSE;
     d->buttonDown = TRUE;
-    
+
     QListViewItem * i = itemAt( vp );
     QListViewItem *oldCurrent = currentItem();
     if ( !i )
@@ -3036,10 +3047,10 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     if ( i && vp.x() + contentsX() < itemMargin() + ( i->depth() + ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() )
 	i = 0;
     d->pressedItem = i;
-    
+
     emit pressed( i );
     emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( d->h->cellAt( vp.x() ) ) );
-    emit mouseButtonPressed( e->button(), i, viewport()->mapToGlobal( vp ), 
+    emit mouseButtonPressed( e->button(), i, viewport()->mapToGlobal( vp ),
 			     i ? d->h->mapToLogical( d->h->cellAt( vp.x() ) ) : -1 );
 
     if ( e->button() == RightButton && i == d->pressedItem ) {
@@ -3080,11 +3091,11 @@ void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
 	i = 0;
     emitClicked = emitClicked && d->pressedItem == i;
     d->pressedItem = 0;
-    
+
     if ( emitClicked ) {
 	emit clicked( i );
 	emit clicked( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( d->h->cellAt( vp.x() ) ) );
-	emit mouseButtonClicked( e->button(), i, viewport()->mapToGlobal( vp ), 
+	emit mouseButtonClicked( e->button(), i, viewport()->mapToGlobal( vp ),
 				 i ? d->h->mapToLogical( d->h->cellAt( vp.x() ) ) : -1 );
 
 	if ( e->button() == RightButton ) {
@@ -3096,7 +3107,7 @@ void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
 	    int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
 	    emit rightButtonClicked( i, viewport()->mapToGlobal( vp ), c );
 	}
-    }    
+    }
 }
 
 
