@@ -528,6 +528,21 @@ void QDialog::show()
 {
     if ( testWState(WState_Visible) )
 	return;
+    if ( !d->mainDef ) {
+	QObjectList *pbs = queryList( "QPushButton" );
+	if ( pbs && !pbs->isEmpty() ) {
+	    QObjectListIt it( *pbs );
+	    QPushButton *button;
+	    while ( ( button = (QPushButton*)it.current() ) ) {
+		++it;
+		if ( button->autoDefault() ) {
+		    button->setDefault( TRUE );
+		    break;
+		}
+	    }
+	}
+	delete pbs;
+    }
     if ( !did_resize )
 	adjustSize();
     if ( !did_move ) {
