@@ -207,7 +207,6 @@ void Some::connectStdout( bool enable )
 
 void Some::readyReadStdout()
 {
-qDebug( "Foo %p", this );
     QString s;
     proc->readStdout( s );
     out->setText( s.mid( 0, 1000 ) );

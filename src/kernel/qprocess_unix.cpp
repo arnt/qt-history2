@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#24 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -341,15 +341,25 @@ bool QProcess::start()
     d->pid = fork();
     if ( d->pid == 0 ) {
 	// child
+#if 0
 	::close( d->socketStdin[1] );
 	::close( d->socketStdout[0] );
 	::close( d->socketStderr[0] );
 	::close( STDIN_FILENO );
 	::close( STDOUT_FILENO );
 	::close( STDERR_FILENO );
+#endif
 	::dup2( d->socketStdin[0], STDIN_FILENO );
 	::dup2( d->socketStdout[1], STDOUT_FILENO );
 	::dup2( d->socketStderr[1], STDERR_FILENO );
+
+	// close all FDs
+	// ### This is not the nice solution. I should try a cleaner one.
+	int fdlimit = sysconf(_SC_OPEN_MAX);
+	int fd = 3;
+	while (fd < fdlimit)
+	    ::close(fd++);
+
 	::chdir( workingDir.absPath().latin1() );
 	::execvp( arglist[0], (char*const*)arglist ); // ### cast not nice
 	::exit( -1 );
