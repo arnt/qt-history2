@@ -25,9 +25,9 @@
 #include <formeditor/formeditor.h>
 #include <taskmenu/taskmenu_component.h>
 
-// sdk ### remove me
-#include <abstractformwindowmanager.h>
 #include <abstractformwindow.h>
+#include <abstractformeditorplugin.h>
+#include <abstractformwindowmanager.h>
 #include <abstractwidgetbox.h>
 
 #include <Qt3Support/Q3Workspace>
@@ -36,7 +36,8 @@
 #include <QtGui/QActionGroup>
 #include <QtGui/QVariant>
 
-#include <qdebug.h>
+#include <QtCore/QPluginLoader>
+#include <QtCore/qdebug.h>
 
 QDesignerWorkbench::QDesignerWorkbench(QDesignerMainWindow *mainWindow)
     : QObject(mainWindow),
@@ -125,6 +126,8 @@ void QDesignerWorkbench::initialize()
             this, SLOT(updateWorkbench(AbstractFormWindow*, const QString&, const QVariant& )));
 
     m_taskMenuComponent = new TaskMenuComponent(core(), this);
+
+    initializeCorePlugins();
 
     emit initialized();
 }
@@ -382,4 +385,16 @@ void QDesignerWorkbench::removeFormWindow(QDesignerFormWindow *formWindow)
     m_formWindowExtras.remove(formWindow);
     emit formWindowRemoved(formWindow);
 }
+
+void QDesignerWorkbench::initializeCorePlugins()
+{
+    QList<QObject*> builtinPlugins = QPluginLoader::staticInstances();
+    foreach (QObject *plugin, builtinPlugins) {
+        if (AbstractFormEditorPlugin *formEditorPlugin = qt_cast<AbstractFormEditorPlugin*>(plugin)) {
+            if (!formEditorPlugin->isInitialized())
+                formEditorPlugin->initialize(core());
+        }
+    }
+}
+
 

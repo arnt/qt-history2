@@ -99,6 +99,8 @@ public slots:
     void switchToWorkspaceMode();
     void switchToTopLevelMode();
 
+    void initializeCorePlugins();
+
 private slots:
     void initialize();
     void activateWorkspaceChildWindow(QWidget *widget);
