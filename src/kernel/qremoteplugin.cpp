@@ -124,7 +124,7 @@ bool QRemotePluginPrivate::canUnload() const
   Constructs a remote plugin. This is invoked automatically by
   the Q_EXPORT_PLUGIN macro.
 */
-QRemotePlugin::QRemotePlugin()
+QRemotePlugin::QRemotePlugin() : QGPlugin(0)
 {
     d = new QRemotePluginPrivate( this );
     setIface( (QRemoteFactoryInterface*)d );
