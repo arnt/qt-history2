@@ -59,6 +59,7 @@
 #include "qdrawutil.h"
 #include "qcursor.h"
 #include "qptrstack.h"
+#include "qptrdict.h"
 #include "private/qcomplextext_p.h"
 
 #include <stdlib.h>
@@ -67,6 +68,9 @@
 //#define DEBUG_COLLECTION// ---> also in qrichtext_p.h
 //#define DEBUG_TABLE_RENDERING
 
+class QTextFormatCollection;
+
+static QPtrDict<QTextFormatCollection> *qFormatCollectionDict = 0;
 const int QStyleSheetItem_WhiteSpaceNoCompression = 3; // ### belongs in QStyleSheetItem, fix 3.1
 
 #if defined(PARSER_DEBUG)
@@ -3578,7 +3582,7 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
       tc( 0 ), numCustomItems( 0 ),
 #endif
       pFormatter( 0 ), tArray( 0 ), tabStopWidth( 0 ),
-      eData( 0 ), pntr( 0 ), commandHistory( 0 ), fCollection( 0 )
+      eData( 0 ), pntr( 0 ), commandHistory( 0 )
 {
     bgcol = 0;
     breakable = TRUE;
@@ -3588,8 +3592,7 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
     list_val = -1;
     newLinesAllowed = FALSE;
     lastInFrame = FALSE;
-    if ( !doc )
-	fCollection = new QTextFormatCollection;
+    paintdevice = 0;
     defFormat = formatCollection()->defaultFormat();
     if ( !doc ) {
 	tabStopWidth = defFormat->width( 'x' ) * 8;
@@ -3659,7 +3662,6 @@ QTextParag::~QTextParag()
     if ( !doc ) {
 	delete pFormatter;
 	delete commandHistory;
-	delete fCollection;
     }
     delete [] tArray;
     delete eData;
@@ -4652,7 +4654,16 @@ QTextFormatCollection *QTextParag::formatCollection() const
 {
     if ( doc )
 	return doc->formatCollection();
-    return fCollection;
+    if ( !qFormatCollectionDict )
+	qFormatCollectionDict = new QPtrDict<QTextFormatCollection>;
+
+    QTextFormatCollection *fc = qFormatCollectionDict->find( (void*)paintdevice );
+    if ( !fc ) {
+	fc = new QTextFormatCollection;
+	qFormatCollectionDict->replace( (void*)paintdevice, fc );
+	fc->setPaintDevice( paintdevice );
+    }
+    return fc;
 }
 
 QString QTextParag::richText() const

@@ -374,6 +374,7 @@ void QLineEdit::init()
 {
     d = new QLineEditPrivate( this );
     d->parag->formatCollection()->setPaintDevice( this );
+    d->parag->setPaintDevice( this );
     connect( &d->blinkTimer, SIGNAL(timeout()),
 	     this, SLOT(blinkSlot()) );
     connect( &d->dragTimer, SIGNAL(timeout()),

@@ -1340,6 +1340,7 @@ public:
 
     void setDirection( QChar::Direction d );
     QChar::Direction direction() const;
+    void setPaintDevice( QPaintDevice *pd ) { paintdevice = pd; }
 
 protected:
     virtual void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
@@ -1389,7 +1390,7 @@ private:
     QTextCommandHistory *commandHistory;
     int list_val;
     QColor *bgcol;
-    QTextFormatCollection *fCollection;
+    QPaintDevice *paintdevice;
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
