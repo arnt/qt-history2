@@ -464,7 +464,10 @@ void QDnsAnswer::parseCname()
 
 void QDnsAnswer::parseNs()
 {
-    QString target = readString().lower();
+#if defined(QDNS_DEBUG)
+    QString target =
+#endif
+	readString().lower();
     if ( !ok ) {
 #if defined(QDNS_DEBUG)
 	qDebug( "QDns: saw bad cname for for %s", label.ascii() );
@@ -755,7 +758,7 @@ void QDnsAnswer::notify()
 
     QHash<void *, void *> notified;
     notified.setAutoDelete( FALSE );
-    
+
     QHash<void *, void *>::Iterator it = query->dns->begin();
     QDns * dns;
     while (it != query->dns->end()) {
@@ -1021,7 +1024,7 @@ void QDnsManager::transmitQuery( QDnsQuery * query_ )
     uint i = 0;
     while( i < (uint) queries.size() && queries[i] != 0 )
 	i++;
-    
+
     queries.insert( i, query_ );
     transmitQuery( i );
 }
@@ -1275,7 +1278,7 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
 	while (d->rrs && i < d->rrs->count()) {
 	    QDnsRR *rr = d->rrs->at(i);
 	    ++i;
-	    
+
 	    if ( rr->t == QDns::Cname
 		 && r->recordType() != QDns::Cname
 		 && !rr->nxdomain && cnamecount < 16 ) {
@@ -2085,7 +2088,7 @@ QString QDns::canonicalName() const
     QList<QDnsRR *> *cached = QDnsDomain::cached(that);
 
     that->t = oldType;
-    
+
     for (int i = 0; i < cached->count(); ++i) {
 	QDnsRR *rr = cached->at(i);
 	if ( rr->current && !rr->nxdomain && rr->domain ) {
