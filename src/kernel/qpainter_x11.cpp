@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#272 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#273 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -1055,9 +1055,11 @@ void QPainter::setBackgroundMode( BGMode m )
 	updateBrush();				// update brush setting
 }
 
-static short ropCodes[] = {
+static short ropCodes[] = {			// ROP translation table
     GXcopy, GXor, GXxor, GXandInverted,
-    GXcopyInverted, GXorInverted, GXequiv, GXand, GXinvert
+    GXcopyInverted, GXorInverted, GXequiv, GXand,
+    GXinvert, GXclear, GXset, GXnoop,
+    GXandReverse, GXorReverse, GXnand, GXnor
 };
 
 /*!
@@ -1065,15 +1067,22 @@ static short ropCodes[] = {
 
   The \e r parameter must be one of:
   <ul>
-  <li> \c CopyROP:	dst = src.
-  <li> \c OrROP:	dst = dst OR src.
-  <li> \c XorROP:	dst = dst XOR src.
-  <li> \c EraseROP:	dst = (NOT src) AND dst
-  <li> \c NotCopyROP:	dst = NOT src
-  <li> \c NotOrROP:	dst = (NOT src) OR dst
-  <li> \c NotXorROP:	dst = (NOT src) XOR dst
-  <li> \c NotEraseROP:	dst = src AND dst
-  <li> \c NotROP:	dst = NOT dst
+  <li> \c CopyROP:     dst = src.
+  <li> \c OrROP:       dst = src OR dst.
+  <li> \c XorROP:      dst = src XOR dst.
+  <li> \c NotAndROP:   dst = (NOT src) AND dst
+  <li> \c NotCopyROP:  dst = NOT src
+  <li> \c NotOrROP:    dst = (NOT src) OR dst
+  <li> \c NotXorROP:   dst = (NOT src) XOR dst
+  <li> \c AndROP       dst = src AND dst
+  <li> \c NotROP:      dst = NOT dst
+  <li> \c ClearROP:    dst = 0
+  <li> \c SetROP:      dst = 1
+  <li> \c NopROP:      dst = dst
+  <li> \c AndNotROP:   dst = src AND (NOT dst)
+  <li> \c OrNotROP:    dst = src OR (NOT dst)
+  <li> \c NandROP:     dst = NOT (src AND dst)
+  <li> \c NorROP:      dst = NOT (src OR dst)
   </ul>
 
   \sa rasterOp()
@@ -1087,7 +1096,7 @@ void QPainter::setRasterOp( RasterOp r )
 #endif
 	return;
     }
-    if ( (uint)r > NotROP ) {
+    if ( (uint)r > LastROP ) {
 #if defined(CHECK_RANGE)
 	warning( "QPainter::setRasterOp: Invalid ROP code" );
 #endif

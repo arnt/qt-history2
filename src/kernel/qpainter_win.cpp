@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#113 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#114 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -887,7 +887,8 @@ void QPainter::setRasterOp( RasterOp r )
     static short ropCodes[] =
 	{ R2_COPYPEN, R2_MERGEPEN, R2_XORPEN, R2_MASKNOTPEN,
 	  R2_NOTCOPYPEN, R2_MERGENOTPEN, R2_NOTXORPEN, R2_MASKPEN,
-	  R2_NOT };
+	  R2_NOT, R2_BLACK, R2_WHITE, R2_NOP,
+	  R2_MASKPENNOT, R2_MERGEPENNOT, R2_NOTMASKPEN, R2_NOTMERGEPEN };
 
     if ( !isActive() ) {
 #if defined(CHECK_STATE)
@@ -895,7 +896,7 @@ void QPainter::setRasterOp( RasterOp r )
 #endif
 	return;
     }
-    if ( (uint)r > NotROP ) {
+    if ( (uint)r > LastROP ) {
 #if defined(CHECK_RANGE)
 	warning( "QPainter::setRasterOp: Invalid ROP code" );
 #endif

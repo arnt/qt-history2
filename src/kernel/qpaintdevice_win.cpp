@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#46 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -211,11 +211,13 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 #endif
 	return;
     }
-    static uint ropCodes[] =			// ROP translation table
-	{ SRCCOPY, SRCPAINT, SRCINVERT, 0x00220326 /* DSna */,
-	  NOTSRCCOPY, MERGEPAINT, 0x00990066 /* DSnx */,
-	  SRCAND, DSTINVERT };
-    if ( rop > NotROP ) {
+    static uint ropCodes[] = {			// ROP translation table
+	SRCCOPY, SRCPAINT, SRCINVERT, 0x00220326 /* DSna */,
+	NOTSRCCOPY, MERGEPAINT, 0x00990066 /* DSnx */, SRCAND,
+	DSTINVERT, BLACKNESS, WHITENESS, 0x00AA0029 /* D */,
+	SRCERASE, 0x00DD0228 /* SDno */, 0x007700E6 /* DSan */, NOTSRCERASE
+    };
+    if ( rop > LastROP ) {
 #if defined(CHECK_RANGE)
 	warning( "bitBlt: Invalid ROP code" );
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#87 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -289,14 +289,21 @@ static GC cache_mask_gc( Display *dpy, Drawable hd, int mask_no, Pixmap mask )
   The \e rop argument can be one of:
   <ul>
   <li> \c CopyROP:     dst = src.
-  <li> \c OrROP:       dst = dst OR src.
-  <li> \c XorROP:      dst = dst XOR src.
-  <li> \c EraseROP:    dst = (NOT src) AND dst
+  <li> \c OrROP:       dst = src OR dst.
+  <li> \c XorROP:      dst = src XOR dst.
+  <li> \c NotAndROP:   dst = (NOT src) AND dst
   <li> \c NotCopyROP:  dst = NOT src
   <li> \c NotOrROP:    dst = (NOT src) OR dst
   <li> \c NotXorROP:   dst = (NOT src) XOR dst
-  <li> \c NotEraseROP: dst = src AND dst
+  <li> \c AndROP       dst = src AND dst
   <li> \c NotROP:      dst = NOT dst
+  <li> \c ClearROP:    dst = 0
+  <li> \c SetROP:      dst = 1
+  <li> \c NopROP:      dst = dst
+  <li> \c AndNotROP:   dst = src AND (NOT dst)
+  <li> \c OrNotROP:    dst = src OR (NOT dst)
+  <li> \c NandROP:     dst = NOT (src AND dst)
+  <li> \c NorROP:      dst = NOT (src OR dst)
   </ul>
 
   The \e ignoreMask argument (default FALSE) applies where \e src is
@@ -388,10 +395,13 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 #endif
 	return;
     }
-    static short ropCodes[] =			// ROP translation table
-	{ GXcopy, GXor, GXxor, GXandInverted,
-	  GXcopyInverted, GXorInverted, GXequiv, GXand, GXinvert };
-    if ( rop > NotROP ) {
+    static short ropCodes[] = {			// ROP translation table
+	GXcopy, GXor, GXxor, GXandInverted,
+	GXcopyInverted, GXorInverted, GXequiv, GXand,
+	GXinvert, GXclear, GXset, GXnoop,
+	GXandReverse, GXorReverse, GXnand, GXnor
+    };
+    if ( rop > LastROP ) {
 #if defined(CHECK_RANGE)
 	warning( "bitBlt: Invalid ROP code" );
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#129 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#130 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -206,9 +206,11 @@ const uint WReserved3		= 0x80000000;
 
 // Raster operations
 
-enum RasterOp					// raster op/transfer mode
-    { CopyROP, OrROP, XorROP, EraseROP,
-      NotCopyROP, NotOrROP, NotXorROP, NotEraseROP, NotROP };
+enum RasterOp					// raster op mode
+    { CopyROP, OrROP, XorROP, NotAndROP, EraseROP=NotAndROP,
+      NotCopyROP, NotOrROP, NotXorROP, AndROP, NotEraseROP=AndROP,
+      NotROP, ClearROP, SetROP, NopROP,
+      AndNotROP, OrNotROP, NandROP, NorROP, LastROP=NorROP };
 
 
 // Image conversion flags
