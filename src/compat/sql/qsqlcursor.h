@@ -53,10 +53,7 @@ public:
     virtual void setPrimaryIndex(const QSqlIndex& idx);
 
     virtual void append(const QSqlFieldInfo& fieldInfo);
-#ifdef QT_COMPAT
-    inline QT_COMPAT void insert(int pos, const QSqlFieldInfo &fieldInfo) { replace(pos, fieldInfo); }
-#endif
-    virtual void replace(int pos, const QSqlFieldInfo &fieldInfo);
+    virtual void insert(int pos, const QSqlFieldInfo &fieldInfo);
     void remove(int pos);
     void clear();
     void setGenerated(const QString& name, bool generated);

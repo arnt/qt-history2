@@ -17,8 +17,6 @@
 #ifndef QT_NO_SQL
 
 #include "qglobal.h"
-#ifdef QT_COMPAT
-
 #include "qsqlfield.h"
 
 /* QSqlFieldInfo Class
@@ -129,5 +127,4 @@ public:
 };
 
 #endif        // QT_NO_SQL
-#endif  // QT_COMPAT
 #endif

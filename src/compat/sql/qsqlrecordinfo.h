@@ -15,7 +15,6 @@
 #define QSQLRECORDINFO_H
 
 #include "qglobal.h"
-#ifdef QT_COMPAT
 
 #ifndef QT_NO_SQL
 
@@ -79,5 +78,4 @@ inline QSqlRecord QSqlRecordInfo::toRecord() const
 }
 
 #endif        // QT_NO_SQL
-#endif  // QT_COMPAT
 #endif

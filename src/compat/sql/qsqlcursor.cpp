@@ -478,7 +478,7 @@ void QSqlCursor::clear()
     to the cursor edit buffer become invalidated.
 */
 
-void  QSqlCursor::replace(int pos, const QSqlFieldInfo& fieldInfo)
+void  QSqlCursor::insert(int pos, const QSqlFieldInfo& fieldInfo)
 {
     d->editBuffer.replace(pos, fieldInfo.toField());
     d->infoBuffer[pos] = fieldInfo;
