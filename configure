@@ -1111,11 +1111,8 @@ fi
 MAKE=
 for mk in gmake make; do
     if $WHICH $mk >/dev/null 2>&1; then
-	where_mk=`$WHICH $mk`
-	if [ -x "$where_mk" ]; then
-	    MAKE="$mk"
-	    break
-	fi
+	MAKE=`$WHICH $mk`
+	break
     fi
 done
 if [ -z "$MAKE" ]; then
