@@ -529,6 +529,8 @@ NmakeMakefileGenerator::init()
 	} else if ( (*libit).startsWith( "-L" ) ) {
 	    project->variables()["QMAKE_LIBDIR"] += (*libit).mid(2);
 	    libit = libs.remove( libit );
+	    if ( libit == libs.end() )
+		break;
 	}
     }
 
