@@ -330,6 +330,11 @@ for a in `find $DISTDIR/qt/dist/ -name "changes-$REL_VERSION"`; do
     mv $a $DISTDIR/qt/`basename $a`
 done
 
+myexpr () {
+    echo "$1" | egrep "$3" >/dev/null 2>&1
+    return
+}
+
 # fixify qglobal's version number
 qglobal="$DISTDIR/qt/src/tools/qglobal.h"
 TYPE=`grep QT_VERSION_STR $DISTDIR/qt/src/tools/qglobal.h | awk '{ print $3 }' | sed 's,["0-9.]*\(-.*\)",\1,'`
@@ -338,7 +343,7 @@ sed -e "s,\(\#define *QT_VERSION  *\)[0-9]*,\1${BRANCH_DIGITS},g" \
     -e "s,\(\#define *QT_VERSION_STR  *\"\)\(.*\),\1${VERSION_STR}\",g" $qglobal >${TMP_FILE}
 mv ${TMP_FILE} $qglobal
 if [ "$TYPE" != "-snapshot" ] && ! myexpr "$TYPE" : "^-beta[0-9]*$"; then
-    die "The qt version is ${BRANCH}${TYPE}, which confuses me terribly";
+    die "The qt version is ${REL_VERSION}${TYPE}, which confuses me terribly";
 fi
 
 #fix $Id
@@ -359,10 +364,6 @@ if [ "x$DO_ID" = "xyes" ]; then
     done
 fi
 
-myexpr () {
-    echo "$1" | egrep "$3" >/dev/null 2>&1
-    return
-}
 
 public_file () {
     { [ ! -e "$1" ] || [ -d "$1" ] ; } && return 1
