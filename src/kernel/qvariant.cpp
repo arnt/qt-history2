@@ -1178,19 +1178,19 @@ QDataStream& operator<< ( QDataStream& s, const QVariant::Type p )
   appropriate, or else a null iterator.
 */
 
-/*! \fn QMapConstIterator<QString,QVariant> QVariant::mapBegin() const
+/*! \fn QMapConstIterator<QString, QVariant> QVariant::mapBegin() const
 
   Returns an iterator to the first item in the map, if the
   variant's type is appropriate, or else a null iterator.
 */
 
-/*! \fn QMapConstIterator<QString,QVariant> QVariant::mapEnd() const
+/*! \fn QMapConstIterator<QString, QVariant> QVariant::mapEnd() const
 
   Returns the end iterator for the map, if the variant's type is
   appropriate, or else a null iterator.
 */
 
-/*! \fn QMapConstIterator<QString,QVariant> QVariant::mapFind( const QString& key ) const
+/*! \fn QMapConstIterator<QString, QVariant> QVariant::mapFind( const QString& key ) const
 
   Returns an iterator to the item in the map with \key as key, if the
   variant's type is appropriate and \a key is a valid key, or else a
@@ -1256,8 +1256,6 @@ const QStringList QVariant::toStringList() const
 }
 
 /*!
-  \fn QMap<QString, QVariant> QVariant::toMap () const
-
   Returns the variant as a QMap<QString,QVariant> if the variant has type()
   Map, or an empty map otherwise.
 

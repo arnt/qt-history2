@@ -405,3 +405,18 @@ void QFont::setPixelSizeFloat( float pixelSize )
     setPointSizeFloat( pixelSize );
 }
 
+/*!
+  Saves the glyphs in the font that have previously been accessed
+  as a QPF file. If \a all is TRUE (the default), then before saving,
+  all glyphs are marked as used.
+
+  If the font is large and you are sure that only a subset of characters
+  will ever be required on the target device, passing FALSE for the
+  \a all parameter can save significant disk space.
+
+  \note Only applicable on Qt/Embedded.
+*/
+void QFont::qwsRenderToDisk(bool all)
+{
+    memorymanager->savePrerenderedFont(handle(), all);
+}

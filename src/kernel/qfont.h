@@ -166,6 +166,10 @@ public:
     static void cleanup();
     static void cacheStatistics();
 
+#if defined(_WS_QWS_)
+    void qwsRenderToDisk(bool all=TRUE);
+#endif
+
 protected:
     bool	dirty()			const;
 
