@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#76 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#77 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -2162,8 +2162,13 @@ void QMultiLineEdit::newMark( int posx, int posy, bool /*copy*/ )
     cursorX    = posx;
     cursorY    = posy;
     markIsOn = ( markDragX != markAnchorX ||  markDragY != markAnchorY );
+#if defined(_WS_X11_)
     if ( echoMode() == Normal )
-	this->copy();
+       this->copy();
+#else
+    if ( style() == MotifStyle && echoMode() == Normal )
+       this->copy();
+#endif
 }
 
 bool QMultiLineEdit::beforeMark( int posx, int posy ) const
@@ -2219,8 +2224,13 @@ void QMultiLineEdit::markWord( int posx, int posy )
     markDragX = i;
     markDragY = posy;
     markIsOn = ( markDragX != markAnchorX ||  markDragY != markAnchorY );
+#if defined(_WS_X11_)
     if ( echoMode() == Normal )
 	copy();
+#else
+    if ( style() == MotifStyle && echoMode() == Normal )
+	copy();
+#endif
 }
 
 /*!
