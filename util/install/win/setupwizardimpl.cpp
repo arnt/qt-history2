@@ -393,6 +393,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     int sysGroupButton = 2;
 #endif
 
+#if defined(Q_OS_WIN32)
     // First check for MSVC 6.0
     QString regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual C++", "ProductDir", QEnvironment::LocalMachine );
     if ( regValue.length() )
@@ -402,6 +403,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0", "InstallDir", QEnvironment::LocalMachine );
     if ( regValue.length() )
 	sysGroupButton = 0;
+#endif
 
     if ( archiveHeader ) {
 	QString qt_version_str = archiveHeader->description();
@@ -1779,13 +1781,19 @@ void SetupWizardImpl::licenseChanged()
     if ( !date.isValid() ) {
 	goto rejectLicense;
     }
-#  ifdef Q_OS_MACX
+#  if defined(Q_OS_MACX)
     testFeature = Feature_Mac;
     platformString = "Mac OS X";
 #  elif defined(Q_OS_WIN32)
     testFeature = Feature_Windows;
     platformString = "Windows";
-#endif
+#  else
+    testFeature = Feature_Unix;
+    platformString = "UNIX";
+#    ifdef Q_CC_GNU
+#    warning "What about Qt/Embedded?"
+#    endif
+#  endif
     if ( !(features&testFeature) && currentPage() == licensePage ) {
 	if ( features & (Feature_Unix|Feature_Windows|Feature_Mac|Feature_Embedded) ) {
 	    int ret = QMessageBox::information( this,
