@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#14 $
 **
 ** Implementation of QBitmap class
 **
@@ -14,7 +14,7 @@
 #include "qimage.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qbitmap.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qbitmap.cpp#14 $";
 #endif
 
 
@@ -113,6 +113,9 @@ QBitmap::QBitmap( const QBitmap &bitmap )
 QBitmap &QBitmap::operator=( const QBitmap &bitmap )
 {
     QPixmap::operator=(bitmap);
+#if defined(CHECK_STATE)
+    ASSERT( data->bitmap );
+#endif
     return *this;
 }
 
@@ -135,7 +138,7 @@ QBitmap &QBitmap::operator=( const QPixmap &pixmap )
 	    QBitmap bm( pixmap.size() );
 	    bitBlt( &bm, 0,0, &pixmap, 0,0,-1,-1 );
 	    bm.data->optim = data->optim;
-	    QPixmap::operator=(bm);
+	    QBitmap::operator=(bm);
 	}
     }
     else {					// n-bit depth pixmap
