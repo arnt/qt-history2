@@ -22,14 +22,12 @@ private:
 
 void MoveMe::mousePressEvent( QMouseEvent *e )
 {
-    //    if ( e->button() == LeftButton )
-	clickPos = e->pos();
+    clickPos = e->pos();
 }
 
 void MoveMe::mouseMoveEvent( QMouseEvent *e )
 {
-    //    if ( e->state() & LeftButton )
-	move( e->globalPos() - clickPos );
+    move( e->globalPos() - clickPos );
 }
 
 
