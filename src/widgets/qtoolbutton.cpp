@@ -1010,9 +1010,11 @@ void QToolButton::setTextPosition( TextPosition pos )
 
 void QToolButton::setText( const QString &txt )
 {
-    delete s;
-    s = 0;
     QButton::setText( txt );
+    if ( !text().isEmpty() ) {
+	delete s;
+	s = 0;
+    }
 }
 
 #ifndef QT_NO_PALETTE
