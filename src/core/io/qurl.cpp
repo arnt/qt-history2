@@ -1245,7 +1245,7 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
         that->host = QUrl::fromPercentEncoding(__host);
         that->port = __port;
         that->path = QUrl::fromPercentEncoding(__path);
-        that->query = QUrl::fromPercentEncoding(__query).toAscii();
+        that->query = __query;
         that->fragment = QUrl::fromPercentEncoding(__fragment);
     }
 
@@ -1258,7 +1258,7 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
     qDebug("QUrl::setUrl(), host = %s", QUrl::fromPercentEncoding(__host).toLatin1().constData());
     qDebug("QUrl::setUrl(), port = %i", __port);
     qDebug("QUrl::setUrl(), path = %s", QUrl::fromPercentEncoding(__path).toLatin1().constData());
-    qDebug("QUrl::setUrl(), query = %s", QUrl::fromPercentEncoding(__query).toLatin1().constData());
+    qDebug("QUrl::setUrl(), query = %s", __query.constData());
     qDebug("QUrl::setUrl(), fragment = %s", QUrl::fromPercentEncoding(__fragment).toLatin1().constData());
 #endif
 }
@@ -2184,7 +2184,7 @@ QString QUrl::toString(FormattingOptions options) const
 	url += d->path;
     }
     if (!(options & QUrl::RemoveQuery) && !d->query.isEmpty())
-        url += QLatin1Char('?') + QLatin1String(d->query);
+        url += QLatin1Char('?') + fromPercentEncoding(d->query);
     if (!(options & QUrl::RemoveFragment) && !d->fragment.isEmpty())
         url += QLatin1Char('#') + d->fragment;
 
