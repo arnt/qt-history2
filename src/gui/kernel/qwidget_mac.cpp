@@ -661,6 +661,7 @@ void QWidgetPrivate::qt_clean_root_win()
                 w->setWinId(0); //at least now we'll just crash
         }
     }
+    qt_root_win_widgets.clear();
     ReleaseWindow(qt_root_win);
     qt_root_win = NULL;
 }
