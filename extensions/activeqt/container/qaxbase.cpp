@@ -893,8 +893,10 @@ void QAxBase::clear()
     while (it != d->eventSink.end()) {
 	QAxEventSink *eventSink = it.value();
 	++it;
-	eventSink->unadvise();
-	eventSink->Release();
+	if (eventSink) { //XXX should not happen!
+	    eventSink->unadvise();
+	    eventSink->Release();
+	}
     }
     d->eventSink.clear();
     if ( d->disp ) {
