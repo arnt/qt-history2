@@ -2167,12 +2167,13 @@ QMotifStyle::event(QEvent *e)
 {
     if(e->type() == QEvent::FocusIn) {
         if (qt_cast<QLineEdit*>(QApplication::focusWidget())) {
-            if(!focus)
-                focus = new QFocusFrame(QApplication::focusWidget());
-            else
+            if(focus)
                 focus->setWidget(QApplication::focusWidget());
+            else
+                focus = new QFocusFrame(QApplication::focusWidget());
         } else {
-            focus->setWidget(0);
+            if(focus)
+                focus->setWidget(0);
         }
     } else if(e->type() == QEvent::FocusOut) {
         if(focus)

@@ -15,6 +15,7 @@
 #define QMOTIFSTYLE_H
 
 #include "QtGui/qcommonstyle.h"
+#include "QtCore/qpointer.h"
 
 #if !defined(QT_NO_STYLE_MOTIF) || defined(QT_PLUGIN)
 
@@ -73,7 +74,7 @@ public:
 private:
     Q_DISABLE_COPY(QMotifStyle)
 
-    QFocusFrame *focus;
+    QPointer<QFocusFrame> focus;
     bool highlightCols;
 };
 
