@@ -973,7 +973,7 @@ QString MakefileGenerator::build_args()
 
 	//arguments
 	for(QStringList::Iterator it = Option::user_vars.begin(); it != Option::user_vars.end(); ++it) {
-	    if((*it) != "QMAKE_ABSOLUTE_SOURCE_PATH")
+	    if((*it).left(strlen("QMAKE_ABSOLUTE_SOURCE_PATH")) != "QMAKE_ABSOLUTE_SOURCE_PATH")
 		ret += " \"" + (*it) + "\"";
 	}
 
