@@ -70,7 +70,7 @@ PreferenceInterface::Preference *PreferenceInterfaceImpl::globalPreference( cons
 {
     if ( !cppEditorSyntax ) {
 	cppEditorSyntax = new PreferencesBase( 0 );
-	( (PreferencesBase*)cppEditorSyntax )->setPath( "/Software/Trolltech/CppEditor" );
+	( (PreferencesBase*)cppEditorSyntax )->setPath( "/Trolltech/CppEditor/" );
 	cppEditorSyntax->hide();
     }
     Preference *pf = 0;

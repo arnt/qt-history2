@@ -39,14 +39,14 @@ CppEditor::CppEditor( const QString &fn, QWidget *parent, const char *name )
 
 void CppEditor::configChanged()
 {
-    QMap<QString, ConfigStyle> styles = Config::readStyles( "/Software/Trolltech/CppEditor" );
+    QMap<QString, ConfigStyle> styles = Config::readStyles( "/Trolltech/CppEditor/" );
     config()->styles = styles;
     ( (SyntaxHighlighter_CPP*)document()->preProcessor() )->updateStyles( config()->styles );
     document()->setTabStops( ( (SyntaxHighlighter_CPP*)document()->preProcessor() )->format( QTextPreProcessor::Standard )->width( 'x' ) * 8 );
 
-    completion->setEnabled( Config::completion( "/Software/Trolltech/CppEditor" ) );
-    parenMatcher->setEnabled( Config::parenMatching( "/Software/Trolltech/CppEditor" ) );
-    if ( Config::wordWrap( "/Software/Trolltech/CppEditor" ) ) {
+    completion->setEnabled( Config::completion( "/Trolltech/CppEditor/" ) );
+    parenMatcher->setEnabled( Config::parenMatching( "/Trolltech/CppEditor/" ) );
+    if ( Config::wordWrap( "/Trolltech/CppEditor/" ) ) {
 	if ( hScrollBarMode() != AlwaysOff ) {
 	    document()->setFormatter( new QTextFormatterBreakInWords );
 	    setHScrollBarMode( AlwaysOff );
