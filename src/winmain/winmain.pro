@@ -3,7 +3,7 @@ TEMPLATE = lib
 TARGET	 = qtmain
 DESTDIR	 = $$QMAKE_LIBDIR_QT
 
-CONFIG	+= staticlib warn_on release
+CONFIG	+= staticlib warn_on
 CONFIG	-= qt
 
 win32 {
