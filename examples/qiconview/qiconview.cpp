@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qiconview/qiconview.cpp#2 $
+** $Id: //depot/qt/main/examples/qiconview/qiconview.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -319,6 +319,7 @@ void QtIconViewItem::setSelected( bool s, bool cb )
         selected = s;
 
         repaint();
+        view->emitSelectionChanged();
     }
 }
 
@@ -839,6 +840,9 @@ QtIconViewItem *QtIconView::currentItem() const
 void QtIconView::setCurrentItem( QtIconViewItem *item )
 {
     d->currentItem = item;
+    emit currentChanged();
+    emit currentChanged( d->currentItem );
+    emitNewSelectionNumber();
 }
 
 unsigned int QtIconView::count()
@@ -1020,7 +1024,7 @@ void QtIconView::clear()
     d->count = 0;
     d->firstItem = 0L;
     d->lastItem = 0L;
-    d->currentItem = 0L;
+    setCurrentItem( 0L );
     d->tmpCurrentItem = 0L;
 
     setContentsPos( 0, 0 );
@@ -1078,7 +1082,7 @@ void QtIconView::contentsMousePressEvent( QMouseEvent *e )
                 return;
 
 			ensureItemVisible( item );
-            d->currentItem = item;
+            setCurrentItem( item );
             repaintItem( item );
             item->rename();
             return;
@@ -1092,7 +1096,7 @@ void QtIconView::contentsMousePressEvent( QMouseEvent *e )
         else
             selectAll( FALSE );
 
-        d->currentItem = item;
+        setCurrentItem( item );
 
         repaintItem( oldCurrent );
         repaintItem( d->currentItem );
@@ -1286,7 +1290,7 @@ void QtIconView::keyPressEvent( QKeyEvent *e )
         if ( e->key() == Key_Control )
             return;
 
-        d->currentItem = d->firstItem;
+        setCurrentItem( d->firstItem );
 
         if ( d->selectionMode == Single )
             d->currentItem->setSelected( TRUE, TRUE );
@@ -1303,7 +1307,7 @@ void QtIconView::keyPressEvent( QKeyEvent *e )
             return;
 
         QtIconViewItem *item = d->currentItem;
-        d->currentItem = d->firstItem;
+        setCurrentItem( d->firstItem );
 
         if ( d->selectionMode == Single ) {
             item->setSelected( FALSE );
@@ -1322,7 +1326,7 @@ void QtIconView::keyPressEvent( QKeyEvent *e )
             return;
 
         QtIconViewItem *item = d->currentItem;
-        d->currentItem = d->lastItem;
+        setCurrentItem( d->lastItem );
 
         if ( d->selectionMode == Single ) {
             item->setSelected( FALSE );
@@ -1341,7 +1345,7 @@ void QtIconView::keyPressEvent( QKeyEvent *e )
             return;
 
         QtIconViewItem *item = d->currentItem;
-        d->currentItem = d->currentItem->next;
+        setCurrentItem( d->currentItem->next );
 
         if ( d->selectionMode == Single ) {
             item->setSelected( FALSE );
@@ -1360,7 +1364,7 @@ void QtIconView::keyPressEvent( QKeyEvent *e )
             return;
 
         QtIconViewItem *item = d->currentItem;
-        d->currentItem = d->currentItem->prev;
+        setCurrentItem( d->currentItem->prev );
 
         if ( d->selectionMode == Single ) {
             item->setSelected( FALSE );
@@ -1397,7 +1401,8 @@ void QtIconView::selectByRubber( QRect oldRubber )
     int minx = contentsWidth(), miny = contentsHeight();
     int maxx = 0, maxy = 0;
     bool ensureV = FALSE;
-
+    int selected = 0;
+    
     QtIconViewItem *item = d->firstItem;
     for ( ; item; item = item->next ) {
         if ( item->intersects( oldRubber ) &&
@@ -1405,7 +1410,7 @@ void QtIconView::selectByRubber( QRect oldRubber )
             item->setSelected( FALSE );
         else if ( item->intersects( d->rubber->normalize() ) ) {
             item->setSelected( TRUE, TRUE );
-
+            ++selected;
             minx = QMIN( minx, item->x() - 1 );
             miny = QMIN( miny, item->y() - 1 );
             maxx = QMAX( maxx, item->x() + item->width() + 1 );
@@ -1414,6 +1419,8 @@ void QtIconView::selectByRubber( QRect oldRubber )
             ensureV = TRUE;
         }
     }
+    emit selectionChanged();
+    emit selectionChanged( selected );
 }
 
 void QtIconView::drawRubber( QPainter *p )
@@ -1512,4 +1519,21 @@ void QtIconView::insertInGrid( QtIconViewItem *item )
     }
 
     item->move( xpos, ypos );
+}
+
+void QtIconView::emitSelectionChanged()
+{
+    emit selectionChanged();
+    emitNewSelectionNumber();
+}
+
+void QtIconView::emitNewSelectionNumber()
+{
+    int num = 0;
+    QtIconViewItem *item = d->firstItem;
+    for ( ; item; item = item->next )
+        if ( item->isSelected() )
+            ++num;
+               
+    emit selectionChanged( num );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qiconview/qiconview.h#2 $
+** $Id: //depot/qt/main/examples/qiconview/qiconview.h#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -255,7 +255,11 @@ signals:
     void doubleClicked( QtIconViewItem *item );
     void itemRightClicked( QtIconViewItem *item );
     void viewportRightClicked();
-
+    void selectionChanged();
+    void selectionChanged( int numItems );
+    void currentChanged();
+    void currentChanged( QtIconViewItem *item );
+    
 protected slots:
     virtual void doAutoScroll();
 
@@ -277,6 +281,9 @@ protected:
     virtual void startDrag( bool move = FALSE );
     virtual void insertInGrid( QtIconViewItem *item );
 
+    void emitSelectionChanged();
+    void emitNewSelectionNumber();
+    
     QtIconViewPrivate *d;
 
 };
