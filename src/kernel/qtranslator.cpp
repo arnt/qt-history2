@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#34 $
 **
 ** Localization database support.
 **
@@ -274,9 +274,22 @@ void QTranslatorPrivate::Message::write( QTranslator::SaveMode m,
 
   To examine the contents of a QTranslator, use QTranslatorIterator.
 
-  \sa QTranslatorIterator QApplication::installTranslator QApplication::removeTranslator() QObject::tr() QApplication::translate()
+  \sa QTranslatorIterator QApplication::installTranslator
+  QApplication::removeTranslator() QObject::tr()
+  QApplication::translate()
 */
 
+/*! \enum QTranslator::SaveMode
+  This enum type defines how QTranslator can write translation files.
+  There are currently only two modes: <ul>
+
+  <li> \c Everything - files are saved with all contennts
+
+  <li> \c Stripped - files are saved with just what's needed for
+  end-user use of the files.
+
+  </ul>
+*/
 
 /*!  Constructs an empty message file, not connected to any file.
 */
