@@ -208,7 +208,8 @@ these can easily be set up.
 
 \l QSqlDatabase requires the \c qsqldatabase.h header file.
 
-<h2>Connecting to a Single Database</h2>
+<h2><a name="Connecting_to_a_Single_Database">
+Connecting to a Single Database</a></h2>
 
 Making a database connection is a simple three step process: activate
 the driver, set up the connection information, and open the
@@ -236,7 +237,8 @@ Third we call open() to open the database and give us access to the
 data. If this call fails it will return FALSE; error information can
 be determined using \l QSqlDatabase::lastError();
 
-<h2>Connecting to Multiple Databases</h2>
+<h2><a name="Connecting_to_Multiple_Databases">
+Connecting to Multiple Databases</a></h2>
 
 Connecting to multiple databases is achieved using the two argument form
 of \l QSqlDatabase::addDatabase() where the second argument is a unique
