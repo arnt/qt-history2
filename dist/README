@@ -63,6 +63,7 @@ linux-g++
 linux-kcc
 freebsd-g++
 unixware7-g++
+unixware7-cc
 aix-g++
 aix-xlc
 hpux-acc
