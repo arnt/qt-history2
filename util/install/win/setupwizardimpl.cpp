@@ -672,7 +672,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	QSettings settings;
 	configList->setSorting( -1 );
 	advancedList->setSorting( -1 );
-	QCheckListItem *item, *staticItem;
+	QCheckListItem *item;
 	QCheckListItem *folder;
 	QStringList::Iterator it;
 	connect( &configure, SIGNAL( processExited() ), this, SLOT( configDone() ) );
@@ -724,9 +724,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	folder = new QCheckListItem ( configList, "Library" );
 	folder->setOpen( true );
 	entry = settings.readEntry( "/Trolltech/Qt/Library", "Shared", &settingsOK );
-	item = new QCheckListItem( folder, "Static", QCheckListItem::RadioButton );
-	item->setOn( entry == "Static" );
-	staticItem = item;
+	staticItem = new QCheckListItem( folder, "Static", QCheckListItem::RadioButton );
+	staticItem->setOn( entry == "Static" );
 	item = new QCheckListItem( folder, "Shared", QCheckListItem::RadioButton );
 	item->setOn( entry == "Shared" );
 
@@ -982,6 +981,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    setInstallStep( 5 );
 
 	setStaticEnabled( staticItem->isOn() );
+	setJpegDirect( mngDirect->isOn() );
 
 	setBackEnabled( buildPage, false );
 
@@ -1481,6 +1481,26 @@ void SetupWizardImpl::setStaticEnabled( bool se )
 	    tdsPlugin->setEnabled( true );
 	}
     }
+    setJpegDirect( mngDirect->isOn() );
+}
+
+void SetupWizardImpl::setJpegDirect( bool jd )
+{
+    // direct MNG support requires also direct JPEG support
+    if ( jd ) {
+	jpegOff->setOn( FALSE );
+	jpegPlugin->setOn( FALSE );
+	jpegDirect->setOn( TRUE );
+
+	jpegOff->setEnabled( FALSE );
+	jpegPlugin->setEnabled( FALSE );
+	jpegDirect->setEnabled( TRUE );
+    } else {
+	jpegOff->setEnabled( TRUE );
+	if ( !staticItem->isOn() )
+	    jpegPlugin->setEnabled( TRUE );
+	jpegDirect->setEnabled( TRUE );
+    }
 }
 
 void SetupWizardImpl::optionClicked( QListViewItem *i )
@@ -1512,6 +1532,8 @@ void SetupWizardImpl::optionClicked( QListViewItem *i )
 	return;
     } else if ( item->text( 0 ) == "Shared" && item->isOn() ) {
 	setStaticEnabled( FALSE );
+    } else if ( item==mngDirect || item==mngPlugin || item==mngOff ) {
+	setJpegDirect( mngDirect->isOn() );
     }
 }
 
@@ -1690,7 +1712,7 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
     } else if ( i == mngOff ) {
 	explainOption->setText( "Turn off support for MNG images." );
     } else if ( i == mngDirect ) {
-	explainOption->setText( "Support for MNG images is compiled into Qt." );
+	explainOption->setText( "Support for MNG images is compiled into Qt. This requires JPEG support compiled into Qt as well." );
 #if 0
     } else if ( i == mngPresent ) {
 	explainOption->setText( "Support for MNG images is provided by linking against an existing libmng." );

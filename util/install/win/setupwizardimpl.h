@@ -65,6 +65,7 @@ protected slots:
 private:
     bool findFileInPaths( QString fileName, QStringList paths );
     void setStaticEnabled( bool se );
+    void setJpegDirect( bool jd );
 
 #if defined (USE_ARCHIVES)
     void readArchive( const QString& arcname, const QString& installPath );
@@ -128,4 +129,6 @@ private:
     QCheckListItem *odbcDirect, *odbcPlugin, *odbcOff;
     QCheckListItem *psqlDirect, *psqlPlugin, *psqlOff;
     QCheckListItem *tdsDirect, *tdsPlugin, *tdsOff;
+
+    QCheckListItem *staticItem;
 };
