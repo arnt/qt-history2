@@ -21,7 +21,6 @@
 #include <qdatetime.h>
 #include <qsettings.h>
 #include <globaldefs.h>
-#include <qprocess.h>
 #include <stdio.h>
 #include <stdlib.h>
 
