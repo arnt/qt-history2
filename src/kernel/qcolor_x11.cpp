@@ -599,7 +599,7 @@ uint QColor::pixel( int screen ) const
     if (screen != QPaintDevice::x11AppScreen() &&
 	// don't allocate color0 or color1, they have fixed pixel
 	// values for all screens
-	d.argb != qRgba(255, 255, 255, 42) && d.argb != qRgba(0, 0, 0, 42))
+	d.argb != qRgba(255, 255, 255, 1) && d.argb != qRgba(0, 0, 0, 1))
 	return ((QColor*)this)->alloc( screen );
     return pixel();
 }

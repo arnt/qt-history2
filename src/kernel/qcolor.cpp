@@ -228,8 +228,8 @@ void QColor::initGlobalColors()
     // HACK: we need a way to recognize color0 and color1 uniquely, so
     // that we can use color0 and color1 with fixed pixel values on
     // all screens
-    stdcol[ 0].d.argb = qRgba(255, 255, 255, 42);
-    stdcol[ 1].d.argb = qRgba(  0,   0,   0, 42);
+    stdcol[ 0].d.argb = qRgba(255, 255, 255, 1);
+    stdcol[ 1].d.argb = qRgba(  0,   0,   0, 1);
     #else
     stdcol[ 0].d.argb = qRgb(255,255,255);
     stdcol[ 1].d.argb = 0;
