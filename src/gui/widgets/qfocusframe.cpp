@@ -29,7 +29,6 @@ public:
         sendChildEvents = false;
     }
     void updateSize();
-    void updateMask();
     void update();
     QStyleOption getStyleOption() const;
 };
@@ -58,17 +57,6 @@ void QFocusFramePrivate::updateSize()
     q->setGeometry(geom);
 }
 
-void QFocusFrame::updateMask()
-{
-    Q_D(QFocusFrame);
-    if (!d->widget)
-        return;
-    QStyleHintReturnMask mask;
-    QStyleOption opt = d->getStyleOption();
-    if (style()->styleHint(QStyle::SH_FocusFrame_Mask, &opt, this, &mask))
-        setMask(mask.region);
-}
-
 QStyleOption QFocusFramePrivate::getStyleOption() const
 {
     Q_Q(const QFocusFrame);
@@ -78,9 +66,42 @@ QStyleOption QFocusFramePrivate::getStyleOption() const
     return opt;
 }
 
+/*!
+    \class QFocusFrame
+    \brief The QFocusFrame widget provides focus frame which can be
+    outside of a widget's normal paintable area.
 
-QFocusFrame::QFocusFrame(QWidget *widget)
-    : QWidget(*new QFocusFramePrivate, widget, 0)
+    \ingroup basic
+    \mainclass
+
+    Normally an application will not need to create its own
+    QFocusFrame and rather the QStyle will handle this detail for
+    you. A style writer can optionally use a QFocusFrame to have a
+    focus area outside of the widget's paintable geometry. In this way
+    space need not be reserved for the widget to have focus but only
+    set on a QWidget with QFocusFrame::setWidget. It is, however,
+    legal to create your own QFocusFrame on a custom widget and set
+    its geometry manually via QWidget::setGeometry however you will
+    not get auto-placement when the focused widget changes size or
+    placement.
+*/
+
+/*!
+    Constructs a QFocusFrame.
+
+    The focus frame will not monitor \a parent for updates but rather
+    can be placed manually or by using QFocusFrame::setWidget. A
+    QFocusFrame sets Qt::WA_NoChildEventsForParent attribute as a
+    result the parent will not receive a QEvent::ChildInserted event,
+    this will make it possible to manually set the geometry of the
+    QFocusFrame inside of a QSplitter or other child event monitoring
+    widget.
+
+    \sa QFocusFrame::setWidget
+*/
+
+QFocusFrame::QFocusFrame(QWidget *parent)
+    : QWidget(*new QFocusFramePrivate, parent, 0)
 {
     setAttribute(Qt::WA_TransparentForMouseEvents);
     setAutoMask(true);
@@ -89,11 +110,22 @@ QFocusFrame::QFocusFrame(QWidget *widget)
     setAttribute(Qt::WA_NoChildEventsForParent, true);
 }
 
+/*!
+    Destructor.
+*/
 
 QFocusFrame::~QFocusFrame()
 {
 }
 
+/*!
+  QFocusFrame will track changes to \a widget and resize itself
+  automatically. If the monitored widget's parent changes or it is
+  destructed QFocusFrame will follow the widget and place itself
+  around the widget automatically.
+
+  \sa QFocusFrame::widget
+*/
 
 void
 QFocusFrame::setWidget(QWidget *widget)
@@ -114,12 +146,33 @@ QFocusFrame::setWidget(QWidget *widget)
     }
 }
 
+/*!
+  Returns the currently monitored widget for automatically resize and
+  update.
+
+   \sa QFocusFrame::setWidget
+*/
+
 QWidget *
 QFocusFrame::widget() const
 {
     Q_D(const QFocusFrame);
     return d->widget;
 }
+
+/*! \reimp */
+void
+QFocusFrame::updateMask()
+{
+    Q_D(QFocusFrame);
+    if (!d->widget)
+        return;
+    QStyleHintReturnMask mask;
+    QStyleOption opt = d->getStyleOption();
+    if (style()->styleHint(QStyle::SH_FocusFrame_Mask, &opt, this, &mask))
+        setMask(mask.region);
+}
+
 
 /*! \reimp */
 void
