@@ -635,29 +635,37 @@ bool qt_badwindow()
     return x11_badwindow;
 }
 
-static int (*original_x_errhandler)(Display*dpy,XErrorEvent*);
-static int (*original_xio_errhandler)(Display*dpy);
+static int (*original_x_errhandler)( Display *dpy, XErrorEvent * );
+static int (*original_xio_errhandler)( Display *dpy );
 
 static int qt_x_errhandler( Display *dpy, XErrorEvent *err )
 {
     if ( err->error_code == BadWindow ) {
 	x11_badwindow = TRUE;
-	if ( err->request_code == 25 && qt_xdnd_handle_badwindow() )
+	if ( err->request_code == 25 /* X_SendEvent */ &&
+	     qt_xdnd_handle_badwindow() )
 	    return 0;
 	if ( x11_ignore_badwindow )
 	    return 0;
-    }
-    else if ( err->error_code == BadMatch
-	      && err->request_code == 42 /* X_SetInputFocus */ ) {
+    } else if ( err->error_code == BadMatch &&
+		err->request_code == 42 /* X_SetInputFocus */ ) {
 	return 0;
     }
 
     char errstr[256];
     XGetErrorText( dpy, err->error_code, errstr, 256 );
-    qWarning( "X Error: %s %d\n  Major opcode:  %d\n  Resource id:  0x%lx",
-	      errstr, err->error_code, err->request_code, err->resourceid );
-    //### we really should distinguish between severe, non-severe and
-    //### application specific errors
+    qWarning( "X Error: %s %d\n"
+	      "  Major opcode:  %d\n"
+	      "  Minor opcode:  %d\n"
+	      "  Resource id:  0x%lx",
+	      errstr, err->error_code,
+	      err->request_code,
+	      err->minor_code,
+	      err->resourceid );
+
+    // ### we really should distinguish between severe, non-severe and
+    // ### application specific errors
+
     return 0;
 }
 
