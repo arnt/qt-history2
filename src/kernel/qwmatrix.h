@@ -19,7 +19,7 @@
 #include "qwindowdefs.h"
 #include "qpointarray.h"
 #include "qrect.h"
-#ifdef QT_GUI
+#ifdef QT_GUI_LIB
 # include "qregion.h"
 #endif
 #endif // QT_H
@@ -52,7 +52,7 @@ public:
     QPoint	map( const QPoint &p )	const { return operator *( p ); }
     QRect	map( const QRect &r )	const { return mapRect ( r ); }
     QPointArray map( const QPointArray &a ) const { return operator * ( a ); }
-#ifdef QT_GUI
+#ifdef QT_GUI_LIB
     QRegion     map( const QRegion &r ) const { return *this * r; }
     QRegion     mapToRegion( const QRect &r ) const { return *this * r; }
 #endif

@@ -1688,6 +1688,12 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		replacement = replacement.replace("\\n", "\n");
 		replacement = replacement.replace("\\t", "\t");
 		replacement = replacement.replace("\\r", "\r");
+	    } else if(val.lower() == "upper" || val.lower() == "lower") {
+		replacement = arg_list.join(" ");
+		if(val.lower() == "upper")
+		    replacement = replacement.upper();
+		else
+		    replacement = replacement.lower();
 	    } else if(val.lower() == "files") {
 		if(arg_list.count() != 1) {
 		    fprintf(stderr, "%s:%d files(pattern) requires one argument\n",

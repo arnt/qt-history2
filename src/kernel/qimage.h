@@ -68,7 +68,7 @@ public:
     QImage( const QImage & );
    ~QImage();
 
-#ifdef QT_GUI
+#ifdef QT_GUI_LIB
     QImage &operator=( const QPixmap &pixmap );
 #endif
     QImage     &operator=( const QImage & );
@@ -79,7 +79,7 @@ public:
     QImage	copy(int x, int y, int w, int h, int conversion_flags=0) const;
     QImage	copy(const QRect&)	const;
 #ifndef QT_NO_MIME
-#ifdef QT_GUI
+#ifdef QT_GUI_LIB
     static QImage fromMimeSource( const QString& abs_name );
 #endif
 #endif
@@ -160,7 +160,7 @@ public:
 #endif
     QImage	swapRGB() const;
 
-#ifdef QT_GUI
+#ifdef QT_GUI_LIB
     static Endian systemBitOrder();
 #endif
     static Endian systemByteOrder();

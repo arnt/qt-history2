@@ -5,7 +5,7 @@ QCONFIG = kernel
 
 !cups:DEFINES += QT_NO_CUPS
 !nis:DEFINES += QT_NO_NIS
-DEFINES += QT_GUI
+DEFINES += QT_GUI_LIB
 
 #platforms
 include($$QT_SOURCE_TREE/arch/$$ARCH/arch.pri)
