@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#165 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#166 $
 **
 ** Implementation of QToolBar class
 **
@@ -194,15 +194,20 @@ void QToolBarSeparator::styleChange( QStyle& )
 
 QSize QToolBarSeparator::sizeHint() const
 {
-    return style().toolBarSeparatorSize( orient );
+    int extent = style().pixelMetric( QStyle::PM_ToolBarSeparatorExtent,this );
+    
+    if ( orient == Horizontal )
+	return QSize( extent, 0 );
+    else
+	return QSize( 0, extent );
 }
 
 void QToolBarSeparator::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
 
-    style().drawToolBarSeparator( &p, x(), y(), width(), height(),
-				  colorGroup(), orient );
+    style().drawControl( QStyle::CE_ToolBarSeparator, &p, this, rect(),
+			 colorGroup() );
 }
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)

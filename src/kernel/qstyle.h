@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#104 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#105 $
 **
 ** Definition of QStyle class
 **
@@ -117,7 +117,7 @@ public:
 	PO_IndicatorMask,
 	PO_ExclusiveIndicator,
 	PO_ExclusiveIndicatorMask
-
+       
 	/*
 	  PO_Panel,
 	  PO_PanelPopup,
@@ -141,7 +141,6 @@ public:
 	PStyle_Off =			0x00000004,
 	PStyle_NoChange =		0x00000008,
 	PStyle_On =			0x00000010
-
 	/*
 	  PStyle_FocusHighlight=	0x00000001,
 	  PStyle_FocusAtBorder=		0X00000002
@@ -157,7 +156,7 @@ public:
 				void *data = 0 ) const = 0;
 
 
-    enum ControlElement{
+    enum ControlElement {
 	CE_PushButton,
 	CE_PushButtonLabel,
 	CE_PushButtonMask,
@@ -168,7 +167,11 @@ public:
 
 	CE_RadioButton,
 	CE_RadioButtonLabel,
-	CE_RadioButtonMask
+	CE_RadioButtonMask,
+	
+	CE_ToolBarSeparator,
+	CE_ToolBarHandle,
+	CE_ToolBarPanel
 
 	/*
 	  CE_Tab,
@@ -207,9 +210,11 @@ public:
 	SR_RadioButtonFocusRect,
 
 	SR_ComboBoxFocusRect,
-
-	SR_SliderFocusRect
-
+	
+	SR_SliderFocusRect,
+	
+	SR_ToolBarHandleRect
+	
 	/*
 	  SR_DefaultFrameContents,
 	  SR_PopupFrameContents,
@@ -307,8 +312,11 @@ public:
 	PM_SliderControlThickness,    	// thickness of the business part
 	PM_SliderLength,
 	PM_SliderMaximumDragDistance,
-	PM_SliderTickmarkOffset
-
+	PM_SliderTickmarkOffset,
+	
+	PM_ToolBarSeparatorExtent,
+	PM_ToolBarHandleExtent
+	
 	/*
 	  PM_PopupFrameWidth,
 	  PM_MenuFrameWidth,

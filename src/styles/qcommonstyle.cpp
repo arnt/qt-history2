@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#51 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#52 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -50,6 +50,8 @@
 #include "qtabbar.h"
 #include "qscrollbar.h"
 #include "qtoolbutton.h"
+#include "qtoolbar.h"
+#include "qdockarea.h"
 #include "qspinbox.h"
 #include "qrangecontrol.h"
 #include "qgroupbox.h"
@@ -633,7 +635,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	p->setBrush(color1);
 	p->drawEllipse(ir);
 	break; }
-
+    
     default:
 	break;
     }
@@ -788,6 +790,55 @@ void QCommonStyle::drawControl( ControlElement element,
 	drawPrimitive(PO_ExclusiveIndicatorMask, p, r, cg, PStyle_Default, data);
 	break;
 
+    case CE_ToolBarSeparator: {
+	if ( !widget || !widget->parent() )
+	    break;
+	
+	QToolBar * tb = (QToolBar *) widget->parent();
+	QPoint p1, p2;
+
+	if ( tb->orientation() == Vertical ) {
+	    p1 = QPoint( 0, r.height()/2 );
+	    p2 = QPoint( r.width(), p1.y() );
+	} else {
+	    p1 = QPoint( r.width()/2, 0 );
+	    p2 = QPoint( p1.x(), r.height() );
+	}
+	qDrawShadeLine( p, p1, p2, cg, 1, 1, 0 );	
+	break; }
+    
+    case CE_ToolBarHandle: {
+	if ( !widget && !widget->parent() )
+	    break;
+	
+	QDockWindow * dw = (QDockWindow *) widget->parent();
+	bool highlight = FALSE;
+	
+	if ( data != 0 ) {
+	    highlight = *((bool *) data);
+	}
+	
+	p->save();
+	p->translate( r.x(), r.y() );
+
+	if ( dw->orientation() == Vertical ) {
+	    if ( r.width() > 4 ) {
+		qDrawShadePanel( p, 2, 4, r.width() - 4, 3,
+				 cg, highlight, 1, 0 );
+		qDrawShadePanel( p, 2, 7, r.width() - 4, 3,
+				 cg, highlight, 1, 0 );
+	    }
+	} else {
+	    if ( r.height() > 4 ) {
+		qDrawShadePanel( p, 4, 2, 3, r.height() - 4,
+				 cg, highlight, 1, 0 );
+		qDrawShadePanel( p, 7, 2, 3, r.height() - 4,
+				 cg, highlight, 1, 0 );
+	    }
+	}
+	p->restore();
+	break; }
+
     default:
 	break;
     }
@@ -896,6 +947,22 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	else
 	    rect.setRect( tickOffset-1, 0, thickness+2, sl->height() );
 	rect = rect.intersect( sl->rect() ); // ## is this really necessary?
+	break; }
+
+    case SR_ToolBarHandleRect: {
+	if ( !widget || !widget->parent() )
+	    break;
+	
+	QDockWindow * dw = (QDockWindow *) widget->parent();
+	
+	if ( !dw->area() || !dw->isCloseEnabled() )
+	    rect.setRect( 0, 0, widget->width(), widget->height() );
+	else {
+	    if ( dw->area()->orientation() == Horizontal )
+		rect.setRect(0, 15, widget->width(), widget->height() - 15);
+	    else
+		rect.setRect(0, 1, widget->width() - 15, widget->height() - 1);
+	}
 	break; }
     
     default:
@@ -1216,6 +1283,14 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	else
 	    ret = 0;
 	break; }
+        
+    case PM_ToolBarSeparatorExtent:
+	ret = 6;
+	break;
+
+    case PM_ToolBarHandleExtent:
+	ret = 11;
+	break;
 	
     default:
 	ret = 0;
@@ -1271,7 +1346,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	sz = contentsSize + QSize(sz.width() +
 				  (radiobutton->text().isEmpty() ? 0 : 10), 4);
 	break; }
-
+    
     default:
 	break;
     }

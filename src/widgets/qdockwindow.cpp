@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdockwindow.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qdockwindow.cpp#68 $
 **
 ** Implementation of the QDockWindow class
 **
@@ -365,24 +365,28 @@ void QDockWindowHandle::paintEvent( QPaintEvent *e )
     if ( !dockWindow->dockArea )
 	return;
     QPainter p( this );
-    if ( !dockWindow->area() || !dockWindow->isCloseEnabled() ) {
-	style().drawToolBarHandle( &p, QRect( 0, 0, width(), height() ),
-				   dockWindow->orientation(), FALSE, colorGroup() );
-    } else {
-	if ( dockWindow->area()->orientation() == Horizontal ) {
-	    int offs = 0;
-	    if ( dockWindow->isCloseEnabled() && style() != WindowsStyle )
-		offs += 2;
-	    style().drawToolBarHandle( &p, QRect( offs, 15, width() - offs, height() - 15 ),
-				       dockWindow->orientation(), FALSE, colorGroup() );
-	} else {
-	    int offs = 1;
-	    if ( dockWindow->isCloseEnabled() && style() != WindowsStyle )
-		offs++;
-	    style().drawToolBarHandle( &p, QRect( 0, offs, width() - 15, height() - offs ),
-				       dockWindow->orientation(), FALSE, colorGroup() );
-	}
-    }
+    style().drawControl( QStyle::CE_ToolBarHandle, &p, this,
+			 style().subRect( QStyle::SR_ToolBarHandleRect, this ),
+			 colorGroup() );
+
+//     if ( !dockWindow->area() || !dockWindow->isCloseEnabled() ) {
+// 	style().drawToolBarHandle( &p, QRect( 0, 0, width(), height() ),
+// 				   dockWindow->orientation(), FALSE, colorGroup() );
+//     } else {
+// 	if ( dockWindow->area()->orientation() == Horizontal ) {
+// 	    int offs = 0;
+// 	    if ( dockWindow->isCloseEnabled() && style() != WindowsStyle )
+// 		offs += 2;
+// 	    style().drawToolBarHandle( &p, QRect( offs, 15, width() - offs, height() - 15 ),
+// 				       dockWindow->orientation(), FALSE, colorGroup() );
+// 	} else {
+// 	    int offs = 1;
+// 	    if ( dockWindow->isCloseEnabled() && style() != WindowsStyle )
+// 		offs++;
+// 	    style().drawToolBarHandle( &p, QRect( 0, offs, width() - 15, height() - offs ),
+// 				       dockWindow->orientation(), FALSE, colorGroup() );
+// 	}
+//     }
 
     QWidget::paintEvent( e );
 }

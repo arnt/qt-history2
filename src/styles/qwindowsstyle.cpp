@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#59 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#60 $
 **
 ** Implementation of Windows-like style class
 **
@@ -2268,13 +2268,14 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
 	int ticks = sl->tickmarks();
 	int thickness = pixelMetric( PM_SliderControlThickness, sl );
+	int len = pixelMetric( PM_SliderLength, sl );
 	int available;
 	int interval = sl->tickInterval();
 	
 	if ( sl->orientation() == Horizontal )
-	    available = sl->width() - pixelMetric( PM_SliderLength, sl );
+	    available = sl->width() - len;
 	else
-	    available = sl->height() - pixelMetric( PM_SliderLength, sl );
+	    available = sl->height() - len;
 	
 	if ( interval <= 0 ) {
 	    interval = sl->lineStep();
@@ -2282,15 +2283,17 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 		 qPositionFromValue( sl, 0, available ) < 3 )
 		interval = sl->pageStep();
 	}
+	
+	int fudge = len / 2 + 1;
+	int pos;
 
 	if ( ticks & QSlider::Above ) {
 	    p->setPen( cg.foreground() );
 	    int v = sl->minValue();
-	    int fudge = pixelMetric( PM_SliderLength, sl ) / 2 + 1;
 	    if ( !interval )
 		interval = 1;
 	    while ( v <= sl->maxValue() + 1 ) {
-		int pos = qPositionFromValue( sl, v, available ) + fudge;
+		pos = qPositionFromValue( sl, v, available ) + fudge;
 		if ( sl->orientation() == Horizontal )
 		    p->drawLine( pos, 0, pos, tickOffset-2 );
 		else
@@ -2305,11 +2308,10 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	    avail -= tickOffset + thickness;
 	    p->setPen( cg.foreground() );
 	    int v = sl->minValue();
-	    int fudge = pixelMetric( PM_SliderLength, sl ) / 2 + 1;
 	    if ( !interval )
 		interval = 1;
 	    while ( v <= sl->maxValue() + 1 ) {
-		int pos = qPositionFromValue( sl, v, available ) + fudge;
+		pos = qPositionFromValue( sl, v, available ) + fudge;
 		if ( sl->orientation() == Horizontal )
 		    p->drawLine( pos, tickOffset+thickness+1, pos, 
 				 tickOffset+thickness+1 + available-2 );
