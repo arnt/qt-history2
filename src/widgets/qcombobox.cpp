@@ -664,8 +664,6 @@ void QComboBox::insertItem( const QString &t, int index )
 /*!
   Inserts a pixmap item at position \e index. The item will be appended if
   \e index is negative.
-
-  If the combo box is writable, the pixmap is not inserted.
 */
 
 void QComboBox::insertItem( const QPixmap &pixmap, int index )
@@ -693,8 +691,6 @@ void QComboBox::insertItem( const QPixmap &pixmap, int index )
 /*!
   Inserts a pixmap item with additional text \a text at position \e
   index. The item will be appended if \e index is negative.
-
-  If the combo box is writable, only the text is not inserted.
 */
 
 void QComboBox::insertItem( const QPixmap &pixmap, const QString& text, int index )
