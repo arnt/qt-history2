@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#163 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#164 $
 #
 # this is a massive hack, written very quickly
 #
@@ -906,8 +906,8 @@ sub readfiles {
 	$h = &html($h);
 	$h =~ s@\n(?:(?:class)|(?:struct))\s+\w+(?:\s*:(\s*(?:public\s+)?\w+\s*,?)*)?@
 	    $_ = "";
-	    foreach $w (split(/\b/, $&)) {
-		if (defined($anchor{$w})) {
+	    foreach $w (split(/\b/, $&)) { # ARNTHER
+		if (defined($anchor{$w}) && $doc{$andchor{$w}} =~ /\S/) {
 		    $_ = join("", $_, "<a href=\"", $anchor{$w}, "\">", $w, "</a>");
 		} else {
 		    $_ = join("", $_, $w);
@@ -1871,7 +1871,7 @@ sub printclass {
 	    print O $fnheader;
 	    $fnheader = "";
 	    s/^\s*//;
-	    s;([^\(]*\s)\b(\S+);$1<a name=\"$name\"></a>$2;s;
+	    s;([^\(]*)\b(\S+::\S+);$1<a name=\"$name\"></a>$2;s;
 	    s/\(\s*/\( /s;
 	    s/\s*\)/ \)/s;
 	    s/\(\s+\)/\(\)/s;
