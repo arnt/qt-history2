@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#4 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#5 $
 **
 ** Implementation of Network Extension Library
 **
@@ -32,7 +32,7 @@
 #endif // QT_H
 
 
-class Q_EXPORT QSocketAddress
+class QSocketAddress
 {
 public:
     QSocketAddress();
@@ -61,7 +61,7 @@ private:
 };
 
 
-class Q_EXPORT QSocketDevice : public QIODevice
+class QSocketDevice : public QIODevice
 {
 friend class QSocket;
 

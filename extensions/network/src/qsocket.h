@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocket.h#3 $
+** $Id: //depot/qt/main/extensions/network/src/qsocket.h#4 $
 **
 ** Implementation of Network Extension Library
 **
@@ -35,7 +35,7 @@
 class QSocketPrivate;
 
 
-class Q_EXPORT QSocket : public QObject, public QIODevice
+class QSocket : public QObject, public QIODevice
 {
     Q_OBJECT
 public:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.h#13 $
+** $Id: //depot/qt/main/src/tools/qstringlist.h#14 $
 **
 ** Definition of QStringList class
 **
@@ -32,7 +32,7 @@
 #include "qregexp.h"
 #endif // QT_H
 
-class QStringList : public QValueList<QString>
+class Q_EXPORT QStringList : public QValueList<QString>
 {
 public:
     QStringList() { }

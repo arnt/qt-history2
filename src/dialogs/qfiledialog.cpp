@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#365 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#366 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3797,12 +3797,12 @@ QUrlOperator QFileDialog::url() const
 
 static bool isRoot( const QUrl &u )
 {
-#if defined( UNIX )
+#if defined(UNIX)
 	if ( u.path() == "/" )
 	    return TRUE;
-#elif defined (_OS_FATFS_)
-	if ( u.length() == 3 && 
-	     u.path().left( 2 ) == ":/" )
+#elif defined(_OS_WIN32_)
+	if ( u.path().length() == 3 && 
+	     u.path().right( 2 ) == ":/" )
 	    return TRUE;
 #endif
 	
