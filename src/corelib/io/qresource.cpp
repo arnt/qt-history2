@@ -17,9 +17,6 @@
 #include <qbytearray.h>
 #include <qreadwritelock.h>
 
-#define d d_func()
-#define q q_func()
-
 //#define QRESOURCE_DEBUG
 
 enum {
@@ -112,7 +109,7 @@ QResource *QResourceNode::localeResource()
     if(container) {
         if(resources.isEmpty()) { //create a resource as needed
             QResource *ret = new QResource;
-            ret->d->node = this;
+            ret->d_func()->node = this;
             resources.append(ret);
             return ret;
         }
@@ -123,11 +120,11 @@ QResource *QResourceNode::localeResource()
         QLocale systemLocale = QLocale::system();
         for(int i = 0; i < resources.count(); i++) {
             QResource *resource = resources.at(i);
-            if(resource->d->lang == systemLocale.language() &&
-               resource->d->country == systemLocale.country())
+            if(resource->d_func()->lang == systemLocale.language() &&
+               resource->d_func()->country == systemLocale.country())
                 return resource;
-            if(!ret && resource->d->lang == QLocale::C && //default
-               resource->d->country == QLocale::AnyCountry)
+            if(!ret && resource->d_func()->lang == QLocale::C && //default
+               resource->d_func()->country == QLocale::AnyCountry)
                 ret = resource;
         }
         return ret;
@@ -181,6 +178,7 @@ QResource::QResource() : d_ptr(new QResourcePrivate(this))
 */
 QResource::~QResource()
 {
+    Q_D(QResource);
     if(d->node->parent) {
         d->node->parent->children.removeAll(d->node);
         if(d->node->parent->children.isEmpty())
@@ -194,9 +192,9 @@ QResource::~QResource()
     Returns the resource's node name, which is "/" if this resource is
     at the root of the resource system.
 */
-QString
-QResource::name() const
+QString QResource::name() const
 {
+    Q_D(const QResource);
     return d->node->name;
 }
 
@@ -204,9 +202,9 @@ QResource::name() const
     Returns the resource that contains this resource, or 0 if this
     resource is at the root of the resource system.
 */
-const QResource
-*QResource::parent() const
+const QResource *QResource::parent() const
 {
+    Q_D(const QResource);
     if(QResourceNode *ret = d->node->parent)
         return ret->localeResource();
     return 0;
@@ -215,9 +213,9 @@ const QResource
 /*!
     Returns the uncompressed size of the resource.
 */
-uint
-QResource::size() const
+uint QResource::size() const
 {
+    Q_D(const QResource);
     if(d->compressed) {
         if(!d->decompressed) {
             QByteArray *ba = new QByteArray;
@@ -238,9 +236,9 @@ QResource::size() const
 
     \sa isContainer() children()
 */
-const uchar
-*QResource::data() const
+const uchar *QResource::data() const
 {
+    Q_D(const QResource);
     if(d->compressed) {
         if(!d->decompressed) {
             QByteArray *ba = new QByteArray;
@@ -264,6 +262,7 @@ const uchar
 */
 bool QResource::isContainer() const
 {
+    Q_D(const QResource);
     return d->node->container;
 }
 
@@ -274,9 +273,9 @@ bool QResource::isContainer() const
 
     \sa isContainer()
 */
-QList<QResource *>
-QResource::children() const
+QList<QResource *> QResource::children() const
 {
+    Q_D(const QResource);
     QList<QResource *> ret;
     if(d->node->container) {
         for(int i = 0; i < d->node->children.count(); i++)
@@ -294,8 +293,7 @@ QResource::children() const
 
     \sa QResource::addSearchPath()
 */
-QResource
-*QResource::find(const QString &resource)
+QResource *QResource::find(const QString &resource)
 {
     if(!qt_resource_root)
         return 0;
@@ -320,8 +318,7 @@ QResource
 
   \sa QResource::find()
 */
-void
-QResource::addSearchPath(const QString &path)
+void QResource::addSearchPath(const QString &path)
 {
     if(path[0] != QLatin1Char('/')) {
         qWarning("QResource::addSearchPath: Search paths must be absolute (start with /) [%s]", path.toLocal8Bit().data());
@@ -376,6 +373,7 @@ protected:
 */
 QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePrivate(this))
 {
+    Q_D(QMetaResource);
     qInitResourceIO(); //just to be sure it has been loaded
     QWriteLocker locker(::resourceLock());
     if(!qt_resource_root) {
@@ -449,12 +447,12 @@ QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePri
         //create a resource for this node
         Q_ASSERT(node && !node->container);
         d->resource = new QResource;
-        d->resource->d->node = node;
-        d->resource->d->lang = (QLocale::Language)lang;
-        d->resource->d->country = (QLocale::Country)country;
-        d->resource->d->size = len;
-        d->resource->d->data = bytes;
-        d->resource->d->compressed = flags & Compressed;
+        d->resource->d_func()->node = node;
+        d->resource->d_func()->lang = (QLocale::Language)lang;
+        d->resource->d_func()->country = (QLocale::Country)country;
+        d->resource->d_func()->size = len;
+        d->resource->d_func()->data = bytes;
+        d->resource->d_func()->compressed = flags & Compressed;
         node->resources.append(d->resource);
     }
 }
