@@ -1284,7 +1284,7 @@ static void qt_set_input_encoding()
     }
     if( data )
 	XFree( (unsigned char *) data );
-
+    qDebug("input mapper is %s", input_mapper->name());
 }
 
 // set font, foreground and background from x11 resources. The
@@ -4808,6 +4808,51 @@ static void deleteKeyDicts()
     textDict = 0;
 }
 
+static const unsigned short cyrillicKeysymsToUnicode[] = {
+    0x0000, 0x0452, 0x0453, 0x0451, 0x0454, 0x0455, 0x0456, 0x0457,
+    0x0458, 0x0459, 0x045a, 0x045b, 0x045c, 0x0000, 0x045e, 0x045f,
+    0x2116, 0x0402, 0x0403, 0x0401, 0x0404, 0x0405, 0x0406, 0x0407,
+    0x0408, 0x0409, 0x040a, 0x040b, 0x040c, 0x0000, 0x040e, 0x040f,
+    0x044e, 0x0430, 0x0431, 0x0446, 0x0434, 0x0435, 0x0444, 0x0433,
+    0x0445, 0x0438, 0x0439, 0x043a, 0x043b, 0x043c, 0x043d, 0x043e,
+    0x043f, 0x044f, 0x0440, 0x0441, 0x0442, 0x0443, 0x0436, 0x0432,
+    0x044c, 0x044b, 0x0437, 0x0448, 0x044d, 0x0449, 0x0447, 0x044a,
+    0x042e, 0x0410, 0x0411, 0x0426, 0x0414, 0x0415, 0x0424, 0x0413,
+    0x0425, 0x0418, 0x0419, 0x041a, 0x041b, 0x041c, 0x041d, 0x041e,
+    0x041f, 0x042f, 0x0420, 0x0421, 0x0422, 0x0423, 0x0416, 0x0412,
+    0x042c, 0x042b, 0x0417, 0x0428, 0x042d, 0x0429, 0x0427, 0x042a
+};
+
+static const unsigned short greekKeysymsToUnicode[] = {
+    0x0000, 0x0386, 0x0388, 0x0389, 0x038a, 0x03aa, 0x0000, 0x038c, 
+    0x038e, 0x03ab, 0x0000, 0x038f, 0x0000, 0x0000, 0x0385, 0x2015, 
+    0x0000, 0x03ac, 0x03ad, 0x03ae, 0x03af, 0x03ca, 0x0390, 0x03cc, 
+    0x03cd, 0x03cb, 0x03b0, 0x03ce, 0x0000, 0x0000, 0x0000, 0x0000, 
+    0x0000, 0x0391, 0x0392, 0x0393, 0x0394, 0x0395, 0x0396, 0x0397, 
+    0x0398, 0x0399, 0x039a, 0x039b, 0x039c, 0x039d, 0x039e, 0x039f, 
+    0x03a0, 0x03a1, 0x03a3, 0x0000, 0x03a4, 0x03a5, 0x03a6, 0x03a7, 
+    0x03a8, 0x03a9, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
+    0x0000, 0x03b1, 0x03b2, 0x03b3, 0x03b4, 0x03b5, 0x03b6, 0x03b7, 
+    0x03b8, 0x03b9, 0x03ba, 0x03bb, 0x03bc, 0x03bd, 0x03be, 0x03bf, 
+    0x03c0, 0x03c1, 0x03c3, 0x03c2, 0x03c4, 0x03c5, 0x03c6, 0x03c7, 
+    0x03c8, 0x03c9, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000
+};
+
+// ### add keysym conversion for the missing ranges.
+static QChar keysymToUnicode(unsigned char byte3, unsigned char byte4)
+{
+    if ( byte3 == 0x06 ) {
+	// russian, use lookup table
+	if ( byte4 > 0xa0 )
+	    return QChar( cyrillicKeysymsToUnicode[byte4 - 0xa0] );
+    }
+    if ( byte3 == 0x07 ) {
+	// greek
+	if ( byte4 > 0xa0 )
+	    return QChar( cyrillicKeysymsToUnicode[byte4 - 0xa0] );
+    }		
+    return QChar(0x0);
+}
 
 
 
@@ -4816,7 +4861,9 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 					   int& state,
 					   char& ascii, int& code )
 {
+    QTextCodec *mapper = input_mapper;
     QCString chars(64);
+    QChar converted;
     KeySym key = 0;
 
     if ( !keyDict ) {
@@ -4870,6 +4917,43 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	}
 	if ( key )
 	    keyDict->replace( keycode, (void*)key );
+	if ( count == 0 && key < 0xff00 ) { // all keysyms smaller than that are actally keys that can be mapped to unicode chars
+	    unsigned char byte3 = (unsigned char )(key >> 8);
+	    int mib = -1;
+	    switch( byte3 ) {
+		case 0: // Latin 1
+		case 1: // Latin 2
+		case 2: //latin 3
+		case 3: // latin4
+		    mib = byte3 + 4; break;
+		case 4: // kana
+		    break;
+		case 5: // arabic
+		    mib = 82; break;
+		case 6: // Cyrillic
+		case 7: //greek
+		    mib = -1; // manual conversion
+		    mapper = 0;
+		    converted = keysymToUnicode( byte3, key & 0xff );
+		case 8: // technical, no mapping here at the moment
+		case 9: // Special
+		case 10: // Publishing
+		case 11: // APL
+		    break;
+		case 12: // Hebrew
+		    mib = 85; break;
+		case 13: // Thai
+		    mib = 2259; break;
+		case 14: // Korean, no mapping
+		default:
+		    break;
+	    }
+	    if ( mib != -1 ) {
+		mapper = QTextCodec::codecForMib( mib );
+		chars[0] = (unsigned char) (key & 0xff );
+		count++;
+	    }
+	}
 	if ( count < (int)chars.size()-1 )
 	    chars[count] = '\0';
 	if ( count == 1 ) {
@@ -4900,7 +4984,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
     // Qt keycodes between 128 and 255, but should rather use the
     // QKeyEvent::text().
     //
-    if ( key < 128 || (key < 256 && (!input_mapper || input_mapper->mibEnum()==4)) ) {
+    if ( key < 128 || key < 256 && (!input_mapper || input_mapper->mibEnum()==4) ) {
 	code = isprint((int)key) ? toupper((int)key) : 0; // upper-case key, if known
 	chars[0] = key;
 	chars[1] = '\0';
@@ -4974,8 +5058,10 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 #endif
 
     // convert chars (8bit) to text (unicode).
-    if ( input_mapper )
-	text = input_mapper->toUnicode(chars,count);
+    if ( mapper )
+	text = mapper->toUnicode(chars,count);
+    else if ( !mapper && converted.unicode() != 0x0 )
+	text = converted;
     else
 	text = chars;
     return TRUE;
