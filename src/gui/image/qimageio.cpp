@@ -2091,7 +2091,8 @@ static bool read_xpm_string(QByteArray &buf, QIODevice *d, const char * const *s
     do {
         if (!d->getChar(&c))
             return false;
-        buf.append(c);
+        if (c != '"')
+            buf.append(c);
     } while (c != '"');
 
     return true;
