@@ -1420,7 +1420,7 @@ void QMacStylePrivate::HIThemeDrawColorlessButton(const HIRect &macRect,
                                                           colorspace, kCGImageAlphaPremultipliedFirst);
         HIRect newRect = CGRectMake(xoff, yoff, macRect.size.width, macRect.size.height);
         HIThemeDrawButton(&newRect, &bdi, cg2, kHIThemeOrientationInverted, 0);
-        QImage img(width, height, 32);
+        QImage img(width, height, QImage::Format_ARGB32);
         for (int y = 0; y < height; ++y) {
             QRgb *scanline = reinterpret_cast<QRgb *>(static_cast<char *>(data) + y * bytesPerLine);
             for (int x = 0; x < width; ++x) {
@@ -1441,7 +1441,6 @@ void QMacStylePrivate::HIThemeDrawColorlessButton(const HIRect &macRect,
             }
             memcpy(img.scanLine(y), scanline, bytesPerLine);
         }
-        img.setAlphaBuffer(true);
         free(data);
 
         pm = QPixmap::fromImage(img);
@@ -2312,6 +2311,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                                                                              sb,
                                                                              QStyle::SC_SpinBoxFrame,
                                                                              widget));
+
                 lineedit.palette = sb->palette;
                 lineedit.state = QStyle::State_Sunken;
                 lineedit.lineWidth = 0;
@@ -4994,7 +4994,7 @@ QPixmap QMacStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixm
     switch (iconMode) {
     case QIcon::Disabled: {
         QImage img = pixmap.toImage();
-        img.setAlphaBuffer(true);
+        img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
         int imgh = img.height();
         int imgw = img.width();
         QRgb pixel;
@@ -5208,7 +5208,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
 static inline QPixmap darkenPixmap(const QPixmap &pixmap)
 {
     QImage img = pixmap.toImage();
-    img.setAlphaBuffer(true);
+    img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
     int imgh = img.height();
     int imgw = img.width();
     int h, s, v, a;
