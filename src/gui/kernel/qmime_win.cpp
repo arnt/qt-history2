@@ -837,7 +837,8 @@ bool QWindowsMimeImage::convertFromMime(const FORMATETC &formatetc, const QMimeD
     if (!canConvertFromMime(formatetc, mimeData))
         return false;
 #ifndef QT_NO_IMAGEIO_BMP
-    QImage img = mimeData->image();
+    QVariant v = mimeData->imageData();
+    QImage img = v.toImage();
     if (img.isNull())
         return false;
     QByteArray ba;
