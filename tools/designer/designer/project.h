@@ -70,6 +70,7 @@ public:
 
     bool isValid() const;
 
+    bool hasFormWindow( FormWindow* fw ) const;
     void setFormWindow( const QString &f, FormWindow *fw );
     void setFormWindowFileName( FormWindow *fw, const QString &f );
 
@@ -93,7 +94,7 @@ public:
     void closeDatabase( const QString &connection );
 
     void connectTables( QObject *toplevel, const QMap<QString, QStringList> &tables );
-    
+
 private:
     void parse();
     void clear();

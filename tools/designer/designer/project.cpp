@@ -207,6 +207,11 @@ bool Project::isValid() const
     return TRUE; // #### do actual checking here....
 }
 
+bool Project::hasFormWindow( FormWindow* fw ) const
+{
+    return formWindows.contains( fw );
+}
+
 void Project::setFormWindow( const QString &f, FormWindow *fw )
 {
     formWindows.remove( fw );
@@ -309,6 +314,7 @@ void Project::save()
 	contents += "PROJECTNAME\t= " + proName + "\n";
 
     if ( !f.open( IO_WriteOnly ) ) {
+	//## more of a warning here? mbox?
 	qWarning( "Couldn't write project file " + filename );
 	return;
     }
