@@ -51,14 +51,6 @@
 QGridWidget::QGridWidget(int n, Qt::Orientation orientation, QWidget *parent, Qt::WFlags f)
     : QFrame(parent, f)
 {
-    int nCols, nRows;
-    if (orientation == Qt::Horizontal) {
-        nCols = n;
-        nRows = -1;
-    } else {
-        nCols = -1;
-        nRows = n;
-    }
     lay = new QGridLayout(this);
     lay->setDefaultPositioning(n, orientation);
 }

@@ -5583,6 +5583,8 @@ static void ignoreSigPipe(bool b)
     }
 }
 
+#if 0
+// ### unused, according to the intel compiler
 static const char * const psToStr[QPrinter::NPageSize+1] =
 {
     "A4", "B5", "Letter", "Legal", "Executive",
@@ -5590,6 +5592,7 @@ static const char * const psToStr[QPrinter::NPageSize+1] =
     "B10", "B2", "B3", "B4", "B6", "B7", "B8", "B9", "C5E", "Comm10E",
     "DLE", "Folio", "Ledger", "Tabloid", 0
 };
+#endif
 
 bool QPSPrintEngine::begin(QPaintDevice *pdev)
 {

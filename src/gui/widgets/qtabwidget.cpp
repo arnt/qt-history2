@@ -554,7 +554,7 @@ void QTabWidget::setUpLayout(bool onlyCheck)
         t.setWidth(tw);
     int lw = d->stack->lineWidth();
     bool reverse = isRightToLeft();
-    int tabx, taby, stacky, exty, exth, overlap;
+    int tabx, taby, stacky, /*exty,*/ exth, overlap;
 
     exth = style()->pixelMetric(QStyle::PM_TabBarBaseHeight, 0, this);
     overlap = style()->pixelMetric(QStyle::PM_TabBarBaseOverlap, 0, this);
@@ -566,11 +566,11 @@ void QTabWidget::setUpLayout(bool onlyCheck)
     if (d->pos == Bottom) {
         taby = height() - t.height() - lw;
         stacky = 0;
-        exty = taby - (exth - overlap);
+        // exty = taby - (exth - overlap);
     } else { // Top
         taby = 0;
         stacky = t.height()-lw + (exth - overlap);
-        exty = taby + t.height() - overlap;
+        // exty = taby + t.height() - overlap;
     }
 
     // do alignment

@@ -1025,7 +1025,7 @@ void QTextDocumentPrivate::scan_frames(int pos, int charsRemoved, int charsAddde
     clearFrame(f);
 
     for (FragmentIterator it = begin(); it != end(); ++it) {
-        QTextFormat fmt = formats.format(it->format);
+        // QTextFormat fmt = formats.format(it->format);
         QTextFrame *frame = qt_cast<QTextFrame *>(objectForFormat(it->format));
         if (!frame)
             continue;
