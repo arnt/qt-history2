@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of QFileDialog Windows-specific functionality.
+** Implementation of Q3FileDialog Windows-specific functionality.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -104,7 +104,7 @@ static QStringList makeFiltersList(const QString &filter)
     QString f(filter);
 
     if (f.isEmpty())
-        f = QFileDialog::tr("All Files (*.*)");
+        f = Q3FileDialog::tr("All Files (*.*)");
 
     if (f.isEmpty())
         return QStringList();
@@ -158,7 +158,7 @@ OPENFILENAMEA* makeOFNA(QWidget* parent,
                          const QString& initialDirectory,
                          const QString& title,
                          const QString& filters,
-                         QFileDialog::Mode mode)
+                         Q3FileDialog::Mode mode)
 {
     if (parent)
         parent = parent->topLevelWidget();
@@ -171,7 +171,7 @@ OPENFILENAMEA* makeOFNA(QWidget* parent,
         aInitSel = "";
     else
         aInitSel = QDir::convertSeparators(initialSelection).local8Bit();
-    int maxLen = mode == QFileDialog::ExistingFiles ? maxMultiLen : maxNameLen;
+    int maxLen = mode == Q3FileDialog::ExistingFiles ? maxMultiLen : maxNameLen;
     aInitSel.resize(maxLen + 1);                // make room for return value
     aFilter = filters.local8Bit();
 
@@ -197,10 +197,10 @@ OPENFILENAMEA* makeOFNA(QWidget* parent,
     ofn->lpstrTitle        = aTitle.data();
     ofn->Flags                = (OFN_NOCHANGEDIR | OFN_HIDEREADONLY);
 
-    if (mode == QFileDialog::ExistingFile ||
-         mode == QFileDialog::ExistingFiles)
+    if (mode == Q3FileDialog::ExistingFile ||
+         mode == Q3FileDialog::ExistingFiles)
         ofn->Flags |= (OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST);
-    if (mode == QFileDialog::ExistingFiles)
+    if (mode == Q3FileDialog::ExistingFiles)
         ofn->Flags |= (OFN_ALLOWMULTISELECT | OFN_EXPLORER);
 
     return ofn;
@@ -223,7 +223,7 @@ OPENFILENAME* makeOFN(QWidget* parent,
                        const QString& initialDirectory,
                        const QString& title,
                        const QString& filters,
-                       QFileDialog::Mode mode)
+                       Q3FileDialog::Mode mode)
 {
     if (parent)
         parent = parent->topLevelWidget();
@@ -235,7 +235,7 @@ OPENFILENAME* makeOFN(QWidget* parent,
     tTitle = title;
     QString initSel = QDir::convertSeparators(initialSelection);
 
-    int maxLen = mode == QFileDialog::ExistingFiles ? maxMultiLen : maxNameLen;
+    int maxLen = mode == Q3FileDialog::ExistingFiles ? maxMultiLen : maxNameLen;
     TCHAR *tInitSel = new TCHAR[maxLen+1];
     if (initSel.length() > 0 && initSel.length() <= maxLen)
         memcpy(tInitSel, initSel.ucs2(), (initSel.length()+1)*sizeof(QChar));
@@ -264,10 +264,10 @@ OPENFILENAME* makeOFN(QWidget* parent,
     ofn->lpstrTitle        = (TCHAR *)tTitle.ucs2();
     ofn->Flags                = (OFN_NOCHANGEDIR | OFN_HIDEREADONLY);
 
-    if (mode == QFileDialog::ExistingFile ||
-         mode == QFileDialog::ExistingFiles)
+    if (mode == Q3FileDialog::ExistingFile ||
+         mode == Q3FileDialog::ExistingFiles)
         ofn->Flags |= (OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST);
-    if (mode == QFileDialog::ExistingFiles)
+    if (mode == Q3FileDialog::ExistingFiles)
         ofn->Flags |= (OFN_ALLOWMULTISELECT | OFN_EXPLORER);
 
     return ofn;
@@ -286,7 +286,7 @@ static void cleanUpOFN(OPENFILENAME** ofn)
 extern Q_GUI_EXPORT void qt_enter_modal(QWidget*);
 extern Q_GUI_EXPORT void qt_leave_modal(QWidget*);
 
-QString QFileDialog::winGetOpenFileName(const QString &initialSelection,
+QString Q3FileDialog::winGetOpenFileName(const QString &initialSelection,
                                          const QString &filter,
                                          QString* initialDirectory,
                                          QWidget *parent, const char* /*name*/,
@@ -371,7 +371,7 @@ QString QFileDialog::winGetOpenFileName(const QString &initialSelection,
 }
 
 
-QString QFileDialog::winGetSaveFileName(const QString &initialSelection,
+QString Q3FileDialog::winGetSaveFileName(const QString &initialSelection,
                                          const QString &filter,
                                          QString* initialDirectory,
                                          QWidget *parent, const char* /*name*/,
@@ -456,7 +456,7 @@ QString QFileDialog::winGetSaveFileName(const QString &initialSelection,
 
 
 
-QStringList QFileDialog::winGetOpenFileNames(const QString &filter,
+QStringList Q3FileDialog::winGetOpenFileNames(const QString &filter,
                                               QString* initialDirectory,
                                               QWidget *parent,
                                               const char* /*name*/,
@@ -623,7 +623,7 @@ static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
 #endif
 
 
-QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
+QString Q3FileDialog::winGetExistingDirectory(const QString& initialDirectory,
                                              QWidget *parent,
                                              const char* /*name*/,
                                              const QString& caption)

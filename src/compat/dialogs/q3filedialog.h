@@ -25,8 +25,8 @@ class QNetworkOperation;
 class QLineEdit;
 class QListViewItem;
 class QListBoxItem;
-class QFileDialogPrivate;
-class QFileDialogQFileListView;
+class Q3FileDialogPrivate;
+class Q3FileDialogQFileListView;
 
 #ifndef QT_H
 #include "qdir.h"
@@ -59,7 +59,7 @@ public:
 
 };
 
-class Q_COMPAT_EXPORT QFileDialog : public QDialog
+class Q_COMPAT_EXPORT Q3FileDialog : public QDialog
 {
     Q_OBJECT
     Q_ENUMS(Mode ViewMode PreviewMode)
@@ -77,10 +77,10 @@ class Q_COMPAT_EXPORT QFileDialog : public QDialog
     Q_PROPERTY(bool contentsPreview READ isContentsPreviewEnabled WRITE setContentsPreviewEnabled)
 
 public:
-    QFileDialog(const QString& dirName, const QString& filter = QString::null,
+    Q3FileDialog(const QString& dirName, const QString& filter = QString::null,
                  QWidget* parent=0, const char* name=0, bool modal = false);
-    QFileDialog(QWidget* parent=0, const char* name=0, bool modal = false);
-    ~QFileDialog();
+    Q3FileDialog(QWidget* parent=0, const char* name=0, bool modal = false);
+    ~Q3FileDialog();
 
     // recommended static functions
 
@@ -257,11 +257,11 @@ private:
     QDir reserved; // was cwd
     QString fileName;
 
-    friend class QFileDialogQFileListView;
+    friend class Q3FileDialogQFileListView;
     friend class QFileListBox;
 
-    QFileDialogPrivate *d;
-    QFileDialogQFileListView  *files;
+    Q3FileDialogPrivate *d;
+    Q3FileDialogQFileListView  *files;
 
     QLineEdit  *nameEdit; // also filter
     QPushButton *okB;
@@ -308,8 +308,8 @@ private:
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QFileDialog(const QFileDialog &);
-    QFileDialog &operator=(const QFileDialog &);
+    Q3FileDialog(const Q3FileDialog &);
+    Q3FileDialog &operator=(const Q3FileDialog &);
 #endif
 };
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of QFileDialog classes for mac.
+** Implementation of Q3FileDialog classes for mac.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -17,7 +17,7 @@
 #ifndef QT_NO_FILEDIALOG
 
 /*****************************************************************************
-  QFileDialog debug facilities
+  Q3FileDialog debug facilities
  *****************************************************************************/
 //#define DEBUG_FILEDIALOG_FILTERS
 
@@ -68,11 +68,11 @@ static qt_mac_filter_name *extractFilter(const QString& rawFilter)
 static QList<qt_mac_filter_name*> makeFiltersList(const QString &filter)
 {
 #ifdef DEBUG_FILEDIALOG_FILTERS
-    qDebug("QFileDialog:%d - Got filter (%s)", __LINE__, filter.latin1());
+    qDebug("Q3FileDialog:%d - Got filter (%s)", __LINE__, filter.latin1());
 #endif
     QString f(filter);
     if(f.isEmpty())
-        f = QFileDialog::tr("All Files (*)");
+        f = Q3FileDialog::tr("All Files (*)");
     if(f.isEmpty())
         return QList<qt_mac_filter_name*>();
     QString sep(";;");
@@ -88,7 +88,7 @@ static QList<qt_mac_filter_name*> makeFiltersList(const QString &filter)
     for (QStringList::Iterator it = filts.begin(); it != filts.end(); ++it) {
         qt_mac_filter_name *filter = extractFilter((*it));
 #ifdef DEBUG_FILEDIALOG_FILTERS
-        qDebug("QFileDialog:%d Split out filter (%d) '%s' '%s'", __LINE__, ret.count(),
+        qDebug("Q3FileDialog:%d Split out filter (%d) '%s' '%s'", __LINE__, ret.count(),
                filter->regxp.latin1(), filter->description.latin1());
 #endif
         ret.append(filter);
@@ -145,7 +145,7 @@ static QMAC_PASCAL Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
     for(QStringList::Iterator it = reg.begin(); it != reg.end(); ++it) {
         QRegExp rg((*it), false, true);
 #ifdef DEBUG_FILEDIALOG_FILTERS
-        qDebug("QFileDialog:%d, asked to filter.. %s (%s)", __LINE__,
+        qDebug("Q3FileDialog:%d, asked to filter.. %s (%s)", __LINE__,
                file.latin1(), (*it).latin1());
 #endif
         if(rg.exactMatch(file))
@@ -185,7 +185,7 @@ static QMAC_PASCAL void qt_mac_filedialog_event_proc(const NavEventCallbackMessa
         NavMenuItemSpec *s = (NavMenuItemSpec*)p->eventData.eventDataParms.param;
         t->index = s->menuType;
 #ifdef DEBUG_FILEDIALOG_FILTERS
-        qDebug("QFileDialog:%d - Selected a filter: %ld", __LINE__, s->menuType);
+        qDebug("Q3FileDialog:%d - Selected a filter: %ld", __LINE__, s->menuType);
 #endif
         break; }
     case kNavCBStart:
@@ -208,7 +208,7 @@ static const NavEventUPP make_navProcUPP()
 const unsigned char * p_str(const char *, int len=-1);
 OSErr qt_mac_create_fsspec(const QString &path, FSSpec *spec); //qglobal.cpp
 
-QStringList QFileDialog::macGetOpenFileNames(const QString &filter, QString *pwd,
+QStringList Q3FileDialog::macGetOpenFileNames(const QString &filter, QString *pwd,
                                              QWidget *parent, const char* /*name*/,
                                              const QString& caption, QString *selectedFilter,
                                              bool multi, bool directory)
@@ -370,7 +370,7 @@ static QString encodeFileName(const QString &fName)
     return newStr;
 }
 
-QString QFileDialog::macGetSaveFileName(const QString &start, const QString &filter,
+QString Q3FileDialog::macGetSaveFileName(const QString &start, const QString &filter,
                                          QString *, QWidget *parent, const char* /*name*/,
                                          const QString& caption, QString *selectedFilter)
 {
