@@ -23,6 +23,7 @@
 #ifndef QT_NO_ACCEL
 
 class QAccelPrivate;
+class QWidget;
 
 class Q_GUI_EXPORT QAccel : public QObject			// accelerator class
 {
