@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#49 $
 **
 ** Implementation of QML classes
 **
@@ -1285,7 +1285,7 @@ void QMLHorizontalLine::draw(QPainter* p, int x, int y,
     QRect r = rm.intersect( ra );
     if (paper) {
 	if ( paper->pixmap() )
-	    p->drawTiledPixmap( r, *paper->pixmap(), QPoint(ox, oy) );
+	    p->drawTiledPixmap( r, *paper->pixmap(), QPoint(r.x()+ox, r.y()+oy) );
 	else
 	    p->fillRect(r, *paper );
     }
@@ -1579,7 +1579,7 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
 			if (t==end){
 			    if ( paper->pixmap() )
 				p->drawTiledPixmap(tx+tw+obx-ox, y+oby-oy, width-(tx-x)-tw, height,
-						   *paper->pixmap(), tx+obx, y+oby);
+						   *paper->pixmap(), tx+obx+tw, y+oby);
 			    else
 				p->fillRect(tx+tw+obx-ox, y+oby-oy, width-(tx-x)-tw, height, *paper);
 			}
@@ -1593,7 +1593,7 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
 			    p->fillRect(tx+obx-ox, y+oby-oy, tw, base-h, *paper);
 			if ( paper->pixmap() )
 			    p->drawTiledPixmap(tx+obx-ox, y+oby-oy+base, tw, height-base,
-					       *paper->pixmap(), tx+obx, y+oby);
+					       *paper->pixmap(), tx+obx, y+oby+base);
 			else
 			    p->fillRect(tx+obx-ox, y+oby-oy+base, tw, height-base, *paper);
 		    }
@@ -1971,10 +1971,10 @@ void QMLBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int cy
 	QMLRow* row = rows.first();
 	QRect r (obx-ox + row->x - 25, oby-oy + row->y, 25, row->height); //#### label width
 	if (paper) {
-	    if ( paper->pixmap() )
-		p->drawTiledPixmap( r, *paper->pixmap(), QPoint(ox, oy) );
-	    else
-		p->fillRect(r, *paper );
+ 	    if ( paper->pixmap() )
+ 		p->drawTiledPixmap( r, *paper->pixmap(), QPoint(r.x()+ox, r.y()+oy) );
+ 	    else
+		p->fillRect(r, Qt::green );
 	}
 	
 	QMLBox* b = parentBox();
@@ -2013,7 +2013,7 @@ void QMLBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int cy
 	case QMLStyle::ListSquare:
 	    {
 		QRect er( r.right()-10, r.center().y()-1, 6, 6);
-		p->fillRect( er , cg.text() );
+		p->fillRect( er , cg.brush( QColorGroup::Foreground ) );
 	    }
 	    break;
 	case QMLStyle::ListCircle:
@@ -2025,7 +2025,7 @@ void QMLBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int cy
 	case QMLStyle::ListDisc:
 	default:
 	    {
-		p->setBrush( Qt::SolidPattern );
+		p->setBrush( cg.brush( QColorGroup::Foreground ));
 		QRect er( r.right()-10, r.center().y()-1, 6, 6);
 		p->drawEllipse( er );
 		p->setBrush( Qt::NoBrush );
