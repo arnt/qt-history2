@@ -33,7 +33,7 @@
 #include "qapplication.h"
 #include "qsizegrip.h"
 
-// NOT REVISED
+// BEGIN REVISED: warwick
 /*! \class QStatusBar qstatusbar.h
 
   \brief The QStatusBar class provides a horizontal bar suitable for
