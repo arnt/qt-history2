@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#201 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#202 $
 **
 ** Implementation of QLabel widget class
 **
@@ -907,7 +907,6 @@ void QLabel::updateLabel( QSize oldSizeHint )
 	policy.setHeightForWidth( FALSE );
     }
     setSizePolicy( policy );
-    QRect cr = contentsRect();
     if ( sizeHint() != oldSizeHint )
 	updateGeometry();
     if ( autoresize ) {
