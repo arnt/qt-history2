@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#68 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#69 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -47,6 +47,8 @@ public:
 
     QImage     &operator=( const QImage & );
     QImage     &operator=( const QPixmap & );
+    bool   	operator==( const QImage & ) const;
+    bool   	operator!=( const QImage & ) const;
     void	detach();
     QImage	copy()		const;
     QImage	copy(int x, int y, int w, int h, int conversion_flags=0) const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#186 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#187 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -4361,4 +4361,45 @@ void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
 	}
 	break;
     }
+}
+
+
+/*!  Returns TRUE if this image and \a i have the same contents, and
+  FALSE if they differ.  This can be slow.  Of course, this function
+  returns quickly if e.g. the two images' widths are different.
+  
+  \sa operator=()
+*/
+
+bool QImage::operator==( const QImage & i ) const
+{
+    // same object, or shared?
+    if ( i.data == data )
+	return TRUE;
+    // obviously different stuff?
+    if ( i.data->h != data->h ||
+	 i.data->w != data->w )
+	return FALSE;
+    // that was the fast bit...
+    QImage i1 = convertDepth( 32 );
+    QImage i2 = i.convertDepth( 32 );
+    int l;
+    for( l=0; l < data->h; l++ )
+	if ( memcmp( i1.scanLine( l ), i2.scanLine( l ), 4*data->w ) )
+	    return FALSE;
+    return TRUE;
+}
+
+
+/*!  Returns TRUE if this image and \a i have different contents, and
+  FALSE if they they have the same.  This can be slow.  Of course,
+  this function returns quickly if e.g. the two images' widths are
+  different.
+  
+  \sa operator=()
+*/
+
+bool QImage::operator!=( const QImage & i ) const
+{
+    return !(*this == i);
 }
