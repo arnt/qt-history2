@@ -804,12 +804,8 @@ void QHttp::init()
 	     SLOT(clientFinishedSuccess()) );
     connect( this, SIGNAL(finishedError( const QString&, int )),
 	     SLOT(clientFinishedError( const QString&, int )) );
-    connect( this, SIGNAL(connected()),
-	     SLOT(clientConnected()) );
-    connect( this, SIGNAL(closed()),
-	     SLOT(clientClosed()) );
-    connect( this, SIGNAL(hostFound()),
-	     SLOT(clientHostFound()) );
+    connect( this, SIGNAL(stateChanged(int)),
+	     SLOT(clientStateChanged(int)) );
 
     // new API
     d->socket = new QSocket( this );
@@ -826,10 +822,14 @@ void QHttp::init()
 	    this, SLOT( slotError( int ) ) );
     connect( d->socket, SIGNAL( bytesWritten( int ) ),
 	    this, SLOT( slotBytesWritten( int ) ) );
-    connect( d->socket, SIGNAL( hostFound() ),
-	    this, SIGNAL( hostFound() ) );
 
     d->idleTimer = startTimer( 0 );
+}
+
+void QHttp::setState( int s )
+{
+    d->state = (State)s;
+    emit stateChanged( s );
 }
 
 /*!
@@ -947,31 +947,38 @@ void QHttp::clientFinishedError( const QString &detail, int err )
     }
 }
 
-void QHttp::clientHostFound()
+void QHttp::clientStateChanged( int state )
 {
-    if ( url() )
-	emit connectionStateChanged( ConHostFound, tr( "Host %1 found" ).arg( url()->host() ) );
-    else
-	emit connectionStateChanged( ConHostFound, tr( "Host found" ) );
+    if ( url() ) {
+	switch ( (State)state ) {
+	    case Connecting:
+		emit connectionStateChanged( ConHostFound, tr( "Host %1 found" ).arg( url()->host() ) );
+		break;
+	    case Sending:
+		emit connectionStateChanged( ConConnected, tr( "Connected to host %1" ).arg( url()->host() ) );
+		break;
+	    case Unconnected:
+		emit connectionStateChanged( ConClosed, tr( "Connection to %1 closed" ).arg( url()->host() ) );
+		break;
+	    default:
+		break;
+	}
+    } else {
+	switch ( (State)state ) {
+	    case Connecting:
+		emit connectionStateChanged( ConHostFound, tr( "Host found" ) );
+		break;
+	    case Sending:
+		emit connectionStateChanged( ConConnected, tr( "Connected to host" ) );
+		break;
+	    case Unconnected:
+		emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
+		break;
+	    default:
+		break;
+	}
+    }
 }
-
-void QHttp::clientConnected()
-{
-    if ( url() )
-	emit connectionStateChanged( ConConnected, tr( "Connected to host %1" ).arg( url()->host() ) );
-    else
-	emit connectionStateChanged( ConConnected, tr( "Connected to host" ) );
-}
-
-void QHttp::clientClosed()
-{
-    if ( url() )
-	emit connectionStateChanged( ConClosed, tr( "Connection to %1 closed" ).arg( url()->host() ) );
-    else
-	emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
-}
-
-#endif
 
 /****************************************************
  *
@@ -1064,7 +1071,7 @@ void QHttp::close()
 	return;
 
     d->postDevice = 0;
-    d->state = Closing;
+    setState( Closing );
 
     // Already closed ?
     if ( !d->socket->isOpen() ) {
@@ -1075,7 +1082,6 @@ void QHttp::close()
 
 	// Did close succeed immediately ?
 	if ( d->socket->state() == QSocket::Idle ) {
-	    emit closed();
 	    // Prepare to emit the finishedSuccess() signal.
 	    d->idleTimer = startTimer( 0 );
 	}
@@ -1196,7 +1202,7 @@ bool QHttp::request( const QHttpRequestHeader &header, QIODevice *data, QIODevic
     }
 
     killIdleTimer();
-    d->state = Connecting;
+    setState( Connecting );
 
     // Do we need to setup a new connection or can we reuse an
     // existing one ?
@@ -1240,7 +1246,7 @@ bool QHttp::request( const QHttpRequestHeader &header, const QByteArray &data, Q
     }
 
     killIdleTimer();
-    d->state = Connecting;
+    setState( Connecting );
 
     // Do we need to setup a new connection or can we reuse an
     // existing one ?
@@ -1281,18 +1287,15 @@ void QHttp::slotClosed()
     } else if ( d->state == Connecting || d->state == Sending ) {
 	emit finishedError( tr("Server closed connection unexpectedly"), UnexpectedClose );
     }
-    emit closed();
 
     d->postDevice = 0;
-    d->state = Closing;
+    setState( Closing );
     d->idleTimer = startTimer( 0 );
 }
 
 void QHttp::slotConnected()
 {
-    emit connected();
-
-    d->state = Sending;
+    setState( Sending );
 
     QString str = d->header.toString();
 
@@ -1351,7 +1354,7 @@ void QHttp::slotBytesWritten( int )
 void QHttp::slotReadyRead()
 {
     if ( d->state != Reading ) {
-	d->state = Reading;
+	setState( Reading );
 	d->buffer = QByteArray();
 	d->readHeader = TRUE;
 	d->headerStr = "";
@@ -1416,7 +1419,7 @@ void QHttp::slotReadyRead()
 	    if ( d->response.value("connection") == "close" ) {
 		close();
 	    } else {
-		d->state = Connected;
+		setState( Connected );
 		// Start a timer, so that we emit the keep alive signal
 		// "after" this method returned.
 		d->idleTimer = startTimer( 0 );
@@ -1460,7 +1463,7 @@ void QHttp::timerEvent( QTimerEvent *e )
 	if ( d->state == Connected ) {
 	    emit finishedSuccess();
 	} else if ( d->state != Unconnected ) {
-	    d->state = Unconnected;
+	    setState( Unconnected );
 	    emit finishedSuccess();
 	}
     } else {
@@ -1473,3 +1476,4 @@ void QHttp::killIdleTimer()
     killTimer( d->idleTimer );
     d->idleTimer = 0;
 }
+#endif

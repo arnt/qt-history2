@@ -184,9 +184,7 @@ private slots:
     void clientReply( const QHttpResponseHeader &rep );
     void clientFinishedSuccess();
     void clientFinishedError( const QString &detail, int );
-    void clientConnected();
-    void clientClosed();
-    void clientHostFound();
+    void clientStateChanged( int );
 
 private:
     QHttpPrivate *d;
@@ -220,6 +218,7 @@ public:
     State state() const;
 
 signals:
+    void stateChanged( int );
     void responseHeaderReceived( const QHttpResponseHeader& resp );
 
     void readyRead( const QHttpResponseHeader& resp );
@@ -227,11 +226,6 @@ signals:
 
     void finishedError( const QString& detail, int error );
     void finishedSuccess();
-
-    // informational
-    void connected();
-    void closed();
-    void hostFound();
 
 protected:
     void timerEvent( QTimerEvent * );
@@ -247,6 +241,7 @@ private:
     void killIdleTimer();
 
     void init();
+    void setState( int );
 };
 
 #endif
