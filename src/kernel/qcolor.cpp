@@ -675,7 +675,7 @@ void QColor::setHsv( int h, int s, int v )
     \sa setRgb(), hsv()
 */
 
-/*! \fn void getRgb( int *r, int *g, int *b ) const
+/*! \fn void QColor::getRgb( int *r, int *g, int *b ) const
 
     Sets the contents pointed to by \a r, \a g and \a b to the red,
     green and blue components of the RGB value respectively. The value
