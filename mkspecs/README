@@ -82,22 +82,22 @@ explictly triggered using platform-dependant macros. This is an important
 issue and is therefore covered in detail. Here is an overview for a selection
 of platforms:
 
-AIX
+AIX		<standards.h>
 
 	By default AIX defines user-space feature test macros:
 
-		AIX 4.1		_XOPEN_SOURCE			<standards.h>
+		AIX 4.1		_XOPEN_SOURCE
 				_POSIX_SOURCE
 				_ANSI_C_SOURCE
 				_ALL_SOURCE
 
-		AIX 4.2		_XOPEN_SOURCE			<standards.h>
+		AIX 4.2		_XOPEN_SOURCE
 				_POSIX_SOURCE
 				_ANSI_C_SOURCE
 				_XOPEN_SOURCE_EXTENDED 1
 				_ALL_SOURCE
 
-		AIX 4.3		_XOPEN_SOURCE  500		<standards.h>
+		AIX 4.3		_XOPEN_SOURCE  500
 				_XOPEN_SOURCE_EXTENDED 1
 				_POSIX_SOURCE
 				_ANSI_C_SOURCE
@@ -105,36 +105,36 @@ AIX
 
 	All this is explicitly specified by defining:
 
-		AIX		_ALL_SOURCE			<standards.h>
+		AIX		_ALL_SOURCE
 
 
-GNU
+GNU		<features.h>
 
 	By default the GNU C library defines internal macros:
 
-		glibc 2.0	_BSD_SOURCE     1		<features.h>
+		glibc 2.0	_BSD_SOURCE     1
 				_SVID_SOURCE    1
 				_POSIX_SOURCE   1
 
-		glibc 2.2	_BSD_SOURCE     1		<features.h>
+		glibc 2.2	_BSD_SOURCE     1
 				_SVID_SOURCE    1
 				_POSIX_SOURCE   1
 				_POSIX_C_SOURCE 199506L
 
-	All this is explicitly specified by defining:
+	All this - and more! - is explicitly specified by defining:
 
-		glibc		_GNU_SOURCE			<features.h>
+		glibc		_GNU_SOURCE
 
-	However _GNU_SOURCE defines additional macros:
+	However the above _GNU_SOURCE defines additional macros:
 
-		glibc 2.0	_POSIX_SOURCE           1	<features.h>
+		glibc 2.0	_POSIX_SOURCE           1
 				_POSIX_C_SOURCE	        199309L
 				_XOPEN_SOURCE           1
 				_XOPEN_SOURCE_EXTENDED  1
 				_BSD_SOURCE             1
 				_SVID_SOURCE            1
 
-		glibc 2.1	_ISOC9X_SOURCE          1	<features.h>
+		glibc 2.1	_ISOC9X_SOURCE          1
 				_POSIX_SOURCE           1
 				_POSIX_C_SOURCE	        199506L
 				_XOPEN_SOURCE           500
@@ -142,7 +142,7 @@ GNU
 				_BSD_SOURCE             1
 				_SVID_SOURCE            1
 
-		glibc 2.2	_ISOC99_SOURCE          1	<features.h>
+		glibc 2.2	_ISOC99_SOURCE          1
 				_POSIX_SOURCE           1
 				_POSIX_C_SOURCE	        199506L
 				_XOPEN_SOURCE           600
@@ -150,15 +150,15 @@ GNU
 				_BSD_SOURCE             1
 				_SVID_SOURCE            1
 
-	Thus _GNU_SOURCE is of interest to require more recent system
-	interfaces than the default system interfaces.
+	Thus _GNU_SOURCE could be of interest to specify broader interfaces
+	than the default interfaces.
 
 
-HP-UX
+HP-UX		<sys/stdsyms.h>
 
 	By default HP-UX defines internal macros:
 
-		HP-UX 10.20	_INCLUDE__STDC__		<sys/stdsyms.h>
+		HP-UX 10.20	_INCLUDE__STDC__
 				_INCLUDE_POSIX_SOURCE
 				_INCLUDE_POSIX2_SOURCE
 				_INCLUDE_POSIX4_SOURCE
@@ -169,14 +169,14 @@ HP-UX
 
 	All this is explicitly specified by defining:
 
-		HP-UX		_HPUX_SOURCE			<sys/stdsyms.h>
+		HP-UX		_HPUX_SOURCE
 
 
-Irix
+Irix		<standards.h>
 
 	By default Irix defines internal macros:
 
-		Irix 6.3	_POSIX90			<standards.h>
+		Irix 6.3	_POSIX90
 				_POSIX2
 				_POSIX93
 				_POSIX1C
@@ -184,7 +184,7 @@ Irix
 				_SGIAPI
 				_ABIAPI
 
-		Irix 6.4	_POSIX90			<standards.h>
+		Irix 6.4	_POSIX90
 				_POSIX2
 				_POSIX93
 				_POSIX1C
@@ -193,7 +193,7 @@ Irix
 				_ABIAPI
 				_LFAPI
 
-		Irix 6.5	_POSIX90			<standards.h>
+		Irix 6.5	_POSIX90
 				_POSIX2
 				_POSIX93
 				_POSIX1C
@@ -205,283 +205,100 @@ Irix
 
 	All this is explicitly specified by defining:
 
-		Irix		_SGI_SOURCE			<standards.h>
+		Irix		_SGI_SOURCE
 
 	Both the MIPSpro and the GCC compilers define _SGI_SOURCE.
 
-	Note that the internal macro _XOPEN4UX is not defined.
+	Note that the internal macro _XOPEN4UX is not defined by _SGI_SOURCE.
 	Also note that Irix 6.5 is not really SUSv2/XPG5 compliant. For
 	example socket functions still use 'int' instead of 'socklen_t'.
 
 
-Solaris		
+Solaris		<sys/feature_tests.h>	
 
-	Nothing needs to be defined on Solaris. Will try to
-	document this later.
+	By default Solaris defines no macros!
+
+	However the system header files always check against _POSIX_C_SOURCE,
+	_POSIX_C_SOURCE, _XOPEN_SOURCE_EXTENDED or __EXTENSIONS__.
+
+	The default behaviour is specified by defining:
+
+		AIX		__EXTENSIONS__
 
 
-Tru64
+Tru64		<standards.h>
 
 	By default Tru64 defines user-space feature test macros:
 
-		Tru64 4.0F	_AES_SOURCE			<standards.h>
+		Tru64 4.0F	_AES_SOURCE
 				_XOPEN_SOURCE
 				_POSIX_C_SOURCE 199506L
 				_POSIX_SOURCE
 				_OSF_SOURCE
 
-		Tru64 5.0A	_AES_SOURCE			<standards.h>
+		Tru64 5.0A	_AES_SOURCE
 				_XOPEN_SOURCE   400
 				_POSIX_C_SOURCE 199506L
 				_POSIX_SOURCE
 				_OSF_SOURCE
 
-	If any feature test macro is explicitly defined by the
-	user, such as _POSIX_C_SOURCE set to 199506L or
-	_XOPEN_SOURCE set to 500, then _all_ the above must be
-	defined to recover the default environment. There's no
-	shortcut on Tru64.
+	If any feature test macro is explicitly defined by the user,
+	such as _POSIX_C_SOURCE set to 199506L or _XOPEN_SOURCE set
+	to 500, then _all_ the above must be defined to recover the
+	default environment. There's no shortcut on Tru64.
 
 
-QNX
+QNX		<sys/platform.h>
 
-	This a macro I am not yet sure what it specifies:
+	I am not yet sure what _QNX_SOURCE specifies:
 
-		QNX 6.00	_QNX_SOURCE			<sys/platform.h>
+		QNX 6.00	_QNX_SOURCE
 
 
 
 And now what with all this?
 ---------------------------
 
+To configure a system, follow these simple steps.
 
-#############################################################################
-TO BE REWRITTEN...
+1) Avoid defining any of the above macros. By default the system should
+   be providing appropriate interfaces.
 
-There are a number of steps involved here.
+2) POSIX and Open Group standards more recent than the default standard
+   provided by the system have sometimes to be specified. This is done
+   by defining well known macros such as _POSIX_C_SOURCE or _XOPEN_SOURCE.
+   Be very careful when defining such macros. They specify strict respect
+   of a given standard. They hide interfaces that are outside of the scope
+   of the standard but otherwise available by default when no macro is
+   defined.
+   If you have to use such a macro, don't forget to define along with
+   it the platform dependant macro that explicitly specifies the default
+   interface:
+   	GNU		_GNU_SOURCE
+   	HP-UX		_HPUX_SOURCE
+   	Irix		_SGI_SOURCE
+   	Solaris		__EXTENSIONS__
+   The case of Tru64 is complicated as by default it defines a lot of
+   macros that additionally depend on the release. If possible do not
+   define any macro on this platform!
 
-1) Import most recent Open Group interfaces available.
-   A. This is preferably done implictly on the following platforms
-      by defining
-      	_ALL_SOURCE   on AIX
-      	_GNU_SOURCE   on GNU systems
-      	_HPUX_SOURCE  on HP-UX
-      	_SGI_SOURCE   on Irix
-      This has the advantage that not only the latest Open Group
-   	 interfaces are imported, but also additional proprietary or
-      draft interfaces possibly used by Qt are imported as well.
-   B. This is done explicitly on systems such as Solaris by defining
-      	_XOPEN_SOURCE          to 600 for SUSv3
-      	_XOPEN_SOURCE          to 500 for SUSv2/XPG5
-      	_XOPEN_SOURCE_EXTENDED to 1   for SUS/XPG4v2
-      	_XOPEN_SOURCE          to 1   for plain XPG4
-      Be cautious however as specifying an Open Group standard might
-      cause proprietary or draft interfaces possibly used by Qt to be
-      left out on the basis that they are not part of the standard.
-      In such cases an additional macro is often available to import
-      additional interfaces as well. On Solaris use __EXTENSIONS__.
-//
-2) Draft POSIX and Open Group standards more recent than the current
-   Open Group standard must sometimes be specified separately. This
-   is the case for threads with POSIX semantics on Solaris and Large
-   File support on SUSv2/XPG5 platforms.
-   	_POSIX_C_SOURCE   to 199506L for IEEE Std 1003.1c (1995) / POSIX.1c
-                                  semantics on Solaris
-   	_FILE_OFFSET_BITS to 64      for Large File Support (draft 8)
-   	_POSIX_PII                   for IEEE Std 1003.1g/D6.6 (March 1997)
-                                  sockets on otherwise XPG4v2 Tru64 4.0F
-   Some functions are not even in draft Open Group or POSIX standards.
-   However they are still made available either by including specific
-   platform-dependant header files (to be avoided) or by using
-   platform-dependant macros such as _BSD_SOURCE. Such exceptional things
-   should probably be defined near to the code that needs the specific
-   functions.
-//
-3) Only now may <unistd.h> be included, explicitly or not.
-   It will define some internal macros so that the system header files
-   that are included afterwards will import the correct interfaces.
-   You may also test for the availability of some specification.
-   Important examples are:
-   	_XOPEN_VERSION set to 500 for SUSv2/XPG5
-   	_XOPEN_UNIX    defined    for SUS/XPG4v2
-   	_XOPEN_XPG4    defined    for XPG4
-   	_XOPEN_XPG3    defined    for XPG3
-   	_POSIX_THREADS defined    for IEEE Std 1003.1c (1995) / POSIX.1c
-   Note that these macros never work as expected.  For example even
-   though recent releases of the GNU C library present SUSv2 (not to
-   say SUSv3) style interfaces, _XOPEN_VERSION is not defined to 500
-   unless you explicitly set _XOPEN_SOURCE to 500. The reason is that
-   _XOPEN_SOURCE should be defined to 500 only when the interfaces are
-   exact XPG5 interfaces - without extensions. On the other hand Irix
-   defines _XOPEN_UNIX although we do not explicitly specify XPG4v2 -
-   and then uses good ol' Berkeley-style sockets.
-   Do not blindly rely on these macros!
-//
-This is mainly for SYSV platforms. BSD platforms are less of a problem,
-they have more stable interfaces.
-//
+3) Sometimes interfaces may be specified by macros that do not limit
+   the scope of other interfaces. _FILE_OFFSET_BITS is such a macro.
+   These are usually not dangerous. They do not involve explicitly
+   respecifying the default interface.
 
-#if defined(__APPLE__) && defined(__GNUC__)
-#  define Q_OS_MACX
-#elif defined(macintosh)
-#  define Q_OS_MAC9
-#elif defined(MSDOS) || defined(_MSDOS) || defined(__MSDOS__)
-#  define Q_OS_MSDOS
-#elif defined(OS2) || defined(_OS2) || defined(__OS2__)
-#  if defined(__EMX__)
-#    define Q_OS_OS2EMX
-#  else
-#    define Q_OS_OS2
-#  endif
-#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-#  define Q_OS_WIN32
-#elif defined(WIN64) || defined(_WIN64) || defined(__WIN64__)
-#  define Q_OS_WIN32
-#  define Q_OS_WIN64
-#elif defined(__MWERKS__) && defined(__INTEL__)
-#  define Q_OS_WIN32
-#elif defined(sun) || defined(__sun) || defined(__sun__)
-#  if defined(__SVR4)
-#    define Q_OS_SOLARIS
-#  else
-#    define Q_OS_SUN
-#  endif
-#elif defined(hpux) || defined(__hpux) || defined(__hpux__)
-#  define Q_OS_HPUX
-#elif defined(ultrix) || defined(__ultrix) || defined(__ultrix__)
-#  define Q_OS_ULTRIX
-#elif defined(reliantunix)
-#  define Q_OS_RELIANT
-#elif defined(linux) || defined(__linux) || defined(__linux__)
-#  define Q_OS_LINUX
-#elif defined(__FreeBSD__)
-#  define Q_OS_FREEBSD
-#elif defined(__NetBSD__)
-#  define Q_OS_NETBSD
-#elif defined(__OpenBSD__)
-#  define Q_OS_OPENBSD
-#elif defined(sgi) || defined(__sgi)
-#  define Q_OS_IRIX
-#elif defined(__osf__)
-#  define Q_OS_OSF
-#elif defined(bsdi) || defined(__bsdi__)
-#  define Q_OS_BSDI
-#elif defined(_AIX)
-#  define Q_OS_AIX
-#elif defined(__Lynx__)
-#  define Q_OS_LYNXOS
-#elif defined(_UNIXWARE)
-#  define Q_OS_UNIXWARE
-#elif defined(__GNU__)
-#  define Q_OS_GNU
-#elif defined(DGUX)
-#  define Q_OS_DGUX
-#elif defined(__QNX__)
-#  define Q_OS_QNX
-#elif defined(_SCO_DS) || defined(M_UNIX) || defined(M_XENIX)
-#  define Q_OS_SCO
-#elif defined(sco) || defined(_UNIXWARE7)
-#  define Q_OS_UNIXWARE7
-#elif !defined(_SCO_DS) && defined(__USLC__) && defined(__SCO_VERSION__)
-#  define Q_OS_UNIXWARE7
-#elif defined(_SEQUENT_)
-#  define Q_OS_DYNIX
-#else
-#  error "Qt has not been ported to this OS - talk to qt-bugs@trolltech.com"
-#endif
+4) Avoid defining internal undocumented macros such as
+   	GNU		_UNIX98
+   	Irix		_SGIAPI
+   	Solaris		_XPG5
+   This may solve a problem in the short term but is guaranteed to
+   a be maintainance nightmare in the long term. If you don't know
+   the canonical way of respecifying the default interfaces on a
+   given platform, ask someone who knows the platform, have a look
+   at the system header files and especially at <unistd.h> and the
+   first file included by it. Do ask for these files if needed.
 
-#if defined(Q_OS_MAC9) || defined(Q_OS_MACX)
-#  define Q_OS_MAC
-#endif
-
-#if defined(Q_OS_MAC9) || defined(Q_OS_MSDOS) || defined(Q_OS_OS2) || defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
-#  undef Q_OS_UNIX
-#elif !defined(Q_OS_UNIX)
-#  define Q_OS_UNIX
-#endif
-
-#if defined(Q_OS_UNIX)
-BSDs have nice, stable interfaces...
-#  if defined(BSD4_4)
-Do not specify Open Group standards on Irix! Only use the general
-_SGI_SOURCE macro which will automatically import the most recent
-Open Group interfaces automatically together with proprietary or
-draft interfaces not part of the current Open Group standard.
-Directly specifying Open Group standards will hide non-standard
-extension such as some DNS details we actually use in Qt.
-The MIPSpro compiler defines _SGI_SOURCE automatically and GCC is
-probably just as smart but let's redefine it anyway.
-See <standards.h> for more details.
-#  elif defined(Q_OS_IRIX)
-#    if !defined(_SGI_SOURCE)
-#      define _SGI_SOURCE
-#    endif
-Use the general _ALL_SOURCE macro which will import the most
-recent interfaces automatically.
-See <standards.h> for more details.
-#  elif defined(Q_OS_AIX)
-#    if !defined(_ALL_SOURCE)
-#      define _ALL_SOURCE
-#    endif
-Use the general _GNU_SOURCE macro which will import the most recent
-which will automatically import the most recent Open Group interfaces
-together with  proprietary or draft interfaces not part of the current
-Open Group standard.  For example _GNU_SOURCE is needed to import POSIX
-thread interfaces from the header files of pre-2.2 GNU C libraries.
-See <features.h> for more details.
-#  elif defined(Q_OS_LINUX) || defined(Q_OS_GNU)
-#    if !defined(_GNU_SOURCE)
-#      define _GNU_SOURCE
-#    endif
-Use the general _HPUX_SOURCE macro which will import the most recent
-which will automatically import the most recent Open Group interfaces
-together with  proprietary or draft interfaces not part of the current
-Open Group standard.  I'm not sure why defining _POSIX_C_SOURCE is
-needed in this context though.
-See stdsyms(5) and <sys/stdsyms.h> for more details.
-#  elif defined(Q_OS_HPUX)
-#    if !defined(_HPUX_SOURCE)
-#      define _HPUX_SOURCE
-#    endif
-/*
-### Brad? Do you need setting _POSIX_C_SOURCE to 199506L on HP-UX?
-### _HPUX_SOURCE ought to be enough.
-#    define _POSIX_C_SOURCE 199506L    IEEE Std 1003.1c (1995) / POSIX.1c
-*/
-There is an _OSF_SOURCE macro on Tru64, but it seems to behave somehow
-differently - possibly better?
-It does not import most recent Open Group interfaces.  Instead you must
-explicitly specify them using the relevant _XOPEN_SOURCE* macros, while
-_OSF_SOURCE imports additional proprietary or draft interfaces not part
-of the specified OpenGroup standard.  This is probably more flexible...
-See standards(5) and <standards.h> for more details.
-#  elif defined(Q_OS_OSF)
-### Need to take a closer look at this issue...
-#    if !defined(_OSF_SOURCE)
-#      define _OSF_SOURCE
-#    endif
-//#    define _XOPEN_SOURCE 500          import SUSv2/XPG5
-//#    define _XOPEN_SOURCE_EXTENDED 1   fall back on SUS/XPG4v2
-#    define _POSIX_C_SOURCE 199506L    IEEE Std 1003.1c (1995) / POSIX.1c
-There is no _*_SOURCE on Solaris, there's an __EXTENSIONS__ macro instead.
-This is very similar to Tru64.  This macro does not import most recent
-Open Group interfaces.  Instead you must explicitly specify them using the
-relevant _XOPEN_SOURCE* macros, while __EXTENSIONS__ imports additional
-proprietary or draft interfaces not part of the specified OpenGroup
-standard.
-Note that defining _POSIX_C_SOURCE to 199506L is mandatory to specify
-POSIX thread semantics as opposed to _REENTRANT which specifies Solaris
-thread semantics.
-See standards(5) and <sys/feature_tests.h> for more details.
-#  elif defined(Q_OS_SOLARIS)
-#    if !defined(__EXTENSIONS__)
-#      define __EXTENSIONS__
-#    endif
-#    define _POSIX_C_SOURCE 199506L    IEEE Std 1003.1c (1995) / POSIX.1c
-Don't know about other SYSV systems...
-Please send info on relevant macros to qt-bugs@trolltech.com.
-You could send the relevant header files, usually <unistd.h> and
-the first header file included by <unistd.h>.
-#  endif
-Done with the general UNIX configuration. Now the details...
-/*
+5) There are some macros with very limited impact such as BSD_COMP
+   on Solaris, only used in <sys/ioctl.h>. Such toy macros are
+   better defined before including the relevant header file, inside
+   the source.
