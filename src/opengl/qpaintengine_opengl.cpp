@@ -85,7 +85,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 
     dgl->makeCurrent();
     dgl->qglClearColor(dgl->palette().brush(QPalette::Background));
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
     glShadeModel(GL_FLAT);
     glViewport(0, 0, dgl->width(), dgl->height());
     glMatrixMode(GL_PROJECTION);
@@ -93,6 +93,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     glOrtho(0, dgl->width(), dgl->height(), 0, -999999, 999999);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+    glTranslatef(0.375, 0.375, 0.0);
     return true;
 }
 
