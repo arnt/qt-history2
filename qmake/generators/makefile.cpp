@@ -1546,12 +1546,10 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
             continue;
         }
         for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
-            QString in = Option::fixPathToTargetOS((*input), false),
-                  deps = " " + findDependencies((*input)).join(" ");
-            if(!tmp_dep.isEmpty()) {
-                QStringList dep_fixed = fileFixify(tmp_dep, Option::output_dir, Option::output_dir);
-                deps = " " + dep_fixed.join(" ");
-            }
+            QString in = Option::fixPathToTargetOS((*input), false);
+            QStringList deps = findDependencies((*input));
+            if(!tmp_dep.isEmpty()) 
+                deps += fileFixify(tmp_dep, Option::output_dir, Option::output_dir);
             QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
             QString cmd = replaceExtraCompilerVariables(tmp_cmd, (*input), out);
             for(QStringList::Iterator it3 = vars.begin(); it3 != vars.end(); ++it3)
@@ -1570,11 +1568,15 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                     }
                     fclose(proc);
                     if(!indeps.isEmpty())
-                        deps += " " + fileFixify(indeps.replace('\n', ' ').simplified().split(' ')).join(" ");
+                        deps += fileFixify(indeps.replace('\n', ' ').simplified().split(' '));
                 }
             }
-            deps = replaceExtraCompilerVariables(deps, (*input), out);
-            t << out << ": " << in << deps << "\n\t"
+            t << out << ": " << in;
+            for(int i = 0; i < deps.size(); ++i) {
+                  if(out != deps.at(i))
+                      t<< " " <<  replaceExtraCompilerVariables(deps.at(i), (*input), out);
+            }
+            t << "\n\t"
               << cmd << endl << endl;
         }
     }
