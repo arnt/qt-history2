@@ -4,6 +4,7 @@ TARGET += qjpeg
 VERSION = 1.0.0
 DESTDIR = ../../../imageformats
 INCLUDEPATH += $(QTDIR)/src/3rdparty/libjpeg
+REQUIRES += !jpeg
 
 SOURCES += main.cpp \
 	../../../../src/3rdparty/libjpeg/jcapimin.c \

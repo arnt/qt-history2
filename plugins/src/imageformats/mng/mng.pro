@@ -6,6 +6,7 @@ DESTDIR = ../../../imageformats
 INCLUDEPATH += $(QTDIR)/src/3rdparty/zlib
 INCLUDEPATH += $(QTDIR)/src/3rdparty/libjpeg
 INCLUDEPATH += $(QTDIR)/src/3rdparty/libmng
+REQUIRES += !mng
 
 SOURCES += main.cpp \
 	../../../../src/3rdparty/libmng/libmng_callback_xs.c \

@@ -5,6 +5,7 @@ VERSION = 1.0.0
 DESTDIR = ../../../imageformats
 INCLUDEPATH += $(QTDIR)/src/3rdparty/libpng
 INCLUDEPATH += $(QTDIR)/src/3rdparty/zlib
+REQUIRES += !png
 
 SOURCES += main.cpp \
     	../../../../src/3rdparty/libpng/png.c \
