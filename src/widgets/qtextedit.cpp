@@ -3943,21 +3943,24 @@ bool QTextEdit::getParagraphFormat( int para, QFont *font, QColor *color,
 
 QPopupMenu *QTextEdit::createPopupMenu( const QPoint& pos )
 {
-    Q_UNUSED( pos )
-    if ( isReadOnly() )
-	return 0;
 #ifndef QT_NO_POPUPMENU
     QPopupMenu *popup = new QPopupMenu( this, "qt_edit_menu" );
-    d->id[ IdUndo ] = popup->insertItem( tr( "&Undo\tCtrl+Z" ) );
-    d->id[ IdRedo ] = popup->insertItem( tr( "&Redo\tCtrl+Y" ) );
-    popup->insertSeparator();
+    if ( !isReadOnly() ) {
+	d->id[ IdUndo ] = popup->insertItem( tr( "&Undo\tCtrl+Z" ) );
+	d->id[ IdRedo ] = popup->insertItem( tr( "&Redo\tCtrl+Y" ) );
+	popup->insertSeparator();
+    }
 #ifndef QT_NO_CLIPBOARD
-    d->id[ IdCut ] = popup->insertItem( tr( "Cu&t\tCtrl+X" ) );
+    if ( !isReadOnly() )
+	d->id[ IdCut ] = popup->insertItem( tr( "Cu&t\tCtrl+X" ) );
     d->id[ IdCopy ] = popup->insertItem( tr( "&Copy\tCtrl+C" ) );
-    d->id[ IdPaste ] = popup->insertItem( tr( "&Paste\tCtrl+V" ) );
+    if ( !isReadOnly() )
+	d->id[ IdPaste ] = popup->insertItem( tr( "&Paste\tCtrl+V" ) );
 #endif
-    d->id[ IdClear ] = popup->insertItem( tr( "Clear" ) );
-    popup->insertSeparator();
+    if ( !isReadOnly() ) {
+	d->id[ IdClear ] = popup->insertItem( tr( "Clear" ) );
+	popup->insertSeparator();
+    }
 #if defined(Q_WS_X11)
     d->id[ IdSelectAll ] = popup->insertItem( tr( "Select All" ) );
 #else
