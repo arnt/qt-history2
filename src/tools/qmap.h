@@ -329,9 +329,13 @@ public:
     {
 	if ( !x )
 	    x = d->header.parent;
+	if (!x) {
+	    cout << "empty" << endl;
+	    return;
+	}
 	if ( x->left )
 	    inorder( d, x->left, level + 1 );
-	cout << level << " this=" << x << " Key=" << key(x) << " Value=" << value(x) << endl;
+	cout << level << " this=" << x << " Key=" << key(x) << endl;
 	if ( x->right )
 	    inorder( d, x->right, level + 1 );
     }
@@ -415,8 +419,9 @@ QMap<Key, T>::Node *QMap<Key, T>::insertSingle( const Key& k )
     QMapData::Node* x = y->parent;
     QMapData::Node *left = 0;
     while ( x ) {
+	bool result = (k < key(x));
 	y = x;
-	if (k < key(x)) {
+	if (result) {
 	    x = x->left;
 	} else {
 	    left = x;
@@ -445,10 +450,8 @@ QMap<Key, T>::Node *QMap<Key, T>::insertSingle( const Key& k )
 	z->right = 0;
 	d->rebalance(z);
 	++d->node_count;
-	return z;
+	y = z;
     }
-
-    // We are going to replace a node
     return static_cast<Node *>(y);
 }
 
