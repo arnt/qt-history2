@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#8 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -20,9 +20,44 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#8 $";
 #endif
 
+
+/*!
+\class QRegion qregion.h
+\brief The QRegion class specified a clip region for the painter.
+
+A region defines a clip region for a QPainter. A region can be
+a rectangle, an ellipse, a polygon or a combination of these.
+
+Regions are combined by creating a new region which is a
+union, intersection or difference between any two regions.
+
+The region XOR operation is defined as:
+\code
+  a XOR b = (a UNION b) - (a INTERSECTION b)
+\endcode
+
+Example of use:
+\code
+  QWidget  w;
+  QPainter p;
+  QRegion r1( QRect(100,100,200,80),	\/ r1 = elliptic region
+              QRegion::Ellipse );
+  QRegion r2( QRect(100,120,90,30) );	\/ r2 = rectangular region
+  QRegion r3 = r1.intersect( r2 );	\/ r3 = intersection
+  p.begin( &w );			\/ start painting widget
+  p.setClipRegion( r3 );		\/ set clip region
+  ...					\/ paint clipped graphics
+  p.end();				\/ painting done
+\endcode
+*/
+
+
+/*!
+Constructs an empty region.
+*/
 
 QRegion::QRegion()				// create empty region
 {
@@ -30,6 +65,13 @@ QRegion::QRegion()				// create empty region
     CHECK_PTR( data );
     data->rgn = XCreateRegion();
 }
+
+/*!
+Constructs a rectangular or elliptic region.
+
+\arg \e rr is the region rectangle.
+\arg \e t is the region type: QRegion::Rectangle (default) or QRegion::Ellipse.
+*/
 
 QRegion::QRegion( const QRect &rr, RegionType t )
 {						// create region from rect
@@ -63,6 +105,10 @@ QRegion::QRegion( const QRect &rr, RegionType t )
     cmd( id, &r );
 }
 
+/*!
+Constructs a polygon region from the point array \e a.
+*/
+
 QRegion::QRegion( const QPointArray &a )	// create region from pt array
 {
     data = new QRegionData;
@@ -71,11 +117,19 @@ QRegion::QRegion( const QPointArray &a )	// create region from pt array
     cmd( QRGN_SETPTARRAY, (QPointArray *)&a );
 }
 
+/*!
+Constructs a region which is a shallow copy of \e r.
+*/
+
 QRegion::QRegion( const QRegion &r )
 {
     data = r.data;
     data->ref();
 }
+
+/*!
+Destroys the region.
+*/
 
 QRegion::~QRegion()
 {
@@ -84,6 +138,11 @@ QRegion::~QRegion()
 	delete data;
     }
 }
+
+/*!
+Assigns a shallow copy of \e r to this region and returns a reference to
+the region.
+*/
 
 QRegion &QRegion::operator=( const QRegion &r )
 {
@@ -97,6 +156,10 @@ QRegion &QRegion::operator=( const QRegion &r )
 }
 
 
+/*!
+Returns a deep copy of the region.
+*/
+
 QRegion QRegion::copy() const
 {
     QRegion r;
@@ -106,10 +169,18 @@ QRegion QRegion::copy() const
 }
 
 
+/*!
+Returns TRUE if the region is a null region.
+*/
+
 bool QRegion::isNull() const
 {
     return data->bop.isNull();
 }
+
+/*!
+Returns TRUE if the region is empty, or FALSE if it is non-empty.
+*/
 
 bool QRegion::isEmpty() const
 {
@@ -117,10 +188,20 @@ bool QRegion::isEmpty() const
 }
 
 
+/*!
+Returns TRUE if the region contains the point \e p, or FALSE if \e p is
+outside the region.
+*/
+
 bool QRegion::contains( const QPoint &p ) const
 {
     return XPointInRegion( data->rgn, p.x(), p.y() );
 }
+
+/*!
+Returns TRUE if the region contains the rectangle \e r, or FALSE if \e r is
+outside the region.
+*/
 
 bool QRegion::contains( const QRect &r ) const
 {
@@ -128,6 +209,11 @@ bool QRegion::contains( const QRect &r ) const
 			  r.width(), r.height() ) != RectangleOut;
 }
 
+
+/*!
+Changes the offset of the region \e dx along the X axis and \e dy along the
+Y axis.
+*/
 
 void QRegion::move( int dx, int dy )
 {
@@ -137,6 +223,10 @@ void QRegion::move( int dx, int dy )
 }
 
 
+/*!
+Returns a region which is the union of this region and \e r.
+*/
+
 QRegion QRegion::unite( const QRegion &r ) const
 {
     QRegion result;
@@ -144,6 +234,10 @@ QRegion QRegion::unite( const QRegion &r ) const
     result.cmd( QRGN_OR, 0, this, &r );
     return result;
 }
+
+/*!
+Returns a region which is the intersection of this region and \e r.
+*/
 
 QRegion QRegion::intersect( const QRegion &r ) const
 {
@@ -153,6 +247,10 @@ QRegion QRegion::intersect( const QRegion &r ) const
     return result;
 }
 
+/*!
+Returns a region which is \e r subtracted from this region.
+*/
+
 QRegion QRegion::subtract( const QRegion &r ) const
 {
     QRegion result;
@@ -160,6 +258,10 @@ QRegion QRegion::subtract( const QRegion &r ) const
     result.cmd( QRGN_SUB, 0, this, &r );
     return result;
 }
+
+/*!
+Returns a region which is this region XOR \e r.
+*/
 
 QRegion QRegion::xor( const QRegion &r ) const
 {
@@ -170,7 +272,18 @@ QRegion QRegion::xor( const QRegion &r ) const
 }
 
 
-bool QRegion::operator==( const QRegion &r )
+/*!
+\fn bool QRegion::operator!=( const QRegion &r ) const
+Returns TRUE if the region is different from \e r, or FALSE if the regions are
+equal.
+*/
+
+/*!
+Returns TRUE if the region is equal to \e r, or FALSE if the regions are
+different.
+*/
+
+bool QRegion::operator==( const QRegion &r ) const
 {
     return data->bop == r.data->bop ?
 	TRUE : XEqualRegion( data->rgn, r.data->rgn );
