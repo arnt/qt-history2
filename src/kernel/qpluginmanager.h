@@ -75,6 +75,9 @@ public:
 
     bool removeLibrary( const QString& file )
     {
+	if ( file.isEmpty() )
+	    return FALSE;
+
 	Type* plugin = libDict[ file ];
 	if ( !plugin )
 	    return FALSE;
@@ -116,11 +119,15 @@ public:
 
     Type *plugIn( const QString &feature )
     {
+	if ( feature.isEmpty() )
+	    return 0;
 	return (Type*)plugDict[feature];
     }
 
     Type* plugInFromFile( const QString& fileName )
     {
+	if ( fileName.isEmpty() )
+	    return 0;
 	return libDict[fileName];
     }
 
