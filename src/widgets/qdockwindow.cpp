@@ -1602,7 +1602,8 @@ void QDockWindow::undock( QWidget *w )
     if ( inherits( "QToolBar" ) )
 	adjustSize();
     if ( !w ) {
-	show();
+	if ( !parentWidget() || parentWidget()->isVisible() )
+	    show();
     } else {
 	reparent( w, 0, QPoint( 0, 0 ), FALSE );
 	move( -width() - 5, -height() - 5 );
