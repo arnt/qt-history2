@@ -126,7 +126,7 @@ public:
 
     bool parseEnum(EnumDef *def);
 
-    void parseFunction(FunctionDef *def, bool inMacro = false);
+    void parseFunction(FunctionDef *def);
     bool parsePropertyCandidate(FunctionDef *def);
 
     void parseSlots(FunctionDef::Access access,	 ClassDef *def);
@@ -134,7 +134,8 @@ public:
     void parseProperty(ClassDef *def, bool override);
     void parseEnumOrFlag(ClassDef *def, bool isFlag);
     void parseClassInfo(ClassDef *def);
-private:
+    void parseSlotInPrivate(ClassDef *def);
+
     void parseFunctionArguments(FunctionDef *def);
 
 };

@@ -312,21 +312,23 @@ void QViewport::scrollContentsBy(int, int)
     viewport()->update();
 }
 
-void QViewport::hslide(int x)
+void QViewportPrivate::hslide(int x)
 {
-    int dx = d->xoffset - x;
-    d->xoffset = x;
-    scrollContentsBy(dx, 0);
+    int dx = xoffset - x;
+    xoffset = x;
+    q->scrollContentsBy(dx, 0);
 }
 
-void QViewport::vslide(int y)
+void QViewportPrivate::vslide(int y)
 {
-    int dy = d->yoffset - y;
-    d->yoffset = y;
-    scrollContentsBy(0, dy);
+    int dy = yoffset - y;
+    yoffset = y;
+    q->scrollContentsBy(0, dy);
 }
 
-void QViewport::showOrHideScrollBars()
+void QViewportPrivate::showOrHideScrollBars()
 {
-    d->layoutChildren();
+    layoutChildren();
 }
+
+#include "moc_qviewport.cpp"

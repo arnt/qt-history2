@@ -331,7 +331,7 @@ void Moc::parseFunctionArguments(FunctionDef *def)
     }
 }
 
-void Moc::parseFunction(FunctionDef *def, bool inMacro)
+void Moc::parseFunction(FunctionDef *def)
 {
     test(VIRTUAL);
     test(INLINE);
@@ -366,7 +366,7 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
 	next(RPAREN);
     }
     def->isConst = test(CONST);
-    if (inMacro) {
+    if (def->inPrivateClass) {
 	next(RPAREN);
     } else {
 	if (test(SEMIC))
@@ -485,6 +485,9 @@ void Moc::moc(FILE *out)
 		case Q_CLASSINFO_TOKEN:
 		    parseClassInfo(&def);
 		    break;
+		case Q_PRIVATE_SLOT_TOKEN:
+		    parseSlotInPrivate(&def);
+		    break;
 		case ENUM: {
 		    EnumDef enumDef;
 		    if (parseEnum(&enumDef))
@@ -576,7 +579,6 @@ void Moc::parseSlots(FunctionDef::Access access, ClassDef *def)
 {
     next(COLON);
     while (inClass(def) && hasNext()) {
-	bool inPrivateClass = false;
 	switch (next()) {
 	case PUBLIC:
 	case PROTECTED:
@@ -585,10 +587,6 @@ void Moc::parseSlots(FunctionDef::Access access, ClassDef *def)
 	case SLOTS:
 	    prev();
 	    return;
-	case Q_PRIVATE_SLOT_TOKEN:
-	    next(LPAREN);
-	    inPrivateClass = true;
-	    break;
 	case SEMIC:
 	    continue;
 	default:
@@ -596,9 +594,8 @@ void Moc::parseSlots(FunctionDef::Access access, ClassDef *def)
 	}
 
 	FunctionDef funcDef;
-	funcDef.access = inPrivateClass ? FunctionDef::Private : access;
-	funcDef.inPrivateClass = inPrivateClass;
-	parseFunction(&funcDef, inPrivateClass);
+	funcDef.access = access;
+	parseFunction(&funcDef);
 	def->slotList += funcDef;
 	while (funcDef.arguments.size() > 0 && funcDef.arguments.last().isDefault) {
 	    funcDef.wasCloned = true;
@@ -738,3 +735,19 @@ void Moc::parseClassInfo(ClassDef *def)
     infoDef.value = sym->lexem_data.mid(sym->from+1, sym->len-2);  // cut away quotes
     def->classInfoList += infoDef;
 }
+
+
+void Moc::parseSlotInPrivate(ClassDef *def)
+{
+    next(LPAREN);
+    FunctionDef funcDef;
+    funcDef.inPrivateClass = true;
+    parseFunction(&funcDef);
+    def->slotList += funcDef;
+    while (funcDef.arguments.size() > 0 && funcDef.arguments.last().isDefault) {
+	funcDef.wasCloned = true;
+	funcDef.arguments.removeLast();
+	def->slotList += funcDef;
+    }
+}
+

@@ -20,6 +20,10 @@ public:
     void init();
     void layoutChildren();
     bool viewportEvent(QEvent *);
+
+    void hslide(int);
+    void vslide(int);
+    void showOrHideScrollBars();
 };
 
 #endif

@@ -115,7 +115,6 @@ public:
 
 public slots:
      void setText( const QString &);
-    Q_PRIVATE_SLOT(void clipboardChanged())
 
 public:
     void clear();
@@ -181,7 +180,7 @@ public:
     QChar passwordChar() const; // obsolete internal
 
 private:
-
+    Q_PRIVATE_SLOT(void clipboardChanged())
 #if defined(Q_DISABLE_COPY)
     QLineEdit( const QLineEdit & );
     QLineEdit &operator=( const QLineEdit & );
