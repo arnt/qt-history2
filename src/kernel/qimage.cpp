@@ -1724,6 +1724,8 @@ int QImage::pixelIndex( int x, int y ) const
 
   If (x,y) is not \link valid() on the image\endlink, the results
   are undefined.
+
+  \sa setPixel(), qRed(), qGreen(), qBlue()
 */
 
 QRgb QImage::pixel( int x, int y ) const
@@ -1757,6 +1759,8 @@ QRgb QImage::pixel( int x, int y ) const
   If (x,y) is not \link valid() valid\endlink, or if
   the image is a paletted image (depth() \<= 8) and \a index_or_rgb
   \>= numColors(), the results are undefined.
+
+  \sa qRgb(), qRgba()
 */
 
 void QImage::setPixel( int x, int y, uint index_or_rgb )
