@@ -2948,7 +2948,8 @@ void QTextDocument::draw( QPainter *p, const QRect &rect, const QColorGroup &cg,
 	p->setBrushOrigin( -int( p->translationX() ),
 			   -int( p->translationY() ) );
 
-	p->fillRect( rect, *paper );
+//xxx	p->fillRect( rect, *paper );
+	p->fillRect( rect, QColor( 255, 0, 0 ) );
     }
 
     if ( formatCollection()->defaultFormat()->color() != cg.text() )
@@ -4303,14 +4304,13 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
     if ( !visible )
 	return;
     QTextStringChar *chr = 0;
-    int i, y, h, baseLine;
+    int i, y, h, baseLine, xstart, xend;
     i = y =h = baseLine = 0;
     QRect cursorRect;
     drawSelections &= ( mSelections != 0 );
     // macintosh full-width selection style
     bool fullWidthStyle = QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection);
     int fullSelectionWidth = 0;
-    int lastSelection = -1, lastxend, lasty, lasth;
     if ( drawSelections && fullWidthStyle )
 	fullSelectionWidth = (hasdoc ? document()->width() : r.width());
 	
@@ -4366,8 +4366,8 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 
 	// init a new line
 	if ( chr->lineStart ) {
-	    if (fullWidthStyle && drawSelections && lastSelection >= 0)
-		painter.fillRect( lastxend, lasty, fullSelectionWidth - lastxend, lasth,
+	    if (fullWidthStyle && drawSelections && selection >= 0)
+		painter.fillRect( xend, y, fullSelectionWidth - xend, h,
 				  (selection == QTextDocument::Standard || !hasdoc) ?
 				  cg.color( QColorGroup::Highlight ) :
 				  document()->selectionColor( selection ) );
@@ -4403,9 +4403,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 		}
 	}
 
-	lastSelection = -1;
 	if ( flush ) {  // something changed, draw what we have so far
-	    int xstart, xend;
 	    if ( chr->rightToLeft ) {
 		xstart = chr->x;
 		xend = at( paintStart )->x + str->width( paintStart );
@@ -4426,21 +4424,15 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 					     clipw, cliph, cg, selection >= 0 );
 	    }
 	    paintStart = i+1;
-	    if (fullWidthStyle && drawSelections && selection >= 0) {
-		lastSelection = selection;
-		lastxend = xend;
-		lasty = y;
-		lasth = h;
-	    }
 	}
 	
     }
 
-    if (fullWidthStyle && drawSelections && lastSelection >= 0 && next() && next()->mSelections)
+    if (fullWidthStyle && drawSelections && selection >= 0 && next() && next()->mSelections)
 	for ( QMap<int, QTextParagraphSelection>::ConstIterator it = next()->mSelections->begin();
 	      it != next()->mSelections->end(); ++it )
 	    if (((*it).start) == 0) {
-		painter.fillRect( lastxend, lasty, fullSelectionWidth - lastxend, lasth,
+		painter.fillRect( xend, y, fullSelectionWidth - xend, h,
 				  (selection == QTextDocument::Standard || !hasdoc) ?
 				  cg.color( QColorGroup::Highlight ) :
 				  document()->selectionColor( selection ) );
