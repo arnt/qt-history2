@@ -60,6 +60,8 @@
 #include "qstyle.h"
 #include "private/qcomplextext_p.h"
 #include "qcleanuphandler.h"
+#include "qtextengine_p.h"
+#include <private/qunicodetables_p.h>
 
 #include <stdlib.h>
 
@@ -481,9 +483,7 @@ void QTextCursor::gotoIntoNested( const QPoint &globalPos )
     oy = y + para->rect().y();
     ox = para->at( idx )->x;
     QTextDocument* doc = document();
-    QTextParagraph *parag = para.paragraph();
-    para->at( idx )->customItem()->enterAt( this, doc, parag, idx, ox, oy, globalPos-QPoint(ox,oy) );
-    para = parag;
+    para->at( idx )->customItem()->enterAt( this, doc, para, idx, ox, oy, globalPos-QPoint(ox,oy) );
 }
 #endif
 
@@ -600,7 +600,7 @@ void QTextCursor::gotoPreviousLetter()
     tmpIndex = -1;
 
     if ( idx > 0 ) {
-	idx = para->layout()->previousCursorPosition( idx );
+	idx = para->string()->previousCursorPosition( idx );
 #ifndef QT_NO_TEXTCUSTOMITEM
 	const QTextStringChar *tsc = para->at( idx );
 	if ( tsc && tsc->isCustom() && tsc->customItem()->isNested() )
@@ -617,7 +617,7 @@ void QTextCursor::gotoPreviousLetter()
 	if ( idx == -1 ) {
 	    pop();
 	    if ( idx > 0 ) {
-		idx = para->layout()->previousCursorPosition( idx );
+		idx = para->string()->previousCursorPosition( idx );
 	    } else if ( para->prev() ) {
 		para = para->prev();
 		idx = para->length() - 1;
@@ -731,7 +731,7 @@ bool QTextCursor::place( const QPoint &p, QTextParagraph *s, bool link )
 		cpos += cw;
 	    int d = cpos - pos.x();
 	    bool dm = d < 0 ? !chr->rightToLeft : chr->rightToLeft;
-	    if ( (QABS( d ) < dist || (dist == d && dm == TRUE )) && para->layout()->validCursorPosition( i ) ) {
+	    if ( (QABS( d ) < dist || (dist == d && dm == TRUE )) && para->string()->validCursorPosition( i ) ) {
 		dist = QABS( d );
 		if ( !link || pos.x() >= x + chr->x )
 		    curpos = i;
@@ -768,28 +768,26 @@ bool QTextCursor::processNesting( Operation op )
     bool ok = FALSE;
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-    QTextParagraph *parag = para.paragraph();
     switch ( op ) {
     case EnterBegin:
-	ok = para->at( idx )->customItem()->enter( this, doc, parag, idx, ox, oy );
+	ok = para->at( idx )->customItem()->enter( this, doc, para, idx, ox, oy );
 	break;
     case EnterEnd:
-	ok = para->at( idx )->customItem()->enter( this, doc, parag, idx, ox, oy, TRUE );
+	ok = para->at( idx )->customItem()->enter( this, doc, para, idx, ox, oy, TRUE );
 	break;
     case Next:
-	ok = para->at( idx )->customItem()->next( this, doc, parag, idx, ox, oy );
+	ok = para->at( idx )->customItem()->next( this, doc, para, idx, ox, oy );
 	break;
     case Prev:
-	ok = para->at( idx )->customItem()->prev( this, doc, parag, idx, ox, oy );
+	ok = para->at( idx )->customItem()->prev( this, doc, para, idx, ox, oy );
 	break;
     case Down:
-	ok = para->at( idx )->customItem()->down( this, doc, parag, idx, ox, oy );
+	ok = para->at( idx )->customItem()->down( this, doc, para, idx, ox, oy );
 	break;
     case Up:
-	ok = para->at( idx )->customItem()->up( this, doc, parag, idx, ox, oy );
+	ok = para->at( idx )->customItem()->up( this, doc, para, idx, ox, oy );
 	break;
     }
-    para = parag;
     if ( !ok )
 #endif
 	pop();
@@ -817,7 +815,7 @@ void QTextCursor::gotoNextLetter()
 #endif
 
     if ( idx < para->length() - 1 ) {
-	idx = para->layout()->nextCursorPosition( idx );
+	idx = para->string()->nextCursorPosition( idx );
     } else if ( para->next() ) {
 	para = para->next();
 	while ( !para->isVisible() && para->next() )
@@ -829,7 +827,7 @@ void QTextCursor::gotoNextLetter()
 	if ( idx == -1 ) {
 	    pop();
 	    if ( idx < para->length() - 1 ) {
-		idx = para->layout()->nextCursorPosition( idx );
+		idx = para->string()->nextCursorPosition( idx );
 	    } else if ( para->next() ) {
 		para = para->next();
 		idx = 0;
@@ -1196,7 +1194,7 @@ bool QTextCursor::remove()
 {
     tmpIndex = -1;
     if ( !atParagEnd() ) {
-	int next = para->layout()->nextCursorPosition( idx );
+	int next = para->string()->nextCursorPosition( idx );
 	para->remove( idx, next-idx );
 	int h = para->rect().height();
 	para->format( -1, TRUE );
@@ -1253,14 +1251,8 @@ void QTextCursor::indent()
 
 void QTextCursor::fixCursorPosition()
 {
-    if ( !para ) {
-	idx = 0;
-	return;
-    }
-
-    QTextLayout *l = para->layout();
     // searches for the closest valid cursor position
-    if ( l->validCursorPosition( idx ) )
+    if ( para->string()->validCursorPosition( idx ) )
 	return;
 
     int lineIdx;
@@ -1278,7 +1270,7 @@ void QTextCursor::fixCursorPosition()
 	if ( c->rightToLeft )
 	    xp += para->string()->width( lineIdx + (c-start) );
 	int ndiff = QABS(xp - x);
-	if ( ndiff < diff && l->validCursorPosition(lineIdx + (c-start)) ) {
+	if ( ndiff < diff && para->string()->validCursorPosition(lineIdx + (c-start)) ) {
 	    diff = ndiff;
 	    best = lineIdx + (c-start);
 	}
@@ -2873,68 +2865,59 @@ void QTextDocument::removeSelectedText( int id, QTextCursor *cursor )
     if ( it == selections.end() )
 	return;
 
-    QTextParagraph *end = 0;
-    QTextParagraph *start = 0;
-    bool didGoLeft = FALSE;
-
-    {
-	QTextDocumentSelection sel = *it;
-	selections.remove( it );
-	QTextCursor c1 = sel.startCursor;
-	QTextCursor c2 = sel.endCursor;
-	if ( sel.swapped ) {
-	    c2 = sel.startCursor;
-	    c1 = sel.endCursor;
-	}
-	start = c1.paragraph();
-	end = c2.paragraph();
-
-	// ### no support for editing tables yet
-	if ( c1.nestedDepth() || c2.nestedDepth() )
-	    return;
-
-	c2.restoreState();
-	c1.restoreState();
-
-	*cursor = c1;
-	removeSelection( id );
-
-	if ( c1.paragraph() == c2.paragraph() ) {
-	    c1.paragraph()->remove( c1.index(), c2.index() - c1.index() );
-	    return;
-	}
-
-	if ( c1.paragraph() == fParag && c1.index() == 0 &&
-	     c2.paragraph() == lParag && c2.index() == lParag->length() - 1 )
-	    cursor->setValid( FALSE );
-
-	if (  c1.index() == 0 && c1.paragraph() != fParag ) {
-	    cursor->gotoPreviousLetter();
-	    didGoLeft = cursor->isValid();
-	}
-
-	c1.paragraph()->remove( c1.index(), c1.paragraph()->length() - 1 - c1.index() );
-	QTextParagraph *p = c1.paragraph()->next();
-	int dy = 0;
-	QTextParagraph *tmp;
-	while ( p && p != c2.paragraph() ) {
-	    tmp = p->next();
-	    dy -= p->rect().height();
-	    delete p;
-	    p = tmp;
-	}
-	c2.paragraph()->remove( 0, c2.index() );
-	while ( p ) {
-	    p->move( dy );
-	    p->invalidate( 0 );
-	    p->setEndState( -1 );
-	    p = p->next();
-	}
-
-	// delete the temp cursors we don't run into trouble because c2 gets deleted after c2.paragraph()
+    QTextDocumentSelection sel = *it;
+    QTextCursor c1 = sel.startCursor;
+    QTextCursor c2 = sel.endCursor;
+    if ( sel.swapped ) {
+	c2 = sel.startCursor;
+	c1 = sel.endCursor;
     }
 
-    start->join( end );
+    // ### no support for editing tables yet
+    if ( c1.nestedDepth() || c2.nestedDepth() )
+	return;
+
+    c2.restoreState();
+    c1.restoreState();
+
+    *cursor = c1;
+    removeSelection( id );
+
+    if ( c1.paragraph() == c2.paragraph() ) {
+	c1.paragraph()->remove( c1.index(), c2.index() - c1.index() );
+	return;
+    }
+
+    if ( c1.paragraph() == fParag && c1.index() == 0 &&
+	 c2.paragraph() == lParag && c2.index() == lParag->length() - 1 )
+	cursor->setValid( FALSE );
+
+    bool didGoLeft = FALSE;
+    if (  c1.index() == 0 && c1.paragraph() != fParag ) {
+	cursor->gotoPreviousLetter();
+	didGoLeft = cursor->isValid();
+    }
+
+    c1.paragraph()->remove( c1.index(), c1.paragraph()->length() - 1 - c1.index() );
+    QTextParagraph *p = c1.paragraph()->next();
+    int dy = 0;
+    QTextParagraph *tmp;
+    while ( p && p != c2.paragraph() ) {
+	tmp = p->next();
+	dy -= p->rect().height();
+	delete p;
+	p = tmp;
+    }
+    c2.paragraph()->remove( 0, c2.index() );
+    while ( p ) {
+	p->move( dy );
+	p->invalidate( 0 );
+	p->setEndState( -1 );
+	p = p->next();
+    }
+
+
+    c1.paragraph()->join( c2.paragraph() );
 
     if ( didGoLeft )
 	cursor->gotoNextLetter();
@@ -3777,52 +3760,65 @@ void QTextString::setFormat( int index, QTextFormat *f, bool useCollection )
 
 void QTextString::checkBidi() const
 {
-    ((QTextString *)this)->bidiDirty = FALSE;
-    bool rtlKnown = FALSE;
-    if ( dir == QChar::DirR ) {
-	((QTextString *)this)->bidi = TRUE;
-	((QTextString *)this)->rightToLeft = TRUE;
-	rtlKnown = TRUE;
-	return;
-    } else if ( dir == QChar::DirL ) {
-	((QTextString *)this)->rightToLeft = FALSE;
-	rtlKnown = TRUE;
-    } else {
-	((QTextString *)this)->rightToLeft = FALSE;
-    }
+    QTextString *that = (QTextString *)this;
+    that->bidiDirty = FALSE;
+    const QTextStringChar *start = data.data();
+    const QTextStringChar *end = start + data.size();
 
-    int len = data.size();
-    const QTextStringChar *c = data.data();
-    ((QTextString *)this)->bidi = FALSE;
-    while( len ) {
-	if ( !rtlKnown ) {
-	    switch( c->c.direction() )
-	    {
-		case QChar::DirL:
-		case QChar::DirLRO:
-		case QChar::DirLRE:
-		    ((QTextString *)this)->rightToLeft = FALSE;
-		    rtlKnown = TRUE;
-		    break;
-		case QChar::DirR:
-		case QChar::DirAL:
-		case QChar::DirRLO:
-		case QChar::DirRLE:
-		    ((QTextString *)this)->rightToLeft = TRUE;
-		    rtlKnown = TRUE;
-		    break;
-		default:
-		    break;
+    if ( dir == QChar::DirR ) {
+	that->bidi = TRUE;
+	that->rightToLeft = TRUE;
+    } else if ( dir == QChar::DirL ) {
+	that->rightToLeft = FALSE;
+	that->bidi = FALSE;
+    } else {
+	that->rightToLeft = FALSE;
+	that->bidi = FALSE;
+
+	const QTextStringChar *c = start;
+	while ( c < end ) {
+	    QChar::Direction dir = (c++)->c.direction();
+	    if ( dir == QChar::DirL || dir == QChar::DirLRO || dir == QChar::DirLRE ) {
+		that->rightToLeft = FALSE;
+		break;
+	    } else if ( dir == QChar::DirR || dir == QChar::DirAL || dir == QChar::DirRLO ) {
+		that->rightToLeft = TRUE;
+		that->bidi = TRUE;
+		break;
 	    }
 	}
-	uchar row = c->c.row();
-	if( (row > 0x04 && row < 0x09) || (row > 0xfa && row < 0xff) ) {
-	    ((QTextString *)this)->bidi = TRUE;
-	    if ( rtlKnown )
-		return;
+    }
+
+    if ( !bidi ) {
+	QTextStringChar *c = (QTextStringChar *) start;
+	while ( c < end ) {
+	    if( c->c.row() > 0x04 ) {
+		that->bidi = TRUE;
+		break;
+	    }
+	    QChar::Category cat = ::category( c->c );
+	    c->softBreak = FALSE;
+	    c->whiteSpace = (cat == QChar::Separator_Space) && (c->c.unicode() != 0xa0);
+	    c->charStop = (cat != QChar::Mark_NonSpacing);
+	    c->wordStop = FALSE;
+	    c->invalid = FALSE;
+	    c++;
 	}
-	len--;
-	++c;
+    }
+
+    if ( bidi ) {
+	// complex string handling
+	QTextEngine textEngine( toString(), 0 );
+	textEngine.itemize( FALSE );
+	const QCharAttributes *ca = textEngine.attributes();
+	QTextStringChar *ch = data.data();
+	while ( ch < end ) {
+	    ch->softBreak = ca->softBreak;
+	    ch->whiteSpace = ca->whiteSpace;
+	    ch->charStop = ca->charStop;
+	    ch->wordStop = ca->wordStop;
+	    (ch++)->invalid = (ca++)->invalid;
+	}
     }
 }
 
@@ -4011,7 +4007,7 @@ QTextParagraph::QTextParagraph( QTextDocument *d, QTextParagraph *pr, QTextParag
       mFloatingItems( 0 ),
 #endif
       utm( 0 ), ubm( 0 ), ulm( 0 ), urm( 0 ), uflm( 0 ), ulinespacing( 0 ),
-      tabStopWidth(0), tArray(0), eData( 0 ), ldepth( 0 ),  _layout( 0 ), numCursors( 0 )
+      tabStopWidth(0), tArray(0), eData( 0 ), ldepth( 0 )
 {
     lstyle = QStyleSheetItem::ListDisc;
     if ( !hasdoc )
@@ -4083,11 +4079,6 @@ QTextParagraph::~QTextParagraph()
 	p->setNext( n );
     if ( n )
 	n->setPrev( p );
-
-    if ( numCursors )
-	qWarning("paragraph deleted while cursor points to it!");
-    delete _layout;
-    _layout = 0;
 }
 
 void QTextParagraph::setNext( QTextParagraph *s )
@@ -4140,8 +4131,6 @@ void QTextParagraph::insert( int index, const QChar *unicode, int len )
 	str->insert( index, unicode, len, formatCollection()->defaultFormat() );
     invalidate( index );
     needPreProcess = TRUE;
-    delete _layout;
-    _layout = 0;
 }
 
 void QTextParagraph::truncate( int index )
@@ -4149,8 +4138,6 @@ void QTextParagraph::truncate( int index )
     str->truncate( index );
     insert( length(), " " );
     needPreProcess = TRUE;
-    delete _layout;
-    _layout = 0;
 }
 
 void QTextParagraph::remove( int index, int len )
@@ -4168,8 +4155,6 @@ void QTextParagraph::remove( int index, int len )
     str->remove( index, len );
     invalidate( 0 );
     needPreProcess = TRUE;
-    delete _layout;
-    _layout = 0;
 }
 
 void QTextParagraph::join( QTextParagraph *s )
@@ -4234,8 +4219,6 @@ void QTextParagraph::join( QTextParagraph *s )
     }
     format();
     state = -1;
-    delete _layout;
-    _layout = 0;
 }
 
 void QTextParagraph::move( int &dy )

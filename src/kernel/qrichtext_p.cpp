@@ -135,7 +135,7 @@ int QTextCursor::globalY() const { return totalOffsetY() + para->rect().y() + y(
 
 QTextDocument *QTextCursor::document() const
 {
-    return para.paragraph() ? para->document() : 0;
+    return para ? para->document() : 0;
 }
 
 void QTextCursor::gotoPosition( QTextParagraph* p, int index )

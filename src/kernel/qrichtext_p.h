@@ -104,16 +104,40 @@ public:
     QTextStringChar() : lineStart( 0 ), type( Regular ), startOfRun( 0 ) {d.format=0;}
     ~QTextStringChar();
 
-    QChar c;
+    struct CustomData
+    {
+	QTextFormat *format;
+#ifndef QT_NO_TEXTCUSTOMITEM
+	QTextCustomItem *custom;
+#endif
+	QString anchorName;
+	QString anchorHref;
+    };
     enum Type { Regular=0, Custom=1, Anchor=2, CustomAnchor=3 };
-    uint lineStart : 1;
-    uint rightToLeft : 1;
-    uint hasCursor : 1;
-    uint canBreak : 1;
-    Type type : 2;
-    uint startOfRun : 1;
+
+    QChar c;
+    uchar lineStart : 1;
+    uchar rightToLeft : 1;
+    uchar hasCursor : 1;
+    uchar canBreak : 1;
+    uchar /*Type*/ type : 2;
+    uchar startOfRun : 1;
+    uchar reserved1 : 1;
+    // this is the same struct as in qtextengine_p.h. Don't change!
+    uchar softBreak      :1;     // Potential linebreak point
+    uchar whiteSpace     :1;     // A unicode whitespace character, except NBSP, ZWNBSP
+    uchar charStop       :1;     // Valid cursor position (for left/right arrow)
+    uchar wordStop       :1;     // Valid cursor position (for ctrl + left/right arrow)
+    uchar invalid        :1;
+    uchar reserved       :3;
 
     int x;
+    union {
+	QTextFormat* format;
+	CustomData* custom;
+    } d;
+
+
     int height() const;
     int ascent() const;
     int descent() const;
@@ -126,24 +150,11 @@ public:
 #ifndef QT_NO_TEXTCUSTOMITEM
     void setCustomItem( QTextCustomItem *i );
 #endif
-    struct CustomData
-    {
-	QTextFormat *format;
-#ifndef QT_NO_TEXTCUSTOMITEM
-	QTextCustomItem *custom;
-#endif
-	QString anchorName;
-	QString anchorHref;
-    };
 
 #ifndef QT_NO_TEXTCUSTOMITEM
     void loseCustomItem();
 #endif
 
-    union {
-	QTextFormat* format;
-	CustomData* custom;
-    } d;
 
     bool isAnchor() const { return ( type & Anchor) != 0; }
     bool isLink() const { return isAnchor() && !!d.custom->anchorHref; }
@@ -212,6 +223,11 @@ public:
     void operator+=( const QString &s ) { insert( length(), s, 0 ); }
     void prepend( const QString &s ) { insert( 0, s, 0 ); }
 
+    // return next and previous valid cursor positions.
+    bool validCursorPosition( int idx );
+    int nextCursorPosition( int idx );
+    int previousCursorPosition( int idx );
+
 private:
     void checkBidi() const;
 
@@ -241,6 +257,45 @@ inline QChar::Direction QTextString::direction() const
     return (QChar::Direction) dir;
 }
 
+inline int QTextString::nextCursorPosition( int next )
+{
+    if ( bidiDirty )
+	checkBidi();
+
+    const QTextStringChar *c = data.data();
+    int len = length();
+
+    if ( next < len - 1 ) {
+	next++;
+	while ( next < len - 1 && !c[next].charStop )
+	    next++;
+    }
+    return next;
+}
+
+inline int QTextString::previousCursorPosition( int prev )
+{
+    if ( bidiDirty )
+	checkBidi();
+
+    const QTextStringChar *c = data.data();
+
+    if ( prev ) {
+	prev--;
+	while ( prev && !c[prev].charStop )
+	    prev--;
+    }
+    return prev;
+}
+
+inline bool QTextString::validCursorPosition( int idx )
+{
+    if ( bidiDirty )
+	checkBidi();
+
+    return (at( idx ).charStop);
+}
+
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #if defined(Q_TEMPLATEDLL)
@@ -250,8 +305,6 @@ Q_TEMPLATE_EXTERN template class Q_EXPORT QValueStack<QTextParagraph*>;
 Q_TEMPLATE_EXTERN template class Q_EXPORT QValueStack<bool>;
 // MOC_SKIP_END
 #endif
-
-#include "qtextlayout_p.h"
 
 class Q_EXPORT QTextCursor
 {
@@ -301,7 +354,6 @@ public:
     bool remove();
     bool removePreviousChar();
     void indent();
-    bool validCursorPosition( int idx );
 
     bool atParagStart();
     bool atParagEnd();
@@ -312,7 +364,7 @@ public:
     int globalX() const;
     int globalY() const;
 
-    QTextParagraph *topParagraph() const { return paras.isEmpty() ? para.paragraph() : paras.first(); }
+    QTextParagraph *topParagraph() const { return paras.isEmpty() ? para : paras.first(); }
     int offsetX() const { return ox; } // inner document  offset
     int offsetY() const { return oy; } // inner document offset
     int totalOffsetX() const; // total document offset
@@ -338,29 +390,7 @@ private:
     void invalidateNested();
     void gotoIntoNested( const QPoint &globalPos );
 
-    class Q_EXPORT Paragraph {
-    public:
-	Paragraph() : para( 0 ) {}
-	Paragraph( const Paragraph &other );
-	Paragraph &operator = ( const Paragraph &other );
-	~Paragraph();
-	Paragraph &operator = ( QTextParagraph *p );
-	bool operator == ( QTextParagraph *p ) const {
-	    return para == p;
-	}
-	bool operator == ( const Paragraph &o ) const {
-	    return para == o.para;
-	}
-	bool operator !() const { return !para; }
-	QTextParagraph *paragraph() const { return para; }
-	QTextParagraph *operator->() const { return para; }
-	operator QTextParagraph *() { return para; }
-	QTextParagraph *next() const;
-	QTextLayout *layout() const;
-    private:
-	QTextParagraph *para;
-    };
-    Paragraph para;
+    QTextParagraph *para;
     int idx, tmpIndex;
     int ox, oy;
     QValueStack<int> indices;
@@ -1343,19 +1373,6 @@ public:
     void readStyleInformation( QDataStream& stream );
     void writeStyleInformation( QDataStream& stream ) const;
 
-    QTextLayout *layout() const {
-	if ( !_layout && numCursors)
-	    ((QTextParagraph *)this)->_layout = new QTextLayout( str->toString() );
-	return _layout;
-    }
-    void refCursor() { numCursors++; }
-    void derefCursor() {
-	if ( !--numCursors ) {
-	    delete _layout;
-	    _layout = 0;
-	}
-    }
-
 protected:
     virtual void setColorForSelection( QColor &c, QPainter &p, const QColorGroup& cg, int selection );
     virtual void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
@@ -1406,9 +1423,6 @@ private:
     ushort ldepth;
     QColor *bgcol;
     QPaintDevice *paintdevice;
-
-    QTextLayout *_layout;
-    int numCursors;
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1696,61 +1710,12 @@ inline QRect QTextParagraph::rect() const
 
 inline QTextParagraph *QTextCursor::paragraph() const
 {
-    return para.paragraph();
+    return para;
 }
 
 inline int QTextCursor::index() const
 {
     return idx;
-}
-
-inline QTextCursor::Paragraph::Paragraph( const Paragraph &other )
-{
-    para = other.para;
-    if ( para )
-	para->refCursor();
-}
-
-inline QTextCursor::Paragraph &QTextCursor::Paragraph::operator = ( const Paragraph &other )
-{
-    if ( other.para )
-	other.para->refCursor();
-    if ( para )
-	para->derefCursor();
-    para = other.para;
-    return *this;
-}
-
-inline QTextLayout *QTextCursor::Paragraph::layout() const
-{
-    return para ? para->layout() : 0;
-}
-
-
-inline QTextCursor::Paragraph::~Paragraph()
-{
-    if ( para ) para->derefCursor();
-}
-
-inline QTextCursor::Paragraph &QTextCursor::Paragraph::operator = ( QTextParagraph *p )
-{
-    if ( p )
-	p->refCursor();
-    if ( para )
-	para->derefCursor();
-    para = p;
-    return *this;
-}
-
-inline QTextParagraph *QTextCursor::Paragraph::next() const
-{
-    return para->next();
-}
-
-
-inline bool QTextCursor::validCursorPosition( int idx )
-{
-    return para.layout()->validCursorPosition( idx );
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
