@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#30 $
 **
 ** Implementation of QML classes
 **
@@ -4545,6 +4545,11 @@ void QMLBrowser::popupDetail( const QString& contents, const QPoint& pos )
 
 
 
+/*!
+  Scrolls the browser so that the part of the document named
+  \a name is at the top of the view (or as close to the top
+  as the size of the document allows).
+*/
 void QMLBrowser::scrollToAnchor(const QString& name)
 {
     int x1,y1,h,ry,rh;
