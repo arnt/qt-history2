@@ -1683,13 +1683,14 @@ for (QForeachMemory<sizeof(qForeachSizeofContainerHelper(container))> _container
    operator to disable copying (the compiler gives an error message).
 */
 
-#ifndef Q_NO_DECLARED_NOT_DEFINED
-#define Q_DISABLE_COPY(Class) \
-    Class(const Class &); \
-    Class &operator=(const Class &);
+#if !defined(Q_NO_DECLARED_NOT_DEFINED) || !defined(QT_MAKEDLL)
+ #define Q_DISABLE_COPY(Class) \
+     Class(const Class &); \
+     Class &operator=(const Class &);
 #else
-#define Q_DISABLE_COPY(Class)
+ #define Q_DISABLE_COPY(Class)
 #endif
+
 
 Q_CORE_EXPORT char *qgetenv(const char *varName);
 
