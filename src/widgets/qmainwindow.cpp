@@ -1397,13 +1397,16 @@ void QMainWindow::setUpLayout()
 	    d->sb = statusBar();
     }
 
-    QLayout::ResizeMode tll_rm = minimumSize().isNull() ? QLayout::Minimum : QLayout::FreeResize;
-
-    if ( d->tll )
-	tll_rm = d->tll->resizeMode();
-    delete d->tll;
-    d->tll = new QBoxLayout( this, QBoxLayout::Down );
-    d->tll->setResizeMode( tll_rm );
+    if (!d->tll) {
+        d->tll = new QBoxLayout( this, QBoxLayout::Down );
+        d->tll->setResizeMode( minimumSize().isNull() ? QLayout::Minimum : QLayout::FreeResize );
+    } else {
+        d->tll->setMenuBar( 0 );
+        QLayoutIterator it = d->tll->iterator();
+        QLayoutItem *item;
+        while ( (item = it.takeCurrent()) )
+	    delete item;
+    }
 
 #ifndef QT_NO_MENUBAR
     if ( d->mb && d->mb->isVisibleTo( this ) ) {
@@ -1772,10 +1775,8 @@ bool QMainWindow::rightJustification() const
 
 void QMainWindow::triggerLayout( bool deleteLayout )
 {
-    if ( !deleteLayout && d->tll ) {
-    } else {
+    if ( deleteLayout || !d->tll )
 	setUpLayout();
-    }
     QApplication::postEvent( this, new QEvent( QEvent::LayoutHint ) );
 }
 
