@@ -1238,7 +1238,8 @@ void UnixMakefileGenerator::init2()
 		       out = tmp_out;
 		out.replace("${QMAKE_FILE_BASE}", fi.baseName());
 		out.replace("${QMAKE_FILE_NAME}", fi.fileName());
-		project->variables()["OBJCOMP"] += out;
+		if(project->variables()[(*it) + ".CONFIG"].findIndex("no_link") == -1)
+		    project->variables()["OBJCOMP"] += out;
 	    }
 	}
     }
