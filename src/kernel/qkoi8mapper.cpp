@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qkoi8mapper.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qkoi8mapper.cpp#2 $
 **
 ** Implementation of QKOI8Mapper class
 **
@@ -197,7 +197,6 @@ char* QKOI8Mapper::fromUnicode(const QString& uc, int& len_in_out) const
     }
     *cursor++ = '\0';
     // len_in_out = cursor - result;
-debug("CONVERTED U%02x%02x to %c with KOI8",uc[0].row,uc[0].cell,*result);
     return result;
 }
 
@@ -208,7 +207,6 @@ QString QKOI8Mapper::toUnicode(const char* chars, int len) const
 	uchar ch = chars[i];
 	result += QChar(koi8_to_unicode[ch]);
     }
-debug("CONVERTED %s to U%02x%02x with KOI8",chars,result[0].row,result[0].cell);
     return result;
 }
 
@@ -219,7 +217,6 @@ const char* QKOI8Mapper::name() const
 
 int QKOI8Mapper::heuristicNameMatch(const char* hint) const
 {
-debug("heuristicNameMatch(%s)",hint);
     if ( strnicmp(hint,"koi8",4)==0 )
 	return 2;
     return QCodeMapper::heuristicNameMatch(hint);

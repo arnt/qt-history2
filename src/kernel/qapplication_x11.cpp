@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#368 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#369 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -846,7 +846,6 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	if ( xim ) {
 	    const char* locale = XLocaleOfIM(xim);
 	    input_mapper = QCodeMapper::mapperForName(locale);
-debug("YYY %s",locale);
 	}
     }
 
@@ -855,7 +854,6 @@ debug("YYY %s",locale);
     {
 	const char* locale = setlocale( LC_CTYPE, 0 );
 	input_mapper = QCodeMapper::mapperForName(locale);
-debug("XXX %s %p",locale,input_mapper);
     }
 }
 
