@@ -267,8 +267,6 @@ static bool        appSync                = false;        // X11 synchronization
 static bool        appNoGrab        = false;        // X11 grabbing enabled
 static bool        appDoGrab        = false;        // X11 grabbing override (gdb)
 #endif
-static int        appScreen;                        // X11 screen number
-static int        appScreenCount;                        // X11 screen count
 static bool        app_save_rootinfo = false;        // save root info
 static bool        app_do_modal        = false;        // modal mode
 static Window        curWin = 0;                        // current window
@@ -1395,8 +1393,8 @@ void qt_init(QApplicationPrivate *priv, int,
     X11->net_supported_list = 0;
     X11->net_virtual_root_list = 0;
     X11->wm_client_leader = 0;
-    X11->dpisX = 0;
-    X11->dpisY = 0;
+    X11->screens = 0;
+    X11->screenCount = 0;
 
     if (display) {
         // Qt part of other application
@@ -1565,121 +1563,93 @@ void qt_init(QApplicationPrivate *priv, int,
 
     if(qt_is_gui_used) {
 
-        appScreen = DefaultScreen(X11->display);
-        appScreenCount = ScreenCount(X11->display);
+        X11->defaultScreen = DefaultScreen(X11->display);
+        X11->screenCount = ScreenCount(X11->display);
 
-        int screens =  ScreenCount(X11->display);
-        X11->dpisX = new int[screens];
-        X11->dpisY = new int[screens];
-        for (int i = 0; i < screens; i++) {
-            X11->dpisX[i] = (DisplayWidth(X11->display,i) * 254 + DisplayWidthMM(X11->display,i)*5)
-                            / (DisplayWidthMM(X11->display,i)*10);
-            X11->dpisY[i] = (DisplayHeight(X11->display,i) * 254 + DisplayHeightMM(X11->display,i)*5)
-                            / (DisplayHeightMM(X11->display,i)*10);
-        }
+        X11->screens = new QX11Data::Screen[X11->screenCount];
 
-        QX11Info::x_appdisplay = X11->display;
-        QX11Info::x_appscreen = appScreen;
-
-        // allocate the arrays for the QPaintDevice data
-        QX11Info::x_appdepth_arr = new int[appScreenCount];
-        QX11Info::x_appcells_arr = new int[appScreenCount];
-        QX11Info::x_approotwindow_arr = new Qt::HANDLE[appScreenCount];
-        QX11Info::x_appcolormap_arr = new Qt::HANDLE[appScreenCount];
-        QX11Info::x_appdefcolormap_arr = new bool[appScreenCount];
-        QX11Info::x_appvisual_arr = new void*[appScreenCount];
-        QX11Info::x_appdefvisual_arr = new bool[appScreenCount];
-
-        for (int screen = 0; screen < appScreenCount; ++screen) {
-            QX11Info::x_appdepth_arr[screen] = DefaultDepth(X11->display, screen);
-            QX11Info::x_appcells_arr[screen] = DisplayCells(X11->display, screen);
-            QX11Info::x_approotwindow_arr[screen] = RootWindow(X11->display, screen);
+        for (int s = 0; s < X11->screenCount; s++) {
+            QX11Data::Screen *screen = X11->screens + s;
+            screen->dpiX = (DisplayWidth(X11->display, s) * 254 + DisplayWidthMM(X11->display, s)*5)
+                           / (DisplayWidthMM(X11->display, s)*10);
+            screen->dpiY = (DisplayHeight(X11->display, s) * 254 + DisplayHeightMM(X11->display, s)*5)
+                           / (DisplayHeightMM(X11->display, s)*10);
+            screen->depth = DefaultDepth(X11->display, s);
+            screen->cells = DisplayCells(X11->display, s);
+            screen->rootWindow = RootWindow(X11->display, s);
 
             // setup the visual and colormap for each screen
-            Visual *vis = 0;
-            if (visual && screen == appScreen) {
+            screen->visual = 0;
+            if (visual && s == X11->defaultScreen) {
                 // use the provided visual on the default screen only
-                vis = (Visual *) visual;
+                screen->visual = (Visual *) visual;
 
                 // figure out the depth of the visual we are using
                 XVisualInfo *vi, rvi;
                 int n;
-                rvi.visualid = XVisualIDFromVisual(vis);
-                rvi.screen  = screen;
+                rvi.visualid = XVisualIDFromVisual(screen->visual);
+                rvi.screen  = s;
                 vi = XGetVisualInfo(X11->display, VisualIDMask | VisualScreenMask, &rvi, &n);
                 if (vi) {
-                    QX11Info::x_appdepth_arr[screen] = vi->depth;
-                    QX11Info::x_appcells_arr[screen] = vis->map_entries;
-                    QX11Info::x_appvisual_arr[screen] = vis;
-                    QX11Info::x_appdefvisual_arr[screen] = false;
+                    screen->depth = vi->depth;
+                    screen->cells = screen->visual->map_entries;
+                    screen->defaultVisual = false;
                     XFree(vi);
                 } else {
                     // couldn't get info about the visual, use the default instead
-                    vis = 0;
+                    screen->visual = 0;
                 }
             }
 
-            if (!vis) {
+            if (!screen->visual) {
                 // use the default visual
-                vis = DefaultVisual(X11->display, screen);
-                QX11Info::x_appdefvisual_arr[screen] = true;
+                screen->visual = DefaultVisual(X11->display, s);
+                screen->defaultVisual = true;
 
-                if (qt_visual_option == TrueColor ||
-                     QApplication::colorSpec() == QApplication::ManyColor) {
+                if (qt_visual_option == TrueColor || QApplication::colorSpec() == QApplication::ManyColor) {
                     // find custom visual
-
-                    int dpth, c;
-                    vis = find_truecolor_visual(X11->display, screen, &dpth, &c);
-                    QX11Info::x_appdepth_arr[screen] = dpth;
-                    QX11Info::x_appcells_arr[screen] = c;
-
-                    QX11Info::x_appvisual_arr[screen] = vis;
-                    QX11Info::x_appdefvisual_arr[screen] =
-                        (XVisualIDFromVisual(vis) ==
-                         XVisualIDFromVisual(DefaultVisual(X11->display, screen)));
+                    screen->visual = find_truecolor_visual(X11->display, s, &screen->depth, &screen->cells);
+                    screen->defaultVisual = (XVisualIDFromVisual(screen->visual)
+                                             == XVisualIDFromVisual(DefaultVisual(X11->display, s)));
                 }
-                QX11Info::x_appvisual_arr[screen] = vis;
             }
 
-            // we assume that 8bpp == pseudocolor, but this is not
+            // We assume that 8bpp == pseudocolor, but this is not
             // always the case (according to the X server), so we need
             // to make sure that our internal data is setup in a way
             // that is compatible with our assumptions
-            if (vis->c_class == TrueColor
-                && QX11Info::x_appdepth_arr[screen] == 8
-                && QX11Info::x_appcells_arr[screen] == 8)
-                QX11Info::x_appcells_arr[screen] = 256;
+            if (screen->visual->c_class == TrueColor && screen->depth == 8 && screen->cells == 8)
+                screen->cells = 256;
 
-            if (colormap && screen == appScreen) {
+            if (colormap && s == X11->defaultScreen) {
                 // use the provided colormap for the default screen only
-                QX11Info::x_appcolormap_arr[screen] = colormap;
-                QX11Info::x_appdefcolormap_arr[screen] = false;
+                screen->colormap = colormap;
+                screen->defaultColormap = false;
             } else {
-                if (vis->c_class == TrueColor) {
-                    QX11Info::x_appdefcolormap_arr[screen] = QX11Info::x_appdefvisual_arr[screen];
+                if (screen->visual->c_class == TrueColor) {
+                    screen->defaultColormap = screen->defaultVisual;
                 } else {
-                    QX11Info::x_appdefcolormap_arr[screen] =
-                        !qt_cmap_option && QX11Info::x_appdefvisual_arr[screen];
+                    screen->defaultColormap = !qt_cmap_option && screen->defaultVisual;
                 }
 
-                if (QX11Info::x_appdefcolormap_arr[screen]) {
+                if (screen->defaultColormap) {
                     // use default colormap
                     XStandardColormap *stdcmap;
-                    VisualID vid = XVisualIDFromVisual((Visual *) QX11Info::x_appvisual_arr[screen]);
-                    QX11Info::x_appcolormap_arr[screen] = 0;
+                    VisualID vid = XVisualIDFromVisual(screen->visual);
+                    screen->colormap = 0;
 
                     QByteArray serverVendor(ServerVendor(X11->display));
-                    if (! serverVendor.contains("Hewlett-Packard")) {
+                    if (!serverVendor.contains("Hewlett-Packard")) {
                         // on HPUX 10.20 local displays, the RGB_DEFAULT_MAP colormap
                         // doesn't give us correct colors. Why this happens, I have
                         // no clue, so we disable this for HPUX
                         int count;
-                        if (XGetRGBColormaps(X11->display, QX11Info::appRootWindow(screen),
+                        if (XGetRGBColormaps(X11->display, screen->rootWindow,
                                              &stdcmap, &count, XA_RGB_DEFAULT_MAP)) {
                             int i = 0;
-                            while (i < count && QX11Info::x_appcolormap_arr[screen] == 0) {
+                            while (i < count && screen->colormap == 0) {
                                 if (stdcmap[i].visualid == vid)
-                                    QX11Info::x_appcolormap_arr[screen] = stdcmap[i].colormap;
+                                    screen->colormap = stdcmap[i].colormap;
                                 i++;
                             }
 
@@ -1687,12 +1657,12 @@ void qt_init(QApplicationPrivate *priv, int,
                         }
                     }
 
-                    if (QX11Info::x_appcolormap_arr[screen] == 0)
-                        QX11Info::x_appcolormap_arr[screen] = DefaultColormap(X11->display, screen);
+                    if (screen->colormap == 0)
+                        screen->colormap = DefaultColormap(X11->display, s);
                 } else {
                     // create a custom colormap
-                    QX11Info::x_appcolormap_arr[screen] =
-                        XCreateColormap(X11->display, QX11Info::appRootWindow(screen), vis, AllocNone);
+                    screen->colormap =
+                        XCreateColormap(X11->display, screen->rootWindow, screen->visual, AllocNone);
                 }
             }
         }
@@ -1726,9 +1696,8 @@ void qt_init(QApplicationPrivate *priv, int,
             // XRender is supported, let's see if we have a PictFormat for the
             // default visual
             XRenderPictFormat *format =
-                XRenderFindVisualFormat(X11->display,
-                                        (Visual *) QX11Info::appVisual(appScreen));
-            X11->use_xrender = (format != 0) && (QX11Info::appDepth(appScreen) != 8);
+                XRenderFindVisualFormat(X11->display, (Visual *) QX11Info::appVisual(X11->defaultScreen));
+            X11->use_xrender = (format != 0) && (QX11Info::appDepth(X11->defaultScreen) != 8);
         }
 #endif // QT_NO_XRENDER
 
@@ -1829,10 +1798,9 @@ void qt_init(QApplicationPrivate *priv, int,
         qApp->setObjectName(appName);
 
         int screen;
-        for (screen = 0; screen < appScreenCount; ++screen) {
+        for (screen = 0; screen < X11->screenCount; ++screen) {
             XSelectInput(X11->display, QX11Info::appRootWindow(screen),
-                          KeymapStateMask | EnterWindowMask | LeaveWindowMask |
-                          PropertyChangeMask);
+                         KeymapStateMask | EnterWindowMask | LeaveWindowMask | PropertyChangeMask);
 
 #ifndef QT_NO_XRANDR
             if (X11->use_xrandr)
@@ -2135,14 +2103,14 @@ void qt_cleanup()
 
     if (qt_is_gui_used) {
         int screen;
-        for (screen = 0; screen < appScreenCount; screen++) {
+        for (screen = 0; screen < X11->screenCount; screen++) {
             if (! QX11Info::appDefaultColormap(screen))
                 XFreeColormap(QX11Info::appDisplay(),
                                QX11Info::appColormap(screen));
         }
     }
 
-#define QT_CLEANUP_GC(g) if (g) { for (int i=0;i<appScreenCount;i++){if(g[i])XFreeGC(X11->display,g[i]);} delete [] g; g = 0; }
+#define QT_CLEANUP_GC(g) if (g) { for (int i=0;i<X11->screenCount;i++){if(g[i])XFreeGC(X11->display,g[i]);} delete [] g; g = 0; }
     QT_CLEANUP_GC(app_gc_ro);
     QT_CLEANUP_GC(app_gc_ro_m);
     QT_CLEANUP_GC(app_gc_tmp);
@@ -2157,23 +2125,7 @@ void qt_cleanup()
         XCloseDisplay(X11->display);                // close X display
     X11->display = 0;
 
-    if (QX11Info::x_appdepth_arr)
-        delete [] QX11Info::x_appdepth_arr;
-    if (QX11Info::x_appcells_arr)
-        delete [] QX11Info::x_appcells_arr;
-    if (QX11Info::x_approotwindow_arr)
-        delete [] QX11Info::x_approotwindow_arr;
-    if (QX11Info::x_appcolormap_arr)
-        delete []QX11Info::x_appcolormap_arr;
-    if (QX11Info::x_appdefcolormap_arr)
-        delete [] QX11Info::x_appdefcolormap_arr;
-    if (QX11Info::x_appvisual_arr)
-        delete [] QX11Info::x_appvisual_arr;
-    if (QX11Info::x_appdefvisual_arr)
-        delete [] QX11Info::x_appdefvisual_arr;
-
-    delete [] X11->dpisX;
-    delete [] X11->dpisY;
+    delete [] X11->screens;
 
     if (X11->foreignDisplay) {
         delete [] (char *)appName;
@@ -2268,7 +2220,7 @@ Display *qt_xdisplay()                                // get current X display
 
 int qt_xscreen()                                // get current X screen
 {
-    return appScreen;
+    return X11->defaultScreen;
 }
 
 WId qt_xrootwin(int scrn)                        // get X root window for screen
@@ -2315,21 +2267,19 @@ static GC create_gc(int scrn, bool monochrome)
 
 GC qt_xget_readonly_gc(int scrn, bool monochrome)        // get read-only GC
 {
-    if (scrn < 0 || scrn >= appScreenCount) {
-        qDebug("invalid screen %d %d", scrn, appScreenCount);
-        QWidget* bla = 0;
-        bla->setObjectName("hello");
-    }
+    if (scrn < 0 || scrn >= X11->screenCount)
+        qFatal("invalid screen %d %d", scrn, X11->screenCount);
+
     GC gc;
     if (monochrome) {
         if (!app_gc_ro_m)                        // create GC for bitmap
-            memset((app_gc_ro_m = new GC[appScreenCount]), 0, appScreenCount * sizeof(GC));
+            memset((app_gc_ro_m = new GC[X11->screenCount]), 0, X11->screenCount * sizeof(GC));
         if (!app_gc_ro_m[scrn])
             app_gc_ro_m[scrn] = create_gc(scrn, true);
         gc = app_gc_ro_m[scrn];
     } else {                                        // create standard GC
         if (!app_gc_ro)
-            memset((app_gc_ro = new GC[appScreenCount]), 0, appScreenCount * sizeof(GC));
+            memset((app_gc_ro = new GC[X11->screenCount]), 0, X11->screenCount * sizeof(GC));
         if (!app_gc_ro[scrn])
             app_gc_ro[scrn] = create_gc(scrn, false);
         gc = app_gc_ro[scrn];
@@ -2339,21 +2289,21 @@ GC qt_xget_readonly_gc(int scrn, bool monochrome)        // get read-only GC
 
 GC qt_xget_temp_gc(int scrn, bool monochrome)                // get temporary GC
 {
-    if (scrn < 0 || scrn >= appScreenCount) {
-        qDebug("invalid screen (tmp) %d %d", scrn, appScreenCount);
+    if (scrn < 0 || scrn >= X11->screenCount) {
+        qDebug("invalid screen (tmp) %d %d", scrn, X11->screenCount);
         QWidget* bla = 0;
         bla->setObjectName("hello");
     }
     GC gc;
     if (monochrome) {
         if (!app_gc_tmp_m)                        // create GC for bitmap
-            memset((app_gc_tmp_m = new GC[appScreenCount]), 0, appScreenCount * sizeof(GC));
+            memset((app_gc_tmp_m = new GC[X11->screenCount]), 0, X11->screenCount * sizeof(GC));
         if (!app_gc_tmp_m[scrn])
             app_gc_tmp_m[scrn] = create_gc(scrn, true);
         gc = app_gc_tmp_m[scrn];
     } else {                                        // create standard GC
         if (!app_gc_tmp)
-            memset((app_gc_tmp = new GC[appScreenCount]), 0, appScreenCount * sizeof(GC));
+            memset((app_gc_tmp = new GC[X11->screenCount]), 0, X11->screenCount * sizeof(GC));
         if (!app_gc_tmp[scrn])
             app_gc_tmp[scrn] = create_gc(scrn, false);
         gc = app_gc_tmp[scrn];
