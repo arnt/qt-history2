@@ -1527,12 +1527,15 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
             e->key() != Qt::Key_Backspace &&
             e->key() != Qt::Key_Escape) {
             insert(t);
+            e->accept();
             return;
         }
     }
 
     if (unknown)
         e->ignore();
+    else
+        e->accept();
 }
 
 /*! \reimp
