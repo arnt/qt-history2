@@ -2,8 +2,8 @@
 
 void WidgetsBase::init()
 {
-	timeEdit->setTime( QTime::currentTime() );
-    	dateEdit->setDate( QDate::currentDate() );
+    timeEdit->setTime( QTime::currentTime() );
+    dateEdit->setDate( QDate::currentDate() );    
 }
 
 void WidgetsBase::destroy()
@@ -43,12 +43,12 @@ void WidgetsBase::setColor( const QString & color )
 
 void WidgetsBase::setColor()
 {
-	setColor( lineEdit->text() );
+    setColor( lineEdit->text() );
 }
 
 void WidgetsBase::updateClock()
 {
-	clock->setTime( timeEdit->time() );
+    clock->setTime( timeEdit->time() );
 }
 
 void WidgetsBase::updateColorTest( const QString & color )
@@ -58,9 +58,9 @@ void WidgetsBase::updateColorTest( const QString & color )
 
 void WidgetsBase::updateDateTimeString()
 {
-	QDateTime dt;
-    	dt.setDate( dateEdit->date() );
-    	dt.setTime( timeEdit->time() );
-    	dateTimeLabel->setText( dt.toString() );
+    QDateTime dt;
+    dt.setDate( dateEdit->date() );
+    dt.setTime( timeEdit->time() );
+    dateTimeLabel->setText( dt.toString() );
 }
 
