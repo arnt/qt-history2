@@ -25,10 +25,10 @@
 #endif
 
 class QWindowsXPStylePrivate;
-
 class Q_GUI_EXPORT_STYLE_WINDOWSXP QWindowsXPStyle : public QWindowsStyle
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QWindowsXPStyle)
 public:
     QWindowsXPStyle();
     ~QWindowsXPStyle();
@@ -38,34 +38,31 @@ public:
     void polish(QWidget*);
     void unPolish(QWidget*);
 
-    void drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
-                       const QWidget *w = 0) const;
-
-    void drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
-                     const QWidget *widget = 0) const;
+    void drawPrimitive(PrimitiveElement pe, const QStyleOption *option, QPainter *p,
+                       const QWidget *widget = 0) const;
+    void drawControl(ControlElement element, const QStyleOption *option, QPainter *p,
+                     const QWidget *wwidget = 0) const;
+    QRect subRect(SubRect r, const QStyleOption *option, const QWidget *widget = 0) const;
+    QRect subControlRect(ComplexControl cc, const QStyleOptionComplex *option, SubControl sc,
+                         const QWidget *widget = 0) const;
+    void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *option, QPainter *p,
+                            const QWidget *widget = 0) const;
+    QSize sizeFromContents(ContentsType ct, const QStyleOption *option, const QSize &contentsSize,
+                           const QWidget *widget = 0) const;
+    int pixelMetric(PixelMetric pm, const QStyleOption *option = 0,
+                    const QWidget *widget = 0) const;
+    int styleHint(StyleHint hint, const QStyleOption *option = 0, const QWidget *widget = 0,
+                  QStyleHintReturn *returnData = 0) const;
+    QPixmap standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
+                           const QWidget *widget = 0) const;
 
     void drawControlMask(ControlElement element, const QStyleOption *opt, QPainter *p,
                          const QWidget *w = 0) const;
 
-    void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter* p,
-                            const QWidget* w = 0) const;
-
-
-    int pixelMetric(PixelMetric metic, const QStyleOption *option = 0,
-                    const QWidget *widget = 0) const;
-
-    QRect subControlRect(ComplexControl cc, const QStyleOptionComplex *opt, SubControl sc,
-                         const QWidget *w = 0) const;
-
-    QSize sizeFromContents(ContentsType ct, const QStyleOption *opt,
-                           const QSize &contentsSize, const QWidget *widget = 0) const;
-
-    int styleHint(StyleHint sh, const QStyleOption *opt = 0, const QWidget *w = 0,
-                  QStyleHintReturn *shret = 0) const;
-
 protected:
-    bool eventFilter(QObject *o, QEvent *e);
+    QWindowsXPStyle(QWindowsXPStylePrivate &d);
 
+    bool eventFilter(QObject *o, QEvent *e);
     void updateRegion(QWidget *widget);
 
 protected slots:
@@ -74,11 +71,8 @@ protected slots:
 private:
     Q_DISABLE_COPY(QWindowsXPStyle)
 
-    QWindowsXPStylePrivate *d;
-
     friend class QStyleFactory;
     friend class QWindowsXPStylePrivate;
-    static bool resolveSymbols();
 };
 
 #endif // QT_NO_STYLE_WINDOWSXP

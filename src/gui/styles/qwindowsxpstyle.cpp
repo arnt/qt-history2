@@ -11,16 +11,22 @@
 **
 ****************************************************************************/
 
+// ############ REMOVE
+#pragma warning(disable: 4065)
+
+
 #include "qwindowsxpstyle.h"
 
-#if !defined(QT_NO_STYLE_WINDOWSXP) || defined(QT_PLUGIN)
+#if !defined(QT_NO_State_WINDOWSXP) || defined(QT_PLUGIN)
 
-#include <q3menubar.h>
+//#include <q3menubar.h>
+#include <private/qobject_p.h>
 #include <qpainter.h>
 #include <qpushbutton.h>
+#include <qtoolbar.h>
 #include <qtoolbutton.h>
 #include <qtabbar.h>
-#include <qheader.h>
+#include <qheaderview.h>
 #include <qspinbox.h>
 #include <qgroupbox.h>
 #include <qapplication.h>
@@ -30,13 +36,14 @@
 #include <qcheckbox.h>
 #include <qradiobutton.h>
 #include <qcombobox.h>
-#include <private/qtitlebar_p.h>
+//#include <private/qtitlebar_p.h>
 #include <qlistview.h>
 #include <qcleanuphandler.h>
 #include <qbitmap.h>
 #include <qlibrary.h>
 #include <qdesktopwidget.h>
-#include <qwidgetstack.h>
+#include <qdockwindow.h>
+#include <qstackedwidget.h>
 #include <qtabwidget.h>
 #include <qdrawutil.h>
 #include <qmap.h>
@@ -66,6 +73,22 @@
 
 #include <limits.h>
 
+#define d d_func()
+#define q q_func()
+
+
+QRect QWindowsXPStyle::subRect(SubRect r, const QStyleOption *option, const QWidget *widget) const
+{
+    return QWindowsStyle::subRect(r, option, widget);
+}
+
+QPixmap QWindowsXPStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *option, const QWidget *widget) const
+{
+    return QWindowsStyle::standardPixmap(standardPixmap, option, widget);
+}
+
+
+
 /* XPM */
 static char * dockCloseXPM[] = {
 "8 8 2 1",
@@ -86,60 +109,33 @@ static QMap<QString,HTHEME> *handleMap = 0;
 
 typedef bool (WINAPI *PtrIsAppThemed)();
 typedef bool (WINAPI *PtrIsThemeActive)();
-typedef HRESULT (WINAPI *PtrGetThemePartSize)(HTHEME hTheme, HDC hdc, int iPartId, int iStateId,
-    OPTIONAL RECT *prc, enum THEMESIZE eSize, OUT SIZE *psz);
+typedef HRESULT (WINAPI *PtrGetThemePartSize)(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, OPTIONAL RECT *prc, enum THEMESIZE eSize, OUT SIZE *psz);
 typedef HTHEME (WINAPI *PtrOpenThemeData)(HWND hwnd, LPCWSTR pszClassList);
 typedef HRESULT (WINAPI *PtrCloseThemeData)(HTHEME hTheme);
-typedef HRESULT (WINAPI *PtrDrawThemeBackground)(HTHEME hTheme, HDC hdc,
-    int iPartId, int iStateId, const RECT *pRect, OPTIONAL const RECT *pClipRect);
-typedef HRESULT (WINAPI *PtrGetThemeColor)(HTHEME hTheme, int iPartId,
-    int iStateId, int iPropId, OUT COLORREF *pColor);
-typedef HRESULT (WINAPI *PtrGetThemeBackgroundRegion)(HTHEME hTheme, OPTIONAL HDC hdc,
-    int iPartId, int iStateId, const RECT *pRect, OUT HRGN *pRegion);
-typedef BOOL (WINAPI *PtrIsThemeBackgroundPartiallyTransparent)(HTHEME hTheme,
-    int iPartId, int iStateId);
+typedef HRESULT (WINAPI *PtrDrawThemeBackground)(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, const RECT *pRect, OPTIONAL const RECT *pClipRect);
+typedef HRESULT (WINAPI *PtrGetThemeColor)(HTHEME hTheme, int iPartId, int iStateId, int iPropId, OUT COLORREF *pColor);
+typedef HRESULT (WINAPI *PtrGetThemeBackgroundRegion)(HTHEME hTheme, OPTIONAL HDC hdc, int iPartId, int iStateId, const RECT *pRect, OUT HRGN *pRegion);
+typedef BOOL (WINAPI *PtrIsThemeBackgroundPartiallyTransparent)(HTHEME hTheme, int iPartId, int iStateId);
 
 
-static PtrIsAppThemed                    pIsAppThemed = 0;
-static PtrIsThemeActive                    pIsThemeActive = 0;
-static PtrGetThemePartSize            pGetThemePartSize = 0;
-static PtrOpenThemeData                    pOpenThemeData = 0;
-static PtrCloseThemeData            pCloseThemeData = 0;
-static PtrDrawThemeBackground            pDrawThemeBackground = 0;
-static PtrGetThemeColor                    pGetThemeColor = 0;
-static PtrGetThemeBackgroundRegion  pGetThemeBackgroundRegion = 0;
-static PtrIsThemeBackgroundPartiallyTransparent        pIsThemeBackgroundPartiallyTransparent = 0;
+static PtrIsAppThemed pIsAppThemed = 0;
+static PtrIsThemeActive pIsThemeActive = 0;
+static PtrGetThemePartSize pGetThemePartSize = 0;
+static PtrOpenThemeData pOpenThemeData = 0;
+static PtrCloseThemeData pCloseThemeData = 0;
+static PtrDrawThemeBackground pDrawThemeBackground = 0;
+static PtrGetThemeColor pGetThemeColor = 0;
+static PtrGetThemeBackgroundRegion pGetThemeBackgroundRegion = 0;
+static PtrIsThemeBackgroundPartiallyTransparent pIsThemeBackgroundPartiallyTransparent = 0;
 
-bool QWindowsXPStyle::resolveSymbols()
+class QWindowsXPStylePrivate : public QObjectPrivate
 {
-    static bool tried = false;
-    if (!tried) {
-        tried = true;
-        QLibrary lib("uxtheme");
-        lib.setAutoUnload(false);
-
-        pIsAppThemed = (PtrIsAppThemed)lib.resolve("IsAppThemed");
-        if (pIsAppThemed) {
-            pIsThemeActive = (PtrIsThemeActive)lib.resolve("IsThemeActive");
-            pGetThemePartSize = (PtrGetThemePartSize)lib.resolve("GetThemePartSize");
-            pOpenThemeData = (PtrOpenThemeData)lib.resolve("OpenThemeData");
-            pCloseThemeData = (PtrCloseThemeData)lib.resolve("CloseThemeData");
-            pDrawThemeBackground = (PtrDrawThemeBackground)lib.resolve("DrawThemeBackground");
-            pGetThemeColor = (PtrGetThemeColor)lib.resolve("GetThemeColor");
-            pGetThemeBackgroundRegion = (PtrGetThemeBackgroundRegion)lib.resolve("GetThemeBackgroundRegion");
-            pIsThemeBackgroundPartiallyTransparent = (PtrIsThemeBackgroundPartiallyTransparent)lib.resolve("IsThemeBackgroundPartiallyTransparent");
-        }
-    }
-
-    return pIsAppThemed != 0;
-}
-
-class QWindowsXPStylePrivate
-{
+    Q_DECLARE_PUBLIC(QWindowsXPStyle)
 public:
     QWindowsXPStylePrivate()
-        : hotWidget(0), hotTab(0), hotSpot(-1, -1), tabPaneBorderColor(0)
+        : QObjectPrivate(), hotWidget(0), hotSpot(-1, -1), tabPaneBorderColor(0)
     {
+        qDebug("Created QWindowsXPStylePrivate");
         init();
     }
     ~QWindowsXPStylePrivate()
@@ -152,7 +148,9 @@ public:
         if (ref++ && !force)
             return;
 
-        use_xp = QWindowsXPStyle::resolveSymbols() && pIsThemeActive() && pIsAppThemed();
+        use_xp = resolveSymbols() 
+                 && pIsThemeActive() 
+                 && pIsAppThemed();
 
         COLORREF cref;
         // Active Title Bar (Color 1 in the gradient)
@@ -214,12 +212,15 @@ public:
         if (currentWidget)
             return currentWidget->winId();
 
-        if (!limboWidget)
-            limboWidget = new QWidget(0, "xp_limbo_widget");
+        if (!limboWidget) {
+            limboWidget = new QWidget(0);
+            limboWidget->setObjectName("xp_limbo_widget");
+        }
 
         return limboWidget->winId();
     }
 
+    bool resolveSymbols();
     const QPixmap *tabBody(QWidget *widget);
 
     // hot-widget stuff
@@ -227,7 +228,7 @@ public:
     const QWidget *hotWidget;
     static const QWidget *currentWidget;
 
-    QTab *hotTab;
+    QRect hotTab;
     QRect hotHeader;
 
     QPoint hotSpot;
@@ -238,6 +239,7 @@ public:
     static QColor dockColorInactive;
     static QPixmap *dockCloseActive;
     static QPixmap *dockCloseInactive;
+    QLibrary themeLib;
 
 private:
     static QWidget *limboWidget;
@@ -272,7 +274,7 @@ struct XPThemeData
             htheme = handleMap->operator[](name);
 
         if (!htheme) {
-            htheme = pOpenThemeData(QWindowsXPStylePrivate::winId(widget), (TCHAR*)name.ucs2());
+            htheme = pOpenThemeData(QWindowsXPStylePrivate::winId(widget), (TCHAR*)name.utf16());
             if (htheme) {
                 if (!handleMap)
                     handleMap = new QMap<QString, HTHEME>;
@@ -303,7 +305,10 @@ struct XPThemeData
     {
         if (pIsThemeBackgroundPartiallyTransparent(handle(), partId, stateId)) {
             HRGN hrgn;
-            pGetThemeBackgroundRegion(handle(), painter ? painter->handle() : 0, partId, stateId, &rect(), &hrgn);
+            HDC dc = painter == 0 ? 0 : painter->device()->getDC();
+            pGetThemeBackgroundRegion(handle(), dc, partId, stateId, &rect(), &hrgn);
+            if (dc)
+                painter->device()->releaseDC(dc);
             return hrgn;
         }
         return 0;
@@ -333,6 +338,7 @@ struct XPThemeData
         if (sId)
             stateId = sId;
 
+        HDC dc = painter == 0 ? 0 : painter->device()->getDC();
         if (name == "TAB" && (
             partId == TABP_TABITEMLEFTEDGE ||
             partId == TABP_TABITEMRIGHTEDGE ||
@@ -342,39 +348,43 @@ struct XPThemeData
             QPixmap pm(rec.size());
             QPainter p(&pm);
             p.eraseRect(0, 0, rec.width(), rec.height());
-            pDrawThemeBackground(handle(), p.handle(), partId, stateId, &rect(), 0);
+
+            HDC dc2 = p.device()->getDC();
+            pDrawThemeBackground(handle(), dc2, partId, stateId, &rect(), 0);
+            p.device()->releaseDC(dc2);
+
             rec = oldrec;
             p.end();
             if (flipped) {
                 QMatrix m;
                 m.scale(1, -1);
-                pm = pm.xForm(m);
+                pm = pm.transform(m);
             }
             painter->drawPixmap(rec.x(), rec.y(), pm);
             painter->setPen(tbBorderColor);
             if (!flipped)
                 painter->drawLine(rec.left(), rec.bottom(), rec.right()+1, rec.bottom());
         } else if (name == "TREEVIEW") {
-            pDrawThemeBackground(handle(), painter->handle(), partId, stateId, &rect(), 0);
-        } else if ((name == "EDIT" || name == "LISTVIEW") && ::qt_cast<QComboBox*>(widget) == 0) {
+            pDrawThemeBackground(handle(), dc, partId, stateId, &rect(), 0);
+        } else if ((name == "EDIT" || name == "LISTVIEW") && ::qt_cast<const QComboBox*>(widget) == 0) {
             // We assume upto 2px border on the lineedits and Styled Panels,
             // and clip the contents.
             QRect rt = rec;
-            rec = painter->xForm(rec);
+            rec = painter->matrix().mapRect(rec);
             HRGN hr1 = CreateRectRgn(rec.left(), rec.top(), rec.right() + 1, rec.bottom() + 1);
             HRGN hr2 = CreateRectRgn(rec.left() + 2, rec.top() + 2, rec.right() - 1, rec.bottom() - 1);
             CombineRgn(hr1, hr1, hr2, RGN_DIFF);
-            SelectClipRgn(painter->handle(), hr1);
-            pDrawThemeBackground(handle(), painter->handle(), partId, stateId, &rect(), 0);
-            SelectClipRgn(painter->handle(), 0);
+            SelectClipRgn(dc, hr1);
+            pDrawThemeBackground(handle(), dc, partId, stateId, &rect(), 0);
+            SelectClipRgn(dc, 0);
             DeleteObject(hr1);
             DeleteObject(hr2);
             rec = rt;
         } else {
             QRect rt = rec;
-            rec = painter->xForm(rec);
+            rec = painter->matrix().mapRect(rec);
             if (!mirrored) {
-                pDrawThemeBackground(handle(), painter->handle(), partId, stateId, &rect(), 0);
+                pDrawThemeBackground(handle(), dc, partId, stateId, &rect(), 0);
             } else {
                 QRect oldrec = rec;
                 rec = QRect(0, 0, rec.width(), rec.height());
@@ -386,18 +396,24 @@ struct XPThemeData
                     //p.setBackgroundColor(qApp->palette().active().background());
                     p.setBackground(qApp->palette().background());
                 p.eraseRect(0, 0, rec.width(), rec.height());
-                pDrawThemeBackground(handle(), p.handle(), partId, stateId, &rect(), 0);
+
+                HDC dc2 = p.device()->getDC();
+                pDrawThemeBackground(handle(), dc2, partId, stateId, &rect(), 0);
+                p.device()->releaseDC(dc2);
+
                 p.end();
                 rec = oldrec;
 
                 QMatrix m;
                 m.scale(-1, 1);
-                pm = pm.xForm(m);
+                pm = pm.transform(m);
 
                 painter->drawPixmap(rec.x(), rec.y(), pm);
             }
             rec = rt;
         }
+        if (dc)
+            painter->device()->releaseDC(dc);
     }
 
     void setName (const QString &name) {
@@ -426,7 +442,9 @@ const QPixmap *QWindowsXPStylePrivate::tabBody(QWidget *widget)
         QPainter painter(tabbody);
         XPThemeData theme(widget, &painter, "TAB", TABP_BODY, 0);
         SIZE sz;
-        pGetThemePartSize(theme.handle(), painter.handle(), TABP_BODY, 0, 0, TS_TRUE, &sz);
+        HDC dc = painter.device()->getDC();
+        pGetThemePartSize(theme.handle(), dc, TABP_BODY, 0, 0, TS_TRUE, &sz);
+        painter.device()->releaseDC(dc);
 
         // Get color for border of tab pane
         COLORREF cref;
@@ -441,21 +459,44 @@ const QPixmap *QWindowsXPStylePrivate::tabBody(QWidget *widget)
         // We fill with the last line of the themedata, that
         // way we don't get a tiled pixmap inside big tabs
         QPixmap temp(sz.cx, 1);
-        bitBlt(&temp, 0,0, tabbody, 0, sz.cy-1);
+//        bitBlt(&temp, 0,0, tabbody, 0, sz.cy-1);
+        painter.drawPixmap(0, 0, temp, 0, sz.cy-1, -1, -1);
         painter.drawTiledPixmap(0, sz.cy, sz.cx, tabbody->height()-sz.cy, temp);
         painter.end();
     }
     return tabbody;
 }
 
+bool QWindowsXPStylePrivate::resolveSymbols()
+{
+    static bool tried = false;
+    if (!tried) {
+        tried = true;
+        themeLib.setFileName("uxtheme");
+        themeLib.load();
+        pIsAppThemed = (PtrIsAppThemed)d->themeLib.resolve("IsAppThemed");
+        if (pIsAppThemed) {
+            pIsThemeActive = (PtrIsThemeActive)d->themeLib.resolve("IsThemeActive");
+            pGetThemePartSize = (PtrGetThemePartSize)d->themeLib.resolve("GetThemePartSize");
+            pOpenThemeData = (PtrOpenThemeData)d->themeLib.resolve("OpenThemeData");
+            pCloseThemeData = (PtrCloseThemeData)d->themeLib.resolve("CloseThemeData");
+            pDrawThemeBackground = (PtrDrawThemeBackground)d->themeLib.resolve("DrawThemeBackground");
+            pGetThemeColor = (PtrGetThemeColor)d->themeLib.resolve("GetThemeColor");
+            pGetThemeBackgroundRegion = (PtrGetThemeBackgroundRegion)d->themeLib.resolve("GetThemeBackgroundRegion");
+            pIsThemeBackgroundPartiallyTransparent = (PtrIsThemeBackgroundPartiallyTransparent)d->themeLib.resolve("IsThemeBackgroundPartiallyTransparent");
+        }
+    }
 
-static const int windowsItemFrame                =  2; // menu item frame width
-static const int windowsSepHeight                =  7; // separator item height
-static const int windowsItemHMargin                =  3; // menu item hor text margin
-static const int windowsItemVMargin                =  0; // menu item ver text margin
-static const int windowsArrowHMargin                =  6; // arrow horizontal margin
-static const int windowsCheckMarkHMargin        =  0; // horiz. margins of check mark
-static const int windowsRightBorder                = 12; // right border on windows
+    return pIsAppThemed != 0;
+}
+
+static const int windowsItemFrame        =  2; // menu item frame width
+static const int windowsSepHeight        =  7; // separator item height
+static const int windowsItemHMargin      =  3; // menu item hor text margin
+static const int windowsItemVMargin      =  0; // menu item ver text margin
+static const int windowsArrowHMargin     =  6; // arrow horizontal margin
+static const int windowsCheckMarkHMargin =  0; // horiz. margins of check mark
+static const int windowsRightBorder      = 12; // right border on windows
 
 /*!
     \class QWindowsXPStyle
@@ -477,9 +518,18 @@ static const int windowsRightBorder                = 12; // right border on wind
     Constructs a QWindowsStyle
 */
 QWindowsXPStyle::QWindowsXPStyle()
-: QWindowsStyle()
+    : QWindowsStyle()
 {
-    d = new QWindowsXPStylePrivate;
+    qDebug("Created QWindowsXPStyle");
+    d_ptr = new QWindowsXPStylePrivate; //### Hack for now! memleak!
+    d_func()->q_ptr = this;
+}
+
+QWindowsXPStyle::QWindowsXPStyle(QWindowsXPStylePrivate &dd)
+    : QWindowsStyle()
+{
+    d_ptr = &dd; //### Hack for now! memleak!
+    d_func()->q_ptr = this;
 }
 
 /*!
@@ -493,7 +543,7 @@ QWindowsXPStyle::~QWindowsXPStyle()
 /*! \reimp */
 void QWindowsXPStyle::unPolish(QApplication *app)
 {
-    QWindowsStyle::unPolish(app);
+    QWindowsStyle::unpolish(app);
 }
 
 /*! \reimp */
@@ -519,46 +569,46 @@ void QWindowsXPStyle::polish(QWidget *widget)
     QWindowsStyle::polish(widget);
     if (!use_xp)
         return;
-    if (qt_cast<QButton*>(widget)) {
+    if (qt_cast<QAbstractButton*>(widget)) {
         widget->installEventFilter(this);
         //widget-setBackgroundOrigin(QWidget::ParentOrigin);
-        if (qt_cast<QToolButton*>(widget) && !QString::compare("qt_close_button1", widget->objectName())) {
-            QToolButton *tb = (QToolButton*)widget;
-            tb->setPixmap(*(d->dockCloseActive));
-            tb->setAutoRaise(true);
-            // ugly hack, please look away
-            tb->setFixedSize(16, 16);
-            QDockWindow *dw = static_cast<QDockWindow *>(tb->parent()->parent());
-            if (dw->area() && dw->area()->orientation() == Qt::Horizontal)
-                tb->move(0, 2);
-            // ok, you can look again
-        }
+        //if (qt_cast<QToolButton*>(widget) && !QString::compare("qt_close_button1", widget->objectName())) {
+        //    QToolButton *tb = (QToolButton*)widget;
+        //    tb->setPixmap(*(d->dockCloseActive));
+        //    tb->setAutoRaise(true);
+        //    // ugly hack, please look away
+        //    tb->setFixedSize(16, 16);
+        //    QDockWindow *dw = static_cast<QDockWindow *>(tb->parent()->parent());
+        //    if (dw->area() && dw->area()->orientation() == Qt::Horizontal)
+        //        tb->move(0, 2);
+        //    // ok, you can look again
+        //}
     } else if (widget->inherits("QDockWindowHandle")) {
-        QWidget *p = (QWidget*)widget->parent();
-        if (!((QDockWindow*)p)->isToolbar) {
-            QPalette pal = widget->palette();
-            pal.setColor(QPalette::Active, QPalette::Background, d->dockColorActive);
-            pal.setColor(QPalette::Inactive, QPalette::Background, d->dockColorActive);
-            widget->setPalette(pal);
-        }
+        //QWidget *p = (QWidget*)widget->parent();
+        //if (!((QDockWindow*)p)->isToolbar) {
+        //    QPalette pal = widget->palette();
+        //    pal.setColor(QPalette::Active, QPalette::Background, d->dockColorActive);
+        //    pal.setColor(QPalette::Inactive, QPalette::Background, d->dockColorActive);
+        //    widget->setPalette(pal);
+        //}
     } else if (qt_cast<QTabBar*>(widget)) {
         widget->installEventFilter(this);
         widget->setAutoMask(true);
         widget->setMouseTracking(true);
         connect(widget, SIGNAL(selected(int)), this, SLOT(activeTabChanged()));
-    } else if (qt_cast<QHeader*>(widget)) {
+    } else if (qt_cast<QHeaderView*>(widget)) {
         widget->installEventFilter(this);
         widget->setMouseTracking(true);
     } else if (qt_cast<QComboBox*>(widget)) {
         widget->installEventFilter(this);
         widget->setMouseTracking(true);
-    } else if (qt_cast<QSpinWidget*>(widget)) {
+    } else if (qt_cast<QSpinBox*>(widget)) {
         widget->installEventFilter(this);
         widget->setMouseTracking(true);
     } else if (qt_cast<QScrollBar*>(widget)) {
         widget->installEventFilter(this);
         widget->setMouseTracking(true);
-    } else if (qt_cast<QTitleBar*>(widget)) {
+    } else if (widget->inherits("QDockWindowTitle")) {
         widget->installEventFilter(this);
         widget->setMouseTracking(true);
     } else if (widget->inherits("Q3WorkspaceChild")) {
@@ -566,23 +616,24 @@ void QWindowsXPStyle::polish(QWidget *widget)
     } else if (qt_cast<QSlider*>(widget)) {
         widget->installEventFilter(this);
         widget->setMouseTracking(true);
-    } else if (qt_cast<QWidgetStack*>(widget) &&
+    } else if (qt_cast<QStackedWidget*>(widget) &&
                 qt_cast<QTabWidget*>(widget->parent())) {
         QPalette p = widget->palette();
         p.setBrush(widget->backgroundRole(), QBrush(*d->tabBody(widget)));
         widget->setPalette(p);
     }
-    QWidget *pW = static_cast<QWidget *>(widget->parent());
-    if (!widget->testAttribute(QWidget::WA_SetPalette) && pW && !pW->palette().brush(pW->backgroundRole()).pixmap()) {
-        //widget->setBackgroundOrigin(QWidget::AncestorOrigin);
-        if (::qt_cast<QWidgetStack*>(pW)) {
-            // Repolish all children of a tab page to get
-            // gradient right. ### FIX properly in 4.0!
-            QObjectList objList = widget->queryList("QWidget");
-            for (QObjectList::ConstIterator it = objList.begin(); it != objList.end(); ++it)
-                polish((QWidget*)(*it));
-        }
-    }
+    // Fixed in Qt 4.0?
+    //QWidget *pW = static_cast<QWidget *>(widget->parent());
+    //if (!widget->testAttribute(QWidget::WA_SetPalette) && pW && !pW->palette().brush(pW->backgroundRole()).pixmap()) {
+    //    //widget->setBackgroundOrigin(QWidget::AncestorOrigin);
+    //    if (::qt_cast<QStackedWidget*>(pW)) {
+    //        // Repolish all children of a tab page to get
+    //        // gradient right. ### FIX properly in 4.0!
+    //        QObjectList objList = widget->queryList("QWidget");
+    //        for (QObjectList::ConstIterator it = objList.begin(); it != objList.end(); ++it)
+    //            polish((QWidget*)(*it));
+    //    }
+    //}
 
     updateRegion(widget);
 }
@@ -593,7 +644,7 @@ void QWindowsXPStyle::unPolish(QWidget *widget)
     // Unpolish of widgets is the first thing that
     // happens when a theme changes, or the theme
     // engine is turned off. So we detect it here.
-    bool newState = QWindowsXPStyle::resolveSymbols() && pIsThemeActive() && pIsAppThemed();
+    bool newState = d->resolveSymbols() && pIsThemeActive() && pIsAppThemed();
     if (use_xp != newState) {
         if (use_xp = newState) {
             d->cleanup(true);
@@ -612,19 +663,19 @@ void QWindowsXPStyle::unPolish(QWidget *widget)
 
     widget->removeEventFilter(this);
 
-    if (qt_cast<QTitleBar*>(widget) && !widget->inherits("QDockWindowTitleBar")) {
+    if (!widget->inherits("QDockWindowTitle")) {
         SetWindowRgn(widget->winId(), 0, true);
         if (!QString::compare(widget->objectName(), "_workspacechild_icon_"))
             SetWindowRgn(widget->parentWidget()->winId(), 0, true);
     } else if (widget->inherits("Q3WorkspaceChild")) {
         SetWindowRgn(widget->winId(), 0, true);
-    } else if (qt_cast<QWidgetStack*>(widget) &&
+    } else if (qt_cast<QStackedWidget*>(widget) &&
                 qt_cast<QTabWidget*>(widget->parentWidget())) {
         widget->setPalette(QPalette());
     } else if (qt_cast<QTabBar*>(widget)) {
         disconnect(widget, SIGNAL(selected(int)), this, SLOT(activeTabChanged()));
     } else if (widget->inherits("QDockWindowHandle") ||
-                qt_cast<Q3MenuBar*>(widget) ||
+//                qt_cast<Q3MenuBar*>(widget) ||
                 (qt_cast<QToolButton*>(widget) &&
                   !QString::compare("qt_close_button1", widget->objectName()))) {
         widget->setPalette(QPalette());
@@ -633,7 +684,7 @@ void QWindowsXPStyle::unPolish(QWidget *widget)
 //    if (!widget->testAttribute(Qt::WA_SetPalette))
 //         widget->setBackgroundOrigin(QWidget::WidgetOrigin);
 
-    QWindowsStyle::unPolish(widget);
+    QWindowsStyle::unpolish(widget);
 }
 
 /*!
@@ -646,10 +697,10 @@ void QWindowsXPStyle::updateRegion(QWidget *widget)
     if (!use_xp)
         return;
 
-    if (widget->inherits("QDockWindowTitleBar")) {
+    if (widget->inherits("QDockWindowTitle")) {
         XPThemeData theme(widget, 0, "WINDOW", WP_SMALLCAPTION, CS_ACTIVE, widget->rect());
         theme.setTransparency();
-    } else if (qt_cast<QTitleBar*>(widget) && !QString::compare(widget->objectName(), "_workspacechild_icon_")) {
+    } else if (widget->inherits("QDockWindowTitle") && !QString::compare(widget->objectName(), "_workspacechild_icon_")) {
         XPThemeData theme(widget, 0, "WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect());
         theme.setTransparency();
         XPThemeData theme2(widget->parentWidget(), 0, "WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect());
@@ -665,35 +716,26 @@ void QWindowsXPStyle::updateRegion(QWidget *widget)
     }
 }
 
-/*
-void QWindowsXPStyle::drawPrimitive(PrimitiveElement op,
-                                    QPainter *p,
-                                    const QRect &r,
-                                    const QPalette &pal,
-                                    SFlags flags,
-                                    const Q3StyleOption &opt) const
-                                    */
-
 /*!
     \reimp
 */
-void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
-                                    const QWidget *w) const
+void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *option, QPainter *p,
+                                    const QWidget *widget) const
 {
     if (!use_xp) {
-        QWindowsStyle::drawPrimitive(op, p, r, pal, flags, opt);
+        QWindowsStyle::drawPrimitive(pe, option, p, widget);
         return;
     }
 
     QString name;
     int partId = 0;
     int stateId = 0;
-    QRect rect = r;
+    QRect rect = option->rect;
+    State flags = option->state;
     bool mirror = false;
 
-    switch (op) {
-    case PE_ButtonCommand:
-    case PE_ButtonBevel:
+    switch (pe) {
+    case PE_PanelButtonBevel:
         name = "BUTTON";
         partId = BP_PUSHBUTTON;
         if (!(flags & State_Enabled))
@@ -702,14 +744,14 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             stateId = PBS_PRESSED;
         else if (flags & State_MouseOver)
             stateId = PBS_HOT;
-        else if (flags & State_ButtonDefault)
-            stateId = PBS_DEFAULTED;
+        //else if (flags & State_ButtonDefault)
+        //    stateId = PBS_DEFAULTED;
         else
             stateId = PBS_NORMAL;
 
         break;
 
-    case PE_ButtonTool:
+    case PE_PanelButtonTool:
         name = "TOOLBAR";
         partId = TP_BUTTON;
         if (!flags & State_Enabled)
@@ -724,7 +766,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             stateId = TS_NORMAL;
         break;
 
-    case PE_ButtonDropDown:
+    case PE_IndicatorButtonDropDown:
         name = "TOOLBAR";
         partId = TP_SPLITBUTTONDROPDOWN;
         if (!flags & State_Enabled)
@@ -739,7 +781,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             stateId = TS_NORMAL;
         break;
 
-    case PE_Indicator:
+    case PE_IndicatorCheckBox:
         name = "BUTTON";
         partId = BP_CHECKBOX;
         if (!(flags & State_Enabled))
@@ -757,11 +799,11 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             stateId += CBS_MIXEDNORMAL-1;
 
         break;
-    case PE_IndicatorMask:
-        p->fillRect(r, Qt::color1);
+    case PE_IndicatorCheckBoxMask:
+        p->fillRect(option->rect, Qt::color1);
         return;
 
-    case PE_ExclusiveIndicator:
+    case PE_IndicatorRadioButton:
         name = "BUTTON";
         partId = BP_RADIOBUTTON;
         if (!(flags & State_Enabled))
@@ -777,22 +819,22 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             stateId += RBS_CHECKEDNORMAL-1;
         break;
 
-    case PE_ExclusiveIndicatorMask:
-        p->fillRect(r, Qt::color1);
+    case PE_IndicatorRadioButtonMask:
+        p->fillRect(option->rect, Qt::color1);
         return;
 
-    case PE_Splitter:
-    case PE_DockWindowResizeHandle:
+//    case PE_Splitter:
+    case PE_IndicatorDockWindowResizeHandle:
         return;
 
-    case PE_Panel:
+    case PE_Frame:
         if (flags & State_Raised)
             return;
         name = "LISTVIEW";
         partId = LVP_LISTGROUP;
         break;
 
-    case PE_PanelLineEdit:
+    case PE_FrameLineEdit:
         name = "EDIT";
         partId = EP_EDITTEXT;
         if (!(flags & State_Enabled))
@@ -801,41 +843,41 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             stateId = ETS_NORMAL;
         break;
 
-    case PE_PanelTabWidget:
+    case PE_FrameTabWidget:
         name = "TAB";
         partId = TABP_PANE;
         break;
 
-    case PE_MenuFrame:
-    case PE_PanelPopup:
+    case PE_FrameMenu:
+//    case PE_PanelPopup:
         p->save();
-        p->setPen(pal.dark());
-        p->drawRect(r);
+        p->setPen(option->palette.dark().color());
+        p->drawRect(option->rect);
         p->restore();
         return;
 
-    case PE_MenuBarFrame:
+//    case PE_MenuBarFrame:
     case PE_PanelMenuBar:
         break;
 
-    case PE_PanelDockWindow:
+    case PE_FrameDockWindow:
         name = "REBAR";
         partId = RP_BAND;
         stateId = 1;
         break;
 
-    case PE_HeaderSection:
+    case PE_PanelHeader:
         name = "HEADER";
         partId = HP_HEADERITEM;
         if (flags & State_Down)
             stateId = HIS_PRESSED;
-        else if (r == d->hotHeader)
+        else if (option->rect == d->hotHeader)
             stateId = HIS_HOT;
         else
             stateId = HIS_NORMAL;
         break;
 
-    case PE_HeaderArrow:
+    case PE_IndicatorHeaderArrow:
         {
 #if 0 // XP theme engine doesn't know about this :(
             name = "HEADER";
@@ -846,20 +888,20 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
                 stateId = HSAS_SORTEDUP;
 #else
             p->save();
-            p->setPen(pal.dark());
-            p->translate(0, r.height()/2 - 4);
+            p->setPen(option->palette.dark().color());
+            p->translate(0, option->rect.height()/2 - 4);
             if (flags & State_Up) { // invert logic to follow Windows style guide
-                p->drawLine(r.x(), r.y(), r.x()+8, r.y());
-                p->drawLine(r.x()+1, r.y()+1, r.x()+7, r.y()+1);
-                p->drawLine(r.x()+2, r.y()+2, r.x()+6, r.y()+2);
-                p->drawLine(r.x()+3, r.y()+3, r.x()+5, r.y()+3);
-                p->drawPoint(r.x()+4, r.y()+4);
+                p->drawLine(option->rect.x(), option->rect.y(), option->rect.x()+8, option->rect.y());
+                p->drawLine(option->rect.x()+1, option->rect.y()+1, option->rect.x()+7, option->rect.y()+1);
+                p->drawLine(option->rect.x()+2, option->rect.y()+2, option->rect.x()+6, option->rect.y()+2);
+                p->drawLine(option->rect.x()+3, option->rect.y()+3, option->rect.x()+5, option->rect.y()+3);
+                p->drawPoint(option->rect.x()+4, option->rect.y()+4);
             } else {
-                p->drawLine(r.x(), r.y()+4, r.x()+8, r.y()+4);
-                p->drawLine(r.x()+1, r.y()+3, r.x()+7, r.y()+3);
-                p->drawLine(r.x()+2, r.y()+2, r.x()+6, r.y()+2);
-                p->drawLine(r.x()+3, r.y()+1, r.x()+5, r.y()+1);
-                p->drawPoint(r.x()+4, r.y());
+                p->drawLine(option->rect.x(), option->rect.y()+4, option->rect.x()+8, option->rect.y()+4);
+                p->drawLine(option->rect.x()+1, option->rect.y()+3, option->rect.x()+7, option->rect.y()+3);
+                p->drawLine(option->rect.x()+2, option->rect.y()+2, option->rect.x()+6, option->rect.y()+2);
+                p->drawLine(option->rect.x()+3, option->rect.y()+1, option->rect.x()+5, option->rect.y()+1);
+                p->drawPoint(option->rect.x()+4, option->rect.y());
             }
             p->restore();
             return;
@@ -867,12 +909,12 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         }
         break;
 
-    case PE_StatusBarSection:
+    case PE_FrameStatusBar:
         name = "STATUS";
         partId = SP_PANE;
         break;
 
-    case PE_PanelGroupBox:
+    case PE_FrameGroupBox:
         name = "BUTTON";
         partId = BP_GROUPBOX;
         if (!(flags & State_Enabled))
@@ -881,124 +923,126 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             stateId = GBS_NORMAL;
         break;
 
-    case PE_SizeGrip:
-        name = "STATUS";
-        partId = SP_GRIPPER;
-        // empiric correction values...
-        rect.addCoords(-4, -8, 0, 0);
-        mirror = qApp->reverseLayout();
-        break;
+    //case PE_SizeGrip:
+    //    name = "STATUS";
+    //    partId = SP_GRIPPER;
+    //    // empiric correction values...
+    //    rect.addCoords(-4, -8, 0, 0);
+    //    mirror = qApp->reverseLayout();
+    //    break;
 
-    case PE_ScrollBarAddLine:
-        name = "SCROLLBAR";
-        break;
+    //case PE_ScrollBarAddLine:
+    //    name = "SCROLLBAR";
+    //    break;
 
-    case PE_ScrollBarSubLine:
-        name = "SCROLLBAR";
-        break;
+    //case PE_ScrollBarSubLine:
+    //    name = "SCROLLBAR";
+    //    break;
 
-    case PE_ScrollBarAddPage:
-        name = "SCROLLBAR";
-        break;
+    //case PE_ScrollBarAddPage:
+    //    name = "SCROLLBAR";
+    //    break;
 
-    case PE_ScrollBarSubPage:
-        name = "SCROLLBAR";
-        break;
+    //case PE_ScrollBarSubPage:
+    //    name = "SCROLLBAR";
+    //    break;
 
-    case PE_ScrollBarSlider:
-        name = "SCROLLBAR";
-        break;
+    //case PE_ScrollBarSlider:
+    //    name = "SCROLLBAR";
+    //    break;
 
-    case PE_ScrollBarFirst:
-        name = "SCROLLBAR";
-        break;
+    //case PE_ScrollBarFirst:
+    //    name = "SCROLLBAR";
+    //    break;
 
-    case PE_ScrollBarLast:
-        name = "SCROLLBAR";
-        break;
+    //case PE_ScrollBarLast:
+    //    name = "SCROLLBAR";
+    //    break;
 
-    case PE_ProgressBarChunk:
+    case PE_IndicatorProgressChunk:
         name = "PROGRESS";
         partId = PP_CHUNK;
         stateId = 1;
-        rect = QRect(r.x(), r.y() + 3, r.width(), r.height() - 5);
+        rect = QRect(option->rect.x(), option->rect.y() + 3, option->rect.width(), option->rect.height() - 5);
         break;
 
-    case PE_DockWindowHandle:
-        {
-            QString title;
-            bool drawDockTitle = false;
-            bool isDockWindow = false;
-            QWidget *w = 0;
-            if (p && p->device()->devType() == QInternal::Widget) {
-                w = (QWidget *) p->device();
-                QWidget *p = w->parentWidget();
-                if (qt_cast<QDockWindow*>(p) && !qt_cast<QToolBar*>(p)) {
-                    int drawArea = qMin(r.right() - r.left(), r.bottom() - r.top());
-                    drawDockTitle = (drawArea >= w->fontMetrics().height());
-                    isDockWindow = true;
-                    title = p->windowTitle();
-                }
-            }
+    //case PE_Q3DockWindowHandle:
+    //    {
+    //        QString title;
+    //        bool drawDockTitle = false;
+    //        bool isDockWindow = false;
+    //        QWidget *w = 0;
+    //        if (p && p->device()->devType() == QInternal::Widget) {
+    //            w = (QWidget *) p->device();
+    //            QWidget *p = w->parentWidget();
+    //            if (qt_cast<QDockWindow*>(p) && !qt_cast<QToolBar*>(p)) {
+    //                int drawArea = qMin(r.right() - r.left(), r.bottom() - r.top());
+    //                drawDockTitle = (drawArea >= w->fontMetrics().height());
+    //                isDockWindow = true;
+    //                title = p->windowTitle();
+    //            }
+    //        }
 
-            if (!isDockWindow) {
-                name = "REBAR";
-                if (flags & State_Horizontal)
-                    partId = RP_GRIPPER;
-                else
-                    partId = RP_GRIPPERVERT;
-                break;
-            }
+    //        if (!isDockWindow) {
+    //            name = "REBAR";
+    //            if (flags & State_Horizontal)
+    //                partId = RP_GRIPPER;
+    //            else
+    //                partId = RP_GRIPPERVERT;
+    //            break;
+    //        }
 
-            // Qt::Dock window...
-            name = "WINDOW";
-            partId = WP_MAXCAPTION;
-            if (!(flags & State_Enabled))
-                stateId = GBS_DISABLED;
-            else
-                stateId = GBS_NORMAL;
+    //        // Qt::Dock window...
+    //        name = "WINDOW";
+    //        partId = WP_MAXCAPTION;
+    //        if (!(flags & State_Enabled))
+    //            stateId = GBS_DISABLED;
+    //        else
+    //            stateId = GBS_NORMAL;
 
-            if (drawDockTitle) {
-                QRect rt = r;
-                if (w)
-                    p->setPen(pal.color(w->isActiveWindow() ? QPalette::Active :
-                                         QPalette::Inactive, QPalette::HighlightedText));
+    //        if (drawDockTitle) {
+    //            QRect rt = r;
+    //            if (widget)
+    //                // ###################3
+    //                //p->setPen(pal.color(w->isActiveWindow() ? QPalette::Active :
+    //                //                     QPalette::Inactive, QPalette::HighlightedText));
+    //                p->setPen(option->palette.highlightedText());
 
-                if (flags & State_Horizontal) {
-                    // Qt::Vertical Title  (Qt::Horizontal DockWindow)
-                    rt.addCoords(2, 4, -1, -4);
-                    p->rotate(270.0);
-                    p->translate(-(rt.height()+rt.y()), (rt.width()-rt.x()));
-                    p->drawText(0,0, title);
+    //            if (flags & State_Horizontal) {
+    //                // Qt::Vertical Title  (Qt::Horizontal DockWindow)
+    //                rt.addCoords(2, 4, -1, -4);
+    //                p->rotate(270.0);
+    //                p->translate(-(rt.height()+rt.y()), (rt.width()-rt.x()));
+    //                p->drawText(0,0, title);
 
-                } else {
-                    // Qt::Horizontal Title
-                    rt.addCoords(4, 1, -4, 1);
-                    p->drawText(rt, Qt::AlignLeft, title);
-                }
+    //            } else {
+    //                // Qt::Horizontal Title
+    //                rt.addCoords(4, 1, -4, 1);
+    //                p->drawText(rt, Qt::AlignLeft, title);
+    //            }
 
-                // Change close button to match new title
-                if (w) {
-                    QToolButton *tb = (QToolButton*)w->child("qt_close_button1", "QToolButton", false);
-                    if (!tb)
-                        return;
-                    if (w->isActiveWindow()) {
-                        QPalette pl = tb->palette();
-                        pl.setColor(QPalette::Button, d->dockColorActive);
-                        tb->setPalette(pl);
-                        tb->setPixmap(*(d->dockCloseActive));
-                    } else {
-                        QPalette pl = tb->palette();
-                        pl.setColor(QPalette::Button, d->dockColorInactive);
-                        tb->setPalette(pl);
-                        tb->setPixmap(*(d->dockCloseInactive));
-                    }
-                }
-            }
-            return;
-        }
+    //            // Change close button to match new title
+    //            if (w) {
+    //                QToolButton *tb = (QToolButton*)w->child("qt_close_button1", "QToolButton", false);
+    //                if (!tb)
+    //                    return;
+    //                if (w->isActiveWindow()) {
+    //                    QPalette pl = tb->palette();
+    //                    pl.setColor(QPalette::Button, d->dockColorActive);
+    //                    tb->setPalette(pl);
+    //                    tb->setPixmap(*(d->dockCloseActive));
+    //                } else {
+    //                    QPalette pl = tb->palette();
+    //                    pl.setColor(QPalette::Button, d->dockColorInactive);
+    //                    tb->setPalette(pl);
+    //                    tb->setPixmap(*(d->dockCloseInactive));
+    //                }
+    //            }
+    //        }
+    //        return;
+    //    }
 
-    case PE_DockWindowSeparator:
+    case PE_Q3DockWindowSeparator:
         name = "TOOLBAR";
         if (flags & State_Horizontal)
             partId = TP_SEPARATOR;
@@ -1006,7 +1050,8 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             partId = TP_SEPARATORVERT;
         break;
 
-    case PE_WindowFrame:
+    case PE_FrameWindow:
+        if (const QStyleOptionFrame *frm = qt_cast<const QStyleOptionFrame *>(option))
         {
             name = "WINDOW";
             if (flags & State_Active)
@@ -1015,39 +1060,37 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
                 stateId = FS_INACTIVE;
 
             int fwidth = pixelMetric(PM_MDIFrameWidth);
-
-            if (!opt.isDefault())
-                fwidth = opt.lineWidth() + opt.midLineWidth();
+            fwidth = frm->lineWidth + frm->midLineWidth;
 
             XPThemeData theme(0, p, name, 0, stateId);
             if (!theme.isValid())
                 break;
 
-            theme.rec = QRect(r.x(), r.y()+fwidth, r.x()+fwidth, r.height()-fwidth);
+            theme.rec = QRect(option->rect.x(), option->rect.y()+fwidth, option->rect.x()+fwidth, option->rect.height()-fwidth);
             theme.partId = WP_FRAMELEFT;
             theme.drawBackground();
-            theme.rec = QRect(r.width()-fwidth, r.y()+fwidth, fwidth, r.height()-fwidth);
+            theme.rec = QRect(option->rect.width()-fwidth, option->rect.y()+fwidth, fwidth, option->rect.height()-fwidth);
             theme.partId = WP_FRAMERIGHT;
             theme.drawBackground();
-            theme.rec = QRect(r.x(), r.height()-fwidth, r.width(), fwidth);
+            theme.rec = QRect(option->rect.x(), option->rect.height()-fwidth, option->rect.width(), fwidth);
             theme.partId = WP_FRAMEBOTTOM;
             theme.drawBackground();
-            theme.rec = QRect(r.x()-5, r.y()-5, r.width()+10, r.y()+fwidth+5);
+            theme.rec = QRect(option->rect.x()-5, option->rect.y()-5, option->rect.width()+10, option->rect.y()+fwidth+5);
             theme.partId = WP_CAPTION;
             theme.drawBackground();
 
             return;
         }
 
-    case PE_TreeBranch: {
+    case PE_IndicatorBranch: {
         static const int decoration_size = 9;
-        int mid_h = r.width() / 2;
-        int mid_v = r.height() / 2;
+        int mid_h = option->rect.width() / 2;
+        int mid_v = option->rect.height() / 2;
         int bef_h = mid_h;
         int bef_v = mid_v;
         int aft_h = mid_h;
         int aft_v = mid_v;
-        if (flags & QStyle::Style_Children) {
+        if (flags & QStyle::State_Children) {
             int delta = decoration_size / 2;
             bef_h -= delta;
             bef_v -= delta;
@@ -1055,19 +1098,19 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             aft_v += delta;
             XPThemeData theme(0, p, "TREEVIEW");
             theme.rec = QRect(bef_h, bef_v, decoration_size, decoration_size);
-            theme.drawBackground(TVP_GLYPH, flags & QStyle::Style_Open ? GLPS_OPENED : GLPS_CLOSED);
+            theme.drawBackground(TVP_GLYPH, flags & QStyle::State_Open ? GLPS_OPENED : GLPS_CLOSED);
         }
         // ### BUG: the dotted lines don't follow a the y coordinates (causes drawing errors)
         // ### also see qwindowsstyle
-        QBrush brush(pal.dark(), Qt::Dense4Pattern);
+        QBrush brush(option->palette.dark().color(), Qt::Dense4Pattern);
 //         QPoint org(p->xForm(QPoint(0, 0)));
 //         p->setBrushOrigin(org);
-        if (flags & QStyle::Style_Item)
-            p->fillRect(aft_h, mid_v, r.right() - aft_h + 1, 1, brush);
-        if (flags & QStyle::Style_Sibling)
-            p->fillRect(mid_h, aft_v, 1, r.bottom() - aft_v + 1, brush);
-        if (flags & (QStyle::Style_Open|QStyle::Style_Children|QStyle::Style_Item|QStyle::Style_Sibling))
-            p->fillRect(mid_h, r.y(), 1, bef_v - r.y(), brush);
+        if (flags & QStyle::State_Item)
+            p->fillRect(aft_h, mid_v, option->rect.right() - aft_h + 1, 1, brush);
+        if (flags & QStyle::State_Sibling)
+            p->fillRect(mid_h, aft_v, 1, option->rect.bottom() - aft_v + 1, brush);
+        if (flags & (QStyle::State_Open|QStyle::State_Children|QStyle::State_Item|QStyle::State_Sibling))
+            p->fillRect(mid_h, option->rect.y(), 1, bef_v - option->rect.y(), brush);
         break; }
 
 
@@ -1077,60 +1120,53 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
 
     XPThemeData theme(0, p, name, partId, stateId, rect);
     if (!theme.isValid()) {
-        QWindowsStyle::drawPrimitive(op, p, r, pal, flags, opt);
+        QWindowsStyle::drawPrimitive(pe, option, p, widget);
         return;
     }
     theme.setMirrored(mirror);
     theme.drawBackground();
 }
 
-/*
-void QWindowsXPStyle::drawControl(ControlElement element,
-                                  QPainter *p,
-                                  const QWidget *widget,
-                                  const QRect &r,
-                                  const QPalette &pal,
-                                  SFlags flags,
-                                  const Q3StyleOption &opt) const
-                                  */
-
 /*!
     \reimp
 */
-void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
-                                  const QWidget *w) const
+void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *option, QPainter *p,
+                                  const QWidget *widget) const
 {
     bool doFlipp = false;
     d->currentWidget = widget;
 
     if (!use_xp) {
-        QWindowsStyle::drawControl(element, p, widget, r, pal, flags, opt);
+        QWindowsStyle::drawControl(element, option, p, widget);
         return;
     }
 
-    QRect rect(r);
+    QRect rect(option->rect);
+    State flags = option->state;
+
     QString name;
     int partId = 0;
     int stateId = 0;
-    if (widget->testAttribute(QWidget::WA_UnderMouse) && widget->isActiveWindow())
+    if (widget->testAttribute(Qt::WA_UnderMouse) && widget->isActiveWindow())
         flags |= State_MouseOver;
 
     switch (element) {
     case CE_PushButton:
         //    case CE_PushButtonLabel:
+        if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(option))
         {
             name = "BUTTON";
             partId = BP_PUSHBUTTON;
             QPushButton *pb = (QPushButton*)widget;
             if (!(flags & State_Enabled) && !pb->isFlat())
                 stateId = PBS_DISABLED;
-            else if (pb->isFlat() && !(flags & (State_On|Style_Down)))
+            else if (pb->isFlat() && !(flags & (State_On|State_Down)))
                 return;
             else if (flags & State_Down || flags & State_Sunken || flags & State_On)
                 stateId = PBS_PRESSED;
             else if (flags & State_MouseOver)
                 stateId = PBS_HOT;
-            else if (flags & State_ButtonDefault)
+            else if (btn->features & QStyleOptionButton::AutoDefaultButton)
                 stateId = PBS_DEFAULTED;
             else
                 stateId = PBS_NORMAL;
@@ -1139,23 +1175,25 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
 
     case CE_TabBarTab:
         //    case CE_TabBarLabel:
-        name = "TAB";
+        if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(option))
         {
-            QTabBar *bar = (QTabBar*)widget;
-            QTab *t = opt.tab();
-            if ((bar->shape() == QTabBar::RoundedBelow) ||
-                 (bar->shape() == QTabBar::TriangularBelow))
+            name = "TAB";
+            if ((tab->shape == QTabBar::RoundedSouth) ||
+                 (tab->shape == QTabBar::TriangularSouth))
                  doFlipp = true;
 
-            int idx = bar->indexOf(t->identifier());
-            int aidx = bar->indexOf(bar->currentTab());
-            int lastTab = bar->count()-1;
-            if (idx == 0)
+            //int aidx = bar->indexOf(bar->currentTab());
+            //int lastTab = bar->count()-1;
+            switch(tab->position)
+            {
+            case QStyleOptionTab::Beginning:
+            case QStyleOptionTab::OnlyOneTab:
                 partId = TABP_TABITEMLEFTEDGE;
-            else if (idx == lastTab)
+            case QStyleOptionTab::Middle:
+            case QStyleOptionTab::End:
+            default:            
                 partId = TABP_TABITEM;
-            else
-                partId = TABP_TABITEM;
+            }
 
             if (!(flags & State_Enabled))
                 stateId = TIS_DISABLED;
@@ -1163,7 +1201,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                 stateId = TIS_FOCUSED;
             else if (flags & State_Selected)
                 stateId = TIS_SELECTED;
-            else if (t && d->hotTab == t)
+            else if (d->hotTab == option->rect)
                 stateId = TIS_HOT;
             else
                 stateId = TIS_NORMAL;
@@ -1172,9 +1210,9 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                     rect.addCoords(0, 0, 0, 0);
                 } else {
                     rect.addCoords(0, 0, 0, -2);
-                    if (idx != aidx+1)
+                    if (tab->selectedPosition != QStyleOptionTab::NextIsSelected)
                         rect.addCoords(1, 0, 0, 0);
-                    if (idx != aidx-1)
+                    if (tab->selectedPosition != QStyleOptionTab::PreviousIsSelected)
                         rect.addCoords(0, 0, -1, 0);
                 }
             else {
@@ -1182,9 +1220,9 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                     rect.addCoords(0, 0, 0, 1);
                 } else {
                     rect.addCoords(0, 2, 0, 0);
-                    if (idx != aidx+1)
+                    if (tab->selectedPosition != QStyleOptionTab::NextIsSelected)
                         rect.addCoords(1, 0, 0, 0);
-                    if (idx != aidx-1)
+                    if (tab->selectedPosition != QStyleOptionTab::PreviousIsSelected)
                         rect.addCoords(0, 0, -1, 0);
                 }
             }
@@ -1201,17 +1239,17 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
 #ifndef QT_NO_POPUPMENU
     case CE_Q3PopupMenuItem:
         {
-            if (! widget || opt.isDefault())
+            if (! widget || option.isDefault())
                 break;
 
             const Q3PopupMenu *popupmenu = (const Q3PopupMenu *) widget;
-            Q3MenuItem *mi = opt.menuItem();
+            Q3MenuItem *mi = option.menuItem();
             if (!mi)
                 break;
 
-            int tab = opt.tabWidth();
-            int maxpmw = opt.maxIconWidth();
-            bool dis = !(flags&Style_Enabled);
+            int tab = option.tabWidth();
+            int maxpmw = option.maxIconWidth();
+            bool dis = !(flags&State_Enabled);
             bool checkable = popupmenu->isCheckable();
             bool act = flags & State_Active;
             int x, y, w, h;
@@ -1242,7 +1280,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                 return;
 
             int xpos = x;
-            QRect vrect = visualRect(QRect(xpos, y, checkcol, h), r);
+            QRect vrect = visualRect(option->direction, option->rect, QRect(xpos, y, checkcol, h));
             int xvis = vrect.x();
             if (mi->isChecked()) {
                 if (act && !dis)
@@ -1286,7 +1324,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                         pal.highlight() :
                         pal.button());
                 int xp = xpos + checkcol + 1;
-                p->fillRect(visualRect(QRect(xp, y, w - checkcol - 1, h), r), fill);
+                p->fillRect(visualRect(option->direction, option->rect, QRect(xp, y, w - checkcol - 1, h)), fill);
             } else  if (checkable) {  // just "checking"...
                 if (mi->isChecked()) {
                     int xp = xpos + windowsItemFrame;
@@ -1297,10 +1335,10 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                     if (act)
                         cflags |= State_On;
 
-                    drawPrimitive(PE_CheckMark, p,
-                                  visualRect(QRect(xp, y + windowsItemFrame,
+                    drawPrimitive(PE_IndicatorMenuCheckMark, p,
+                                  visualRect(option->direction, option->rect, QRect(xp, y + windowsItemFrame,
                                         checkcol - 2*windowsItemFrame,
-                                        h - 2*windowsItemFrame), r), pal, cflags);
+                                        h - 2*windowsItemFrame)), pal, cflags);
                 }
             }
 
@@ -1315,7 +1353,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             int xm = windowsItemFrame + checkcol + windowsItemHMargin;
             xpos += xm;
 
-            vrect = visualRect(QRect(xpos, y+windowsItemVMargin, w-xm-tab+1, h-2*windowsItemVMargin), r);
+            vrect = visualRect(option->direction, option->rect, QRect(xpos, y+windowsItemVMargin, w-xm-tab+1, h-2*windowsItemVMargin));
             xvis = vrect.x();
             if (mi->custom()) {
                 p->save();
@@ -1339,7 +1377,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                 if (t >= 0) {                         // draw tab text
                     int xp = x + w - tab - windowsItemHMargin - windowsItemFrame + 1;
                     xp -= 20;
-                    int xoff = visualRect(QRect(xp, y+windowsItemVMargin, tab, h-2*windowsItemVMargin), r).x();
+                    int xoff = visualRect(option->direction, option->rect, QRect(xp, y+windowsItemVMargin, tab, h-2*windowsItemVMargin)).x();
                     if (dis && !act) {
                         p->setPen(pal.light());
                         p->drawText(xoff+1, y+windowsItemVMargin+1, tab, h-2*windowsItemVMargin, text_flags, s.mid(t+1));
@@ -1365,9 +1403,9 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             if (mi->popup()) {                        // draw sub menu arrow
                 int dim = (h-2*windowsItemFrame) / 2;
                 PrimitiveElement arrow;
-                arrow = (QApplication::isRightToLeft() ? PE_ArrowLeft : PE_ArrowRight);
+                arrow = (QApplication::isRightToLeft() ? PE_IndicatorArrowLeft : PE_IndicatorArrowRight);
                 xpos = x+w - windowsArrowHMargin - windowsItemFrame - dim;
-                vrect = visualRect(QRect(xpos, y + h / 2 - dim / 2, dim, dim), r);
+                vrect = visualRect(option->direction, option->rect, QRect(xpos, y + h / 2 - dim / 2, dim, dim));
                 if (act) {
                     QPalette pal2 = pal;
                     pal2.setColor(QPalette::ButtonText, pal2.highlightedText());
@@ -1385,30 +1423,35 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
 #endif
 
     case CE_MenuBarItem:
+        if (const QStyleOptionMenuItem *mbi = qt_cast<const QStyleOptionMenuItem *>(option))
         {
-            if (opt.isDefault())
+            if (mbi->state == QStyleOptionMenuItem::DefaultItem)
                 break;
 
             if (flags & State_Active)
-                p->fillRect(r, pal.brush(QPalette::Highlight));
+                p->fillRect(mbi->rect, mbi->palette.brush(QPalette::Highlight));
             else
-                p->fillRect(r, pal.brush(QPalette::Button));
+                p->fillRect(mbi->rect, mbi->palette.brush(QPalette::Button));
 
-            QAction *mi = opt.action();
-            QPixmap pix = mi->icon().pixmap(Qt::SmallIconSize, QIcon::Normal);
-            drawItem(p, r, Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine, pal,
-                     flags & State_Enabled, pix, mi->text(), -1,
-                     flags & State_Active ? &pal.highlightedText().color() : &pal.buttonText().color());
+            uint alignment = Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
+            if (!styleHint(SH_UnderlineShortcut, mbi, widget))
+                alignment |= Qt::TextHideMnemonic;
+            QPixmap pix = mbi->icon.pixmap(Qt::SmallIconSize, QIcon::Normal);
+            if (!pix.isNull())
+                drawItemPixmap(p, mbi->rect, alignment, mbi->palette, pix, &mbi->palette.buttonText().color());
+            else
+                drawItemText(p, mbi->rect, alignment, mbi->palette, mbi->state & State_Enabled,
+                             mbi->text, &mbi->palette.buttonText().color());
         }
         return;
 
 #ifdef QT_COMPAT
     case CE_Q3MenuBarItem:
         {
-            if (opt.isDefault())
+            if (option.isDefault())
                 break;
 
-            Q3MenuItem *mi = opt.menuItem();
+            Q3MenuItem *mi = option.menuItem();
             if (flags & State_Active)
                 p->fillRect(r, pal.brush(QPalette::Highlight));
             else
@@ -1422,8 +1465,8 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
 #endif
 
     case CE_ToolButtonLabel:
-        if (!opt.isDefault())
-            return;
+        //if (!option.isDefault())
+        //    return;
         break;
 
     default:
@@ -1432,7 +1475,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
 
     XPThemeData theme(widget, p, name, partId, stateId, rect, d->tabPaneBorderColor);
     if (!theme.isValid()) {
-        QWindowsStyle::drawControl(element, p, widget, rect, pal, flags, opt);
+        QWindowsStyle::drawControl(element, option, p, widget);
         return;
     }
 
@@ -1443,21 +1486,14 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
     d->currentWidget = 0;
 }
 
-/*
-void QWindowsXPStyle::drawControlMask(ControlElement element,
-                                      QPainter *p,
-                                      const QWidget *widget,
-                                      const QRect &r,
-                                      const Q3StyleOption &option) const
-                                      */
 /*!
     \reimp
 */
-void QWindowsXPStyle::drawControlMask(ControlElement element, const QStyleOption *opt, QPainter *p,
-                                      const QWidget *w) const
+void QWindowsXPStyle::drawControlMask(ControlElement element, const QStyleOption *option, QPainter *p,
+                                      const QWidget *widget) const
 {
     if (!use_xp) {
-        QWindowsStyle::drawControlMask(element, p, widget, r, option);
+        QWindowsStyle::drawControlMask(element, option, p, widget);
         return;
     }
 
@@ -1485,87 +1521,51 @@ void QWindowsXPStyle::drawControlMask(ControlElement element, const QStyleOption
         break;
     }
 
-    QRect rect = r;
+    QRect rect = option->rect;
     rect.addCoords(0, 0, 1, 1);
     XPThemeData theme(widget, p, name, partId, stateId, rect);
     HRGN rgn = theme.mask();
 
     if (!rgn) {
-        QWindowsStyle::drawControlMask(element, p, widget, r, option);
+        QWindowsStyle::drawControlMask(element, option, p, widget);
         return;
     }
 
     p->save();
     p->setBrush(Qt::color1);
-    PaintRgn(p->handle(), rgn);
+    PaintRgn(p->device()->getDC(), rgn);
     p->restore();
 }
 
-// Porting note: This shouldn't be necessary anymore, it's part of QStyle now -- tws
-static int qPositionFromValue(const QRangeControl * rc, int logical_val,
-                               int span)
-{
-    if (span <= 0 || logical_val < rc->minValue() ||
-         rc->maxValue() <= rc->minValue())
-        return 0;
-    if (logical_val > rc->maxValue())
-        return span;
-
-    uint range = rc->maxValue() - rc->minValue();
-    uint p = logical_val - rc->minValue();
-
-    if (range > (uint)INT_MAX/4096) {
-        const int scale = 4096*2;
-        return ((p/scale) * span) / (range/scale);
-        // ### the above line is probably not 100% correct
-        // ### but fixing it isn't worth the extreme pain...
-    } else if (range > (uint)span) {
-        return (2*p*span + range) / (2*range);
-    } else {
-        uint div = span / range;
-        uint mod = span % range;
-        return p*div + (2*p*mod + range) / (2*range);
-    }
-    //equiv. to (p*span)/range + 0.5
-    // no overflow because of this implicit assumption:
-    // span <= 4096
-}
-
-/*
-void QWindowsXPStyle::drawComplexControl(ComplexControl control,
-                                         QPainter* p,
-                                         const QWidget* w,
-                                         const QRect& r,
-                                         const QPalette& pal,
-                                         SFlags flags,
-                                         SCFlags sub,
-                                         SCFlags subActive,
-                                         const Q3StyleOption &opt) const
-                                         */
 
 /*!
     \reimp
 */
-void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
-                                         QPainter *p, const QWidget *w) const
+void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *option,
+                                         QPainter *p, const QWidget *widget) const
 {
-    d->currentWidget = w;
+    d->currentWidget = widget; // ######### or from the option
 
     if (!use_xp) {
-        QWindowsStyle::drawComplexControl(control, p, w, r, pal, flags, sub, subActive, opt);
+        QWindowsStyle::drawComplexControl(cc, option, p, widget);
         return;
     }
 
+    State flags = option->state;
+    SubControls sub = option->subControls;
+    QRect r = option->rect;
+
     int partId = 0;
     int stateId = 0;
-    if (w->testAttribute(QWidget::WA_UnderMouse) && w->isActiveWindow())
+    if (widget->testAttribute(Qt::WA_UnderMouse) && widget->isActiveWindow())
         flags |= State_MouseOver;
 
-    switch (control) {
+    switch (cc) {
     case CC_SpinBox:
+        if (const QStyleOptionSpinBox *sb = qt_cast<const QStyleOptionSpinBox *>(option))
         {
-            QSpinWidget *spin = (QSpinWidget*)w;
-            XPThemeData theme(w, p, "SPIN");
+            QSpinBox *spin = (QSpinBox*)widget;
+            XPThemeData theme(widget, p, "SPIN");
 
             if (sub & SC_SpinBoxFrame) {
                 partId = EP_EDITTEXT;
@@ -1576,15 +1576,15 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 else
                     stateId = ETS_NORMAL;
 
-                XPThemeData ftheme(w, p, "EDIT", partId, stateId, r);
+                XPThemeData ftheme(widget, p, "EDIT", partId, stateId, r);
                 ftheme.drawBackground();
             }
             if (sub & SC_SpinBoxUp) {
-                theme.rec = visualRect(subControlRect(CC_SpinBox, w, SC_SpinBoxUp, opt),w);
+                theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_SpinBox, option, SC_SpinBoxUp, widget));
                 partId = SPNP_UP;
-                if (!spin->isUpEnabled() || (!flags & State_Enabled))
+                if (!(sb->stepEnabled & QAbstractSpinBox::StepUpEnabled) || (!flags & State_Enabled))
                     stateId = UPS_DISABLED;
-                else if (subActive == SC_SpinBoxUp)
+                else if (sb->activeSubControls == SC_SpinBoxUp)
                     stateId = UPS_PRESSED;
                 else if (flags & State_MouseOver && theme.rec.contains(d->hotSpot))
                     stateId = UPS_HOT;
@@ -1593,11 +1593,11 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 theme.drawBackground(partId, stateId);
             }
             if (sub & SC_SpinBoxDown) {
-                theme.rec = visualRect(subControlRect(CC_SpinBox, w, SC_SpinBoxDown, opt),w);
+                theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_SpinBox, option, SC_SpinBoxDown, widget));
                 partId = SPNP_DOWN;
-                if (!spin->isDownEnabled() || (!flags & State_Enabled))
+                if (!(sb->stepEnabled & QAbstractSpinBox::StepDownEnabled) || (!flags & State_Enabled))
                     stateId = DNS_DISABLED;
-                else if (subActive == SC_SpinBoxDown)
+                else if (sb->activeSubControls == SC_SpinBoxDown)
                     stateId = DNS_PRESSED;
                 else if (flags & State_MouseOver && theme.rec.contains(d->hotSpot))
                     stateId = DNS_HOT;
@@ -1609,66 +1609,68 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
         }
         break;
 
-    case CC_ComboBox:
-        {
-            if (sub & SC_ComboBoxEditField) {
-                partId = EP_EDITTEXT;
-                if (!(flags & State_Enabled))
-                    stateId = ETS_DISABLED;
-                else if (flags & State_HasFocus)
-                    stateId = ETS_FOCUSED;
-                else
-                    stateId = ETS_NORMAL;
-                XPThemeData theme(w, p, "EDIT", partId, stateId, r);
+    //case CC_ComboBox:
+    //    if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(option))
+    //    {
+    //        if (sub & SC_ComboBoxEditField) {
+    //            partId = EP_EDITTEXT;
+    //            if (!(flags & State_Enabled))
+    //                stateId = ETS_DISABLED;
+    //            else if (flags & State_HasFocus)
+    //                stateId = ETS_FOCUSED;
+    //            else
+    //                stateId = ETS_NORMAL;
+    //            XPThemeData theme(widget, p, "EDIT", partId, stateId, r);
 
-                theme.drawBackground();
-                if (!((QComboBox*)w)->editable()) {
-                    QRect re = visualRect(subControlRect(CC_ComboBox, w, SC_ComboBoxEditField, opt), w);
-                    if (w->hasFocus()) {
-                        p->fillRect(re, pal.brush(QPalette::Highlight));
-                        p->setPen(pal.highlightedText());
-                        p->setBackground(pal.highlight());
-                    } else {
-                        p->fillRect(re, pal.brush(QPalette::Base));
-                        p->setPen(pal.text());
-                        p->setBackground(pal.base());
-                    }
-                }
-            }
+    //            theme.drawBackground();
+    //            if (!((QComboBox*)widget)->editable()) {
+    //                QRect re = visualRect(option->direction, option->rect, subControlRect(CC_ComboBox, option, SC_ComboBoxEditField, widget));
+    //                if (widget->hasFocus()) {
+    //                    p->fillRect(re, option->palette.highlight());
+    //                    p->setPen(option->palette.highlightedText());
+    //                    p->setBackground(option->palette.highlight());
+    //                } else {
+    //                    p->fillRect(re, option->palette.base());
+    //                    p->setPen(option->palette.text());
+    //                    p->setBackground(option->palette.base());
+    //                }
+    //            }
+    //        }
 
-            if (sub & SC_ComboBoxArrow) {
-                XPThemeData theme(w, p, "COMBOBOX");
-                theme.rec = visualRect(subControlRect(CC_ComboBox, w, SC_ComboBoxArrow, opt), w);
-                partId = CP_DROPDOWNBUTTON;
+    //        if (sub & SC_ComboBoxArrow) {
+    //            XPThemeData theme(widget, p, "COMBOBOX");
+    //            theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_ComboBox, option, SC_ComboBoxArrow, widget));
+    //            partId = CP_DROPDOWNBUTTON;
 
-                if (!(flags & State_Enabled))
-                    stateId = CBXS_DISABLED;
-                else if (subActive == SC_ComboBoxArrow)
-                    stateId = CBXS_PRESSED;
-                else if (flags & State_MouseOver && theme.rec.contains(d->hotSpot))
-                    stateId = CBXS_HOT;
-                else
-                    stateId = CBXS_NORMAL;
+    //            if (!(flags & State_Enabled))
+    //                stateId = CBXS_DISABLED;
+    //            else if (option->activeSubControls == SC_ComboBoxArrow)
+    //                stateId = CBXS_PRESSED;
+    //            else if (flags & State_MouseOver && theme.rec.contains(d->hotSpot))
+    //                stateId = CBXS_HOT;
+    //            else
+    //                stateId = CBXS_NORMAL;
 
-                theme.drawBackground(partId, stateId);
-            }
-        }
-        break;
+    //            theme.drawBackground(partId, stateId);
+    //        }
+    //    }
+    //    break;
 
     case CC_ScrollBar:
+        if (const QStyleOptionSlider *scrollbar = qt_cast<const QStyleOptionSlider *>(option))
         {
-            XPThemeData theme(w, p, "SCROLLBAR");
-            QScrollBar *bar = (QScrollBar*)w;
+            XPThemeData theme(widget, p, "SCROLLBAR");
+            QScrollBar *bar = (QScrollBar*)widget;
             bool maxedOut = (bar->maximum() == bar->minimum());
             if (maxedOut)
-                flags &= ~Style_Enabled;
+                flags &= ~State_Enabled;
 
             if (sub & SC_ScrollBarAddLine) {
-                theme.rec = subControlRect(CC_ScrollBar, w, SC_ScrollBarAddLine, opt);
+                theme.rec = subControlRect(CC_ScrollBar, option, SC_ScrollBarAddLine, widget);
                 partId = SBP_ARROWBTN;
                 if (!(flags & State_Enabled))
                     stateId = ABS_DOWNDISABLED;
-                else if (subActive == SC_ScrollBarAddLine)
+                else if (scrollbar->activeSubControls & SC_ScrollBarAddLine)
                     stateId = ABS_DOWNPRESSED;
                 else if (flags & State_MouseOver && theme.rec.contains(d->hotSpot))
                     stateId = ABS_DOWNHOT;
@@ -1680,11 +1682,11 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 theme.drawBackground(partId, stateId);
             }
             if (sub & SC_ScrollBarSubLine) {
-                theme.rec = subControlRect(CC_ScrollBar, w, SC_ScrollBarSubLine, opt);
+                theme.rec = subControlRect(CC_ScrollBar, option, SC_ScrollBarSubLine, widget);
                 partId = SBP_ARROWBTN;
                 if (!(flags & State_Enabled))
                     stateId = ABS_UPDISABLED;
-                else if (subActive == SC_ScrollBarSubLine)
+                else if (scrollbar->activeSubControls & SC_ScrollBarSubLine)
                     stateId = ABS_UPPRESSED;
                 else if (flags & State_MouseOver && theme.rec.contains(d->hotSpot))
                     stateId = ABS_UPHOT;
@@ -1696,20 +1698,20 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 theme.drawBackground(partId, stateId);
             }
             if (maxedOut) {
-                theme.rec = subControlRect(CC_ScrollBar, w, SC_ScrollBarSlider, opt);
-                theme.rec = theme.rec.unite(subControlRect(CC_ScrollBar, w, SC_ScrollBarSubPage, opt));
-                theme.rec = theme.rec.unite(subControlRect(CC_ScrollBar, w, SC_ScrollBarAddPage, opt));
+                theme.rec = subControlRect(CC_ScrollBar, option, SC_ScrollBarSlider, widget);
+                theme.rec = theme.rec.unite(subControlRect(CC_ScrollBar, option, SC_ScrollBarSubPage, widget));
+                theme.rec = theme.rec.unite(subControlRect(CC_ScrollBar, option, SC_ScrollBarAddPage, widget));
                 partId = bar->orientation() == Qt::Horizontal ? SBP_LOWERTRACKHORZ : SBP_LOWERTRACKVERT;
                 stateId = SCRBS_DISABLED;
 
                 theme.drawBackground(partId, stateId);
             } else {
                 if (sub & SC_ScrollBarAddPage) {
-                    theme.rec = subControlRect(CC_ScrollBar, w, SC_ScrollBarAddPage, opt);
+                    theme.rec = subControlRect(CC_ScrollBar, option, SC_ScrollBarAddPage, widget);
                     partId = flags & State_Horizontal ? SBP_LOWERTRACKHORZ : SBP_LOWERTRACKVERT;
                     if (!(flags & State_Enabled))
                         stateId = SCRBS_DISABLED;
-                    else if (subActive == SC_ScrollBarAddPage)
+                    else if (scrollbar->activeSubControls & SC_ScrollBarAddPage)
                         stateId = SCRBS_PRESSED;
                     else if (flags & State_MouseOver && theme.rec.contains(d->hotSpot))
                         stateId = SCRBS_HOT;
@@ -1719,11 +1721,11 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     theme.drawBackground(partId, stateId);
                 }
                 if (sub & SC_ScrollBarSubPage) {
-                    theme.rec = subControlRect(CC_ScrollBar, w, SC_ScrollBarSubPage, opt);
+                    theme.rec = subControlRect(CC_ScrollBar, option, SC_ScrollBarSubPage, widget);
                     partId = flags & State_Horizontal ? SBP_UPPERTRACKHORZ : SBP_UPPERTRACKVERT;
                     if (!(flags & State_Enabled))
                         stateId = SCRBS_DISABLED;
-                    else if (subActive == SC_ScrollBarSubPage)
+                    else if (scrollbar->activeSubControls & SC_ScrollBarSubPage)
                         stateId = SCRBS_PRESSED;
                     else if (flags & State_MouseOver && theme.rec.contains(d->hotSpot))
                         stateId = SCRBS_HOT;
@@ -1733,16 +1735,16 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     theme.drawBackground(partId, stateId);
                 }
                 if (sub & SC_ScrollBarFirst) {
-                    theme.rec = subControlRect(CC_ScrollBar, w, SC_ScrollBarFirst, opt);
+                    theme.rec = subControlRect(CC_ScrollBar, option, SC_ScrollBarFirst, widget);
                 }
                 if (sub & SC_ScrollBarLast) {
-                    theme.rec = subControlRect(CC_ScrollBar, w, SC_ScrollBarLast, opt);
+                    theme.rec = subControlRect(CC_ScrollBar, option, SC_ScrollBarLast, widget);
                 }
                 if (sub & SC_ScrollBarSlider) {
-                    theme.rec = subControlRect(CC_ScrollBar, w, SC_ScrollBarSlider, opt);
+                    theme.rec = subControlRect(CC_ScrollBar, option, SC_ScrollBarSlider, widget);
                     if (!(flags & State_Enabled))
                         stateId = SCRBS_DISABLED;
-                    else if (subActive == SC_ScrollBarSlider)
+                    else if (scrollbar->activeSubControls & SC_ScrollBarSlider)
                         stateId = SCRBS_PRESSED;
                     else if (flags & State_MouseOver && theme.rec.contains(d->hotSpot))
                         stateId = SCRBS_HOT;
@@ -1776,20 +1778,21 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     }
                 }
                 if (sub & SC_ScrollBarGroove) {
-                    theme.rec = subControlRect(CC_ScrollBar, w, SC_ScrollBarGroove);
+                    theme.rec = subControlRect(CC_ScrollBar, option, SC_ScrollBarGroove, widget);
                 }
             }
         }
         break;
 #ifndef QT_NO_SLIDER
     case CC_Slider:
+        if (const QStyleOptionSlider *slider = qt_cast<const QStyleOptionSlider *>(option))
         {
-            XPThemeData theme(w, p, "TRACKBAR");
-            QSlider *sl = (QSlider*)w;
+            XPThemeData theme(widget, p, "TRACKBAR");
+            QSlider *sl = (QSlider*)widget;
             QRegion tickreg = sl->rect();
             if (sub & SC_SliderGroove) {
-                theme.rec = subControlRect(CC_Slider, w, SC_SliderGroove, opt);
-                if (sl->orientation() == Qt::Horizontal) {
+                theme.rec = subControlRect(CC_Slider, option, SC_SliderGroove, widget);
+                if (slider->orientation == Qt::Horizontal) {
                     partId = TKP_TRACK;
                     stateId = TRS_NORMAL;
                     theme.rec = QRect(0, theme.rec.center().y() - 2, sl->width(), 4);
@@ -1803,7 +1806,10 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
             }
             p->setClipRegion(tickreg);
             if (sub & SC_SliderTickmarks) {
-                QWindowsStyle::drawComplexControl(control, p, w, r, pal, flags, SC_SliderTickmarks, subActive, opt);
+                // #######
+                // QWindowsStyle::drawComplexControl(control, p, widget, r, pal, flags, SC_SliderTickmarks, option->activeSubControls, option);
+                QWindowsStyle::drawComplexControl(cc, option, p, widget);
+
                 // Reenable XP style tickmarks when the
                 // styles actually have usable pixmaps!
                 /*
@@ -1834,9 +1840,9 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
 
                 if (sl->orientation() == Qt::Horizontal) {
                     if (ticks & QSlider::Above)
-                        p->fillRect(0, 0, sl->width(), aboveend, pal.brush(QPalette::Background));
+                        p->fillRect(0, 0, sl->width(), aboveend, option->palette.background());
                     if (ticks & QSlider::Below)
-                        p->fillRect(0, belowstart, sl->width(), belowend, pal.brush(QPalette::Background));
+                        p->fillRect(0, belowstart, sl->width(), belowend, option->palette.background());
 
                     partId = TKP_TICS;
                     stateId = TSS_NORMAL;
@@ -1855,9 +1861,9 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     }
                 } else {
                     if (ticks & QSlider::Left)
-                        p->fillRect(0, 0, aboveend, sl->height(), pal.brush(QPalette::Background));
+                        p->fillRect(0, 0, aboveend, sl->height(), option->palette.background());
                     if (ticks & QSlider::Right)
-                        p->fillRect(belowstart, 0, belowend, sl->height(), pal.brush(QPalette::Background));
+                        p->fillRect(belowstart, 0, belowend, sl->height(), option->palette.background());
 
                     partId = TKP_TICSVERT;
                     stateId = TSVS_NORMAL;
@@ -1878,19 +1884,19 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
             }
             p->setClipping(false);
             if (sub & SC_SliderHandle) {
-                theme.rec = subControlRect(CC_Slider, w, SC_SliderHandle, opt);
-                p->fillRect(theme.rec, pal.brush(QPalette::Background));
+                theme.rec = subControlRect(CC_Slider, option, SC_SliderHandle, widget);
+                p->fillRect(theme.rec, option->palette.background());
                 if (sl->orientation() == Qt::Horizontal) {
-                    if (sl->tickmarks() == QSlider::Above)
+                    if (slider->tickPosition == QSlider::TicksAbove)
                         partId = TKP_THUMBTOP;
-                    else if (sl->tickmarks() == QSlider::Below)
+                    else if (slider->tickPosition == QSlider::TicksBelow)
                         partId = TKP_THUMBBOTTOM;
                     else
                         partId = TKP_THUMB;
 
-                    if (!w->isEnabled())
+                    if (!widget->isEnabled())
                         stateId = TUS_DISABLED;
-                    else if (subActive == SC_SliderHandle)
+                    else if (slider->activeSubControls & SC_SliderHandle)
                         stateId = TUS_PRESSED;
                     else if (flags & State_HasFocus)
                         stateId = TUS_FOCUSED;
@@ -1899,16 +1905,16 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     else
                         stateId = TUS_NORMAL;
                 } else {
-                    if (sl->tickmarks() == QSlider::Left)
+                    if (slider->tickPosition == QSlider::TicksLeft)
                         partId = TKP_THUMBLEFT;
-                    else if (sl->tickmarks() == QSlider::Right)
+                    else if (slider->tickPosition == QSlider::TicksRight)
                         partId = TKP_THUMBRIGHT;
                     else
                         partId = TKP_THUMBVERT;
 
-                    if (!w->isEnabled())
+                    if (!widget->isEnabled())
                         stateId = TUVS_DISABLED;
-                    else if (subActive == SC_SliderHandle)
+                    else if (slider->activeSubControls & SC_SliderHandle)
                         stateId = TUVS_PRESSED;
                     else if (flags & State_HasFocus)
                         stateId = TUVS_FOCUSED;
@@ -1919,42 +1925,44 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 }
                 theme.drawBackground(partId, stateId);
             }
-            if (flags & State_HasFocus) {
-                Q3StyleOptionFocusRect opt(0);
-                opt.rect = subRect(SR_SliderFocusRect, sl);
-                opt.palette = pal;
-                opt.state = State_Default;
-                drawPrimitive(PE_FocusRect, p, re, pal);
-            }
+            //if (flags & State_HasFocus) {
+            //    Q3StyleOptionFocusRect option(0);
+            //    option.rect = subRect(SR_SliderFocusRect, sl);
+            //    option.palette = pal;
+            //    option.state = State_Default;
+            //    drawPrimitive(PE_FrameFocusRect, p, re, pal);
+            //}
         }
         break;
 #endif
 
     case CC_ToolButton:
+        if (const QStyleOptionToolButton *toolbutton = qt_cast<const QStyleOptionToolButton *>(option))
         {
-            XPThemeData theme(w, p, "TOOLBAR");
-            QToolButton *tb = (QToolButton*)w;
+            XPThemeData theme(widget, p, "TOOLBAR");
+            QToolButton *tb = (QToolButton*)widget;
 
-            SFlags bflags = flags,
-                   mflags = flags;
+            State bflags = flags, mflags = flags;
 
-            if (subActive == SC_ToolButton)
+            if (toolbutton->activeSubControls == SC_ToolButton)
                 bflags |= State_Down;
-            else if (subActive == SC_ToolButtonMenu)
+            else if (toolbutton->activeSubControls == SC_ToolButtonMenu)
                 mflags |= State_Down;
 
             if (sub & SC_ToolButton) {
-                theme.rec = subControlRect(CC_ToolButton, w, SC_ToolButton, opt);
+                theme.rec = subControlRect(CC_ToolButton, option, SC_ToolButton, widget);
                 QWidget *pW = static_cast<QWidget *>(tb->parent());
-                if (!opt.isDefault()) {
-                    Qt::ArrowType type = opt.arrowType();
+
+                // ########## CE_ToolButtonLabel
+                if (toolbutton->features & QStyleOptionToolButton::Arrow) {
+                    Qt::ArrowType type = toolbutton->arrowType;
 
 #define TBL_STATE(prefix) \
                     if (!tb->isEnabled()) \
                         stateId = prefix##_DISABLED; \
                     else if (bflags & (State_Down | State_On)) \
                         stateId = prefix##_PRESSED; \
-                    else if (bflags & State_MouseOver && (d->hotWidget == w)) \
+                    else if (bflags & State_MouseOver && (d->hotWidget == widget)) \
                         stateId = prefix##_HOT; \
                     else \
                         stateId = prefix##_NORMAL;
@@ -1997,45 +2005,44 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
 
                         theme.drawBackground(partId, stateId);
                     } else {
-                        if (!qt_cast<QToolBar*>(w->parentWidget()))
-                            drawPrimitive(PE_ButtonBevel, p, theme.rec, pal, bflags, opt);
+                        if (!qt_cast<QToolBar*>(widget->parentWidget()))
+                            drawPrimitive(PE_PanelButtonBevel, option, p, widget);
                         else
-                            drawPrimitive(PE_ButtonTool, p, theme.rec, pal, bflags, opt);
+                            drawPrimitive(PE_PanelButtonTool, option, p, widget);
                     }
                 } else if (pW &&
-                            pW->palette().brush(pW->backgroundRole()).pixmap() &&
-                           !pW->palette().brush(pW->backgroundRole()).pixmap()->isNull()) {
-                    QPixmap pixmap = *(pW->palette().brush(pW->backgroundRole()).pixmap());
-                    p->drawTiledPixmap(r, pixmap, tb->pos());
+                           !pW->palette().brush(pW->backgroundRole()).texture().isNull()) {
+                    p->drawTiledPixmap(r, pW->palette().brush(pW->backgroundRole()).texture(), tb->pos());
                 }
             }
             if (sub & SC_ToolButtonMenu) {
-                theme.rec = subControlRect(CC_ToolButton, w, SC_ToolButtonMenu, opt);
-                drawPrimitive(PE_ButtonDropDown, p, theme.rec, pal, mflags, opt);
+                theme.rec = subControlRect(CC_ToolButton, option, SC_ToolButtonMenu, widget);
+                drawPrimitive(PE_IndicatorButtonDropDown, option, p, widget);
             }
 
-            if (tb->hasFocus() && !tb->focusProxy()) {
-                Q3StyleOptionFocusRect opt(0);
-                opt.rect = tb->rect();
-                opt.rect.addCoords(3, 3, -3, -3);
-                opt.palette = pal;
-                opt.state = State_Default;
-                drawPrimitive(PE_FocusRect, &opt, p, tb);
-            }
+            //if (tb->hasFocus() && !tb->focusProxy()) {
+            //    Q3StyleOptionFocusRect option(0);
+            //    option.rect = tb->rect();
+            //    option.rect.addCoords(3, 3, -3, -3);
+            //    option.palette = pal;
+            //    option.state = State_Default;
+            //    drawPrimitive(PE_FrameFocusRect, &option, p, tb);
+            //}
         }
         break;
 
-#ifndef QT_NO_TITLEBAR
+#if 0 // QT_NO_TITLEBAR  ################################
     case CC_TitleBar:
+        if (const QStyleOptionTitleBar *tb = qt_cast<const QStyleOptionTitleBar *>(opt))
         {
-            const QTitleBar *titlebar = (const QTitleBar *) w;
+            const QTitleBar *titlebar = (const QTitleBar *)widget;
 
-            XPThemeData theme(w, p, "WINDOW");
+            XPThemeData theme(widget, p, "WINDOW");
             if (sub & SC_TitleBarLabel) {
-                theme.rec = titlebar->rect();
-                partId = titlebar->testWFlags(Qt::WStyle_Tool) ? WP_SMALLCAPTION :
+                theme.rec = option->rect;
+                partId = titlebar->testWFlags(Qt::WState_Tool) ? WP_SMALLCAPTION :
                         (titlebar->window() && titlebar->window()->isMinimized() ? WP_MINCAPTION : WP_CAPTION);
-                if (titlebar->inherits("QDockWindowTitleBar"))
+                if (titlebar->inherits("QDockWindowTitle"))
                     partId = WP_SMALLCAPTION;
                 if (!titlebar->isEnabled())
                     stateId = CS_DISABLED;
@@ -2046,19 +2053,22 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
 
                 theme.drawBackground(partId, stateId);
 
-                QRect ir = visualRect(subControlRect(CC_TitleBar, titlebar, SC_TitleBarLabel), w);
-                p->setPen(pal.color(w->isActiveWindow() || !titlebar->window() ?
-                                     QPalette::Active : QPalette::Inactive,
-                                     QPalette::HighlightedText));
+                QRect ir = visualRect(option->direction, option->rect, subControlRect(CC_TitleBar, option, SC_TitleBarLabel, titlebar));
+
+                //#########################
+                //p->setPen(pal.color(widget->isActiveWindow() || !titlebar->window() ?
+                //                     QPalette::Active : QPalette::Inactive,
+                //                     QPalette::HighlightedText));
+                p->setPen(option->palette.highlightedText());
                 p->drawText(ir.x()+2, ir.y(), ir.width(), ir.height(),
                             Qt::AlignAuto | Qt::AlignVCenter | Qt::TextSingleLine, titlebar->windowTitle());
             }
             if (sub & SC_TitleBarSysMenu) {
-                theme.rec = visualRect(subControlRect(CC_TitleBar, w, SC_TitleBarSysMenu), w);
-                partId = titlebar->testWFlags(Qt::WStyle_Tool) ? WP_SYSBUTTON : WP_SYSBUTTON;
-                if (!w->isEnabled())
+                theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_TitleBar, option, SC_TitleBarSysMenu, widget));
+                partId = titlebar->testWFlags(Qt::WState_Tool) ? WP_SYSBUTTON : WP_SYSBUTTON;
+                if (!widget->isEnabled())
                     stateId = SBS_DISABLED;
-                else if (subActive == SC_TitleBarSysMenu)
+                else if (option->activeSubControls == SC_TitleBarSysMenu)
                     stateId = SBS_PUSHED;
                 else if (theme.rec.contains(d->hotSpot))
                     stateId = SBS_HOT;
@@ -2070,11 +2080,11 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
             }
             if (titlebar->window()) {
                 if (sub & SC_TitleBarMinButton) {
-                    theme.rec = visualRect(subControlRect(CC_TitleBar, w, SC_TitleBarMinButton), w);
-                    partId = titlebar->testWFlags(Qt::WStyle_Tool) ? WP_MINBUTTON : WP_MINBUTTON;
-                    if (!w->isEnabled())
+                    theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_TitleBar, option, SC_TitleBarMinButton, widget));
+                    partId = titlebar->testWFlags(Qt::WState_Tool) ? WP_MINBUTTON : WP_MINBUTTON;
+                    if (!widget->isEnabled())
                         stateId = MINBS_DISABLED;
-                    else if (subActive == SC_TitleBarMinButton)
+                    else if (option->activeSubControls == SC_TitleBarMinButton)
                         stateId = MINBS_PUSHED;
                     else if (theme.rec.contains(d->hotSpot))
                         stateId = MINBS_HOT;
@@ -2083,11 +2093,11 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     theme.drawBackground(partId, stateId);
                 }
                 if (sub & SC_TitleBarMaxButton) {
-                    theme.rec = visualRect(subControlRect(CC_TitleBar, w, SC_TitleBarMaxButton), w);
-                    partId = titlebar->testWFlags(Qt::WStyle_Tool) ? WP_MAXBUTTON : WP_MAXBUTTON;
-                    if (!w->isEnabled())
+                    theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_TitleBar, option, SC_TitleBarMaxButton, widget));
+                    partId = titlebar->testWFlags(Qt::WState_Tool) ? WP_MAXBUTTON : WP_MAXBUTTON;
+                    if (!widget->isEnabled())
                         stateId = MAXBS_DISABLED;
-                    else if (subActive == SC_TitleBarMaxButton)
+                    else if (option->activeSubControls == SC_TitleBarMaxButton)
                         stateId = MAXBS_PUSHED;
                     else if (theme.rec.contains(d->hotSpot))
                         stateId = MAXBS_HOT;
@@ -2096,11 +2106,11 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     theme.drawBackground(partId, stateId);
                 }
                 if (sub & SC_TitleBarNormalButton) {
-                    theme.rec = visualRect(subControlRect(CC_TitleBar, w, SC_TitleBarNormalButton), w);
-                    partId = titlebar->testWFlags(Qt::WStyle_Tool) ? WP_RESTOREBUTTON : WP_RESTOREBUTTON;
-                    if (!w->isEnabled())
+                    theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_TitleBar, option, SC_TitleBarNormalButton, widget));
+                    partId = titlebar->testWFlags(Qt::WState_Tool) ? WP_RESTOREBUTTON : WP_RESTOREBUTTON;
+                    if (!widget->isEnabled())
                         stateId = RBS_DISABLED;
-                    else if (subActive == SC_TitleBarNormalButton)
+                    else if (option->activeSubControls == SC_TitleBarNormalButton)
                         stateId = RBS_PUSHED;
                     else if (theme.rec.contains(d->hotSpot))
                         stateId = RBS_HOT;
@@ -2109,11 +2119,11 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     theme.drawBackground(partId, stateId);
                 }
                 if (sub & SC_TitleBarShadeButton) {
-                    theme.rec = visualRect(subControlRect(CC_TitleBar, w, SC_TitleBarShadeButton), w);
-                    partId = titlebar->testWFlags(Qt::WStyle_Tool) ? WP_MINBUTTON : WP_MINBUTTON;
-                    if (!w->isEnabled())
+                    theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_TitleBar, option, SC_TitleBarShadeButton, widget));
+                    partId = titlebar->testWFlags(Qt::WState_Tool) ? WP_MINBUTTON : WP_MINBUTTON;
+                    if (!widget->isEnabled())
                         stateId = MINBS_DISABLED;
-                    else if (subActive == SC_TitleBarShadeButton)
+                    else if (option->activeSubControls == SC_TitleBarShadeButton)
                         stateId = MINBS_PUSHED;
                     else if (theme.rec.contains(d->hotSpot))
                         stateId = MINBS_HOT;
@@ -2122,11 +2132,11 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     theme.drawBackground(partId, stateId);
                 }
                 if (sub & SC_TitleBarUnshadeButton) {
-                    theme.rec = visualRect(subControlRect(CC_TitleBar, w, SC_TitleBarUnshadeButton), w);
-                    partId = titlebar->testWFlags(Qt::WStyle_Tool) ? WP_RESTOREBUTTON : WP_RESTOREBUTTON;
-                    if (!w->isEnabled())
+                    theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_TitleBar, option, SC_TitleBarUnshadeButton, widget));
+                    partId = titlebar->testWFlags(Qt::WState_Tool) ? WP_RESTOREBUTTON : WP_RESTOREBUTTON;
+                    if (!widget->isEnabled())
                         stateId = RBS_DISABLED;
-                    else if (subActive == SC_TitleBarUnshadeButton)
+                    else if (option->activeSubControls == SC_TitleBarUnshadeButton)
                         stateId = RBS_PUSHED;
                     else if (theme.rec.contains(d->hotSpot))
                         stateId = RBS_HOT;
@@ -2136,11 +2146,11 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 }
             }
             if (sub & SC_TitleBarCloseButton) {
-                theme.rec = visualRect(subControlRect(CC_TitleBar, w, SC_TitleBarCloseButton), w);
-                partId = titlebar->testWFlags(Qt::WStyle_Tool) ? WP_SMALLCLOSEBUTTON : WP_CLOSEBUTTON;
-                if (!w->isEnabled())
+                theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_TitleBar, option, SC_TitleBarCloseButton, widget));
+                partId = titlebar->testWFlags(Qt::WState_Tool) ? WP_SMALLCLOSEBUTTON : WP_CLOSEBUTTON;
+                if (!widget->isEnabled())
                     stateId = CBS_DISABLED;
-                else if (subActive == SC_TitleBarCloseButton)
+                else if (option->activeSubControls == SC_TitleBarCloseButton)
                     stateId = CBS_PUSHED;
                 else if (theme.rec.contains(d->hotSpot))
                     stateId = CBS_HOT;
@@ -2151,31 +2161,32 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
         }
         break;
 #endif
+#if 0 // ndef QT_NO_LISTVIEW #########################
     case CC_ListView:
-#ifndef QT_NO_LISTVIEW
         {
             if (sub & SC_ListView) {
-                const QListView *lv = (const QListView*)w;
-                QWindowsStyle::drawComplexControl(control, p, w, r, pal, flags, sub, subActive, opt);
+                const QListView *lv = (const QListView*)widget;
+                //QWindowsStyle::drawComplexControl(control, p, widget, r, pal, flags, sub, option->activeSubControls, option);
+                QWindowsStyle::drawComplexControl(cc, option, p, widget);
                 if (!lv->showSortIndicator())
                     break;
 
-                int sort = opt.isDefault() ? 0 : opt.lineWidth(); //### hackydiho; use sortColumn() in 3.1
+                int sort = option.isDefault() ? 0 : option.lineWidth(); //### hackydiho; use sortColumn() in 3.1
                 if (sort < 0)
                     break;
             }
             if (sub & (SC_ListViewBranch | SC_ListViewExpand)) {
-                if (opt.isDefault())
+                if (option.isDefault())
                     break;
 
-                QListViewItem *item = opt.listViewItem(),
+                QListViewItem *item = option.listViewItem(),
                              *child = item->firstChild();
 
                 int y = r.y();
                 int c;
                 int dotoffset;
                 QPolygon dotlines;
-                if (subActive == SC_All && sub == SC_ListViewExpand) {
+                if (option->activeSubControls == SC_All && sub == SC_ListViewExpand) {
                     c = 2;
                     dotlines.resize(2);
                     dotlines[0] = QPoint(r.right(), r.top());
@@ -2202,7 +2213,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     if (lh % 2 > 0)
                         lh++;
 
-                    XPThemeData theme(w, p, "TREEVIEW");
+                    XPThemeData theme(widget, p, "TREEVIEW");
 
                     // paint stuff in the magical area
                     while (child && y < r.height()) {
@@ -2212,7 +2223,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                             theme.rec = QRect(bx-4 + (int)p->translationX(), linebot-4+(int)p->translationY(), 9, 9);
                             theme.drawBackground(TVP_GLYPH, child->isOpen() ? GLPS_OPENED : GLPS_CLOSED);
                             // dotlinery
-                            p->setPen(pal.mid());
+                            p->setPen(option->palette.mid());
                             dotlines[c++] = QPoint(bx, linetop);
                             dotlines[c++] = QPoint(bx, linebot - 5);
                             dotlines[c++] = QPoint(bx + 5, linebot);
@@ -2240,7 +2251,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                         dotlines[c++] = QPoint(bx, linebot);
                     }
                 }
-                p->setPen(pal.dark());
+                p->setPen(option->palette.dark());
 
                 static QBitmap *verticalLine = 0, *horizontalLine = 0;
                 static QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
@@ -2314,25 +2325,20 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
 #endif //QT_NO_LISTVIEW
 
     default:
-        QWindowsStyle::drawComplexControl(control, p, w, r, pal, flags, sub, subActive, opt);
+        QWindowsStyle::drawComplexControl(cc, option, p, widget);
         break;
     }
 
     d->currentWidget = 0;
 }
 
-/*
-int QWindowsXPStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
-                                 const QWidget *widget) const
-                                 */
 /*! \reimp */
-int QWindowsXPStyle::pixelMetric(PixelMetric m, const QStyleOption *opt,
-                                 const QWidget *widget) const;
+int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, const QWidget *widget) const
 {
     if (!use_xp)
-        return QWindowsStyle::pixelMetric(metric, option, widget);
+        return QWindowsStyle::pixelMetric(pm, option, widget);
 
-    switch (metric) {
+    switch (pm) {
     case PM_IndicatorWidth:
     case PM_IndicatorHeight:
         {
@@ -2341,7 +2347,7 @@ int QWindowsXPStyle::pixelMetric(PixelMetric m, const QStyleOption *opt,
             if (theme.isValid()) {
                 SIZE size;
                 pGetThemePartSize(theme.handle(), NULL, theme.partId, theme.stateId, 0, TS_TRUE, &size);
-                if (metric == PM_IndicatorWidth)
+                if (pm == PM_IndicatorWidth)
                     return size.cx+2;
                 return size.cy+2;
             }
@@ -2356,7 +2362,7 @@ int QWindowsXPStyle::pixelMetric(PixelMetric m, const QStyleOption *opt,
             if (theme.isValid()) {
                 SIZE size;
                 pGetThemePartSize(theme.handle(), NULL, theme.partId, theme.stateId, 0, TS_TRUE, &size);
-                if (metric == PM_ExclusiveIndicatorWidth)
+                if (pm == PM_ExclusiveIndicatorWidth)
                     return size.cx+2;
                 return size.cy+2;
             }
@@ -2411,7 +2417,7 @@ int QWindowsXPStyle::pixelMetric(PixelMetric m, const QStyleOption *opt,
         }
         break;
 
-    case PM_MenuFrameWidth:
+//    case PM_MenuFrameWidth:
     case PM_DefaultFrameWidth:
     case PM_SpinBoxFrameWidth:
         return 1;
@@ -2424,7 +2430,7 @@ int QWindowsXPStyle::pixelMetric(PixelMetric m, const QStyleOption *opt,
         return 0;
 
     case PM_TitleBarHeight:
-        return QWindowsStyle::pixelMetric(metric, option, widget) + 4;
+        return QWindowsStyle::pixelMetric(pm, option, widget) + 4;
 
     case PM_MDIFrameWidth:
         {
@@ -2451,194 +2457,183 @@ int QWindowsXPStyle::pixelMetric(PixelMetric m, const QStyleOption *opt,
         break;
     }
 
-    return QWindowsStyle::pixelMetric(metric, option, widget);
+    return QWindowsStyle::pixelMetric(pm, option, widget);
 }
 
 /*!
     \reimp
 */
-/*
-QRect QWindowsXPStyle::subControlRect(ComplexControl control,
-                                              const QWidget *widget,
-                                              SubControl sc,
-                                              const Q3StyleOption &option) const
-                                              */
-QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
-                                              SubControl sc, const QWidget *w = 0) const
+QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *option,
+                                      SubControl sc, const QWidget *widget) const
 {
     if (!use_xp)
-        return QWindowsStyle::subControlRect(control, widget, sc, option);
+        return QWindowsStyle::subControlRect(cc, option, sc, widget);
 
-    switch (control) {
-    case CC_TitleBar: {
-#ifndef QT_NO_TITLEBAR
-        const QTitleBar *titlebar = (const QTitleBar *) widget;
-        const int controlTop = widget->testWFlags(Qt::WStyle_Tool) ? 4 : 6;
-        const int controlHeight = widget->height() - controlTop - 3;
+    switch (cc) {
+//    case CC_TitleBar: {
+//#ifndef QT_NO_TITLEBAR
+//        const QTitleBar *titlebar = (const QTitleBar *) widget;
+//        const int controlTop = widget->testWFlags(Qt::WState_Tool) ? 4 : 6;
+//        const int controlHeight = widget->height() - controlTop - 3;
+//
+//        switch (sc) {
+//        case SC_TitleBarLabel: {
+//            const QTitleBar *titlebar = (QTitleBar*)widget;
+//            QRect ir(0, 0, titlebar->width(), titlebar->height());
+//            if (titlebar->testWFlags(Qt::WState_Tool)) {
+//                if (titlebar->testWFlags(Qt::WState_SysMenu))
+//                    ir.addCoords(0, 0, -controlHeight-3, 0);
+//                if (titlebar->testWFlags(Qt::WState_MinMax))
+//                    ir.addCoords(0, 0, -controlHeight-2, 0);
+//            } else {
+//                if (titlebar->testWFlags(Qt::WState_SysMenu))
+//                    ir.addCoords(controlHeight+3, 0, -controlHeight-3, 0);
+//                if (titlebar->testWFlags(Qt::WState_Minimize))
+//                    ir.addCoords(0, 0, -controlHeight-2, 0);
+//                if (titlebar->testWFlags(Qt::WState_Maximize))
+//                    ir.addCoords(0, 0, -controlHeight-2, 0);
+//            }
+//            return ir; }
+//
+//        case SC_TitleBarCloseButton:
+//            return QRect(titlebar->width()-(controlHeight + 1)-controlTop,
+//                         controlTop, controlHeight, controlHeight);
+//
+//        case SC_TitleBarMaxButton:
+//        case SC_TitleBarShadeButton:
+//        case SC_TitleBarUnshadeButton:
+//            return QRect(titlebar->width()-((controlHeight + 1) * 2)-controlTop,
+//                         controlTop, controlHeight, controlHeight);
+//            break;
+//
+//        case SC_TitleBarMinButton:
+//        case SC_TitleBarNormalButton: {
+//            int offset = controlHeight + 1;
+//            if (!titlebar->testWFlags(Qt::WState_Maximize))
+//                offset *= 2;
+//            else
+//                offset *= 3;
+//            return QRect(titlebar->width() - offset-controlTop,
+//                         controlTop, controlHeight, controlHeight); }
+//
+//        case SC_TitleBarSysMenu:
+//            return QRect(3, controlTop, controlHeight, controlHeight);
+//
+//        default:
+//            break;
+//        }
+//#endif
+//        return QRect(); } //are you sure you want to do this? ###
+    case CC_ComboBox:
+        if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(option)) {
+            int x = 0, y = 0, wi = cmb->rect.width(), he = cmb->rect.height();
+            int xpos = x;
+            xpos += wi - 1 - 16;
 
-        switch (sc) {
-        case SC_TitleBarLabel: {
-            const QTitleBar *titlebar = (QTitleBar*)widget;
-            QRect ir(0, 0, titlebar->width(), titlebar->height());
-            if (titlebar->testWFlags(Qt::WStyle_Tool)) {
-                if (titlebar->testWFlags(Qt::WStyle_SysMenu))
-                    ir.addCoords(0, 0, -controlHeight-3, 0);
-                if (titlebar->testWFlags(Qt::WStyle_MinMax))
-                    ir.addCoords(0, 0, -controlHeight-2, 0);
-            } else {
-                if (titlebar->testWFlags(Qt::WStyle_SysMenu))
-                    ir.addCoords(controlHeight+3, 0, -controlHeight-3, 0);
-                if (titlebar->testWFlags(Qt::WStyle_Minimize))
-                    ir.addCoords(0, 0, -controlHeight-2, 0);
-                if (titlebar->testWFlags(Qt::WStyle_Maximize))
-                    ir.addCoords(0, 0, -controlHeight-2, 0);
+            switch (sc) {
+            case SC_ComboBoxFrame:
+                return cmb->rect;
+            case SC_ComboBoxArrow:
+                return QRect(xpos, y+1, 16, he-2);
+            case SC_ComboBoxEditField:
+                return QRect(x+2, y+2, wi-3-16, he-4);
+            case SC_ComboBoxListBoxPopup:
+                return cmb->popupRect;
+            default:
+                break;
             }
-            return ir; }
-
-        case SC_TitleBarCloseButton:
-            return QRect(titlebar->width()-(controlHeight + 1)-controlTop,
-                         controlTop, controlHeight, controlHeight);
-
-        case SC_TitleBarMaxButton:
-        case SC_TitleBarShadeButton:
-        case SC_TitleBarUnshadeButton:
-            return QRect(titlebar->width()-((controlHeight + 1) * 2)-controlTop,
-                         controlTop, controlHeight, controlHeight);
-            break;
-
-        case SC_TitleBarMinButton:
-        case SC_TitleBarNormalButton: {
-            int offset = controlHeight + 1;
-            if (!titlebar->testWFlags(Qt::WStyle_Maximize))
-                offset *= 2;
-            else
-                offset *= 3;
-            return QRect(titlebar->width() - offset-controlTop,
-                         controlTop, controlHeight, controlHeight); }
-
-        case SC_TitleBarSysMenu:
-            return QRect(3, controlTop, controlHeight, controlHeight);
-
-        default:
-            break;
-        }
-#endif
-        return QRect(); } //are you sure you want to do this? ###
-    case CC_ComboBox: {
-        int x = 0, y = 0, wi = widget->width(), he = widget->height();
-        int xpos = x;
-        xpos += wi - 1 - 16;
-
-        switch (sc) {
-        case SC_ComboBoxFrame:
-            return widget->rect();
-        case SC_ComboBoxArrow:
-            return QRect(xpos, y+1, 16, he-2);
-        case SC_ComboBoxEditField:
-            return QRect(x+2, y+2, wi-3-16, he-4);
-        case SC_ComboBoxListBoxPopup:
-            return option.rect();
-        default:
-            break;
-        }
         break; }
     default:
         break;
     }
-    return QWindowsStyle::subControlRect(control, widget, sc, option);
+    return QWindowsStyle::subControlRect(cc, option, sc, widget);
 }
 
 /*
 QSize QWindowsXPStyle::sizeFromContents(ContentsType contents,
                                         const QWidget *widget,
                                         const QSize &contentsSize,
-                                        const Q3StyleOption& opt) const
+                                        const Q3StyleOption& option) const
                                         */
 /*!
     \reimp
 */
-QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
+QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *option,
                                         const QSize &contentsSize, const QWidget *widget) const
 {
     if (!use_xp)
-        return QWindowsStyle::sizeFromContents(contents, widget, contentsSize, opt);
+        return QWindowsStyle::sizeFromContents(ct, option, contentsSize, widget);
 
     QSize sz(contentsSize);
 
-    switch (contents) {
-    case CT_Q3PopupMenuItem:
-        {
-#ifndef QT_NO_POPUPMENU
-            if (! widget || opt.isDefault())
-                break;
-
-            const Q3PopupMenu *popup = (const Q3PopupMenu *) widget;
-            bool checkable = popup->isCheckable();
-            Q3MenuItem *mi = opt.menuItem();
-            int maxpmw = opt.maxIconWidth();
-            int w = sz.width(), h = sz.height();
-
-            if (mi->custom()) {
-                w = mi->custom()->sizeHint().width();
-                h = mi->custom()->sizeHint().height();
-                if (! mi->custom()->fullSpan())
-                    h += 2*windowsItemVMargin + 2*windowsItemFrame;
-            } else if (mi->widget()) {
-            } else if (mi->isSeparator()) {
-                w = 10; // arbitrary
-                h = windowsSepHeight;
-            } else {
-                if (mi->pixmap())
-                    h = qMax(h, mi->pixmap()->height() + 2*windowsItemFrame);
-                else if (! mi->text().isNull())
-                    h = qMax(h, popup->fontMetrics().height() + 2*windowsItemVMargin +
-                             2*windowsItemFrame);
-
-                if (mi->iconSet() != 0)
-                    h = qMax(h, mi->iconSet()->pixmap(Qt::SmallIconSize,
-                                                      QIcon::Normal).height() +
-                             2*windowsItemFrame);
-            }
-
-            if (! mi->text().isNull() && mi->text().indexOf('\t') >= 0) {
-                w += 20;
-            } else if (mi->popup()) {
-                w += 2*windowsArrowHMargin;
-            }
-
-            if (checkable && maxpmw < 20)
-                w += 20 - maxpmw;
-            if (checkable || maxpmw > 0)
-                w += windowsCheckMarkHMargin;
-            w += 20;
-
-            sz = QSize(w, h);
-#endif
-            break;
-        }
+    switch (ct) {
+//    case CT_Q3PopupMenuItem:
+//        {
+//#ifndef QT_NO_POPUPMENU
+//            if (! widget || option.isDefault())
+//                break;
+//
+//            const Q3PopupMenu *popup = (const Q3PopupMenu *) widget;
+//            bool checkable = popup->isCheckable();
+//            Q3MenuItem *mi = option.menuItem();
+//            int maxpmw = option.maxIconWidth();
+//            int w = sz.width(), h = sz.height();
+//
+//            if (mi->custom()) {
+//                w = mi->custom()->sizeHint().width();
+//                h = mi->custom()->sizeHint().height();
+//                if (! mi->custom()->fullSpan())
+//                    h += 2*windowsItemVMargin + 2*windowsItemFrame;
+//            } else if (mi->widget()) {
+//            } else if (mi->isSeparator()) {
+//                w = 10; // arbitrary
+//                h = windowsSepHeight;
+//            } else {
+//                if (mi->pixmap())
+//                    h = qMax(h, mi->pixmap()->height() + 2*windowsItemFrame);
+//                else if (! mi->text().isNull())
+//                    h = qMax(h, popup->fontMetrics().height() + 2*windowsItemVMargin +
+//                             2*windowsItemFrame);
+//
+//                if (mi->iconSet() != 0)
+//                    h = qMax(h, mi->iconSet()->pixmap(Qt::SmallIconSize,
+//                                                      QIcon::Normal).height() +
+//                             2*windowsItemFrame);
+//            }
+//
+//            if (! mi->text().isNull() && mi->text().indexOf('\t') >= 0) {
+//                w += 20;
+//            } else if (mi->popup()) {
+//                w += 2*windowsArrowHMargin;
+//            }
+//
+//            if (checkable && maxpmw < 20)
+//                w += 20 - maxpmw;
+//            if (checkable || maxpmw > 0)
+//                w += windowsCheckMarkHMargin;
+//            w += 20;
+//
+//            sz = QSize(w, h);
+//#endif
+//            break;
+//        }
 
     default:
-        sz = QWindowsStyle::sizeFromContents(contents, widget, sz, opt);
+        sz = QWindowsStyle::sizeFromContents(ct, option, sz, widget);
         break;
     }
 
     return sz;
 }
 
-/*
-int QWindowsXPStyle::styleHint(StyleHint stylehint,
-                           const QWidget *widget,
-                           const Q3StyleOption& opt,
-                           QStyleHintReturn* returnData) const
-                           */
 /*! \reimp */
-int QWindowsXPStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w,
-                               QStyleHintReturn *shret) const
+int QWindowsXPStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWidget *widget,
+                               QStyleHintReturn *returnData) const
 {
     if (!use_xp)
-        return QWindowsStyle::styleHint(stylehint, widget, opt, returnData);
+        return QWindowsStyle::styleHint(hint, option, widget, returnData);
 
-    switch (stylehint) {
+    switch (hint) {
     case SH_TitleBar_NoBorder:
         return 1;
 
@@ -2663,12 +2658,11 @@ int QWindowsXPStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWid
         }
 
     default:
-        return QWindowsStyle::styleHint(stylehint, widget, opt, returnData);
+        return QWindowsStyle::styleHint(hint, option, widget, returnData);
     }
 }
 
 // HotSpot magic
-
 /*! \reimp */
 bool QWindowsXPStyle::eventFilter(QObject *o, QEvent *e)
 {
@@ -2689,20 +2683,23 @@ bool QWindowsXPStyle::eventFilter(QObject *o, QEvent *e)
             d->hotSpot = me->pos();
 
             if (qt_cast<QTabBar*>(o)) {
-                QTabBar* bar = (QTabBar*)o;
-                QTab * t = bar->selectTab(me->pos());
+                QTabBar *bar = (QTabBar*)o;
+                QRect t;
+                for (int i = 0; i < bar->count(); ++i)
+                    if (bar->tabRect(i).contains(me->pos()))
+                        t = bar->tabRect(i);
                 if (d->hotTab != t) {
                     d->hotTab = t;
                     widget->repaint();
                 }
-            } else if (qt_cast<QHeader*>(o)) {
-                QHeader *header = (QHeader*)o;
+            } else if (qt_cast<QHeaderView*>(o)) {
+                QHeaderView *header = (QHeaderView*)o;
                 QRect oldHeader = d->hotHeader;
 
-                if (header->orientation() == Qt::Horizontal)
-                    d->hotHeader = header->sectionRect(header->sectionAt(d->hotSpot.x() + header->offset()));
-                else
-                    d->hotHeader = header->sectionRect(header->sectionAt(d->hotSpot.y() + header->offset()));
+                //if (header->orientation() == Qt::Horizontal)
+                //    d->hotHeader = header->sectionRect(header->sectionAt(d->hotSpot.x() + header->offset()));
+                //else
+                //    d->hotHeader = header->sectionRect(header->sectionAt(d->hotSpot.y() + header->offset()));
 
                 if (oldHeader != d->hotHeader) {
                     if (oldHeader.isValid())
@@ -2711,38 +2708,40 @@ bool QWindowsXPStyle::eventFilter(QObject *o, QEvent *e)
                         header->update(d->hotHeader);
                 }
 #ifndef QT_NO_TITLEBAR
-            } else if (qt_cast<QTitleBar*>(o)) {
-                static SubControl clearHot = SC_TitleBarLabel;
-                QTitleBar *titlebar = (QTitleBar*)o;
-                SubControl sc = hitTestComplexControl(CC_TitleBar, titlebar, d->hotSpot);
-                if (sc != clearHot || clearHot != SC_TitleBarLabel) {
-                    QRect rect = visualRect(subControlRect(CC_TitleBar, titlebar, clearHot), titlebar);
-                    titlebar->repaint(rect);
+            //} else if (qt_cast<QDockWindowTitle*>(o)) {
+            //    static SubControl clearHot = SC_TitleBarLabel;
+            //    QDockWindowTitle *titlebar = (QDockWindowTitle*)o;
+            //    SubControl sc = hitTestComplexControl(CC_TitleBar, titlebar, d->hotSpot);
+            //    if (sc != clearHot || clearHot != SC_TitleBarLabel) {
+            //        QRect rect = visualRect(option->direction, option->rect, subControlRect(CC_TitleBar, titlebar, clearHot));
+            //        titlebar->repaint(rect);
 
-                    clearHot = sc;
-                    rect = visualRect(subControlRect(CC_TitleBar, titlebar, sc), titlebar);
-                    titlebar->repaint(rect);
-                }
+            //        clearHot = sc;
+            //        rect = visualRect(option->direction, option->rect, subControlRect(CC_TitleBar, titlebar, sc));
+            //        titlebar->repaint(rect);
+            //    }
 #endif
 #ifndef QT_NO_SLIDER
             } else if (::qt_cast<QSlider*>(o)) {
                 static bool clearSlider = false;
                 QSlider *slider = (QSlider*)o;
-                const QRect rect = subControlRect(CC_Slider, (QWidget*)o, SC_SliderHandle, 0);
+                QStyleOptionComplex option;
+                const QRect rect = subControlRect(CC_Slider, &option, SC_SliderHandle, (QWidget*)o);
                 const bool inSlider = rect.contains(d->hotSpot);
                 if ((inSlider && !clearSlider) || (!inSlider && clearSlider)) {
                     clearSlider = inSlider;
                     slider->repaint(rect);
                 }
 #endif
-            } else if (::qt_cast<QComboBox*>(o)) {
-                static bool clearCombo = false;
-                const QRect rect = visualRect(subControlRect(CC_ComboBox, (QWidget*)o, SC_ComboBoxArrow), (QWidget*)o);
-                const bool inArrow = rect.contains(d->hotSpot);
-                if ((inArrow && !clearCombo) || (!inArrow && clearCombo)) {
-                    clearCombo = inArrow;
-                    widget->repaint();
-                }
+            //} else if (::qt_cast<QComboBox*>(o)) {
+            //    static bool clearCombo = false;
+            //    QStyleOptionComplex option;
+            //    const QRect rect = visualRect(option->direction, option->rect, subControlRect(CC_ComboBox, &option, SC_ComboBoxArrow));
+            //    const bool inArrow = rect.contains(d->hotSpot);
+            //    if ((inArrow && !clearCombo) || (!inArrow && clearCombo)) {
+            //        clearCombo = inArrow;
+            //        widget->repaint();
+            //    }
             } else {
                 widget->repaint();
             }
@@ -2750,7 +2749,7 @@ bool QWindowsXPStyle::eventFilter(QObject *o, QEvent *e)
         break;
 
     case QEvent::WindowActivate:
-        if (!widget->testAttribute(QWidget::WA_UnderMouse))
+        if (!widget->testAttribute(Qt::WA_UnderMouse))
             break;
         // FALL THROUGH
     case QEvent::Enter:
@@ -2768,7 +2767,7 @@ bool QWindowsXPStyle::eventFilter(QObject *o, QEvent *e)
         if (widget == d->hotWidget) {
             d->hotWidget = 0;
             d->hotHeader = QRect();
-            d->hotTab = 0;
+            d->hotTab = QRect();
             widget->repaint();
         }
         break;
@@ -2801,10 +2800,10 @@ bool QWindowsXPStyle::eventFilter(QObject *o, QEvent *e)
 void QWindowsXPStyle::activeTabChanged()
 {
     const QObject *s = sender();
-    if (!qt_cast<QTabBar*>(s))
+    if (!qt_cast<const QTabBar*>(s))
         return;
 
     ((QWidget *)s)->repaint();
 }
 
-#endif //QT_NO_STYLE_WINDOWSXP
+#endif //QT_NO_State_WINDOWSXP
