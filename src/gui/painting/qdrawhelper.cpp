@@ -280,8 +280,6 @@ static CompositionFunctionMasked functionForModeMasked(QPainter::CompositionMode
     return 0;
 }
 
-
-
 static void blend_color_argb(void *t, const QSpan *span, uint color, QPainter::CompositionMode mode)
 {
     uint *target = (uint *)t;
@@ -297,11 +295,15 @@ static void blend_color_argb(void *t, const QSpan *span, uint color, QPainter::C
                 ++target;
             }
         } else {
+#if 1
             const uint *end = target + span->len;
             while (target < end) {
                 *target = color;
                 ++target;
             }
+#else
+            sse_memfill(target, color, span->len);
+#endif
         }
     } else {
         CompositionFunction func = functionForMode(mode);
@@ -618,11 +620,15 @@ static void blend_color_rgb32(void *t, const QSpan *span, uint color, QPainter::
             ++target;
         }
     } else {
+#if 1
         const uint *end = target + span->len;
         while (target < end) {
             *target = color;
             ++target;
         }
+#else
+        sse_memfill(target, color, span->len);
+#endif
     }
 }
 

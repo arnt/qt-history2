@@ -45,6 +45,46 @@ static uint detectCPUFeatures() {
     return features;
 }
 
+
+static void sse_memfill(uint *target, uint value, int len)
+{
+    uint *end = target + len;
+    if (len >= 7) {
+        {
+            int align = (((ulong)target) & 0xf) >> 2;
+            switch(align) {
+            case 1:
+                *target++ = value;
+            case 2:
+                *target++ = value;
+            case 3:
+                *target++ = value;
+            default:
+                break;
+            }
+        }
+        asm("movd %1, %%xmm1\n"
+            "pshufd $0x0, %%xmm1, %%xmm0\n"
+            "mov %2, %%eax\n"
+            "mov %3, %%edx\n"
+            "1: movdqa %%xmm0, (%%eax)\n"
+            "add $0x10, %%eax\n"
+            "cmp %%eax, %%edx\n"
+            "jb 1b\n"
+            "mov %%eax, %0\n"
+            : "=r" (target)
+            : "m" (value),
+              "r" (target),
+              "m" (end)
+            : "%eax", "%edx", "%xmm0", "%xmm1"
+            );
+    }
+    while (target < end) {
+        *target = value;
+        ++target;
+    }
+}
+
 #define qt_alpha_pixel(s, t, a, ra) { int tmp = s*a + t*ra; t = qt_div_255(tmp); }
 #define qt_alpha_pixel_pm(s, t, ra) { int tmp = s + t*ra; t = qt_div_255(tmp); }
 
