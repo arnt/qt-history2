@@ -2014,11 +2014,16 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 qt_mac_dblclick.last_time = GetEventTime(event);
             }
             if(wheel_delta) {
-                QWheelEvent qwe(plocal, p, wheel_delta, buttons, modifiers);
+                EventMouseWheelAxis axis;
+                GetEventParameter(event, kEventParamMouseWheelAxis, typeMouseWheelAxis, 0,
+                                  sizeof(axis), 0, &axis);
+                QWheelEvent qwe(plocal, p, wheel_delta, buttons, modifiers,
+                                axis == kEventMouseWheelAxisX ? Qt::Horizontal : Qt::Vertical);
                 QApplication::sendSpontaneousEvent(widget, &qwe);
                 if(!qwe.isAccepted() && QApplicationPrivate::focus_widget && QApplicationPrivate::focus_widget != widget) {
                     QWheelEvent qwe2(QApplicationPrivate::focus_widget->mapFromGlobal(p), p,
-                                     wheel_delta, buttons, modifiers);
+                                     wheel_delta, buttons, modifiers,
+                                     axis == kEventMouseWheelAxisX ? Qt::Horizontal : Qt::Vertical);
                     QApplication::sendSpontaneousEvent(QApplicationPrivate::focus_widget, &qwe2);
                 }
             } else {
