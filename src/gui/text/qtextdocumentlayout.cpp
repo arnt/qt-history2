@@ -16,18 +16,15 @@
 #include "qtexttable.h"
 #include "qtextlist.h"
 
+#include "qabstracttextdocumentlayout_p.h"
+
 #include <qpainter.h>
-#include <qdebug.h>
 #include <qrect.h>
 #include <qpalette.h>
 #include <qdebug.h>
 #include <qvarlengtharray.h>
 #include <limits.h>
 #include <qstyle.h>
-
-#include "qabstracttextdocumentlayout_p.h"
-
-#include <qdebug.h>
 
 // #define LAYOUT_DEBUG
 

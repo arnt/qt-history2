@@ -22,7 +22,6 @@
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qevent.h>
-#include <qdebug.h>
 #include <qpixmap.h>
 #include <qbitmap.h>
 #include <qpixmapcache.h>
