@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#22 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#22 $";
 #endif
 
 
@@ -880,10 +880,13 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     int	   state;
 
     if ( event->type == MotionNotify ) {	// mouse move
+	XEvent *xevt = (XEvent *)event;
+	while ( XCheckTypedWindowEvent( display(), id(), MotionNotify, xevt ) )
+	    ;					// compress motion events
 	type = Event_MouseMove;
-	pos.rx() = event->xmotion.x;
-	pos.ry() = event->xmotion.y;
-	state = translateButtonState( event->xmotion.state );
+	pos.rx() = xevt->xmotion.x;
+	pos.ry() = xevt->xmotion.y;
+	state = translateButtonState( xevt->xmotion.state );
 	if ( !buttonDown ) {
 	    state &= ~(LeftButton|MidButton|RightButton);
 	    if ( !testFlag(WGetMouseMove) )
@@ -1073,7 +1076,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     bool  firstTime = TRUE;
     QRect paintRect;
     int	  type = event->xany.type;
-    XEvent *xevt = (XEvent*)event;
+    XEvent *xevt = (XEvent *)event;
 
     while ( TRUE ) {
 	QRect rect( QPoint(xevt->xexpose.x,xevt->xexpose.y),
