@@ -153,7 +153,7 @@ private:
 	    uchar dirty;
 	    uchar direct;
 	} d8;
-	struct {
+	struct D32 {
 	    QRgb argb;
 	    ulong pix;
 	    bool invalid() const { return argb == QColor::Invalid && pix == QColor::Dirt; }
