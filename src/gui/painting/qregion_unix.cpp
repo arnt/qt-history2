@@ -1884,7 +1884,7 @@ static void PtsToRegion(register int numFullPtBlocks, register int iCurPtBlock,
         if (!numFullPtBlocks)
             i = iCurPtBlock >> 1;
         if(i) {
-            for (pts = CurPtBlock->pts; --i; pts += 2) {
+            for (pts = CurPtBlock->pts; i--; pts += 2) {
                 if (pts->x() == pts[1].x())
                     continue;
                 if (numRects && pts->x() == rects->left() && pts->y() == rects->bottom() + 1
