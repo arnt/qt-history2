@@ -940,7 +940,8 @@ static int indentForStandaloneLine()
 */
 static void initializeIndenter()
 {
-    literal = new QRegExp( QString("([\"'])(?:[^\"\\\\]|\\\\.)*\\1") );
+    literal = new QRegExp( QString("([\"'])(?:\\\\.|[^\\\\])*\\1") );
+    literal->setMinimal( TRUE );
     label = new QRegExp( QString(
 	    "^\\s*((?:case\\b[^:]+|[a-zA-Z_0-9]+):)(?!:)") );
     inlineCComment = new QRegExp( QString("/\\*.*\\*/") );
@@ -1032,7 +1033,7 @@ int indentForBottomLine( const QStringList& program, QChar typedIn )
 		  We don't attempt the same for goto labels, as the
 		  user might be in the middle of "foo::bar".
 		*/
-		if ( indentOfLine(bottomLine) == indent )
+		if ( indentOfLine(bottomLine) <= indent )
 		    indent -= ppIndentSize;
 		else
 		    indent = indentOfLine( bottomLine );
