@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#179 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#180 $
 **
 ** Implementation of QObject class
 **
@@ -42,7 +42,7 @@
   However, occasionally you may need to say \c Qt::black instead just
   \c black, particularly in static utility functions (such as many
   class factories).
-  
+
 */
 
 
@@ -261,16 +261,6 @@ static void removeObjFromList( QObjectList *objList, const QObject *obj,
   which inherits type \a type.
 
   Returns 0 if there is no such child.
-
-  The CHILD macro (defined in qwindowdefs.h) does all this, and also
-  casts the return type to \a type *.
-
-  Examples:
-  \code
-    QListBox * c = CHILD(myWidget,QListBox,"listboxname");
-    if ( c )
-        c->insertItem( "another string" );
-  \endcode
 
   \code
     QListBox * c = (QListBox *)::qt_find_obj_child(myWidget,QListBox,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#131 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#132 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -110,7 +110,7 @@ class QBaseApplication;
 // Forward declaration
 class QApplication;
 
-#endif // _WS_WIN16_ or _WS_WIN32_
+#endif // _WS_WIN_
 
 
 #if defined(_WS_X11_)
@@ -154,9 +154,6 @@ Q_EXPORT void qAddPostRoutine( CleanUpFunction );
 
 
 Q_EXPORT void *qt_find_obj_child( QObject *, const char *, const char * );
-#define CHILD(parent,type,name) \
-	((type*)qt_find_obj_child(parent,#type,name))
-
 
 // Widget flags
 
@@ -202,15 +199,6 @@ const uint WPaintClever		= 0x20000000;
 const uint WResizeNoErase	= 0x40000000;
 
 const uint WMouseNoMask	= 0x80000000;
-
-
-// Raster operations
-
-enum RasterOp					// raster op mode
-    { CopyROP, OrROP, XorROP, NotAndROP, EraseROP=NotAndROP,
-      NotCopyROP, NotOrROP, NotXorROP, AndROP, NotEraseROP=AndROP,
-      NotROP, ClearROP, SetROP, NopROP,
-      AndNotROP, OrNotROP, NandROP, NorROP, LastROP=NorROP };
 
 
 // Image conversion flags

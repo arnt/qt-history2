@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#88 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -321,7 +321,7 @@ static GC cache_mask_gc( Display *dpy, Drawable hd, int mask_no, Pixmap mask )
 
 void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
-	     RasterOp rop, bool ignoreMask )
+	     Qt::RasterOp rop, bool ignoreMask )
 {
     if ( !src || !dst ) {
 #if defined(CHECK_NULL)
@@ -358,11 +358,11 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    if ( sx != 0 || sy != 0 ||
 		 sw != pm->width() || sh != pm->height() || ignoreMask ) {
 		QPixmap *tmp = new QPixmap( sw, sh, pm->depth() );
-		bitBlt( tmp, 0, 0, pm, sx, sy, sw, sh, CopyROP, TRUE );
+		bitBlt( tmp, 0, 0, pm, sx, sy, sw, sh, Qt::CopyROP, TRUE );
 		if ( pm->mask() && !ignoreMask ) {
 		    QBitmap mask( sw, sh );
 		    bitBlt( &mask, 0, 0, pm->mask(), sx, sy, sw, sh,
-			    CopyROP, TRUE );
+			    Qt::CopyROP, TRUE );
 		    tmp->setMask( mask );
 		}
 		pm = tmp;
@@ -401,7 +401,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	GXinvert, GXclear, GXset, GXnoop,
 	GXandReverse, GXorReverse, GXnand, GXnor
     };
-    if ( rop > LastROP ) {
+    if ( rop > Qt::LastROP ) {
 #if defined(CHECK_RANGE)
 	warning( "bitBlt: Invalid ROP code" );
 #endif
@@ -476,7 +476,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    }
 	}
 	XSetClipOrigin( dpy, gc, dx-sx, dy-sy );
-	if ( rop != CopyROP )			// use non-default ROP code
+	if ( rop != Qt::CopyROP )		// use non-default ROP code
 	    XSetFunction( dpy, gc, ropCodes[rop] );
 	if ( include_inferiors ) {
 	    XSetSubwindowMode( dpy, gc, IncludeInferiors );
@@ -490,14 +490,14 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
 	if ( temp_gc )				// delete temporary GC
 	    XFreeGC( dpy, gc );
-	else if ( rop != CopyROP )		// restore ROP
+	else if ( rop != Qt::CopyROP )		// restore ROP
 	    XSetFunction( dpy, gc, GXcopy );
 	return;
     }
 
     gc = qt_xget_temp_gc( mono_dst );		// get a reusable GC
 
-    if ( rop != CopyROP )			// use non-default ROP code
+    if ( rop != Qt::CopyROP )			// use non-default ROP code
 	XSetFunction( dpy, gc, ropCodes[rop] );
 
     if ( mono_src ) {				// src is bitmap
@@ -571,7 +571,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    XSetGraphicsExposures( dpy, gc, FALSE );
     }
 
-    if ( rop != CopyROP )			// restore ROP
+    if ( rop != Qt::CopyROP )			// restore ROP
 	XSetFunction( dpy, gc, GXcopy );
 }
 

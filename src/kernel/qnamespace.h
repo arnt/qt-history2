@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#8 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#9 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -142,7 +142,7 @@ public:
 	Key_Alt = 0x1023,
 	Key_CapsLock = 0x1024,
 	Key_NumLock = 0x1025,
-	Key_ScrollLock = 0x1026,		// see translateKeyEvent()
+	Key_ScrollLock = 0x1026,
 	Key_F1 = 0x1030,		// function keys
 	Key_F2 = 0x1031,
 	Key_F3 = 0x1032,
@@ -352,9 +352,33 @@ public:
 
 	Key_unknown = 0xffff
     };
-    enum ArrowType
-    { UpArrow, DownArrow, LeftArrow, RightArrow };
 
+    enum ArrowType {
+	UpArrow,
+	DownArrow,
+	LeftArrow,
+	RightArrow
+    };
+
+    enum RasterOp { // raster op mode
+	CopyROP,
+	OrROP,
+	XorROP,
+	NotAndROP,
+	EraseROP=NotAndROP,
+	NotCopyROP,
+	NotOrROP,
+	NotXorROP,
+	AndROP,	NotEraseROP=AndROP,
+	NotROP,
+	ClearROP,
+	SetROP,
+	NopROP,
+	AndNotROP,
+	OrNotROP,
+	NandROP,
+	NorROP,	LastROP=NorROP,
+    };
 
 };
 

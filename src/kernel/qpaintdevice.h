@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#57 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#58 $
 **
 ** Definition of QPaintDevice class
 **
@@ -104,7 +104,7 @@ protected:
     friend class QPaintDeviceMetrics;
     friend Q_EXPORT void bitBlt( QPaintDevice *, int, int,
 				 const QPaintDevice *,
-				 int, int, int, int, RasterOp, bool );
+				 int, int, int, int, Qt::RasterOp, bool );
 
 #if defined(_WS_X11_)
 private:
@@ -129,7 +129,7 @@ private:	// Disabled copy constructor and operator=
 Q_EXPORT
 void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx=0, int sy=0, int sw=-1, int sh=-1,
-	     RasterOp = CopyROP, bool ignoreMask=FALSE );
+	     Qt::RasterOp = Qt::CopyROP, bool ignoreMask=FALSE );
 
 Q_EXPORT
 void bitBlt( QPaintDevice *dst, int dx, int dy,
@@ -178,7 +178,7 @@ inline bool    	QPaintDevice::x11DefaultVisual()   { return x_defvisual; }
 Q_EXPORT
 inline void bitBlt( QPaintDevice *dst, const QPoint &dp,
 		    const QPaintDevice *src, const QRect &sr =QRect(0,0,-1,-1),
-		    RasterOp rop=CopyROP, bool ignoreMask=FALSE )
+		    Qt::RasterOp rop=Qt::CopyROP, bool ignoreMask=FALSE )
 {
     bitBlt( dst, dp.x(), dp.y(), src, sr.x(), sr.y(), sr.width(), sr.height(),
 	    rop, ignoreMask );

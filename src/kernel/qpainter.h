@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#123 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#124 $
 **
 ** Definition of QPainter class
 **
@@ -116,7 +116,7 @@ public:
     void	saveWorldMatrix();
     void	restoreWorldMatrix();
 
-    
+
     void	translate( double dx, double dy );
     void	scale( double sx, double sy );
     void	shear( double sh, double sv );
@@ -279,8 +279,8 @@ private:
     // Cached composition (and inverse) of transformations
     QWMatrix	xmat;
     QWMatrix	ixmat;
-    
-    
+
+
 
     double	m11() const { return xmat.m11(); }
     double      m12() const { return xmat.m12(); }
@@ -393,7 +393,7 @@ inline Qt::BGMode QPainter::backgroundMode() const
     return (BGMode)bg_mode;
 }
 
-inline RasterOp QPainter::rasterOp() const
+inline Qt::RasterOp QPainter::rasterOp() const
 {
     return (RasterOp)rop;
 }
