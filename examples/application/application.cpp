@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/application/application.cpp#11 $
+** $Id: //depot/qt/main/examples/application/application.cpp#12 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -110,7 +110,6 @@ ApplicationWindow::ApplicationWindow()
 
     e = new QMultiLineEdit( this, "editor" );
     e->setFocus();
-    e->setWordWrap( QMultiLineEdit::DynamicWrap | QMultiLineEdit::BreakWithinWords );
     setCentralWidget( e );
     statusBar()->message( "Ready", 2000 );
     resize( 450, 600 );
