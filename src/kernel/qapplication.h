@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#76 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#77 $
 **
 ** Definition of QApplication class
 **
@@ -108,7 +108,6 @@ public:
 
     static void	    setDoubleClickInterval( int );
     static int      doubleClickInterval();
-
 
 #if defined(_WS_MAC_)
     virtual bool     macEventFilter( MSG * );

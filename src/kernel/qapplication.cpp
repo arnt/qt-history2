@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#133 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#134 $
 **
 ** Implementation of QApplication class
 **
@@ -14,8 +14,9 @@
 #include "qwidget.h"
 #include "qwidcoll.h"
 #include "qpalette.h"
+#include "qmessagefile.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#133 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#134 $");
 
 
 /*!
@@ -736,12 +737,11 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 
     if ( eventFilters ) {
 	QObjectListIt it( *eventFilters );
-	register QObject *obj = it.current();
-	while ( obj ) {				// send to all filters
+	register QObject *obj;
+	while ( (obj=it.current()) != 0 ) {	// send to all filters
 	    ++it;				//   until one returns TRUE
 	    if ( obj->eventFilter(receiver,event) )
 		return TRUE;
-	    obj = it.current();
 	}
     }
 
