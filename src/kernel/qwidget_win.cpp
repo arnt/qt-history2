@@ -774,6 +774,8 @@ void QWidget::setIcon( const QPixmap &pixmap )
 	ii.fIcon    = TRUE;
 	ii.hbmMask  = im;
 	ii.hbmColor = pm.hbm();
+	ii.xHotspot = 0;
+	ii.yHotspot = 0;
 	x->icon = new QPixmap( pixmap );
 	x->winIcon = CreateIconIndirect( &ii );
 	DeleteObject( im );
