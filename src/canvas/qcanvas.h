@@ -330,9 +330,10 @@ public:
     const QWMatrix &inverseWorldMatrix() const;
     bool setWorldMatrix(const QWMatrix &);
 
+    QSize sizeHint() const;
+
 protected:
     void drawContents(QPainter*, int cx, int cy, int cw, int ch);
-    QSize sizeHint() const;
 
 private:
     void drawContents(QPainter*);
