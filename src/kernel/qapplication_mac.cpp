@@ -1253,7 +1253,7 @@ static int get_key(int key, int scan)
 #ifdef DEBUG_KEY_MAPS
 	    qDebug("%d: got key: %s", __LINE__, keyscan_syms[i].desc);
 #endif
-	    return key_syms[i].qt_code;
+	    return keyscan_syms[i].qt_code;
 	}
     }
 
@@ -1939,7 +1939,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    widget = mac_keyboard_grabber;
 	else if(focus_widget)
 	    widget = focus_widget;
-
 	if(widget) {
 	    if ( app_do_modal && !qt_try_modal(widget, event) )
 		return 1;
@@ -1967,15 +1966,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			       qDebug("Shouldn't happen.. %s:%d", __FILE__, __LINE__);
 #if !defined(QMAC_QMENUBAR_NO_NATIVE) //In native menubar mode we offer the event to the menubar...
 			    if(QMenuBar::activateCommand(hic.commandID) || 
-			       QMenuBar::activate(hic.menu.menuRef, hic.menu.menuItemIndex)) {
+			       QMenuBar::activate(hic.menu.menuRef, hic.menu.menuItemIndex)) 
 				key_event = FALSE;
-				handled_event = TRUE;
-			    } else
+			    else
 #endif
-			    if(!ProcessHICommand(&hic)) {
+			    if(!ProcessHICommand(&hic)) 
 				key_event = FALSE;
-				handled_event = TRUE;
-			    }
 			}
 		    }
 		}
