@@ -483,7 +483,7 @@ QSize QSpinBox::sizeHint() const
 {
     constPolish();
     QSize sz = vi->sizeHint();
-    int h = QMAX( sz.height(), 20 );
+    int h = sz.height();
     QFontMetrics fm( font() );
     int w = 35;
     int wx = fm.width( ' ' )*2;

@@ -1612,9 +1612,9 @@ QSize QLineEdit::sizeHint() const
 {
     constPolish();
     QFontMetrics fm( font() );
-    int h = fm.lineSpacing();
+    int h = fm.lineSpacing() + 2 + 2*frameWidth();
     int w = fm.width( 'x' ) * 17; // "some"
-    return QSize( w + 2 + 2*frameWidth(), h + 2 + 2*frameWidth() ).expandedTo( QApplication::globalStrut() );
+    return QSize( w + 2 + 2*frameWidth(), QMAX( h, 21 ) ).expandedTo( QApplication::globalStrut() );
 }
 
 
