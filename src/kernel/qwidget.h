@@ -439,7 +439,8 @@ public:
 	WA_Resized,
 	WA_Moved,
 	WA_PendingUpdate,
-	WA_InvalidSize
+	WA_InvalidSize,
+	WA_MacMetalStyle //mac only
     };
     void setAttribute(WidgetAttribute, bool = true);
     inline bool testAttribute(WidgetAttribute) const;

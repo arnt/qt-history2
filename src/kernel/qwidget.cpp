@@ -5615,6 +5615,10 @@ const QPixmap *QWidget::icon() const
     \row \i WA_Mapped \i Indicates that the widget is mapped on screen.
     \i Qt kernel.
 
+    \row \i WA_MacMetalStyle \i Indicates the the widget should be drawn 
+    in metal style as supported by the windowing system (only meaningfull on Mac OS X).
+    \i Set by widget author
+
     \endtable
 */
 
@@ -5639,11 +5643,17 @@ void QWidget::setAttribute(WidgetAttribute attribute, bool b)
 	    d->high_attributes[x / (8*sizeof(uint))] &= ~(1<<x);
     }
     switch (attribute) {
-	case WA_NoSystemBackground:
-	    d->updateSystemBackground();
-	    break;
-	default:
-	    break;
+    case WA_MacMetalStyle:
+#ifdef Q_WS_MAC
+	extern qt_mac_update_metal_style(QWidget*); //qwidget_mac.cpp
+	qt_mac_update_metal_style(this);
+#endif
+	break;
+    case WA_NoSystemBackground:
+	d->updateSystemBackground();
+	break;
+    default:
+	break;
     }
 }
 

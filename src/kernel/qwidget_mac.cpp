@@ -196,6 +196,16 @@ inline void qt_mac_destroy_cg_hd(QWidget *w, bool children)
     }
 }
 
+void qt_mac_update_metal_style(QWidget *w)
+{
+    if(w->isTopLevel()) {
+	if(w->testAttribute(QWidget::WA_MacMetalStyle))
+	    ChangeWindowAttributes((WindowRef)w->handle(), kWindowMetalAttribute, 0);
+	else
+	    ChangeWindowAttributes((WindowRef)w->handle(), 0, kWindowMetalAttribute);
+    }
+}
+
 bool qt_mac_update_sizer(QWidget *w, int up=0)
 {
     if(!w || !w->isTopLevel())
