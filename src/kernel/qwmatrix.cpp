@@ -397,6 +397,12 @@ QWMatrix &QWMatrix::rotate( double a )
     return bmul( result );
 }
 
+/*! \fn bool QWMatrix::isInvertable() const
+  
+  returns TRUE if the matrix is invertable, FALSE otherwise.
+
+  \sa invert()
+*/
 
 /*!
   Returns the inverted matrix.
@@ -407,6 +413,8 @@ QWMatrix &QWMatrix::rotate( double a )
   If \e *invertible is not null, the value of \e *invertible is set
   either to TRUE or FALSE to tell whether or not the matrix is
   invertible.
+  
+  \sa invertible()
 */
 
 QWMatrix QWMatrix::invert( bool *invertible ) const

@@ -78,6 +78,7 @@ public:
     QWMatrix   &shear( double sh, double sv );
     QWMatrix   &rotate( double a );
 
+    bool isInvertible() const { return (_m11*_m22 - _m12*_m21) != 0; }
     QWMatrix	invert( bool * = 0 ) const;
 
     bool	operator==( const QWMatrix & ) const;
