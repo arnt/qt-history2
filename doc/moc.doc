@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: moc.doc,v 1.4 1996/02/17 21:19:53 agulbra Exp $
+** $Id: moc.doc,v 1.5 1996/02/17 22:05:36 agulbra Exp $
 **
 ** Moc usage, expanded from the manual page
 **
@@ -78,7 +78,7 @@ following form:
 
 \code
     mNAME.cpp: NAME.h
-            moc $&lt; -o $@
+            moc $< -o $@
 \endcode
 
 <p>
@@ -102,7 +102,7 @@ a makefile rule like this:
     NAME.o: mNAME.cpp
     
     mNAME.cpp: NAME.cpp
-            moc -i $&lt; -o $@
+            moc -i $< -o $@
 \endcode
 
 <p>
@@ -136,7 +136,7 @@ templates cannot have signals or slots.  This is an important bug.
 Here is an example:
 
 \code
-    class SomeTemplate&lt;int&gt; : public QFrame {
+    class SomeTemplate<int> : public QFrame {
         Q_OBJECT
     [...]
     signals:
@@ -193,7 +193,7 @@ the illegal syntax:
         Q_OBJECT
     [...]
     signals:
-        friend class ClassTemplate&lt;char&gt;;
+        friend class ClassTemplate<char>;
     };
 \endcode
 
