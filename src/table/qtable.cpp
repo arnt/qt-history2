@@ -5327,7 +5327,10 @@ void QTable::adjustColumn( int col )
 	QTableItem *itm = item( i, col );
 	if ( !itm )
 	    continue;
-	w = QMAX( w, itm->sizeHint().width() );
+	if ( itm->colSpan() > 1 )
+	    w = QMAX( w, itm->sizeHint().width() / itm->colSpan() );
+	else
+	    w = QMAX( w, itm->sizeHint().width() );
     }
     setColumnWidth( col, w );
 }
@@ -5349,7 +5352,10 @@ void QTable::adjustRow( int row )
 	QTableItem *itm = item( row, i );
 	if ( !itm )
 	    continue;
-	h = QMAX( h, itm->sizeHint().height() );
+	if ( itm->rowSpan() > 1 )
+	    h = QMAX( h, itm->sizeHint().height() / itm->rowSpan() );
+	else
+	    h = QMAX( h, itm->sizeHint().height() );
     }
     setRowHeight( row, h );
 }
