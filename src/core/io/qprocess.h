@@ -101,6 +101,9 @@ public:
     static int execute(const QString &program, const QStringList &arguments);
     static int execute(const QString &program);
 
+    static bool startDetached(const QString &program, const QStringList &arguments);
+    static bool startDetached(const QString &program);
+
 signals:
     void started();
     void finished(int exitCode);

@@ -105,6 +105,8 @@ public:
     void killProcess();
     void findExitCode();
 
+    static bool startDetached(const QString &program, const QStringList &arguments);
+
     int exitCode;
     bool crashed;
 

@@ -706,5 +706,48 @@ void QProcessPrivate::notified()
 {
 }
 
+/*! \internal
+ */
+bool QProcessPrivate::startDetached(const QString &program, const QStringList &arguments)
+{
+    pid_t childPid = fork();
+    if (childPid == 0) {
+        ::setsid();
+        ::signal(SIGHUP, SIG_IGN);
+
+        if (fork() == 0) {
+            char **argv = new char *[arguments.size() + 2];
+            for (int i = 0; i < arguments.size(); ++i)
+                argv[i + 1] = ::strdup(arguments.at(i).toLocal8Bit().constData());
+            argv[arguments.size() + 1] = 0;
+
+            if (!program.contains("/")) {
+                char *path = ::getenv("PATH");
+                if (path) {
+                    QStringList pathEntries = QString(path).split(":");
+                    for (int k = 0; k < pathEntries.size(); ++k) {
+                        QByteArray tmp = QFile::encodeName(pathEntries.at(k));
+                        if (!tmp.endsWith('/')) tmp += '/';
+                        tmp += QFile::encodeName(program);
+                        argv[0] = tmp.data();
+                        ::execv(argv[0], argv);
+                    }
+                }
+            } else {
+                QByteArray tmp = QFile::encodeName(program);
+                argv[0] = tmp.data();
+                ::execv(argv[0], argv);
+            }
+
+            ::exit(1);
+        }
+
+        ::chdir("/");
+        ::exit(1);
+    }
+    int result;
+    return (waitpid(childPid, &result, 0) && WIFEXITED(result));
+}
+
 #include "qprocess_unix.moc"
 

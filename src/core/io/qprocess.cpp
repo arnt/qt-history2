@@ -1189,5 +1189,35 @@ int QProcess::execute(const QString &program)
     return process.exitCode();
 }
 
+/*!
+    Starts the program \a program with the arguments \a arguments in a
+    new process, and detaches from it. Returns true on success;
+    otherwise returns false. If the calling process exits, the
+    detached process will continue to live.
+
+    On Unix, the started process will run in its own session and act
+    like a daemon. On Windows, it will run as a regular standalone
+    process.
+*/
+bool QProcess::startDetached(const QString &program, const QStringList &arguments)
+{
+    return QProcessPrivate::startDetached(program, arguments);
+}
+
+/*!
+    \overload
+
+    Starts the program \a program in a new process. \a program is a
+    single string of text containing both the program name and its
+    arguments. The arguments are separated by one or more spaces.
+*/
+bool QProcess::startDetached(const QString &program)
+{
+    QStringList args = program.split(QLatin1Char(' '));
+    QString prog = args.first();
+    args.removeFirst();
+    return QProcessPrivate::startDetached(prog, args);
+}
+
 #define d d_func()
 #include "moc_qprocess.cpp"
