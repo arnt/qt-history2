@@ -73,6 +73,7 @@ inline void QMacSavedFontInfo::init(CGrafPtr w)
 #include <qptrlist.h>
 #include <qpaintdevice.h>
 extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp
+extern QPainter *qt_mac_current_painter; //qpainter_mac.cpp
 class QMacSavedPortInfo
 {
     RgnHandle clip;
@@ -81,6 +82,7 @@ class QMacSavedPortInfo
     PenState pen; //go pennstate
     RGBColor back, fore;
     QMacSavedFontInfo *fi;
+    QPainter *painter;
     void init();
     
     static QPtrList<QMacSavedPortInfo> gports;
@@ -136,7 +138,16 @@ inline bool QMacSavedPortInfo::setClipRegion(const QRect &rect)
 {
     Rect r;
     SetRect(&r, rect.x(), rect.y(), rect.right()+1, rect.bottom()+1);
+#if defined(QT_THREAD_SUPPORT)
+    if(qt_mac_port_mutex)
+	qt_mac_port_mutex->lock();
+#endif
+    qt_mac_current_painter = NULL;
     ClipRect(&r);
+#if defined(QT_THREAD_SUPPORT)
+    if(qt_mac_port_mutex)
+	qt_mac_port_mutex->unlock();
+#endif
     return TRUE;
 }
 
@@ -146,7 +157,16 @@ inline bool QMacSavedPortInfo::setClipRegion(const QRegion &r)
 	return setClipRegion(QRect());
     else if(!r.handle())
 	return setClipRegion(r.boundingRect());
+#if defined(QT_THREAD_SUPPORT)
+    if(qt_mac_port_mutex)
+	qt_mac_port_mutex->lock();
+#endif
+    qt_mac_current_painter = NULL;
     SetClip(r.handle());
+#if defined(QT_THREAD_SUPPORT)
+    if(qt_mac_port_mutex)
+	qt_mac_port_mutex->unlock();
+#endif
     return TRUE;
 }
 
@@ -160,6 +180,7 @@ QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)
     bool ret = TRUE;
     if(!pd)
 	return FALSE;
+    qt_mac_current_painter = NULL;
     switch(pd->devType()) {
     case QInternal::Printer:
     case QInternal::Pixmap:
@@ -187,6 +208,7 @@ inline void QMacSavedPortInfo::init()
 	qt_mac_port_mutex->lock();
 #endif
     fi = NULL;
+    painter = qt_mac_current_painter;
     if(mac_window_count) {
    	GetBackColor(&back);
 	GetForeColor(&fore);
@@ -216,6 +238,7 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
     }
     if(fi)
 	delete fi;
+    qt_mac_current_painter = painter;
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
 	qt_mac_port_mutex->unlock();
