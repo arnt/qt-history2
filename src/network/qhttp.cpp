@@ -118,7 +118,7 @@ public:
 
     int idleTimer;
 
-    QMembuf rba;
+    QRingBuffer rba;
 
     QString userName;
     QString password;
@@ -447,6 +447,8 @@ class QHttpHeaderPrivate
 {
     Q_DECLARE_PUBLIC(QHttpHeader)
 public:
+    inline virtual ~QHttpHeaderPrivate() {}
+
     QMap<QString,QString> values;
     bool valid;
     QHttpHeader *q_ptr;
@@ -580,6 +582,7 @@ QHttpHeader::QHttpHeader(QHttpHeaderPrivate &dd, const QHttpHeader &header)
 */
 QHttpHeader::~QHttpHeader()
 {
+    delete d_ptr;
 }
 
 /*!
@@ -1658,7 +1661,14 @@ Q_LONGLONG QHttp::read(char *data, Q_LONGLONG maxlen)
     }
     if (maxlen >= d->rba.size())
         maxlen = d->rba.size();
-    d->rba.consumeBytes(maxlen, data);
+    int readSoFar = 0;
+    while (!d->rba.isEmpty() && readSoFar < maxlen) {
+        int nextBlockSize = d->rba.nextDataBlockSize();
+        int bytesToRead = qMin(maxlen - readSoFar, nextBlockSize);
+        memcpy(data + readSoFar, d->rba.readPointer(), bytesToRead);
+        d->rba.free(bytesToRead);
+        readSoFar += bytesToRead;
+    }
 
     d->bytesDone += maxlen;
 #if defined(QHTTP_DEBUG)
@@ -2425,7 +2435,8 @@ void QHttpPrivate::slotReadyRead()
                     else
                         emit q->dataReadProgress(bytesDone, 0);
                 } else {
-                    rba.append(arr);
+                    char *ptr = rba.reserve(arr->size());
+                    memcpy(ptr, arr->data(), arr->size());
 #if defined(QHTTP_DEBUG)
                     qDebug("QHttp::slotReadyRead(): read %lld bytes (%lld bytes done)", n, bytesDone + q->bytesAvailable());
 #endif
