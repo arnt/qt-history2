@@ -61,7 +61,7 @@
                                 <cstring>pathLabel</cstring>
                             </property>
                             <property name="text">
-                                <string>Destination &amp;path (appr. 250Mb free space required)</string>
+                                <string>Destination &amp;path (appr. 1Gb free space required)</string>
                             </property>
                             <property name="buddy" stdset="0">
                                 <cstring>installPath</cstring>
