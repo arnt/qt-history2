@@ -134,13 +134,17 @@ int main( int argc, char **argv )
 	    qWarning( "Qt interface definition compiler version 1.0" );
 	    return 0;
 	} else if ( p == "/regserver" || p == "-regserver" ) {
-	    if ( !registerServer( input ) )
+	    if ( !registerServer( input ) ) {
 		error = "Failed to register server!";
-	    break;
+		return 1;
+	    }
+	    return 0;
 	} else if ( p == "/unregserver" || p == "-unregserver" ) {
-	    if ( !unregisterServer( input ) )
+	    if ( !unregisterServer( input ) ) {
 		error = "Failed to unregister server!";
-	    break;
+		return 1;
+	    }
+	    return 0;
 	} else if ( p[0] == '/' || p[0] == '-' ) {
 	    error = "Unknown option \"" + p + "\"";
 	    break;
