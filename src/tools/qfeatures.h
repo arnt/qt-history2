@@ -34,8 +34,9 @@
 
 
 // Data structures
-
-/*! QStringList */
+/*!
+    QStringList
+*/
 //#define QT_NO_STRINGLIST
 
 // File I/O
@@ -143,7 +144,9 @@
 */
 //#define QT_NO_TRANSLATION
 
-/*! QTextCodec class and subclasses */
+/*!
+    QTextCodec class and subclasses
+*/
 //#define QT_NO_TEXTCODEC
 
 #if defined(QT_NO_TEXTCODEC)
@@ -239,10 +242,14 @@
 */
 //#define QT_NO_QWS_DEPTH_32
 
-/*! Window manager */
+/*!
+    Window manager
+*/
 //#define QT_NO_QWS_MANAGER
 
-/*! Saving of fonts */
+/*!
+    Saving of fonts
+*/
 //#define QT_NO_QWS_SAVEFONTS
 
 /*!
@@ -252,7 +259,9 @@
 */
 //#define QT_NO_QWS_GFX_SPEED
 
-/*! Qt/Embedded window system properties.  */
+/*!
+    Qt/Embedded window system properties.
+*/
 //#define QT_NO_QWS_PROPERTIES
 
 /*!
@@ -568,7 +577,7 @@
     #define QT_NO_WIZARD
 #endif
 
-#ifdef QT_NO_STRINGLIST
+#if defined(QT_NO_STRINGLIST)
     // Desktop features
     /*! Session management support */
     #define QT_NO_SESSIONMANAGER
