@@ -710,15 +710,18 @@ void QToolTip::setPalette( const QPalette &palette )
   Constructs a tool tip object.  This is necessary only if you need tool tips on regions that can move within the widget (most often because
   the widget's contents can scroll).
 
-  \a parent is the widget you want to add dynamic tool tips to and \a
+  \a widget is the widget you want to add dynamic tool tips to and \a
   group (optional) is the tool tip group they should belong to.
+
+  \warning QToolTip is not a subclass of QObject, so the instance of
+  QToolTip is not deleted when \a widget is deleted.
 
   \sa maybeTip().
 */
 
-QToolTip::QToolTip( QWidget * parent, QToolTipGroup * group )
+QToolTip::QToolTip( QWidget * widget, QToolTipGroup * group )
 {
-    p = parent;
+    p = widget;
     g = group;
     initTipManager();
     tipManager->add( p, entireWidget(),

@@ -60,11 +60,11 @@
 
 #if !defined(QT_NO_TITLEBAR)
 
+class QToolTip;
+
 class Q_EXPORT QTitleBar : public QWidget
 {
     Q_OBJECT
-
-    friend class QWorkspaceChild;
 
 public:
     QTitleBar (QWidget* w, QWidget* parent, const char* name=0);
@@ -110,6 +110,7 @@ private:
     void getColors();
     int buttonDown;
     QPoint moveOffset;
+    QToolTip *toolTip;
 
 public:
     bool act		    :1;

@@ -27,58 +27,63 @@ public:
     QTitleBarTip( QWidget * parent ) : QToolTip( parent ) { }
 
     void maybeTip( const QPoint &pos )
-	{
-	    if ( !parentWidget()->inherits( "QTitleBar" ) )
-		return;
-	    QTitleBar *t = (QTitleBar *)parentWidget();
-	    int controlWidth, controlHeight, titleHeight, titleWidth;
-	    t->style().titleBarMetrics(t, controlWidth, controlHeight, titleWidth, titleHeight);
+    {
+	if ( !parentWidget()->inherits( "QTitleBar" ) )
+	    return;
+	QTitleBar *t = (QTitleBar *)parentWidget();
+	int controlWidth, controlHeight, titleHeight, titleWidth;
+	t->style().titleBarMetrics(t, controlWidth, controlHeight, titleWidth, titleHeight);
 
-	    QString tipstring;
-	    switch(t->style().titleBarPointOver( t, pos )) {
-	    case QStyle::TitleNone:
-		break;
-	    case QStyle::TitleSysMenu:
-		tipstring = t->tr("System Menu");
-		break;
-	    case QStyle::TitleShadeButton:
-		tipstring = t->tr("Shade");
-		break;
-	    case QStyle::TitleUnshadeButton:
-		tipstring = t->tr("Unshade");
-		break;
-	    case QStyle::TitleNormalButton:
-	    case QStyle::TitleMinButton:
-		if(t->window->isMinimized())
-		    tipstring = t->tr("Normalize");
-		else
-		    tipstring = t->tr("Minimize");
-		break;
-	    case QStyle::TitleMaxButton:
-		tipstring = t->tr("Maximize");
-		break;
-	    case QStyle::TitleCloseButton:
-		tipstring = t->tr("Close");
-		break;
-	    case QStyle::TitleLabel:
-		if(t->cuttext != t->text)
-		    tipstring = t->text;
-		break;
-	    }
-	    if(!tipstring.isEmpty()) 
-		tip( QRect(pos, QSize(controlWidth, controlHeight)), tipstring );
+	QString tipstring;
+	switch(t->style().titleBarPointOver( t, pos )) {
+	case QStyle::TitleNone:
+	    break;
+	case QStyle::TitleSysMenu:
+	    tipstring = t->tr("System Menu");
+	    break;
+	case QStyle::TitleShadeButton:
+	    tipstring = t->tr("Shade");
+	    break;
+	case QStyle::TitleUnshadeButton:
+	    tipstring = t->tr("Unshade");
+	    break;
+	case QStyle::TitleNormalButton:
+	case QStyle::TitleMinButton:
+	    if(t->window->isMinimized())
+		tipstring = t->tr("Normalize");
+	    else
+		tipstring = t->tr("Minimize");
+	    break;
+	case QStyle::TitleMaxButton:
+	    tipstring = t->tr("Maximize");
+	    break;
+	case QStyle::TitleCloseButton:
+	    tipstring = t->tr("Close");
+	    break;
+	case QStyle::TitleLabel:
+	    if(t->cuttext != t->text)
+		tipstring = t->text;
+	    break;
 	}
+	if(!tipstring.isEmpty()) 
+	    tip( QRect(pos, QSize(controlWidth, controlHeight)), tipstring );
+    }
 };
 
 QTitleBar::QTitleBar (QWidget* w, QWidget* parent, const char* name)
     : QWidget( parent, name, WStyle_Customize | WStyle_NoBorder | WResizeNoErase | WRepaintNoErase )
 {
-    (void) new QTitleBarTip( this );
+    toolTip = new QTitleBarTip( this );
     window = w;
     buttonDown = 0;
     act = 0;
     getColors();
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
+}
+
+QTitleBar::~QTitleBar()
+{
+    delete toolTip;
 }
 
 #ifdef Q_WS_WIN
@@ -129,10 +134,6 @@ void QTitleBar::getColors()
     }
 #endif // Q_WS_WIN
     setActive( act );
-}
-
-QTitleBar::~QTitleBar()
-{
 }
 
 void QTitleBar::mousePressEvent( QMouseEvent * e)
