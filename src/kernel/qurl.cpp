@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#43 $
 **
 ** Implementation of QFileDialog class
 **
@@ -878,8 +878,9 @@ QString QUrl::toString( bool encodedPath, bool forcePrependProtocol ) const
 	encode( p );
 
     if ( isLocalFile() ) {
-	if ( !forcePrependProtocol && ( !qNetworkProtocolRegister || ( qNetworkProtocolRegister &&
-								       qNetworkProtocolRegister->count() == 0 ) ) )
+	if ( !forcePrependProtocol && ( !qNetworkProtocolRegister || 
+					qNetworkProtocolRegister->count() == 0 ||
+					QNetworkProtocol::hasOnlyLocalFileSystem() ) )
 	    res = p;
 	else
 	    res = d->protocol + ":" + p;
@@ -898,7 +899,8 @@ QString QUrl::toString( bool encodedPath, bool forcePrependProtocol ) const
 	res += p;
     }
 
-    if ( qNetworkProtocolRegister && qNetworkProtocolRegister->count() > 0 ) {
+    if ( qNetworkProtocolRegister && qNetworkProtocolRegister->count() > 0 && 
+	 !QNetworkProtocol::hasOnlyLocalFileSystem() ) {
 	if ( !d->refEncoded.isEmpty() )
 	    res += "#" + d->refEncoded;
 	if ( !d->queryEncoded.isEmpty() )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.h#1 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.h#2 $
 **
 ** Implementation of QFileDialog class
 **
@@ -28,84 +28,63 @@
 
 #include "qobject.h"
 #include "qurl.h"
+#include "qlist.h"
 
 struct QUrlOperatorPrivate;
 class QUrlInfo;
+class QNetworkOperation;
 
 class QUrlOperator : public QObject,
 		     public QUrl
 {
     Q_OBJECT
-    
-public:
-    enum Error {
-	ErrDeleteFile = -1,
-	ErrRenameFile = -2,
-	ErrCopyFile = -3,
-	ErrReadDir = -4,
-	ErrCreateDir = -5,
-	ErrUnknownProtocol = -6,
-	ErrParse = -7,
-	ErrLoginIncorrect = -8,
-	ErrHostNotFound = -9,
-	ErrValid = -10
-    };
 
-    enum Action {
-	ActListDirectory = 0,
-	ActCopyFiles,
-	ActMoveFiles,
-	ActGet
-    };
-    
+public:
     QUrlOperator();
     QUrlOperator( const QString &urL );
     QUrlOperator( const QUrlOperator& url );
     QUrlOperator( const QUrlOperator& url, const QString& relUrl_ );
     virtual ~QUrlOperator();
-    
+
     virtual void setPath( const QString& path );
     virtual bool cdUp();
 
-    virtual void listEntries();
-    virtual void mkdir( const QString &dirname );
-    virtual void remove( const QString &filename );
-    virtual void rename( const QString &oldname, const QString &newname );
-    virtual void copy( const QString &from, const QString &to );
-    virtual void copy( const QStringList &files, const QString &dest, bool move );
+    virtual QNetworkOperation *listChildren();
+    virtual QNetworkOperation *mkdir( const QString &dirname );
+    virtual QNetworkOperation *remove( const QString &filename );
+    virtual QNetworkOperation *rename( const QString &oldname, const QString &newname );
+    virtual QNetworkOperation *copy( const QString &from, const QString &to, bool move );
+    virtual QList<QNetworkOperation> copy( const QStringList &files, const QString &dest, bool move );
     virtual bool isDir();
 
-    virtual void get( const QCString &data );
+    virtual QNetworkOperation *get( const QCString &data );
 
     virtual void setNameFilter( const QString &nameFilter );
     QString nameFilter() const;
 
     virtual QUrlInfo info( const QString &entry ) const;
 
-    void emitEntry( const QUrlInfo & );
-    void emitFinished( int action );
-    void emitStart( int action );
-    void emitCreatedDirectory( const QUrlInfo & );
-    void emitRemoved( const QString & );
-    void emitItemChanged( const QString &oldname, const QString &newname );
-    void emitError( int ecode, const QString &msg );
-    void emitData( const QCString &d );
-    void emitCopyProgress( const QString &from, const QString &to,
-			   int step, int total );
+    void emitNewChild( const QUrlInfo &, QNetworkOperation *res );
+    void emitFinished( QNetworkOperation *res );
+    void emitStart( QNetworkOperation *res );
+    void emitCreatedDirectory( const QUrlInfo &, QNetworkOperation *res );
+    void emitRemoved( QNetworkOperation *res );
+    void emitItemChanged( QNetworkOperation *res );
+    void emitData( const QCString &, QNetworkOperation *res );
+    void emitCopyProgress( int step, int total, QNetworkOperation *res );
 
     QUrlOperator& operator=( const QUrlOperator &url );
 
 signals:
-    void entry( const QUrlInfo & );
-    void finished( int );
-    void start( int );
-    void createdDirectory( const QUrlInfo & );
-    void removed( const QString & );
-    void itemChanged( const QString &oldname, const QString &newname );
-    void error( int ecode, const QString &msg );
-    void data( const QCString & );
-    void copyProgress( const QString &, const QString &,
-		       int step, int total );
+    void newChild( const QUrlInfo &, QNetworkOperation *res );
+    void finished( QNetworkOperation *res );
+    void start( QNetworkOperation *res );
+    void createdDirectory( const QUrlInfo &, QNetworkOperation *res );
+    void removed( QNetworkOperation *res );
+    void itemChanged( QNetworkOperation *res );
+    void data( const QCString &, QNetworkOperation *res );
+    void copyProgress( int step, int total, QNetworkOperation *res );
+    
 protected:
     virtual void reset();
     virtual bool parse( const QString& url );
@@ -117,56 +96,50 @@ protected:
 
 private:
     QUrlOperatorPrivate *d;
-    
+
 };
 
-inline void QUrlOperator::emitEntry( const QUrlInfo &i )
+inline void QUrlOperator::emitNewChild( const QUrlInfo &i, QNetworkOperation *res )
 {
     addEntry( i );
-    emit entry( i );
+    emit newChild( i, res );
 }
 
-inline void QUrlOperator::emitFinished( int action )
+inline void QUrlOperator::emitFinished( QNetworkOperation *res )
 {
-    emit finished( action );
+    emit finished( res );
     deleteNetworkProtocol();
     getNetworkProtocol();
 }
 
-inline void QUrlOperator::emitStart( int action )
+inline void QUrlOperator::emitStart( QNetworkOperation *res )
 {
-    emit start( action );
+    emit start( res );
 }
 
-inline void QUrlOperator::emitCreatedDirectory( const QUrlInfo &i )
+inline void QUrlOperator::emitCreatedDirectory( const QUrlInfo &i, QNetworkOperation *res )
 {
-    emit createdDirectory( i );
+    emit createdDirectory( i, res );
 }
 
-inline void QUrlOperator::emitRemoved( const QString &s )
+inline void QUrlOperator::emitRemoved( QNetworkOperation *res )
 {
-    emit removed( s );
+    emit removed( res );
 }
 
-inline void QUrlOperator::emitItemChanged( const QString &oldname, const QString &newname )
+inline void QUrlOperator::emitItemChanged( QNetworkOperation *res )
 {
-    emit itemChanged( oldname, newname );
+    emit itemChanged( res );
 }
 
-inline void QUrlOperator::emitError( int ecode, const QString &msg )
+inline void QUrlOperator::emitData( const QCString &d, QNetworkOperation *res )
 {
-    emit error( ecode, msg );
+    emit data( d, res );
 }
 
-inline void QUrlOperator::emitData( const QCString &d )
+inline void QUrlOperator::emitCopyProgress( int step, int total, QNetworkOperation *res )
 {
-    emit data( d );
-}
-
-inline void QUrlOperator::emitCopyProgress( const QString &from, const QString &to,
-				    int step, int total )
-{
-    emit copyProgress( from, to, step, total );
+    emit copyProgress( step, total, res );
 }
 
 #endif

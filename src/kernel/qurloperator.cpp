@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#4 $
 **
 ** Implementation of QFileDialog class
 **
@@ -300,50 +300,31 @@ QUrlOperator::~QUrlOperator()
   using a network protocol.
 */
 
-void QUrlOperator::listEntries()
+QNetworkOperation *QUrlOperator::listChildren()
 {
     if ( !checkValid() )
-	return;
+	return 0;
 
-    clearEntries();
-    if ( isLocalFile() ) {
-	d->dir = QDir( path( FALSE ) );
-	d->dir.setNameFilter( d->nameFilter );
-	d->dir.setMatchAllDirs( TRUE );
-	if ( !d->dir.isReadable() ) {
-	    QString msg = tr( "Could not read directory\n" + path( FALSE ) );
-	    emit error( ErrReadDir, msg );
-	    return;
-	}
-	
-	const QFileInfoList *filist = d->dir.entryInfoList( QDir::All | QDir::Hidden );
-	if ( !filist ) {
-	    QString msg = tr( "Could not read directory\n" + path( FALSE ) );
-	    emit error( ErrReadDir, msg );
-	    return;
-	}
-	
-	emit start( ActListDirectory );
-	QFileInfoListIterator it( *filist );
-	QFileInfo *fi;
-	while ( ( fi = it.current()) != 0 ) {
-	    ++it;
-	    QUrlInfo inf( fi->fileName(), 0/*permissions*/, fi->owner(), fi->group(),
-			  fi->size(), fi->lastModified(), fi->lastRead(), fi->isDir(), fi->isFile(),
-			  fi->isSymLink(), fi->isWritable(), fi->isReadable(), fi->isExecutable() );
-	    emit entry( inf );
-	    addEntry( inf );
-	}
-	emit finished( ActListDirectory );
-    } else if ( d->networkProtocol &&
-		d->networkProtocol->supportedOperations() & QNetworkProtocol::OpListEntries ) {
-	emit start( ActListDirectory );
-	setNameFilter( d->nameFilter );
-	d->networkProtocol->listEntries();
-    } else
-	emit error( ErrUnknownProtocol, tr( "The protocol `%1' is not supported\n"
-						  "or `%2' doesn't support listing directores" ).
-		    arg( protocol() ).arg( protocol() ) );
+    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpListChildren,
+						    QString::null, QString::null, QString::null );
+    
+    if ( d->networkProtocol && 
+	 d->networkProtocol->supportedOperations() & QNetworkProtocol::OpListChildren ) {
+	d->networkProtocol->addOperation( res );
+	clearEntries();
+	return res;
+    } else {
+	QString msg = tr( "The protocol `%1' is not supported\n"
+			  "or `%2' doesn't support listing directores" ).
+		      arg( protocol() ).arg( protocol() );
+	res->setState( QNetworkProtocol::StFailed );
+	res->setProtocolDetail( msg );
+	res->setErrorCode( QNetworkProtocol::ErrUnsupported );
+	emit finished( res );
+	delete res;
+    }
+
+    return 0;
 }
 
 /*!
@@ -354,31 +335,30 @@ void QUrlOperator::listEntries()
   Else the error() signal is emitted.
 */
 
-void QUrlOperator::mkdir( const QString &dirname )
+QNetworkOperation *QUrlOperator::mkdir( const QString &dirname )
 {
     if ( !checkValid() )
-	return;
+	return 0;
 
-    if ( isLocalFile() ) {
-	d->dir = QDir( path( FALSE ) );
-	if ( d->dir.mkdir( dirname ) ) {
-	    QFileInfo fi( d->dir, dirname );
-	    QUrlInfo inf( fi.fileName(), 0/*permissions*/, fi.owner(), fi.group(),
-			  fi.size(), fi.lastModified(), fi.lastRead(), fi.isDir(), fi.isFile(),
-			  fi.isSymLink(), fi.isWritable(), fi.isReadable(), fi.isExecutable() );
-	    emit entry( inf );
-	    emit createdDirectory( inf );
-	} else {
-	    QString msg = tr( "Could not create directory\n" + dirname );
-	    emit error( ErrCreateDir, msg );
-	}
-    } else if ( d->networkProtocol &&
-	d->networkProtocol->supportedOperations() & QNetworkProtocol::OpMkdir ) {
-	d->networkProtocol->mkdir( dirname );
-    } else
-	emit error( ErrUnknownProtocol, tr( "The protocol `%1' is not supported\n"
-						  "or `%2' doesn't support making directores" ).
-		    arg( protocol() ).arg( protocol() ) );
+    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpMkdir,
+						    dirname, QString::null, QString::null );
+
+    if ( d->networkProtocol && 
+	 d->networkProtocol->supportedOperations() & QNetworkProtocol::OpMkdir ) {
+	d->networkProtocol->addOperation( res );
+	return res;
+    } else {
+	QString msg = tr( "The protocol `%1' is not supported\n"
+			  "or `%2' doesn't support making directories" ).
+		      arg( protocol() ).arg( protocol() );
+	res->setState( QNetworkProtocol::StFailed );
+	res->setProtocolDetail( msg );
+	res->setErrorCode( QNetworkProtocol::ErrUnsupported );
+	emit finished( res );
+	delete res;
+    }
+
+    return 0;
 }
 
 /*!
@@ -388,26 +368,30 @@ void QUrlOperator::mkdir( const QString &dirname )
   Else the error() signal is emitted.
 */
 
-void QUrlOperator::remove( const QString &filename )
+QNetworkOperation *QUrlOperator::remove( const QString &filename )
 {
     if ( !checkValid() )
-	return;
+	return 0;
 
-    if ( isLocalFile() ) {
-	QDir dir( path( FALSE ) );
-	if ( dir.remove( filename ) )
-	    emit removed( filename );
-	else {
-	    QString msg = tr( "Could not delete file\n" + filename );
-	    emit error( ErrDeleteFile, msg );
-	}
-    } else if ( d->networkProtocol &&
-	d->networkProtocol->supportedOperations() & QNetworkProtocol::OpRemove ) {
-	d->networkProtocol->remove( filename );
-    } else
-	emit error( ErrUnknownProtocol, tr( "The protocol `%1' is not supported\n"
-						  "or `%2' doesn't support removing files" ).
-		    arg( protocol() ).arg( protocol() ) );
+    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpRemove,
+						    filename, QString::null, QString::null );
+
+    if ( d->networkProtocol && 
+	 d->networkProtocol->supportedOperations() & QNetworkProtocol::OpRemove ) {
+	d->networkProtocol->addOperation( res );
+	return res;
+    } else {
+	QString msg = tr( "The protocol `%1' is not supported\n"
+			  "or `%2' doesn't support removing files or directories" ).
+		      arg( protocol() ).arg( protocol() );
+	res->setState( QNetworkProtocol::StFailed );
+	res->setProtocolDetail( msg );
+	res->setErrorCode( QNetworkProtocol::ErrUnsupported );
+	emit finished( res );
+	delete res;
+    }
+
+    return 0;
 }
 
 /*!
@@ -417,71 +401,65 @@ void QUrlOperator::remove( const QString &filename )
   Else the error() signal is emitted.
 */
 
-void QUrlOperator::rename( const QString &oldname, const QString &newname )
+QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QString &newname )
 {
     if ( !checkValid() )
-	return;
+	return 0;
 
-    if ( isLocalFile() ) {
-	QDir dir( path( FALSE ) );
-	if ( dir.rename( oldname, newname ) )
-	    emit itemChanged( oldname, newname );
-    } else if ( d->networkProtocol &&
-	d->networkProtocol->supportedOperations() & QNetworkProtocol::OpRename ) {
-	d->networkProtocol->rename( oldname, newname );
-    } else
-	emit error( ErrUnknownProtocol, tr( "The protocol `%1' is not supported\n"
-						  "or `%2' doesn't support renaming files" ).
-		    arg( protocol() ).arg( protocol() ) );
+    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpRename,
+						    oldname, newname, QString::null );
+
+    if ( d->networkProtocol && 
+	 d->networkProtocol->supportedOperations() & QNetworkProtocol::OpRename ) {
+	d->networkProtocol->addOperation( res );
+	return res;
+    } else {
+	QString msg = tr( "The protocol `%1' is not supported\n"
+			  "or `%2' doesn't support renaming files or directories" ).
+		      arg( protocol() ).arg( protocol() );
+	res->setState( QNetworkProtocol::StFailed );
+	res->setProtocolDetail( msg );
+	res->setErrorCode( QNetworkProtocol::ErrUnsupported );
+	emit finished( res );
+	delete res;
+    }
+
+    return 0;
 }
 
 /*!
   Copies the file \a from to \a to on the local filesystem.
 */
 
-void QUrlOperator::copy( const QString &from, const QString &to )
+QNetworkOperation *QUrlOperator::copy( const QString &from, const QString &to, bool move )
 {
-    QFile f( from );
-    if ( !f.open( IO_ReadOnly ) )
-	return;
+    if ( !checkValid() )
+	return 0;
 
-    QFileInfo fi( to );
-    if ( fi.exists() ) {
-	if ( !fi.isFile() ) {
-	    f.close();
-	    qWarning( QString( "Couldn't write file\n%1" ).arg( to ) );
-	    return;
-	}
+    QNetworkProtocol::Operation o = move ? QNetworkProtocol::OpMove 
+				    : QNetworkProtocol::OpCopy;
+
+    QNetworkOperation *res = new QNetworkOperation( o, from, to, QString::null );
+
+    if ( d->networkProtocol && 
+	 d->networkProtocol->supportedOperations() & o ) {
+	d->networkProtocol->addOperation( res );
+	if ( move )
+	    d->networkProtocol->addOperation( new QNetworkOperation( QNetworkProtocol::OpRemove,
+								     from, QString::null, QString::null ) );
+	return res;
+    } else {
+	QString msg = tr( "The protocol `%1' is not supported\n"
+			  "or `%2' doesn't support copying or moving files or directories" ).
+		      arg( protocol() ).arg( protocol() );
+	res->setState( QNetworkProtocol::StFailed );
+	res->setProtocolDetail( msg );
+	res->setErrorCode( QNetworkProtocol::ErrUnsupported );
+	emit finished( res );
+	delete res;
     }
 
-    QFile f2( to );
-    if ( !f2.open( IO_WriteOnly ) ) {
-	f.close();
-	return;
-    }
-
-    char *block = new char[ 1024 ];
-    bool error = FALSE;
-    int sum = 0;
-    emit copyProgress( from, to, -1, 100 );
-    while ( !f.atEnd() ) {
-	int len = f.readBlock( block, 100 );
-	if ( len == -1 ) {
-	    error = TRUE;
-	    break;
-	}
-	sum += len;
-	emit copyProgress( from, to, ( sum * 100 ) / f.size(), 100 );
-	f2.writeBlock( block, len );
-	qApp->processEvents();
-    }
-
-    delete[] block;
-
-    f.close();
-    f2.close();
-
-    return;
+    return 0;
 }
 
 /*!
@@ -489,32 +467,34 @@ void QUrlOperator::copy( const QString &from, const QString &to )
   the files are moved and not copied.
 */
 
-void QUrlOperator::copy( const QStringList &files, const QString &dest, bool move )
+QList<QNetworkOperation> QUrlOperator::copy( const QStringList &files, const QString &dest, bool move )
 {
     if ( !checkValid() )
-	return;
-
-    if ( isLocalFile() ) {
-	emit start( move ? ActMoveFiles : ActCopyFiles );
-	QString de = dest;
-	if ( de.left( QString( "file:" ).length() ) == "file:" )
-	    de.remove( 0, QString( "file:" ).length() );
+	return QList<QNetworkOperation>();
+    QNetworkProtocol::Operation o = move ? QNetworkProtocol::OpMove
+				    : QNetworkProtocol::OpCopy;
+    
+    if ( d->networkProtocol && 
+	 d->networkProtocol->supportedOperations() & o ) {
 	QStringList::ConstIterator it = files.begin();
-	for ( ; it != files.end(); ++it ) {
-	    if ( QFileInfo( *it ).isFile() ) {
-		copy( *it, de + "/" + QFileInfo( *it ).fileName() );
-		if ( move )
-		    QFile::remove( *it );
-	    }
-	}
-	emit finished( move ? ActMoveFiles : ActCopyFiles );
-    } else if ( d->networkProtocol &&
-	d->networkProtocol->supportedOperations() & QNetworkProtocol::OpCopy ) {
-	d->networkProtocol->copy( files, dest, move );
-    } else
-	emit error( ErrUnknownProtocol, tr( "The protocol `%1' is not supported\n"
-						  "or `%2' doesn't support copying files" ).
-		    arg( protocol() ).arg( protocol() ) );
+	QList<QNetworkOperation> ops;
+	for ( ; it != files.end(); ++it )
+	    ops.append( copy( *it, dest, move ) );
+	return ops;
+    } else {
+	QString msg = tr( "The protocol `%1' is not supported\n"
+			  "or `%2' doesn't support copying or moving  files or directories" ).
+		      arg( protocol() ).arg( protocol() );
+	QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpCopy,
+							QString::null, QString::null, QString::null ); //####
+	res->setState( QNetworkProtocol::StFailed );
+	res->setProtocolDetail( msg );
+	res->setErrorCode( QNetworkProtocol::ErrUnsupported );
+	emit finished( res );
+	delete res;
+    }
+    
+    return QList<QNetworkOperation>();
 }
 
 /*!
@@ -544,11 +524,31 @@ bool QUrlOperator::isDir()
 /*!
  */
 
-void QUrlOperator::get( const QCString &data )
+QNetworkOperation *QUrlOperator::get( const QCString &data )
 {
-    if ( d->networkProtocol &&
-	d->networkProtocol->supportedOperations() & QNetworkProtocol::OpGet )
-	d->networkProtocol->get( data );
+    if ( !checkValid() )
+	return 0;
+
+    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpGet,
+						    QString::fromLatin1( data ), 
+						    QString::null, QString::null );
+
+    if ( d->networkProtocol && 
+	 d->networkProtocol->supportedOperations() & QNetworkProtocol::OpGet ) {
+	d->networkProtocol->addOperation( res );
+	return res;
+    } else {
+	QString msg = tr( "The protocol `%1' is not supported\n"
+			  "or `%2' doesn't support get" ).
+		      arg( protocol() ).arg( protocol() );
+	res->setState( QNetworkProtocol::StFailed );
+	res->setProtocolDetail( msg );
+	res->setErrorCode( QNetworkProtocol::ErrUnsupported );
+	emit finished( res );
+	delete res;
+    }
+
+    return 0;
 }
 
 /*!
@@ -610,11 +610,6 @@ QUrlInfo QUrlOperator::info( const QString &entry ) const
 
 void QUrlOperator::getNetworkProtocol()
 {
-    if ( isLocalFile() || !qNetworkProtocolRegister ) {
-	d->networkProtocol = 0;
-	return;
-    }
-
     QNetworkProtocol *p = QNetworkProtocol::getNetworkProtocol( protocol() );
     if ( !p ) {
 	d->networkProtocol = 0;
@@ -664,9 +659,10 @@ void QUrlOperator::reset()
 
 bool QUrlOperator::parse( const QString &url )
 {
+    // ######
     bool b = QUrl::parse( url );
     if ( !b ) {
-	emit error( ErrParse, tr( "Error in parsing `%1'" ).arg( url ) );
+// 	emit error( ErrParse, tr( "Error in parsing `%1'" ).arg( url ) );
 	return b;
     }
 
@@ -704,8 +700,9 @@ bool QUrlOperator::cdUp()
 
 bool QUrlOperator::checkValid()
 {
+    // ######
     if ( !isValid() ) {
-	emit error( ErrValid, tr( "The entered URL is not valid!" ) );
+	//emit error( ErrValid, tr( "The entered URL is not valid!" ) );
 	return FALSE;
     } else
 	return TRUE;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#12 $
 **
 ** Implementation of QFileDialog class
 **
@@ -24,6 +24,8 @@
 *****************************************************************************/
 
 #include "qnetworkprotocol.h"
+#include "qlocalfs.h"
+#include "qtimer.h"
 
 QNetworkProtocolDict *qNetworkProtocolRegister = 0;
 
@@ -136,8 +138,31 @@ QNetworkProtocolDict *qNetworkProtocolRegister = 0;
 */
 
 QNetworkProtocol::QNetworkProtocol()
-    : url( 0 )
+    : url( 0 ), opInProgress( 0 )
 {
+    connect( this, SIGNAL( data( const QCString &, QNetworkOperation * ) ),
+	     this, SLOT( emitData( const QCString &, QNetworkOperation * ) ) );
+    connect( this, SIGNAL( finished( QNetworkOperation * ) ),
+	     this, SLOT( emitFinished( QNetworkOperation * ) ) );
+    connect( this, SIGNAL( start( QNetworkOperation * ) ),
+	     this, SLOT( emitStart( QNetworkOperation * ) ) );
+    connect( this, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
+	     this, SLOT( emitNewChild( const QUrlInfo &, QNetworkOperation * ) ) );
+    connect( this, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
+	     this, SLOT( emitCreatedDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
+    connect( this, SIGNAL( removed( QNetworkOperation * ) ),
+	     this, SLOT( emitRemoved( QNetworkOperation * ) ) );
+    connect( this, SIGNAL( itemChanged( QNetworkOperation * ) ),
+	     this, SLOT( emitItemChanged( QNetworkOperation * ) ) );
+    connect( this, SIGNAL( copyProgress( int, int, QNetworkOperation * ) ),
+	     this, SLOT( emitCopyProgress( int, int, QNetworkOperation * ) ) );
+
+    connect( this, SIGNAL( finished( QNetworkOperation * ) ),
+	     this, SLOT( processNextOperation( QNetworkOperation * ) ) );
+    opStartTimer = new QTimer( this );
+    connect( opStartTimer, SIGNAL( timeout() ),
+	     this, SLOT( startOps() ) );
+    
 }
 
 /*!
@@ -147,32 +172,9 @@ QNetworkProtocol::QNetworkProtocol()
 QNetworkProtocol::~QNetworkProtocol()
 {
     url = 0;
-}
-
-/*!
-  Open connection.
-*/
-
-void QNetworkProtocol::openConnection( QUrlOperator *u )
-{
-    setUrl( u );
-}
-
-/*!
-  #### todo
-*/
-
-bool QNetworkProtocol::isOpen()
-{
-    return FALSE;
-}
-
-/*!
-  #### todo
-*/
-
-void QNetworkProtocol::close()
-{
+    if ( opInProgress )
+	delete opInProgress;
+    operationQueue.setAutoDelete( TRUE );
 }
 
 /*!
@@ -182,54 +184,97 @@ void QNetworkProtocol::close()
 void QNetworkProtocol::setUrl( QUrlOperator *u )
 {
     url = u;
+    if ( !opInProgress && !operationQueue.isEmpty() )
+	opStartTimer->start( 0, TRUE );
 }
 
 /*!
   #### todo
 */
 
-void QNetworkProtocol::get( const QCString & )
+QNetworkOperation *QNetworkProtocol::get( const QCString &d )
 {
+    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpGet,
+						    QString::fromLatin1( d ),
+						    QString::null, QString::null );
+    addOperation( res );
+    return res;
 }
 
 /*!
   #### todo
 */
 
-void QNetworkProtocol::listEntries()
+QNetworkOperation *QNetworkProtocol::listChildren()
 {
+    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpListChildren,
+						    QString::null,
+						    QString::null, QString::null );
+    addOperation( res );
+    return res;
 }
 
 /*!
   #### todo
 */
 
-void QNetworkProtocol::mkdir( const QString & )
+QNetworkOperation *QNetworkProtocol::mkdir( const QString &d )
 {
+    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpMkdir,
+						    d,
+						    QString::null, QString::null );
+    addOperation( res );
+    return res;
 }
 
 /*!
   #### todo
 */
 
-void QNetworkProtocol::remove( const QString & )
+QNetworkOperation *QNetworkProtocol::remove( const QString &d )
 {
+    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpRemove,
+						    d,
+						    QString::null, QString::null );
+    addOperation( res );
+    return res;
 }
 
 /*!
   #### todo
 */
 
-void QNetworkProtocol::rename( const QString &, const QString & )
+QNetworkOperation *QNetworkProtocol::rename( const QString &on, const QString &nn )
 {
+    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpRename,
+						    on, nn, QString::null );
+    addOperation( res );
+    return res;
 }
 
 /*!
   #### todo
 */
 
-void QNetworkProtocol::copy( const QStringList &, const QString &, bool )
+QNetworkOperation *QNetworkProtocol::copy( const QString &from, const QString &to, bool move )
 {
+    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpCopy,
+						    from, to, QString::null );
+    addOperation( res );
+    if ( move ) {
+	QNetworkOperation *m = new QNetworkOperation( QNetworkProtocol::OpRemove, from,
+						      QString::null, QString::null );
+	addOperation( m );
+    }
+    return res;
+}
+
+/*!
+ */
+
+bool QNetworkProtocol::checkConnection( QNetworkOperation * )
+{
+    return TRUE;
 }
 
 /*!
@@ -242,14 +287,26 @@ int QNetworkProtocol::supportedOperations() const
 }
 
 /*!
+ */
+
+void QNetworkProtocol::addOperation( QNetworkOperation *op )
+{
+    operationQueue.enqueue( op );
+    if ( !opInProgress )
+	opStartTimer->start( 0, TRUE );
+}
+
+/*!
   #### todo
 */
 
 void QNetworkProtocol::registerNetworkProtocol( const QString &protocol,
 						QNetworkProtocolFactoryBase *protocolFactory )
 {
-    if ( !qNetworkProtocolRegister )
+    if ( !qNetworkProtocolRegister ) {
 	qNetworkProtocolRegister = new QNetworkProtocolDict;
+	QNetworkProtocol::registerNetworkProtocol( "file", new QNetworkProtocolFactory< QLocalFs > );
+    }
 
     qNetworkProtocolRegister->insert( protocol, protocolFactory );
 }
@@ -260,9 +317,11 @@ void QNetworkProtocol::registerNetworkProtocol( const QString &protocol,
 
 QNetworkProtocol *QNetworkProtocol::getNetworkProtocol( const QString &protocol )
 {
-    if ( !qNetworkProtocolRegister )
+    if ( !qNetworkProtocolRegister ) {
 	qNetworkProtocolRegister = new QNetworkProtocolDict;
-
+	QNetworkProtocol::registerNetworkProtocol( "file", new QNetworkProtocolFactory< QLocalFs > );
+    }
+    
     if ( protocol.isNull() )
 	return 0;
 
@@ -273,3 +332,222 @@ QNetworkProtocol *QNetworkProtocol::getNetworkProtocol( const QString &protocol 
     return 0;
 }
 
+/*!
+ */
+
+bool QNetworkProtocol::hasOnlyLocalFileSystem()
+{
+    if ( !qNetworkProtocolRegister )
+	return FALSE;
+    
+    QDictIterator< QNetworkProtocolFactoryBase > it( *qNetworkProtocolRegister );
+    for ( ; it.current(); ++it )
+	if ( it.currentKey() != "file" )
+	    return FALSE;
+    return TRUE;
+}
+
+/*!
+ */
+
+void QNetworkProtocol::startOps()
+{
+    processNextOperation( 0 );
+}
+
+/*!
+ */
+
+void QNetworkProtocol::processOperation( QNetworkOperation *op )
+{
+    if ( !op )
+	return;
+    
+    switch ( op->operation() ) {
+    case OpListChildren:
+	operationListChildren( op );
+	break;
+    case OpMkdir:
+	operationMkDir( op );
+	break;
+    case OpRemove:
+	operationRemove( op );
+	break;
+    case OpRename:
+	operationRename( op );
+	break;
+    case OpCopy: case OpMove:
+	operationCopy( op );
+	break;
+    case OpGet:
+	operationGet( op );
+	break;
+    }
+}
+
+/*!
+ */
+
+void QNetworkProtocol::operationListChildren( QNetworkOperation * )
+{
+}
+
+/*!
+ */
+
+void QNetworkProtocol::operationMkDir( QNetworkOperation * )
+{
+}
+
+/*!
+ */
+
+void QNetworkProtocol::operationRemove( QNetworkOperation * )
+{
+}
+
+/*!
+ */
+
+void QNetworkProtocol::operationRename( QNetworkOperation * )
+{
+}
+
+/*!
+ */
+
+void QNetworkProtocol::operationCopy( QNetworkOperation * )
+{
+}
+
+/*!
+ */
+
+void QNetworkProtocol::operationGet( QNetworkOperation * )
+{
+}
+
+/*!
+ */
+
+void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
+{
+    if ( old )
+	delete old;
+    
+    if ( operationQueue.isEmpty() ) {
+	opInProgress = 0;
+	return;
+    }
+
+    QNetworkOperation *op = operationQueue.head();
+    opInProgress = 0;
+ 
+    if ( !checkConnection( op ) ) {
+	if ( op->state() != QNetworkProtocol::StFailed )
+	    opStartTimer->start( 0, TRUE );
+	else {
+	    emit finished( op );
+	    operationQueue.clear();
+	}
+	    
+	return;
+    }
+    
+    opInProgress = op;
+    operationQueue.dequeue();
+    processOperation( op );
+}
+
+
+/*!
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+
+struct QNetworkOperationPrivate
+{
+    QNetworkProtocol::Operation operation;
+    QNetworkProtocol::State state;
+    QString arg1, arg2, arg3;
+    QString protocolDetail;
+    QNetworkProtocol::Error errorCode;
+};
+
+QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
+				      const QString &arg1, const QString &arg2,
+				      const QString &arg3 )
+{
+    d = new QNetworkOperationPrivate;
+    d->operation = operation;
+    d->state = QNetworkProtocol::StWaiting;
+    d->arg1 = arg1;
+    d->arg2 = arg2;
+    d->arg3 = arg3;
+    d->protocolDetail = QString::null;
+    d->errorCode = QNetworkProtocol::NoError;
+}
+
+QNetworkOperation::~QNetworkOperation()
+{
+    delete d;
+}
+
+void QNetworkOperation::setState( QNetworkProtocol::State state )
+{
+    d->state = state;
+}
+
+void QNetworkOperation::setProtocolDetail( const QString &detail )
+{
+    d->protocolDetail = detail;
+}
+
+void QNetworkOperation::setErrorCode( QNetworkProtocol::Error ec )
+{
+    d->errorCode = ec;
+}
+
+QNetworkProtocol::Operation QNetworkOperation::operation() const
+{
+    return d->operation;
+}
+
+QNetworkProtocol::State QNetworkOperation::state() const
+{
+    return d->state;
+}
+
+QString QNetworkOperation::arg1() const
+{
+    return d->arg1;
+}
+
+QString QNetworkOperation::arg2() const
+{
+    return d->arg2;
+}
+
+QString QNetworkOperation::arg3() const
+{
+    return d->arg3;
+}
+
+QString QNetworkOperation::protocolDetail() const
+{
+    return d->protocolDetail;
+}
+
+QNetworkProtocol::Error QNetworkOperation::errorCode() const
+{
+    return d->errorCode;
+}
