@@ -1531,10 +1531,24 @@ void MainWindow::createNewTemplate()
 	QMessageBox::information( this, tr( "Create Template" ), tr( "Couldn't create the template" ) );
 	return;
     }
-    fn.prepend( QString( getenv( "QTDIR" ) ) + "/tools/designer/templates/" );
-    fn.append( ".ui" );
-    QFile f( fn );
-    if ( !f.open( IO_WriteOnly ) ) {
+
+    QStringList templRoots;
+    const char *qtdir = getenv( "QTDIR" );
+    if(qtdir)
+	templRoots << qtdir;
+    templRoots << qInstallPathData();
+    if(qtdir) //try the tools/designer directory last!
+	templRoots << QString(qtdir) + "tools/designer";
+    QFile f;
+    for ( QStringList::Iterator it = templRoots.begin(); it != templRoots.end(); ++it ) {
+	if ( QFile::exists( (*it) + "/templates/" )) {
+	    QString tmpfn = (*it) + "/templates/" + fn + ".ui";
+	    f.setName(tmpfn);
+	    if(f.open(IO_WriteOnly)) 
+		break;
+	}
+    }
+    if ( !f.isOpen() ) {
 	QMessageBox::information( this, tr( "Create Template" ), tr( "Couldn't create the template" ) );
 	return;
     }
