@@ -41,8 +41,7 @@
 
 DemoWidget::DemoWidget(QWidget *parent)
     : QWidget(parent),
-      timeoutRate(50),
-      animationStep(0)
+      timeoutRate(10)
 {
     srand((uint) time(0));
     a = rand() / (double)RAND_MAX;
@@ -51,6 +50,7 @@ DemoWidget::DemoWidget(QWidget *parent)
     d = rand() / (double)RAND_MAX;
 
     setAttribute(Qt::WA_NoBackground);
+    step.start();
 }
 
 void DemoWidget::startAnimation()
@@ -68,7 +68,6 @@ void DemoWidget::stopAnimation()
 void DemoWidget::timerEvent(QTimerEvent * e)
 {
     if (e->timerId() == animationTimer.timerId()) {
-        ++animationStep;
         update();
         QApplication::syncX();
     }
@@ -131,4 +130,18 @@ double DemoWidget::xfunc(double t)
 double DemoWidget::yfunc(double t)
 {
     return (sin(b*t/M_PI) + cos(c*t/M_PI) + sin(d*t/M_PI)) / 3.0;
+}
+
+void DemoWidget::updateBackground()
+{
+    QPainter p(&backgroundPixmap);
+    fillBackground(&p);
+}
+
+void DemoWidget::drawBackground(QPainter *p)
+{
+    if (attributes->fillMode == Attributes::Solid)
+        fillBackground(p);
+    else
+        p->drawPixmap(0, 0, backgroundPixmap);
 }

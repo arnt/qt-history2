@@ -31,6 +31,7 @@ protected:
 
 private:
     QPixmap dblBuffer;
+    int step;
 };
 
 #endif

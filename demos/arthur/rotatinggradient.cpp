@@ -19,7 +19,6 @@ RotatingGradient::RotatingGradient(QWidget *parent)
     : DemoWidget(parent)
 {
     timeoutRate = 25;
-    animationStep = 0;
 }
 
 void RotatingGradient::timerEvent(QTimerEvent *e)
@@ -37,11 +36,11 @@ void RotatingGradient::paintEvent(QPaintEvent *)
 
     // We paint the whole widget so don't paint background if we are not transparent.
     if (attributes->alpha)
-        fillBackground(&p);
+        drawBackground(&p);
 
     // Define a value that will move from 0 to 255 then down to 0
     // again. fade in, fade out
-    int fade = animationStep % 512;
+    int fade = animationStep() % 512;
     if (fade > 255)
         fade = 511 - fade;
 

@@ -249,8 +249,10 @@ void DemoViewer::alphaChanged(bool val)
 void DemoViewer::fillModeChanged(int mode)
 {
     attributes->fillMode = static_cast<Attributes::BackgroundFill>(mode);
-    if (DemoWidget *w = qobject_cast<DemoWidget*>(widgets->currentWidget()))
+    if (DemoWidget *w = qobject_cast<DemoWidget*>(widgets->currentWidget())) {
         w->resetState();
+        w->updateBackground();
+    }
 }
 
 void DemoViewer::showEvent(QShowEvent *)

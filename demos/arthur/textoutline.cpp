@@ -69,7 +69,7 @@ void TextOutline::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
 
-    fillBackground(&p);
+    drawBackground(&p);
 
     for (int i = 0; i < xpaths.size(); ++i) {
         QPainterPath &xpath = xpaths[i];

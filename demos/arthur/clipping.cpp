@@ -79,7 +79,7 @@ void Clipping::paintEvent(QPaintEvent *)
 
     QPainter pt(this);
 
-    fillBackground(&pt);
+    drawBackground(&pt);
 
     // Start with an empty region
     QRegion region;

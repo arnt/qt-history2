@@ -146,7 +146,7 @@ void GLWidget::paintEvent(QPaintEvent *)
     p.rotate(step % 360);
     p.shear(dw->xfunc(step*0.8), dw->yfunc(step*0.8));
     p.translate(-width()/2, -height()/2);
-    dw->fillBackground(&p);
+    dw->drawBackground(&p);
     drawShadedCube(dw, &p, 2, 5, step);
     p.resetMatrix();
 

@@ -144,10 +144,9 @@ void AlphaShade::paintEvent(QPaintEvent *)
         return;
 
     QPainter p(this);
-    fillBackground(&p);
-
-    drawShadedCube(this, &p, 1, 1, animationStep);
-    drawPrimitives(this, &p, 50, .3, animationStep);
+    drawBackground(&p);
+    drawShadedCube(this, &p, 1, 1, animationStep());
+    drawPrimitives(this, &p, 50, .3, animationStep()/3);
 }
 
 void AlphaShade::mousePressEvent(QMouseEvent *)

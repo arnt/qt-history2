@@ -18,6 +18,7 @@
 
 #include <qwidget.h>
 #include <qbasictimer.h>
+#include <qdatetime.h>
 
 class DemoWidget : public QWidget
 {
@@ -28,6 +29,7 @@ public:
     virtual void startAnimation();
     virtual void stopAnimation();
 
+    void updateBackground();
     virtual void resetState() { update(); }
 
     void setAttributes(Attributes *attr) { attributes = attr; }
@@ -35,7 +37,7 @@ public:
     void timerEvent(QTimerEvent *e);
     QSize sizeHint() const;
 
-    void fillBackground(QPainter *p);
+    void drawBackground(QPainter *p);
 
     double xfunc(double t);
     double yfunc(double t);
@@ -43,17 +45,27 @@ public:
     inline Attributes *attribs() { return attributes; }
 
 protected:
+    QPixmap backgroundPixmap;
     int timeoutRate;
-    int animationStep;
+    int animationStep() const
+    { return step.elapsed() / timeoutRate; }
+
     Attributes *attributes;
 
     double a, b, c, d;
 
     void showEvent(QShowEvent *);
     void hideEvent(QHideEvent *);
+    void resizeEvent(QResizeEvent *)
+    {
+        backgroundPixmap = QPixmap(size());
+        updateBackground();
+    }
 
 private:
+    void fillBackground(QPainter *p);
     QBasicTimer animationTimer;
+    QTime step;
 };
 
 #endif

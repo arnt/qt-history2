@@ -39,13 +39,13 @@ void Warpix::paintEvent(QPaintEvent *)
     QPainter p(this);
 
     // Fill background based on user specified attributes.
-    fillBackground(&p);
+    drawBackground(&p);
 
     double x = 0;
     double y = 0;
     if (clickPos.x() == -1 && clickPos.y() == -1) {
-        x = xfunc(animationStep);
-        y = yfunc(animationStep);
+        x = xfunc(animationStep()/8);
+        y = yfunc(animationStep()/8);
 
         x = x * w/3 + w/2;
         y = y * h/3 + h/2;

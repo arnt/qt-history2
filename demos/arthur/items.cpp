@@ -196,10 +196,11 @@ void Items::mouseReleaseEvent(QMouseEvent *)
     update();
 }
 
-void Items::resizeEvent(QResizeEvent *)
+void Items::resizeEvent(QResizeEvent *event)
 {
     buffer = QPixmap(size());
     drawItems(QRect());
+    DemoWidget::resizeEvent(event);
 }
 
 void Items::drawItems(const QRect &rect)
@@ -208,7 +209,7 @@ void Items::drawItems(const QRect &rect)
 
     if (!rect.isEmpty())
         px.setClipRect(rect);
-    fillBackground(&px);
+    drawBackground(&px);
     for (int i = 0; i < items.size(); ++i) {
         if (rect.isEmpty() || items.at(i)->boundingRect().intersects(rect))
             if (items[i] != selectedItem)
@@ -218,6 +219,7 @@ void Items::drawItems(const QRect &rect)
 
 void Items::resetState()
 {
+    updateBackground();
     drawItems(QRect());
     update();
 }

@@ -37,6 +37,7 @@ private:
     QPoint oldMousePoint;
     QTextDocument *textDocument;
     bool mouseDown;
+    int lastAnimationStep, animationStepDelta;
 };
 
 #endif

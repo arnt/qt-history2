@@ -50,7 +50,7 @@ void Roads::paintEvent(QPaintEvent *)
         backBuffer = QPixmap(size());
         QPainter bp(&backBuffer);
 
-        fillBackground(&bp);
+        drawBackground(&bp);
 
         if (attributes->antialias)
             bp.setRenderHint(QPainter::Antialiasing);
@@ -83,7 +83,7 @@ void Roads::paintEvent(QPaintEvent *)
     const int carCount = 4;
     for (int c=0; c<carCount; ++c) {
         int i = c % carVectors.size();
-        int t = (animationStep + c*17) % carVectors.at(i).size();
+        int t = (animationStep() + c*17) % carVectors.at(i).size();
         QLineF vec = t == carVectors.at(i).size()-1
                      ? QLineF(carVectors.at(i).at(0), carVectors.at(i).at(1))
                      : QLineF(carVectors.at(i).at(t), carVectors.at(i).at(t+1));

@@ -17,7 +17,7 @@
 #include <qpainterpath.h>
 
 Paths::Paths(QWidget *parent)
-    : DemoWidget(parent)
+    : DemoWidget(parent), step(0)
 {
     setAttribute(Qt::WA_PaintOnScreen);
 }
@@ -31,7 +31,7 @@ void Paths::paintEvent(QPaintEvent *)
         p.setRenderHint(QPainter::Antialiasing);
 
     if (!attributes->alpha)
-        fillBackground(&p);
+        drawBackground(&p);
 
     p.setPen(QPen(QColor(63, 63, 127, attributes->alpha ? 159 : 255), 5));
     p.setBrush(QColor(191, 191, 255, attributes->alpha ? 63 : 255));
@@ -42,9 +42,10 @@ void Paths::paintEvent(QPaintEvent *)
     int bezierCount = 2;
     QPolygon a;
     for (int i=0; i<bezierCount*3+1; ++i) {
-        a.append(QPoint(int(xfunc(animationStep*0.7 + i*20) * w/2 + w/2),
-                        int(yfunc(animationStep*0.7 + i*20) * h/2 + h/2)));
+        a.append(QPoint(int(xfunc(step*0.7 + i*20) * w/2 + w/2),
+                        int(yfunc(step*0.7 + i*20) * h/2 + h/2)));
     }
+    ++step;
 
     // Create the path
     QPainterPath path;
@@ -69,15 +70,16 @@ void Paths::paintEvent(QPaintEvent *)
     p.drawPixmap(0, 0, dblBuffer);
 }
 
-void Paths::resizeEvent(QResizeEvent *)
+void Paths::resizeEvent(QResizeEvent *event)
 {
     dblBuffer = QPixmap(width(), height());
     QPainter p(&dblBuffer);
-    fillBackground(&p);
+    drawBackground(&p);
+    DemoWidget::resizeEvent(event);
 }
 
 void Paths::resetState()
 {
     QPainter p(&dblBuffer);
-    fillBackground(&p);
+    drawBackground(&p);
 }

@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 
-
 #include "introscreen.h"
 
 #include <qdebug.h>
@@ -23,7 +22,7 @@
 #include <qabstracttextdocumentlayout.h>
 
 IntroScreen::IntroScreen(QWidget *widget)
-    : DemoWidget(widget), mouseDown(false)
+    : DemoWidget(widget), mouseDown(false), lastAnimationStep(0), animationStepDelta(0)
 {
     QFile textFile(":/res/html/qt4-arthur.html");
     if (!textFile.open(QFile::ReadOnly))
@@ -41,12 +40,9 @@ void IntroScreen::paintEvent(QPaintEvent *)
 {
     int w = width(), h = height();
 
-    if (mouseDown)
-        --animationStep;
-
     QPainter p(this);
 
-    fillBackground(&p);
+    drawBackground(&p);
 
     QRect textRect(100, 0, w-200, h);
 
@@ -55,7 +51,13 @@ void IntroScreen::paintEvent(QPaintEvent *)
 
     p.setPen(Qt::NoPen);
     int blockHeight = (int)textDocument->documentLayout()->documentSize().height();
-    int ypos = (-animationStep % blockHeight);
+
+    int ypos;
+    if (mouseDown)
+        ypos = lastAnimationStep;
+    else
+        ypos = (animationStep() / 10) - animationStepDelta;
+    ypos = (-ypos % blockHeight);
 
     p.setClipRegion(textRect);
 
@@ -77,22 +79,25 @@ void IntroScreen::mousePressEvent(QMouseEvent *e)
 {
     oldMousePoint = e->pos();
     mouseDown = true;
+    lastAnimationStep = (animationStep() / 10) - animationStepDelta;
 }
 
 void IntroScreen::mouseReleaseEvent(QMouseEvent *)
 {
     mouseDown = false;
+    animationStepDelta = (animationStep() / 10) - lastAnimationStep;
+    lastAnimationStep = 0;
 }
 
 void IntroScreen::mouseMoveEvent(QMouseEvent *e)
 {
-    animationStep += oldMousePoint.y() - e->y();
+    lastAnimationStep += oldMousePoint.y() - e->y();
     oldMousePoint = e->pos();
     repaint();
 }
 
 void IntroScreen::resizeEvent(QResizeEvent *e)
 {
-    QWidget::resizeEvent(e);
+    DemoWidget::resizeEvent(e);
     textDocument->setPageSize(QSize(e->size().width() - 200, e->size().height()));
 }
