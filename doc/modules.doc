@@ -65,23 +65,6 @@ Please see the \link qiconview.html class documentation \endlink for
 details.
 */
 
-/*! \page canvas.html
-
-\title Qt Canvas Module
-
-The canvas module provides a highly optimized 2D graphic area called \l QCanvas.
-Upon the canvas, you place \link QCanvasItem QCanvasItems \endlink and view
-the canvas with 1 or more \link QCanvasView QCanvasViews \endlink, which are
-QWidgets.
-
-<center><a href="qcanvas.html"><img src="qcanvas.png" alt="Screenshot
-of QCanvas"></a></center>
-
-QCanvas features fast redrawing, animation, collision detection and
-more.
-Please see the documentation of the above classes for details.
-*/
-
 /*! \page workspace.html
 
 \title Qt Workspace Module

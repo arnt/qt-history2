@@ -136,6 +136,18 @@ public:
     bool active() const
 	{ return (bool)act; }
 
+    enum RttiValues {
+	Rtti_Item = 0,
+	Rtti_Sprite = 1,
+	Rtti_PolygonalItem = 2,
+	Rtti_Text = 3,
+	Rtti_Polygon = 4,
+	Rtti_Rectangle = 5,
+	Rtti_Ellipse = 6,
+	Rtti_Line = 7,
+	Rtti_Spline = 8
+    };
+    
     virtual int rtti() const;
 
     virtual QRect boundingRect() const=0;
@@ -339,7 +351,7 @@ public:
 
     const QWMatrix &worldMatrix() const;
     const QWMatrix &inverseWorldMatrix() const;
-    void setWorldMatrix( const QWMatrix & );
+    bool setWorldMatrix( const QWMatrix & );
 
 protected:
     void drawContents( QPainter*, int cx, int cy, int cw, int ch );
@@ -390,14 +402,18 @@ class Q_EXPORT QCanvasPixmapArray
 public:
     QCanvasPixmapArray();
     QCanvasPixmapArray(const QString& datafilenamepattern, int framecount=0);
+    // this form is deprecated
     QCanvasPixmapArray(QPtrList<QPixmap>, QPtrList<QPoint> hotspots);
+    QCanvasPixmapArray(QValueList<QPixmap>, QPointArray hotspots = QPointArray() );
     ~QCanvasPixmapArray();
 
     bool readPixmaps(const QString& datafilenamepattern, int framecount=0);
     bool readCollisionMasks(const QString& filenamepattern);
 
+    // deprecated
     bool operator!(); // Failure check.
-
+    bool isValid() const;
+    
     QCanvasPixmap* image(int i) const
 	{ return img[i]; }
     void setImage(int i, QCanvasPixmap* p);
@@ -436,8 +452,8 @@ public:
 
     QRect boundingRect() const;
 
-protected:
-    void draw(QPainter& painter);
+    // is there a reason for these to be protected? Lars
+//protected:
 
     int width() const;
     int height() const;
@@ -456,6 +472,9 @@ protected:
     virtual QCanvasPixmap* imageAdvanced() const;
     QCanvasPixmap* image(int f) const
 	{ return images->image(f); }
+
+public:
+    void draw(QPainter& painter);
 
 private:
     void addToChunks();

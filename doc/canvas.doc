@@ -1,0 +1,101 @@
+/****************************************************************************
+** $Id: modules.doc,v 2.45 1999/10/05 12:12:08 arnt Exp $
+**
+** Documentation for the canvas module
+**
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Trolltech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
+
+/*! \page canvas.html
+
+\title Qt Canvas Module
+
+The canvas module provides a highly optimized 2D graphic area called \l QCanvas.
+The canvas can contain an arbitrary number of \link QCanvasItem QCanvasItems \endlink.
+Items can have an arbitrary shape, size and content, can be freely moved around in the canvas,
+and can be checked for collisions.
+
+The canvas module uses a document/view model. The \l QCanvasView class is used to
+show a certain view of a canvas. Multiple views can operate on the same canvas at the same time.
+Every view can use an arbitrary transformation matrix on the canvas allowing to easily implement
+features as zooming into and out of the canvas.
+
+<center><a href="qcanvas.html"><img src="qcanvas.png" alt="Screenshot of QCanvas"></a></center>
+
+Qt provides a number of predefined Items, as listed below. 
+<table>
+<tr>
+<td>\l QCanvasItem </td>
+<td>An abstract base class for all Items on the canvas.</td>
+</tr>
+<tr>
+<td>\l QCanvasEllipse </td>
+<td>An ellipse or "pie segment".</td>
+</tr>
+<tr>
+<td>\l QCanvasLine </td>
+<td>A simple line segment.</td>
+</tr>
+<tr>
+<td>\l QCanvasPolygon </td>
+<td>A polygon.</td>
+</tr>
+<tr>
+<td>\l QCanvasPolygonalItem </td>
+<td>A base class for items that have a non rectangular shape. Most canvas items derive from this
+class.</td>
+</tr>
+<tr>
+<td>\l QCanvasRectangle </td>
+<td>A rectangle. The rectangle may not be tilted or rotated. Rotated rectangles can be drawn using
+\l QCanvasPolygon.</td>
+</tr>
+<tr>
+<td>\l QCanvasSpline </td>
+<td>A multi bezier spline.</td>
+</tr>
+<tr>
+<td>\l QCanvasSprite </td>
+<td>An animated pixmap.</td>
+</tr>
+<tr>
+<td>\l QCanvasText </td>
+<td>Some text.</td>
+</tr>
+</table>
+
+ Additionally the two classes \l QCanvasPixmap and \l QCanvasPixmapArray are used by 
+\l QCanvasSprite to show animated and moving pixmaps on the canvas.
+
+More specialized items can be created by inheriting from one of the available Item classes.
+It is usually easier not to inherit from QCanvasItem directly, but to use one of the derived
+classes; in most cases \l QCanvasPolygonalItem.
+
+*/
