@@ -30,6 +30,10 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include <errno.h>
 #include <limits.h>
 
+#ifndef LLONG_MAX
+# define LLONG_MAX LONG_LONG_MAX
+#endif
+
 extern const char* qt_fileerr_read;
 
 bool qt_file_access( const QString& fn, int t )
