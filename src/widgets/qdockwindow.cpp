@@ -847,14 +847,17 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
     hbox->addWidget( titleBar );
     hbox->addWidget( horHandle );
     hbox->addWidget( hHandleTop );
-    vbox = new QHBoxLayout( hbox );
+    vbox = (QHBoxLayout *)new QBoxLayout( hbox, QBoxLayout::LeftToRight );
     verHandle = new QDockWindowHandle( this );
     vHandleLeft = new QDockWindowResizeHandle( Qt::Vertical, this, this, "vert. handle" );
-    vbox->addWidget( verHandle );
+    if ( !QApplication::reverseLayout() )
+	vbox->addWidget( verHandle );
     vbox->addWidget( vHandleLeft );
-    layout = new QBoxLayout( vbox, QBoxLayout::LeftToRight );
+    layout = new QBoxLayout( vbox, QApplication::reverseLayout() ? QBoxLayout::RightToLeft : QBoxLayout::LeftToRight );
     vHandleRight = new QDockWindowResizeHandle( Qt::Vertical, this, this, "vert. handle" );
     vbox->addWidget( vHandleRight );
+    if ( QApplication::reverseLayout() )
+	vbox->addWidget( verHandle );
     hHandleBottom = new QDockWindowResizeHandle( Qt::Horizontal, this, this, "horz. handle" );
     hbox->addWidget( hHandleBottom );
     hHandleBottom->hide();
@@ -886,7 +889,9 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
 
 void QDockWindow::setOrientation( Orientation o )
 {
-    boxLayout()->setDirection( o == Horizontal ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom );
+    boxLayout()->setDirection( o == Horizontal ? 
+			       (QApplication::reverseLayout() ? QBoxLayout::RightToLeft : QBoxLayout::LeftToRight) 
+			       : QBoxLayout::TopToBottom );
     QApplication::sendPostedEvents( this, QEvent::LayoutHint );
     QEvent *e = new QEvent( QEvent::LayoutHint );
     QApplication::postEvent( this, e );
@@ -932,18 +937,11 @@ void QDockWindow::swapRect( QRect &r, Qt::Orientation o, const QPoint &offset, Q
     r.setSize( bl->sizeHint() );
     bl->data = 0;
     delete bl;
-#ifdef REVERSE_LAYOUT
     bool reverse = QApplication::reverseLayout();
     if ( o == Qt::Horizontal )
-	r.moveBy( reverse ? r.height() + r.width()/2 : -r.width()/2, 0 );
+	r.moveBy( reverse ? r.height() + r.width() : -r.width()/2, 0 );
     else
 	r.moveBy( reverse ? - r.width() : 0, -r.height() / 2  );
-#else
-    if ( o == Qt::Horizontal )
-	r.moveBy( -r.width() / 2, 0 );
-    else
-	r.moveBy( 0, -r.height() / 2  );
-#endif    
     r.moveBy( offset.x(), offset.y() );
 }
 
