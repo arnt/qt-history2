@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#14 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#15 $
 **
 ** Implementation of QGVector class
 **
@@ -29,7 +29,7 @@
 #include "qdstream.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#15 $");
 
 
 #if !defined(CHECK_MEMORY)
@@ -40,7 +40,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#14 $");
 #undef DELETE
 
 #if defined(USE_MALLOC)
-#if !defined(_OS_MAC_) && !defined(VXWORKS)
+#if !defined(_OS_MAC_) && !defined(VXWORKS) && !defined(UNIX)
 #include <malloc.h>
 #endif
 #define NEW(type,size)	((type*)malloc(size*sizeof(type)))

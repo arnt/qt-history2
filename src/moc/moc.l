@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.l#16 $
+** $Id: //depot/qt/main/src/moc/moc.l#17 $
 **
 ** Lexical analyzer for meta object compiler
 **
@@ -30,7 +30,7 @@
 #define  linput() (c = input()) == '\n' ? (lineNo++,c) : c
 
 #include <string.h>
-#include <malloc.h>
+#include <stdlib.h>
 
 /* char c,c1; */
 int level      = 1;  /* Used to keep track of nested curly braces in IN_CLASS*/

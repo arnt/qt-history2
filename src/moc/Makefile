@@ -75,7 +75,7 @@ $(TMPCPP): moc.y $(LEXOUT)
 ####### Compile the .cpp files
 
 moc_gen.o: moc_gen.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
+	$(CC) -c $(CFLAGS) -Wno-unused -I$(INCDIR) $? -o $@
 
 qbuffer.o: ../tools/qbuffer.cpp
 	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#59 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#60 $
 **
 ** Global type declarations and definitions
 **
@@ -58,6 +58,8 @@
 #define _OS_IRIX_
 #elif defined(__osf__)
 #define _OS_OSF_
+#elif defined(bsdi) || defined(__bsdi__)
+#define _OS_BSDI_
 #else
 #error "Qt has not been ported to this OS - talk to qt-bugs@troll.no"
 #endif

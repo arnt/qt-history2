@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobj.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qmetaobj.cpp#16 $
 **
 ** Implementation of QMetaObject class
 **
@@ -14,7 +14,7 @@
 #include "qobjcoll.h"
 #include "qstrlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobj.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobj.cpp#16 $");
 
 /* not documented
   \class QMetaObject qmetaobj.h
@@ -182,7 +182,6 @@ QMetaData *QMetaObject::mdata( int code, const char *name, bool super ) const
 	else					// not found
 	    return 0;
     }
-    return 0;					// never reached!
 }
 
 QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
