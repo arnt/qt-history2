@@ -21,6 +21,8 @@ class QSubWidget;
 class QParentWidget : public QWidget
 {
     Q_OBJECT
+    Q_CLASSINFO("ClassID", "{d574a747-8016-46db-a07c-b2b4854ee75c}");
+    Q_CLASSINFO("InterfaceID", "{4a30719d-d9c2-4659-9d16-67378209f822}");
 public:
     QParentWidget( QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
 
@@ -39,6 +41,11 @@ class QSubWidget : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY( QString label READ label WRITE setLabel )
+
+    Q_CLASSINFO("ClassID", "{850652f4-8f71-4f69-b745-bce241ccdc30}");
+    Q_CLASSINFO("InterfaceID", "{2d76cc2f-3488-417a-83d6-debff88b3c3f}");
+    Q_CLASSINFO("ToSuperClass", "QSubWidget");
+    
 public:
     QSubWidget( QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
 

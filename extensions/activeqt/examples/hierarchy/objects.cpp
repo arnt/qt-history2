@@ -16,40 +16,39 @@
 #include <qpainter.h>
 
 /* Implementation of QParentWidget */
-QParentWidget::QParentWidget( QWidget *parent, const char *name, WFlags f )
-: QWidget( parent, name, f )
+QParentWidget::QParentWidget(QWidget *parent, const char *name, WFlags f)
+: QWidget(parent, name, f)
 {
-    vbox = new QVBoxLayout( this );
-    vbox->setAutoAdd( TRUE );
+    vbox = new QVBoxLayout(this);
 }
 
-void QParentWidget::createSubWidget( const QString &name )
+void QParentWidget::createSubWidget(const QString &name)
 {
-    QSubWidget *sw = new QSubWidget( this, name );
-    sw->setLabel( name );
+    QSubWidget *sw = new QSubWidget(this, name);
+    sw->setLabel(name);
     sw->show();
 }
 
-QSubWidget *QParentWidget::subWidget( const QString &name )
+QSubWidget *QParentWidget::subWidget(const QString &name)
 {
-    return (QSubWidget*)child( name, "QSubWidget" );
+    return qFindChild<QSubWidget*>(this, name);
 }
 
 QSize QParentWidget::sizeHint() const
 {
-    return QWidget::sizeHint().expandedTo( QSize(100, 100) );
+    return QWidget::sizeHint().expandedTo(QSize(100, 100));
 }
 
 /* Implementation of QSubWidget */
-QSubWidget::QSubWidget( QWidget *parent, const char *name, WFlags f )
-: QWidget( parent, name, f )
+QSubWidget::QSubWidget(QWidget *parent, const char *name, WFlags f)
+: QWidget(parent, name, f)
 {
 }
 
-void QSubWidget::setLabel( const QString &text )
+void QSubWidget::setLabel(const QString &text)
 {
     lbl = text;
-    setName( text );
+    setObjectName(text);
     update();
 }
 
@@ -60,13 +59,13 @@ QString QSubWidget::label() const
 
 QSize QSubWidget::sizeHint() const
 {
-    QFontMetrics fm( font() );
-    return QSize( fm.width(lbl), fm.height() );
+    QFontMetrics fm(font());
+    return QSize(fm.width(lbl), fm.height());
 }
 
-void QSubWidget::paintEvent( QPaintEvent * )
+void QSubWidget::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
-    painter.setPen( colorGroup().text() );
-    painter.drawText( rect(), AlignCenter, lbl );
+    painter.setPen(palette().text());
+    painter.drawText(rect(), AlignCenter, lbl);
 }
