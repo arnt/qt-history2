@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#72 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -457,7 +457,7 @@ QWidget * QDragObject::source()
   QImageDrag provides for "<tt>image/</tt><tt>*</tt>",
   where <tt>*</tt>
   is all the \link QImageIO image formats that Qt supports\endlink,
-  and the QUrlDrag subclass provides "<tt>url/url</tt>",
+  and the QUrlDrag subclass provides "<tt>text/uri-list</tt>",
   a standard format for transferring a list of filenames.
 
   To implement drag-and-drop of some type of media for which there
@@ -869,7 +869,7 @@ QByteArray QStoredDrag::encodedData(const char* m) const
 */
 QUrlDrag::QUrlDrag( QStrList urls,
 	    QWidget * dragSource, const char * name ) :
-    QStoredDrag( "url/url", dragSource, name )
+    QStoredDrag( "text/uri-list", dragSource, name )
 {
     setUrls(urls);
 }
@@ -879,7 +879,7 @@ QUrlDrag::QUrlDrag( QStrList urls,
   setUrls() before you start the drag().
 */
 QUrlDrag::QUrlDrag( QWidget * dragSource, const char * name ) :
-    QStoredDrag( "url/url", dragSource, name )
+    QStoredDrag( "text/uri-list", dragSource, name )
 {
 }
 
@@ -913,7 +913,7 @@ void QUrlDrag::setUrls( QStrList urls )
 */
 bool QUrlDrag::canDecode( QMimeSource* e )
 {
-    return e->provides( "url/url" );
+    return e->provides( "text/uri-list" );
 }
 
 /*!
@@ -923,7 +923,7 @@ bool QUrlDrag::canDecode( QMimeSource* e )
 */
 bool QUrlDrag::decode( QMimeSource* e, QStrList& l )
 {
-    QByteArray payload = e->encodedData( "url/url" );
+    QByteArray payload = e->encodedData( "text/uri-list" );
     if ( payload.size() ) {
 	l.clear();
 	l.setAutoDelete(TRUE);

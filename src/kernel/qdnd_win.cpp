@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#46 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -525,25 +525,25 @@ int QWindowsMimeUrl::cf(int index)
 
 int QWindowsMimeUrl::cfFor(const char* mime)
 {
-    return qstricmp(mime,"url/url")==0;
+    return qstricmp(mime,"text/uri-list")==0;
 }
 
 const char* QWindowsMimeUrl::mimeFor(int cf)
 {
     if ( cf == CF_HDROP )
-	return "url/url";
+	return "text/uri-list";
     else
 	return 0;
 }
 
 bool QWindowsMimeUrl::canConvert( const char* mime, int cf )
 {
-    return cf == CF_HDROP && 0==qstricmp(mime,"url/url");
+    return cf == CF_HDROP && 0==qstricmp(mime,"text/uri-list");
 }
 
 QByteArray QWindowsMimeUrl::convertToMime( QByteArray data, const char* mime, int cf )
 {
-    if ( qstricmp(mime,"url/url")!=0 || cf != CF_HDROP )  // Sanity
+    if ( qstricmp(mime,"text/uri-list")!=0 || cf != CF_HDROP )  // Sanity
 	return QByteArray();
 
     LPDROPFILES hdrop = (LPDROPFILES)data.data();
@@ -613,7 +613,7 @@ QByteArray QWindowsMimeUrl::convertToMime( QByteArray data, const char* mime, in
 
 QByteArray QWindowsMimeUrl::convertFromMime( QByteArray data, const char* mime, int cf )
 {
-    if ( qstricmp(mime,"url/url")!=0 || cf != CF_HDROP )  // Sanity
+    if ( qstricmp(mime,"text/uri-list")!=0 || cf != CF_HDROP )  // Sanity
 	return QByteArray();
 
     DROPFILES hdrop;
