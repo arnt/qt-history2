@@ -471,7 +471,7 @@ private:
     use setControl() to instantiate a COM object.
 */
 QAxBase::QAxBase( IUnknown *iface )
-: ptr( iface ), eventSink( 0 ), useEventSink( TRUE ), metaobj( 0 ), propWritable( 0 )
+: ptr( iface ), eventSink( 0 ), useEventSink( TRUE ), useMetaObject( TRUE ), metaobj( 0 ), propWritable( 0 )
 {
     if ( ptr )
 	ptr->AddRef();
@@ -568,6 +568,23 @@ QString QAxBase::control() const
 void QAxBase::disableEventSink()
 {
     useEventSink = FALSE;
+}
+
+/*!
+    Disables the meta object generation for this ActiveX container. This also disables the
+    event sink.
+
+    Some ActiveX controls might run unstable when used with OLE automation. 
+    Use standard COM methods to use those controls through the COM interfaces provided by 
+    queryInterface.
+
+    Note that this function should be called immediately after construction of the object (without
+    passing an object identifier), before calling QAxWidget->setControl().
+*/
+void QAxBase::disableMetaObject()
+{
+    useMetaObject = FALSE;
+    useEventSink  = FALSE;
 }
 
 /*!
@@ -787,7 +804,7 @@ QMetaObject *QAxBase::metaObject() const
     };
 
     // return the default meta object if not yet initialized
-    if ( !ptr ) {
+    if ( !ptr || !useMetaObject ) {
 	if ( tempMetaObj )
 	    return tempMetaObj;
 
