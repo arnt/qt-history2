@@ -104,6 +104,13 @@ void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w)
 {
     if (QTipLabel::instance && QTipLabel::instance->text() == text)
         return;
+
+    if (text.isEmpty()) {
+        if (QTipLabel::instance)
+            QTipLabel::instance->hideTip();
+        return;
+    }
+
     bool preventAnimation = (QTipLabel::instance != 0);
     int scr;
     if (QApplication::desktop()->isVirtualDesktop())
