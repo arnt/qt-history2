@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#92 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#93 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#92 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#93 $");
 
 
 /*!
@@ -129,6 +129,8 @@ uchar *qt_get_bitflip_array()			// called from QPixmap code
 }
 
 
+
+
 /*!
   Constructs a null image.
   \sa isNull()
@@ -167,6 +169,24 @@ QImage::QImage( const QImage &image )
 {
     data = image.data;
     data->ref();
+}
+
+
+// helper
+static void read_xpm_image_or_array( QImageIO *, const char **, QImage & );
+
+/*! Constructs an image from \a array, which must be a valid compiled
+  XPM pixmap.
+
+  Errors are silently ignored.
+*/
+
+QImage::QImage( const char * array[] )
+{
+    data = new QImageData;
+    CHECK_PTR( data );
+    init();
+    read_xpm_image_or_array( 0, array, *this );
 }
 
 /*!
@@ -2519,8 +2539,14 @@ static void write_xbm_image( QImageIO *iio )	// write X bitmap image data
 
 // skip until ", read until the next ", return the rest in *buf
 // return FALSE on error, TRUE on success
-static bool read_xpm_string( QString & buf, QIODevice * d )
+static bool read_xpm_string( QString & buf, QIODevice * d,
+			     const char ** source, int & index )
 {
+    if ( source ) {
+	buf = source[index++];
+	return TRUE;
+    }
+
     if ( buf.size() < 69 ) // just a hack
 	buf.resize( 123 );
 
@@ -2547,26 +2573,33 @@ static bool read_xpm_string( QString & buf, QIODevice * d )
 }
 
 
-static void read_xpm_image( QImageIO * iio ) // read XPM image data
+// INTERNAL
+// read an .xpm from either the QImageIO or from the const char **
+// one of the two HAS to be 0, the other one is used
+static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
+				     QImage & image)
 {
-    if ( iio )
-	iio->setStatus( 1 );
-    QIODevice *d = iio ? iio->ioDevice() : 0;
-    if ( !d )
-	return;
-
-    QDataStream s( d );
-
     QString buf;
-    int i, cpp, ncols, w, h;
-
+    QIODevice *d = 0;
     buf.resize( 200 );
+
+    if ( iio ) {
+	iio->setStatus( 1 );
+	d = iio ? iio->ioDevice() : 0;
+	d->readLine( buf.data(), buf.size() );		// "/* XPM */"
+    } else if ( source ) {
+	buf = source[0];
+    } else {
+	return;
+    }
+
+    int i, cpp, ncols, w, h, index = 1;
+
     QRegExp r ("/\\*.XPM.\\*/" );
-    d->readLine( buf.data(), buf.size() );		// "/* XPM */"
     if ( r.match(buf) < 0 )
 	return; // bad magic
 
-    if ( !read_xpm_string( buf, d ) )
+    if ( !read_xpm_string( buf, d, source, index ) )
 	return;
 
     if ( sscanf( buf, "%d %d %d %d", &w, &h, &ncols, &cpp ) < 4 )
@@ -2575,7 +2608,7 @@ static void read_xpm_image( QImageIO * iio ) // read XPM image data
     if ( ncols > 256 )
 	return;
 
-    QImage image( w, h, 8, ncols, QImage::IgnoreEndian );
+    image.create( w, h, 8, ncols, QImage::IgnoreEndian );
 
     QDict<int> colourMap( 301, TRUE );
     colourMap.setAutoDelete( FALSE );
@@ -2584,7 +2617,7 @@ static void read_xpm_image( QImageIO * iio ) // read XPM image data
     int transparentColour = -1;
 
     for( currentColour=ncols-1; currentColour >= 0; --currentColour ) {
-	if ( !read_xpm_string( buf, d ) )
+	if ( !read_xpm_string( buf, d, source, index ) )
 	    return;
 	QString index, colour;
 	index = buf.left( cpp );
@@ -2647,9 +2680,8 @@ static void read_xpm_image( QImageIO * iio ) // read XPM image data
     }
 
     // next, we read pixels
-
     for( int y=0; y<h; y++ ) {
-	if ( !read_xpm_string( buf, d ) )
+	if ( !read_xpm_string( buf, d, source, index ) )
 	    return;
 	i = 0;
 
@@ -2661,8 +2693,18 @@ static void read_xpm_image( QImageIO * iio ) // read XPM image data
 	    i += cpp;
 	}
     }
-    iio->setImage( image );
-    iio->setStatus( 0 );			// image ok
+    if ( iio ) {
+	iio->setImage( image );
+	iio->setStatus( 0 );			// image ok
+    }
+}
+
+
+static void read_xpm_image( QImageIO * iio )
+{
+    QImage i;
+    (void)read_xpm_image_or_array( iio, 0, i );
+    return;
 }
 
 

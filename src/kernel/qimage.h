@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#37 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#38 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -26,6 +26,7 @@ public:
 	    Endian bitOrder=IgnoreEndian );
     QImage( const char *fileName, const char *format=0 );
     QImage( const QImage & );
+    QImage( const char * xpm [] );
    ~QImage();
 
     QImage     &operator=( const QImage & );
