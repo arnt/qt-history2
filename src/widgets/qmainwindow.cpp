@@ -2553,7 +2553,7 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
     // calculate some values for docking areas
     int left, right, top, bottom;
     left = right = top = bottom = 30;
-    int h1 = d->mb ? d->mb->height() : 0;
+    int h1 = d->mb && d->mb->isVisible() && !d->mb->isTopLevel() ? d->mb->height() : 0;
     if ( d->mb && style() == WindowsStyle )
 	h1++;
     h1 += d->hideDock->isVisible() ? d->hideDock->height() + 1 : 0;
