@@ -537,7 +537,9 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	    off_bottom = (y+h) - (sy+sh);
 	if(y < sy)
 	    off_top = sy - y;
+	int sh = style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this);
 	if(off_bottom || off_top) {
+	    int ch = updateSize().height();
 	    if(off_top) {
 		move( x, y = sy );
 		d->scroll.scrollable = QPopupMenuPrivate::Scroll::ScrollUp;
@@ -546,8 +548,17 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 		h = d->scroll.scrollableSize = h - off_top - off_bottom;
 	    } else {
 		d->scroll.scrollable = QPopupMenuPrivate::Scroll::ScrollDown;
-		h = d->scroll.scrollableSize = h - off_bottom - 2*style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this);
+		h = d->scroll.scrollableSize = h - off_bottom - 2*sh;
 	    }
+	    if( off_top || off_bottom && (off_top != off_bottom) ) {
+		if( d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp )
+		    ch -= sh;
+		if( d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown )
+		    ch -= sh;
+		if( ch > d->scroll.scrollableSize ) 
+		    h = d->scroll.scrollableSize = ch;
+	    }
+
 	    updateSize(TRUE);
 	    if(off_top && indexAtPoint >= 0) { //scroll to it
 		register QMenuItem *mi = NULL;
@@ -2495,7 +2506,7 @@ QSize QPopupMenu::sizeHint() const
 {
     constPolish();
     if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this))
-	return QSize(0, 0); //can be any size.. 
+	return minimumSize(); //can be any size.. 
 
     QPopupMenu* that = (QPopupMenu*) this;
     //We do not need a resize here, just the sizeHint..
