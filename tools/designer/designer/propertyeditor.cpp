@@ -2759,6 +2759,8 @@ void PropertyList::setupProperties()
 	setSorting( 0 );
 	sort();
 	setSorting( -1 );
+	setCurrentItem( firstChild() );
+	qApp->processEvents();
     }
 
     updateEditorSize();
