@@ -37,8 +37,8 @@ static bool tooMany( const char *message )
 	numOmitted++;
 	return TRUE;
     } else if ( count == maxSame ) {
-	fprintf( stderr,
-		 "qdoc: Omitting further similar warnings after this:\n" );
+	fprintf( stderr, "qdoc: "
+		 "Reached limit (%d) for this warning type:\n", maxSame );
     }
     return FALSE;
 }
@@ -142,6 +142,7 @@ void warning( int level, const char *message, ... )
     vfprintf( stderr, message, ap );
     fprintf( stderr, "\n" );
     va_end( ap );
+*(char *) 0 = 0; // ###
 }
 
 void syswarning( const char *message, ... )
