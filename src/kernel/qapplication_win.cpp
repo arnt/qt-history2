@@ -2425,6 +2425,10 @@ static int translateButtonState( int s, int type, int button )
     if ( GetKeyState(VK_MENU) < 0 )
 	bst |= Qt::AltButton;
 
+    if ( (GetKeyState(VK_LWIN) < 0) || 
+	 (GetKeyState(VK_RWIN) < 0) )
+ 	bst |= Qt::MetaButton;
+
     // Translate from Windows-style "state after event"
     // to X-style "state before event"
     if ( type == QEvent::MouseButtonPress ||
@@ -2711,8 +2715,8 @@ static const ushort KeyTbl[] = {		// keyboard mapping table
     VK_NEXT,		Qt::Key_Next,
     VK_SHIFT,		Qt::Key_Shift,		// modifiers
     VK_CONTROL,		Qt::Key_Control,
-//  VK_LWIN,		Qt::Key_Meta,
-//  VK_RWIN,		Qt::Key_Meta,
+    VK_LWIN,		Qt::Key_Meta,
+    VK_RWIN,		Qt::Key_Meta,
     VK_MENU,		Qt::Key_Alt,
     VK_CAPITAL,		Qt::Key_CapsLock,
     VK_NUMLOCK,		Qt::Key_NumLock,
@@ -2864,6 +2868,9 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	state |= Qt::ControlButton;
     if ( GetKeyState(VK_MENU) < 0 )
 	state |= Qt::AltButton;
+    if ( (GetKeyState(VK_LWIN) < 0) || 
+	 (GetKeyState(VK_RWIN) < 0) )
+ 	state |= Qt::MetaButton;
     //TODO: if it is a pure shift/ctrl/alt keydown, invert state logic, like X
 
     if ( msg.message == WM_CHAR ) {
@@ -3098,6 +3105,9 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 	state |= Qt::ControlButton;
     if ( GetKeyState(VK_MENU) < 0 )
 	state |= Qt::AltButton;
+    if ( (GetKeyState(VK_LWIN) < 0) || 
+	 (GetKeyState(VK_RWIN) < 0) )
+ 	state |= Qt::MetaButton;
 
     int delta;
     if ( msg.message == WM_MOUSEWHEEL )
