@@ -1072,6 +1072,8 @@ QFSFileEngine::fileName(FileName file) const
         });
         if (file == CanonicalName && !(fileFlags(DirectoryType) & DirectoryType))
             ret += QLatin1Char('/') + fileName(BaseName);
+        // Force uppercase drive letters.
+        ret[0] = ret.at(0).toUpper();
         return QFSFileEnginePrivate::fixToQtSlashes(ret);
     } else if(file == LinkName) {
 	return QFSFileEnginePrivate::fixToQtSlashes(d->getLink());
