@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#3 $
 **
 ** Implementation of something useful.
 **
@@ -15,6 +15,7 @@
 
 #include "qtimer.h"
 #include "qlayout.h"
+#include "qobjcoll.h"
 
 #include "qmenubar.h"
 #include "qtoolbar.h"
@@ -22,7 +23,7 @@
 
 #include "qtooltip.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#3 $");
 
 
 class QMainWindowPrivate {
@@ -132,7 +133,14 @@ QMenuBar * QMainWindow::menuBar() const
     if ( d->mb )
 	return d->mb;
 
-    QMenuBar * b = new QMenuBar( (QMainWindow *)this, "automatic menu bar" );
+    QObjectList * l
+	= ((QObject*)this)->queryList( "QMenuBar", 0, FALSE, FALSE );
+    QMenuBar * b;
+    if ( l && l->count() )
+	b = (QMenuBar *)l->first();
+    else
+	b = new QMenuBar( (QMainWindow *)this, "automatic menu bar" );
+    delete l;
     ((QMainWindowPrivate*)d)->mb = b;
     d->timer->start( 0, TRUE );
     return b;
@@ -174,8 +182,14 @@ QStatusBar * QMainWindow::statusBar() const
     if ( d->sb )
 	return d->sb;
 
-    QStatusBar * s = new QStatusBar( (QMainWindow *)this,
-				     "automatic status bar" );
+    QObjectList * l
+	= ((QObject*)this)->queryList( "QStatusBar", 0, FALSE, FALSE );
+    QStatusBar * s;
+    if ( l && l->count() )
+	s = (QStatusBar *)l->first();
+    else
+	s = new QStatusBar( (QMainWindow *)this, "automatic status bar" );
+    delete l;
     s->setAutoMinimumSize( TRUE );
     ((QMainWindow *)this)->setStatusBar( s );
     return s;
@@ -289,7 +303,7 @@ void QMainWindow::addToolBar( QToolBar * toolBar, ToolBarDock edge, bool nl )
 	return;
 
     setDockEnabled( edge, TRUE );
-    
+
     QMainWindowPrivate::ToolBarDock * dl = 0;
     if ( edge == Top ) {
 	dl = d->top;
