@@ -999,7 +999,6 @@ void QToolButton::setTextPosition( TextPosition pos )
 
 void QToolButton::setText( const QString &txt )
 {
-    qDebug( "called setText" );
     delete s;
     s = 0;
     QButton::setText( txt );
