@@ -1814,7 +1814,8 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
         d->viewport->repaint(rect);
         // if we are editing, commit the data and close the editor
         if (state() == EditingState) {
-            QWidget *editor = d->editors.value(previous);
+            QModelIndex buddy = model()->buddy(previous);
+            QWidget *editor = d->editors.value(buddy);
             if (editor) {
                 commitData(editor);
                 closeEditor(editor, QAbstractItemDelegate::NoHint);
