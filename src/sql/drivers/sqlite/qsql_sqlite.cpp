@@ -169,6 +169,8 @@ bool QSQLiteResultPrivate::fetchNext()
 
     // keep trying while busy, wish I could implement this better.
     while ((res = sqlite_step(currentMachine, &colNum, &fvals, &cnames)) == SQLITE_BUSY) {
+	// sleep instead requesting result again immidiately.  
+	sleep(1);
     }
 
     switch(res) {
