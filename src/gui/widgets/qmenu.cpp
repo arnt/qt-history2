@@ -1445,6 +1445,7 @@ void QMenu::hideEvent(QHideEvent *)
     if (QMenuBar *mb = qt_cast<QMenuBar*>(d->causedPopup))
         mb->d->setCurrentAction(0);
     d->mouseDown = false;
+    d->hasHadMouse = false;
     d->causedPopup = 0;
 }
 
@@ -1929,10 +1930,11 @@ void QMenu::mouseMoveEvent(QMouseEvent *e)
     if (!isVisible() || d->mouseEventTaken(e))
         return;
     d->motions++;
+    d->hasHadMouse |= rect().contains(e->pos());
 
     QAction *action = d->actionAt(e->pos());
     if (!action) {
-        if (!rect().contains(e->pos()))
+        if (d->hasHadMouse && !rect().contains(e->pos()))
             d->setCurrentAction(0);
         return;
     } else {

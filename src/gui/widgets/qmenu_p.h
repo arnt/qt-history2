@@ -47,7 +47,7 @@ class QMenuPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QMenu)
 public:
-    QMenuPrivate() : itemsDirty(0), maxIconWidth(0), tabWidth(0), ncols(0), mouseDown(0), motions(0),
+    QMenuPrivate() : itemsDirty(0), maxIconWidth(0), tabWidth(0), ncols(0), mouseDown(0), hasHadMouse(0), motions(0),
                       currentAction(0), scroll(0), eventLoop(0), tearoff(0), tornoff(0), tearoffHighlighted(0),
                       checkable(0), sloppyAction(0)
 #ifdef Q_WS_MAC
@@ -72,7 +72,7 @@ public:
     uint ncols : 4; //4 bits is probably plenty
 
     //selection
-    uint mouseDown : 1, motions;
+    uint mouseDown : 1, hasHadMouse : 1, motions;
     QAction *currentAction;
     QAction *actionAt(QPoint p) const;
     void setFirstActionActive();
