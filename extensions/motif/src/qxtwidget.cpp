@@ -150,7 +150,7 @@ static WidgetClass qWidgetClass = (WidgetClass)&qwidgetClassRec;
   NOTE: This widget comes from the previous Xt/Motif extension.  This
   class is unsupported and has many known problems.  It is provided
   only for projects moving to the new Motif extension.  Do not use it
-  new code.
+  in new code.
 
   QXtWidget acts as a bridge between Xt and Qt. For utilizing old Xt
   widgets, it can be a QWidget based on a Xt widget class. For
