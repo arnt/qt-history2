@@ -130,8 +130,12 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si,
             pState->painter->drawPixmap(x, y - si.ascent, pm);
             return;
         }
-        if(txop == QPainterPrivate::TxTranslate)
-            pState->painter->map(x, y, &x, &y);
+        if(txop == QPainterPrivate::TxTranslate) {
+            QPoint tmpPt(x, y);
+            tmpPt = tmpPt * pState->painter->matrix();
+            x = tmpPt.x();
+            y = tmpPt.y();
+        }
     }
     if(p->type() == QPaintEngine::QuickDraw) {
         QQuickDrawPaintEngine *mgc = static_cast<QQuickDrawPaintEngine *>(p);

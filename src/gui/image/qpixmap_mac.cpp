@@ -623,6 +623,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     } else {
         bool locked = LockPixels(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)));
         Q_ASSERT(locked);
+        Q_UNUSED(locked);
         data->w=w;
         data->h=h;
     }

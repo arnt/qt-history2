@@ -2995,6 +2995,7 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
                 info.value = kThemeButtonOn;
             ThemeButtonKind bkind;
             switch (qt_mac_get_size_for_painter(p)) {
+                default:
                 case QAquaSizeUnknown:
                 case QAquaSizeLarge:
                     if (isRadioButton)
@@ -3202,9 +3203,9 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
         case QStyle::PE_ArrowRight:
             orientation = kThemeArrowRight;
             break;
+        default:
         case QStyle::PE_ArrowLeft:
             orientation = kThemeArrowLeft;
-        default:
             break;
         }
         ThemePopupArrowSize size;
@@ -3700,7 +3701,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
             tdi.bounds.right -= macRect.right - tdi.bounds.right;
 
             bool tracking = slider->sliderPosition == slider->sliderValue;
-            RgnHandle r;
+            RgnHandle r = 0;
             if (!tracking) {
                 r = qt_mac_get_rgn();
                 GetThemeTrackThumbRgn(&tdi, r);
@@ -3708,7 +3709,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
             }
 
             qt_mac_set_port(p);
-            DrawThemeTrack(&tdi, tracking ? 0 : r, 0, 0);
+            DrawThemeTrack(&tdi, r, 0, 0);
             if (!tracking)
                 qt_mac_dispose_rgn(r);
             if (slider->subControls & QStyle::SC_SliderTickmarks) {

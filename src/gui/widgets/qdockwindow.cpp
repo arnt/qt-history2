@@ -754,6 +754,8 @@ void QDockWindow::setArea(Qt::DockWindowArea area)
 
         Qt::Dock x;
         switch (d->area) {
+        default:
+            Q_ASSERT(false);
         case Qt::DockWindowAreaLeft:
             x = Qt::DockLeft;
             break;
@@ -766,8 +768,6 @@ void QDockWindow::setArea(Qt::DockWindowArea area)
         case Qt::DockWindowAreaBottom:
             x = Qt::DockBottom;
             break;
-        default:
-            Q_ASSERT(false);
         }
         // from qwidget_mac.cpp
         extern bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::Dock edge);

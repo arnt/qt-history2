@@ -131,6 +131,7 @@ void QFontPrivate::load(QFont::Script script)
     if (!QFontCache::instance)
         qWarning("Must construct a QApplication before a QFont");
     Q_ASSERT(script >= 0 && script < QFont::LastPrivateScript);
+    Q_UNUSED(script);
 
     QFontDef req = request;
     req.pixelSize = qt_mac_pixelsize(request, paintdevice);

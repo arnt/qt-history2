@@ -625,7 +625,7 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int textF
             }
         }
         if (useFontEngine) {
-            ti.fontEngine->draw(this, p.x(),  p.y(), ti, textFlags);
+            ti.fontEngine->draw(this, qRound(p.x()),  qRound(p.y()), ti, textFlags);
         }
     }
 #else
