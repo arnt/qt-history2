@@ -243,6 +243,8 @@ static int defaultScreen = -1;
   Initializes the pixmap data.
 */
 
+static int qt_pixmap_serial = 0;
+
 void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
 {
     if (qApp->type() == QApplication::Tty) {
@@ -250,14 +252,12 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
                  "is being used");
     }
 
-    static int serial = 0;
-
     data = new QPixmapData;
     memset(data, 0, sizeof(QPixmapData));
     data->count  = 1;
     data->uninit = true;
     data->bitmap = bitmap;
-    data->ser_no = ++serial;
+    data->ser_no = ++qt_pixmap_serial;
     data->optim = optim;
     data->xft_hd = 0;
 
@@ -407,6 +407,7 @@ void QPixmap::detach()
         XFreeGC(data->xinfo.display(), (GC)data->maskgc);
         data->maskgc = 0;
     }
+    data->ser_no = ++qt_pixmap_serial;
 }
 
 

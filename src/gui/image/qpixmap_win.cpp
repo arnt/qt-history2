@@ -98,6 +98,8 @@ void QPixmap::initAlphaPixmap(uchar *bytes, int length, BITMAPINFO *bmi)
         memcpy(data->realAlphaBits, bytes, length);
 }
 
+static int qt_pixmap_serial = 0;
+
 void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
 {
     if (qApp->type() == QApplication::Tty) {
@@ -105,7 +107,6 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
                   "is being used");
     }
 
-    static int serial = 0;
     int dd = defaultDepth();
 
     if (optim == DefaultOptim)                // use default optimization
@@ -117,7 +118,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     data->count  = 1;
     data->uninit = true;
     data->bitmap = bitmap;
-    data->ser_no = ++serial;
+    data->ser_no = ++qt_pixmap_serial;
     data->optim         = optim;
 
     bool make_null = w == 0 || h == 0;                // create null pixmap
@@ -327,6 +328,7 @@ void QPixmap::detach()
         delete data->maskpm;
         data->maskpm = 0;
     }
+    data->ser_no = ++qt_pixmap_serial;
 }
 
 

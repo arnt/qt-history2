@@ -438,6 +438,7 @@ void QPixmap::detach()
         CGImageRelease(data->cgimage);
         data->cgimage = 0;
     }
+    data->ser_no = ++qt_pixmap_serial;
 }
 
 int QPixmap::metric(PaintDeviceMetric m) const
@@ -580,6 +581,8 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
     return pm;
 }
 
+static int qt_pixmap_serial = 0;
+
 void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
 {
     if (qApp->type() == QApplication::Tty)
@@ -589,8 +592,6 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     if(d != 32 && d != 1)
         d = 32; //magic number.. we always use a 32 bit depth for non-bitmaps
 
-    static int serial = 0;
-
     data = new QPixmapData;
     data->cgimage = 0;
     data->hd = 0;
@@ -598,7 +599,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     data->count=1;
     data->uninit=true;
     data->bitmap=bitmap;
-    data->ser_no=++serial;
+    data->ser_no=++qt_pixmap_serial;
     data->optim=optim;
 
     int dd = 32; //magic number? 32 seems to be default?

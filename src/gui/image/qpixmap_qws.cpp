@@ -196,10 +196,10 @@ void qws_mapPixmaps(bool from)
 /*****************************************************************************
   QPixmap member functions
  *****************************************************************************/
+static int qt_pixmap_serial = 0;
 
 void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
 {
-    static int serial = 0;
     int dd = defaultDepth();
 
     if (!QwsPixmap::pixmapData)
@@ -218,7 +218,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     data->count  = 1;
     data->uninit = true;
     data->bitmap = bitmap;
-    data->ser_no = ++serial;
+    data->ser_no = ++qt_pixmap_serial;
     data->optim         = optim;
     data->clut=0;
     data->numcols = 0;
@@ -339,6 +339,7 @@ void QPixmap::detach()
     if (data->count != 1)
         *this = copy();
     data->uninit = FALSE;
+    data->ser_no = ++qt_pixmap_serial;
 }
 
 
