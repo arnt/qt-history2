@@ -22,7 +22,7 @@ basic C++ types and many Qt types in a platform-independent binary
 format. For example, the following code writes a Unicode string, a
 font and a color to the file @File splash.dat:
   binaryserialization @Index { Binary serialization }
-  input/output @Index { "Input/output" }
+  inputoutput @Index { "Input/output" }
   qdatastream @Index { QDataStream }
   qstring @Index { QString }
   qtextcodec @Index { QTextCodec }

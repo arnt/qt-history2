@@ -299,7 +299,7 @@ uses the system's OpenGL library (including Mesa).
   xwindowsystem @Index { X Window System }
 @Figure
     @Caption { Brain Innovation's BrainVoyager application written in Qt }
-0.5 @Scale @IncludeGraphic { "images/brain-innovation.eps" }
+@Scale @IncludeGraphic { "images/brain-innovation.eps" }
 @PP
 Qt developers can set the display format of an OpenGL rendering
 context: single or double buffering, depth buffer, RGBA or color
