@@ -37,7 +37,21 @@ public:
 	}
     }
     QString label() const { return lbl; }
+
 protected:
+    void error( qdb::Environment *env, const QString& msg )
+    {
+	env->setLastError( QString("internal error:%1: %2").arg(name())
+			   .arg(msg) );
+    }
+    bool checkStack( qdb::Environment *env, int min )
+    {
+	bool ok = ( (int) env->stack()->count() >= min );
+	if ( !ok )
+	    error( env, "not enough stack elements" );
+	return ok;
+    }
+
     QVariant p1;
     QVariant p2;
     QVariant p3;
@@ -118,10 +132,8 @@ public:
     QString name() const { return "add"; }
     int exec( qdb::Environment* env )
     {
-	if ( env->stack()->count() < 2 ) {
-	    env->setLastError("internal error:add: not enough stack elements");
+	if ( !checkStack(env, 2) )
 	    return 0;
-	}
 	QVariant v1 = env->stack()->pop();
 	QVariant v2 = env->stack()->pop();
 	env->stack()->push( v1.toDouble() + v2.toDouble() );
@@ -141,10 +153,8 @@ public:
     QString name() const { return "subtract"; }
     int exec( qdb::Environment* env )
     {
-	if ( env->stack()->count() < 2 ) {
-	    env->setLastError("internal error:subtract: not enough stack elements");
+	if ( !checkStack(env, 2) )
 	    return 0;
-	}
 	QVariant v1 = env->stack()->pop();
 	QVariant v2 = env->stack()->pop();
 	env->stack()->push( v2.toDouble() - v1.toDouble() );
@@ -163,10 +173,8 @@ public:
     QString name() const { return "multiply"; }
     int exec( qdb::Environment* env )
     {
-	if ( env->stack()->count() < 2 ) {
-	    env->setLastError("internal error:multiply: not enough stack elements");
+	if ( !checkStack(env, 2) )
 	    return 0;
-	}
 	QVariant v1 = env->stack()->pop();
 	QVariant v2 = env->stack()->pop();
 	env->stack()->push( v2.toDouble() * v1.toDouble() );
@@ -188,10 +196,8 @@ public:
     QString name() const { return "divide"; }
     int exec( qdb::Environment* env )
     {
-	if ( env->stack()->count() < 2 ) {
-	    env->setLastError("internal error:divide: not enough stack elements");
+	if ( !checkStack(env, 2) )
 	    return 0;
-	}
 	QVariant v1 = env->stack()->pop();
 	QVariant v2 = env->stack()->pop();
 	if ( v1.toDouble() == 0 ) {
@@ -214,10 +220,8 @@ public:
     QString name() const { return "eq"; }
     int exec( qdb::Environment* env )
     {
-	if ( env->stack()->count() < 2 ) {
-	    env->setLastError("internal error:eq: not enough stack elements");
+	if ( !checkStack(env, 2) )
 	    return 0;
-	}
 	QVariant v1 = env->stack()->pop();
 	QVariant v2 = env->stack()->pop();
 	if ( v1 == v2 ) {
@@ -242,10 +246,8 @@ public:
     QString name() const { return "ne"; }
     int exec( qdb::Environment* env )
     {
-	if ( env->stack()->count() < 2 ) {
-	    env->setLastError("internal error:ne: not enough stack elements");
+	if ( !checkStack(env, 2) )
 	    return 0;
-	}
 	QVariant v1 = env->stack()->pop();
 	QVariant v2 = env->stack()->pop();
 	if ( v1 != v2 ) {
@@ -271,10 +273,8 @@ public:
     QString name() const { return "lt"; }
     int exec( qdb::Environment* env )
     {
-	if ( env->stack()->count() < 2 ) {
-	    env->setLastError("internal error:lt: not enough stack elements");
+	if ( !checkStack(env, 2) )
 	    return 0;
-	}
 	QVariant v1 = env->stack()->pop();
 	QVariant v2 = env->stack()->pop();
 	if ( v2.toDouble() < v1.toDouble() ) {
@@ -299,10 +299,8 @@ public:
     QString name() const { return "le"; }
     int exec( qdb::Environment* env )
     {
-	if ( env->stack()->count() < 2 ) {
-	    env->setLastError("internal error:le: not enough stack elements");
+	if ( !checkStack(env, 2) )
 	    return 0;
-	}
 	QVariant v1 = env->stack()->pop();
 	QVariant v2 = env->stack()->pop();
 	if ( v2.toDouble() <= v1.toDouble() ) {
@@ -328,10 +326,8 @@ public:
     QString name() const { return "gt"; }
     int exec( qdb::Environment* env )
     {
-	if ( env->stack()->count() < 2 ) {
-	    env->setLastError("internal error:gt: not enough stack elements");
+	if ( !checkStack(env, 2) )
 	    return 0;
-	}
 	QVariant v1 = env->stack()->pop();
 	QVariant v2 = env->stack()->pop();
 	if ( v2.toDouble() > v1.toDouble() ) {
@@ -356,10 +352,8 @@ public:
     QString name() const { return "ge"; }
     int exec( qdb::Environment* env )
     {
-	if ( env->stack()->count() < 2 ) {
-	    env->setLastError("internal error:ge: not enough stack elements");
+	if ( !checkStack(env, 2) )
 	    return 0;
-	}
 	QVariant v1 = env->stack()->pop();
 	QVariant v2 = env->stack()->pop();
 	if ( v2.toDouble() >= v1.toDouble() ) {
@@ -385,7 +379,7 @@ public:
 
  The following instruction:
 
- PushList ( 3 )
+ MakeList ( 3 )
 
  will transform the stack into this:
 
@@ -395,19 +389,17 @@ public:
 
 */
 
-class PushList : public Label
+class MakeList : public Label
 {
 public:
-    PushList( const QVariant& num,
+    MakeList( const QVariant& num,
 		const QString& label = QString::null )
 	: Label( num, label ) {}
-    QString name() const { return "pushlist"; }
+    QString name() const { return "makelist"; }
     int exec( qdb::Environment* env )
     {
-	if ( (int)env->stack()->count() < p1.toInt() ) {
-	    env->setLastError("internal error:pushlist: not enough stack elements");
+	if ( !checkStack(env, p1.toInt()) )
 	    return 0;
-	}
 	qdb::List rec;
 	for ( int i = 0; i < p1.toInt(); ++i )
 	    rec.prepend( env->stack()->pop() );
@@ -416,13 +408,13 @@ public:
     }
 };
 
-/* Pop top of stack (which should be a 'list', see 'PushList') and
+/* Pop top of stack (which should be a 'list', see 'MakeList') and
  create a file with name 'name'.  The list should be of the form:
 
  field description
  field description
  field description
- etc...
+ etc.
 
  where each 'field description' is a value list of variants in the
  following order:
@@ -445,7 +437,7 @@ public:
     {
 	qdb::List list = env->stack()->pop().toList();
 	if ( !list.count() ) {
-	    env->setLastError("internal error:create: no fields defined");
+	    error( env, "no fields defined" );
 	    return 0;
 	}
 	env->addFileDriver( 0, p1.toString() );
@@ -470,7 +462,7 @@ public:
 	env->addFileDriver( p1.toInt(), p2.toString() );
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->open() ) {
-	    env->setLastError("internal error:open: unable to open file:" + p2.toString() );
+	    error( env, "unable to open file:" + p2.toString() );
 	    return 0;
 	}
 	return 1;
@@ -491,7 +483,7 @@ public:
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->isOpen() ) {
-	    env->setLastError("internal error:close: file not open" );
+	    error( env, "file not open" );
 	    return 0;
 	}
 	return drv->close();
@@ -499,7 +491,7 @@ public:
 };
 
 
-/* Pop the top of the stack (which must be a 'list', see PushList) and
+/* Pop the top of the stack (which must be a 'list', see MakeList) and
    insert it into the file identified by 'id'.  The values of the list
    must be of the following form:
 
@@ -528,7 +520,7 @@ public:
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->isOpen() ) {
-	    env->setLastError("internal error:insert: file not open" );
+	    error( env, "file not open" );
 	    return 0;
 	}
 	return drv->insert( env->stack()->pop().toList() );
@@ -550,7 +542,7 @@ public:
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->isOpen() ) {
-	    env->setLastError("internal error:mark: file not open" );
+	    error( env, "file not open" );
 	    return 0;
 	}
 	return drv->mark();
@@ -572,14 +564,14 @@ public:
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->isOpen() ) {
-	    env->setLastError("internal error:deletemarked: file not open" );
+	    error( env, "file not open" );
 	    return 0;
 	}
 	return drv->deleteMarked();
     }
 };
 
-/*  Pops the top of the stack (which must be a 'list', see PushList)
+/*  Pops the top of the stack (which must be a 'list', see MakeList)
   and updates all record from the file identified by 'id' which have
   been previously marked by Mark.  The marked records are updated only
   with the fields specified by the list.  The file must be open (see Open). The
@@ -609,7 +601,7 @@ public:
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->isOpen() ) {
-	    env->setLastError("internal error:updatemarked: file not open" );
+	    error( env, "file not open" );
 	    return 0;
 	}
 	bool b = drv->updateMarked( env->stack()->pop().toList() );
@@ -634,7 +626,7 @@ public:
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->isOpen() ) {
-	    env->setLastError("internal error:next: file not open" );
+	    error( env, "file not open" );
 	    return 0;
 	}
 	if ( !drv->next() ) {
@@ -684,12 +676,12 @@ public:
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->isOpen() ) {
-	    env->setLastError("internal error:pushfieldvalue: file not open" );
+	    error( env, "file not open" );
 	    return 0;
 	}
 	QVariant v;
 	if ( !drv->field( p2.toInt(), v ) ) {
-	    env->setLastError("internal error:pushfieldvalue: unable to get field value");
+	    error( env, "unable to get field value" );
 	    return FALSE;
 	}
 	env->stack()->push( v );
@@ -723,18 +715,18 @@ public:
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->isOpen() ) {
-	    env->setLastError("internal error:pushfielddesc: file not open" );
+	    error( env, "file not open" );
 	    return 0;
 	}
 	QVariant v;
-	if ( p2.type() == QVariant::String || QVariant::CString ) {
+	if ( p2.type() == QVariant::String || p2.type() == QVariant::CString ) {
 	    if ( !drv->fieldDescription( p2.toString(), v ) ) {
-		env->setLastError("internal error:pushfielddesc: unable to get field description");
+		error( env, "unable to get field description" );
 		return FALSE;
 	    }
 	} else {
 	    if ( !drv->fieldDescription( p2.toInt(), v ) ) {
-		env->setLastError("internal error:pushfielddesc: unable to get field description");
+		error( env, "unable to get field description" );
 		return FALSE;
 	    }
 	}
@@ -743,7 +735,7 @@ public:
     }
 };
 
-/* Pops the top of the stack (which must be a 'list', see PushList)
+/* Pops the top of the stack (which must be a 'list', see MakeList)
   and appends it to the internal result set (see CreateResult).  The
   list must be of the form:
 
@@ -767,14 +759,14 @@ public:
     {
 	qdb::List list = env->stack()->pop().toList();
 	if ( !list.count() ) {
-	    env->setLastError("internal error:saveresult: no values");
+	    error( env, "no values" );
 	    return 0;
 	}
 	return env->resultSet( p1.toInt() )->append( list );
     }
 };
 
-/*  Pops the top of the stack (which must be a 'list', see PushList)
+/*  Pops the top of the stack (which must be a 'list', see MakeList)
   and creates a 'result set'.  The result set will be identified by
   'id'. The result set is an internal memory area which can be added
   to (see SaveResult) and later retrieved (see Environment::result()).
@@ -847,7 +839,7 @@ public:
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->isOpen() ) {
-	    env->setLastError("internal error:nextmarked: file not open" );
+	    error( env, "file not open" );
 	    return 0;
 	}
 	bool b = drv->nextMarked();
@@ -862,7 +854,7 @@ public:
 };
 
 
-/* Pop the top of the stack (which must be a 'list', see PushList) and
+/* Pop the top of the stack (which must be a 'list', see MakeList) and
    use it to update all fields of the current record buffer of the
    file identified by 'id'.  The list must be in the following form:
 
@@ -892,7 +884,7 @@ public:
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->isOpen() ) {
-	    env->setLastError("internal error:update: file not open" );
+	    error( env, "file not open" );
 	    return 0;
 	}
 	bool b = drv->update( env->stack()->pop().toList() );
@@ -900,7 +892,7 @@ public:
     }
 };
 
-/* Pop the top of the stack (which must be a 'list', see PushList) and
+/* Pop the top of the stack (which must be a 'list', see MakeList) and
    use it to 'range scan' the record buffer of the file identified by
    'id'.  A 'range scan' tries to match every record in the file where
    the fields corresponding to the 'list' fields match the values of
@@ -949,7 +941,7 @@ public:
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->isOpen() ) {
-	    env->setLastError("internal error:rangescan: file not open" );
+	    error( env, "file not open" );
 	    return 0;
 	}
 	bool b = drv->rangeScan( env->stack()->pop().toList() );
@@ -957,7 +949,7 @@ public:
     }
 };
 
-/*  Pop the top of the stack (which must be a list, see PushList) and
+/*  Pop the top of the stack (which must be a list, see MakeList) and
   use it as a description of fields, which must be of the form:
 
    field data
@@ -981,14 +973,14 @@ class CreateIndex : public Label
 public:
     CreateIndex( const QVariant& id,
 		 const QVariant& unique,
-		  const QString& label = QString::null )
+		 const QString& label = QString::null )
 	: Label( id, unique, label ) {}
     QString name() const { return "createindex"; }
     int exec( qdb::Environment* env )
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->isOpen() ) {
-	    env->setLastError("internal error:createindex: file not open" );
+	    error( env, "file not open" );
 	    return 0;
 	}
 	bool b = drv->createIndex( env->stack()->pop().toList(), p2.toBool() );
@@ -1013,14 +1005,14 @@ public:
 	env->addFileDriver( p1.toInt(), p2.toString() );
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->drop() ) {
-	    env->setLastError("internal error:drop: unable to drop file:" + p2.toString() );
+	    error( env, "unable to drop file:" + p2.toString() );
 	    return 0;
 	}
 	return 1;
     }
 };
 
-/* Pop the top of the stack (which must be a list, see PushList) and
+/* Pop the top of the stack (which must be a list, see MakeList) and
    use it as a list of fields with which to sort the 'result set' which
    is identified by 'id' (see CreateResult).
 
@@ -1055,7 +1047,7 @@ public:
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->isOpen() ) {
-	    env->setLastError("internal error:sort: file not open" );
+	    error( env, "file not open" );
 	    return 0;
 	}
 	bool b = env->resultSet( p1.toInt() )->sort( env->stack()->pop().toList() );
@@ -1079,7 +1071,7 @@ public:
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->clearMarked() ) {
-	    env->setLastError("internal error:clearmarked: unable to clear marks" );
+	    error( env, "unable to clear marks" );
 	    return 0;
 	}
 	return 1;

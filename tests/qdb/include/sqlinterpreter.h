@@ -113,6 +113,7 @@ private:
 
     void readChar();
     void startTokenizer( const QString& in );
+    void warning( const char *format, ... );
     void error( const char *format, ... );
     void readTrailingGarbage();
     int readExponent();
@@ -155,7 +156,7 @@ private:
     void matchWhereClause();
     void matchOrderByClause();
     void matchSelectStatement();
-    void matchUpdateStatementSearched();
+    void matchUpdateStatement();
     void matchManipulativeStatement();
     void matchSql();
 };

@@ -97,6 +97,17 @@ void Parser::startTokenizer( const QString& in )
     readChar();
 }
 
+void Parser::warning( const char *format, ... )
+{
+    va_list ap;
+
+    va_start( ap, format );
+    fprintf( stderr, "%d:%d: ", yyLineNo, yyColumnNo );
+    vfprintf( stderr, format, ap );
+    putc( '\n', stderr );
+    va_end( ap );
+}
+
 void Parser::error( const char *format, ... )
 {
     va_list ap;
@@ -106,6 +117,8 @@ void Parser::error( const char *format, ... )
     vfprintf( stderr, format, ap );
     putc( '\n', stderr );
     va_end( ap );
+
+    // ###
 }
 
 void Parser::readTrailingGarbage()
@@ -889,7 +902,7 @@ void Parser::matchBaseTableElement()
 	yyProg->append( new Push(yyLex) );
 	yyTok = getToken();
 	matchDataType();
-	yyProg->append( new PushList(4) );
+	yyProg->append( new MakeList(4) );
     } else {
 	matchTableConstraintDef();
     }
@@ -907,26 +920,52 @@ void Parser::matchBaseTableElementList()
 	    break;
 	yyTok = getToken();
     }
-    yyProg->append( new PushList(n) );
+    yyProg->append( new MakeList(n) );
 }
 
 void Parser::matchCreateStatement()
 {
-    QString name;
+    QString table;
+    QStringList columns;
+    QStringList::Iterator col;
+    bool unique = FALSE;
 
     yyTok = getToken();
 
     switch ( yyTok ) {
+    case Tok_unique:
+	yyTok = getToken();
+	unique = TRUE;
+	if ( yyTok != Tok_index )
+	    error( "Expected 'index' after 'unique'" );
+	// fall through
     case Tok_index:
-	error( "Indices are not supported yet" );
+	yyTok = getToken();
+	if ( yyTok == Tok_Name ) {
+	    warning( "Index name '%s' ignored", yyLex );
+	    yyTok = getToken();
+	}
+	matchOrInsert( Tok_on, "'on'" );
+	yyProg->append( new Open(0, matchTable()) );
+
+	matchOrInsert( Tok_LeftParen, "'('" );
+	columns = matchColumnList();
+	matchOrInsert( Tok_RightParen, "')'" );
+
+	col = columns.begin();
+	while ( col != columns.end() ) {
+	    yyProg->append( new PushFieldDesc(0, *col) );
+	    ++col;
+	}
+	yyProg->append( new CreateIndex(0, (int) unique) );
 	break;
     case Tok_table:
-	matchOrInsert( Tok_table, "'table'" );
-	name = matchTable();
+	yyTok = getToken();
+	table = matchTable();
 	matchOrInsert( Tok_LeftParen, "'('" );
 	matchBaseTableElementList();
 	matchOrInsert( Tok_RightParen, "')'" );
-	yyProg->append( new Create(name) );
+	yyProg->append( new Create(table) );
 	break;
     case Tok_view:
 	error( "Views are not supported" );
@@ -970,8 +1009,8 @@ void Parser::matchInsertExpList( const QStringList& columns )
 		++col;
 	    }
 	}
-
 	matchInsertExp();
+	yyProg->append( new MakeList(2) );
 	n++;
 
 	if ( yyTok != Tok_Comma )
@@ -981,7 +1020,7 @@ void Parser::matchInsertExpList( const QStringList& columns )
     if ( col != columns.end() )
 	error( "Met fewer values than columns" );
 
-    yyProg->append( new PushList(n << 1) );
+    yyProg->append( new MakeList(n) );
 }
 
 void Parser::matchInsertStatement()
@@ -990,7 +1029,6 @@ void Parser::matchInsertStatement()
 
     yyTok = getToken();
     matchOrInsert( Tok_into, "'into'" );
-
     yyProg->append( new Open(0, matchTable()) );
 
     if ( yyTok == Tok_LeftParen ) {
@@ -998,7 +1036,6 @@ void Parser::matchInsertStatement()
 	columns = matchColumnList();
 	matchOrInsert( Tok_RightParen, "')'" );
     }
-
     matchOrInsert( Tok_values, "'values'" );
     matchOrInsert( Tok_LeftParen, "'('" );
     matchInsertExpList( columns );
@@ -1079,7 +1116,7 @@ void Parser::matchSelectStatement()
     }
 }
 
-void Parser::matchUpdateStatementSearched()
+void Parser::matchUpdateStatement()
 {
     yyTok = getToken();
     matchName();
@@ -1125,7 +1162,7 @@ void Parser::matchManipulativeStatement()
 	matchSelectStatement();
 	break;
     case Tok_update:
-	matchUpdateStatementSearched();
+	matchUpdateStatement();
     }
 }
 
