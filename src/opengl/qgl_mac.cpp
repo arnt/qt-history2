@@ -243,20 +243,20 @@ void QGLContext::fixBufferRect()
 	QWidget *w = (QWidget *)d->paintDevice;
 	QRegion clp = qt_cast<QGLWidget*>(w)->d_func()->clippedRegion();
 	if(clp != d->oldR) {
+	    d->oldR = clp;
 	    if(clp.isEmpty()) {
 		GLint offs[4] = { 0, 0, 0, 0 };
 		aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
 	    } else {
 		QPoint mp(posInWindow(w));
-		GLint offs[4] = {
-		    mp.x(), w->topLevelWidget()->height() - (mp.y() + w->height()),
-		    w->width(), w->height() };
+		int window_height = w->topLevelWidget()->height();
+		window_height -= window_height - qt_cast<QGLWidget*>(w->topLevelWidget())->d_func()->clippedRegion(FALSE).boundingRect().height(); //mask?
+		GLint offs[4] = { mp.x(), window_height - (mp.y() + w->height()), w->width(), w->height() };
 		aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
 		aglSetInteger((AGLContext)cx, AGL_CLIP_REGION, (const GLint *)clp.handle(TRUE));
 		if(!aglIsEnabled((AGLContext)cx, AGL_CLIP_REGION))
 		    aglEnable((AGLContext)cx, AGL_CLIP_REGION); //re-enable it..
 	    }
-	    d->oldR = clp;
 	    aglUpdateContext((AGLContext)cx);
 	    QMacSavedPortInfo::flush(w);
 	}
