@@ -33,10 +33,13 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-// #include <performance.h>
+#if 0
+#include <performance.h>
+#else
 #define PM_INIT
 #define PM_MEASURE
 #define PM_DISPLAY
+#endif
 
 // This value is used to determine the length of control point vectors
 // when approximating arc segments as curves. The factor is multiplied
@@ -524,23 +527,32 @@ static QLineF::IntersectType qt_path_stroke_join(QPainterSubpath *sp,
     QPointF isect;
     QLineF::IntersectType type = pline.intersect(ml, &isect);
     if (type == QLineF::BoundedIntersection) {
+        Q_ASSERT(prev->type == QPainterPathElement::Line);
         prev->lineData.x = isect.x();
         prev->lineData.y = isect.y();
+        sp->currentPoint = isect;
     } else {
         if (pline.angle(miterLine) > 90) {
+            printf(" -> broken segment...\n");
             sp->brokenSegments.append(sp->elements.size());
             joinStyle = Qt::MiterJoin;
         }
         switch (joinStyle) {
         case Qt::MiterJoin:
+            Q_ASSERT(prev->type == QPainterPathElement::Line);
             prev->lineData.x = isect.x();
             prev->lineData.y = isect.y();
+            sp->currentPoint = isect;
             break;
         case Qt::BevelJoin:
             sp->lineTo(ml.start());
             break;
         case Qt::RoundJoin: {
-            sp->curveTo(isect, isect, ml.start());
+            QLineF cp1Line(pline.end(), isect);
+            cp1Line.setLength(cp1Line.length() * KAPPA);
+            QLineF cp2Line(ml.start(), isect);
+            cp2Line.setLength(cp2Line.length() * KAPPA);
+            sp->curveTo(cp1Line.end(), cp2Line.end(), ml.start());
             break;
         }
         default:
@@ -685,6 +697,9 @@ QPainterPath QPainterPathPrivate::createStroke(int width,
                                                 &dsegs, dLastPt, penWidth, joinStyle);
         }
         PM_MEASURE("iteration");
+
+        qt_path_debug_subpath(usegs);
+        qt_path_debug_subpath(dsegs);
 
         usegs.removeBrokenSegments();
         dsegs.removeBrokenSegments();
