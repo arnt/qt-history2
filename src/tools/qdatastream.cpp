@@ -527,18 +527,8 @@ QDataStream &QDataStream::operator>>( Q_LONG &i )
 	register uchar *p = (uchar *)(&i);
 	char b[sizeof(Q_LONG)];
 	dev->readBlock( b, sizeof(Q_LONG) );
-	if ( sizeof(Q_LONG) == 8 ) {
-	    *p++ = b[7];
-	    *p++ = b[6];
-	    *p++ = b[5];
-	    *p++ = b[4];
-	}
-	if ( sizeof(Q_LONG) >= 4 ) {
-	    *p++ = b[3];
-	    *p++ = b[2];
-	}
-	*p++ = b[1];
-	*p   = b[0];
+	for ( int j = sizeof(Q_LONG); j;  )
+	    *p++ = b[--j];
     }
     return *this;
 }
@@ -797,18 +787,8 @@ QDataStream &QDataStream::operator<<( Q_LONG i )
     } else {					// swap bytes
 	register uchar *p = (uchar *)(&i);
 	char b[sizeof(Q_LONG)];
-	if ( sizeof(Q_LONG) == 8 ) {
-	    b[7] = *p++;
-	    b[6] = *p++;
-	    b[5] = *p++;
-	    b[4] = *p++;
-	}
-	if ( sizeof(Q_LONG) >= 4 ) {
-	    b[3] = *p++;
-	    b[2] = *p++;
-	}
-	b[1] = *p++;
-	b[0] = *p;
+	for ( int j = sizeof(Q_LONG); j;  )
+	    b[--j] = *p++;
 	dev->writeBlock( b, sizeof(Q_LONG) );
     }
     return *this;
