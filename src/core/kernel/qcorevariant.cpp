@@ -475,7 +475,13 @@ static void load(QCoreVariant::Private *d, QDataStream &s)
         QLOAD(QBitArray);
         break;
     default:
-        qFatal("QCoreVariant::load: type %d unknown to QCoreVariant.", d->type);
+        if (QMetaType::isRegistered(d->type)) {
+            if (!QMetaType::load(s, d->type, d->data.shared->value.ptr))
+                qFatal("QCoreVariant::load: no streaming operators registered for type %d.", d->type);
+            break;
+        } else {
+            qFatal("QCoreVariant::load: type %d unknown to QCoreVariant.", d->type);
+        }
     }
 }
 
@@ -551,7 +557,13 @@ static void save(const QCoreVariant::Private *d, QDataStream &s)
         s << QString();
         break;
     default:
-        qFatal("QCoreVariant::save: type %d unknown to QCoreVariant.", d->type);
+        if (QMetaType::isRegistered(d->type)) {
+            if (!QMetaType::save(s, d->type, d->data.shared->value.ptr))
+                qFatal("QCoreVariant::save: no streaming operators registered for type %d.", d->type);
+            break;
+        } else {
+            qFatal("QCoreVariant::save: type %d unknown to QCoreVariant.", d->type);
+        }
     }
 }
 #endif // QT_NO_DATASTREAM
@@ -1693,7 +1705,12 @@ void QCoreVariant::load(QDataStream &s)
 
     Q_UINT32 u;
     s >> u;
-    create(static_cast<Type>(u), 0);
+    if (u >= QCoreVariant::UserType) {
+        QByteArray name;
+        s >> name;
+        u = QMetaType::type(name);
+    }
+    create(static_cast<int>(u), 0);
     d.is_null = false;
     handler->load(&d, s);
 }
@@ -1707,6 +1724,9 @@ void QCoreVariant::load(QDataStream &s)
 void QCoreVariant::save(QDataStream &s) const
 {
     s << (Q_UINT32)type();
+    if (type() == QCoreVariant::UserType) {
+        s << QMetaType::typeName(userType());
+    }
     handler->save(&d, s);
 }
 
