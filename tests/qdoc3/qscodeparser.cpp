@@ -353,7 +353,7 @@ qDebug( "Quickifying '%s'", qtClassName.latin1() );
     if ( wrapperClass != 0 )
 	children += wrapperClass->childNodes();
 
-    QMap<QString, int> blackList;
+    QMap<QString, int> ;
     for ( int pass = 0; pass < 2; pass++ ) {
 	NodeList::ConstIterator c = children.begin();
 	while ( c != children.end() ) {
@@ -362,14 +362,16 @@ qDebug( "Quickifying '%s'", qtClassName.latin1() );
 		if ( pass == 0 ) {
 		    if ( (*c)->type() == Node::Property ) {
 			PropertyNode *property = (PropertyNode *) *c;
-			quickifyProperty( quickClass, qtClass, property,
-					  &blackList );
+			quickifyProperty( quickClass, qtClass, property );
+			blackList.insert( property->getter(), 0 );
+			blackList.insert( property->setter(), 0 );
+			blackList.insert( property->resetter(), 0 );
 		    }
 		} else {
-		    if ( (*c)->type() == Node::Function )  {
+		    if ( (*c)->type() == Node::Function &&
+			  !blackList.contains((*c)->name()) )  {
 			FunctionNode *func = (FunctionNode *) *c;
-			quickifyFunction( quickClass, qtClass, func,
-					  &blackList );
+			quickifyFunction( quickClass, qtClass, func );
 		    }
 		}
 	    }
@@ -380,11 +382,9 @@ qDebug( "Quickifying '%s'", qtClassName.latin1() );
 }
 
 void QsCodeParser::quickifyFunction( ClassNode *quickClass, ClassNode *qtClass,
-				     FunctionNode *func,
-				     QMap<QString, int> *blackList )
+				     FunctionNode *func )
 {
-    if ( func->metaness() != FunctionNode::Plain &&
-	 !blackList->contains(func->name()) ) {
+    if ( func->metaness() != FunctionNode::Plain ) {
 	FunctionNode *quickFunc = new FunctionNode( quickClass, func->name() );
 	quickFunc->setLocation( func->location() );
 	quickFunc->setReturnType( quickifiedDataType(func->returnType()) );
@@ -415,8 +415,7 @@ void QsCodeParser::quickifyFunction( ClassNode *quickClass, ClassNode *qtClass,
 
 void QsCodeParser::quickifyProperty( ClassNode *quickClass,
 				     ClassNode * /* qtClass */,
-				     PropertyNode *property,
-				     QMap<QString, int> *blackList )
+				     PropertyNode *property )
 {
     PropertyNode *quickProperty =
 	    new PropertyNode( quickClass, property->name() );
@@ -429,10 +428,6 @@ void QsCodeParser::quickifyProperty( ClassNode *quickClass,
     quickProperty->setDesignable( property->isDesignable() );
 
     setQtDoc( quickProperty, property->doc() );
-
-    blackList->insert( quickProperty->getter(), 0 );
-    blackList->insert( quickProperty->setter(), 0 );
-    blackList->insert( quickProperty->resetter(), 0 );
 }
 
 QString QsCodeParser::quickifiedDataType( const QString& leftType,
