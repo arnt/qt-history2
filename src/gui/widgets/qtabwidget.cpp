@@ -744,6 +744,8 @@ QSize QTabWidget::sizeHint() const
     QSize t(d->tabs->sizeHint());
     if(!style().styleHint(QStyle::SH_TabBar_PreferNoArrows, d->tabs))
         t = t.boundedTo(QSize(200,200));
+    else
+        t = t.boundedTo(QApplication::desktop()->size());
     QSize sz(qMax(s.width(), t.width() + rc.width() + lc.width()),
               s.height() + (qMax(rc.height(), qMax(lc.height(), t.height()))) + (d->tabBase->isVisible() ? d->tabBase->height() : 0));
     return style().sizeFromContents(QStyle::CT_TabWidget, this, sz).expandedTo(QApplication::globalStrut());
