@@ -103,10 +103,6 @@ the ability to add, edit and remove menus and menu items directly in
 the menubar and in the popup menu. Navigation and editing can be done
 using either the mouse or the keyboard.
 
-The new QWidgetContainerPlugin class provides support for complex
-custom container widgets in Designer, such as the custom tab widget,
-etc.
-
 The property editor now allows editing of properties with or'd values
 (sets).
 
@@ -142,6 +138,12 @@ Compilers
 Note: Qt 3.2 is the last version to officially support IRIX MIPSpro
 o32 and Sun CC 5.0. A script, $QTDIR/bin/qt32castcompat, is provided
 for 3.2 which needs to be run for these compilers.
+
+Miscellaneous
+-------------
+
+Users of the 3.2.0 beta releases please note: The QWidgetContainerPlugin
+interfaces was removed from the final release due to some serious issues.
 
 ****************************************************************************
 *			   Library					   *
@@ -323,9 +325,3 @@ for 3.2 which needs to be run for these compilers.
 - QWidget
 	Added a new widget flag, WNoAutoErase, that combines the now
 	obsolete WResizeNoErase and WRepaintNoErase flags.
-
-Changes between beta releases and final release
------------------------------------------------
-
-The QWidgetContainerPlugin interfaces was removed from the final release
-due to some serious issues.
