@@ -112,7 +112,7 @@ void QSignalMapper::setMapping( const QObject* sender, int identifier )
     sender, the signal mapper(\a identifier) is emitted.
 
     There may be at most one string identifier for each object, and it
-    may not be null.
+    may not be empty.
 */
 void QSignalMapper::setMapping( const QObject* sender, const QString &identifier )
 {
