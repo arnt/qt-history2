@@ -394,7 +394,7 @@ int QSqlCursor::mode() const
   exist, nothing happens.  The value of calculated fields are set by
   the calculateField() virtual function.  Calculated fields are not
   generated in SQL statements sent to the database.
-  
+
   \sa calculateField() QSqlRecord::setGenerated()
 */
 
@@ -549,8 +549,6 @@ void QSqlCursor::primeInsert( QSqlRecord* )
 
 int QSqlCursor::insert( bool invalidate )
 {
-    int actualFields = 0;
-    
     if ( ( d->md & Insert ) != Insert )
 	return FALSE;
     int k = d->editBuffer.count();
@@ -776,7 +774,7 @@ void QSqlCursor::sync()
 	}
 	i = 0;
 	for ( ; i < count(); ++i ){
-	    QSqlField* f = field( i );	    
+	    QSqlField* f = field( i );
 	    if ( isCalculated( f->name() ) )
 		QSqlRecord::setValue( i, calculateField( f->name() ) );
 	}
