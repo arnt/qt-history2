@@ -376,8 +376,7 @@ HRESULT WINAPI QAxScriptSite::EnableModeless(BOOL fEnable)
     script.
 */
 QAxScriptEngine::QAxScriptEngine(const QString &language, QAxScript *script)
-: QAxObject(script), script_code(script), engine(0), 
-script_language(language)
+: QAxObject(script), script_code(script), engine(0), script_language(language)
 {
 #ifdef QT_CHECK_STATE
     if (language.isEmpty())
@@ -386,6 +385,7 @@ script_language(language)
     if (!script_code)
         qWarning("QAxScriptEngine without script created!");
 #endif
+    setObjectName("QAxScriptEngine_" + language);
     disableClassInfo();
     disableEventSink();
 }
