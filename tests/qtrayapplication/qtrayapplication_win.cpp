@@ -22,14 +22,22 @@ public:
 
     bool update()
     {
-	bool res = FALSE;
-
 	if ( current_popup || qApp->mainWidget() ) {
-	    res = trayMessage( has_icon ? NIM_MODIFY : NIM_ADD );
+	    bool res = trayMessage( has_icon ? NIM_MODIFY : NIM_ADD );
 	    has_icon = TRUE;
+	    return res;
 	}
 
-	return res;
+	return FALSE;
+    }
+
+    bool remove()
+    {
+	if ( !has_icon )
+	    return TRUE;
+
+	has_icon = FALSE;
+	return trayMessage( NIM_DELETE );	
     }
 
     bool trayMessage( DWORD msg ) 
@@ -77,30 +85,58 @@ public:
     HICON		hIcon;    
 };
 
+/*!
+  Creates a QTrayApplication object. \a argc and \a argv are propagated
+  to the QApplication destructor.
+*/
 QTrayApplication::QTrayApplication( int argc, char **argv )
 : QApplication( argc, argv )
 {
     d = new QTrayApplicationPrivate;
 }
 
-void QTrayApplication::setIcon( const QPixmap &icon )
+/*!
+  Removes the icon from the system tray and frees all allocated resources.
+*/
+QTrayApplication::~QTrayApplication()
+{
+    d->remove();
+    delete d;
+}
+
+/*!
+  Sets the system tray icon to \a icon.
+  If \a icon is a NULL pixmap, the current icon will be removed from the system tray.
+*/
+void QTrayApplication::setTrayIcon( const QPixmap &icon )
 {
     if ( d->hIcon )
 	DestroyIcon( d->hIcon );
 
     d->current_icon = icon;
 
-    QImage img = icon.convertToImage();
-    d->hIcon = CreateIcon( qWinAppInst(), icon.width(), icon.height(), 1, img.depth(), 0, img.bits() );
+    if ( icon.isNull() ) {
+	d->remove();
+    } else {
+	QImage img = icon.convertToImage();
+	d->hIcon = CreateIcon( qWinAppInst(), icon.width(), icon.height(), 1, img.depth(), 0, img.bits() );
 
-    d->update();
+	d->update();
+    }
 }
 
-QPixmap QTrayApplication::icon() const
+/*!
+  Returns the current system tray icon.
+*/
+QPixmap QTrayApplication::trayIcon() const
 {
     return d->current_tip;
 }
 
+/*!
+  Sets the context menu to \a popup. The context menu will pop up when the
+  user clicks the system tray icon with the right mouse button.
+*/
 void QTrayApplication::setPopup( QPopupMenu *popup )
 {
     d->current_popup = popup;
@@ -108,11 +144,17 @@ void QTrayApplication::setPopup( QPopupMenu *popup )
     d->update();
 }
 
+/*!
+  Returns the current context menu.
+*/
 QPopupMenu *QTrayApplication::popup() const
 {
     return d->current_popup;
 }
 
+/*!
+  Sets the tooltip for the system tray entry to \a tip.
+*/
 void QTrayApplication::setToolTip( const QString &tip )
 {
     d->current_tip = tip;
@@ -120,11 +162,17 @@ void QTrayApplication::setToolTip( const QString &tip )
     d->update();
 }
 
+/*!
+  Returns the current tray tooltip.
+*/
 QString QTrayApplication::toolTip() const
 {
     return d->current_tip;
 }
 
+/*!
+  \reimp
+*/
 bool QTrayApplication::winEventFilter( MSG *m )
 {
     if (!d->has_icon)
@@ -161,10 +209,26 @@ bool QTrayApplication::winEventFilter( MSG *m )
     return QApplication::winEventFilter( m );
 }
 
+/*!
+  Removes the icon from the system tray and quits the application.
+*/
 void QTrayApplication::quit()
 {
-    d->trayMessage( NIM_DELETE );
-    d->has_icon = FALSE;
+    d->remove();
 
     QApplication::quit();
 }
+
+/*!
+  \fn void QTrayApplication::clicked( const QPoint& )
+
+  This signal is emitted when the user clicks the system tray icon
+  with the left mouse button.
+*/
+
+/*!
+  \fn void QTrayApplication::doubleClicked( const QPoint& )
+  
+  This signal is emitted when the user doubleclicks the system tray
+  icon with the left mouse button.
+*/

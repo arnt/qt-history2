@@ -29,7 +29,7 @@ static const char * const edit_xpm[]={
 int main( int argc, char **argv )
 {
 	QTrayApplication app( argc, argv );
-	app.setIcon( QPixmap( (const char**)edit_xpm ) );
+	app.setTrayIcon( QPixmap( (const char**)edit_xpm ) );
 	app.setToolTip( "QTrayApplication" );
 	QPopupMenu menu;
 	menu.insertItem( "&Dummy Item" );
