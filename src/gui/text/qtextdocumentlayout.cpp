@@ -695,10 +695,14 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
 
                     layoutCell(table, cell, &layoutStruct);
 
-                    int widthToDistribute = layoutStruct.minimumWidth / cspan;
+                    int widthToDistribute = layoutStruct.minimumWidth;
                     for (int n = cspan; n > 0; --n) {
                         const int col = i + n - 1;
+                        int w = widthToDistribute / n;
                         td->minWidths[col] = qMax(td->minWidths.at(col), widthToDistribute);
+                        widthToDistribute -= td->minWidths.at(col);
+                        if (widthToDistribute <= 0)
+                            break;
                     }
                 }
                 td->widths[i] = td->minWidths.at(i);
@@ -754,8 +758,8 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
                 td->heights[row] = qMax(td->heights.at(row), h);
 
                 heightToDistribute -= td->heights.at(row);
-                if (heightToDistribute < 0)
-                    continue;
+                if (heightToDistribute <= 0)
+                    break;
             }
         }
     }
