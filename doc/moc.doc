@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: moc.doc,v 2.15 1999/04/28 09:54:00 aavit Exp $
+** $Id: moc.doc,v 2.16 1999/06/10 12:56:35 paul Exp $
 **
 ** Moc usage, expanded from the manual page
 **
@@ -208,6 +208,35 @@ the first inherited class is a QObject.
 This bug is almost impossible to fix; since the moc does not expand
 #include or #define, it cannot find out which one of the base classes is a
 QObject.
+
+<h3>Virtual functions cannot be slots when using multiple inheritance</h3>
+
+This problem occurs if you are using multiple inheritance. If you
+reimplement a virtual function as a slot <strong>and</strong> that
+function was originally declared in a class that does not inherit
+QObject, your program will crash when a signal triggers the slot.
+(This may not happen on all platforms.)
+
+The following example shows one wrong and two correct slot definitions.
+\code
+    class BaseClass {
+    [...]
+        virtual void setValue( int );
+    };
+
+    class SubClass : public QObject, public BaseClass {
+    [...]
+    public slots:
+        void setValue( int ); //virtual from BaseClass, error.
+        void slotSetValue( int i ) { setValue(i); } //new function, ok.
+	void setName( const char* ); // virtual from QObject, ok.
+    };
+\endcode
+
+For those interested in C++ internals: The cause of this problem is
+that a slot is internally represented as a function pointer, and
+invoked on a QObject. 
+
 
 <h3>Function pointers can not be arguments to signals or slots</h3>
 
