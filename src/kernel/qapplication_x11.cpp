@@ -878,6 +878,14 @@ bool QApplication::x11_apply_settings()
 	    pal.setColor(QPalette::Disabled, (QColorGroup::ColorRole) i,
 			 QColor(strlist[i]));
     }
+    
+    
+    // workaround for KDE 3.0, which messes up the buttonText value of
+    // the disabled palette in QSettings
+    if ( pal.disabled().buttonText() == pal.active().buttonText() ) {
+	pal.setColor( QPalette::Disabled, QColorGroup::ButtonText,
+		      pal.disabled().foreground() );
+    }
 
     if (pal != *qt_std_pal && pal != QApplication::palette()) {
 	QApplication::setPalette(pal, TRUE);
@@ -1135,7 +1143,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
     QApplication::setEffectEnabled( Qt::UI_AnimateCombo, FALSE );
     QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, FALSE );
     QApplication::setEffectEnabled( Qt::UI_FadeTooltip, FALSE );
-    
+
     if ( QApplication::desktopSettingsAware() &&
 	 (! QApplication::x11_apply_settings() && ! qt_set_desktop_properties() ) ) {
 	int format;
@@ -1287,7 +1295,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	QApplication::setEffectEnabled( Qt::UI_AnimateCombo, effects.contains("animatecombo") );
 	QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, effects.contains("animatetooltip") );
 	QApplication::setEffectEnabled( Qt::UI_FadeTooltip, effects.contains("fadetooltip") );
-    } 
+    }
 }
 
 
