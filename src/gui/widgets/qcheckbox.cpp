@@ -60,7 +60,7 @@ public:
     optionally provides a third state to indicate "no change". This
     is useful whenever you need to give the user the option of neither
     checking nor unchecking a checkbox. If you need this third state,
-    enable it with setTristate(), and use state() to query the current
+    enable it with setTristate(), and use checkState() to query the current
     toggle state.
 
     Just like QPushButton, a checkbox can display text or a pixmap.
@@ -69,9 +69,9 @@ public:
 
     Important inherited functions: text(), setText(), text(),
     pixmap(), setPixmap(), accel(), setAccel(), isToggleButton(),
-    setDown(), isDown(), isOn(), state(), autoRepeat(),
+    setDown(), isDown(), isOn(), checkState(), autoRepeat(),
     isExclusiveToggle(), group(), setAutoRepeat(), toggle(),
-    pressed(), released(), clicked(), toggled(), state(), and
+    pressed(), released(), clicked(), toggled(), checkState(), and
     stateChanged().
 
     \inlineimage macintosh-checkbox.png Screenshot in Macintosh style
@@ -312,7 +312,21 @@ QCheckBox::QCheckBox(const QString &text, QWidget *parent, const char* name)
 
 /*!
     \fn void QCheckBox::setNoChange()
+    \compat
 
-    Use setState() instead.
+    Use setCheckState() instead.
 */
 
+/*!
+    \fn void QCheckBox::setState(ToggleState state)
+    \compat
+
+    Use setCheckState() instead.
+*/
+
+/*!
+    \fn QCheckBox::ToggleState QCheckBox::state() const
+    \compat
+
+    Use checkState() instead.
+*/

@@ -1663,10 +1663,5 @@ QVariant QComboBox::inputMethodQuery(Qt::InputMethodQuery query) const
     Use clearEditText() instead.
 */
 
-/*!
-    \typedef QComboBox::InsertPolicy QComboBox::Policy
-    \compat
-*/
-
 #include "moc_qcombobox.cpp"
 
