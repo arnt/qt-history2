@@ -2590,6 +2590,10 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int *ulChars, i
     fe->hdc = oldDC;
 
     if ( ulChars ) {
+	uint pix = COLOR_VALUE(cpen.data->color);
+	HBRUSH tbrush = CreateSolidBrush( pix );
+	SelectObject( hdc, tbrush );
+	
 	// draw underlines
 	for ( int i = 0; i < nUlChars; i++ ) {
 	    // ### fix for ligatures and indic syllables
@@ -2604,8 +2608,10 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int *ulChars, i
 		x1 = tmp + 1;
 	    }
 	    int ulpos = fe->underlinePosition();
-	    Rectangle( hdc, x + x1, y + ulpos, x2-x1, fe->lineThickness() );
+	    Rectangle( hdc, x + x1, y + ulpos, x + x2, y + ulpos + fe->lineThickness() );
 	}
+	SelectObject( hdc, hbrush );
+	DeleteObject( tbrush );
     }
 }
 
