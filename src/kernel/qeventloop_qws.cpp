@@ -43,6 +43,10 @@
 #include "qwindowsystem_qws.h"
 #include <qptrqueue.h>
 
+#if defined(QT_THREAD_SUPPORT)
+#  include "qmutex.h"
+#endif // QT_THREAD_SUPPORT
+
 #include <errno.h>
 
 
@@ -119,7 +123,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
     int	   nevents = 0;
 
 #if defined(QT_THREAD_SUPPORT)
-    QMutexLocker locker( &d->mutex );
+    QMutexLocker locker( QApplication::qt_mutex );
 #endif
 
     // we are awake, broadcast it

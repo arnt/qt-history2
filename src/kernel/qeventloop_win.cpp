@@ -31,6 +31,10 @@
 #include "qapplication.h"
 #include <private/qinputcontext_p.h>
 
+#if defined(QT_THREAD_SUPPORT)
+#  include "qmutex.h"
+#endif // QT_THREAD_SUPPORT
+
 extern uint qGlobalPostedEventsCount();
 extern bool qt_winEventFilter( MSG* msg );
 
@@ -568,7 +572,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
     MSG	 msg;
 
 #if defined(QT_THREAD_SUPPORT)
-    QMutexLocker locker( &d->mutex );
+    QMutexLocker locker( QApplication::qt_mutex );
 #endif
     emit awake();
 

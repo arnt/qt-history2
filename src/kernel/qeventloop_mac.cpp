@@ -31,6 +31,10 @@
 #include "qapplication.h"
 #include "qt_mac.h"
 
+#if defined(QT_THREAD_SUPPORT)
+#  include "qmutex.h"
+#endif // QT_THREAD_SUPPORT
+
 #ifdef Q_WS_MAC9
 #  define QMAC_EVENT_NOWAIT 0.01
 #else
@@ -741,7 +745,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 #endif
     int	   nevents = 0;
 #if defined(QT_THREAD_SUPPORT)
-    QMutexLocker locker( &d->mutex );
+    QMutexLocker locker( QApplication::qt_mutex );
 #endif
     emit awake();
 #ifdef QMAC_LAME_TIME_LIMITED

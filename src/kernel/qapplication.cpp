@@ -349,7 +349,8 @@ QApplication::Type qt_appType=QApplication::Tty;
 QStringList *QApplication::app_libpaths = 0;
 
 #ifdef QT_THREAD_SUPPORT
-QMutex *QApplication::qt_mutex		 = 0;
+QMutex *QApplication::qt_mutex		= 0;
+static QMutex *postevent_mutex		= 0;
 #endif // QT_THREAD_SUPPORT
 
 static QEventLoop *static_eventloop = 0;	// application event loop
@@ -860,6 +861,7 @@ void QApplication::initialize( int argc, char **argv )
 {
 #ifdef QT_THREAD_SUPPORT
     qt_mutex = new QMutex( TRUE );
+    postevent_mutex = new QMutex( FALSE );
 #endif // QT_THREAD_SUPPORT
 
     app_argc = argc;
@@ -987,6 +989,13 @@ QApplication::~QApplication()
 
     delete app_libpaths;
     app_libpaths = 0;
+
+#ifdef QT_THREAD_SUPPORT
+    delete qt_mutex;
+    qt_mutex = 0;
+    delete postevent_mutex;
+    postevent_mutex = 0;
+#endif // QT_THREAD_SUPPORT
 
     if( qApp == this )
 	qApp = 0;
@@ -1985,7 +1994,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
     if ( e->type() == QEvent::ChildRemoved && receiver->postedEvents ) {
 
 #ifdef QT_THREAD_SUPPORT
-	QMutexLocker locker( qt_mutex );
+	QMutexLocker locker( postevent_mutex );
 #endif // QT_THREAD_SUPPORT
 
 	// if this is a child remove event and the child insert hasn't been
@@ -2680,9 +2689,15 @@ QString QApplication::translate( const char * context, const char * sourceText,
 
 void QApplication::postEvent( QObject *receiver, QEvent *event )
 {
+    if ( receiver == 0 ) {
+#if defined(QT_CHECK_NULL)
+	qWarning( "QApplication::postEvent: Unexpected null receiver" );
+#endif
+	return;
+    }
 
 #ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( qt_mutex );
+    QMutexLocker locker( postevent_mutex );
 #endif // QT_THREAD_SUPPORT
 
     if ( !globalPostedEvents ) {			// create list
@@ -2690,12 +2705,6 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 	Q_CHECK_PTR( globalPostedEvents );
 	globalPostedEvents->setAutoDelete( TRUE );
 	qapp_cleanup_events.set( &globalPostedEvents );
-    }
-    if ( receiver == 0 ) {
-#if defined(QT_CHECK_NULL)
-	qWarning( "QApplication::postEvent: Unexpected null receiver" );
-#endif
-	return;
     }
 
     if ( !receiver->postedEvents )
@@ -2789,7 +2798,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	return;
 
 #ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( qt_mutex );
+    QMutexLocker locker( postevent_mutex );
 #endif
 
     bool sent = TRUE;
@@ -2898,7 +2907,7 @@ void QApplication::removePostedEvents( QObject *receiver )
 	return;
 
 #ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( qt_mutex );
+    QMutexLocker locker( postevent_mutex );
 #endif // QT_THREAD_SUPPORT
 
     // iterate over the object-specifc list and delete the events.
@@ -2945,7 +2954,7 @@ void QApplication::removePostedEvent( QEvent *  event )
     }
 
 #ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( qt_mutex );
+    QMutexLocker locker( postevent_mutex );
 #endif
 
     QPostEventListIt it( *globalPostedEvents );

@@ -4,10 +4,6 @@
 #include "qplatformdefs.h"
 #include "qwindowdefs.h"
 
-#if defined(QT_THREAD_SUPPORT)
-#include "qmutex.h"
-#endif // QT_THREAD_SUPPORT
-
 class QSocketNotifier;
 
 #if defined(Q_OS_UNIX)
@@ -39,9 +35,6 @@ class QEventLoopPrivate
 {
 public:
     QEventLoopPrivate()
-#if defined(QT_THREAD_SUPPORT)
-	: mutex( TRUE )
-#endif // QT_THREAD_SUPPORT
     {
 	reset();
     }
@@ -57,10 +50,6 @@ public:
     int quitcode;
     bool quitnow;
     bool exitloop;
-
-#if defined(QT_THREAD_SUPPORT)
-    QMutex mutex;
-#endif // QT_THREAD_SUPPORT
 
 #if defined(Q_WS_MAC)
     EventLoopTimerRef select_timer;
