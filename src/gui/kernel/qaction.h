@@ -145,8 +145,8 @@ signals:
     QT_COMPAT void activated();
 #endif
 
-private slots:
-    void sendShortcutActivated();
+//private slots:
+//    void sendShortcutActivated();
 
 private:
 #ifdef QT_COMPAT
