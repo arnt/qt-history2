@@ -22,73 +22,38 @@ public:
     QPointer<QMenu> menu;
     uint usesTextLabel : 1;
 
-    QToolBarButtonPrivate()
-    { menu = 0; usesTextLabel = false; }
-
-    // ### these should be done in the style, eventually
-    void subRects(QRect &iconRect, QRect &textRect) const
-    {
-	const QPixmap icon = q->icon().pixmap();
-	const QString text = q->text();
-	const QFontMetrics fm = q->fontMetrics();
-
-	iconRect.setSize(icon.size() + QSize(4, 4));
-	iconRect.moveTopLeft(QPoint(1, 1));
-	if (usesTextLabel) {
-	    textRect.setSize(QSize(fm.width(text), fm.lineSpacing()) + QSize(4, 4));
-	    textRect.moveTopLeft(iconRect.topRight() + QPoint(1, 0));
-	}
-
-	int maxh = qMax(iconRect.height(), textRect.height());
-	iconRect.setHeight(maxh);
-	if (usesTextLabel)
-	    textRect.setHeight(maxh);
-    }
-
-    void drawButton(QPainter *p)
-    {
-        QRect buttonRect = q->rect();
-        QRect menuRect;
-
-        if (d->menu) {
-            buttonRect.setWidth(buttonRect.width() - 12);
-            menuRect.setRect(buttonRect.right() + 1, buttonRect.top(), 12, buttonRect.height());
-        }
-
-        QIconSet::Mode mode = q->isEnabled() ? QIconSet::Normal : QIconSet::Disabled;
-        if (q->isDown()) {
-            mode = QIconSet::Active;
-	    qDrawShadePanel(p, buttonRect, q->palette(), true);
-            if (d->menu) {
-                qDrawShadePanel(p, menuRect, q->palette(), false);
-            }
-        } else if (q->isEnabled() && (q->underMouse() || (d->menu && d->menu->isVisible()))) {
-            mode = QIconSet::Active;
-	    qDrawShadePanel(p, buttonRect, q->palette(), false);
-            if (d->menu) {
-                qDrawShadePanel(p, menuRect, q->palette(), d->menu->isVisible());
-            }
-        }
-
-	const QPixmap icon = q->icon().pixmap(QIconSet::Automatic, mode);
-	const QString text = q->text();
-	QRect iconRect, textRect;
-	d->subRects(iconRect, textRect);
-
-        q->style().drawItem(p, iconRect, Qt::AlignCenter, q->palette(), q->isEnabled(), icon);
-	if (usesTextLabel)
-	    q->style().drawItem(p, textRect, Qt::AlignLeft | Qt::AlignVCenter,
-				q->palette(), q->isEnabled(), text);
-
-        if (d->menu) {
-            QStyleOption opt(0);
-            opt.rect = menuRect;
-            opt.palette = q->palette();
-            opt.state = QStyle::Style_Enabled;
-            q->style().drawPrimitive(QStyle::PE_ArrowDown, &opt, p, q);
-        }
-    }
+    QToolBarButtonPrivate();
+    QStyleOptionButton getStyleOption() const;
 };
+
+QToolBarButtonPrivate::QToolBarButtonPrivate()
+    : usesTextLabel(false)
+{ }
+
+QStyleOptionButton QToolBarButtonPrivate::getStyleOption() const
+{
+    QStyleOptionButton opt(0);
+    opt.init(q);
+    if (usesTextLabel)
+        opt.text = text;
+    opt.icon = icon;
+
+    if (q->isDown()) {
+        opt.state |= QStyle::Style_Down;
+    } else if (q->isChecked()) {
+        opt.state |= QStyle::Style_On;
+    } else if (q->isEnabled()) {
+        if (q->underMouse())
+            opt.state |= QStyle::Style_MouseOver;
+        if (menu && menu->isVisible())
+            opt.state |= QStyle::Style_Open;
+    }
+
+    if (menu)
+        opt.features = QStyleOptionButton::HasMenu;
+
+    return opt;
+}
 
 
 QToolBarButton::QToolBarButton(QWidget *parent)
@@ -132,10 +97,18 @@ void QToolBarButton::showMenu()
 
 QSize QToolBarButton::sizeHint() const
 {
-    QRect iconRect, textRect;
-    d->subRects(iconRect, textRect);
-    return QSize(iconRect.width() + textRect.width() + (d->menu ? 12 : 0) + 2,
-                 iconRect.height() + 2);
+    QStyleOptionButton opt = d->getStyleOption();
+
+    const QPixmap icon = d->icon.pixmap();
+    const QString text = d->text;
+    const QFontMetrics fm = fontMetrics();
+    QSize sz = icon.size();
+    if (d->usesTextLabel) {
+        sz.rwidth() += fm.width(text);
+        sz.rheight() = qMax(sz.height(), fm.lineSpacing());
+    }
+
+    return style().sizeFromContents(QStyle::CT_ToolBarButton, &opt, sz, fm, this);
 }
 
 QSize QToolBarButton::minimumSizeHint() const
@@ -190,7 +163,8 @@ void QToolBarButton::leaveEvent(QEvent *)
 void QToolBarButton::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    d->drawButton(&p);
+    QStyleOptionButton opt = d->getStyleOption();
+    style().drawControl(QStyle::CE_ToolBarButton, &opt, &p, this);
 }
 
 void QToolBarButton::actionEvent(QActionEvent *event)
@@ -216,10 +190,6 @@ void QToolBarButton::actionEvent(QActionEvent *event)
         setShown(action->isVisible());
         break;
 
-    case QEvent::ActionRemoved:
-        hide();
-        deleteLater();
-        break;
     default:
         break;
     }

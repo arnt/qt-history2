@@ -114,8 +114,6 @@ public:
     QStyle();
     virtual ~QStyle();
 
-    // New QStyle API - most of these should probably be pure virtual
-
     virtual void polish(QWidget *);
     virtual void unPolish(QWidget *);
 
@@ -304,6 +302,8 @@ public:
         CE_ToolBoxTab,
         CE_HeaderLabel,
 
+        CE_ToolBarButton,
+
         // do not add any values below/greater than this
         CE_CustomBase = 0xf0000000
     };
@@ -348,6 +348,9 @@ public:
         SR_DialogButtonCustom,
 
         SR_ToolBoxTabContents,
+
+        SR_ToolBarButtonContents,
+        SR_ToolBarButtonMenu,
 
         // do not add any values below/greater than this
         SR_CustomBase = 0xf0000000
@@ -527,6 +530,7 @@ public:
         CT_SizeGrip,
         CT_TabWidget,
         CT_DialogButtons,
+        CT_ToolBarButton,
         // do not add any values below/greater than this
         CT_CustomBase = 0xf0000000
     };
@@ -744,28 +748,6 @@ public:
     static QPoint visualPos(const QPoint &logical, const QRect &bounding);
     static int positionFromValue(int min, int max, int val, int space, bool upsideDown = false);
     static int valueFromPosition(int min, int max, int pos, int space, bool upsideDown = false);
-
-
-    // Old 2.x QStyle API
-
-#ifdef QT_COMPAT
-    int QT_COMPAT defaultFrameWidth() const
-    {
-        return pixelMetric(PM_DefaultFrameWidth);
-    }
-
-    void QT_COMPAT tabbarMetrics(const QWidget* t, int& hf, int& vf, int& ov) const
-    {
-        hf = pixelMetric(PM_TabBarTabHSpace, t);
-        vf = pixelMetric(PM_TabBarTabVSpace, t);
-        ov = pixelMetric(PM_TabBarBaseOverlap, t);
-    }
-    QSize QT_COMPAT scrollBarExtent() const
-    {
-        return QSize(pixelMetric(PM_ScrollBarExtent),
-                     pixelMetric(PM_ScrollBarExtent));
-    }
-#endif
 
 private:
 #ifdef QT_COMPAT

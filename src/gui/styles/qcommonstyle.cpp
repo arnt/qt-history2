@@ -1053,6 +1053,48 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             }
         }
         break;
+    case CE_ToolBarButton:
+        if (const QStyleOptionButton * const button = qt_cast<const QStyleOptionButton *>(opt)) {
+            const QRect cr = subRect(SR_ToolBarButtonContents, opt, widget);
+
+            QIconSet::Mode iconMode = (button->state & Style_Enabled)
+                                      ? QIconSet::Normal
+                                      : QIconSet::Disabled;
+            if (button->state & Style_Down)
+                iconMode = QIconSet::Active;
+            QIconSet::State iconState = (button->state & Style_On)
+                                        ? QIconSet::On
+                                        : QIconSet::Off;
+
+            const QPixmap pixmap = button->icon.pixmap(QIconSet::Automatic, iconMode, iconState);
+
+            if (button->state & Style_Down) {
+                qDrawShadePanel(p, cr, button->palette, true);
+            } else if (button->state & (Style_MouseOver | Style_Open)) {
+                qDrawShadePanel(p, cr, button->palette, false);
+            }
+
+            const QRect ir(cr.topLeft() + QPoint(2, 2), QSize(pixmap.width(), cr.height() - 4));
+            drawItem(p, ir, Qt::AlignCenter, button->palette,
+                     (button->state & Style_Enabled), pixmap);
+            if (!button->text.isEmpty()) {
+                const QRect tr(ir.topRight() + QPoint(2, 0),
+                               QSize(cr.width() - ir.width() - 6, ir.height()));
+                drawItem(p, tr, Qt::AlignLeft | Qt::AlignVCenter,
+                         button->palette, (button->state & Style_Enabled), button->text);
+            }
+
+            if (button->features & QStyleOptionButton::HasMenu) {
+                QStyleOption mopt(0);
+                mopt.rect = subRect(SR_ToolBarButtonMenu, opt, widget);
+                mopt.palette = button->palette;
+                mopt.state = QStyle::Style_Enabled;
+                if (button->state & (Style_Down | Style_MouseOver | Style_Open))
+                    qDrawShadePanel(p, mopt.rect, button->palette, button->state & Style_Open);
+                drawPrimitive(QStyle::PE_ArrowDown, &mopt, p, widget);
+            }
+        }
+        break;
     default:
         break;
     }
@@ -1245,6 +1287,22 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
     case SR_ToolBoxTabContents:
         r = opt->rect;
         r.addCoords(0, 0, -30, 0);
+        break;
+    case SR_ToolBarButtonContents:
+        if (const QStyleOptionButton * const button = qt_cast<const QStyleOptionButton *>(opt)) {
+            r = opt->rect;
+            if (button->features & QStyleOptionButton::HasMenu) {
+                r.setRight(r.right() - 12);
+            }
+        }
+        break;
+    case SR_ToolBarButtonMenu:
+        if (const QStyleOptionButton * const button = qt_cast<const QStyleOptionButton *>(opt)) {
+            if (button->features & QStyleOptionButton::HasMenu) {
+                r = opt->rect;
+                r.setLeft(r.right() - 11);
+            }
+        }
         break;
     default:
         break;
@@ -2385,6 +2443,15 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, c
         int dfw = pixelMetric(PM_DefaultFrameWidth, widget) * 2;
         sz = QSize(sz.width() + dfw + 21, sz.height() + dfw);
         break; }
+    case CT_ToolBarButton:
+        if (const QStyleOptionButton * const button = qt_cast<const QStyleOptionButton *>(opt)) {
+            sz += QSize(4, 4); // for the icon
+            if (!button->text.isEmpty())
+                sz.rwidth() += 2; // between the text and the icon
+            if (button->features & QStyleOptionButton::HasMenu)
+                sz.rwidth() += 12;
+        }
+        break;
     case CT_MenuBar:
     case CT_Menu:
     case CT_MenuBarItem:
