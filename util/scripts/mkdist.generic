@@ -158,7 +158,7 @@ else
   cd ${DISTDIR}
   mv -f ${DISTDIR}/qt/gif/*.gif ${DISTDIR}/qt/html
   mv -f ${DISTDIR}/qt/gif/*.jpg ${DISTDIR}/qt/html
-  mv -f ${DISTDIR}/qt/doc/.qdoc-links ${DISTDIR}
+#   mv -f ${DISTDIR}/qt/doc/.qdoc-links ${DISTDIR}
 fi
 
 echo "Removing local files..." >&2
@@ -209,6 +209,7 @@ if [ "${platform}" = "win" ]; then
   mv extensions/nsplugin/src/q*.h include
   rm -rf makefiles
   rm -rf extensions/xt
+  rm -rf doc
   find . -name 'qtx11.*' | xargs rm -vf
 
   cd ${DISTDIR}/qt
@@ -290,7 +291,7 @@ rm -rf qt/dist qt/util qt/tmake qt/makefiles
 
 echo "Including version-specific information..." >&2
 cd ${DISTDIR}/qt
-util/scripts/versionize $VERSION $VERSIONWIN $SPECIAL [A-Z]*
+${curdir}/versionize $VERSION $VERSIONWIN $SPECIAL [A-Z]*
 
 echo "Finally packing the distribution, see ${DISTDIR} ..." >&2
 
