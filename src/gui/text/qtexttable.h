@@ -55,6 +55,9 @@ class Q_GUI_EXPORT QTextTable : public QTextFrame
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextTable)
 public:
+    QTextTable(QTextDocument *doc);
+    ~QTextTable();
+
     void resize(int rows, int cols);
     void insertRows(int pos, int num);
     void insertColumns(int pos, int num);
@@ -79,13 +82,8 @@ public:
     QTextTableFormat format() const { return QTextObject::format().toTableFormat(); }
 
 private:
-    QTextTable(QObject *parent);
-    ~QTextTable();
-
-    friend class QTextPieceTable;
     friend class QTextCursor;
     friend class QTextCursorPrivate;
-    friend class QTextFormatCollection;
 
 #if defined(Q_DISABLE_COPY)
     QTextTable(const QTextTable &o);

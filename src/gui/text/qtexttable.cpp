@@ -286,8 +286,8 @@ void QTextTablePrivate::update() const
 
 /*! \internal
  */
-QTextTable::QTextTable(QObject *parent)
-    : QTextFrame(*new QTextTablePrivate, parent)
+QTextTable::QTextTable(QTextDocument *doc)
+    : QTextFrame(*new QTextTablePrivate, doc)
 {
 }
 

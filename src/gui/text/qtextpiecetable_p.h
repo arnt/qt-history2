@@ -27,6 +27,7 @@ class QTextFormat;
 class QTextBlockFormat;
 class QTextCursorPrivate;
 class QAbstractTextDocumentLayout;
+class QTextDocument;
 class QTextFrame;
 
 class QTextFragment : public QFragment
@@ -104,7 +105,7 @@ public:
     typedef FragmentMap::ConstIterator FragmentIterator;
     typedef QFragmentMap<QTextBlock> BlockMap;
 
-    QTextPieceTable(QAbstractTextDocumentLayout *layout);
+    QTextPieceTable(QTextDocument *doc, QAbstractTextDocumentLayout *layout);
     ~QTextPieceTable();
 
     void insert(int pos, const QString &text, int format);
@@ -201,6 +202,8 @@ public:
 
     QTextObject *createObject(const QTextFormat &newFormat, int objectIndex = -1);
 
+    QTextDocument *document() const { return doc; }
+
 private:
     QTextPieceTable(const QTextPieceTable& m);
     QTextPieceTable& operator= (const QTextPieceTable& m);
@@ -229,6 +232,7 @@ private:
     QMap<int, QTextObject *> objects;
 
     QTextDocumentConfig docConfig;
+    QTextDocument *doc;
 };
 
 #endif // QPIECEMAP_H

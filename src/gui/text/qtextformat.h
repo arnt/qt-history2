@@ -23,6 +23,7 @@ class QTextFormat;
 class QTextBlockIterator;
 class QTextObject;
 class QTextCursor;
+class QTextDocument;
 
 class Q_GUI_EXPORT QTextFormat
 {
@@ -448,9 +449,9 @@ class Q_GUI_EXPORT QTextObject : public QObject
     Q_DECLARE_PRIVATE(QTextObject)
     Q_OBJECT
 protected:
-    QTextObject(QObject *parent);
+    QTextObject(QTextDocument *doc);
     ~QTextObject();
-    QTextObject(QTextObjectPrivate &p, QObject *parent);
+    QTextObject(QTextObjectPrivate &p, QTextDocument *doc);
 public:
     int formatType() const;
     QTextFormat format() const;
@@ -472,8 +473,8 @@ class QTextBlockGroup : public QTextObject
     Q_DECLARE_PRIVATE(QTextBlockGroup)
     friend class QTextPieceTable;
 protected:
-    QTextBlockGroup(QObject *parent);
-    QTextBlockGroup(QTextBlockGroupPrivate &p, QObject *parent);
+    QTextBlockGroup(QTextDocument *doc);
+    QTextBlockGroup(QTextBlockGroupPrivate &p, QTextDocument *doc);
     ~QTextBlockGroup();
 
     virtual void insertBlock(const QTextBlockIterator &block);
@@ -499,9 +500,9 @@ class QTextFrame : public QTextObject
     friend class QTextFormatCollection;
 
 protected:
-    QTextFrame(QObject *parent);
+    QTextFrame(QTextDocument *doc);
     ~QTextFrame();
-    QTextFrame(QTextFramePrivate &p, QObject *parent);
+    QTextFrame(QTextFramePrivate &p, QTextDocument *doc);
 public:
 
     void setFormat(const QTextFrameFormat &format) { QTextObject::setFormat(format); }

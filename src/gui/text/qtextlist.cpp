@@ -40,8 +40,8 @@ class QTextListPrivate : public QTextBlockGroupPrivate
 
 /*! \internal
  */
-QTextList::QTextList(QObject *parent)
-    : QTextBlockGroup(*new QTextListPrivate, parent)
+QTextList::QTextList(QTextDocument *doc)
+    : QTextBlockGroup(*new QTextListPrivate, doc)
 {
 }
 

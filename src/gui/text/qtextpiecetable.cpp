@@ -74,8 +74,9 @@ bool UndoCommand::tryMerge(const UndoCommand &other)
     return false;
 }
 
-QTextPieceTable::QTextPieceTable(QAbstractTextDocumentLayout *layout)
+QTextPieceTable::QTextPieceTable(QTextDocument *document, QAbstractTextDocumentLayout *layout)
 {
+    doc = document;
     editBlock = 0;
     docChangeFrom = -1;
 
@@ -1031,13 +1032,13 @@ QTextObject *QTextPieceTable::createObject(const QTextFormat &f, int objectIndex
 {
     QTextObject *obj;
     if (f.isListFormat())
-        obj = new QTextList(this);
+        obj = new QTextList(doc);
     else if (f.isTableFormat())
-        obj = new QTextTable(this);
+        obj = new QTextTable(doc);
     else if (f.isFrameFormat())
-        obj = new QTextFrame(this);
+        obj = new QTextFrame(doc);
     else
-        obj = new QTextObject(this);
+        obj = new QTextObject(doc);
 
     obj->d_func()->pieceTable = this;
     obj->d_func()->objectIndex = objectIndex == -1 ? formats.createObjectIndex(f) : objectIndex;

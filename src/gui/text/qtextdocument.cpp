@@ -9,9 +9,9 @@
 #define d d_func()
 #define q q_func()
 
-static void init(QTextDocumentPrivate *priv, QAbstractTextDocumentLayout *layout = 0)
+static void init(QTextDocument *doc, QTextDocumentPrivate *priv, QAbstractTextDocumentLayout *layout = 0)
 {
-    priv->pieceTable = new QTextPieceTable(layout);
+    priv->pieceTable = new QTextPieceTable(doc, layout);
     QObject::connect(static_cast<QTextPieceTable*>(priv->pieceTable), SIGNAL(contentsChanged()), priv->q, SIGNAL(contentsChanged()));
     QObject::connect(static_cast<QTextPieceTable*>(priv->pieceTable), SIGNAL(undoAvailable(bool)), priv->q, SIGNAL(undoAvailable(bool)));
     QObject::connect(static_cast<QTextPieceTable*>(priv->pieceTable), SIGNAL(redoAvailable(bool)), priv->q, SIGNAL(redoAvailable(bool)));
@@ -61,7 +61,7 @@ static void init(QTextDocumentPrivate *priv, QAbstractTextDocumentLayout *layout
 QTextDocument::QTextDocument(QObject *parent)
     : QObject(*new QTextDocumentPrivate, parent)
 {
-    init(d);
+    init(this, d);
 }
 
 /*!
@@ -71,7 +71,7 @@ QTextDocument::QTextDocument(QObject *parent)
 QTextDocument::QTextDocument(const QString &text, QObject *parent)
     : QObject(*new QTextDocumentPrivate, parent)
 {
-    init(d);
+    init(this, d);
     QTextCursor(this).insertText(text);
 }
 
@@ -82,7 +82,7 @@ QTextDocument::QTextDocument(const QString &text, QObject *parent)
 QTextDocument::QTextDocument(QAbstractTextDocumentLayout *documentLayout, QObject *parent)
     : QObject(*new QTextDocumentPrivate, parent)
 {
-    init(d, documentLayout);
+    init(this, d, documentLayout);
 }
 
 /*!

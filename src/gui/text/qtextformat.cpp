@@ -1579,13 +1579,13 @@ QDataStream &operator>>(QDataStream &stream, QTextFormatCollection &collection)
 #define q q_func()
 
 
-QTextObject::QTextObject(QObject *parent)
-    : QObject(*new QTextObjectPrivate, parent)
+QTextObject::QTextObject(QTextDocument *doc)
+    : QObject(*new QTextObjectPrivate, doc)
 {
 }
 
-QTextObject::QTextObject(QTextObjectPrivate &p, QObject *parent)
-    :QObject(p, parent)
+QTextObject::QTextObject(QTextObjectPrivate &p, QTextDocument *doc)
+    :QObject(p, doc)
 {
 }
 
@@ -1612,13 +1612,13 @@ int QTextObject::objectIndex() const
 
 
 
-QTextBlockGroup::QTextBlockGroup(QObject *parent)
-    : QTextObject(*new QTextBlockGroupPrivate, parent)
+QTextBlockGroup::QTextBlockGroup(QTextDocument *doc)
+    : QTextObject(*new QTextBlockGroupPrivate, doc)
 {
 }
 
-QTextBlockGroup::QTextBlockGroup(QTextBlockGroupPrivate &p, QObject *parent)
-    : QTextObject(p, parent)
+QTextBlockGroup::QTextBlockGroup(QTextBlockGroupPrivate &p, QTextDocument *doc)
+    : QTextObject(p, doc)
 {
 }
 
@@ -1654,8 +1654,8 @@ QTextFrameLayoutData::~QTextFrameLayoutData()
 
 
 
-QTextFrame::QTextFrame(QObject *parent)
-    : QTextObject(*new QTextFramePrivate, parent)
+QTextFrame::QTextFrame(QTextDocument *doc)
+    : QTextObject(*new QTextFramePrivate, doc)
 {
     d->fragment_start = 0;
     d->fragment_end = 0;
@@ -1668,8 +1668,8 @@ QTextFrame::~QTextFrame()
     delete d->layoutData;
 }
 
-QTextFrame::QTextFrame(QTextFramePrivate &p, QObject *parent)
-    : QTextObject(p, parent)
+QTextFrame::QTextFrame(QTextFramePrivate &p, QTextDocument *doc)
+    : QTextObject(p, doc)
 {
     d->fragment_start = 0;
     d->fragment_end = 0;

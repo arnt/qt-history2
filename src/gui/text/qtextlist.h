@@ -31,12 +31,10 @@ public:
     void setFormat(const QTextListFormat &format) { QTextObject::setFormat(format); }
     QTextListFormat format() const { return QTextObject::format().toListFormat(); }
 
-private:
-    QTextList(QObject *parent);
+    QTextList(QTextDocument *doc);
     ~QTextList();
 
-    friend class QTextPieceTable;
-
+private:
 #if defined(Q_DISABLE_COPY)
     QTextList(const QTextList &rhs);
     QTextList &operator=(const QTextList &rhs);
