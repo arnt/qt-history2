@@ -10,7 +10,6 @@ static usage of QFileDialog on Borland (Win32)
 
 drawText() on a printer (Win32)
     Text produces garbage (Win98) and is not scaled correctly (support/arc-07/15339)
-    In 2.2: viewport-transformed painting on printer does create bogus fonts; fixed in main by 28699
 
 QClipboard on Win32
     Pasting images from e.g. MS Paint doesn't work, or only for some color depths
