@@ -156,7 +156,6 @@ QFileInfo::QFileInfo(const QString &file) : d_ptr(new QFileInfoPrivate(this))
 
 QFileInfo::QFileInfo(const QFile &file) : d_ptr(new QFileInfoPrivate(this))
 {
-    qDebug("opening %s", file.name().latin1());
     d->initFileInfoEngine(file.name());
 }
 
