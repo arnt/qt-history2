@@ -20,6 +20,7 @@
 #include <private/qobject_p.h>
 #include <private/qtextengine_p.h>
 #include <private/qnumeric_p.h>
+#include <private/qmath_p.h>
 
 #include <qbitmap.h>
 #include <qdebug.h>
@@ -1316,19 +1317,20 @@ public:
         FlatJoin,
         SquareJoin,
         MiterJoin,
-        RoundJoin
+        RoundJoin,
+        RoundCap
     };
 
     QPainterPathStrokerPrivate() :
         width(1),
         offset(0.5),
-        miterLimit(5),
-        appliedMiterLimit(10),
+        miterLimit(2),
         curveThreshold(0.25),
         style(Qt::SolidLine),
         joinStyle(FlatJoin),
         capStyle(SquareJoin)
     {
+        appliedMiterLimit = miterLimit * width;
     }
 
 
@@ -1382,22 +1384,31 @@ void QPainterPathStrokerPrivate::joinPoints(const QPointF &point, const QLineF &
         QLineF::IntersectType type = prevLine.intersect(nextLine, &isect);
 
         if (join == MiterJoin) {
-            if (type == QLineF::NoIntersection) {
+            // If we are on the inside, do the short cut...
+            QLineF shortCut(prevLine.p2(), nextLine.p1());
+            if (type == QLineF::BoundedIntersection
+                || prevLine.angle(shortCut) > 90) {
                 stroke->lineTo(nextLine.p1());
                 return;
             }
             QLineF miterLine(QPointF(back1.x, back1.y), isect);
             if (miterLine.length() > appliedMiterLimit) {
                 miterLine.setLength(appliedMiterLimit);
-                back1.x = miterLine.x2();
-                back1.y = miterLine.y2();
-            } else {
-                back1.x = isect.x();
-                back1.y = isect.y();
-            }
-            stroke->lineTo(nextLine.p1());
 
-        } else if (join == SquareJoin) { // Round and square
+                QLineF l2(nextLine);
+                l2.setLength(appliedMiterLimit);
+                l2.translate(-l2.dx(), -l2.dy());
+
+                stroke->lineTo(miterLine.p2());
+                stroke->lineTo(l2.p1());
+                stroke->lineTo(nextLine.p1());
+
+            } else {
+                stroke->lineTo(isect);
+                stroke->lineTo(nextLine.p1());
+            }
+
+        } else if (join == SquareJoin) {
             QLineF l1(prevLine);
             l1.translate(l1.dx(), l1.dy());
             l1.setLength(offset);
@@ -1408,7 +1419,14 @@ void QPainterPathStrokerPrivate::joinPoints(const QPointF &point, const QLineF &
             stroke->lineTo(l2.p2());
             stroke->lineTo(l2.p1());
 
+
         } else if (join == RoundJoin) {
+            QLineF shortCut(prevLine.p2(), nextLine.p1());
+            if (type == QLineF::BoundedIntersection
+                || prevLine.angle(shortCut) > 90) {
+                stroke->lineTo(nextLine.p1());
+                return;
+            }
             QLineF l1(prevLine);
             QLineF l2(nextLine);
             qreal l1_on_x = adapted_angle_on_x(l1);
@@ -1420,6 +1438,14 @@ void QPainterPathStrokerPrivate::joinPoints(const QPointF &point, const QLineF &
                           l1_on_x + 90, -sweepLength);
 
             stroke->lineTo(nextLine.p1());
+
+        // Same as round join except we know its 180 degrees. Can also optimize this
+        // later based on the addEllipse logic
+        } else if (join == RoundCap) {
+            QLineF l1(prevLine);
+            qreal l1_on_x = adapted_angle_on_x(l1);
+            stroke->arcTo(point.x() - offset, point.y() - offset, offset * 2, offset * 2,
+                          l1_on_x + 90, -180);
         }
     }
 }
@@ -1633,7 +1659,7 @@ void QPainterPathStroker::setCapStyle(Qt::PenCapStyle style)
     else if (style == Qt::SquareCap)
         d->capStyle = QPainterPathStrokerPrivate::SquareJoin;
     else
-        d->capStyle = QPainterPathStrokerPrivate::RoundJoin;
+        d->capStyle = QPainterPathStrokerPrivate::RoundCap;
 }
 
 Qt::PenCapStyle QPainterPathStroker::capStyle() const
