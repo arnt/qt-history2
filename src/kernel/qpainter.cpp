@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#52 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#51 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#52 $";
 #endif
 
 
@@ -556,7 +556,7 @@ void QPainter::resetXForm()
 
   The \e mw argument specifies the width of a middle line drawn in \e mColor.
 
-  If \e tColor is brighter that \e bColor, the line appears to be
+  If \e tColor is brighter than \e bColor, the line appears to be
   raised from the surface.  If \e tColor is darker that \e bColor, the line
   appears to be sunken into the surface.
   \sa drawShadeRect(), drawShadePanel(), QFrame
