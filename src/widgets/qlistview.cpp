@@ -4175,12 +4175,12 @@ void QListView::doAutoScroll()
                 if ( itemAt( QCursor::pos() ) ) {
                     while( b && b != c ) {
                         if ( b->isSelectable() )
-                            setSelected( b, d->select );
+                            setSelected( b, !(b->isSelected()) );
                         b = down ? b->itemBelow() : b->itemAbove();
                     }
                 }
-		if ( c->isSelectable() )
-		    setSelected( c, d->select );
+                if ( c->isSelectable() )
+                    setSelected( c, !(c->isSelected()) );
 	    }
 	}
     }
