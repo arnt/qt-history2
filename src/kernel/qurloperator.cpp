@@ -49,7 +49,6 @@
 
 class QUrlOperatorPrivate
 {
-public:
     QUrlOperatorPrivate()
     {
 	oldOps.setAutoDelete( FALSE );
@@ -1027,9 +1026,14 @@ void QUrlOperator::continueCopy( QNetworkOperation *op )
 {
     if ( op->operation() != QNetworkProtocol::OpGet )
 	return;
+    if ( op->state()!=QNetworkProtocol::StDone &&  op->state()!=QNetworkProtocol::StFailed ) {
+	return;
+    }
 
 #ifdef QURLOPERATOR_DEBUG
-    qDebug( "QUrlOperator: continue copy (get finished, put will start)" );
+    if ( op->state() != QNetworkProtocol::StFailed ) {
+	qDebug( "QUrlOperator: continue copy (get finished, put will start)" );
+    }
 #endif
 
     QNetworkOperation *put = d->getOpPutOpMap[ (void*)op ];
@@ -1043,13 +1047,23 @@ void QUrlOperator::continueCopy( QNetworkOperation *op )
     if ( pProt )
 	pProt->setAutoDelete( TRUE );
     if ( put && pProt ) {
-	pProt->addOperation( put );
-	d->currPut = pProt;
+	if ( op->state() != QNetworkProtocol::StFailed ) {
+	    pProt->addOperation( put );
+	    d->currPut = pProt;
+	} else {
+	    deleteOperation( put );
+	}
     }
-    if ( gProt )
+    if ( gProt ) {
 	gProt->setAutoDelete( TRUE );
-    if ( rm && gProt )
-	gProt->addOperation( rm );
+    }
+    if ( rm && gProt ) {
+	if ( op->state() != QNetworkProtocol::StFailed ) {
+	    gProt->addOperation( rm );
+	} else {
+	    deleteOperation( rm );
+	}
+    }
     disconnect( gProt, SIGNAL( data( const QByteArray &, QNetworkOperation * ) ),
 		this, SLOT( copyGotData( const QByteArray &, QNetworkOperation * ) ) );
     disconnect( gProt, SIGNAL( finished( QNetworkOperation * ) ),
