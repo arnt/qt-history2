@@ -14,6 +14,11 @@
 #	-local	Copy local distribution from $QTDIR, don't use cvs
 #
 
+# Leave -e set - it ensures we don't miss any vital error messages.
+set -e
+# Use this if something mysterious exits
+# set -x
+
 while true ; do
   case "$1" in
     "-nodoc") nodoc="yes"; shift;;
@@ -26,10 +31,9 @@ disttype=$1
 platform=$2
 DISTDIR=$3
 
-unset LANG
-
-unset goodparam1
-unset goodparam2
+unset LANG || true
+unset goodparam1 || true
+unset goodparam2 || true
 
 curdir=`/bin/pwd`
 
@@ -85,6 +89,12 @@ rm -rf ${DISTDIR}/qt/extensions/nsplugin/src/jri*
 VERSION=`grep "#define.*QT_VERSION_STR" ${DISTDIR}/qt/src/tools/qglobal.h | fmt -1 | grep '"' | sed -e 's/"//g'`
 VERSIONMAJOR=`echo ${VERSION} | sed -e 's/\..*$//'`
 VERSION_SHORT=`echo ${VERSION} | sed -e 's/[0-9]$//'`
+case "$VERSION" in
+  *-snapshot)
+    NEWVERSION=${VERSION%-snapshot}-$(date +%Y%m%d)
+    perl -i -p -e "s/$NEWVERSION/$VERSION/" ${DISTDIR}/qt/src/tools/qglobal.h
+    VERSION=${NEWVERSION}
+esac
 
 echo "Auto-detected the Qt version number -- " $VERSION >&2
 
@@ -92,7 +102,7 @@ QTDIR=${DISTDIR}/qt
 export QTDIR
 
 echo "Create symlinks for Qt header files.." >&2
-${QTDIR}/bin/syncqt > /dev/null
+${QTDIR}/bin/syncqt
 ${curdir}/make_qt_dot_h > ${QTDIR}/include/qt.h
 
 if [ "$nodoc" = "yes" ]; then
@@ -104,9 +114,12 @@ else
   mkdir -p ${DISTDIR}/qt/extensions/imageio/html
   mkdir -p ${DISTDIR}/qt/extensions/nsplugin/html
   ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt
-  ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt/extensions/opengl
-  ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt/extensions/imageio
-  ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt/extensions/nsplugin
+  ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt/extensions/opengl ||
+	echo "WARNING - opengl doc incomplete"
+  ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt/extensions/imageio ||
+	echo "WARNING - imageio doc incomplete"
+  ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt/extensions/nsplugin ||
+	echo "WARNING - nsplugin doc incomplete"
   if [ "${platform}" = "x11" ]; then
     mkdir -p ${DISTDIR}/qt/doc/man/man1  ${DISTDIR}/qt/doc/man/man3
     ${DISTDIR}/qt/util/qdoc/man
@@ -123,7 +136,7 @@ fi
 echo "Removing local files..." >&2
 if [ "${platform}" = "win" ]; then
   cd ${DISTDIR}/qt/src
-  make showx11only | xargs rm -v
+  tmake qtinternal.pro -e "Expand('X11ONLY')" | xargs rm -v
 fi
 cd ${DISTDIR}
 find qt -name .cvsignore -o -name doc.conf | xargs rm -f
@@ -194,9 +207,19 @@ find ${DISTDIR}/qt/tutorial \
      ${DISTDIR}/qt/extensions -name '*.pro' |
     while read pro_file
     do
-	cd $(dirname $pro_file) # we are in a subshell
+	DIR=$(dirname $pro_file)
+	cd $DIR # we are in a subshell
 	rm -f Makefile GNUmakefile
-	tmake -t ${QTDIR}/tmake/propagate.t $tmakearg $(basename $pro_file) >$tmakeout
+	TEMPLATE=$(echo $(basename $DIR).t)
+	if [ ! -f $TEMPLATE ]
+	then
+	    if [ "${platform}" = "x11" ]; then
+		TEMPLATE=${QTDIR}/tmake/propagate.t
+	    else
+		TEMPLATE=app
+	    fi
+	fi
+	tmake -t ${TEMPLATE} $tmakearg $(basename $pro_file) >$tmakeout
     done
 
 echo "Removing GNUmakefiles" >&2
@@ -204,8 +227,8 @@ find ${QTDIR} -name 'GNUmakefile*' -print | xargs rm -vf
 
 echo "Copying the README, LICENSE etc. files..." >&2
 cd ${DISTDIR}/qt/dist
-cp [A-Z]* .. 2> /dev/null
-cp changes-${VERSION_SHORT}[0-9] .. 2> /dev/null
+cp [A-Z]* .. 2> /dev/null || true
+cp changes-${VERSION_SHORT}[0-9][^0-9]* ..
 cd ${DISTDIR}/qt/dist/${disttype}
 tar cf - * | (cd ${DISTDIR}/qt ; tar xf -)
 cd ${DISTDIR}/qt/dist/${platform}

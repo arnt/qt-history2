@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#171 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#172 $
 #
 # this is a massive hack, written very quickly
 #
@@ -2352,22 +2352,22 @@ sub readimports {
 			    # not necessary?
 			    #$urls{$2} = $imports{$_} . $1;
 			} else {
-			    die "unable to read $_ line $.\n$line\nstopped";
+			    die "unable to read $_ line $.\n$line\nstopped (1)";
 			}
 		    } elsif ( $mode eq "anchors" ) {
 			if ( $line =~ /^(\S+?):\s(\S+)$/ ) {
 			    $anchor{$1} = $imports{$_} . $2;
 			} else {
-			    die "unable to read $_ line $.\n$line\nstopped";
+			    die "unable to read $_ line $.\n$line\nstopped (2)";
 			}
 		    } elsif ( $mode eq "inheritance" ) {
 			if ( $line =~ /^(\S+?):\s(\S+)$/ ) {
 			    $inheritance{$1} = $2;
 			} else {
-			    die "unable to read $_ line $.\n$line\nstopped";
+			    die "unable to read $_ line $.\n$line\nstopped (3)";
 			}
 		    } else {
-			die "unable to read $_ line $.\n$line\nstopped";
+			die "unable to read $_ line $.\n$line\nstopped (4)";
 		    }
 		}
 	    }

@@ -2,8 +2,10 @@
 
 MAKEFILES=`find . -name Makefile.in -print | sort`;
 
-if [ "$QTDIR" != "$PWD" ]
+if cmp "$QTDIR/LICENSE" "$PWD/LICENSE" 2>/dev/null
 then
+    true
+else
     echo >&2
     echo >&2
     echo '   $QTDIR must be set to $PWD ('$PWD')' >&2

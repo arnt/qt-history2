@@ -4,6 +4,7 @@ X11ONLY	    =	dialogs/qprndlg.h \
 		kernel/qpsprn.h	\
 		kernel/qpsprn.cpp \
 		kernel/qnpsupport.cpp \
+		kernel/qt_xdnd.cpp \
 		kernel/qt_x11.cpp
 
 # Non-public Qt files which we use internally in our Qt library
