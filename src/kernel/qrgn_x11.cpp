@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#4 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -12,13 +12,15 @@
 
 #include "qregion.h"
 #include "qpntarry.h"
+#include "qbuffer.h"
+#include "qdstream.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#4 $";
 #endif
 
 
@@ -36,15 +38,26 @@ QRegion::QRegion( const QRect &rr, RegionType t )
     CHECK_PTR( data );
     QPointArray a;
     r.fixup();
-    if ( t == Ellipse )				// elliptic region
-	a.makeEllipse( r.x(), r.y(), r.width(), r.height() );
-    else {					// rectangular region
+    int id;
+    if ( t == Rectangle ) {			// rectangular region
 	a.resize( 4 );
 	a.setPoint( 0, r.topLeft() );
 	a.setPoint( 1, r.topRight() );
 	a.setPoint( 2, r.bottomRight() );
 	a.setPoint( 3, r.bottomLeft() );
+	id = QRGN_SETRECT;
     }
+    else if ( t == Ellipse ) {			// elliptic region
+	a.makeEllipse( r.x(), r.y(), r.width(), r.height() );
+	id = QRGN_SETELLIPSE;
+    }
+    else {
+#if defined(CHECK_RANGE)
+	warning( "QRegion: Invalid region type" );
+#endif
+	return;
+    }
+    cmd( id, &r );
     data->rgn = XPolygonRegion( (XPoint*)a.data(), a.size(), WindingRule );
 }
 
@@ -53,6 +66,7 @@ QRegion::QRegion( const QPointArray &a )	// create region from pt array
     data = new QRegionData;
     CHECK_PTR( data );
     data->rgn = XPolygonRegion( (XPoint*)a.data(), a.size(), WindingRule );
+    cmd( QRGN_SETPTARRAY, (QPointArray *)&a );
 }
 
 QRegion::QRegion( const QRegion &r )
@@ -71,7 +85,7 @@ QRegion::~QRegion()
 
 QRegion &QRegion::operator=( const QRegion &r )
 {
-    r.data->ref();				// beware of p = p
+    r.data->ref();				// beware of r = r
     if ( data->deref() ) {
 	XDestroyRegion( data->rgn );
 	delete data;
@@ -81,10 +95,25 @@ QRegion &QRegion::operator=( const QRegion &r )
 }
 
 
+QRegion QRegion::copy() const
+{
+    QRegion r;
+    r.data->bop = data->bop.copy();
+    XUnionRegion( data->rgn, r.data->rgn, r.data->rgn );
+    return r;
+}
+
+
 bool QRegion::isNull() const
+{
+    return data->bop.isNull();
+}
+
+bool QRegion::isEmpty() const
 {
     return XEmptyRegion( data->rgn );
 }
+
 
 bool QRegion::contains( const QPoint &p ) const
 {
@@ -94,13 +123,15 @@ bool QRegion::contains( const QPoint &p ) const
 bool QRegion::contains( const QRect &r ) const
 {
     return XRectInRegion( data->rgn, r.left(), r.right(),
-			  r.width(), r.height() ) == RectanglePart;
+			  r.width(), r.height() ) != RectangleOut;
 }
 
 
 void QRegion::move( int dx, int dy )
 {
     XOffsetRegion( data->rgn, dx, dy );
+    QPoint p( dx, dy );
+    cmd( QRGN_MOVE, &p );
 }
 
 
@@ -108,6 +139,7 @@ QRegion QRegion::unite( const QRegion &r ) const
 {
     QRegion result;
     XUnionRegion( data->rgn, r.data->rgn, result.data->rgn );
+    result.cmd( QRGN_OR, 0, this, &r );
     return result;
 }
 
@@ -115,6 +147,7 @@ QRegion QRegion::intersect( const QRegion &r ) const
 {
     QRegion result;
     XIntersectRegion( data->rgn, r.data->rgn, result.data->rgn );
+    result.cmd( QRGN_AND, 0, this, &r );
     return result;
 }
 
@@ -122,6 +155,7 @@ QRegion QRegion::subtract( const QRegion &r ) const
 {
     QRegion result;
     XSubtractRegion( data->rgn, r.data->rgn, result.data->rgn );
+    result.cmd( QRGN_SUB, 0, this, &r );
     return result;
 }
 
@@ -129,5 +163,130 @@ QRegion QRegion::xor( const QRegion &r ) const
 {
     QRegion result;
     XXorRegion( data->rgn, r.data->rgn, result.data->rgn );
+    result.cmd( QRGN_XOR, 0, this, &r );
     return result;
+}
+
+
+bool QRegion::operator==( const QRegion &r )
+{
+    return data->bop == r.data->bop ?
+	TRUE : XEqualRegion( data->rgn, r.data->rgn );
+}
+
+
+void QRegion::cmd( int id, void *param, const QRegion *r1, const QRegion *r2 )
+{
+    QBuffer buf( data->bop );
+    QDataStream s( &buf );
+    buf.open( IO_WriteOnly );
+    buf.at( buf.size() );
+    s << id;
+    switch ( id ) {
+	case QRGN_SETRECT:
+	case QRGN_SETELLIPSE:
+	    s << *((QRect*)param);
+	    break;
+	case QRGN_SETPTARRAY:
+	    s << *((QPointArray*)param);
+	    break;
+	case QRGN_MOVE:
+	    s << *((QPoint*)param);
+	    break;
+	case QRGN_OR:
+	case QRGN_AND:
+	case QRGN_SUB:
+	case QRGN_XOR:
+	    s << r1->data->bop << r2->data->bop;
+	    break;
+#if defined(CHECK_RANGE)
+	default:
+	    warning( "QRegion: Internal cmd error" );
+#endif
+    }
+    buf.close();
+}
+
+
+void QRegion::exec()
+{
+    QBuffer buf( data->bop );
+    QDataStream s( &buf );
+    buf.open( IO_ReadOnly );
+    QRegion rgn;
+#if defined(DEBUG)
+    int test_cnt = 0;
+#endif
+    while ( !s.eos() ) {
+	int id;
+	s >> id;
+#if defined(DEBUG)
+	if ( test_cnt > 0 && id != QRGN_MOVE )
+	    warning( "QRegion: Internal exec error" );
+	test_cnt++;
+#endif
+	if ( id == QRGN_SETRECT || id == QRGN_SETELLIPSE ) {
+	    QRect r;
+	    s >> r;
+	    rgn = QRegion( r, id == QRGN_SETRECT ? Rectangle : Ellipse );
+	}
+	else if ( id == QRGN_SETPTARRAY ) {
+	    QPointArray a;
+	    s >> a;
+	    rgn = QRegion( a );
+	}
+	else if ( id == QRGN_MOVE ) {
+	    QPoint p;
+	    s >> p;
+	    rgn = *this;
+	    rgn.move( p.x(), p.y() );
+	}
+	else if ( id >= QRGN_OR && id <= QRGN_XOR ) {
+	    QByteArray bop1, bop2;
+	    s >> bop1;
+	    s >> bop2;
+	    QRegion r1, r2;
+	    r1.data->bop = bop1;
+	    r2.data->bop = bop2;
+	    r1.exec();
+	    r2.exec();
+	    switch ( id ) {
+		case QRGN_OR:
+		    rgn = r1.unite( r2 );
+		    break;
+		case QRGN_AND:
+		    rgn = r1.intersect( r2 );
+		    break;
+		case QRGN_SUB:
+		    rgn = r1.subtract( r2 );
+		    break;
+		case QRGN_XOR:
+		    rgn = r1.xor( r2 );
+		    break;
+	    }
+	}
+    }
+    buf.close();
+    *this = rgn;
+}
+
+
+// --------------------------------------------------------------------------
+// QRegion stream functions
+//
+
+QDataStream &operator<<( QDataStream &s, const QRegion &r )
+{
+    return s << r.data->bop;
+}
+
+QDataStream &operator>>( QDataStream &s, QRegion &r )
+{
+    QRegion newr;
+    QByteArray b;
+    s >> b;
+    newr.data->bop = b;
+    newr.exec();
+    r = newr;
+    return s;
 }
