@@ -87,35 +87,6 @@ static const char * p3_xpm[] = {
 "                ",
 "                "};
 
-#if 0
-/*
-  Auxiliary class to provide fancy menu items with different
-  fonts. Used for the "bold" and "underline" menu items in the options
-  menu.
- */
-class MyMenuItem : public QCustomMenuItem
-{
-public:
-    MyMenuItem( const QString& s, const QFont& f )
-	: string( s ), font( f ){};
-    ~MyMenuItem(){}
-
-    void paint( QPainter* p, const QPalette& /*pal*/, bool /*act*/, bool /*enabled*/, int x, int y, int w, int h )
-    {
-	p->setFont ( font );
-	p->drawText( x, y, w, h, AlignLeft | AlignVCenter | DontClip | ShowPrefix, string );
-    }
-
-    QSize sizeHint()
-    {
-	return QFontMetrics( font ).size( AlignLeft | AlignVCenter | ShowPrefix | DontClip,  string );
-    }
-private:
-    QString string;
-    QFont font;
-};
-#endif
-
 MenuExample::MenuExample( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
@@ -156,20 +127,19 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     options->insertItem( "&Normal Font", this, SLOT(normal()) );
     options->insertSeparator();
 
-#if 0
-    QFont f = options->font();
-    f.setBold( TRUE );
-    boldID = options->insertItem( new MyMenuItem( "Bold", f ) );
+
+    boldID = options->insertItem( "Bold");
+    QFont bold;
+    bold.setBold(true);
+    options->setItemFont(boldID, bold);
     options->setAccel( Qt::CTRL+Qt::Key_B, boldID );
     options->connectItem( boldID, this, SLOT(bold()) );
-    f = font();
-    f.setUnderline( TRUE );
-    underlineID = options->insertItem( new MyMenuItem( "Underline", f ) );
+    underlineID = options->insertItem("Underline");
+    QFont underline;
+    underline.setUnderline(true);
+    options->setItemFont(underlineID, underline);
     options->setAccel( Qt::CTRL+Qt::Key_U, underlineID );
     options->connectItem( underlineID, this, SLOT(underline()) );
-#else
-//#warning "Do we want something like this?! -Sam"
-#endif
 
     isBold = FALSE;
     isUnderline = FALSE;
