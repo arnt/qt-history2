@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#43 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#44 $
 **
 ** Definition of QAccel class
 **
@@ -69,6 +69,8 @@ public:
     bool ignoreWhatsThis() const;
 
     static int shortcutKey( const QString & );
+    static QString accelString( int k );
+    static int stringAccel( const QString & );
 
 signals:
     void	activated( int id );

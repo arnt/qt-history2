@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#75 $
 **
 ** Implementation of QAccel class
 **
@@ -102,16 +102,31 @@ static QAccelItem *find_id( QAccelList &list, int id )
     return item;
 }
 
-static QAccelItem *find_key( QAccelList &list, int key, int ch )
+static QAccelItem *find_key( QAccelList &list, int key, QChar ch )
 {
     register QAccelItem *item = list.first();
     while ( item ) {
 	int k = item->key;
-	if ( (k & Qt::UNICODE_ACCEL)
-		&& (k & Qt::MODIFIER_MASK) == (key & Qt::MODIFIER_MASK)
-		&& QChar(k & 0xffff).lower() == QChar(ch).lower() )
+	int km = k & Qt::MODIFIER_MASK;
+	QChar kc = QChar(k & 0xffff);
+	if ( k & Qt::UNICODE_ACCEL )
 	{
-	    break;
+	    if ( km ) {
+		// Modifiers must match...
+		QChar c;
+		if ( (key & Qt::CTRL) && ch < ' ' )
+		    c = ch.unicode()+'@'+' '; // Ctrl-A is ASCII 001, etc.
+		else
+		    c = ch;
+		if ( kc.lower() == c.lower()
+		  && (key & Qt::MODIFIER_MASK) == km )
+		    break;
+	    } else {
+		// No modifiers requested, ignore Shift but require others...
+		if ( kc == ch
+		  && (key & (Qt::MODIFIER_MASK^Qt::SHIFT)) == km )
+		    break;
+	    }
 	} else if ( k == key ) {
 	    break;
 	}
@@ -266,7 +281,7 @@ int QAccel::key( int id )
 
 int QAccel::findKey( int key ) const
 {
-    QAccelItem *item = find_key( d->aitems, key, key & 0xffff );
+    QAccelItem *item = find_key( d->aitems, key, QChar(key & 0xffff) );
     return item ? item->id : -1;
 }
 
@@ -391,7 +406,7 @@ bool QAccel::eventFilter( QObject *, QEvent *e )
 	    key |= CTRL;
 	if ( k->state() & AltButton )
 	    key |= ALT;
-	QAccelItem *item = find_key( d->aitems, key, k->text()[0].unicode() );
+	QAccelItem *item = find_key( d->aitems, key, k->text()[0] );
 	bool b = QWhatsThis::inWhatsThisMode();
 	if ( item && ( item->enabled || b )) {
 	    if (e->type() == QEvent::Accel) {
@@ -456,6 +471,158 @@ int QAccel::shortcutKey( const QString &str )
 	}
     }
     return 0;
+}
+
+/*!
+   Creates an accelerator string for the key \a k.
+   For instance CTRL+Key_O gives "Ctrl+O".  The "Ctrl" etc.
+   are \link QObject::tr() translated\endlink in the "QAccel" scope.
+
+   \sa stringAccel()
+*/
+QString QAccel::accelString( int k )
+{
+    QString s;
+    if ( (k & CTRL) == CTRL ) {
+	s += tr( "Ctrl" );
+    }
+    if ( (k & ALT) == ALT ) {
+	if ( !s.isEmpty() )
+	    s += tr( "+" );
+	s += tr( "Alt" );
+    }
+    if ( (k & SHIFT) == SHIFT ) {
+	if ( !s.isEmpty() )
+	    s += tr( "+" );
+	s = tr( "Shift" );
+    }
+    k &= ~(SHIFT | CTRL | ALT);
+    QString p;
+    if ( (k & UNICODE_ACCEL) == UNICODE_ACCEL ) {
+	p = QChar(k & 0xffff);
+    } else if ( k >= Key_F1 && k <= Key_F24 ) {
+	p = tr( "F%1" ).arg(k - Key_F1 + 1);
+    } else if ( k > Key_Space && k <= Key_AsciiTilde ) {
+	p.sprintf( "%c", k );
+    } else {
+	switch ( k ) {
+	    case Key_Space:
+		p = tr( "Space" );
+		break;
+	    case Key_Escape:
+		p = tr( "Esc" );
+		break;
+	    case Key_Tab:
+		p = tr( "Tab" );
+		break;
+	    case Key_Backtab:
+		p = tr( "Backtab" );
+		break;
+	    case Key_Backspace:
+		p = tr( "Backspace" );
+		break;
+	    case Key_Return:
+		p = tr( "Return" );
+		break;
+	    case Key_Enter:
+		p = tr( "Enter" );
+		break;
+	    case Key_Insert:
+		p = tr( "Ins" );
+		break;
+	    case Key_Delete:
+		p = tr( "Del" );
+		break;
+	    case Key_Pause:
+		p = tr( "Pause" );
+		break;
+	    case Key_Print:
+		p = tr( "Print" );
+		break;
+	    case Key_SysReq:
+		p = tr( "SysReq" );
+		break;
+	    case Key_Home:
+		p = tr( "Home" );
+		break;
+	    case Key_End:
+		p = tr( "End" );
+		break;
+	    case Key_Left:
+		p = tr( "Left" );
+		break;
+	    case Key_Up:
+		p = tr( "Up" );
+		break;
+	    case Key_Right:
+		p = tr( "Right" );
+		break;
+	    case Key_Down:
+		p = tr( "Down" );
+		break;
+	    case Key_Prior:
+		p = tr( "PgUp" );
+		break;
+	    case Key_Next:
+		p = tr( "PgDown" );
+		break;
+	    case Key_CapsLock:
+		p = tr( "CapsLock" );
+		break;
+	    case Key_NumLock:
+		p = tr( "NumLock" );
+		break;
+	    case Key_ScrollLock:
+		p = tr( "ScrollLock" );
+		break;
+	    default:
+		p.sprintf( "<%d?>", k );
+		break;
+	}
+    }
+    if ( s.isEmpty() )
+	s = p;
+    else {
+	s += tr( "+" );
+	s += p;
+    }
+    return s;
+}
+
+/*!
+   Creates an accelerator code for the string \a s.
+   For instance "Ctrl+O" gives CTRL+UNICODE_ACCEL+'O'.
+   The strings "Ctrl", "Shift", "Alt" and their
+   \link QObject::tr() translated\endlink equivalents
+   in the "QAccel" scope are recognized.
+
+   A common usage of this function is to provide
+   translatable accelerator values for menus:
+
+   \code
+	QPopupMenu* file = new QPopupMenu(this);
+	file->insertItem( p1, tr("&Open..."), this, SLOT(open()),
+	    QAccel::stringAccel(tr("Ctrl+O")) );
+   \endcode
+
+   Note that this function currently only supports character
+   accelerators (unlike accelString() which will produce
+   Ctrl+Backspace, etc.).
+*/
+int QAccel::stringAccel( const QString & s )
+{
+    int k = 0;
+    int p = s.findRev('+');
+    if ( p > 0 ) {
+	k = s[p+1].unicode() | UNICODE_ACCEL;
+	if ( s.contains("Ctrl+") || s.contains(tr("Ctrl")+"+") )
+	    k |= CTRL;
+	if ( s.contains("Shift+") || s.contains(tr("Shift")+"+") )
+	    k |= SHIFT;
+	if ( s.contains("Alt+") || s.contains(tr("Alt")+"+") )
+	    k |= ALT;
+    }
+    return k;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#63 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#64 $
 **
 ** Definition of QPopupMenu class
 **
@@ -114,8 +114,6 @@ private:
     void	updateRow( int row );
     void	updateAccel( QWidget * );
     void	enableAccel( bool );
-
-    QString 	accelString( int k );
 
     QMenuItem  *selfItem;
     QAccel     *autoaccel;
