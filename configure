@@ -45,6 +45,7 @@ UNAME_VERSION=`(uname -v) 2>/dev/null` || UNAME_VERSION=unknown
 PLATFORM_X11=no
 PLATFORM_MAC=no
 PLATFORM_QWS=no
+PLATFORM_QNX=no
 
 if [ -d /System/Library/Frameworks/Carbon.framework ]
 then
@@ -819,11 +820,11 @@ then
 	fi
 	if [ -z "$PLATFORM" ]
 	then
-	    PLATFORM=qws/qnx-rtp-g++
+	    PLATFORM=qws/qnx6-generic-g++
 	fi
 	if [ -z "$XPLATFORM" ]
 	then
-	    XPLATFORM=qws/qnx-rtp-g++
+	    XPLATFORM=qws/qnx6-generic-g++
 	fi
 	CFG_STL=no ### why?
 	;;
