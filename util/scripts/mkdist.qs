@@ -222,6 +222,8 @@ for (var p in validPlatforms) {
   	var platform = validPlatforms[p];
   	var edition = validEditions[e];
   	if (options[platform] && options[edition]) {
+	    if (edition == "opensource" && platform == "win")
+		continue;
   	    print("Packaging %1-%2...".arg(platform).arg(edition));
   	    indentation+=tabSize;
 
