@@ -392,7 +392,7 @@ void QInputContext::setFont( const QWidget *w, const QFont &f )
 }
 
 
-void QInputContext::setFocusHint( int x, int y, int /*width*/, int height, const QWidget *w )
+void QInputContext::setFocusHint( int x, int y, int width, int height, const QWidget *w )
 {
     COMPOSITIONFORM cf;
     // ### need X-like inputStyle config settings
@@ -402,13 +402,13 @@ void QInputContext::setFocusHint( int x, int y, int /*width*/, int height, const
 
     CANDIDATEFORM candf;
     candf.dwIndex = 0;
-    candf.dwStyle = CFS_FORCE_POSITION;
+    candf.dwStyle = CFS_EXCLUDE;
     candf.ptCurrentPos.x = x;
-    candf.ptCurrentPos.y = y + height + 3;
-    candf.rcArea.left = 0;
-    candf.rcArea.top = 0;
-    candf.rcArea.right = 0;
-    candf.rcArea.bottom = 0;
+    candf.ptCurrentPos.y = y + height;
+    candf.rcArea.left = x;
+    candf.rcArea.top = y;
+    candf.rcArea.right = x+width;
+    candf.rcArea.bottom = y+height;
 
 
     HIMC imc = getContext( w->winId() );
