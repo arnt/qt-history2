@@ -3004,6 +3004,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 {
     switch ( event->type ) {
     case ButtonPress:
+	ignoreNextMouseReleaseEvent = FALSE;
+	// fallthrough intended
     case ButtonRelease:
 	qt_x_time = event->xbutton.time;
 	break;
@@ -3278,17 +3280,13 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     switch ( event->type ) {
 
-    case ButtonPress:			// mouse event
-	ignoreNextMouseReleaseEvent = FALSE;
-	// fallthrough intended
-
-    case ButtonRelease:
+    case ButtonRelease:			// mouse event
 	if ( ignoreNextMouseReleaseEvent ) {
 	    ignoreNextMouseReleaseEvent = FALSE;
 	    break;
 	}
 	// fall through intended
-
+    case ButtonPress:
     case MotionNotify:
 #if defined(QT_TABLET_SUPPORT)
 	if ( !chokeMouse ) {
