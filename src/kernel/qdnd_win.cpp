@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#24 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -22,16 +22,20 @@
 *****************************************************************************/
 
 #include "qapplication.h"
+#include "qpainter.h"
 #include "qwidget.h"
 #include "qdragobject.h"
 #include "qimage.h"
 #include "qbuffer.h"
 #include "qdatastream.h"
 #include "qmessagebox.h"
+#include "qbitmap.h"
 
 #include <windows.h>
 #include <shlobj.h>
 #include <ole2.h>          
+
+extern WindowsVersion qt_winver;
 
 extern bool qt_read_dib( QDataStream&, QImage& ); // qimage.cpp
 extern bool qt_write_dib( QDataStream&, QImage );   // qimage.cpp
@@ -633,6 +637,9 @@ const char* QWindowsMime::cfToMime(int cf)
     return m;
 }
 
+static HCURSOR *cursor = 0;
+
+
 class QOleDropSource : public IDropSource
 {
     QWidget* src;
@@ -913,10 +920,14 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 	allowed_effects = DROPEFFECT_MOVE|DROPEFFECT_COPY;
 	break;
     }
+    updatePixmap();
     HRESULT r = DoDragDrop(obj, src, DROPEFFECT_COPY, &result_effect);     
     QDragResponseEvent e( r == DRAGDROP_S_DROP );
     QApplication::sendEvent( dragSource, &e );
     obj->Release();
+
+    object = 0;
+    updatePixmap();
 
     return result_effect==DROPEFFECT_MOVE;
 }
@@ -1005,6 +1016,24 @@ QOleDropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState)
 STDMETHODIMP
 QOleDropSource::GiveFeedback(DWORD dwEffect)
 {
+    if ( cursor ) {
+	int c = -1;
+	switch ( dwEffect ) {
+	  case DROPEFFECT_MOVE:
+	    c = 0;
+	    break;
+	  case DROPEFFECT_COPY:
+	    c = 1;
+	    break;
+	  case DROPEFFECT_LINK:
+	    c = 2;
+	    break;
+	}
+	if ( c >= 0 ) {
+	    SetCursor(cursor[c]);
+	    return ResultFromScode(S_OK);
+	}
+    }
     return ResultFromScode(DRAGDROP_S_USEDEFAULTCURSORS);
 }
 
@@ -1371,4 +1400,91 @@ QOleDropTarget::QueryDrop(DWORD grfKeyState, LPDWORD pdwEffect)
 dropeffect_none:
     *pdwEffect = DROPEFFECT_NONE;
     return FALSE;
+}
+
+void QDragManager::updatePixmap()
+{
+    if ( object ) {
+	if ( cursor ) {
+	    for ( int i=0; i<n_cursor; i++ ) {
+		DestroyCursor(cursor[i]);
+	    }
+	    delete [] cursor;
+	    cursor = 0;
+	}
+
+	QPixmap pm = object->pixmap();
+	if ( pm.isNull() ) {
+	    // None.
+	} else {
+	    cursor = new HCURSOR[n_cursor];
+	    QPoint pm_hot = object->pixmapHotSpot();
+	    for (int cnum=0; cnum<n_cursor; cnum++) {
+		QPixmap cpm = pm_cursor[cnum];
+
+		int x1 = QMIN(-pm_hot.x(),0);
+		int x2 = QMAX(pm.width()-pm_hot.x(),cpm.width());
+		int y1 = QMIN(-pm_hot.y(),0);
+		int y2 = QMAX(pm.height()-pm_hot.y(),cpm.height());
+
+		int w = x2-x1+1;
+		int h = y2-y1+1;
+
+		if ( qt_winver == WV_32s || qt_winver == WV_95 ) {
+		    // Limited cursor size
+		    int reqw = GetSystemMetrics(SM_CXCURSOR);
+		    int reqh = GetSystemMetrics(SM_CYCURSOR);
+		    if ( reqw < w ) {
+			// Not wide enough - move objectpm right
+			pm_hot.setX(pm_hot.x()-w+reqw);
+		    }
+		    if ( reqh < h ) {
+			// Not tall enough - move objectpm right
+			pm_hot.setY(pm_hot.y()-h+reqh);
+		    }
+		    w = reqw;
+		    h = reqh;
+		}
+
+		QPixmap colorbits(w,h);
+		{
+		    QPainter p(&colorbits);
+		    p.fillRect(0,0,w,h,color1);
+		    p.drawPixmap(QMAX(0,-pm_hot.x()),QMAX(0,-pm_hot.y()),pm);
+		    p.drawPixmap(QMAX(0,pm_hot.x()),QMAX(0,pm_hot.y()),cpm);
+		}
+
+		QBitmap maskbits(w,h,TRUE);
+		maskbits.setOptimization(QPixmap::NoOptim);
+		{
+		    QPainter p(&maskbits);
+		    if ( pm.mask() ) {
+			QBitmap m(*pm.mask());
+			m.setMask(m);
+			p.drawPixmap(QMAX(0,-pm_hot.x()),QMAX(0,-pm_hot.y()),m);
+		    } else {
+			p.fillRect(QMAX(0,-pm_hot.x()),QMAX(0,-pm_hot.y()),
+			    pm.width(),pm.height(),color1);
+		    }
+		    if ( cpm.mask() ) {
+			QBitmap m(*cpm.mask());
+			m.setMask(m);
+			p.drawPixmap(QMAX(0,pm_hot.x()),QMAX(0,pm_hot.y()),m);
+		    } else {
+			p.fillRect(QMAX(0,pm_hot.x()),QMAX(0,pm_hot.y()),
+			    cpm.width(),cpm.height(),
+			    color1);
+		    }
+		}
+
+		ICONINFO ii;
+		ii.fIcon = FALSE;
+		ii.xHotspot = QMAX(0,pm_hot.x());
+		ii.yHotspot = QMAX(0,pm_hot.y());
+		ii.hbmMask = maskbits.hbm();
+		ii.hbmColor = colorbits.hbm();
+		cursor[cnum] = CreateIconIndirect(&ii);
+	    }
+	}
+    }
 }

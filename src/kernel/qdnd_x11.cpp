@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#45 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -646,7 +646,7 @@ void QDragManager::move( const QPoint & globalPos )
 	return;
     }
 
-    qt_xdnd_deco->move(globalPos-qt_xdnd_source_object->pixmapHotspot());
+    qt_xdnd_deco->move(globalPos-qt_xdnd_source_object->pixmapHotSpot());
     qt_xdnd_deco->raise();
 
     Window target = 0;
@@ -998,7 +998,7 @@ void QDragManager::updatePixmap()
 {
     if ( object && !object->pixmap().isNull() ) {
 	qt_xdnd_deco->setPixmap(object->pixmap());
-	qt_xdnd_deco->move(QCursor::pos()-qt_xdnd_source_object->pixmapHotspot());
+	qt_xdnd_deco->move(QCursor::pos()-qt_xdnd_source_object->pixmapHotSpot());
 	//qt_xdnd_deco->repaint(FALSE);
 	qt_xdnd_deco->show();
     } else if ( qt_xdnd_deco ) {

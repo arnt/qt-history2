@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#25 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#26 $
 **
 ** Definition of QDragObject
 **
@@ -50,7 +50,7 @@ public:
     void setPixmap(QPixmap);
     void setPixmap(QPixmap, QPoint hotspot);
     QPixmap pixmap() const;
-    QPoint pixmapHotspot() const;
+    QPoint pixmapHotSpot() const;
 
     QWidget * source();
 
@@ -154,9 +154,9 @@ private:
     void cancel();
     void move( const QPoint & );
     void drop();
+    void updatePixmap();
 
 private:
-    void updatePixmap();
     QDragObject * object;
 
     QWidget * dragSource;
@@ -165,9 +165,8 @@ private:
     bool restoreCursor;
     bool willDrop;
 
-    QPixmap pm_move;
-    QPixmap pm_copy;
-    QPixmap pm_link;
+    QPixmap *pm_cursor;
+    int n_cursor;
 };
 
 
