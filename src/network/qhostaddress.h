@@ -31,19 +31,25 @@ typedef struct {
 class QM_EXPORT_NETWORK QHostAddress
 {
 public:
+    enum SpecialAddress {
+        NullAddress,
+        LocalhostAddress,
+        LocalhostIPv6Address,
+        AnyAddress
+    };
+
     QHostAddress();
-    QHostAddress(Q_UINT32 ip4Addr);
-    QHostAddress(Q_UINT8 *ip6Addr);
-    QHostAddress(const Q_IPV6ADDR &ip6Addr);
     QHostAddress(const QString &address);
-    QHostAddress(const QHostAddress &);
+    QHostAddress(const QHostAddress &copy);
+    QHostAddress(SpecialAddress address);
     virtual ~QHostAddress();
 
-    QHostAddress & operator=(const QHostAddress &);
+    QHostAddress &operator =(const QHostAddress &);
 
     void setAddress(Q_UINT32 ip4Addr);
     void setAddress(Q_UINT8 *ip6Addr);
-    bool setAddress(const QString& address);
+    void setAddress(const Q_IPV6ADDR &ip6Addr);
+    bool setAddress(const QString &address);
 #ifdef QT_COMPAT
     inline QT_COMPAT bool isIp4Addr() const { return isIPv4Address(); }
     inline QT_COMPAT Q_UINT32 ip4Addr() const { return toIPv4Address(); }
@@ -54,11 +60,10 @@ public:
     bool isIPv6Address() const;
     Q_IPV6ADDR toIPv6Address() const;
 
-#ifndef QT_NO_SPRINTF
     QString toString() const;
-#endif
 
-    bool operator==(const QHostAddress &) const;
+    bool operator ==(const QHostAddress &address) const;
+    bool operator ==(SpecialAddress address) const;
     bool isNull() const;
     void clear();
 

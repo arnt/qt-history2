@@ -36,7 +36,7 @@ public:
     }
 
     void setAddress(Q_UINT32 a_ = 0);
-    void setAddress(Q_UINT8 *a_);
+    void setAddress(const Q_UINT8 *a_);
     void setAddress(const Q_IPV6ADDR &a_);
 
     bool parse();
@@ -66,7 +66,7 @@ void QHostAddressPrivate::setAddress(Q_UINT32 a_)
     isParsed = true;
 }
 
-void QHostAddressPrivate::setAddress(Q_UINT8 *a_)
+void QHostAddressPrivate::setAddress(const Q_UINT8 *a_)
 {
     for (int i = 0; i < 16; i++)
         a6.c[i] = a_[i];
@@ -234,38 +234,6 @@ QHostAddress::QHostAddress()
 {
 }
 
-
-/*!
-    Creates a host address object for the IPv4 address, \a ip4Addr.
-*/
-QHostAddress::QHostAddress(Q_UINT32 ip4Addr)
-    : d(new QHostAddressPrivate)
-{
-    d->setAddress(ip4Addr);
-}
-
-
-/*!
-    Creates a host address object for the specified IPv6 address.
-
-    \a ip6Addr must be an array of 16 bytes in network byte order
-    (high-order byte first).
-*/
-QHostAddress::QHostAddress(Q_UINT8 *ip6Addr)
-    : d(new QHostAddressPrivate)
-{
-    d->setAddress(ip6Addr);
-}
-
-/*!
-    Creates a host address object for the IPv6 address, \a ip6Addr.
-*/
-QHostAddress::QHostAddress(const Q_IPV6ADDR &ip6Addr)
-    : d(new QHostAddressPrivate)
-{
-    d->setAddress(ip6Addr);
-}
-
 /*!
     \internal
 
@@ -287,6 +255,28 @@ QHostAddress::QHostAddress(const QHostAddress &address)
 {
 }
 
+/*!
+    Constructs the special host address.
+
+    \sa SpecialAddress
+*/
+QHostAddress::QHostAddress(QHostAddress::SpecialAddress addressType)
+    : d(new QHostAddressPrivate)
+{
+    switch (addressType) {
+    case NullAddress:
+        break;
+    case LocalhostAddress:
+        setAddress("127.0.0.1");
+        break;
+    case LocalhostIPv6Address:
+        setAddress("::1");
+        break;
+    case AnyAddress:
+        setAddress("0.0.0.0");
+        break;
+    }
+}
 
 /*!
     Destroys the host address object.
@@ -300,7 +290,7 @@ QHostAddress::~QHostAddress()
     Assigns another host \a address to this object, and returns a reference
     to this object.
 */
-QHostAddress &QHostAddress::operator=(const QHostAddress & address)
+QHostAddress &QHostAddress::operator =(const QHostAddress &address)
 {
     *d = *address.d;
     return *this;
@@ -338,12 +328,24 @@ void QHostAddress::setAddress(Q_UINT8 *ip6Addr)
 /*!
     \overload
 
+    Set the IPv6 address specified by \a ip6Addr.
+
+    ### Add more docs later
+*/
+void QHostAddress::setAddress(const Q_IPV6ADDR &ip6Addr)
+{
+    d->setAddress(ip6Addr);
+}
+
+/*!
+    \overload
+
     Sets the IPv4 or IPv6 address specified by the string
     representation specified by \a address (e.g. "127.0.0.1").
     Returns true and sets the address if the address was successfully
     parsed; otherwise returns false.
 */
-bool QHostAddress::setAddress(const QString& address)
+bool QHostAddress::setAddress(const QString &address)
 {
     d->ipString = address;
     return d->parse();
@@ -446,7 +448,7 @@ QString QHostAddress::toString() const
     Returns true if this host address is the same as the \a other address
     given; otherwise returns false.
 */
-bool QHostAddress::operator==(const QHostAddress & other) const
+bool QHostAddress::operator ==(const QHostAddress &other) const
 {
     QT_ENSURE_PARSED(this);
     QT_ENSURE_PARSED(&other);
@@ -456,6 +458,30 @@ bool QHostAddress::operator==(const QHostAddress & other) const
 
     return memcmp(&d->a6, &other.d->a6, sizeof(Q_IPV6ADDR)) == 0;
 }
+/*
+bool QHostAddress::operator !=(const QHostAddress &other) const
+{
+    return !(*this == other);
+}
+*/
+
+bool QHostAddress::operator ==(SpecialAddress other) const
+{
+    QT_ENSURE_PARSED(this);
+    QHostAddress otherAddress(other);
+    QT_ENSURE_PARSED(&otherAddress);
+
+    if (d->isIp4)
+        return otherAddress.d->isIp4 && d->a == otherAddress.d->a;
+
+    return memcmp(&d->a6, &otherAddress.d->a6, sizeof(Q_IPV6ADDR)) == 0;
+}
+/*
+bool QHostAddress::operator !=(SpecialAddress other) const
+{
+    return !(*this == other);
+}
+*/
 
 /*!
     Returns true if this host address is null (INADDR_ANY or in6addr_any).
