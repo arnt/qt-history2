@@ -28,16 +28,8 @@
 **********************************************************************/
 
 #include "qthread.h"
-
-#if defined(QT_THREAD_SUPPORT)
-
-#include "qwindowdefs.h"
 #include "qt_windows.h"
-#include "qobject.h"
-#include "qapplication.h"
 #include "qapplication_p.h"
-#include "qintdict.h"
-#include <process.h>
 
 void qSystemWarning( const QString& message )
 {
@@ -61,9 +53,17 @@ void qSystemWarning( const QString& message )
 			      0,
 			      NULL );
 
-    qWarning( message + QString("\tError code %1 - %2").arg( error ).arg( qt_winQString(string) ) );
+    qWarning( message + QString("\n\tError code %1 - %2").arg( error ).arg( qt_winQString(string) ) );
     LocalFree( (HLOCAL)string );
 }
+
+#if defined(QT_THREAD_SUPPORT)
+
+#include "qwindowdefs.h"
+#include "qobject.h"
+#include "qapplication.h"
+#include "qintdict.h"
+#include <process.h>
 
 #ifdef CHECK_RANGE
 #define QMUTEX_TYPE_NORMAL 0
