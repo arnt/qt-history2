@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#7 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#8 $
 **
 ** Definition of QRect class
 **
@@ -25,7 +25,7 @@ public:
     QRect( QCOOT left, QCOOT top, QCOOT width, QCOOT height );
 
     bool   isNull()	const;			// zero width and height
-    bool   isEmpty()	const;			// zero width or height
+    bool   isEmpty()	const;			// zero or neg. width or height
     bool   isValid()	const;			// has valid coordinates
     void   fixup();				// fixup bad coordinates
 
@@ -67,6 +67,7 @@ public:
     bool   contains( const QRect &r, bool proper=FALSE ) const;
     QRect  unite( const QRect &r ) const;
     QRect  intersect( const QRect &r ) const;
+    bool   intersects( const QRect &r ) const;
 
     friend bool operator==( const QRect &, const QRect & );
     friend bool operator!=( const QRect &, const QRect & );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#9 $
 **
 ** Implementation of QRect class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#9 $";
 #endif
 
 #undef min
@@ -284,6 +284,12 @@ QRect QRect::intersect(const QRect &r ) const
     tmp.y1 = max( y1, r.y1 );
     tmp.y2 = min( y2, r.y2 );
     return tmp;
+}
+
+bool QRect::intersects(const QRect &r ) const
+{
+    return ( max( x1, r.x1 ) <= min( x2, r.x2 ) && 
+             max( y1, r.y1 ) <= min( y2, r.y2 ) );
 }
 
 bool operator==( const QRect &r1, const QRect &r2 )
