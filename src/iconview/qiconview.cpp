@@ -3429,6 +3429,8 @@ void QIconView::showEvent( QShowEvent * )
     if ( d->dirty ) {
 	resizeContents( QMAX( contentsWidth(), viewport()->width() ),
 			QMAX( contentsHeight(), viewport()->height() ) );
+	if ( d->resortItemsWhenInsert )
+	    sort( d->sortDirection ); 
 	if ( autoArrange() )
 	    arrangeItemsInGrid( FALSE );
     }
