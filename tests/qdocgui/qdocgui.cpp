@@ -99,7 +99,6 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
 
 void QDocMainWindow::editorFinished()
 {
-//    QMessageBox::information( this, "Finished editing!", "You can now submit the files into P4!" );
 }
 
 
@@ -113,6 +112,7 @@ void QDocMainWindow::finished()
     QString linenumber;
     int newLine;
     QString text;
+    int count = 0;
     QDict<QListViewItem> category( 31 );
     QDict<QListViewItem> filename( 4001 );
     QListViewItem *dirItem   = 0;
@@ -123,7 +123,7 @@ void QDocMainWindow::finished()
 	    outputText = "";
 	text = outputText.left( newLine );
 	
-	if ( !text.startsWith( "qdoc" ) && !text.isEmpty() ) {
+	if ( !text.isEmpty() && !text.startsWith( "qdoc" ) ) {
 	    if ( text.startsWith( "src" ) )
 		text = text.right( text.length() - 4 );
 	    int slashpos = text.find( '/' );
@@ -133,8 +133,9 @@ void QDocMainWindow::finished()
 	    classText = text.mid ( slashpos + 1, (classfind - slashpos - 1 ) );
 	    linenumber = text.mid( classfind + 1, (secondcolonpos - classfind - 1 ));
 	    warningText = text.right( text.length() - secondcolonpos - 1 );
-	    warningText.truncate( warningText.length() - 1 );
-	   
+	    if ( warningText.right(1) == '\r' )
+		warningText.truncate( warningText.length() - 1 );
+
 	    if ( !category[dirText] ) {
 		dirItem = new QListViewItem( classList, dirText );
 		category.insert( dirText, dirItem );
@@ -152,10 +153,12 @@ void QDocMainWindow::finished()
 	    }
 	    
 	    new QListViewItem( classItem, ( "Line " + linenumber + " - " + warningText ));
+	    count++;
 	}
 	outputText = outputText.right( outputText.length() - ( newLine + 1 ) );
     }
     waitText->hide();
+    qDebug( "%d warnings", count );
 }
 
 QDocMainWindow::~QDocMainWindow()
