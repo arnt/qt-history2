@@ -723,7 +723,7 @@ void QDialog::setGeometry( const QRect &r )
 
 
 /*!
-    If \a orientation is \c Horizonal, the extension will be displayed
+    If \a orientation is \c Horizontal, the extension will be displayed
     to the right of the dialog's main area. If \a orientation is \c
     Vertical, the extension will be displayed below the dialog's main
     are.
