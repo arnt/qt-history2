@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#6 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#7 $
 **
 ** Definition of QListBox widget class
 **
@@ -17,14 +17,14 @@
 
 
 #define LBI_String	0x8000
-#define LBI_BitMap	2
+#define LBI_Bitmap	2
 #define LBI_UserDefined 1000
 
 class QBitmap;
 
 struct QLBItem {				// list box item
     QLBItem(){}
-    QLBItem( QBitmap	*bm )  { bitmap=bm; type=LBI_BitMap; }
+    QLBItem( QBitmap	*bm )  { bitmap=bm; type=LBI_Bitmap; }
     QLBItem( const char *s  )  { string=s;  type=LBI_String; }
     int type;	 
     union {

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#13 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#13 $";
 #endif
 
 #include "qstring.h"
@@ -260,7 +260,7 @@ QBitmap *QListBox::bitmap( int index ) const
     if ( !checkIndex( "bitmap", count(), index ) )
 	return 0;
     QLBItem *tmp = itemList->at( index );
-    return tmp->type == LBI_BitMap ? tmp->bitmap : 0;
+    return tmp->type == LBI_Bitmap ? tmp->bitmap : 0;
 }
 
 void QListBox::changeItem( const char *string, int index )
@@ -475,7 +475,7 @@ void QListBox::paintCell( QPainter *p, long row, long column )
     QLBItem *lbi = itemList->at( row );
     if ( !lbi )
 	return;
-    if ( lbi->type == LBI_BitMap ) {
+    if ( lbi->type == LBI_Bitmap ) {
 	return;		// ###
     }
     ASSERT( (lbi->type & LBI_String) != 0 );
@@ -591,7 +591,7 @@ QLBItem *QListBox::newAny( const char *s, const QBitmap *bm )
 {
 #if defined(DEBUG)
     if ( !s && !bm )
-	debug( "QListBox::newAny: Both s and bm are NULL " );
+	debug( "QListBox::newAny: Both s and bm are NULL" );
 #endif
     QLBItem *tmp = newItem();
     if ( s ) {
@@ -602,7 +602,7 @@ QLBItem *QListBox::newAny( const char *s, const QBitmap *bm )
 	tmp->type = LBI_String;
     } else {
 	tmp->bitmap = (QBitmap *)bm;
-	tmp->type   = LBI_BitMap;
+	tmp->type   = LBI_Bitmap;
     }
     return tmp;
 }
