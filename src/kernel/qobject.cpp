@@ -43,6 +43,7 @@
 #include "qregexp.h"
 #include "qmetaobject.h"
 #include <private/qucom_p.h>
+#include "qucomextra_p.h"
 #include "qptrvector.h"
 
 #ifdef QT_THREAD_SUPPORT
@@ -1690,6 +1691,11 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 		    ri++;
 		else if ( !QUType::isEqual( sm->method->parameters[si++].type,
 					    rm->method->parameters[ri++].type ) ) {
+		    if ( ( QUType::isEqual( sm->method->parameters[si-1].type, &static_QUType_ptr )
+			 && QUType::isEqual( rm->method->parameters[ri-1].type, &static_QUType_varptr ) )
+			|| ( QUType::isEqual( sm->method->parameters[si-1].type, &static_QUType_varptr )
+			     && QUType::isEqual( rm->method->parameters[ri-1].type, &static_QUType_ptr ) ) )
+			continue; // varptr got introduced in 3.1 and is binary compatible with ptr
 		    qWarning( "QObject::connect: Incompatible sender/receiver marshalling"
 			      "\n\t%s::%s --> %s::%s",
 			      s->className(), signal,
