@@ -178,3 +178,12 @@ void QSqlRelationalTableModel::cancelChanges()
     QSqlTableModel::cancelChanges();
     d->clearChanges();
 }
+
+void QSqlRelationalTableModel::clear()
+{
+    for (int i = 0; i < d->relations.count(); ++i)
+        delete d->relations.at(i).model;
+    d->relations.clear();
+    QSqlTableModel::clear();
+}
+

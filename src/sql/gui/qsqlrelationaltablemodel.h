@@ -48,6 +48,7 @@ public:
 
     QVariant data(const QModelIndex &item, int role = QAbstractItemModel::Role_Display) const;
     bool setData(const QModelIndex &item, int role, const QVariant &value);
+    void clear();
 
     virtual void setRelation(int column, const QSqlRelation &relation);
     QSqlRelation relation(int column) const;

@@ -173,6 +173,7 @@ QSqlTableModel::~QSqlTableModel()
  */
 void QSqlTableModel::setTable(const QString &tableName)
 {
+    clear();
     d->tableName = tableName;
     d->rec = d->db.record(tableName);
     d->primaryIndex = d->db.primaryIndex(tableName);
@@ -210,7 +211,7 @@ bool QSqlTableModel::select()
  */
 QVariant QSqlTableModel::data(const QModelIndex &idx, int role) const
 {
-    if (!idx.isValid()) // ###hack for breakage in tableview
+    if (!idx.isValid())
         return QVariant();
 
     QModelIndex item = dataIndex(idx);
@@ -742,5 +743,13 @@ bool QSqlTableModel::isEditable(const QModelIndex &item) const
         || item.row() < 0 || d->rec.field(item.column()).isReadOnly())
         return false;
     return true;
+}
+
+/*! \reimp
+ */
+void QSqlTableModel::clear()
+{
+    d->clear();
+    QSqlModel::clear();
 }
 

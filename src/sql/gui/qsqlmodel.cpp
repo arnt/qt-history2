@@ -132,6 +132,8 @@ int QSqlModel::columnCount(const QModelIndex &) const
 */
 QVariant QSqlModel::data(const QModelIndex &item, int role) const
 {
+    if (!item.isValid())
+        return QVariant();
 
     if (item.type() == QModelIndex::HorizontalHeader) {
         QVariant val = d->headers.value(item.column());
@@ -200,6 +202,20 @@ void QSqlModel::setQuery(const QSqlQuery &query)
         fetchMore();
     }
     emit rowsInserted(QModelIndex(), 0, d->bottom.row());
+}
+
+/*!
+    Clears the model and releases all aquired resources
+ */
+void QSqlModel::clear()
+{
+    d->error = QSqlError();
+    d->atEnd = true;
+    d->query.clear();
+    d->rec.clear();
+    d->colOffsets.clear();
+    d->bottom = QModelIndex();
+    d->headers.clear();
 }
 
 /*!

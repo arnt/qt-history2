@@ -43,6 +43,7 @@ public:
 
     virtual void setQuery(const QSqlQuery &query);
     const QSqlQuery query() const;
+    virtual void clear();
 
     QSqlError lastError() const;
 
