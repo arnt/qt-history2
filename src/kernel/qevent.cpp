@@ -448,7 +448,7 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 */
 
 /*!
-    \fn Orientation orientation() const
+    \fn Orientation QWheelEvent::orientation() const
     Returns the wheel's orientation.
 */
 

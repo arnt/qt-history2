@@ -225,7 +225,7 @@ bool operator==( const QMap<QString, QString>, const QMap<QString, QString> )
 
 /*!
   \class QXmlParseException qxml.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QXmlParseException class is used to report errors with the
   QXmlErrorHandler interface.
 
@@ -283,7 +283,7 @@ QString QXmlParseException::systemId() const
 
 /*!
   \class QXmlLocator qxml.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QXmlLocator class provides the XML handler classes with
   information about the actual parsing position.
 
@@ -374,7 +374,7 @@ public:
 
 /*!
   \class QXmlNamespaceSupport qxml.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QXmlNamespaceSupport class is a helper class for XML readers which
   want to include namespace support.
 
@@ -604,7 +604,7 @@ void QXmlNamespaceSupport::reset()
 
 /*!
   \class QXmlAttributes qxml.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QXmlAttributes class provides XML attributes.
 
   \module XML
@@ -815,7 +815,7 @@ void QXmlAttributes::append( const QString &qName, const QString &uri, const QSt
 
 /*!
   \class QXmlInputSource qxml.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QXmlInputSource class provides the input data for the QXmlReader
   subclasses.
 
@@ -1129,7 +1129,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
 /*!
   \class QXmlContentHandler qxml.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QXmlContentHandler class provides an interface to report logical
   content of XML data.
 
@@ -1343,7 +1343,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
 /*!
   \class QXmlErrorHandler qxml.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QXmlErrorHandler class provides an interface to report errors in
   XML data.
 
@@ -1403,7 +1403,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
 /*!
   \class QXmlDTDHandler qxml.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QXmlDTDHandler class provides an interface to report DTD content
   of XML data.
 
@@ -1457,7 +1457,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
 /*!
   \class QXmlEntityResolver qxml.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QXmlEntityResolver class provides an interface to resolve extern
   entities contained in XML data.
 
@@ -1503,7 +1503,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
 /*!
   \class QXmlLexicalHandler qxml.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QXmlLexicalHandler class provides an interface to report lexical
   content of XML data.
 
@@ -1633,7 +1633,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
 /*!
   \class QXmlDeclHandler qxml.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QXmlDeclHandler class provides an interface to report declaration
   content of XML data.
 
@@ -1704,7 +1704,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
 /*!
   \class QXmlDefaultHandler qxml.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QXmlDefaultHandler class provides a default implementation of all
   XML handler classes.
 
@@ -2084,7 +2084,7 @@ private:
 
 /*!
   \class QXmlReader qxml.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QXmlReader class provides an interface for XML readers (i.e.
   parsers).
 
@@ -2273,7 +2273,7 @@ private:
 
 /*!
   \class QXmlSimpleReader qxml.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QXmlSimpleReader class provides an implementation of a simple XML
   reader (i.e. parser).
 
@@ -2281,11 +2281,11 @@ private:
 
   This XML reader is sufficient for simple parsing tasks. Here is a short list
   of the properties of this reader:
-  <ul>
-  <li> well-formed parser
-  <li> does not parse any external entities
-  <li> can do namespace processing
-  </ul>
+  \list
+  \i well-formed parser
+  \i does not parse any external entities
+  \i can do namespace processing
+  \endlist
 
   To get started see also the
   \link xml-sax-walkthrough.html tiny SAX2 parser walkthrough. \endlink
@@ -2294,12 +2294,12 @@ private:
 
 /*!
   Constructs a simple XML reader with the following feature settings:
-  <ul>
-  <li> \e http://xml.org/sax/features/namespaces TRUE
-  <li> \e http://xml.org/sax/features/namespace-prefixes FALSE
-  <li> \e http://trolltech.com/xml/features/report-whitespace-only-CharData TRUE
-  <li> \e http://trolltech.com/xml/features/report-start-end-entity FALSE
-  </ul>
+  \list
+  \i \e http://xml.org/sax/features/namespaces TRUE
+  \i \e http://xml.org/sax/features/namespace-prefixes FALSE
+  \i \e http://trolltech.com/xml/features/report-whitespace-only-CharData TRUE
+  \i \e http://trolltech.com/xml/features/report-start-end-entity FALSE
+  \endlist
 
   More information about features can be found in the \link xml.html#sax2Features
   Qt SAX2 overview. \endlink
@@ -2370,23 +2370,23 @@ bool QXmlSimpleReader::feature( const QString& name, bool *ok ) const
   If the feature is not recognized, it is ignored.
 
   The following features are supported:
-  <ul>
-  <li> \e http://xml.org/sax/features/namespaces:
+  \list
+  \i \e http://xml.org/sax/features/namespaces:
        if this feature is TRUE, namespace processing is performed
-  <li> \e http://xml.org/sax/features/namespace-prefixes:
+  \i \e http://xml.org/sax/features/namespace-prefixes:
        if this feature is TRUE, the the original prefixed names and attributes
        used for namespace declarations are reported
-  <li> \e http://trolltech.com/xml/features/report-whitespace-only-CharData:
+  \i \e http://trolltech.com/xml/features/report-whitespace-only-CharData:
        if this feature is TRUE, CharData that consist of whitespace only (and
        no other characters) are not reported via
        QXmlContentHandler::characters()
-  <li> \e http://trolltech.com/xml/features/report-start-end-entity:
+  \i \e http://trolltech.com/xml/features/report-start-end-entity:
        if this feature is TRUE, the parser reports
        QXmlContentHandler::startEntity() and QXmlContentHandler::endEntity()
        events. So character data might be reported in chunks. If this feature
        is FALSE, the parser does not report those events, but rather silently
        substitutes the entities and reports the character data in one chunk.
-  </ul>
+  \endlist
 
   \sa feature() hasFeature()
 */

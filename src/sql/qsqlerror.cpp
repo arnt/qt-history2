@@ -39,7 +39,7 @@
 #ifndef QT_NO_SQL
 
 /*! \class QSqlError qsqlerror.h
-    \ingroup sql
+    \ingroup database
 
     \brief The QSqlError class provides SQL database error information.
 

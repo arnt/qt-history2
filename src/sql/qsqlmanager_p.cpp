@@ -63,7 +63,7 @@ public:
 
 /*!
   \class QSqlCursorManager qsqlmanager_p.h
-    \ingroup sql
+    \ingroup database
   \brief The QSqlCursorManager class manages a database cursor.
 
   \module sql
@@ -627,7 +627,7 @@ public:
 
 /*!
   \class QDataManager qsqlmanager_p.h
-    \ingroup sql
+    \ingroup database
 
   \brief The QDataManager class is an internal class for implementing
   the data-aware widgets.

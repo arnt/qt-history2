@@ -606,7 +606,7 @@ QDomImplementationPrivate* QDomImplementationPrivate::clone()
 
 /*!
   \class QDomImplementation qdom.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QDomImplementation class provides information about the features
   of the DOM implementation.
 
@@ -892,7 +892,7 @@ uint QDomNodeListPrivate::length() const
 
 /*!
   \class QDomNodeList qdom.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QDomNodeList class is a list of QDomNode objects.
 
   \module XML
@@ -1500,7 +1500,7 @@ void QDomNodePrivate::save( QTextStream& s, int indent ) const
 
 /*!
   \class QDomNode qdom.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QDomNode class is the base class for all the nodes in a DOM tree.
 
   \module XML
@@ -2548,7 +2548,7 @@ bool QDomNamedNodeMapPrivate::containsNS( const QString& nsURI, const QString & 
 
 /*!
   \class QDomNamedNodeMap qdom.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QDomNamedNodeMap class contains a collection of nodes that can be
   accessed by name.
 
@@ -2953,7 +2953,7 @@ void QDomDocumentTypePrivate::save( QTextStream& s, int ) const
 
 /*!
   \class QDomDocumentType qdom.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QDomDocumentType class is the representation of the DTD in the
   document tree.
 
@@ -3147,7 +3147,7 @@ QDomNodePrivate* QDomDocumentFragmentPrivate::cloneNode( bool deep)
 
 /*!
   \class QDomDocumentFragment qdom.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QDomDocumentFragment class is a tree of QDomNodes which is not usually a complete QDomDocument.
 
   \module XML
@@ -3307,7 +3307,7 @@ void QDomCharacterDataPrivate::appendData( const QString& arg )
 
 /*!
   \class QDomCharacterData qdom.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QDomCharacterData class represents a generic string in the DOM.
 
   \module XML
@@ -3571,7 +3571,7 @@ void QDomAttrPrivate::save( QTextStream& s, int ) const
 
 /*!
   \class QDomAttr qdom.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QDomAttr class represents one attribute of a QDomElement.
 
   \module XML
@@ -3958,7 +3958,7 @@ void QDomElementPrivate::save( QTextStream& s, int indent ) const
 
 /*!
   \class QDomElement qdom.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QDomElement class represents one element in the DOM tree.
 
   \module XML
@@ -4461,7 +4461,7 @@ void QDomTextPrivate::save( QTextStream& s, int ) const
 
 /*!
   \class QDomText qdom.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QDomText class represents text data in the parsed XML document.
 
   \module XML
@@ -4601,7 +4601,7 @@ void QDomCommentPrivate::save( QTextStream& s, int ) const
 
 /*!
   \class QDomComment qdom.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QDomComment class represents an XML comment.
 
   \module XML
@@ -4731,7 +4731,7 @@ void QDomCDATASectionPrivate::save( QTextStream& s, int ) const
 
 /*!
   \class QDomCDATASection qdom.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QDomCDATASection class represents an XML CDATA section.
 
   \module XML
@@ -4872,7 +4872,7 @@ void QDomNotationPrivate::save( QTextStream& s, int ) const
 
 /*!
   \class QDomNotation qdom.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QDomNotation class represents an XML notation.
 
   \module XML
@@ -5077,7 +5077,7 @@ void QDomEntityPrivate::save( QTextStream& s, int ) const
 
 /*!
   \class QDomEntity qdom.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QDomEntity class represents an XML entity.
 
   \module XML
@@ -5242,7 +5242,7 @@ void QDomEntityReferencePrivate::save( QTextStream& s, int ) const
 
 /*!
   \class QDomEntityReference qdom.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QDomEntityReference class represents an XML entity reference.
 
   \module XML
@@ -5380,7 +5380,7 @@ void QDomProcessingInstructionPrivate::save( QTextStream& s, int ) const
 
 /*!
   \class QDomProcessingInstruction qdom.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QDomProcessingInstruction class represents an XML processing
   instruction.
 
@@ -5776,7 +5776,7 @@ void QDomDocumentPrivate::save( QTextStream& s, int ) const
 
 /*!
   \class QDomDocument qdom.h
-  \ingroup xml
+  \ingroup xml-tools
   \brief The QDomDocument class is the representation of an XML document.
 
   \module XML

@@ -250,7 +250,7 @@ void QFile::flush()
 }
 
 /*!
-    \fn Offset	at() const
+    \fn Offset	QFile::at() const
     Returns the position in the file.
 */
 

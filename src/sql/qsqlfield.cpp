@@ -45,7 +45,7 @@ public:
 
 /*!
     \class QSqlField qsqlfield.h
-    \ingroup sql
+    \ingroup database
     \brief The QSqlField class manipulates the fields in SQL database tables
     and views.
 

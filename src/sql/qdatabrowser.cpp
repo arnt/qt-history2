@@ -55,7 +55,7 @@ public:
 
 /*!
   \class QDataBrowser qdatabrowser.h
-    \ingroup sql
+    \ingroup database
   \brief The QDataBrowser class provides data manipulation and
   navigation for data entry forms.
 

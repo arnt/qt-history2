@@ -658,7 +658,7 @@ These classes provide support for graphics, sound, animation etc.
 */
 
 
-/*! \defgroup sql
+/*! \defgroup database
 
 \title Database Classes
 
@@ -681,7 +681,7 @@ These classes are relevant to threaded applications.
 */
 
 
-/*! \defgroup xml
+/*! \defgroup xml-tools
 
 \title XML
 
