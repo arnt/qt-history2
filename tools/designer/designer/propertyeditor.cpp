@@ -1207,7 +1207,7 @@ bool PropertyPixmapItem::hasCustomContents() const
 
 void PropertyPixmapItem::drawCustomContents( QPainter *p, const QRect &r )
 {
-    QPixmap pix( !iconSet ? value().toPixmap() : value().toIconSet().pixmap() );
+    QPixmap pix( (!iconSet ? value().toPixmap() : value().toIconSet().pixmap()) );
     if ( !pix.isNull() ) {
 	p->save();
 	p->setClipRect( QRect( QPoint( (int)(p->worldMatrix().dx() + r.x()),
