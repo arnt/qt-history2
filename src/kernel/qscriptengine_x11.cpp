@@ -1685,7 +1685,9 @@ static int indic_nextSyllableBoundary( int script, const QString &s, int start, 
 	case Halant:
 	    if ( state == Nukta || state == Consonant )
 		break;
-	    if ( script == QFont::Bengali && pos == 1 && state == IndependentVowel )
+	    // Bengali has a special exception allowing the combination Vowel_A/E + Halant + Ya
+	    if ( script == QFont::Bengali && pos == 1 &&
+		 (uc[0].unicode() == 0x0985 || uc[0].unicode() == 0x098f) )
 		break;
 	    goto finish;
 	case Nukta:
