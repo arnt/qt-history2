@@ -76,6 +76,7 @@ private:
     QValueList<MetaDataBase::Function> itemList;
     QValueList<FunctItem> functList;
     int id;
+    QString lastType;
 };
 
 #endif

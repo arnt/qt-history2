@@ -91,6 +91,7 @@ EditFunctions::EditFunctions( QWidget *parent, FormWindow *fw, bool justSlots )
 	functionListView->setCurrentItem( functionListView->firstChild() );
 
     showOnlySlots->setChecked( justSlots );
+    lastType = "function";
 }
 
 void EditFunctions::okClicked()
@@ -231,10 +232,6 @@ void EditFunctions::functionAdd( const QString &access, const QString &type )
 {
     QListViewItem *i = new QListViewItem( functionListView );
     i->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
-    if ( showOnlySlots->isChecked() || type == "slot" )
-	i->setText( 0, "newSlot()" );
-    else
-	i->setText( 0, "newFunction()" );
     i->setText( 1, "void" );
     i->setText( 2, "virtual" );
     if ( access.isEmpty() )
@@ -245,17 +242,21 @@ void EditFunctions::functionAdd( const QString &access, const QString &type )
     if( type.isEmpty() ) {
 	if ( showOnlySlots->isChecked() )
 	    i->setText( 4, "slot" );
-	else
-	    i->setText( 4, "function" );
-    } else
+	else {
+	    i->setText( 4, lastType );
+	}
+    } else {
 	i->setText( 4, type );
+    }
 
     if ( i->text( 4 ) == "slot" ) {
+	i->setText( 0, "newSlot()" );
 	if ( MetaDataBase::isSlotUsed( formWindow, "newSlot()" ) )
 	    i->setText( 5, tr( "Yes" ) );
 	else
 	    i->setText( 5, tr( "No" ) );
     } else {
+	i->setText( 0, "newFunction()" );
 	i->setText( 5, "---" );
     }
     functionListView->setCurrentItem( i );
@@ -275,6 +276,7 @@ void EditFunctions::functionAdd( const QString &access, const QString &type )
     fui.access = fui.oldAccess;
     fui.oldType = i->text( 4 );
     fui.type = fui.oldType;
+    lastType = fui.oldType;
     functList.append( fui );
     functionIds.insert( i, id );
     id++;
@@ -392,6 +394,7 @@ void EditFunctions::currentTypeChanged( const QString &type )
     if ( !functionListView->currentItem() )
 	return;
     changeItem( functionListView->currentItem(), Type,  type );
+    lastType = type;
     functionListView->currentItem()->setText( 4, type );
     if ( type == "slot" ) {
 	if ( MetaDataBase::isSlotUsed( formWindow,
