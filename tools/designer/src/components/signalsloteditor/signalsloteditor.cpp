@@ -26,6 +26,7 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QLabel>
+#include <QCheckBox>
 #include <qdebug.h>
 
 /*******************************************************************************
@@ -46,14 +47,16 @@ private slots:
                         Qt::KeyboardModifiers modifiers);
     void slotClicked(QListWidgetItem *item, Qt::MouseButton button,
                         Qt::KeyboardModifiers modifiers);
+    void populateSignalList();
+    void populateSlotList(const QString &signal = QString());
 
 private:
-    void populateSlotList(const QString &signal = QString());
 
     QListWidget *m_signal_list, *m_slot_list;
     QPushButton *m_ok_button;
     QWidget *m_source, *m_destination;
     AbstractFormEditor *m_core;
+    QCheckBox *m_show_all_checkbox;
 };
 
 static QString realObjectName(AbstractFormEditor *core, QWidget *widget)
@@ -116,8 +119,16 @@ static bool signalMatchesSlot(const QString &signal, const QString &slot)
 
 void SignalSlotDialog::populateSlotList(const QString &signal)
 {
+    QString selectedName;
+    QList<QListWidgetItem *> list = m_slot_list->selectedItems();
+    if (list.size() > 0) {
+        QListWidgetItem *item = list.at(0);
+        selectedName = item->text();
+    }
     m_slot_list->clear();
 
+    bool show_all = m_show_all_checkbox->isChecked();
+    
     QStringList signatures;
 
     if (IMemberSheet *members = qt_extension<IMemberSheet*>(m_core->extensionManager(), m_destination)) {
@@ -125,6 +136,9 @@ void SignalSlotDialog::populateSlotList(const QString &signal)
             if (!members->isVisible(i))
                 continue;
 
+            if (!show_all && members->inheritedFromWidget(i))
+                continue;
+            
             if (members->isSlot(i)) {
                 if (!signal.isEmpty() && !signalMatchesSlot(signal, members->signature(i)))
                     continue;
@@ -139,7 +153,58 @@ void SignalSlotDialog::populateSlotList(const QString &signal)
     foreach (QString sig, signatures) {
         QListWidgetItem *item = new QListWidgetItem(m_slot_list);
         item->setText(sig);
+        if (sig == selectedName)
+            m_slot_list->setSelected(item, true);
     }
+}
+
+void SignalSlotDialog::populateSignalList()
+{
+    QString selectedName;
+    QList<QListWidgetItem *> list = m_signal_list->selectedItems();
+    if (list.size() > 0) {
+        QListWidgetItem *item = list.at(0);
+        selectedName = item->text();
+    }
+    m_signal_list->clear();
+
+    bool show_all = m_show_all_checkbox->isChecked();
+    qDebug() << "populateSignalList" << show_all;
+    
+    QStringList signatures;
+
+    if (IMemberSheet *members = qt_extension<IMemberSheet*>(m_core->extensionManager(), m_source)) {
+        for (int i=0; i<members->count(); ++i) {
+            if (!members->isVisible(i))
+                continue;
+
+            if (!show_all && members->inheritedFromWidget(i))
+                continue;
+                
+            if (members->isSignal(i)) {
+                signatures.append(members->signature(i));
+            }
+        }
+    }
+
+    signatures.sort();
+
+    bool found_selected = false;
+    foreach (QString sig, signatures) {
+        QListWidgetItem *item = new QListWidgetItem(m_signal_list);
+        item->setText(sig);
+        if (!selectedName.isEmpty() && sig == selectedName) {
+            m_signal_list->setSelected(item, true);
+            found_selected = true;
+        }
+    }
+    
+    if (!found_selected)
+        selectedName.clear();
+    
+    populateSlotList(selectedName);
+    if (!found_selected)
+        m_slot_list->setEnabled(false);
 }
 
 SignalSlotDialog::SignalSlotDialog(AbstractFormEditor *core, QWidget *source, QWidget *destination,
@@ -167,6 +232,9 @@ SignalSlotDialog::SignalSlotDialog(AbstractFormEditor *core, QWidget *source, QW
     m_ok_button = new QPushButton(tr("OK"), this);
     connect(m_ok_button, SIGNAL(clicked()), this, SLOT(accept()));
     m_ok_button->setEnabled(false);
+    m_show_all_checkbox = new QCheckBox(tr("Show all signals and slots"), this);
+    m_show_all_checkbox->setChecked(false);
+    connect(m_show_all_checkbox, SIGNAL(toggled(bool)), this, SLOT(populateSignalList()));
 
     QLabel *source_label = new QLabel(this);
     source_label->setText(widgetLabel(core, source));
@@ -184,32 +252,14 @@ SignalSlotDialog::SignalSlotDialog(AbstractFormEditor *core, QWidget *source, QW
     l4->addWidget(m_slot_list);
 
     QHBoxLayout *l5 = new QHBoxLayout(l1);
+    l5->addWidget(m_show_all_checkbox);
     l5->addStretch();
     l5->addWidget(cancel_button);
     l5->addWidget(m_ok_button);
 
-    QStringList signatures;
-
-    if (IMemberSheet *members = qt_extension<IMemberSheet*>(core->extensionManager(), source)) {
-        for (int i=0; i<members->count(); ++i) {
-            if (!members->isVisible(i))
-                continue;
-
-            if (members->isSignal(i)) {
-                signatures.append(members->signature(i));
-            }
-        }
-    }
-
-    signatures.sort();
-
-    foreach (QString sig, signatures) {
-        QListWidgetItem *item = new QListWidgetItem(m_signal_list);
-        item->setText(sig);
-    }
-
-    populateSlotList();
     setWindowTitle(tr("Configure Connection"));
+
+    populateSignalList();
 }
 
 void SignalSlotDialog::signalClicked(QListWidgetItem *item, Qt::MouseButton button,

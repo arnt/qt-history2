@@ -13,10 +13,13 @@
 
 #include "default_membersheet.h"
 
+#include <QWidget>
 #include <QVariant>
 #include <QMetaObject>
 #include <QMetaMember>
 #include <qdebug.h>
+
+Q_GLOBAL_STATIC(QWidget, someWidget)
 
 QDesignerMemberSheet::QDesignerMemberSheet(QObject *object, QObject *parent)
     : QObject(parent),
@@ -88,6 +91,13 @@ bool QDesignerMemberSheet::isSlot(int index) const
 {
     return meta->member(index).memberType() == QMetaMember::Slot;
 }
+
+bool QDesignerMemberSheet::inheritedFromWidget(int index) const
+{
+    const char *name = meta->member(index).signature();
+    return someWidget()->metaObject()->indexOfMember(name) != -1;
+}
+
 
 QList<QByteArray> QDesignerMemberSheet::parameterTypes(int index) const
 { 

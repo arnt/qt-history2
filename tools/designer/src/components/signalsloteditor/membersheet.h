@@ -35,6 +35,7 @@ struct IMemberSheet
 
     virtual bool isSignal(int index) const = 0;
     virtual bool isSlot(int index) const = 0;
+    virtual bool inheritedFromWidget(int index) const = 0;
     
     virtual QString signature(int index) const = 0;
     virtual QList<QByteArray> parameterTypes(int index) const = 0;
