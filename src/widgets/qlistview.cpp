@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#7 $
 **
 ** Implementation of something useful
 **
@@ -16,7 +16,7 @@
 #include "qscrbar.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#7 $");
 
 /*!
   \class QListViewItem qlistview.h
@@ -687,6 +687,7 @@ void QListView::updateContents()
     setMargins( 0, h, 0, 0 );
 
     viewResize( w, root->totalHeight() );  // repaints
+    viewport()->repaint();
 }
 
 
