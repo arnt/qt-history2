@@ -20,6 +20,7 @@
 #include <qcolordialog.h>
 #include <qfontdialog.h>
 #include <qtoolbar.h>
+#include <qlineedit.h>
 
 class SpreadSheetItem : public QTableWidgetItem
 {
@@ -178,12 +179,12 @@ public:
 public slots:
     void updateStatus(QTableWidgetItem *item);
     void updateColor(QTableWidgetItem *item);
+    void updateLineEdit(QTableWidgetItem *item);
     void contextActions(QMenu *menu, QTableWidgetItem *item);
     void keyPressed(QTableWidgetItem *item, Qt::Key key);
-
+    void returnPressed();
     void selectColor();
     void selectFont();
-
     void sum();
     void clear();
 
@@ -192,14 +193,13 @@ protected:
 
 private:
     QToolBar *toolBar;
-
     QAction *colorAction;
     QAction *fontAction;
     QAction *sumAction;
     QAction *clearAction;
-
     QTableWidget *table;
     QTableWidgetItem *contextItem;
+    QLineEdit *lineEdit;
 };
 
 SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
@@ -207,19 +207,25 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
 {
     toolBar = new QToolBar(this);
 
-    QPixmap pix(16, 16);
-    pix.fill(Qt::black);
-    colorAction = toolBar->addAction(pix, tr("&Color..."));
-    connect(colorAction, SIGNAL(triggered()), this, SLOT(selectColor()));
-    fontAction = toolBar->addAction(QPixmap(":/images/font.xpm"), tr("Font..."));
-    connect(fontAction, SIGNAL(triggered()), this, SLOT(selectFont()));
     sumAction = toolBar->addAction(QPixmap(":/images/sum.xpm"), tr("Sum"));
     connect(sumAction, SIGNAL(triggered()), this, SLOT(sum()));
+
+    lineEdit = new QLineEdit();
+    toolBar->addWidget(lineEdit);
+
+    toolBar->addSeparator();
+
+    fontAction = toolBar->addAction(QPixmap(":/images/font.xpm"), tr("Font..."));
+    connect(fontAction, SIGNAL(triggered()), this, SLOT(selectFont()));
+    
+    colorAction = toolBar->addAction(QPixmap(16, 16), tr("&Color..."));
+    connect(colorAction, SIGNAL(triggered()), this, SLOT(selectColor()));
+    updateColor(0);
+
+    toolBar->addSeparator();
+
     clearAction = toolBar->addAction(QPixmap(":/images/clear.xpm"), tr("Clear"));
     connect(clearAction, SIGNAL(triggered()), this, SLOT(clear()));
-
-     // Hide the toolbar for now...
-    toolBar->hide();
 
     table = new SpreadSheetTable(rows, cols, this);
     for (int c = 0; c < cols; ++c) {
@@ -237,12 +243,17 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
             this, SLOT(updateStatus(QTableWidgetItem*)));
     connect(table, SIGNAL(currentChanged(QTableWidgetItem*, QTableWidgetItem*)),
             this, SLOT(updateColor(QTableWidgetItem*)));
+    connect(table, SIGNAL(currentChanged(QTableWidgetItem*, QTableWidgetItem*)),
+            this, SLOT(updateLineEdit(QTableWidgetItem*)));
     connect(table, SIGNAL(itemChanged(QTableWidgetItem*)),
             this, SLOT(updateStatus(QTableWidgetItem*)));
     connect(table, SIGNAL(keyPressed(QTableWidgetItem*, Qt::Key, Qt::ButtonState)),
             this, SLOT(keyPressed(QTableWidgetItem*, Qt::Key)));
     connect(table, SIGNAL(aboutToShowContextMenu(QMenu*, QTableWidgetItem*)),
             this, SLOT(contextActions(QMenu*, QTableWidgetItem*)));
+    connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(returnPressed()));
+    connect(table, SIGNAL(itemChanged(QTableWidgetItem*)),
+            this, SLOT(updateLineEdit(QTableWidgetItem*)));
 }
 
 void SpreadSheet::updateStatus(QTableWidgetItem *item)
@@ -263,13 +274,23 @@ void SpreadSheet::updateColor(QTableWidgetItem *item)
     colorAction->setIcon(pix);
 }
 
+void SpreadSheet::updateLineEdit(QTableWidgetItem *item)
+{
+    if (item != table->currentItem())
+        return;
+    if (item)
+        lineEdit->setText(item->data(QAbstractItemModel::EditRole).toString());
+    else
+        lineEdit->clear();
+}
+
 void SpreadSheet::contextActions(QMenu *menu, QTableWidgetItem *item)
 {
     if (table->selectedItems().count() > 0) {
+        menu->addAction(sumAction);
+        menu->addSeparator();
         menu->addAction(colorAction);
         menu->addAction(fontAction);
-        menu->addSeparator();
-        menu->addAction(sumAction);
         menu->addSeparator();
         menu->addAction(clearAction);
     }
@@ -280,6 +301,19 @@ void SpreadSheet::keyPressed(QTableWidgetItem *item, Qt::Key key)
 {
     if (key == Qt::Key_Delete && item)
         item->clear();
+}
+
+void SpreadSheet::returnPressed()
+{
+    QString text = lineEdit->text();
+    int row = table->currentRow();
+    int col = table->currentColumn();
+    QTableWidgetItem *item = table->item(row, col);
+    if (!item)
+        table->setItem(row, col, new SpreadSheetItem(text));
+    else
+        item->setData(QAbstractItemModel::EditRole, text);
+    table->viewport()->update();
 }
 
 void SpreadSheet::selectColor()
@@ -401,7 +435,6 @@ void SpreadSheet::setupContents()
     table->setItem(8, 4, new SpreadSheetItem("* B9 D9"));
     table->setItem(9, 4, new SpreadSheetItem("sum E2 E9"));
     table->item(9,4)->setBackgroundColor(Qt::lightGray);
-
 }
 
 int main(int argc, char** argv) {
