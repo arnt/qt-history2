@@ -356,7 +356,7 @@ void VcprojGenerator::initPreBuildEventTools()
         QStringList& list = project->variables()["IMAGES"];
 	vcProject.Configuration.preBuild.Description = "Generate imagecollection";
 	//vcProject.Configuration.preBuild.AdditionalDependencies += list;
-	vcProject.Configuration.preBuild.CommandLine = project->first("QMAKE_UIC") + " -embed " + project->first("QMAKE_ORIG_TARGET") + list.join(" ") + " -o " + collectionName;
+	vcProject.Configuration.preBuild.CommandLine = project->first("QMAKE_UIC") + " -embed " + project->first("QMAKE_ORIG_TARGET") + " " + list.join(" ") + " -o " + collectionName;
 	//vcProject.Configuration.preBuild.Outputs = collectionName;
 
     }
