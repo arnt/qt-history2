@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#325 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#326 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1242,7 +1242,6 @@ void QListBox::removeItem( int index )
 void QListBox::clear()
 {
     blockSignals( TRUE );
-    blockSignals( FALSE );
     d->current = 0;
     QListBoxItem * i = d->head;
     d->head = 0;
@@ -1263,6 +1262,7 @@ void QListBox::clear()
     d->mouseMoveRow = -1;
     d->mouseMoveColumn = -1;
     clearSelection();
+    blockSignals( FALSE );
     triggerUpdate( TRUE );
 }
 
@@ -1543,14 +1543,8 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 {
     QListBoxItem * i = itemAt( e->pos() );
 
-    if ( ( numColumns() > 1 || e->pos().x() > d->columnPos[ 1 ] ) && !i ) {
-	if ( d->selectionMode == Single ) {
-	    if ( d->current ) {
-		d->current->s = FALSE;
-		updateItem( d->current );
-	    }
-	}
-    }
+    if ( !i && e->button() == RightButton )
+	clearSelection();
 
     switch( selectionMode() ) {
     default:
@@ -2238,12 +2232,15 @@ bool QListBox::isSelected( const QListBoxItem * i ) const
 void QListBox::clearSelection()
 {
     if ( selectionMode() != Single ) {
+	bool b = signalsBlocked();
+	blockSignals( TRUE );
 	for ( int i = 0; i < (int)count(); i++ )
 	    setSelected( i, FALSE );
-    } else {
+	blockSignals( b );
+	emit selectionChanged();
+    } else if ( d->current ) {
 	QListBoxItem * i = d->current;
-	setCurrentItem( hasFocus() ? d->head : 0 );
-	updateItem( i );
+	setSelected( i, FALSE );
     }
 }
 

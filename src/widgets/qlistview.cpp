@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#360 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#361 $
 **
 ** Implementation of QListView widget class
 **
@@ -2104,7 +2104,7 @@ void QListView::clear()
     delete d->dirtyItems;
     d->dirtyItems = 0;
     d->dirtyItemTimer->stop();
-    
+
     setSelected( d->currentSelected, FALSE );
     d->focusItem = 0;
 
@@ -3530,6 +3530,8 @@ items.
 void QListView::clearSelection()
 {
     if ( isMultiSelection() ) {
+	bool b = signalsBlocked();
+	blockSignals( TRUE );
 	bool anything = FALSE;
 	QListViewItem * i = firstChild();
 	QStack<QListViewItem> s;
@@ -3537,24 +3539,19 @@ void QListView::clearSelection()
 	    if ( i->childItem )
 		s.push( i->childItem );
 	    if ( i->isSelected() ) {
-		anything = TRUE;
+		//anything = TRUE;
 		setSelected( i, FALSE );
 	    }
 	    i = i->siblingItem;
 	    if ( !i )
 		i = s.pop();
 	}
-	if ( anything ) {
-	    if ( !isMultiSelection() )
-		emit selectionChanged( i );
+	blockSignals( b );
+	if ( anything )
 	    emit selectionChanged();
-	}
     } else if ( d->currentSelected ) {
 	QListViewItem * i = d->currentSelected;
 	setSelected( i, FALSE );
-	if ( !isMultiSelection() )
-	    emit selectionChanged( i );
-	emit selectionChanged();
     }
 }
 
