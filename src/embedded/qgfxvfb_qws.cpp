@@ -1,11 +1,11 @@
 /*****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QGfxvfb (virtual frame buffer driver)
 **
 ** Created : 940721
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -459,7 +459,7 @@ bool QVFbScreen::initDevice()
     if(d==8) {
 	screencols=256;
 	if ( grayscale ) {
-	    // Build greyscale palette
+	    // Build grayscale palette
 	    for(int loopc=0;loopc<256;loopc++) {
 		screenclut[loopc]=qRgb(loopc,loopc,loopc);
 	    }

@@ -3,7 +3,7 @@
 **
 ** Implementation of QAction class
 **
-** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -781,7 +781,7 @@ bool QAction::isEnabled() const
     toolbars) and chosen by the user; if \e visible is FALSE the
     action cannot be seen or chosen by the user.
 
-    Actions which are not visible are \e not just greyed out; they do
+    Actions which are not visible are \e not just grayed out; they do
     not appear at all.
 */
 void QAction::setVisible( bool visible )

@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Help with porting from Qt 1.x to Qt 2.x
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -571,7 +571,7 @@ In QRgb (a typedef of long), the order of the RGB channels has changed to
 be in the more efficient order (for typical contemporary hardware).  If your
 code made assumptions about the order, you will get blue where you expect
 red and vice versa (you'll not notice the problem if you use shades of
-grey, green, or magenta).  You should port your code to use the
+gray, green, or magenta).  You should port your code to use the
 creator function qRgb(int r,int g,int b) and the
 access functions qRed(QRgb), qBlue(QRgb), and qGreen(QRgb).
 If you are using the alpha channel, it hasn't moved, but you should use

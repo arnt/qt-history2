@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of PNG QImage IOHandler
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-1998 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -56,7 +56,7 @@
   All PNG files load to the minimal QImage equivalent.
 
   All QImage formats output to reasonably efficient PNG equivalents.
-  Never to greyscale.
+  Never to grayscale.
 */
 
 #if defined(Q_C_CALLBACKS)
@@ -124,7 +124,7 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr, float scr
 	0, 0, 0);
 
     if ( color_type == PNG_COLOR_TYPE_GRAY ) {
-	// Black & White or 8-bit greyscale
+	// Black & White or 8-bit grayscale
 	if ( bit_depth == 1 && info_ptr->channels == 1 ) {
 	    png_set_invert_mono( png_ptr );
 	    png_read_update_info( png_ptr, info_ptr );

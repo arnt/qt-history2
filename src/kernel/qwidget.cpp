@@ -5,7 +5,7 @@
 **
 ** Created : 931031
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -2360,7 +2360,7 @@ void QWidget::setBackgroundMode( BackgroundMode m )
 
     For complex controls, the logical background mode sometimes
     differs from a widget's own background mode. A spinbox for example
-    has \c PaletteBackground as background mode (typically dark grey),
+    has \c PaletteBackground as background mode (typically dark gray),
     while it's embedded lineedit control uses \c PaletteBase
     (typically white). Since the lineedit covers most of the visual
     area of a spinbox, it defines \c PaletteBase to be its \a visual

@@ -530,7 +530,7 @@ SeeAlso: ???
 Feature: QWS_DEPTH_4
 Section: Qt/Embedded-specific
 Requires:
-Name: 4-bit greyscale
+Name: 4-bit grayscale
 SeeAlso: ???
 
 Feature: QWS_VGA_16

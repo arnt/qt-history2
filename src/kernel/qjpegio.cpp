@@ -5,7 +5,7 @@
 **
 ** Created : 990521
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -286,7 +286,7 @@ void read_jpeg_image(QImageIO* iio)
 			    in += 3;
 			}
 		    } else {
-// ### Need to test the case where the jpeg is greyscale, need some black and white jpegs to test
+// ### Need to test the case where the jpeg is grayscale, need some black and white jpegs to test
 // this code. (also only scales down and probably won't scale to a larger size)
 			uchar *in = inLines[0];
 			uchar *out = outLines[outputLine];

@@ -1,11 +1,11 @@
 /*****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QLinuxFbScreen (unaccelerated Linux framebuffer) class for
 ** Embedded Qt
 ** Created : 940721
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -348,7 +348,7 @@ bool QLinuxFbScreen::initDevice()
 
 	if (screencols==16) {
 	    if ( finfo.type == FB_TYPE_PACKED_PIXELS ) {
-		// We'll setup a greyscale cmap for 4bpp linear
+		// We'll setup a grayscale cmap for 4bpp linear
 		int val = 0;
 		for (int idx = 0; idx < 16; idx++, val += 17) {
 		    cmap.red[idx] = (val<<8)|val;
@@ -359,7 +359,7 @@ bool QLinuxFbScreen::initDevice()
 	    } else {
 		// Default 16 colour palette
 		// Green is now trolltech green so certain images look nicer
-		//			     black  d_grey l_grey white  red  green  blue cyan magenta yellow
+		//			     black  d_gray l_gray white  red  green  blue cyan magenta yellow
 		unsigned char reds[16]   = { 0x00, 0x7F, 0xBF, 0xFF, 0xFF, 0xA2, 0x00, 0xFF, 0xFF, 0x00, 0x7F, 0x7F, 0x00, 0x00, 0x00, 0x82 };
 		unsigned char greens[16] = { 0x00, 0x7F, 0xBF, 0xFF, 0x00, 0xC5, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x7F, 0x7F, 0x7F };
 		unsigned char blues[16]  = { 0x00, 0x7F, 0xBF, 0xFF, 0x00, 0x11, 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0x7F, 0x7F, 0x7F, 0x00, 0x00 };
@@ -374,7 +374,7 @@ bool QLinuxFbScreen::initDevice()
 	    }
 	} else {
 	    if ( grayscale ) {
-		// Build greyscale palette
+		// Build grayscale palette
 		int i;
 		for(i=0;i<screencols;i++) {
 		    int bval = screencols == 256 ? i : (i << 4);
