@@ -176,7 +176,7 @@ newstuff {
 }
 \endcode
 
-<p><p></dd></dt>
+<p><p>
 
 <dt><a name="DEFINES"></a>\c DEFINES
 
@@ -189,7 +189,7 @@ For example:
 DEFINES += USE_MY_STUFF QT_DLL
 \endcode
 
-<p><p></dd></dt>
+<p><p>
 
 <dt><a name="DEF_FILE"></a>\c DEF_FILE
 
@@ -197,7 +197,7 @@ DEFINES += USE_MY_STUFF QT_DLL
 
 Specifies a .def file to be included in the project.
 
-<p><p></dd></dt>
+<p><p>
 
 <dt><a name="DESTDIR"></a>\c DESTDIR
 
@@ -211,7 +211,7 @@ For example:
 
 Also see <a href="#DirectoryNote">this note</a>.
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name="DLLDESTDIR"></a>\c DLLDESTDIR
@@ -220,7 +220,7 @@ Also see <a href="#DirectoryNote">this note</a>.
 
 Also see <a href="#DirectoryNote">this note</a>.
 
-<p><p></dd></dt>
+<p><p>
 
 <dt><a name="HEADERS"></a>\c HEADERS
 
@@ -243,7 +243,7 @@ HEADERS	= myclass.h \
 
 See also <a href="#SOURCES"><code>SOURCES</code></a>.
 
-<p><p></dd></dt>
+<p><p>
 
 <dt><a name="INCLUDEPATH"></a>\c INCLUDEPATH
 
@@ -257,7 +257,7 @@ For example:
   INCLUDEPATH = c:\msdev\include d:\stl\include
 \endcode
 
-<p><p></dd></dt>
+<p><p>
 
 <dt><a name="INTERFACES"></a>\c INTERFACES
 
@@ -274,7 +274,7 @@ INTERFACES = mydialog.ui \
              myconfig.ui
 \endcode
 
-<p><p></dd></dt>
+<p><p>
 
 <dt><a name="LEXSOURCES"></a>\c LEXSOURCES
 
@@ -288,7 +288,7 @@ For example:
 LEXSOURCES = lexer.l
 \endcode
  
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name="LIBS"></a>\c LIBS
@@ -303,7 +303,7 @@ unix:LIBS += -lmath -L/usr/local/lib
 win32:LIBS += c:\mylibs\math.lib
 \endcode
 
-<p><p></dd></dt>
+<p><p>
 
 <dt><a name="MOC_DIR"></a>\c MOC_DIR
 
@@ -320,7 +320,7 @@ win32:MOC_DIR = c:\myproject\tmp
 
 Also see <a href="#DirectoryNote">this note</a>.
 
-<p><p></dd></dt>
+<p><p>
 
 <dt><a name="OBJECTS_DIR"></a>\c OBJECTS_DIR
 
@@ -336,7 +336,7 @@ win32:OBJECTS__DIR = c:\myproject\tmp
 
 Also see <a href="#DirectoryNote">this note</a>.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -348,7 +348,7 @@ name of all intermediate moc object files. The value of this variable
 is typically handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be
 modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name="REQUIRES"></a>\c REQUIRES
@@ -359,7 +359,7 @@ variable is assigned to then a minimal makefile will be generated that
 states what dependancies (the values assigned to REQUIRES) were
 missing.
 
-<p><p></dd></dt>
+<p><p>
 
 <dt><a name=""></a>\c SOURCES
 
@@ -376,13 +376,13 @@ SOURCES	= myclass.cpp \
 
 See also <a href="#HEADERS"><code>HEADERS</code></a>
 
-<p><p></dd></dt>
+<p><p>
 
 
 
 <dt><a name=""></a>\c SRCMOC
 <dd>###
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -400,7 +400,7 @@ SUBDIRS = kernel \
 \endcode
 
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name="TARGET"></a>\c TARGET
@@ -417,7 +417,7 @@ SOURCES = main.cpp
 The above project file would produce an executable named 'myapp' on
 unix and 'myapp.exe' on windows.
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name=""></a>\c TEMPLATE
@@ -442,7 +442,7 @@ SOURCES = main.cpp
 TARGET = mylib
 \endcode
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name=""></a>\c VERSION
@@ -450,7 +450,7 @@ TARGET = mylib
 <dd>This variable contains the version number of the library, is the
 'lib' <a href="#TEMPLATE">TEMPLATE</a> is specified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name=""></a>\c YACCSOURCES
@@ -465,7 +465,7 @@ For example:
 YACCSOURCES = moc.y
 \endcode
 
-<p><p></dd></dt>
+<p><p>
 
 </dl>
 
@@ -484,12 +484,12 @@ either internal or very rarely used.
 
 Also see <a href="#DirectoryNote">this note</a>.
 
-<p><p></dd></dt>
+<p><p>
 
 <dt><a name="DSP_TEMPLATE"></a>\c DSP_TEMPLATE
 
 <dd>
-<p><p></dd></dt>
+<p><p>
 
 <dt><a name="LEXIMPLS"></a>\c LEXIMPLS
 
@@ -497,7 +497,7 @@ Also see <a href="#DirectoryNote">this note</a>.
 of this variable is typically handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely
 needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name="LEXOBJECTS"></a>\c LEXOBJECTS
@@ -506,7 +506,7 @@ needs to be modified.
 files.The value of this variable is typically handled by
 <em>qmake</em> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 <dt><a name="MAKEFILE"></a>\c MAKEFILE
 
@@ -515,7 +515,7 @@ files.The value of this variable is typically handled by
 for building a project.  The value of this variable is typically
 handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 <dt><a name="MAKEFILE_GENERATOR"></a>\c MAKEFILE_GENERATOR
 
@@ -523,7 +523,7 @@ handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely need
 when generating a makefile.  The value of this variable is typically
 handled internally by <em>qmake</em> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 <dt><a name="OBJECTS"></a>\c OBJECTS
 
@@ -533,7 +533,7 @@ source file will been replaced by .o (Unix) or .obj (Win32).  The
 value of this variable is typically handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and
 rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 <dt><a name="PRECOMPH"></a>\c PRECOMPH
 
@@ -542,7 +542,7 @@ sort of precompilation step (such as with moc). The value of this
 variable is typically handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be
 modified.  
 
-<p><p></dd></dt>
+<p><p>
 
 <dt><a name="QMAKE"></a>\c QMAKE
 
@@ -551,7 +551,7 @@ itself and is placed in generated makefiles.  The value of this
 variable is typically handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be
 modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -563,7 +563,7 @@ variable is typically handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.co
 modified. Use the <a href="#QMAKEPATH">QMAKEPATH</a> environment
 variable instead.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -571,15 +571,15 @@ variable instead.
 
 <dd>###
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name="QMAKE_AIX_SHLIB"></a>\c QMAKE_AIX_SHLIB
 
-<dd>If not empty. this variable tells <em>qmake</a> to generate the
+<dd>If not empty. this variable tells <em>qmake</em> to generate the
 <a href="#TARGET">TARGET</a> as an AIX shared library.
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name="QMAKE_APP_FLAG"></a>\c QMAKE_APP_FLAG
@@ -595,7 +595,7 @@ app {
 }
 \endcode
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -606,7 +606,7 @@ href="#TEMPLATE">TEMPLATE</a> is specified.  The value of this
 variable is typically handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be
 modified.  
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name="QMAKE_AR_CMD"></a>\c QMAKE_AR_CMD
@@ -618,7 +618,7 @@ creates, modifies and extracts archives. The value of this variable is
 typically handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> 
 and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name="QMAKE_CFLAGS_DEBUG"></a>\c QMAKE_CFLAGS_DEBUG
@@ -627,7 +627,7 @@ and rarely needs to be modified.
 typically handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> 
 and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -638,7 +638,7 @@ multi-threaded program.  The value of this variable is typically
 handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and
 rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -649,7 +649,7 @@ multi-threaded program.  The value of this variable is typically
 handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and
 rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -661,7 +661,7 @@ handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and
 rarely needs to be modified.
 
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name="QMAKE_CFLAGS_MT_DLLDBG"></a>\c QMAKE_CFLAGS_MT_DLLDBG
@@ -671,7 +671,7 @@ multi-threaded dll.  The value of this variable is typically
 handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and
 rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -682,7 +682,7 @@ program.  The value of this variable is typically
 handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and
 rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -693,7 +693,7 @@ library. The value of this variable is typically handled by
 <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs
 to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -705,7 +705,7 @@ program. The value of this variable is typically handled by
 to be modified.
 
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name="QMAKE_CFLAGS_WARN_OFF"></a>\c QMAKE_CFLAGS_WARN_OFF
@@ -713,7 +713,7 @@ to be modified.
 <dd>This variable is not empty if the warn_off <q
 href="#TEMPLATE">TEMPLATE</a> option is specified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -722,14 +722,14 @@ href="#TEMPLATE">TEMPLATE</a> option is specified.
 <dd>This variable is not empty if the warn_on <q
 href="#TEMPLATE">TEMPLATE</a> option is specified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
 <dt><a name="QMAKE_CLEAN"></a>\c QMAKE_CLEAN
 
 <dd>###
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -740,7 +740,7 @@ program. The value of this variable is typically handled by
 <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs
 to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name="QMAKE_CXXFLAGS_MT"></a>\c QMAKE_CXXFLAGS_MT
@@ -750,7 +750,7 @@ program. The value of this variable is typically handled by
 <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs
 to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -761,7 +761,7 @@ program. The value of this variable is typically handled by
 <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs
 to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -772,7 +772,7 @@ dll. The value of this variable is typically handled by
 <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs
 to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -784,7 +784,7 @@ dll. The value of this variable is typically handled by
 to be modified.
 
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name="QMAKE_CXXFLAGS_RELEASE"></a>\c QMAKE_CXXFLAGS_RELEASE
@@ -794,7 +794,7 @@ program. The value of this variable is typically handled by
 <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs
 to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -805,7 +805,7 @@ shared library.  The value of this variable is typically handled by
 <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs
 to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -816,7 +816,7 @@ threaded program.  The value of this variable is typically handled by
 <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs
 to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -826,7 +826,7 @@ to be modified.
  The value of this variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name="QMAKE_CXXFLAGS_WARN_ON"></a>\c QMAKE_CXXFLAGS_WARN_ON
@@ -835,7 +835,7 @@ to be modified.
  The value of this variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -843,7 +843,7 @@ to be modified.
 
 <dd>###
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -851,7 +851,7 @@ to be modified.
 
 <dd>###
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -859,34 +859,34 @@ to be modified.
 
 <dd>###
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name="QMAKE_HPUX_SHLIB"></a>\c QMAKE_HPUX_SHLIB
 
 <dd><em>unix only</em>
 
-<dd>If not empty. this variable tells <em>qmake</a> to generate the
+<dd>If not empty. this variable tells <em>qmake</em> to generate the
 <a href="#TARGET">TARGET</a> as an HPUX shared library.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
 <dt><a name=""></a>\c QMAKE_HPUX_SHLIBS
 
 <dd><em>unix only</em>
-<dd>If not empty. this variable tells <em>qmake</a> to generate the
+<dd>If not empty. this variable tells <em>qmake</em> to generate the
 <a href="#TARGET">TARGET</a> as an HPUX shared library.
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name="QMAKE_INCDIR"></a>\c QMAKE_INCDIR
 
 <dd>###
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -896,7 +896,7 @@ to be modified.
 value of this variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name="QMAKE_INCDIR_QT"></a>\c QMAKE_INCDIR_QT
@@ -906,7 +906,7 @@ paths. The value of this variable is typically handled by
 <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -917,7 +917,7 @@ paths when building threaded programs. The value of this variable is
 typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -929,7 +929,7 @@ This variable contains the location of X11 header files paths.  The
 value of this variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -940,7 +940,7 @@ programs.The value of this variable is typically handled by
 <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -951,7 +951,7 @@ programs.The value of this variable is typically handled by
 <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -962,7 +962,7 @@ programs.The value of this variable is typically handled by
 <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -973,7 +973,7 @@ value of this variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name=""></a>\c QMAKE_LFLAGS_PLUGIN
@@ -982,7 +982,7 @@ value of this variable is typically handled by <em>qmake</em> or
 of this variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -993,7 +993,7 @@ utilize the Qt library built as a dll. The value of this variable is
 typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1004,7 +1004,7 @@ programs. The value of this variable is typically handled by
 <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1012,7 +1012,7 @@ programs. The value of this variable is typically handled by
 
 <dd>###
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name=""></a>\c QMAKE_LFLAGS_SHLIB
@@ -1021,13 +1021,13 @@ programs. The value of this variable is typically handled by
 The value of this variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
 <dt><a name=""></a>\c QMAKE_LFLAGS_SONAME
 <dd>###
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1037,7 +1037,7 @@ The value of this variable is typically handled by <em>qmake</em> or
 The value of this variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1047,7 +1047,7 @@ The value of this variable is typically handled by <em>qmake</em> or
 The value of this variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name=""></a>\c QMAKE_LFLAGS_WINDOWS_ANY
@@ -1056,7 +1056,7 @@ The value of this variable is typically handled by <em>qmake</em> or
 The value of this variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1066,7 +1066,7 @@ The value of this variable is typically handled by <em>qmake</em> or
 The value of this variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1077,7 +1077,7 @@ directories.The value of this variable is typically handled by
 <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1090,7 +1090,7 @@ directory flags.The value of this variable is typically handled by
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name=""></a>\c QMAKE_LIBDIR_OPENGL
@@ -1100,7 +1100,7 @@ directory.The value of this variable is typically handled by
 <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1111,7 +1111,7 @@ directory.The value of this variable is typically handled by
 <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1122,7 +1122,7 @@ directory.The value of this variable is typically handled by
 <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1133,13 +1133,13 @@ variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name=""></a>\c QMAKE_LIBS_CONSOLE
 
 <dd>###
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1149,7 +1149,7 @@ variable is typically handled by <em>qmake</em> or
 variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1159,7 +1159,7 @@ variable is typically handled by <em>qmake</em> or
 variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1170,7 +1170,7 @@ variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name=""></a>\c QMAKE_LIBS_QT_DLL
@@ -1179,39 +1179,39 @@ variable is typically handled by <em>qmake</em> or
 variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
 <dt><a name=""></a>\c QMAKE_LIBS_QT_OPENGL
 <dd>###
-<p><p></dd></dt>
+<p><p>
 
 
 
 <dt><a name=""></a>\c QMAKE_LIBS_QT_THREAD
 
 <dd>###
-<p><p></dd></dt>
+<p><p>
 
 
 
 <dt><a name=""></a>\c QMAKE_LIBS_RT
 <dd>###
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name=""></a>\c QMAKE_LIBS_RTMT
 
 <dd>###
-<p><p></dd></dt>
+<p><p>
 
 
 
 <dt><a name=""></a>\c QMAKE_LIBS_THREAD
 <dd>###
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1221,7 +1221,7 @@ variable is typically handled by <em>qmake</em> or
 variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1232,7 +1232,7 @@ variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name=""></a>\c QMAKE_LIBS_X11SM
@@ -1241,13 +1241,13 @@ variable is typically handled by <em>qmake</em> or
 value of this variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
 <dt><a name=""></a>\c QMAKE_LIB_FLAG
 <dd>###
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1258,7 +1258,7 @@ shared library. The
 value of this variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1270,7 +1270,7 @@ value of this variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name=""></a>\c QMAKE_MAKEFILE
@@ -1279,7 +1279,7 @@ value of this variable is typically handled by <em>qmake</em> or
 value of this variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1287,7 +1287,7 @@ value of this variable is typically handled by <em>qmake</em> or
 
 <dd>###
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1298,51 +1298,51 @@ generate and include in the project. The value of this variable is
 typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
 <dt><a name=""></a>\c QMAKE_NOFORCE
 <dd>###
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name=""></a>\c QMAKE_QMAKE
 
 <dd>###
-<p><p></dd></dt>
+<p><p>
 
 
 
 <dt><a name=""></a>\c QMAKE_QT_DLL
 <dd>###
-<p><p></dd></dt>
+<p><p>
 
 
 
 <dt><a name=""></a>\c QMAKE_RUN_CC
 <dd>###
-<p><p></dd></dt>
+<p><p>
 
 
 
 <dt><a name=""></a>\c QMAKE_RUN_CC_IMP
 <dd>###
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name=""></a>\c QMAKE_RUN_CXX
 
 <dd>###
-<p><p></dd></dt>
+<p><p>
 
 
 
 <dt><a name=""></a>\c QMAKE_RUN_CXX_IMP
 <dd>###
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1352,54 +1352,54 @@ typically handled by <em>qmake</em> or
 this variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
 <dt><a name=""></a>\c RC_FILE
 <dd>###
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name=""></a>\c RES_FILE
 
 <dd>###
-<p><p></dd></dt>
+<p><p>
 
 <dt><a name=""></a>\c SUBLIBS
 
 <dd>###
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name=""></a>\c TARGET_EXT
 <dd>###
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name=""></a>\c TARGET_x
 
 <dd>###
-<p><p></dd></dt>
+<p><p>
 
 
 
 <dt><a name=""></a>\c TARGET_x.y.z
 <dd>###
-<p><p></dd></dt>
+<p><p>
 
 <dt><a name=""></a>\c UICIMPLS
 <dd>###
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name=""></a>\c UICOBJECTS
 
 <dd>###
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name=""></a>\c VER_MAJ
@@ -1407,7 +1407,7 @@ this variable is typically handled by <em>qmake</em> or
 <dd>This variable contains the major version number of the library, if the
 'lib' <a href="#TEMPLATE">TEMPLATE</a> is specified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1417,7 +1417,7 @@ this variable is typically handled by <em>qmake</em> or
 'lib' <a href="#TEMPLATE">TEMPLATE</a> is specified.
 
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name=""></a>\c VER_PAT
@@ -1425,7 +1425,7 @@ this variable is typically handled by <em>qmake</em> or
 <dd>This variable contains the patch version number of the library, if the
 'lib' <a href="#TEMPLATE">TEMPLATE</a> is specified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 
@@ -1435,7 +1435,7 @@ this variable is typically handled by <em>qmake</em> or
 this variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
-<p><p></dd></dt>
+<p><p>
 
 
 <dt><a name=""></a>\c YACCOBJECTS
@@ -1445,7 +1445,7 @@ this variable is typically handled by <em>qmake</em> or
  <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
 
 
-<p><p></dd></dt>
+<p><p>
 
 
 </dl>
@@ -1487,8 +1487,6 @@ OPTIONS = standard custom
 }
 \endcode
 
-</dd></dt>
-
 <dt><code>contains( variablename, value )</code>
 
 <dd>This function will succeed if the variable \a variablename
@@ -1506,8 +1504,6 @@ contains( drivers, network ) {
 }
 \endcode
 
-</dd></dt>
-
 <dt><code>count( variablename, number )</code>
 
 <dd>This function will succeed if the variable \a variablename
@@ -1524,14 +1520,12 @@ count( MYVAR, 3 ) {
 }
 \endcode
 
-</dd></dt>
+
 
 <dt><code>isEmpty( variablename )</code>
 
 <dd>This function will succeed if the variable \a variablename is
 empty (same as <code>count(variable, 0)</code>).
-
-</dd></dt>
 
 <dt><code>system( command )</code>
 
@@ -1546,14 +1540,10 @@ For example:
   system(ls /bin):HAS_BIN=FALSE
 \endcode
 
-</dd></dt>
-
 <dt><code>message( string )</code>
 
 <dd>This function will always succeed, and will display the given
 \a string to the user.
-
-</dd></dt>
 
 <dt><code>error( string )</code>
 
@@ -1567,9 +1557,8 @@ For example:
   release:debug:error(You can't have release and debug at the same time!)
 \endcode
 
-</dd></dt>
+</dl>
 
-<p><p><p>
 
 <h1><a name="Environmemt">Environment Variables and Configuration</a></h1>
 
