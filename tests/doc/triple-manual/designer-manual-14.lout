@@ -64,7 +64,7 @@ toolbar.
 @PP
 Click @Option{Back} if you want to return to the 'Choose available
 menus and toolbars' wizard page. Click @Option{Finish} to populate
-the main window and to exit the wizard. Click @Option{Cancel} on any
+the main window and to exit the wizard. Click @Cancel on any
 of the wizard pages to leave the wizard without making any changes.
 
 @End @Section
@@ -180,7 +180,7 @@ moving to another record, or their edit will be lost.
 @PP
 Click @Option{Finish} to create the datatable widget with all of the
 options you selected in the wizard. Click @Option{Back} if you want
-to return to the 'SQL' wizard page. Click @Option{Cancel} on any of
+to return to the 'SQL' wizard page. Click @Cancel on any of
 the wizard pages to leave the wizard without making any changes.
 
 @End @Section
@@ -346,7 +346,7 @@ can be changed later if desired.
 @PP
 Click @Option{Finish} to create the databrowser widget with all of
 the options you selected in the wizard. Click @Option{Back} if you
-want to return to the 'Layout' wizard page. Click @Option{Cancel}
+want to return to the 'Layout' wizard page. Click @Cancel
 on any of the wizard pages to leave the wizard without making
 any changes.
 
@@ -430,7 +430,7 @@ pages.
 @PP
 Click @Option{Finish} to create the databrowser widget with all of
 the options you selected in the wizard. Click @Option{Back} if you
-want to return to the 'Layout' wizard page. Click @Option{Cancel}
+want to return to the 'Layout' wizard page. Click @Cancel
 on any of the wizard pages to leave the wizard without making
 any changes.
 

@@ -8,6 +8,7 @@
     @Publisher { Trolltech AS }
     @AfterTitlePage { @Include { forematter.lout } }
 //
+# TODO Try to eliminate @Heading; use @SubSection and @SubSubSection instead
 # TODO Make sure all figures have @Captions
 # TODO Make sure every 'see xxx' in the text has a proper xref
 # TODO Make sure every class uses @Class and is indexed
@@ -18,11 +19,11 @@
 #@Include { assistant-4.lout }
 #@Include { assistant-5.lout }
 #@Include { assistant-6.lout }
-@Include { designer-manual-1.lout }
-@Include { designer-manual-2.lout }
-@Include { designer-manual-3.lout }
+#@Include { designer-manual-1.lout }
+#@Include { designer-manual-2.lout }
+#@Include { designer-manual-3.lout }
 @Include { designer-manual-4.lout }
-##@Include { designer-manual-5.lout }
+#@Include { designer-manual-5.lout }
 #@Include { designer-manual-6.lout }
 #@Include { designer-manual-7.lout }
 #@Include { designer-manual-8.lout }

@@ -50,8 +50,6 @@ inherit a category specification.
 An example of a content file with all available tags is shown
 below:
 
-@PP
-@File{demodoc.xml}
 
 @LD @Code @RawVerbatim @Begin
 <!DOCTYPE DCF>
@@ -76,7 +74,8 @@ below:
 </section>
 </DCF>
 @End @RawVerbatim
-
+@Filename{demodoc.xml}
+@LP
 Sections may be nested as deeply as necessary. All references
 should be related.
 

@@ -22,19 +22,17 @@ is very similar. But you will find new widgets and new and improved
 functionality which have been developed as a result of your feedback.
 
 @PP
-@QDR helps you build user interfaces with layout tools
-that move and scale your widgets (@I{controls} in Windows terminology)
-automatically at runtime. The resulting interfaces are both functional
-and attractive, comfortably suiting your users' operating environments
-and preferences. @QDR supports Qt's signals and slots
-mechanism for type-safe communication between widgets. @QDR includes a code editor which you can use to embed your
-own custom slots inside the generated code. Those who prefer
-to separate generated code from hand crafted code can continue
-to use the subclassing approach pioneered in the first version
-of @QDR.
+@QDR helps you build user interfaces with layout tools that move and
+scale your widgets (@I{controls} in Windows terminology) automatically
+at runtime. The resulting interfaces are both functional and
+attractive, comfortably suiting your users' operating environments and
+preferences. @QDR supports Qt's signals and slots mechanism for
+type-safe communication between widgets. @QDR includes a code editor
+which you can use to embed your own custom slots inside the generated
+code. Those who prefer to separate generated code from hand crafted
+code can continue to use the subclassing approach pioneered in the
+first version of @QDR.
 
-controls @RawIndex{ Controls }
-controls.widgets @SubIndex{ Widgets }
 @PP
 The manual introduces you to @QDR by leading you through
 the development of example applications. The first seven chapters
@@ -43,6 +41,8 @@ Every chapter, except the first three, assumes that you are familiar
 with the material in chapters two and three which cover the basics
 of building a Qt application with @QDR. Here's a brief
 overview of the chapters:
+controls @RawIndex{ Controls }
+controls.widgets @SubIndex{ Widgets }
 
 @BulletList
 @LI{
@@ -115,9 +115,9 @@ in detail.
     @Tag { what.you.should.know }
 @Begin
 @LP
-This manual assumes that you have some basic knowledge of C++
+This manual assumes that you have some basic knowledge of @Cpp
 and the Qt application development framework. If you need to
-learn more about C++ or Qt there are a vast number of C++ books
+learn more about @Cpp or Qt there are a vast number of @Cpp books
 available, and a small but increasing number of Qt books. Qt
 comes with extensive online documentation and many example applications
 that you can try.
@@ -153,10 +153,10 @@ in @QDR offers a number of advantages which are covered
 in The Designer Approach chapter.
 
 @PP
-A new library @File{libqui} has also been introduced which
-allows you to load dialogs dynamically at runtime from @QDR's @File{.ui} files. This allows you to provide
-your application's users with considerable interface customizability
-without them needing to use C++.
+A new library @File{libqui} has also been introduced which allows you
+to load dialogs dynamically at runtime from @QDR's @File{.ui} files.
+This allows you to provide your application's users with considerable
+interface customizability without them needing to use @Cpp.
 
 @PP
 Although the new version of @QDR introduces new approaches
@@ -165,8 +165,12 @@ in exactly the same way as you used the version supplied with
 Qt 2.x, if you just want a simple but powerful single dialog
 visual design tool.
 
-@LD @Heading { What's New in @QDR for Qt 3.1?{@PageMark{what.s.new.in.qt.designer.for.qtx}} }
-@NumberedList
+@End @Section
+@Section
+    @Title { What's New in @QDR for Qt 3.1? }
+    @Tag { what.s.new.in.qt.designer.for.qtx }
+@Begin
+@BulletList
 @LI{
 @QDR now features a start-up dialog for fast access
 to recently used files, etc. (It can be switched off if you don't
@@ -185,11 +189,11 @@ as toolbar buttons, and also shows the names of the widgets and
 takes up less space.
 }
 @LI{
-@Class{QWidgetStack}qwidgetstack @Index{ QWidgetStack } is now available as a container widget. The
-new example demonstrates its use.
+@Class{QWidgetStack}qwidgetstack @Index{ QWidgetStack } is now
+available as a container widget. The new example demonstrates its use.
 }
 @LI{
-@File{.ui.h} files may now contain arbitrary C++, including
+@File{.ui.h} files may now contain arbitrary @Cpp, including
 @Code{const} definitions, @Code{"#"include}s, plain
 functions, etc.
 }
@@ -200,8 +204,7 @@ shown in the property editor and can be changed collectively.
 @EndList
 @PP
 @Figure
-    @Caption { 
-@QDR }
+    @Caption { @QDR }
  0.35 @Scale @IncludeGraphic { "images/qd-preface.eps.gz" }
 @End @Section
 @Section
@@ -210,12 +213,11 @@ shown in the property editor and can be changed collectively.
 @Begin
 @LP
 If you have any comments, suggestions, criticisms or even praise
-regarding this manual, please let us know at @Code{doc"@"trolltech.com}.
-Bug reports on Qt or @QDR should be sent to
-@Code{qt-bugs"@"trolltech.com}.
-You might also like to join the @Code{qt-interest} mailing list,
-which @QDR's developers read and contribute to; see
-@Http{lists.trolltech.com} for further details.
+regarding this manual, please let us know at
+@Code{doc"@"trolltech.com}. Bug reports on Qt or @QDR should be sent
+to @Code{qt-bugs"@"trolltech.com}. You might also like to join the
+@Code{qt-interest} mailing list, which @QDR's developers read and
+contribute to; see @Http{lists.trolltech.com} for further details.
 
 @End @Section
 @EndSections

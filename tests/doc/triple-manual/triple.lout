@@ -126,6 +126,7 @@
   # @FigureCaptionPos	{ Below 		} # Above or Below
   # @TableCaptionPos	{ Below			} # Above or Below
   # @FigureCaptionFont  { -2p                   } # figure caption font
+  @FigureCaptionFont	{ Slope -2p             } # figure caption font
   # @FigureCaptionBreak { adjust hyphen 1.2fx   } # figure caption break
   # @FigureCaptionFormat{ {@B { word @NumSep number. &2s }} @Insert caption }
   # @TableCaptionFont   { -2p                   } # table caption font
@@ -357,12 +358,15 @@
   # @ChapterHeadingBreak	{ ragged 1.2fx nohyphen	} # chapter head break
   # @ChapterHeadingFormat	{ number @DotSep title	} # format of chap. head
   # @SectionHeadingFont		{ Bold			} # section head font
+  @SectionHeadingFont		{ Bold +5p		} # section head font
   # @SectionHeadingBreak	{ ragged 1.2fx nohyphen	} # section head break
   # @SectionHeadingFormat	{ number @DotSep title	} # section head fmt
   # @SubSectionHeadingFont	{ Bold			} # subs. head font
+  @SubSectionHeadingFont	{ Bold +3p		} # subs. head font
   # @SubSectionHeadingBreak	{ ragged 1.2fx nohyphen	} # subs. head break
   # @SubSectionHeadingFormat	{ number @DotSep title	} # subs. head fmt
   # @SubSubSectionHeadingFont	{ Slope			} # sub-subs. head font
+  @SubSubSectionHeadingFont	{ Bold +1p		} # sub-subs. head font
   # @SubSubSectionHeadingBreak	{ ragged 1.2fx nohyphen	} # sub-subs. head break
   # @SubSubSectionHeadingFormat	{ number @DotSep title	} # sub-subs. head fmt
   # @AppendixHeadingFont	{ Bold 2.00f		} # appendix head font

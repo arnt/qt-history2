@@ -140,7 +140,7 @@ TARGET   = vcr
 TEMPLATE        =app
 CONFIG  += qt warn_on release
 DBFILE  = vcr.db
-LANGUAGE        = C++
+LANGUAGE        = @Cpp
 @End @RawVerbatim
 @PP
 The @File{"qt/tools/designer/examples/vcr/main.cpp"}
@@ -223,7 +223,7 @@ in the same way.
 
 @PP
 Since our example hasn't any slots or properties we've finished
-and can click @Option{Close}. A new icon will appear in @QDR's
+and can click @Close. A new icon will appear in @QDR's
 toolbars which represents the new widget. If you create a new
 form you can add Vcr widgets and connect the Vcr's signals to
 your slots.
@@ -542,7 +542,7 @@ TARGET          = filechooser
 TEMPLATE        =app
 CONFIG  += qt warn_on release
 DBFILE  = filechooser.db
-LANGUAGE        = C++
+LANGUAGE        = @Cpp
 @End @RawVerbatim
 @PP
 We can create the makefile using @File{qmake}: @Code{qmake -o Makefile filechooser.pro}, then we can make and run the harness
@@ -762,9 +762,9 @@ The @Func{isContainer()} function.
 qstring @Index{ QString }
 @PP
 Copy this function changing the class name to suit your widget
-plugin implementation. It should return @Code{TRUE} if
+plugin implementation. It should return @Code{@TRUE} if
 your custom widget can contain other widgets, e.g. like @Class{QFrame}qframe @Index{ QFrame },
-or @Code{FALSE} if it must not contain other widgets,
+or @Code{@FALSE} if it must not contain other widgets,
 e.g. like @Class{QPushButton}qpushbutton @Index{ QPushButton }.
 
 
@@ -811,7 +811,7 @@ TEMPLATE     = lib
 CONFIG      += qt warn_on release plugin
 INCLUDEPATH += $$QT_SOURCE_TREE/tools/designer/interfaces
 DBFILE       = plugin.db
-LANGUAGE     = C++
+LANGUAGE     = @Cpp
 @End @RawVerbatim
 qt.source.tree @Index{ QT_SOURCE_TREE }
 @QD{@File{"qt/tools/designer/examples/filechooser/plugin/plugin.pro"}}

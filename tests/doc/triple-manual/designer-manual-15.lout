@@ -9,7 +9,7 @@
 @Begin
 @PP
 By default @QDR starts up with three windows on the
-left hand side. They are the Project Overview Window [p.~@PageOf{project.overview.window}], the Object
+left hand side. They are the @Win{Project Overview} Window [p.~@PageOf{project.overview.window}], the Object
 Explorer Window, and the Property Editor"/"Signal Handlers Window [p.~@PageOf{property.editor.signal.handlers.window}].
 This chapter explains each window in detail.
 
@@ -42,7 +42,7 @@ options, for example, 'Open form' or 'Remove form from project'.
     @Tag { object.explorer.window }
 @Begin
 @PP
-The Object Explorer window lists the current form's widgets and
+The @Win{Object Explorer} window lists the current form's widgets and
 slots. The window contains two tabs, the Objects tab and the
 Members tab.
 
@@ -82,7 +82,7 @@ invoke a menu with additional options for the slot. To add new
 slots, choose 'New' from the menu, which invokes the @Win{Edit
 Slots} dialog. To change the properties of the selected slot,
 choose 'Properties' which invokes the @Win{Edit Slots} dialog.
-To open the C++ editor and jump to the implementation of the
+To open the @Cpp editor and jump to the implementation of the
 selected slot, choose 'Goto Implementation'. To remove the selected
 slot, choose 'Delete'. Signals can be added or deleted in the
 same way as slots.

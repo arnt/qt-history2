@@ -160,13 +160,13 @@ projects @RawIndex{ Projects }
 projects.database.connections @SubIndex{ Database Connections }@PP
 @QDR can remember database connection settings in
 @File{"qmake"} project files. Create a new project, e.g.
-click @Option{File"|"New}, then click the 'C++ Project' icon to invoke
+click @Option{File"|"New}, then click the '@Cpp Project' icon to invoke
 the @Win{Project Settings} dialog. Click the ellipsis button to
 invoke the @Win{Save As} dialog; navigate to the project's directory
 (creating it if necessary). Make sure you're in the project's
 directory, then enter a project name of 'book.pro'. Click the
 @Option{Save} button to return to the @Win{Project Settings} dialog,
-then click @Option{OK}. Next time you start @QDR instead
+then click @OK. Next time you start @QDR instead
 of opening individual @File{".ui"} files open the @File{".pro"}
 project file instead and @QDR will automatically reload
 the project's connection settings. To activate the connection
@@ -219,8 +219,8 @@ adddatabase @Index{ addDatabase() }@PP
 We call @Func{addDatabase()} passing it the name of the
 driver we wish to use. We then set the connection information
 by calling the @Code{set}... functions. Finally we attempt
-to open the connection. If we succeed we return TRUE, otherwise
-we output some error information and return FALSE. From @File{"qt/tools/designer/examples/book/book1/main.cpp"}
+to open the connection. If we succeed we return @TRUE, otherwise
+we output some error information and return @FALSE. From @File{"qt/tools/designer/examples/book/book1/main.cpp"}
 
 @LD @Code @RawVerbatim @Begin
     int main( int argc, char *argv[] )
@@ -294,12 +294,12 @@ Create or copy the
 @File{"qt/tools/designer/examples/book/book1/main.cpp"} file shown
 earlier. The project file for this first example is
 @File{"qt/tools/designer/examples/book/book1/book.pro"}. Start a new
-project by clicking @Option{File"|"New}, then click the 'C++ Project'
+project by clicking @Option{File"|"New}, then click the '@Cpp Project'
 icon to invoke the @Win{Project Settings} dialog. Click the ellipsis
 button to invoke the @Win{Save As} dialog; navigate to the project's
 directory (creating it if necessary). Make sure you're in the
 project's directory, then enter a project name of 'book.pro'. Click
-the @Option{Save} button to return to the @Win{Project Settings} dialog, then click @Option{OK}. Now click @Option{Project"|"Database Connections}. Fill in the connection information appropriate to your database then press @Option{Connect}. The connection name should now appear in the left hand list box. (If this doesn't happen you'll need to contact your database systems administrator for help.) Close the dialog.
+the @Option{Save} button to return to the @Win{Project Settings} dialog, then click @OK. Now click @Option{Project"|"Database Connections}. Fill in the connection information appropriate to your database then press @Option{Connect}. The connection name should now appear in the left hand list box. (If this doesn't happen you'll need to contact your database systems administrator for help.) Close the dialog.
 @PP
 We will now create a new form with a @Class{QDataTable}qdatatable @Index{ QDataTable } that's connected
 to one of our database tables.
@@ -307,7 +307,7 @@ to one of our database tables.
 @PP
 Click @Option{File"|"New}. The @Win{New File} dialog presents us with
 a number of form templates to choose from. Choose the 'Dialog'
-form and click @Option{OK}. Now click @Option{File"|"Save}. You will be
+form and click @OK. Now click @Option{File"|"Save}. You will be
 prompted for a filename, call it @File{"book.ui"}.
 
 @LD @I { Setting up a @Class{QDataTable}{@PageMark{setting.up.a.qdatatable}} }
@@ -462,14 +462,14 @@ primeinsert @Index{ primeInsert() } @Func{primeInsert()} signal and populate the
 @LI{
 Click @Option{Edit"|"Slots} to invoke the @Win{Edit Slots} dialog. Click
 @Option{New Slot}, then enter the slot name @Func{primeInsertAuthor(QSqlRecord*)}
-into the Slot Properties' Slot line edit box. Click @Option{OK}.
+into the Slot Properties' Slot line edit box. Click @OK.
 }
 @LI{
 Click the @Option{Connect Signals"/"Slots} toolbar button, then click
 the AuthorDataTable, drag to the form and release the mouse.
 The @Win{Edit Connections} dialog will now appear. Click the
 
-primeinsert @Index{ primeInsert() } @Func{primeInsert()} signal and then the @Func{primeInsertAuthor()} slot to make the connection. Now click @Option{OK}.}
+primeinsert @Index{ primeInsert() } @Func{primeInsert()} signal and then the @Func{primeInsertAuthor()} slot to make the connection. Now click @OK.}
 @LI{
 Click the Source tab of the Object Hierarchy window (click @B{Window"|"Object
 Hierarchy} to make the window visible if necessary). Click the
@@ -560,27 +560,27 @@ Arrow}, @Option{Page Up}, @Option{Page Down}, @Option{Home} and @Option{End}.
 and clicking Insert or by pressing the @Option{Ins} (Insert) key.
 The user moves between fields using @Option{Tab} and @Option{Shift+Tab}.
 The @Code{INSERT} will take place if the user presses
-@Option{Enter} or @Option{Tab}s off the last field. If autoEdit is TRUE
+@Option{Enter} or @Option{Tab}s off the last field. If autoEdit is @TRUE
 the insert will take place if the user navigates to another record.
 @Code{INSERT} is cancelled by pressing @Option{Esc} (Escape).
-If autoEdit is FALSE navigating to another record also cancels
-the @Code{INSERT}. Setting confirmInsert to TRUE will
+If autoEdit is @FALSE navigating to another record also cancels
+the @Code{INSERT}. Setting confirmInsert to @TRUE will
 require the user to confirm each @Code{INSERT}.
 }
 @LI{
 @Code{UPDATE} is initiated by right-clicking the record
 and clicking Update or by pressing @Option{F2}. The update will take
 place if the user presses Enter or Tabs off the last field. If
-autoEdit is TRUE the update will take place if the user navigates
+autoEdit is @TRUE the update will take place if the user navigates
 to another record. @Code{UPDATE} is cancelled by pressing
-@Option{Esc}. If autoEdit is FALSE navigating to another record also
-cancels the @Code{UPDATE}. Setting confirmUpdate to TRUE
+@Option{Esc}. If autoEdit is @FALSE navigating to another record also
+cancels the @Code{UPDATE}. Setting confirmUpdate to @TRUE
 will require the user to confirm each @Code{UPDATE}.
 }
 @LI{
 @Code{DELETE} is achieved by right-clicking the record
 and clicking Delete or by pressing the @Option{Del} (Delete) key.
-Setting confirmDelete to TRUE will require the user to confirm
+Setting confirmDelete to @TRUE will require the user to confirm
 each @Code{DELETE}.
 }
 @EndList
@@ -709,7 +709,7 @@ Repeat the steps listed above for each column you wish to add.
 Once all the fields have been added you can change their ordering
 by using the blue up and down arrow buttons. At any point you
 can press @Option{Apply} to see how the table will look. Finally click
-the @Option{OK} button to save the properties you have set. You can
+the @OK button to save the properties you have set. You can
 always return to the table editor to change these settings later.
 
 }
@@ -725,13 +725,13 @@ currentchanged @Index{ currentChanged() } @Func{currentChanged()} signal and cha
 @LI{
 Click @Option{Edit"|"Slots}. In the @Win{Edit Slots} dialog click
 @Option{New Slot} and enter a slot name of @Func{newCurrentAuthor(QSqlRecord*)}.
-Click @Option{OK}.
+Click @OK.
 }
 @LI{
 Click @Option{Edit"|"Connections} to invoke the @Win{View and Edit Connections}
 dialog. Create a new connection, connecting the AuthorDataTable's
 currentChanged() signal to the form's newCurrentAuthor() slot.
-Click @Option{OK}.
+Click @OK.
 }
 @LI{
 Click the Source tab of the Object Hierarchy window (click @Option{Window"|"Object Hierarchy} to make the window visible if necessary). Click the
@@ -793,7 +793,7 @@ Click the form and click the @Option{Lay Out Vertically} toolbar button.
 We will provide the Quit button with functionality now and work
 on the rest shortly. Click @Option{Edit"|"Connections}, then connect
 the the Quit button's clicked() signal to the form's accept()
-slot. Click @Option{OK}.
+slot. Click @OK.
 }
 @EndList
 @End @Section
@@ -819,7 +819,7 @@ wizards @RawIndex{ Wizards }
 wizards.data.browser @SubIndex{ Data Browser }@PP
 We will now create a new form to allow users to edit book records.
 Click the @Option{New} toolbar button, click the Dialog template from
-the @Win{New File} dialog and click @Option{OK}. Change the name of
+the @Win{New File} dialog and click @OK. Change the name of
 the form to EditBookForm and its caption to 'Edit Books'. Click
 the @Option{Save} toolbar button and call the file @File{"editbook.ui"}.
 Now that we have the form we can add a @Class{QDataBrowser}qdatabrowser @Index{ QDataBrowser } to show
@@ -914,7 +914,7 @@ sort and filter code).
 @PP
 For finer control over the form, we will be creating our own
 database cursor. Therefore, set the BookDataBrowser's frameworkCode
-property to FALSE in the Properties window to prevent @QDR
+property to @FALSE in the Properties window to prevent @QDR
 from generating redundant code for the cursor.
 }
 @EndList
@@ -966,26 +966,26 @@ If the user presses the Update button the @Code{INSERT}
 will take place and the user will be taken to the record they
 have just inserted. If the user presses the Insert button (i.e.
 a second time) the @Code{INSERT} will take place and a
-new insertion will be initiated. If autoEdit is TRUE the @Code{INSERT}
+new insertion will be initiated. If autoEdit is @TRUE the @Code{INSERT}
 will take place if the user navigates to another record. @Code{INSERT}
 is cancelled by pressing the @Option{Esc} key or by pressing the @Option{Del}
-(Delete) key. If autoEdit is FALSE then navigating to another
+(Delete) key. If autoEdit is @FALSE then navigating to another
 record also cancels the @Code{INSERT}. Setting confirmInsert
-to TRUE will require the user to confirm each @Code{INSERT}.
+to @TRUE will require the user to confirm each @Code{INSERT}.
 }
 @LI{
 @Code{UPDATE} is automatically initiated whenever the
 user navigates to a record. An update will take place if the
-user presses the Update button. If autoEdit is TRUE the update
+user presses the Update button. If autoEdit is @TRUE the update
 will take place if the user navigates to another record. @Code{UPDATE}
 is cancelled by pressing the @Option{Esc} key or by pressing the @Option{Del}
-button. If autoEdit is FALSE then navigating to another record
+button. If autoEdit is @FALSE then navigating to another record
 also cancels the @Code{UPDATE}. Setting confirmUpdate
-to TRUE will require the user to confirm each @Code{UPDATE}.
+to @TRUE will require the user to confirm each @Code{UPDATE}.
 }
 @LI{
 @Code{DELETE} is achieved by pressing the @Option{Del} key.
-Setting confirmDelete to TRUE will require the user to confirm
+Setting confirmDelete to @TRUE will require the user to confirm
 each @Code{DELETE}.
 }
 @EndList
@@ -1006,7 +1006,7 @@ e.g. authorid.
 We need to make a new slot to connect the Edit Books' button's
 
 clicked @Index{ clicked() } @Func{clicked()} signal to. Click on the
-Book form to make it @QDR's active form. Invoke the @Win{Edit Slots} dialog and create a new slot called @Func{editClicked()}. Now click @Option{Edit"|"Connections}. Connect the Edit Books button's clicked() signal to the form's editClicked() slot. Clicked() slot. Click @Option{OK} to leave the dialog.
+Book form to make it @QDR's active form. Invoke the @Win{Edit Slots} dialog and create a new slot called @Func{editClicked()}. Now click @Option{Edit"|"Connections}. Connect the Edit Books button's clicked() signal to the form's editClicked() slot. Clicked() slot. Click @OK to leave the dialog.
 
 object.hierarchy @Index{ Object Hierarchy }}
 @LI{
@@ -1076,7 +1076,7 @@ Click on the Edit Books form, then create a new Slot called
 @PP
 Click @Option{Edit"|"Slots}, then click the @Option{New Slot} button and
 type the new slot name in the Slot Properties Slot edit box.
-Click @Option{OK}.
+Click @OK.
 }
 @LI{
 Connect the BookDataBrowser's
@@ -1087,7 +1087,7 @@ Click the @Option{Connect Signals"/"Slots} toolbar button, then click
 the BookDataBrowser and drag to the form; release the mouse on
 the form. Now click the
 
-primeinsert @Index{ primeInsert() } @Func{primeInsert()} signal and the primeInsertBook slot. Click @Option{OK}.}
+primeinsert @Index{ primeInsert() } @Func{primeInsert()} signal and the primeInsertBook slot. Click @OK.}
 @LI{
 In the Object Hierarchy window click Source and then click the
 @Func{primeInsertBook()} slot. We need to change it to the
@@ -1166,7 +1166,7 @@ it in slots and connecting signals to our slots.
 Create two new slots called @Func{beforeUpdateBook(QSqlRecord *buffer)} and @Func{primeUpdateBook(QSqlRecord *buffer)}.
 (Click @Option{Edit"|"Slots}, then in the @Win{Edit Slots} dialog click
 New Slot and enter the first new slot. Click New Slot again and
-enter the second slot then click @Option{OK}.)
+enter the second slot then click @OK.)
 }
 @LI{
 When the user navigates through the dialog, each time they move
@@ -1320,7 +1320,7 @@ them so that we can use a static data structure.
 @End @RawVerbatim
 qstring @Index{ QString }
 @PP
-If the populate flag is TRUE, we store the author's name and
+If the populate flag is @TRUE, we store the author's name and
 id in the @Class{QMap}qmap @Index{ QMap }, otherwise we look up the given author name
 and set id appropriately.
 }

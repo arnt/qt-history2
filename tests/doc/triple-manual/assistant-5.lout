@@ -10,22 +10,22 @@ for and press @Option{Enter} or click @Option{Search}. The search is always
 case insensitive, so Deep, dEEp and DEEP are all treated as the
 same. The following search patterns can be used:
 
-@VeryWideTaggedList
+@TaggedList labelwidth { 6f }
 @TagItem{ @Code{deep} } { lists all the documents that contain the
-word 'deep'
+word `deep'
 }
 @TagItem{ @Code{deep*} } { lists all the documents that contain a
 word beginning with 'deep'
 }
 @TagItem{ @Code{deep copy} } { lists all documents that contain both
-'deep' @I{and} 'copy'
+`deep' @I{and} `copy'
 }
-@TagItem{ @Code{"deep copy"} } { list all documents that contain
-the phrase 'deep copy'
+@TagItem{ @Code @Verbatim{"deep copy"} } { list all documents that contain
+the phrase `deep copy'
 }
 @EndList
 
-The wildcard (*) character cannot be used within quotes.
+The wildcard (@B{*}) character cannot be used within quotes.
 
 @PP
 The list of documents is ordered according to the number of occurrences

@@ -42,7 +42,12 @@ will automatically cause the class name to be used as basic context
 information. In some cases the programmer may be required to
 add additional information to help the translator.
 
-@LD @Heading { Creating Translation Files{@PageMark{creating.translation.files}} }
+@BeginSubSections
+@SubSection
+    @Title { Creating Translation Files }
+    @Tag{creating.translation.files}
+@Begin
+@LP
 Translation files consist of all the user-visible text and Ctrl
 key accelerators in an application and translations of that text.
 Translation files are created as follows:
@@ -87,10 +92,13 @@ qmake.project.files @SubIndex{ Project Files }
     TRANSLATIONS    = tt2_fr.ts \
                       tt2_nl.ts
 @End @RawVerbatim
-@PP
 See the @TitlePageRef{lupdate} and @TitlePageRef{lrelease} sections.
 
-@LD @Heading { Loading Translations{@PageMark{loading.translations}} }
+@End @SubSection
+@SubSection
+    @Title { Loading Translations }
+    @Tag{loading.translations}
+@Begin
 @LD @Code @RawVerbatim @Begin
     int main( int argc, char **argv )
     {
@@ -107,7 +115,8 @@ load.qtranslator @SubIndex{ QTranslator }
 qapplication @RawIndex{ QApplication }
 qapplication.installtranslator @SubIndex{ installTranslator() }
 installtranslator @RawIndex{ installTranslator() }
-installtranslator.qapplication @SubIndex{ QApplication }@LD @Code @RawVerbatim @Begin
+installtranslator.qapplication @SubIndex{ QApplication }
+@LD @Code @RawVerbatim @Begin
     int main( int argc, char **argv )
     {
         QApplication app( argc, argv );
@@ -147,7 +156,12 @@ qtextcodec @Index{ QTextCodec }
 If there is no translation file for the current locale the application
 will fall back to using the original source text.
 
-@LD @Heading { Making the Application Translate User-Visible Strings{@PageMark{making.the.application.translate.user.visible.strings}} }
+@End @SubSection
+@SubSection
+    @Title { Making the Application Translate User-Visible Strings }
+    @Tag{making.the.application.translate.user.visible.strings}
+@Begin
+@LP
 User-visible strings are marked as translation targets by wrapping
 them in a @Func{tr()} call, for example:
 tr @Index{ tr() }
@@ -179,14 +193,19 @@ qpushbutton @Index{ QPushButton }
     QObject::tr("&Quit")
 @End @RawVerbatim
 qobject @Index{ QObject }
-@LD @Heading { Distinguishing Identical Strings That Require Different Translations{@PageMark{distinguishing.identical.strings.that.require.different.translations}} }
+@End @SubSection
+@SubSection
+    @Title { Distinguishing Identical Strings That Require Different Translations }
+    @Tag{distinguishing.identical.strings.that.require.different.translations}
+@Begin
+@LP
 The @File{lupdate} program automatically provides a @I{context} for
 every source text. This context is the class name of the class
 that contains the @Func{tr()} call. This is sufficient
 in the vast majority of cases. Sometimes however, the translator
 will need further information to uniquely identify a source text;
 for example, a dialog that contained two separate frames, each
-of which contained an "\""Enabled"\"" option would need each identified
+of which contained an `Enabled' option would need each identified
 because in some languages the translation would differ between
 the two. This is easily achieved using the two argument form
 of the @Func{tr()} call, e.g.
@@ -213,7 +232,12 @@ is used for Ctrl key accelerators. The second argument is the
 only clue the translator has as to the function performed by
 the accelerator.
 
-@LD @Heading { Helping The Translator With Navigation Information{@PageMark{helping.the.translator.with.navigation.information}} }
+@End @SubSection
+@SubSection
+    @Title { Helping The Translator With Navigation Information }
+    @Tag{helping.the.translator.with.navigation.information}
+@Begin
+@LP
 In large complex applications it may be difficult for the translator
 to see where a particular source text comes from. This problem
 can be solved by adding a comment using the keyword @Code{TRANSLATOR}
@@ -233,15 +257,20 @@ comments.for.translators @SubIndex{ for Translators }
 @End @RawVerbatim
 These comments are particularly useful for widget classes.
 
-@LD @Heading { Coping With C++ Namespaces{@PageMark{coping.with.c.namespaces}} }
-C++ namespaces and the @Code{using namespace} statement
+@End @SubSection
+@SubSection
+    @Title { Coping With @Cpp Namespaces }
+    @Tag{coping.with.c.namespaces}
+@Begin
+@LP
+@Cpp namespaces and the @Code{using namespace} statement
 can confuse @File{lupdate}. It will interpret @Func{MyClass::tr()}
 as meaning just that, not as @Func{MyNamespace::MyClass::tr()},
 even if @Code{MyClass} is defined in the @Code{MyNamespace}
 namespace. Runtime translation of these strings will fail because
 of that.
 namespaces @Index{ Namespaces }
-c @RawIndex{ C++ }
+c @RawIndex{ @Cpp }
 c.namespaces @SubIndex{ Namespaces }
 lupdate @Index{ lupdate }
 translator @RawIndex{ TRANSLATOR }
@@ -257,9 +286,17 @@ comment at the beginning of the source files that use @Func{MyClass::tr()}:
 @End @RawVerbatim
 After the comment, all references to @Func{MyClass::tr()}
 will be understood as meaning @Func{MyNamespace::MyClass::tr()}.
-@DP
-@LD @Heading { Translating Text that is Outside of a QObject subclass{@PageMark{translating.text.that.is.outside.of.a.qobject.subclass}} }
-@LD @I { Using QApplication::translate(){@PageMark{using.qapplication.translate}} }
+@End @SubSection
+@SubSection
+    @Title { Translating Text that is Outside of a QObject subclass }
+    @Tag{translating.text.that.is.outside.of.a.qobject.subclass}
+@Begin
+@BeginSubSubSections
+@SubSubSection
+    @Title { Using QApplication::translate() }
+    @Tag{using.qapplication.translate}
+@Begin
+@LP
 If the quoted text is not in a member function of a QObject subclass,
 use either the tr() function of an appropriate class, or the
 QApplication::translate() function directly:
@@ -276,7 +313,12 @@ QApplication::translate() function directly:
                                     logwid );
     }
 @End @RawVerbatim
-@LD @I { Using QT_TR_NOOP() and QT_TRANSLATE_NOOP(){@PageMark{using.qt.tr.noop.and.qt.translate.noop}} }
+@End @SubSubSection
+@SubSubSection
+    @Title { Using QT_TR_NOOP() and QT_TRANSLATE_NOOP() }
+    @Tag{using.qt.tr.noop.and.qt.translate.noop}
+@Begin
+@LP
 If you need to have translatable text completely outside a function,
 there are two macros to help: QT_TR_NOOP() and QT_TRANSLATE_NOOP().
 These macros merely mark the text for extraction by @File{lupdate}.
@@ -317,6 +359,10 @@ qt.tr.noop @Index{ QT_TR_NOOP }
 @End @RawVerbatim
 qt.translate.noop @Index{ QT_TRANSLATE_NOOP }
 qstring @Index{ QString }
+@End @SubSubSection
+@EndSubSubSections
+@End @SubSection
+@EndSubSections
 @End @Section
 @Section
     @Title { Tutorials }
@@ -334,16 +380,13 @@ translator. The third tutorial explains how identical source texts can
 be distinguished even when they occur in the same context. This
 tutorial also discusses how the translation tools help minimize the
 translator's work when an application is upgraded.
-@NP
 @BeginSubSections
 @SubSection
     @Title { Tutorial 1: Loading and Using Translations }
     @Tag {tutorial.loading.and.using.translations}
 @Begin
-
 @Figure
-    @Caption { 
-@I{Tutorial 1 Screenshot, English version} }
+    @Caption { Tutorial 1 Screenshot, English version }
  0.5 @Scale @IncludeGraphic { "images/tt1_en.eps.gz" }
 @LD @Code @RawVerbatim @Begin
 TEMPLATE        = app
@@ -351,7 +394,7 @@ CONFIG          += qt warn_on
 SOURCES         = main.cpp
 TRANSLATIONS    = tt1_la.ts
 @End @RawVerbatim
-@QD{@File{{tt1.pro}}}
+@Filename{tt1.pro}
 @LD @Code @RawVerbatim @Begin
 /****************************************************************
 **
@@ -379,16 +422,20 @@ int main( int argc, char **argv )
     return app.exec();
 }
 @End @RawVerbatim
-@QD{ @File{{main.cpp}}}
+@Filename{main.cpp}
+@LP
+This example is a reworking of the `hello-world' example from
+Tutorial "#"1, with a Latin translation. The @I{Tutorial 1 Screenshot,
+English version}, above, shows the English version.
 qapplication @Index{ QApplication }
 qtranslator @Index{ QTranslator }
 qpushbutton @Index{ QPushButton }
-@LP
-This example is a reworking of the "\""hello-world"\"" example from
-Tutorial "#"1, with a Latin translation. The @I{Tutorial 1 Screenshot,
-English version}, above, shows the English version.
 
-@LD @I { Line by Line Walk-through{@PageMark{line.by.line.walk.through}} }
+@BeginSubSubSections
+@SubSubSection
+    @Title { Line by Line Walk-through }
+    @Tag{line.by.line.walk.through}
+@Begin
 @LD @Code @RawVerbatim @Begin
     #include <qtranslator.h>
 @End @RawVerbatim
@@ -413,18 +460,20 @@ tt.la.qm @Index{ tt1_la.qm }
 qapplication @RawIndex{ QApplication }
 qapplication.installtranslator @SubIndex{ installTranslator() }
 installtranslator @RawIndex{ installTranslator() }
-installtranslator.qapplication @SubIndex{ QApplication }@LD @Code @RawVerbatim @Begin
+installtranslator.qapplication @SubIndex{ QApplication }
+@LD @Code @RawVerbatim @Begin
         app.installTranslator( &translator );
 @End @RawVerbatim
 Adds the translations from @File{tt1_la.qm} to the pool
 of translations used by the program.
 
-hello.world @Index{ Hello World }@LD @Code @RawVerbatim @Begin
+hello.world @Index{ Hello World }
+@LD @Code @RawVerbatim @Begin
         QPushButton hello( QPushButton::tr("Hello world!"), 0 );
 @End @RawVerbatim
-Creates a push button that displays "\""Hello world!"\"". If 
+Creates a push button that displays `Hello world!'. If 
 @File{tt1_la.qm} was found and contains a translation for
-"\""Hello world!"\"", the translation appears; if not, the source text
+`Hello world!', the translation appears; if not, the source text
 appears.
 qpushbutton @Index{ QPushButton }
 tr @Index{ tr() }
@@ -434,18 +483,27 @@ qobject.tr @SubIndex{ tr() }
 All classes that inherit @Class{QObject}qobject @Index{ QObject } have a
 @Func{tr()} function. Inside a member function of a
 @Class{QObject}qobject @Index{ QObject } class, we simply write 
-@Code{tr("\""Hello world!"\"")} instead of 
-@Code{QPushButton::tr("\""Hello world!"\"")} or
-@Code{QObject::tr("\""Hello world!"\"")}.
-@LD @I { Running the Application in English{@PageMark{running.the.application.in.english}} }
+@Code @Verbatim{tr("Hello world!")} instead of 
+@Code @Verbatim{QPushButton::tr("Hello world!")} or
+@Code @Verbatim{QObject::tr("Hello world!")}.
+@End @SubSubSection
+@SubSubSection
+    @Title { Running the Application in English }
+    @Tag{running.the.application.in.english}
+@Begin
+@LP
 Since we haven't made the translation file @File{tt1_la.qm},
 the source text is shown when we run the application:
 english.language @Index{ English Language }
 @Figure
-    @Caption { 
-@I{Tutorial 1 Screenshot, English version} }
+    @Caption { Tutorial 1 Screenshot, English version }
  0.5 @Scale @IncludeGraphic { "images/tt1_en.eps.gz" }
-@LD @I { Creating a Latin Message File{@PageMark{creating.a.latin.message.file}} }
+@End @SubSubSection
+@SubSubSection
+    @Title { Creating a Latin Message File }
+    @Tag{creating.a.latin.message.file}
+@Begin
+@LP
 The first step is to create a project file, @File{tt1.pro},
 that lists all the source files for the project. The project
 file can be a qmake project file, or even an ordinary makefile.
@@ -455,7 +513,8 @@ latin @Index{ Latin }
 sources @RawIndex{ SOURCES }
 sources.in.project.files @SubIndex{ in Project Files }
 translations @RawIndex{ TRANSLATIONS }
-translations.in.project.files @SubIndex{ in Project Files }@LD @Code @RawVerbatim @Begin
+translations.in.project.files @SubIndex{ in Project Files }
+@LD @Code @RawVerbatim @Begin
     SOURCES         = main.cpp
     TRANSLATIONS    = tt1_la.ts
 @End @RawVerbatim
@@ -479,7 +538,7 @@ emailed directly and is easy to put under version control. If
 you edit this file manually, be aware that the default encoding
 for XML is UTF-8, not Latin-1 (ISO 8859-1). One way to type in
 a Latin-1 character such as '{@Char oslash}' (Norwegian o with
-slash) is to use an XML entity: "\"""&""#"xf8;"\"". This will work
+slash) is to use an XML entity: `"&""#"xf8;'. This will work
 for any Unicode character.
 xml @Index{ XML }
 @PP
@@ -524,7 +583,12 @@ containing this:
 You don't need to understand the file format since it is read
 and updated using tools (@File{lupdate}, @QLT, @File{lrelease}).
 qpushbutton @Index{ QPushButton }
-@LD @I { Translating to Latin with Qt Linguist{@PageMark{translating.to.latin.with.qt.linguist}} }
+@End @SubSubSection
+@SubSubSection
+    @Title { Translating to Latin with @QLT }
+    @Tag{translating.to.latin.with.qt.linguist}
+@Begin
+@LP
 We will use @QLT to provide the translation, although
 you can use any XML or plain text editor to enter a translation
 into a @File{.ts} file.
@@ -534,9 +598,9 @@ To start @QLT, type
 @LD @Code @RawVerbatim @Begin
     linguist tt1_la.ts
 @End @RawVerbatim
-You should now see the text "\""QPushButton"\"" in the top left pane.
-Double-click it, then click on "\""Hello world!"\"" and enter "\""Orbis,
-te saluto!"\"" in the @Win{Translation} pane (the middle right of
+You should now see the text `QPushButton' in the top left pane.
+Double-click it, then click on `Hello world!' and enter `Orbis,
+te saluto!' in the @Win{Translation} pane (the middle right of
 the window). Don't forget the exclamation mark!
 @PP
 Click the @Option{Done} checkbox and choose @Option{File"|"Save} from the
@@ -548,7 +612,12 @@ but instead will have
 @LD @Code @RawVerbatim @Begin
     <translation>Orbis, te saluto!</translation>
 @End @RawVerbatim
-@LD @I { Running the Application in Latin{@PageMark{running.the.application.in.latin}} }
+@End @SubSubSection
+@SubSubSection
+    @Title { Running the Application in Latin }
+    @Tag{running.the.application.in.latin}
+@Begin
+@LP
 To see the application running in Latin, we have to generate
 a @File{.qm} file from the @File{.ts} file. Generating
 a @File{.qm} file can be achieved either from within @QLT (for a single @File{.ts} file), or by using
@@ -558,23 +627,22 @@ file. Generate @File{tt1_la.qm} from @File{tt1_la.ts}
 by choosing @Option{File"|"Release} from @QLT's menu bar
 and pressing @Option{Save} in the file save dialog that pops up. Now
 run the @File{tt1} example program again. This time the button will
-be labelled "\""Orbis, te saluto!"\"".
+be labelled `Orbis, te saluto!'.
 latin @Index{ Latin }
 lrelease @Index{ lrelease }
 @Figure
-    @Caption { 
-@I{Tutorial 1 Screenshot, Latin version} }
+    @Caption { Tutorial 1 Screenshot, Latin version }
  0.5 @Scale @IncludeGraphic { "images/tt1_la.eps.gz" }
+@End @SubSubSection
+@EndSubSubSections
 @End @SubSection
 @SubSection
     @Title { Tutorial 2: Using Two or More Languages }
     @Tag {tutorial.using.two.or.more.languages}
 @Begin
 @Figure
-    @Caption { 
-@I{Tutorial 2 Screenshot, English version} }
+    @Caption { Tutorial 2 Screenshot, English version }
  0.5 @Scale @IncludeGraphic { "images/tt2_en.eps.gz" }
-
 @LD @Code @RawVerbatim @Begin
 TEMPLATE        = app
 CONFIG          += qt warn_on
@@ -586,9 +654,10 @@ SOURCES         = arrowpad.cpp \
 TRANSLATIONS    = tt2_fr.ts \
                   tt2_nl.ts
 @End @RawVerbatim
-@QD{@File{tt2.pro}}
+@Filename{tt2.pro}
+@LP
 This example is a slightly more involved and introduces a key
-@QLT concept: "\""contexts"\"".
+@QLT concept: `contexts'.
 pro.files @Index{ .pro Files }
 project.files @Index{ Project Files }
 qmake @RawIndex{ qmake }
@@ -640,8 +709,12 @@ will contain all the source texts marked for translation with
 lupdate @Index{ lupdate }
 tt.fr.ts @Index{ tt2_fr.ts }
 tt.nl.ts @Index{ tt2_nl.ts } 
-
-@LD @I { Line by Line Walk-through{@PageMark{line.by.line.walk.throughx}} }
+@BeginSubSubSections
+@SubSubSection
+    @Title { Line by Line Walk-through }
+    @Tag{line.by.line.walk.throughx}
+@Begin
+@LP
 In @File{arrowpad.h} we define the @Code{ArrowPad}
 subclass which is a subclass of @Class{QWidget}qwidget @Index{ QWidget }.
 In the @I{Tutorial 2 Screenshot, English version}, above, the central
@@ -655,7 +728,7 @@ english.language @Index{ English Language }
 When @File{lupdate} is run it not only extracts the source texts but
 it also groups them into contexts. A context is the name of the
 class in which the source text appears. Thus, in this example,
-"\""ArrowPad"\"" is a context: it is the context of the texts in the
+`ArrowPad' is a context: it is the context of the texts in the
 @Code{ArrowPad} class. The @Code{Q_OBJECT} macro
 defines @Func{tr(x)} in @Code{ArrowPad} like this
 qgrid @Index{ QGrid }
@@ -692,8 +765,7 @@ We call @Func{ArrowPad::tr()} for each button's label
 since the labels are user-visible text.
 qpushbutton @Index{ QPushButton }
 @Figure
-    @Caption { 
-@I{Tutorial 2 Screenshot, English version} }
+    @Caption { Tutorial 2 Screenshot, English version }
  0.5 @Scale @IncludeGraphic { "images/tt2_en.eps.gz" }
 
 @LD @Code @RawVerbatim @Begin
@@ -725,9 +797,9 @@ alt.key @Index{ Alt Key }
         file->insertItem( tr("E&xit"), qApp, SLOT(quit()), tr("Ctrl+Q", "Quit") );
 @End @RawVerbatim
 Note the use of @Func{tr()} to support different keys
-in other languages. "\""Ctrl+Q"\"" is a good choice for Quit in English,
-but a Dutch translator might want to use "\""Ctrl+A"\"" (for Afsluiten)
-and a German translator "\""Strg+E"\"" (for Beenden). When using 
+in other languages. `Ctrl+Q' is a good choice for Quit in English,
+but a Dutch translator might want to use `Ctrl+A' (for Afsluiten)
+and a German translator `Strg+E' (for Beenden). When using 
 @Func{tr()} for Ctrl key accelerators, the two argument form
 should be used with the second argument describing the function
 that the accelerator performs.
@@ -763,11 +835,16 @@ environment.variables.lang @SubIndex{ LANG }
 If there is no @File{.qm} message file for the locale
 chosen the original source text will be used and no error raised.
 
-@LD @I { Translating to French and Dutch{@PageMark{translating.to.french.and.dutch}} }
+@End @SubSubSection
+@SubSubSection
+    @Title { Translating to French and Dutch }
+    @Tag{translating.to.french.and.dutch}
+@Begin
+@LP
 We'll begin by translating the example application into French.
 Start @QLT with @File{tt2_fr.ts}. You should
-get the seven source texts ("\"""&"Up"\"", "\"""&"Left"\"", etc.) grouped
-in two contexts ("\""ArrowPad"\"" and "\""MainWindow"\"").
+get the seven source texts (`"&"Up', `"&"Left', etc.) grouped
+in two contexts (`ArrowPad' and `MainWindow').
 @PP
 Now, enter the following translations:
 @NumberedList
@@ -885,21 +962,23 @@ set.windows.command @SubIndex{ Windows Command }
 When you run the program, you should now see the French version:
 
 @Figure
-    @Caption { 
-@I{Tutorial 2 Screenshot, French version} }
+    @Caption { Tutorial 2 Screenshot, French version }
  0.5 @Scale @IncludeGraphic { "images/tt2_fr.eps.gz" }
 @LP
 Try the same with Dutch, by setting @Code{LANG=nl}. Now
 the Dutch version should appear:
 
 @Figure
-    @Caption { 
-@I{Tutorial 2 Screenshot, Dutch version} }
+    @Caption { Tutorial 2 Screenshot, Dutch version }
  0.5 @Scale @IncludeGraphic { "images/tt2_nl.eps.gz" }
-@LD @I { Exercises{@PageMark{exercises}} }
-
+@End @SubSubSection
+@SubSubSection
+    @Title { Exercises }
+    @Tag{exercises}
+@Begin
+@LP
 Mark one of the translations in @QLT as not done,
-i.e. by unchecking the "\""done"\"" checkbox; run @File{lupdate}, then @File{lrelease},
+i.e. by unchecking the `done' checkbox; run @File{lupdate}, then @File{lrelease},
 then the example. What effect did this change have?
 canada @Index{ Canada }
 french.canada @Index{ French Canada }
@@ -911,16 +990,16 @@ program again. Explain why the result is the same as with
 @PP
 Change one of the accelerators in the Dutch translation to eliminate
 the conflict between @Option{"&"Bestand} and @Option{"&"Boven}.
+@End @SubSubSection
+@EndSubSubSections
 @End @SubSection
 @SubSection
     @Title { Tutorial 3: Disambiguating Identical Strings }
     @Tag{tutorial.disambiguating.identical.strings}
 @Begin
 @Figure
-    @Caption { 
-@I{Tutorial 3 Screenshot, "\""Troll Print 1.0"\"", English version} }
- 0.5 @Scale @IncludeGraphic { "images/tt3_10_en.eps.gz"
-}
+    @Caption { Tutorial 3 Screenshot, `Troll Print 1.0', English version }
+ 0.5 @Scale @IncludeGraphic { "images/tt3_10_en.eps.gz" }
 @LD @Code @RawVerbatim @Begin
 TEMPLATE        = app
 CONFIG          += qt warn_on
@@ -931,7 +1010,8 @@ SOURCES         = main.cpp \
                   printpanel.cpp
 TRANSLATIONS    = tt3_pt.ts
 @End @RawVerbatim
-@QD{ @File{{tt3.pro}}}
+@Filename{tt3.pro}
+@LP
 We've included a translation file, @File{tt3_pt.ts}, which
 contains some Portuguese translations for this example.
 portuguese.language @Index{ Portuguese Language }
@@ -976,7 +1056,12 @@ tt.pt.ts @Index{ tt3_pt.ts }
 @File{tt3_pt.ts} is the Portuguese message file.
 }
 @EndList
-@LD @I { Line by Line Walk-through{@PageMark{line.by.line.walk.throughxx}} }
+@BeginSubSubSections
+@SubSubSection
+    @Title { Line by Line Walk-through }
+    @Tag{line.by.line.walk.throughxx}
+@Begin
+@LP
 The PrintPanel is defined in @File{printpanel.h}.
 @LD @Code @RawVerbatim @Begin
     class PrintPanel : public QVBox
@@ -1014,8 +1099,8 @@ troll.print @Index{ Troll Print }
         but->toggle();
 @End @RawVerbatim
 Notice the two occurrences of @Func{tr("Enabled")} and
-of @Func{tr("Disabled")} in PrintPanel. Since both "\""Enabled"\""s
-and "\""Disabled"\""s appear in the same context @QLT will
+of @Func{tr("Disabled")} in PrintPanel. Since both `Enabled's
+and `Disabled's appear in the same context @QLT will
 only display one occurrence of each and will use the same translations
 for the duplicates that it doesn't display. Whilst this is a
 useful timesaver, in some languages, such as Portuguese, the
@@ -1049,7 +1134,7 @@ We must translate the window's caption.
 @End @RawVerbatim
 We also need to translate the menu items. Note that the two argument
 form of @Func{tr()} is used for the keyboard accelerator,
-"\""Ctrl+Q"\"", since the second argument is the only clue the translator
+`Ctrl+Q', since the second argument is the only clue the translator
 has to indicate what function that accelerator will perform.
 qpopupmenu @Index{ QPopupMenu }
 
@@ -1066,33 +1151,36 @@ qstring @Index{ QString }
 qtextcodec @Index{ QTextCodec }
 main @Index{ main() } 
 
-@LD @I { Running Troll Print 1.0 in English and in Portuguese{@PageMark{running.troll.print.in.english.and.in.portuguese}} }
-
+@End @SubSubSection
+@SubSubSection
+    @Title { Running Troll Print 1.0 in English and in Portuguese }
+    @Tag{running.troll.print.in.english.and.in.portuguese}
+@Begin
+@LP
 We will use the translations in the @File{tt3_pt.ts} file
 that is provided.
 
 @PP
 Set the @Code{LANG} environment variable to @Code{pt},
 and then run @File{tt3}. You should still see the English
-version, as shown in the @I{Tutorial 3 Screenshot, "\""Troll Print
-1.0"\"", English version}, above. Now run @File{lrelease}, e.g. @Code{lrelease tt3.pro}, and then run the example again. Now you should see
+version, as shown in the @I{Tutorial 3 Screenshot, `Troll Print
+1.0', English version}, above. Now run @File{lrelease}, e.g. @Code{lrelease tt3.pro}, and then run the example again. Now you should see
 the Portuguese edition (Troll Imprimir 1.0):
 
 @Figure
-    @Caption { 
-@I{Tutorial 3 Screenshot, "\""Troll Imprimir 1.0"\"", (Bad) Portuguese version} }
+    @Caption { Tutorial 3 Screenshot, `Troll Imprimir 1.0', (Bad) Portuguese version }
  0.5 @Scale @IncludeGraphic { "images/tt3_10_pt_bad.eps.gz"
 }
 @LP
 Whilst the translation has appeared correctly, it is in fact
-wrong. In good Portuguese, the second occurrence of "\""Enabled"\""
-should be "\""Ativadas"\"", not "\""Ativado"\"" and the ending for the second
-translation of "\""Disabled"\"" must change similarly too.
+wrong. In good Portuguese, the second occurrence of `Enabled'
+should be `Ativadas', not `Ativado' and the ending for the second
+translation of `Disabled' must change similarly too.
 
 @PP
 If you open @File{tt3_pt.ts} using @QLT, you
-will see that there is just one occurrence of "\""Enabled"\"" and of
-"\""Disabled"\"" in the translation source file, even though there
+will see that there is just one occurrence of `Enabled' and of
+`Disabled' in the translation source file, even though there
 are two of each in the source code. This is because @QLT
 tries to minimize the translator's work by using the same translation
 for duplicate source texts. In cases such as this where an identical
@@ -1102,16 +1190,16 @@ form of @Func{tr()}.
 
 @PP
 We can easily determine which file must be changed because the
-translator's "\""context"\"" is in fact the class name for the class
+translator's `context' is in fact the class name for the class
 where the texts that must be changed appears. In this case the
 file is @File{printpanel.cpp}, where the there are four
-lines to change. Add the second argument "\""two-sided"\"" in the appropriate
+lines to change. Add the second argument `two-sided' in the appropriate
 @Func{tr()} calls to the first pair of radio buttons:
 @LD @Code @RawVerbatim @Begin
     but = new QRadioButton( tr("Enabled", "two-sided"), twoSided );
     but = new QRadioButton( tr("Disabled", "two-sided"), twoSided );
 @End @RawVerbatim
-and add the second argument "\""colors"\"" in the appropriate @Func{tr()}
+and add the second argument `colors' in the appropriate @Func{tr()}
 calls for the second pair of radio buttons:
 qradiobutton @Index{ QRadioButton }
 @LD @Code @RawVerbatim @Begin
@@ -1125,35 +1213,35 @@ lupdate @Index{ lupdate }
 tt.pt.ts @Index{ tt3_pt.ts }
 
 @PP
-First, the translation source file now contains @I{three} "\""Enabled"\"",
-"\""Disabled"\"" pairs. The first pair is marked "\""(obs.)"\"" signifying
+First, the translation source file now contains @I{three} `Enabled',
+`Disabled' pairs. The first pair is marked `(obs.)' signifying
 that they are obsolete. This is because these texts appeared
 in @Func{tr()} calls that have been replaced by new calls
-with two arguments. The second pair has "\""two-sided"\"" as their
-comment, and the third pair has "\""colors"\"" as their comment. The
+with two arguments. The second pair has `two-sided' as their
+comment, and the third pair has `colors' as their comment. The
 comments are shown in the @Win{Source text and comments} area in
 @QLT.
 
 @PP
-Second, the translation text "\""Ativado"\"" and "\""Desativado"\"" have
-been automatically used as translations for the new "\""Enabled"\""
-and "\""Disabled"\"" texts, again to minimize the translator's work.
+Second, the translation text `Ativado' and `Desativado' have
+been automatically used as translations for the new `Enabled'
+and `Disabled' texts, again to minimize the translator's work.
 Of course in this case these are not correct for the second occurrence
 of each word, but they provide a good starting point.
 
 @PP
-Change the second "\""Ativado"\"" into "\""Ativadas"\"" and the second "\""Desativado"\""
-into "\""Desativadas"\"", then save and quit. Run @File{lrelease} to obtain
+Change the second `Ativado' into `Ativadas' and the second
+`Desativado'
+into `Desativadas', then save and quit. Run @File{lrelease} to obtain
 an up-to-date binary @File{tt3_pt.qm} file, and run Troll
 Print (or rather Troll Imprimir).
 
 @Figure
-    @Caption { 
-@I{Tutorial 3 Screenshot, "\""Troll Imprimir 1.0"\"", (Good) Portuguese version} }
+    @Caption { Tutorial 3 Screenshot, `Troll Imprimir 1.0', (Good) Portuguese version }
  0.5 @Scale @IncludeGraphic { "images/tt3_10_pt_good.eps.gz"
 }
 @LP
-The second argument to @Func{tr()} calls, called "\""comments"\""
+The second argument to @Func{tr()} calls, called `comments'
 in @QLT, distinguish between identical source texts
 that occur in the same context (class). They are also useful
 in other cases to give clues to the translator, and in the case
@@ -1207,20 +1295,25 @@ can save them time:
         This window is a ZClientErrorDialog.
     */
 @End @RawVerbatim
-@LD @I { Troll Print 1.1{@PageMark{troll.print}} }
+@End @SubSubSection
+@SubSubSection
+    @Title { Troll Print 1.1 }
+    @Tag{troll.print}
+@Begin
+@LP
 We'll now prepare release 1.1 of Troll Print. Start your favorite
 text editor and follow these steps:
 
 @NumberedList
 @LI{
 Uncomment the two lines that create a @Class{QLabel}qlabel @Index{ QLabel } with the text
-"\""@Option{TROLL PRINT}"\"" in @File{printpanel.cpp}.
+`TROLL PRINT' in @File{printpanel.cpp}.
 }
 @LI{
-Word-tidying: Replace "\""2-sided"\"" by "\""Two-sided"\"" in @File{printpanel.cpp}.
+Word-tidying: Replace `2-sided' by `Two-sided' in @File{printpanel.cpp}.
 }
 @LI{
-Replace "\""1.0"\"" with "\""1.1"\"" everywhere it occurs in @File{mainwindow.cpp}.
+Replace `1.0' with `1.1' everywhere it occurs in @File{mainwindow.cpp}.
 }
 @LI{
 Update the copyright year to 1999-2000 in @File{mainwindow.cpp}.
@@ -1238,27 +1331,27 @@ in @QLT. The following items are of special interest:
 
 @DashList
 @LI{
-Troll Print 1.0 - marked "\""(obs.)"\"", obsolete
+Troll Print 1.0 - marked `(obs.)', obsolete
 }
 @LI{
-About Troll Print 1.0 - marked "\""(obs.)"\"", obsolete
+About Troll Print 1.0 - marked `(obs.)', obsolete
 }
 @LI{
-Troll Print 1.0. Copyright 1999 Macroshaft, Inc. - marked "\""(obs.)"\"",
+Troll Print 1.0. Copyright 1999 Macroshaft, Inc. - marked `(obs.)',
 obsolete
 }
 @LI{
-Troll Print 1.1 [p.~@PageOf{troll.print}] - automatically translated as "\""Troll Imprimir
-1.1"\""
+Troll Print 1.1 [p.~@PageOf{troll.print}] - automatically translated
+as `Troll Imprimir 1.1'
 }
 @LI{
-About Troll Print 1.1 [p.~@PageOf{troll.print}] - automatically translated as "\""Troll Imprimir
-1.1"\""
+About Troll Print 1.1 [p.~@PageOf{troll.print}] - automatically
+translated as `Troll Imprimir 1.1'
 }
 @LI{
 Troll Print 1.1 [p.~@PageOf{troll.print}]. Copyright 1999-2000 Macroshaft, Inc. - automatically
-translated as "\""Troll Imprimir 1.1. Copyright 1999-2000 Macroshaft,
-Inc."\""
+translated as `Troll Imprimir 1.1. Copyright 1999-2000 Macroshaft,
+Inc.'
 }
 @EndList}
 @LI{
@@ -1266,7 +1359,7 @@ Inc."\""
 
 @DashList
 @LI{
-2-sided - marked "\""(obs.)"\"", obsolete
+2-sided - marked `(obs.)', obsolete
 }
 @LI{
 @Option{TROLL PRINT} - unmarked, i.e. untranslated
@@ -1281,17 +1374,16 @@ easier, and it's pretty smart with numbers.
 
 @PP
 Go over the translations in @Code{MainWindow} and mark
-these as "\""done"\"". Translate "\""@Option{TROLL PRINT}"\"" as "\""@Option{TROLL IMPRIMIR}"\"".
-When you're translating "\""Two-sided"\"", press the @Option{Guess Again}
-button to translate "\""Two-sided"\"", but change the "\""2"\"" into "\""Dois"\"".
+these as `done'. Translate `TROLL PRINT' as `TROLL IMPRIMIR'.
+When you're translating `Two-sided', press the @Option{Guess Again}
+button to translate `Two-sided', but change the `2' into `Dois'.
 
 @PP
 Save and quit, then run @File{lrelease}. The Portuguese version should
 look like this:
 
 @Figure
-    @Caption { 
-@I{Tutorial 3 Screenshot, "\""Troll Imprimir 1.1"\"", Portuguese version} }
+    @Caption { Tutorial 3 Screenshot, `Troll Imprimir 1.1', Portuguese version }
  0.5 @Scale @IncludeGraphic { "images/tt3_11_pt.eps.gz"
 }
 @LP
@@ -1299,8 +1391,7 @@ Choose @Option{Ajuda"|"Sobre}, (@Option{Help"|"About}), to see the about
 box
 
 @Figure
-    @Caption { 
-@I{Tutorial 3 Screenshot, About box, Portuguese version} }
+    @Caption { Tutorial 3 Screenshot, About box, Portuguese version }
  0.5 @Scale @IncludeGraphic { "images/tt3_11_about_pt.eps.gz"
 }
 @LP
@@ -1316,11 +1407,16 @@ qt.translating.qt @SubIndex{ Translating Qt }
 Now set @Code{LANG=en} to get the original English version:
 
 @Figure
-    @Caption { 
-@I{Tutorial 3 Screenshot, "\""Troll Print 1.1"\"", English version} }
- 0.5 @Scale @IncludeGraphic { "images/tt3_11_en.eps.gz"
-}
-@LD @Heading { Summary{@PageMark{summaryx}} }
+    @Caption { Tutorial 3 Screenshot, `Troll Print 1.1', English version }
+ 0.5 @Scale @IncludeGraphic { "images/tt3_11_en.eps.gz" }
+@End @SubSubSection
+@EndSubSubSections
+@End @SubSection
+@SubSection
+    @Title { Summary }
+    @Tag{summaryx}
+@Begin
+@LP
 These tutorials cover all that you need to know to prepare your
 Qt applications for translation.
 
@@ -1337,7 +1433,6 @@ translator for the cases where the same text translates into
 two different forms in the same context. The programmer should
 also include @Code{TRANSLATION} comments to help the translator
 navigate the application.
-
 @End @SubSection
 @EndSubSections
 @End @Section

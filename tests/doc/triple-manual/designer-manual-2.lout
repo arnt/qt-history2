@@ -15,15 +15,18 @@ and explanations and details are mostly left for the more detailed
 @TitlePageRef{creating.dialogs} chapters.
 
 @Figure
-    @Caption { 
-@I{The Metric Conversion Dialog} }
+    @Caption { The Metric Conversion Dialog }
  0.5 @Scale @IncludeGraphic { "images/qsmetric.eps.gz" }
 @BeginSections
 @Section
     @Title { Starting and Exiting @QDR }
     @Tag { starting.and.exiting.qt.designer }
 @Begin
-@LD @Heading { Starting{@PageMark{starting}} }
+@BeginSubSections
+@SubSection
+    @Title { Starting }
+    @Tag{starting}
+@Begin
 @BulletList 
 @LI{
 To start @QDR under Windows click the @Option{Start} button
@@ -32,27 +35,35 @@ version number, e.g. 3.1.0.)
 }
 @LI{
 If you're running a Unix or Linux operating system you can either
-double click the @QDR icon or enter @File{designer "&"} in an xterm.
+double click the @QDR icon or enter @File{designer "&"} in an
+@File{xterm}.
 }
 @LI{
 Start @QDR now. When @QDR starts, it shows
-the @Win{New"/"Open} dialog. We'll just click @Option{Cancel} to skip
+the @Win{New"/"Open} dialog. We'll just click @Cancel to skip
 it.
 }
 @EndList
 
-@LD @Heading { Exiting{@PageMark{exiting}} }
+@End @SubSection
+@SubSection
+    @Title { Exiting }
+    @Tag{exiting}
+@Begin
+@LP
 When you've finished using @QDR click @Option{File"|"Exit};
 you will be prompted to save any unsaved changes.
 
+@End @SubSection
+@EndSubSections
 @End @Section
 @Section
     @Title { Creating the Project }
     @Tag { creating.the.project }
 @Begin
 @LP
-The metric conversion application is a standard C++ application,
-so we must create a C++ project and add our files and code to
+The metric conversion application is a standard @Cpp application,
+so we must create a @Cpp project and add our files and code to
 this project.
 
 @PP
@@ -63,26 +74,29 @@ Create the new project as follows:
 Click @Option{File"|"New} to invoke the @Win{New File} dialog.
 }
 @LI{
-Click "\""C++ Project"\"" to create a C++ project, then click @Option{OK}
+Click @Option{@Cpp Project} to create a @Cpp project, then click @OK
 to pop up the @Win{Project Settings} dialog.
 }
 @LI{
-Click the ellipsis @Option{...} button next to the Project File
+Click the ellipsis @Option{...} button next to the @Option{Project
+File}
 line edit to invoke the @Win{Save As} dialog. Use this dialog to
 navigate to where you want to create the new project, ideally
-creating a new folder for it (e.g. called "\""metric"\""), using the
+creating a new folder for it (e.g. called @File{metric}), using the
 @Option{Create New Folder} toolbar button.
 }
 @LI{
-Enter a filename of "\""metric.pro"\"", then click @Option{Save}. The project's
-name will now be "\""metric"\""; click @Option{OK} to close the @Win{Project
+Enter a filename of @File{metric.pro}, then click @Option{Save}. The project's
+name will now be @File{metric}; click @OK to close the @Win{Project
 Settings} dialog.
 }
 @LI{
 Click @Option{File"|"Save} to save the project.
 }
 @EndList
-@Figure 0.5 @Scale @IncludeGraphic { "images/qs-projset.eps.gz" }
+@Figure 
+    @Caption { The Project Settings Dialog }
+    0.5 @Scale @IncludeGraphic { "images/qs-projset.eps.gz" }
 
 @End @Section
 @Section
@@ -92,25 +106,34 @@ Click @Option{File"|"Save} to save the project.
 @NumberedList
 @LI{
 Click @Option{File"|"New} to invoke the @Win{New File} dialog, then
-click "\""Dialog"\"", then click @Option{OK}.
+click @Option{Dialog}, then click @OK.
 }
 @LI{
 Drag a corner of the new form to make it a lot smaller. Change
-the form's name (in the Property Editor) to "\""ConversionForm"\"",
-and change its caption to "\""Metric Conversion"\"".
+the form's @Prop{name} (in the Property Editor) to `ConversionForm',
+and change its @Prop{caption} to `Metric Conversion'.
 }
 @LI{
 Click @Option{File"|"Save}, accept the default form name, and then
 click @Option{Save} to save it.
 }
 @EndList
-@Figure 0.5 @Scale @IncludeGraphic { "images/qs-newdlg.eps.gz"
-}
+@Figure
+    @Caption { The blank metric conversion form }
+    0.5 @Scale @IncludeGraphic { "images/qs-newdlg.eps.gz" }
 @LP
 See also @TitlePageRef{creating.dialogs} and @TitlePageRef{layouts}.
 
-@LD @Heading { Adding Widgets to the Dialog{@PageMark{adding.widgets.to.the.dialog}} }
-@I { Adding Text Labels{@PageMark{adding.text.labels}} }
+@BeginSubSections
+@SubSection
+    @Title { Adding Widgets to the Dialog }
+    @Tag{adding.widgets.to.the.dialog}
+@Begin
+@BeginSubSubSections
+@SubSubSection
+    @Title { Adding Text Labels }
+    @Tag{adding.text.labels}
+@Begin
 @NumberedList
 @LI{
 Click the @Option{Common Widgets} button listed in the Toolbox toolbar
@@ -126,10 +149,10 @@ Click four more times below the top text label until you have
 of the labels since the layout tools will handle this automatically.
 }
 @LI{
-Click the @Option{Pointer} toolbar button to deselect the text label.
+Click the @Option{Pointer} toolbar button to de-select the text label.
 }
 @EndList
-See also @PageRef{adding.the.widgets}.
+See also @TitlePageRef{adding.the.widgets}.
 
 @PP
 Now we will change the properties of the text labels to suit
@@ -138,83 +161,96 @@ the application.
 @NumberedList
 @LI{
 Click on the top text label. Go to the @Win{Property Editor} window
-and change the label's @Prop{text} property to "\""Enter "&"Number:"\"".
+and change the label's @Prop{text} property to `Enter "&"Number:'.
 }
 @LI{
 Click the second label. Change the label's @Prop{text} property
-to "\""Convert "&"From:"\"".
+to `Convert "&"From:'.
 }
 @LI{
 Click the third label. Change the label's @Prop{text} property to
-"\""Convert "&"To:"\"".
+`Convert "&"To:'.
 }
 @LI{
 Click the fourth label. Change the label's @Prop{text} property
-to "\""Result:"\"".
+to `Result:'.
 }
 @LI{
 Click the fifth label. Change the label's @Prop{text} property to
-"\"""&"Decimals:"\"".
+`"&"Decimals:'.
 }
 @EndList
-@Figure 0.5 @Scale @IncludeGraphic { "images/qs-txtlbl.eps.gz"
-}
+@Figure
+    @Caption { The blank metric conversion form's labels }
+    0.5 @Scale @IncludeGraphic { "images/qs-txtlbl.eps.gz" }
 @LP
 See also @TitlePageRef{using.the.property.editor}.
-@LP
-@I { Adding Line Edits, Comboboxes, and Spinboxes{@PageMark{adding.line.edits.comboboxes.and.spinboxes}} }
+@End @SubSubSection
+@SubSubSection
+    @Title { Adding Line Edits, Comboboxes, and Spinboxes }
+    @Tag{adding.line.edits.comboboxes.and.spinboxes}
+@Begin
 @NumberedList
 @LI{
-Click the @Option{Common Widgets} button listed in the Toolbox toolbar
+Click the @Option{Common Widgets} button listed in the @Win{Toolbox} toolbar
 at the left of @QDR's main window.
 }
 @LI{
 Click the @Option{LineEdit} button and then click to the right of
-the Enter Number label. Change its @Prop{name} property to "\""numberLineEdit"\"".
+the Enter Number label. Change its @Prop{name} property to
+`numberLineEdit'.
 Change the @Prop{hAlign} property to AlignRight and change @Prop{vAlign}
-to AlignTop. Finally, change @Prop{wordwrap} to False. Note that
-whenever you click a widget, its properties appear in the @Prop{Property
+to `AlignTop'. Finally, change @Prop{wordwrap} to `False'. Note that
+whenever you click a widget, its properties appear in the @Win{Property
 Editor}.
 }
 @LI{
 Double click the @Option{ComboBox} button and click to the right of
 the Convert From label. Now click to the right of the Convert
-To label. Click the @Option{Pointer} toolbar button to deselect the
+To label. Click the @Option{Pointer} toolbar button to de-select the
 ComboBox. Change the @Prop{name} property of the first combobox
-to "\""fromComboBox"\"". Change the @Prop{name} property of the second
-to "\""toComboBox"\"".
+to `fromComboBox'. Change the @Prop{name} property of the second
+to `toComboBox'.
 }
 @LI{
-Click the @Option{LineEdit} button and then click to the right of
-the "\""Result"\"" label. Change its @Prop{name} property to "\""resultLineEdit"\"".
+Click the @Option{LineEdit} button and then click to the right of the
+`Result' label. Change its @Prop{name} property to `resultLineEdit'.
 Change the @Prop{paletteBackground} property to a shade of yellow
-(just to make the result stand out). Change @Prop{hAlign} to AlignRight,
-@Prop{vAlign} to AlignVCenter and @Prop{wordwrap} to False. Now change
-the @Prop{readOnly} property to "\""False"\"", if it isn't already.
+(just to make the result stand out). Change @Prop{hAlign} to
+`AlignRight', @Prop{vAlign} to `AlignVCenter' and @Prop{wordwrap} to
+`False'. Now change the @Prop{readOnly} property to `False', if it isn't
+already.
 }
 @LI{
 Click the @Option{SpinBox} button and then click to the right of the
 Decimals label. Place the SpinBox below the right side of the
-resultLineEdit. Change the spinbox's @Prop{name} property to "\""decimalsSpinBox"\"".
-Change its @Prop{max value} property to "\""6"\"" and the @Prop{value} to
-"\""3"\"".
+resultLineEdit. Change the spinbox's @Prop{name} property to
+`decimalsSpinBox'. Change its @Prop{max value} property to `6' and the
+@Prop{value} to `3'.
 }
 @LI{
 Click @Option{File"|"Save}.
 }
 @EndList
 
-@Figure 0.5 @Scale @IncludeGraphic { "images/qs-addwidg.eps.gz"
-}
+@Figure
+    @Caption { The metric conversion form's editing widgets }
+    0.5 @Scale @IncludeGraphic { "images/qs-addwidg.eps.gz" }
+@End @SubSubSection
+@SubSubSection
+    @Title { Creating ``Buddies'' }
+    @Tag { creating.buddies }
+@Begin
 @LP
 Now we need to relate each of the text labels to the corresponding
-widget. We do this by creating "\""buddies"\"".
+widget. We do this by creating `buddies'.
 
 @PP
-A widget that does not accept focus itself, e.g. a QLabel, can
-have an accelerator that will pass the focus to its "\""buddy"\"",
-e.g. a QLineEdit, by setting the first widget's @Prop{buddy} property
-to the name of the buddy widget.
+A widget that does not accept focus itself, e.g. a @Class{QLabel}
+qlabel @Index { QLabel }, can have an accelerator that will pass the
+focus to its `buddy', e.g. a @Class{QLineEdit} qlineedit @Index {
+QLineEdit }, by setting the first widget's @Prop{buddy} property to
+the name of the buddy widget.
 
 @NumberedList
 @LI{
@@ -234,7 +270,11 @@ Click the @Option{Set Buddy} button. Click the Decimals label and
 drag the rubber band to the decimalsSpinBox; then release.
 }
 @EndList
-@I { Adding Push Buttons{@PageMark{adding.push.buttons}} }
+@End @SubSubSection
+@SubSubSection
+    @Title { Adding Push Buttons }
+    @Tag{adding.push.buttons}
+@Begin
 @NumberedList
 @LI{
 Click the @Option{Common Widgets} button in the Toolbox.
@@ -244,12 +284,12 @@ Double click the @Option{Pushbutton} button and click towards the
 bottom left of the dialog, below the Decimals label.
 }
 @LI{
-Click to the right of the new push button two more times so that
+Click to the right of the new push button twice more so that
 you have three push buttons horizontally in a row at the bottom
 of the dialog.
 }
 @LI{
-Click the @Option{Pointer} toolbar button to deselect the push button.
+Click the @Option{Pointer} toolbar button to de-select the push button.
 }
 @EndList
 
@@ -259,22 +299,29 @@ in the @Win{Property Editor} window.
 @NumberedList
 @LI{
 Click the first push button starting from the left of the dialog.
-Change its name to "\""clearPushButton"\"" and its text to "\"""&"Clear"\"".
+Change its @Prop{name} to `clearPushButton' and its @Prop{text} to
+`"&"Clear'.
 }
 @LI{
-Click the second push button and change its name to "\""calculatePushButton"\"",
-its text to "\""Calculate"\"" and its default property to "\""True"\"".
+Click the second push button and change its @Prop{name} to
+`calculatePushButton', its @Prop{text} to `Calculate' and its
+@Prop{default} property to `True'.
 }
 @LI{
-Click the third push button and change its name to "\""quitPushButton"\""
-and its text to "\"""&"Quit"\"".
+Click the third push button and change its @Prop{name} to
+`quitPushButton' and its text to `"&"Quit'.
 }
 @EndList
 
-@Figure 0.5 @Scale @IncludeGraphic { "images/qs-pushbutt.eps.gz"
-}
+@Figure
+    @Caption { The metric conversion form's buttons }
+    0.5 @Scale @IncludeGraphic { "images/qs-pushbutt.eps.gz" }
 
-@I { Adding Spacers{@PageMark{adding.spacers}} }
+@End @SubSubSection
+@SubSubSection
+    @Title { Adding Spacers }
+    @Tag{adding.spacers}
+@Begin
 @LP
 We need to add spacers to absorb redundant space in our dialog
 so that it will lay out nicely at whatever size the user resizes
@@ -303,13 +350,16 @@ spacer will appear.
 }
 @EndList
 
-@Figure 0.5 @Scale @IncludeGraphic { "images/qs-spacers.eps.gz"
-}
-
+@Figure
+    @Caption { The metric conversion form's spacers }
+    0.5 @Scale @IncludeGraphic { "images/qs-spacers.eps.gz" }
 @LP
 Click @Option{File"|"Save} to save the dialog.
-@LP
-@I { Editing Widgets{@PageMark{editing.widgets}} }
+@End @SubSubSection
+@SubSubSection
+    @Title { Editing Widgets }
+    @Tag{editing.widgets}
+@Begin
 @LP
 We'll now edit some of the widgets to contain the values needed
 for the conversions.
@@ -323,18 +373,19 @@ Right click the fromComboBox and then click @Option{Edit} from the
 context menu.
 }
 @LI{
-Click @Option{New Item} and then delete the "\""New Item"\"" text and type
-"\""Kilometers"\"". Click @Option{New Item} and change the text to "\""Meters"\"".
-Repeat this two more times, changing the text to "\""Centimeters"\""
-and to "\""Millimeters"\"" respectively.
+Click @Option{New Item} and then delete the `New Item' text and type
+`Kilometers'. Click @Option{New Item} and change the text to `Meters'.
+Repeat this twice more, changing the text to `Centimeters'
+and to `Millimeters' respectively.
 }
 @LI{
-Click @Option{OK} to close the Edit Listbox dialog.
+Click @OK to close the Edit Listbox dialog.
 }
 @EndList
 
-@Figure 0.5 @Scale @IncludeGraphic { "images/qs-editlistbox1.eps.gz"
-}
+@Figure
+    @Caption { The Edit Listbox Dialog }
+    0.5 @Scale @IncludeGraphic { "images/qs-editlistbox1.eps.gz" }
 @LP
 The toComboBox:
 
@@ -344,16 +395,22 @@ Right click the toComboBox and then click @Option{Edit} from the context
 menu.
 }
 @LI{
-Delete the "\""New Item"\"" text and type "\""Miles"\"". Click @Option{New Item}
-and change the text to "\""Yards"\"". Repeat this two more times, changing
-the text to "\""Feet"\"" and to "\""Inches"\"".
+Delete the `New Item' text and type `Miles'. Click @Option{New Item}
+and change the text to `Yards'. Repeat this twice more, changing
+the text to `Feet' and to `Inches'.
 }
 @LI{
-Click @Option{OK} to close the Edit Listbox dialog.
+Click @OK to close the Edit Listbox dialog.
 }
 @EndList
-@LD @Heading { Laying Out the Dialog{@PageMark{laying.out.the.dialog}} }
-
+@End @SubSubSection
+@EndSubSubSections
+@End @SubSection
+@SubSection
+    @Title { Laying Out the Dialog }
+    @Tag{laying.out.the.dialog}
+@Begin
+@LP
 We'll lay out the text labels and their corresponding widgets
 first and we'll do the push buttons last.
 
@@ -371,7 +428,9 @@ between the push buttons and the spacer below the spin box. Release
 the rubberband and notice that the desired widgets are selected.
 Click the @Option{Lay Out in a Grid} (@Option{Ctrl+G}) toolbar button.
 @LLP
-@Figure @Location { Raw } 0.5 @Scale @IncludeGraphic { "images/qs-laygrid.eps.gz"
+@Figure
+    @Caption { Using a Grid Layout }
+    @Location { Raw } 0.5 @Scale @IncludeGraphic { "images/qs-laygrid.eps.gz"
 }
 
 }
@@ -382,12 +441,13 @@ the Quit push button and the Spacer between the push buttons.
 Click the @Option{Lay Out Horizontally} toolbar button.
 
 @LLP
-@Figure @Location { Raw } 0.5 @Scale @IncludeGraphic { "images/qs-layhoriz.eps.gz"
-}
+@Figure
+    @Caption { Using a Horizontal Layout }
+    @Location { Raw } 0.5 @Scale @IncludeGraphic { "images/qs-layhoriz.eps.gz" }
 
 }
 @LI{
-Click the form to deselect all widgets and layouts and then click
+Click the form to de-select all widgets and layouts and then click
 the @Option{Lay Out Vertically} (@Option{Ctrl+L}) toolbar button.
 }
 @LI{
@@ -396,15 +456,19 @@ Finally, click the dialog and then click the @Option{Adjust Size}
 }
 @EndList
 
-@Figure 0.5 @Scale @IncludeGraphic { "images/qs-layvert.eps.gz"
-}
+@Figure
+    @Caption { Using a Vertical Layout }
+    0.5 @Scale @IncludeGraphic { "images/qs-layvert.eps.gz" }
 @LP
 Click @Option{File"|"Save} to save the dialog.
 
 @PP
 See also @TitlePageRef{laying.out.the.widgets}.
-@LP
-@I { Tab Order{@PageMark{tab.order}} }
+@BeginSubSubSections
+@SubSubSection
+    @Title { Tab Order }
+    @Tag{tab.order}
+@Begin
 @LP
 We should make sure that our dialog's tab order is set correctly.
 
@@ -421,17 +485,28 @@ focus.
 Press @Option{Esc} to leave tab order mode.
 }
 @EndList
-@Figure 0.5 @Scale @IncludeGraphic { "images/qs-taborder.eps.gz" }
-@NP
-@LD @Heading { Previewing the Dialog{@PageMark{previewing.the.dialog}} }
-
+@Figure
+    @Caption { Tab Order Mode }
+    0.5 @Scale @IncludeGraphic { "images/qs-taborder.eps.gz" }
+@End @SubSubSection
+@EndSubSubSections
+@End @SubSection
+@SubSection
+    @Title { Previewing the Dialog }
+    @Tag{previewing.the.dialog}
+@Begin
+@LP
 To preview the dialog, press @Option{Ctrl+T}. Try dragging the corner
 of the dialog to adjust the size. Note that the the widgets always
 stay in proportion no matter what size you make the dialog. Check
 the tab order of the widgets by pressing the @Option{Tab} key.
 
-@LD @Heading { Connecting the Widgets{@PageMark{connecting.the.widgets}} }
-
+@End @SubSection
+@SubSection
+    @Title { Connecting the Widgets }
+    @Tag{connecting.the.widgets}
+@Begin
+@LP
 We need to connect three buttons; the Clear button, the Calculate
 button and the Quit button. We also need to connect some of the
 other widgets. For convenience, we can do all of our connections
@@ -469,7 +544,9 @@ numberLineEdit for the Receiver, and @Func{setfocus()} for the Slot.
 }
 @EndList
 
-@Figure 0.5 @Scale @IncludeGraphic { "images/qs-editconn1.eps.gz" }
+@Figure
+    @Caption { The View and Edit Connections Dialog }
+    0.5 @Scale @IncludeGraphic { "images/qs-editconn1.eps.gz" }
 @LP
 We also need to connect the quit button to the form:
 
@@ -499,13 +576,15 @@ Signal, and ConversionForm for the Receiver.
 @LI{
 Click @Option{Edit Slots} to invoke the @Win{Edit Functions} dialog.
 Click @Option{New Function}. Type over the Function name with the
-name of our new function: @Func{convert()}, then click @Option{OK}.
+name of our new function: @Func{convert()}, then click @OK.
 }
 @LI{
 Select @Func{convert()} from the Slot combobox to complete our connection.
 }
 @EndList
-@Figure 0.5 @Scale @IncludeGraphic { "images/qs-editfunc.eps.gz" }
+@Figure
+    @Caption { The Edit Functions Dialog }
+    0.5 @Scale @IncludeGraphic { "images/qs-editfunc.eps.gz" }
 @LP
 We will now connect the last few widgets:
 
@@ -533,20 +612,24 @@ Select toComboBox as the Sender, @Func{activated(int)} as the Signal,
 ConversionForm as the Receiver, and @Func{convert()} as the Slot.
 }
 @EndList
-@Figure 0.5 @Scale @IncludeGraphic { "images/qs-editconn2.eps.gz" }
+@Figure
+    @Caption { The View and Edit Connections Dialog }
+    0.5 @Scale @IncludeGraphic { "images/qs-editconn2.eps.gz" }
 @LP
-Click @Option{OK} to exit the View and Edit Connections dialog.
+Click @OK to exit the View and Edit Connections dialog.
 
 @PP
 Click @Option{Save} to save the project.
 
+@End @SubSection
+@EndSubSections
 @End @Section
 @Section
     @Title { Coding the Dialog }
     @Tag { coding.the.dialog }
 @Begin
 @LP
-Click "\""conversionform.ui.h"\"" in the @Win{Project Overview} window
+Click `conversionform.ui.h' in the @Win{Project Overview} window
 to invoke the code editor. We'll implement the @Func{convert()}
 function and also the @Func{init()} function. For faster
 implementation, copy the code from this section and then follow

@@ -32,9 +32,9 @@ chapter for details.
 
 pro @Index{ .pro } @File{.pro} (project) files which are used to record the files used to build the application and from which Makefiles are generated. @QDR also reads and writes
 ui @Index{ .ui } @File{.ui} (user interface) files. These are XML files that record the widgets, layouts, source code and settings you've used for a form. Every
-ui @Index{ .ui } @File{.ui} file is converted by the @File{uic} (user interface compiler) into a C++
-h @Index{ .h } @File{.h} file and a C++
-cpp @Index{ .cpp } @File{.cpp} file. These C++ files are then read by
+ui @Index{ .ui } @File{.ui} file is converted by the @File{uic} (user interface compiler) into a @Cpp
+h @Index{ .h } @File{.h} file and a @Cpp
+cpp @Index{ .cpp } @File{.cpp} file. These @Cpp files are then read by
 @File{moc} (meta object compiler), and finally compiled by your compiler into a working application.
 
 makefiles @Index{ Makefiles }
@@ -62,7 +62,7 @@ SOURCES += main.cpp
 You can then use @File{qmake} to generate the Makefile.
 (For example @Code{qmake -o Makefile myproject.pro}.)
 Running @File{make} (Linux, Unix or Borland compilers),
-or @File{nmake} (Visual C++), will then call @File{uic},
+or @File{nmake} (Visual @Cpp), will then call @File{uic},
 @File{moc} and your compiler as necessary to build your
 application.
 
@@ -75,7 +75,7 @@ qmake.headers @SubIndex{ HEADERS }
 qmake @RawIndex{ qmake }
 qmake.sources @SubIndex{ SOURCES }@PP
 If you use @QDR to create your main window and dialogs,
-but also add other C++ files, or if you subclass any of your
+but also add other @Cpp files, or if you subclass any of your
 forms you will need to add these files to the
 
 pro @Index{ .pro } @File{.pro} file so that they are compiled with the rest of your application's source files. Each
@@ -133,8 +133,8 @@ SOURCES += settingsform.cpp
 @End @RawVerbatim
 @PP
 The simplest way to create a new source file is by clicking @Option{File"|"New}
-to invoke the 'New File' dialog, then click 'C++ Source' or 'C++
-Header' as appropriate, then click @Option{OK}. A new empty source
+to invoke the 'New File' dialog, then click '@Cpp Source' or '@Cpp
+Header' as appropriate, then click @OK. A new empty source
 window will appear. You don't need to manually edit the @File{.pro}
 file since @QDR will add them for you automatically.
 
@@ -166,15 +166,15 @@ main.cpp @Index{ main.cpp } @File{main.cpp} so that we can test it.
 projects @RawIndex{ Projects }
 projects.creating.new @SubIndex{ Creating New }@PP
 We'll begin by creating a new project. Click @Option{File"|"New},
-then click the 'C++ Project' icon to invoke the @Win{Project Settings}
+then click the '@Cpp Project' icon to invoke the @Win{Project Settings}
 dialog. Click the ellipsis button to invoke the @Win{Save As} dialog;
 navigate to the project's directory (creating it if necessary).
 Make sure you're in the project's directory, then enter a project
 name of 'credit.pro'. Click the @Option{Save} button to return to
-the @Win{Project Settings} dialog, then click @Option{OK}. Now we'll
+the @Win{Project Settings} dialog, then click @OK. Now we'll
 add a form to the project. Click @Option{File"|"New} to invoke the
 @Win{New File} dialog. The default form is Dialog which is what
-we want; click @Option{OK}. Resize the form to make it smaller; it
+we want; click @OK. Resize the form to make it smaller; it
 should be about 2 inches (5 cm) square. Change the form's name
 to 'CreditFormBase' and the caption to 'Credit Rating'. Save
 the form as @File{creditformbase.ui}.
@@ -295,7 +295,7 @@ subclassing @Index{ Subclassing }@PP
 Although we intend our dialog to be used within an application
 it is useful to create a test harness so that we can develop
 and test it stand-alone. Click @Option{File"|"New} to invoke the 'New
-File' dialog, then click 'C++ Source', then click @Option{OK}. In
+File' dialog, then click '@Cpp Source', then click @OK. In
 the editor window that pops up, enter the following code:
 
 @LD @Code @RawVerbatim @Begin
@@ -452,7 +452,7 @@ Qt programs are capable of loading @QDR
 
 ui @Index{ .ui } @File{.ui} files and instantiating the forms represented by the
 ui @Index{ .ui } @File{.ui} files. Since the
-ui @Index{ .ui } @File{.ui} file is not compiled it cannot include any C++ code, (e.g. slot implementations). In this section we will explain how to load a dynamic dialog and how to create a class that can be used to implement the dynamic dialog's custom slots.
+ui @Index{ .ui } @File{.ui} file is not compiled it cannot include any @Cpp code, (e.g. slot implementations). In this section we will explain how to load a dynamic dialog and how to create a class that can be used to implement the dynamic dialog's custom slots.
 @PP
 We will use the credit form that we created in the subclassing
 section as our example form. We will start by simply instantiating
@@ -478,7 +478,7 @@ SOURCES    += main.cpp
 unix:LIBS  += -lqui
 win32:LIBS += $(QTDIR)/lib/qui.lib
 FORMS      = mainform.ui
-LANGUAGE    = C++
+LANGUAGE    = @Cpp
 INCLUDEPATH += $(QTDIR)/tools/designer/uilib
 @End @RawVerbatim
 qtdir @Index{ QTDIR }
@@ -520,7 +520,7 @@ call.
 @LI{
 Open the
 
-receiver.pro @Index{ receiver.pro } @File{receiver.pro} project file in @QDR. We'll create a dialog as our main window which we'll use to invoke the dynamic dialog. Press @Option{Ctrl+N} to launch the @Win{New File} dialog and click @Option{OK} to get the default which is a dialog. Change the dialog's name to 'MainForm' and its caption to 'Main Form'. Add two buttons, one called 'creditPushButton' with the text '"&"Credit Dialog', and the other called 'quitPushButton' with the text '"&"Quit'. (For each button click the @Option{Push Button} toolbar button, then click the form. Change the properties in the property window to those we've just described.)}
+receiver.pro @Index{ receiver.pro } @File{receiver.pro} project file in @QDR. We'll create a dialog as our main window which we'll use to invoke the dynamic dialog. Press @Option{Ctrl+N} to launch the @Win{New File} dialog and click @OK to get the default which is a dialog. Change the dialog's name to 'MainForm' and its caption to 'Main Form'. Add two buttons, one called 'creditPushButton' with the text '"&"Credit Dialog', and the other called 'quitPushButton' with the text '"&"Quit'. (For each button click the @Option{Push Button} toolbar button, then click the form. Change the properties in the property window to those we've just described.)}
 @LI{
 We will now add a couple of labels so that we can show the settings
 the user chose in the dynamic dialog. Click the @Option{Text Label}
@@ -577,7 +577,7 @@ In our main form we created a slot called @Func{creditDialog()}.
 We will implement this slot directly in @QDR and use
 it to load and execute the dynamic dialog. The code is taken
 from @File{"qt/tools/designer/examples/receiver1/mainform.ui.h"}
-which contains the C++ implementation of @File{mainform.ui}'s
+which contains the @Cpp implementation of @File{mainform.ui}'s
 slots.
 
 @LD @Code @RawVerbatim @Begin
@@ -606,7 +606,7 @@ create @Index{ create() } @Func{create()} function is a static @Class{QWidgetFac
 ui @Index{ .ui } @File{.ui} file and returns a pointer to the toplevel @Class{QWidget} created from the
 ui @Index{ .ui } @File{.ui} file. We have cast the pointer to @Class{QDialog} since we know that the @File{creditformbase.ui} file defines a @Class{QDialog}. After creating the dialog we
 exec @Index{ exec() } @Func{exec()} it. If the user clicked
-@Option{OK} the dialog returns Accepted and we enter the body of the
+@OK the dialog returns Accepted and we enter the body of the
 @Code{if} statement. We want to know the amount of credit that the user selected. We call the
 child @Index{ child() } @Func{child()} function on the dialog passing it the name of the widget we're interested in. The
 child @Index{ child() } @Func{child()} function returns a pointer to the widget with the name we passed, or returns 0 if no widget of that name was found. In the example we call
@@ -786,7 +786,7 @@ ui @Index{ .ui } @File{.ui} file and a dynamically loaded
 ui @Index{ .ui } @File{.ui} file are these:
 @NumberedList
 @LI{
-Dynamic dialogs cannot have any C++ code in the
+Dynamic dialogs cannot have any @Cpp code in the
 
 ui @Index{ .ui } @File{.ui} file; any custom slots must be implemented via a @Class{QObject} subclass. Compiled dialogs can contain code either in the
 ui @Index{ .ui } @File{.ui} file or in a subclass.}

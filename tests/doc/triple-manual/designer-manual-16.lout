@@ -233,7 +233,7 @@ its slot.
 
 <connections>
     ...
-    <connection language="C++">
+    <connection language="@Cpp">
         <sender>alignActionGroup</sender>
         <signal>selected(QAction*)</signal>
         <receiver>EditorForm</receiver>
@@ -329,7 +329,7 @@ Following these steps will ensure that uic will create the correct
 It is sometimes necessary to forward declare classes, particularly
 if code is being written in @File{".ui.h"} files within
 @QDR. Each forward declaration is listed as it should
-appear in the generated C++ code.
+appear in the generated @Cpp code.
 
 @LD @Code @RawVerbatim @Begin
 
@@ -341,7 +341,7 @@ qstringlist @Index{ QStringList }
 @LD @Heading { functions{@PageMark{functions}} }
 @PP
 The @Code{functions} element contains a list of functions.
-Functions are standard C++ functions. It is possible to specify
+Functions are standard @Cpp functions. It is possible to specify
 various attributes to create a function's signature, for example:
 
 @NumberedList
@@ -358,7 +358,7 @@ specifier: @Code{non virtual}, @Code{virtual} or
 @Code{pure virtual}. Default: @Code{virtual}
 }
 @LI{
-language: specifies the programming language. Default: @Code{C++}
+language: specifies the programming language. Default: @Code{@Cpp}
 }
 @EndList
 @LD @Code @RawVerbatim @Begin
@@ -516,7 +516,7 @@ The @Code{slots} element contains a list of slots. Each
 @LD @Code @RawVerbatim @Begin
 
 <slots>
-    <slot access="public" specifier="virtual" language="C++" 
+    <slot access="public" specifier="virtual" language="@Cpp" 
         returnType="void">changeAlignment(QAction* align)</slot>
 </slots>
 @End @RawVerbatim

@@ -38,11 +38,11 @@ code.editing.preferences @SubIndex{ Preferences }
 preferences @RawIndex{ Preferences }
 preferences.code.editing @SubIndex{ Code Editing }@PP
 The @Win{Preferences} dialog may have additional tabs, depending
-on what plugins you have installed. We'll describe the C++ Editor
+on what plugins you have installed. We'll describe the @Cpp Editor
 tab since this is installed by default.
 
 @PP
-The C++ Editor tab is used to set your preferred fonts for syntax
+The @Cpp Editor tab is used to set your preferred fonts for syntax
 highlighting in @QDR's code editor. The base font
 for all elements is set in the 'Standard' element which is the
 last item in the list. If you want one font to be used throughout
@@ -52,7 +52,7 @@ inherit its setting.
 @LD @Heading { Qt Designer's Code Editor{@PageMark{qt.designer.s.code.editor}} }
 @PP
 The code editor is available if an Editor plugin is installed.
-The C++ Editor plugin is installed by default.
+The @Cpp Editor plugin is installed by default.
 
 
 keypresses.qt.designer.s.code.editor @Index{ Keypresses (Qt Designer's code editor) }@PP
@@ -227,7 +227,7 @@ First we'll create the simple template.
 @BulletList
 @LI{
 Click @Option{File"|"New} to invoke the @Win{New File} dialog. Click
-the Dialog template then click @Option{OK}.
+the Dialog template then click @OK.
 }
 @LI{
 Click the @Option{Text Label} toolbar button, then click near the
@@ -255,7 +255,7 @@ from project.
 Now that we have the simple template we are ready to use it.
 Click @Option{File"|"New} to invoke the @Win{New File} dialog. One of
 the templates that will appear is 'Simple Dialog'. Click the
-simple dialog, then click @Option{OK}. A new form will appear with
+simple dialog, then click @OK. A new form will appear with
 the same widgets and layout as the template. Add any other widgets
 and functionality. When you attempt to save the form you will
 be prompted for a new form name.
@@ -287,7 +287,7 @@ the file @File{"qt/tools/designer/examples/sizeaware/sizeaware.h"}.
 Check the Container Widget checkbox. This class provides two
 properties. Click the Properties tab. Click @Option{New Property}
 and change the property name to 'company'. Click the @Option{New Property}
-again and change the property name to 'settingsFile'. Click @Option{Close}.
+again and change the property name to 'settingsFile'. Click @Close.
 
 @PP
 To create a template, based on an existing widget or on your
@@ -299,7 +299,7 @@ Close @QDR and restart it.
 
 @PP
 A new template, 'SizeAware' is now available from the list of
-templates. Click @Option{File"|"New}, click SizeAware and click @Option{OK}.
+templates. Click @Option{File"|"New}, click SizeAware and click @OK.
 Note that the two properties, company and settingsFile, are available
 in the Properties window. Any forms based on this template will
 remember their size and resize when reloaded. (In practical applications
@@ -322,7 +322,7 @@ visual.studio @Index{ Visual Studio }@PP
 Start up Visual Studio and click @Option{File"|"Open Workspace}. Open
 @File{"%QTDIR%\tools\designer\integration\qmsdev\qmsdev.dsp"}.
 Click @Option{Build"|"Set Active Configuration} and in the list click
-'QMsDev - Win32 Release', then click @Option{OK}. Now click @B{Build"|"Build
+'QMsDev - Win32 Release', then click @OK. Now click @B{Build"|"Build
 qmsdev.dll}. You should now make sure Visual Studio is closed
 and copy the file
 @File{"%QTDIR%\tools\designer\integration\qmsdev\Release\qmsdev.dll"}
@@ -331,7 +331,7 @@ Now click @Option{Tools"|"Customize}. Click the Add-in Macro Files
 tab, then click the @Option{Browse} button. Change the file type to
 'Add-ins (.dll)' and navigate to @File{"Microsoft Visual Studio\Common\MSDev98\AddIns"}. Click the
 
-qmsdev.dll @Index{ qmsdev.dll } @File{"qmsdev.dll"} file, click @Option{Open}, then click @Option{Close}.
+qmsdev.dll @Index{ qmsdev.dll } @File{"qmsdev.dll"} file, click @Option{Open}, then click @Close.
 @PP
 A new toolbar will appear in Visual Studio with the following
 toolbar buttons:
@@ -386,7 +386,7 @@ moc @Index{ .moc } @File{".moc"} file, then click @Option{Settings}
 from the pop-up menu to invoke the Project Settings dialog. Click the
 Custom Build tab. Click the @Option{Dependencies} button to pop up the
 User Defined Dependencies dialog. Type in
-@Code{"$(InputDir)\$(InputPath)"}, then press @Option{Return}. Click @Option{OK} to leave the Dependencies dialog, then click @Option{OK} to leave the Project Settings dialog.
+@Code{"$(InputDir)\$(InputPath)"}, then press @Option{Return}. Click @OK to leave the Dependencies dialog, then click @OK to leave the Project Settings dialog.
 @PP
 If you wish to delete the add-in remove it from the toolbar then
 delete the
@@ -550,7 +550,7 @@ dlg @Index{ .dlg } @File{".dlg"} file.)
 @PP
 The import filter does a good job of importing
 
-dlg @Index{ .dlg } @File{".dlg"} files; the result is almost identical to what you get in Qt Architect. However, the C++ code that uses the dialogs will probably need some adaptation.
+dlg @Index{ .dlg } @File{".dlg"} files; the result is almost identical to what you get in Qt Architect. However, the @Cpp code that uses the dialogs will probably need some adaptation.
 @PP
 There are a few drawbacks to converting Qt Architect files to
 @QDR's format due to differences between the two tools;
@@ -662,7 +662,7 @@ Message boxes and other high-level dialogs
 Glade supports editing of GnomeMessageBox, GtkFileSelection,
 GtkFontSelectionDialog and others. This is trivially achieved
 in Qt by means of a @Class{QMessageBox}qmessagebox @Index{ QMessageBox } dialog, a @Class{QFileDialog}qfiledialog @Index{ QFileDialog },
-a @Class{QFontDialog}qfontdialog @Index{ QFontDialog }, etc., in C++ code.
+a @Class{QFontDialog}qfontdialog @Index{ QFontDialog }, etc., in @Cpp code.
 }
 @LI{
 Stand-alone popup menus

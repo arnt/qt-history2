@@ -159,7 +159,7 @@ accelerators.checking @Index{ Accelerators, Checking }}
 @LI{
 @Option{Edit"|"Check Accelerators}@LLP
 
- Click this menu option (or press @Option{Alt+R}) to verify that all the accelerators are used only once. If an accelerator is used more than once, a message box appears with the statement 'The accelerator 'x' is used 'y' times'. Click @Option{Select} to highlight the widgets with the same accelerator, or click @Option{Cancel} to exit the message box without taking any action.
+ Click this menu option (or press @Option{Alt+R}) to verify that all the accelerators are used only once. If an accelerator is used more than once, a message box appears with the statement 'The accelerator 'x' is used 'y' times'. Click @Option{Select} to highlight the widgets with the same accelerator, or click @Cancel to exit the message box without taking any action.
 
 signals.and.slots @RawIndex{ Signals and Slots }
 signals.and.slots.edit.slots.dialog @SubIndex{ Edit Slots Dialog }
@@ -598,14 +598,14 @@ layouts.horizontal @SubIndex{ Horizontal }}
 @LI{
 @Option{Layout"|"Lay Out Horizontally}@LLP
 
- Click this menu option (or press @Option{Ctrl+H}) to lay out the selected widgets or layouts side by side. Use @Option{Shift+Click} to select each widget or layout, and then choose this menu option to group them horizontally. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the Object Explorer Window. If only one widget is selected, its child widgets will be laid out horizontally.
+ Click this menu option (or press @Option{Ctrl+H}) to lay out the selected widgets or layouts side by side. Use @Option{Shift+Click} to select each widget or layout, and then choose this menu option to group them horizontally. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the @Win{Object Explorer} Window. If only one widget is selected, its child widgets will be laid out horizontally.
 
 layouts @RawIndex{ Layouts }
 layouts.vertical @SubIndex{ Vertical }}
 @LI{
 @Option{Layout"|"Lay Out Vertically}@LLP
 
- Click this menu option (or press @Option{Ctrl+L}) to lay out the selected widgets one above the other. Use @Option{Shift+Click} to select each widget or layout, and then choose this menu option to group them vertically. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the Object Explorer Window. If only one widget is selected, its child widgets will be laid out vertically.
+ Click this menu option (or press @Option{Ctrl+L}) to lay out the selected widgets one above the other. Use @Option{Shift+Click} to select each widget or layout, and then choose this menu option to group them vertically. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the @Win{Object Explorer} Window. If only one widget is selected, its child widgets will be laid out vertically.
 
 layouts @RawIndex{ Layouts }
 layouts.grid @SubIndex{ Grid }}
@@ -621,7 +621,7 @@ layouts.splitters @SubIndex{ Splitters }}
 @LI{
 @Option{Layout"|"Lay Out Horizontally (in Splitter)}@LLP
 
- Click this menu option to lay out the selected widgets or layouts side by side with a splitter between each. Use @Option{Shift+Click} to select each widget or layout, and then choose this menu option to group them horizontally. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the Object Explorer Window.
+ Click this menu option to lay out the selected widgets or layouts side by side with a splitter between each. Use @Option{Shift+Click} to select each widget or layout, and then choose this menu option to group them horizontally. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the @Win{Object Explorer} Window.
 
 layouts @RawIndex{ Layouts }
 layouts.vertical @SubIndex{ Vertical }
@@ -630,7 +630,7 @@ layouts.splitters @SubIndex{ Splitters }}
 @LI{
 @Option{Layout"|"Lay Out Vertically (in Splitter)}@LLP
 
- Click this menu option to lay out the selected widgets or layouts one above the other with a splitter between each. Use @Option{Shift+Click} to select each widget or layout, and then choose this menu option to group them vertically. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the Object Explorer Window.
+ Click this menu option to lay out the selected widgets or layouts one above the other with a splitter between each. Use @Option{Shift+Click} to select each widget or layout, and then choose this menu option to group them vertically. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the @Win{Object Explorer} Window.
 
 layouts @RawIndex{ Layouts }
 layouts.break.layout @SubIndex{ Break layout }}
@@ -758,7 +758,7 @@ windows.object.explorer @SubIndex{ Object Explorer }}
 @LI{
 @Option{Window"|"Views"|"Object Explorer}@LLP
 
- Click this menu option to make the Object Explorer Window visible, or to hide it if it is already visible. If the window is currently visible, a check mark will appear next to the name in the menu.}
+ Click this menu option to make the @Win{Object Explorer} Window visible, or to hide it if it is already visible. If the window is currently visible, a check mark will appear next to the name in the menu.}
 @LI{
 @Option{Window"|"Views"|"Line Up}@LLP
 

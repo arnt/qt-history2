@@ -19,34 +19,39 @@ with each new version, but we may change the internals considerably
 to improve performance and enhance functionality.
 
 @PP
-The Qt Reference Documentation consists of over 1,500 HTML
-pages (around 2,500 printed pages). The overwhelming majority of
+The Qt Reference Documentation consists of over 1{@Comma}500 HTML
+pages (around 2{@Comma}500 printed pages). The overwhelming majority of
 pages document Qt classes. Since developers differ in the way
 they think and work we provide a variety of approaches to navigating
 the documentation set:
 
-@NumberedList 
+@BulletList 
 @LI{
-The All Classes page lists every class in Qt's public API, and
+The `All Classes' page lists every class in Qt's public API, and
 consists of several hundred classes.
 }
 @LI{
-The Main Classes page lists the classes you're most likely to
+The `Main Classes' page lists the classes you're most likely to
 use most often, and provides a much shorter and more managable
 list than the All Classes list.
 }
 @LI{
-The Grouped Classes page presents a list of groups, each of which
+The `Grouped Classes' page presents a list of groups, each of which
 leads to a list of related classes, for example, the Advanced
 Widgets list.
 }
 @LI{
-The Inheritance Hierarchy page presents a list of classes in
+The `Class Chart' page presents a visualisation of most of Qt's
+classes. In HTML format, the classes can be clicked to navigate to the
+relevant documentation.
+}
+@LI{
+The `Inheritance Hierarchy' page presents a list of classes in
 terms of the hierarchy of Qt classes.
 }
 @LI{
-The All Functions page lists all the functions provided by Qt
-classes, each one with links to the class(es) in which it appears.
+The `All Functions' page lists all the functions provided by Qt
+classes, each one with links to the classes in which it appears.
 }
 @EndList
 

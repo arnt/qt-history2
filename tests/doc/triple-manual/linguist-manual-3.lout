@@ -3,8 +3,7 @@
     @Tag { translators }
 @Begin
 @Figure
-    @Caption { 
-@I{Linguist Main Window} }
+    @Caption { Linguist Main Window }
  0.5 @Scale @IncludeGraphic { "images/linguist.eps.gz"
 }
 @BeginSections
@@ -12,16 +11,15 @@
     @Title { The One Minute Guide to Using Qt Linguist }
     @Tag { the.one.minute.guide.to.using.qt.linguist }
 @Begin
-
+@LP
+@QLT is a tool for adding translations to Qt applications.
+It introduces the concept of a translation `context' which means
+a group of phrases that appear together on the screen e.g. in
+the same menu or dialog.
 linguist @Index{ Linguist }
 qt.linguist @Index{ Qt Linguist }
 contexts @RawIndex{ Contexts }
 contexts.for.translation @SubIndex{ for Translation }
-@LP
-@QLT is a tool for adding translations to Qt applications.
-It introduces the concept of a translation "\""context"\"" which means
-a group of phrases that appear together on the screen e.g. in
-the same menu or dialog.
 
 @PP
 To start, run @QLT, either from the taskbar menu,
@@ -49,8 +47,8 @@ next phrase that requires translation.
 @PP
 The cycle of entering a translation then pressing @Option{Ctrl+Enter}
 can be repeated until all the translations are done or until
-you finish the session. Linguist will attempt to fill the "\""phrases
-and guesses"\"" area with possible translations from any open phrase
+you finish the session. Linguist will attempt to fill the `phrases
+and guesses' area with possible translations from any open phrase
 books and any previous translations. Each has a keyboard shortcut,
 e.g. @Option{Ctrl+1}, @Option{Ctrl+2}, etc., which you can use to copy
 the guess into the Translation area. (Mouse users can double
@@ -63,10 +61,12 @@ bar and then @Option{File"|"Exit} to quit.
     @Title { Qt Linguist's Main Window }
     @Tag { qt.linguist.s.main.window }
 @Begin
-@LD @Heading { Context List{@PageMark{context.list}} }
-
-contexts @RawIndex{ Contexts }
-contexts.for.translation @SubIndex{ for Translation }
+@BeginSubSections
+@SubSection
+    @Title { Context List }
+    @Tag{context.list}
+@Begin
+@LP
 This appears at the left hand side of the main window by default.
 The first column, 'Done', identifies whether or not the translations
 for the context have been done. A tick indicates that all the
@@ -81,6 +81,8 @@ have been done. Note that a greyed out tick indicates an obsolete
 translation, i.e. a phrase that was translated in a previous
 version of the application but which does not occur in the new
 version.
+contexts @RawIndex{ Contexts }
+contexts.for.translation @SubIndex{ for Translation }
 
 @PP
 The contexts are ordered alphabetically. The phrases within each
@@ -94,8 +96,12 @@ window to be a window in its own right. If you move the Context
 List, @QLT will remember its position and restore
 it whenever you start the program.
 
-@LD @Heading { Source Text Area{@PageMark{source.text.area}} }
-
+@End @SubSection
+@SubSection
+    @Title { Source Text Area }
+    @Tag{source.text.area}
+@Begin
+@LP
 This appears at the top right of the main window by default.
 The first column, 'Done', signifies the status of the translation.
 A tick indicates that the phrase has been translated and passed
@@ -120,8 +126,12 @@ will fail phrase validation. (See @TitlePageRef{validation}.)
 @PP
 The Source Text Area is a dockable window.
 
-@LD @Heading { Translation Area{@PageMark{translation.area}} }
-
+@End @SubSection
+@SubSection
+    @Title { Translation Area }
+    @Tag{translation.area}
+@Begin
+@LP
 This area appears at the middle right of the main window by default.
 It is comprised of three vertical sections. The first section
 is labelled 'Source text' below which the source text appears.
@@ -131,7 +141,12 @@ If no contextual information has been given this section does
 not appear. The third section is labelled 'Translation' and this
 is where you enter the translation of the source text.
 
-@LD @Heading { Phrases and Guesses Area{@PageMark{phrases.and.guesses.area}} }
+@End @SubSection
+@SubSection
+    @Title { Phrases and Guesses Area }
+    @Tag{phrases.and.guesses.area}
+@Begin
+@LP
 This area appears at the bottom right of the main window by default.
 When you move to a new phrase if the phrase is in one of the
 phrase books that has been loaded the phrase will appear in this
@@ -152,14 +167,19 @@ guesses.in.qt.linguist @SubIndex{ in Qt Linguist }
 
 @PP
 The Phrases and Guesses Area is a dockable window.
-
+@End @SubSection
+@EndSubSections
 @End @Section
 @Section
     @Title { Common Tasks }
     @Tag { common.tasks }
 @Begin
-@LD @Heading { Leaving a Translation for Later{@PageMark{leaving.a.translation.for.later}} }
-
+@BeginSubSections
+@SubSection
+    @Title { Leaving a Translation for Later }
+    @Tag{leaving.a.translation.for.later}
+@Begin
+@LP
 If you wish to leave a translation press @Option{Ctrl+L} (Next Unfinished)
 to move to the next unfinished translation. An unfinished translation
 is one that either has not been translated at all or one which
@@ -169,14 +189,19 @@ to go to a different context entirely, click the context you
 want to work on in the Context list, then click the source text
 in the Source Text area.
 
-@LD @Heading { Phrases That Require Multiple Translations Depending on Context{@PageMark{phrases.that.require.multiple.translations.depending.on.context}} }
+@End @SubSection
+@SubSection
+    @Title { Phrases That Require Multiple Translations Depending on Context }
+    @Tag{phrases.that.require.multiple.translations.depending.on.context}
+@Begin
+@LP
 The same phrase may occur in two or more contexts without conflict.
 Once a phrase has been translated in one context, @QLT
 notes that the translation has been made and when the translator
 reaches a later occurrence of the same phrase @QLT
 will provide the previous translation as a possible translation
 candidate in the phrases and guesses area. If the previous translation
-is acceptable just click the @I{Done "&" Next} button (press
+is acceptable just click the @Option{Done "&" Next} button (press
 @Option{Alt+Enter}) to move on to the next unfinished phrase.
 contexts @RawIndex{ Contexts }
 contexts.for.translation @SubIndex{ for Translation }
@@ -194,7 +219,12 @@ used the duplicate phrases will appear in the context list. The
 programmers comments will appear in the translation area on a
 light blue background.
 
-@LD @Heading { Changing Keyboard Accelerators{@PageMark{changing.keyboard.accelerators}} }
+@End @SubSection
+@SubSection
+    @Title { Changing Keyboard Accelerators }
+    @Tag{changing.keyboard.accelerators}
+@Begin
+@LP
 A keyboard accelerator is a key combination that when pressed
 will cause an application to perform an action. Keyboard accelerators
 normally come in two forms: Alt key and Ctrl key accelerators.
@@ -205,11 +235,11 @@ alt.key @Index{ Alt Key }
 Alt key accelerators are used for menus and buttons. The underlining
 signifies that pressing the Alt key with the underlined letter
 is the same as clicking the menu item with the mouse. For example,
-most applications have a @I{File} menu with the "\""F"\"" in the word
-"\""file"\"" underlined. In these applications the file menu can be
-invoked either by clicking the word "\""File"\"" on the menu bar or
-by pressing Alt+F. The accelerator key which is underlined is
-signified by preceeding it with an ampersand, e.g. @I{}"&"File.
+most applications have a @Option{File} menu with the `F' in the word
+`file' underlined. In these applications the file menu can be
+invoked either by clicking the word `File' on the menu bar or
+by pressing @Option{Alt+F}. The accelerator key which is underlined is
+signified by preceeding it with an ampersand, e.g. @Option{"&"File}.
 If a source phrase appears with an ampersand in it then the translation
 should also contain an ampersand, preferably in front of the
 same letter. The meaning of Alt key accelerators can be determined
@@ -221,29 +251,42 @@ using the same letter in the same context, must be avoided. Note
 that some Alt key accelerators, usually those on the menu bar,
 may apply in other contexts.
 
-
-ctrl.key @Index{ Ctrl Key }@PP
+@PP
 Ctrl key accelerators can exist independently of any visual control.
 They are often used to invoke actions in menus that would otherwise
 take several keystrokes or mouse clicks. They may also be used
 to perform actions that do not appear in any menu or on any button.
-For example, most applications that have a @I{File} menu have
-a submenu item called @I{New}. In many applications this will
-appear as "\""<u>N<"/"u>ew... Ctrl+N"\"". This menu option could be
-invoked by clicking @I{File} then clicking @I{New} with the mouse.
+For example, most applications that have a @Option{File} menu have
+a submenu item called @Option{New}. In many applications this will
+appear as `@Underline{N}ew... Ctrl+N'. This menu option could be
+invoked by clicking @Option{File} then clicking @Option{New} with the mouse.
 Or you could press Alt+F then press N since these letters are
 underlined. But the same thing can be achieved simply by pressing
 @Option{Ctrl+Enter}. Accelerators that use the Ctrl key are shown
 literally in the source text, e.g. @Option{Ctrl+Enter}. Ctrl key accelerators
 have no phrase so the translator
-
-comments @RawIndex{ Comments }
-comments.for.translators @SubIndex{ for Translators } must rely on the programmer to add a "\""comment"\"" which appears in the top right hand pane. This comment should explain what action the Ctrl key accelerator performs. Ideally Ctrl key accelerators are translated simply by copying them by clicking the @I{Begin from Source} button. However in some cases the letter will not make sense in the target language and must be changed. Whatever letter (or digit) is chosen, the translation should always be in the form "\""Ctrl+"\"" followed by the letter or digit in upper case. As with Alt key accelerators, if the translator changes the key it must not conflict with any other Ctrl key accelerator.
+ctrl.key @Index{ Ctrl Key }
+comments @RawIndex{ Comments } comments.for.translators @SubIndex{ for
+Translators } must rely on the programmer to add a `comment'
+which appears in the top right hand pane. This comment should explain
+what action the Ctrl key accelerator performs. Ideally Ctrl key
+accelerators are translated simply by copying them by clicking the
+@Option{Begin from Source} button. However in some cases the letter will
+not make sense in the target language and must be changed. Whatever
+letter (or digit) is chosen, the translation should always be in the
+form `Ctrl+' followed by the letter or digit in upper case. As
+with Alt key accelerators, if the translator changes the key it must
+not conflict with any other Ctrl key accelerator.
 @PP
 Later versions of @QLT are expected to help the translator
 avoid accelerator conflicts.
 
-@LD @Heading { Dealing with Phrases that Contain Variables{@PageMark{dealing.with.phrases.that.contain.variables}} }
+@End @SubSection
+@SubSection
+    @Title { Dealing with Phrases that Contain Variables }
+    @Tag{dealing.with.phrases.that.contain.variables}
+@Begin
+@LP
 Some phrases contain variables. Variables are placeholders for
 items of text that are filled in at runtime. They are signified
 in the source text with a percent sign followed by a digit, e.g.
@@ -260,28 +303,29 @@ be replaced by the same text at runtime no matter where it appears
 in the source text or translation and similarly @Code{%2},
 etc.
 
-@LD @Heading { Reusing Translations{@PageMark{reusing.translations}} }
+@End @SubSection
+@SubSection
+    @Title { Reusing Translations }
+    @Tag{reusing.translations}
+@Begin
+@LP
 If the translated text is similar to the source text, click the
-@I{Begin from Source} button (press @Option{Alt+T}) which will copy
+@Option{Begin from Source} button (press @Option{Alt+T}) which will copy
 the source text into the translation area.
 
 @PP
 @QLT automatically lists phrases from the open phrase
 books and similar or identical phrases that have already been
 translated in the Phrases and guesses area.
-
+@End @SubSection
+@EndSubSections
 @End @Section
 @Section
     @Title { Creating and Using Phrase Books }
     @Tag { creating.and.using.phrase.books }
 @Begin
-
-phrases @RawIndex{ Phrases }
-phrases.in.qt.linguist @SubIndex{ in Qt Linguist }
-phrase.books @Index{ Phrase Books }@PP
 @Figure
-    @Caption { 
-@I{Phrase Book Dialog} }
+    @Caption { Phrase Book Dialog }
  0.5 @Scale @IncludeGraphic { "images/phrasebookdialog.eps.gz" }
 @LP
 A @QLT phrase book is a set of source phrases, target
@@ -289,11 +333,14 @@ A @QLT phrase book is a set of source phrases, target
 are created independently of any application, although typically
 one phrase book will be created per application or family of
 applications.
+phrases @RawIndex{ Phrases }
+phrases.in.qt.linguist @SubIndex{ in Qt Linguist }
+phrase.books @Index{ Phrase Books }
 
 @PP
 If the translator reaches an untranslated phrase that is the
 same as a source phrase in the phrase book, @QLT will
-show the phrase book entry in the @I{Relevant phrases} panel
+show the phrase book entry in the @Win{Relevant phrases} panel
 at the bottom right of the main window. Phrases which have translations
 that conflict with those given in the phrase book are marked
 with a question mark in the source text pane. Phrase Books are
@@ -325,7 +372,8 @@ You can delete a phrase by selecting it in the phrases list and
 clicking Remove Phrase.
 
 @PP
-Click the @I{Save} button (press Alt+S) and then click the @I{Close}
+Click the @Option{Save} button (press Alt+S) and then click the
+@Close
 button (press Esc) once you've finished adding (and removing)
 phrases.
 
@@ -342,7 +390,9 @@ and then double click the target phrase.
     @Title { Validation }
     @Tag { validation }
 @Begin
-
+@LP
+@QLT provides three kinds of validation on translated
+phrases.
 validation.of.translations @Index{ Validation of Translations }
 accelerators @RawIndex{ Accelerators }
 accelerators.validation @SubIndex{ Validation }
@@ -350,9 +400,6 @@ punctuation @RawIndex{ Punctuation }
 punctuation.validation @SubIndex{ Validation }
 phrases @RawIndex{ Phrases }
 phrases.validation @SubIndex{ Validation }
-@LP
-@QLT provides three kinds of validation on translated
-phrases.
 
 @BulletList
 @LI{
@@ -396,7 +443,12 @@ source file but are not used by the application.
     @Title { Qt Linguist Reference }
     @Tag { qt.linguist.reference }
 @Begin
-@LD @Heading { File Types{@PageMark{file.types}} }
+@BeginSubSections
+@SubSection
+    @Title { File Types }
+    @Tag{file.types}
+@Begin
+@LP
 @QLT makes use of three kinds of file:
 
 
@@ -406,7 +458,7 @@ qm.files @Index{ .qm Files }
 qt.message.files @Index{ Qt Message Files }
 qph.files @Index{ .qph Files }
 qt.phrase.book.files @Index{ Qt Phrase Book Files }
-@WideTaggedList
+@TaggedList labelwidth { 3f }
 @TagItem{ @File{.ts} } { @I{Translation source files}
 are human-readable XML files containing source phrases and their
 translations. These files are usually created and updated by @File{lupdate}
@@ -420,20 +472,23 @@ are human-readable XML files containing standard phrases and their
 translations. These files are created and updated by @QLT
 and may be used by any number of projects and applications.}
 @EndList
-@LD @Heading { The Menu Bar{@PageMark{the.menu.bar}} }
+@End @SubSection
+@SubSection
+    @Title { The Menu Bar }
+    @Tag{the.menu.bar}
+@Begin
 @Figure
-    @Caption { 
-@I{Menu Bar} }
+    @Caption { Menu Bar }
  @IncludeGraphic { "images/menubar.eps.gz" }
 @BulletList
 @LI{
 @Option{File}
 
-@VeryWideTaggedList
-@TagItem{ Open.../0.25v @Option{Ctrl+O} }{
+@TaggedList labelwidth { 10f }
+@TagItem{ Open...//0.25v |3f @Option{Ctrl+O} }{
 Pops up an open file dialog from which a translation source 
 @File{.ts} file can be chosen.}
-@TagItem{ Save/0.25v @Option{Ctrl+S} }{
+@TagItem{ Save//0.25v |3f @Option{Ctrl+S} }{
 Saves the current translation source @File{.ts} file.}
 @TagItem{ Save As... }{
 Pops up a save as file dialog so that the current translation source
@@ -445,65 +500,65 @@ message @File{.qm} file of the translation based on the current
 translation source file. The release manager's command line tool
 @File{lrelease} performs the same function on @I{all} of an application's
 translation source files.}
-@TagItem{ Print.../0.25v @Option{Ctrl+P} }{
+@TagItem{ Print...//0.25v |3f @Option{Ctrl+P} }{
 Pops up a print dialog. If you click OK the translation source and the
 translations will be printed.}
-@TagItem{ Recently opened/0.25v files }{
+@TagItem{ Recently opened files }{
 Shows the @File{.ts} files that have been opened recently,
 click one to open it.}
-@TagItem{ Exit/0.25v @Option{Ctrl+Q} }{
+@TagItem{ Exit//0.25v |3f @Option{Ctrl+Q} }{
 Closes @QLT.}
 @EndList}
 @LI{
 @Option{Edit}
 
-@VeryWideTaggedList
-@TagItem{ Undo/0.25v @Option{Ctrl+Z} }{
+@TaggedList labelwidth { 10f }
+@TagItem{ Undo//0.25v |3f @Option{Ctrl+Z} }{
 Undoes the last editing action in the translation pane.}
-@TagItem{ Redo/0.25v @Option{Ctrl+Y} }{ 
+@TagItem{ Redo//0.25v |3f @Option{Ctrl+Y} }{ 
 Redoes the last editing action in the translation pane.}
-@TagItem{ Cut/0.25v @Option{Ctrl+X} }{
+@TagItem{ Cut//0.25v |3f @Option{Ctrl+X} }{
 Deletes any highlighted text in the translation pane and saves a copy
 to the clipboard.}
-@TagItem{ Copy/0.25v @Option{Ctrl+C} }{
+@TagItem{ Copy//0.25v |3f @Option{Ctrl+C} }{
 Copies the highlighted text in the translation pane to the clipboard.}
-@TagItem{ Paste/0.25v @Option{Ctrl+V} }{
+@TagItem{ Paste//0.25v |3f @Option{Ctrl+V} }{
 Pastes the clipboard text into the translation pane.}
-@TagItem{ Select All/0.25v @Option{Ctrl+A} }{
+@TagItem{ Select All//0.25v |3f @Option{Ctrl+A} }{
 Selects all the text in the translation pane ready for copying or deleting.}
-@TagItem{ Find.../0.25v @Option{Ctrl+F} }{
+@TagItem{ Find...//0.25v |3f @Option{Ctrl+F} }{
 Pops up the Find dialog. When the dialog pops up enter the text to be
-found and click the @I{Find Next} button. Source phrases, translations
+found and click the @Option{Find Next} button. Source phrases, translations
 and comments may be searched.}
-@TagItem{ Find Next/0.25v @Option{F3} }{
+@TagItem{ Find Next//0.25v |3f @Option{F3} }{
 Finds the next occurrence of the text that was last entered in the Find dialog.}
 @EndList}
 @LI{
 @Option{Translation}
 
-@VeryWideTaggedList
-@TagItem{ Prev Unfinished/0.25v @Option{Ctrl+K} }{
+@TaggedList labelwidth { 10f }
+@TagItem{ Prev Unfinished//0.25v |3f @Option{Ctrl+K} }{
 Moves to the nearest previous unfinished source phrase (unfinished
 means untranslated or translated but failed validation).}
-@TagItem{ Next Unfinished/0.25v @Option{Ctrl+L} }{
+@TagItem{ Next Unfinished//0.25v |3f @Option{Ctrl+L} }{
 Moves to the next unfinished source phrase.}
-@TagItem{ Prev/0.25v @Option{Shift+Ctrl+K} }{
+@TagItem{ Prev//0.25v |3f @Option{Shift+Ctrl+K} }{
 Moves to the previous source phrase.}
-@TagItem{ Next/0.25v @Option{Shift+Ctrl+L} }{
+@TagItem{ Next//0.25v |3f @Option{Shift+Ctrl+L} }{
 Moves to the next source phrase.}
-@TagItem{ Done "&" Next/0.25v @Option{Ctrl+Enter} }{
+@TagItem{ Done "&" Next//0.25v |3f @Option{Ctrl+Enter} }{
 Mark this phrase as 'done' (translated) and move to the next
 unfinished source phrase.}
-@TagItem{ Begin from/0.25v Source/0.25v @Option{Ctrl+B} }{
+@TagItem{ Begin from//0.25v Source//0.25v |3f @Option{Ctrl+B} }{
 Copies the source text into the translation.}
 @EndList}
 @LI{
 @Option{Validation} (See @TitlePageRef{validation})
 
-@VeryWideTaggedList
+@TaggedList labelwidth { 10f }
 @TagItem{ Accelerators} {
 Toggles validation on or off for Alt accelerators.}
-@TagItem{ Ending/0.25v Punctuation} {
+@TagItem{ Ending//0.25v Punctuation} {
 Switches validation on or off for phrase ending punctuation, e.g.
 ellipsis, exclamation mark, question mark, etc.}
 @TagItem{ Phrase Matches} {
@@ -511,30 +566,30 @@ Sets validation on or off for matching against translations that are
 in the current phrase book.}
 @EndList}
 @LI{
-@Option{Phrase} (See the section Creating and Using Phrase Books [p.~@PageOf{creating.and.using.phrase.books}] for
+@Option{Phrase} (See @TitlePageRef{creating.and.using.phrase.books} for
 details.)
 
-@VeryWideTaggedList
-@TagItem{ New Phrase/0.25v Book.../0.25v @Option{Ctrl+N} }{
+@TaggedList labelwidth { 10f }
+@TagItem{ New Phrase Book...//0.25v |3f @Option{Ctrl+N} }{
 Pops up a save as file dialog. You must enter a filename to be used
 for the phrase book and save the file. Once saved you should open the
 phrase book to begin using it.}
-@TagItem{ Open Phrase/0.25v Book.../0.25v @Option{Ctrl+H} }{
+@TagItem{ Open Phrase Book...//0.25v |3f @Option{Ctrl+H} }{
 Pops up an open file dialog. Find and choose a phrase book to open.}
-@TagItem{ Close Phrase/0.25v Book} {
+@TagItem{ Close Phrase Book} {
 Closes the current phrase book. This will stop any further phrase
 validation taking place. The same effect can be achieved by switching
 off phrase validation using the Validation menu or the phrase toolbar
 button.}
-@TagItem{ Edit Phrase/0.25v Book...} {
+@TagItem{ Edit Phrase Book...} {
 Pops up the phrase book dialog where you can add, edit or delete phrases.}
-@TagItem{ Print Phrase/0.25v Book...} {
+@TagItem{ Print Phrase Book...} {
 Pops up a print dialog. If you click OK the phrase book will be printed.}
 @EndList}
 @LI{
 @Option{View}
 
-@VeryWideTaggedList
+@TaggedList labelwidth { 10f }
 @TagItem{ Revert Sorting} {
 Puts the phrases in the source text pane into their original order.}
 @TagItem{ Display Guesses} {
@@ -545,11 +600,14 @@ Toggles the visibility of the Context, Source text and Phrase views.}
 Toggles the visibility of the different toolbars.}
 @EndList}
 @EndList
-@NP
-@LD @Heading { The Toolbar{@PageMark{the.toolbarx}} }
+
+@End @SubSection
+@SubSection
+    @Title { The Toolbar }
+    @Tag{the.toolbarx}
+@Begin
 @Figure
-    @Caption { 
-@I{Toolbar} }
+    @Caption { Toolbar }
  0.70 @Scale @IncludeGraphic { "images/toolbar.eps.gz"
 }
 @LLP
@@ -614,10 +672,13 @@ B {Toggles phrase ending punctuation validation on and off.}
 @Figure @Location { Raw } @IncludeGraphic { "images/validatephrases.eps.gz" }}
 B {Toggles phrase book validation on or off.}
 }
-@LD @Heading { The Find Dialog{@PageMark{the.find.dialog}} }
+@End @SubSection
+@SubSection
+    @Title { The Find Dialog }
+    @Tag{the.find.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{The Find Dialog} }
+    @Caption { The Find Dialog }
  0.5 @Scale @IncludeGraphic { "images/finddialog.eps.gz" }
 @LP
 Choose @Option{Edit"|"Find} from the menu bar or press @Option{Ctrl+F}
@@ -627,10 +688,17 @@ all be searched and the search will be case-insensitive. These
 settings can be changed by checking or unchecking the checkboxes
 to reflect your preferences.
 
-@LD @Heading { The Phrase Dialog{@PageMark{the.phrase.dialog}} }
+@End @SubSection
+@SubSection
+    @Title { The Phrase Dialog }
+    @Tag{the.phrase.dialog}
+@Begin
+@LP
 This dialog is explained in the Creating and Using Phrase Books [p.~@PageOf{creating.and.using.phrase.books}]
 section.
 
+@End @SubSection
+@EndSubSections
 @End @Section
 @EndSections
 @End @Chapter

@@ -5,10 +5,10 @@
     @Tag { introduction }
 @Begin
 @LP
-This document introduces @QAT, a tool for presenting
-on-line documentation. It also introduces the Qt Reference Documentation
-which is accessible using @QAT, or with a web browser.
-The document is divided into the following sections:
+This document introduces @QAT, a tool for presenting on-line
+documentation. It also introduces the Qt Reference Documentation which
+is accessible using @QAT, or with a web browser. The document is
+divided into the following sections:
 
 @BulletList
 @LI{ @TitlePageRef{introduction.to.the.qt.reference.documentation} }
@@ -18,7 +18,6 @@ The document is divided into the following sections:
 @LI{ @TitlePageRef{adding.documentation.to.qt.assistant} }
 @EndList
 @Figure
-    @Caption { 
-@QAT }
+    @Caption { @QAT }
  0.5 @Scale @IncludeGraphic { "images/assistant-wp.eps.gz" }
 @BeginSections

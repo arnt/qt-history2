@@ -16,7 +16,7 @@ point of view, @QDR in 2.x is a fairly simple program.
 It reads and writes @File{.ui} files. Each @File{.ui}
 file contains an XML description of a single dialog form. A second
 utility -- the user interface compiler @File{uic} -- is
-used during the build process of an application to generate C++
+used during the build process of an application to generate @Cpp
 code from those XML descriptions.
 
 @PP
@@ -57,9 +57,9 @@ you prefer.
 
 @PP
 To make working more convenient, @QDR now includes
-a C++ editor (as a plugin). If you want to create or edit a form,
+a @Cpp editor (as a plugin). If you want to create or edit a form,
 use @QDR. If you want edit code for that form, you
-can use the C++ editor in @QDR as well. This built-in
+can use the @Cpp editor in @QDR as well. This built-in
 editor has certain benefits stemming from its tight integration
 with the visual form design process that we will explain later.
 However, if you prefer using the editor you're used to, @File{vim},
@@ -246,7 +246,7 @@ which we'll cover next.
 @LD @Heading { The subclassing approach{@PageMark{the.subclassing.approach}} }
 @PP
 A very clean way to implement custom slots for generated forms
-is via C++ inheritance as shown in the next figure:
+is via @Cpp inheritance as shown in the next figure:
 
 @PP
 @Figure 0.3 @Scale @IncludeGraphic { "images/designer2.eps.gz"
@@ -319,12 +319,12 @@ This is how it works:
 @PP
 In addition to the @File{.ui} file, @File{form.ui},
 @QDR reads and writes another associated file @File{form.ui.h}.
-This @File{.ui.h} file is an @I{ordinary C++ source file}
+This @File{.ui.h} file is an @I{ordinary @Cpp source file}
 that contains @I{implementations} of custom slots. The file gets
 included from the generated form implementation file @File{form.cpp}
 and thus can be totally ignored by other user code. The reason
 we use a @File{.h} extension for the @File{.ui.h}
-file even though it contains C++ code is because it is always
+file even though it contains @Cpp code is because it is always
 @I{included}, and because it is easier to integrate into the
 build process with a @File{.h} extension.
 
@@ -357,7 +357,7 @@ and no more danger of forgotten or misspelled slots in subclasses.
 
 @PP
 You can edit @File{.ui.h} files either directly in @I{Qt
-Designer} with the built-in C++ editor plugin, or with whatever
+Designer} with the built-in @Cpp editor plugin, or with whatever
 editor you prefer. You should only put slot implementations in
 the @File{.ui.h} file and you should @I{always} add, delete
 or rename slots @I{within} @QDR. You can edit the
@@ -373,7 +373,7 @@ custom slot implementations, but the objects are still entirely
 constructed and destructed inside the generated @File{form.cpp}
 code. This leaves the user without the possibility of doing further
 form initializations or cleanups that you normally would do within
-the constructor and destructor functions of a C++ class.
+the constructor and destructor functions of a @Cpp class.
 
 @PP
 To work around this limitation, we created the init"/"destroy
@@ -385,7 +385,7 @@ before any form controls get deleted. (These slots should return
 void.) If you prefer to use your own editor you must still create
 these functions in @QDR; once created you can then
 write your implementation code either using @QDR's
-C++ editor plugin or using your own editor.
+@Cpp editor plugin or using your own editor.
 
 @End @Section
 @Section
@@ -405,10 +405,10 @@ and is useful in environments where the GUI may have to change
 more often than the underlying application logic. Ultimately,
 you can provide users of your application the ability to modify
 the graphical user interface without the need for a complete
-C++ development environment.
+@Cpp development environment.
 
 @PP
-Since the .ui file is not compiled it cannot include any C++
+Since the .ui file is not compiled it cannot include any @Cpp
 code, (e.g. custom slot implementations). We provide a way of
 adding those implementations via a controlling QObject subclass
 that you pass as receiver to the widget factory.

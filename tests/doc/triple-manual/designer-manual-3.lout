@@ -27,14 +27,14 @@ that allows users to create, edit and save lists of colors. Each
 color has a user defined name and an RGB (Red, Green, Blue) value.
 
 @PP
-This application presents the user with a view of a set of colors
-and their names. We will provide two views (using a @Class{QWidgetStack}qwidgetstack @Index{ QWidgetStack })
-which the user can switch between. The tabular view will show
-each color as a small square followed by its name and hex value.
-It will also provide the option of an indicator to show whether
-or not the color is one of the 216 standard web colors. The iconic
-view will show each color as a circular color swatch with the
-name of the color beneath.
+This application presents the user with a view of a set of colors and
+their names. We will provide two views (using a
+@Class{QWidgetStack}qwidgetstack @Index{ QWidgetStack }) which the
+user can switch between. The tabular view will show each color as a
+small square followed by its name and hex value. It will also provide
+the option of an indicator to show whether or not the color is one of
+the 216 standard web colors. The iconic view will show each color as a
+circular color swatch with the name of the color beneath.
 
 @PP
 The application will read and write files in the format used
@@ -74,17 +74,19 @@ desktop application. To start @QDR under Windows click
 the @Option{Start} button and click @Option{Programs"|"Qt X.x.x"|"Designer}.
 (X.x.x is the Qt version number, e.g. 3.1.0.) If you're running
 a Unix or Linux operating system you can either double click
-the @QDR icon or enter @File{designer &}
-in an xterm.
+the @QDR icon or enter @File{designer "&"}
+in an @File{xterm}.
 starting.qt.designer @Index{ Starting Qt Designer }
 
 @PP
 When @QDR starts it shows the @Win{New"/"Open} dialog.
-(If you prefer the old behavior, check the "\""Don't show this dialog
-in the future"\"" checkbox.) We'll just click @Option{Cancel} to skip
+(If you prefer the old behavior, check the @Option{Don't show this dialog
+in the future} checkbox.) We'll just click @Cancel to skip
 over it.
 
-@Figure 0.5 @Scale @IncludeGraphic { "images/mw-startdesign.eps.gz" }
+@Figure
+    @Caption { The New"/"Open Dialog }
+    0.5 @Scale @IncludeGraphic { "images/mw-startdesign.eps.gz" }
 @LP
 When you've finished using @QDR click @Option{File"|"Exit};
 you will be prompted to save any unsaved changes. Help is available
@@ -111,14 +113,15 @@ object.explorer @Index{ Object Explorer }
 pixmaps @Index{ Pixmaps }
 On the left is the new Toolbox. This
 contains buttons which you click to reveal a particular set of tools.
-On the right there are three windows: the first is the Project
-Overview window, the second is the Object Explorer and the third is
-the Properties"/"Editor Signal Handlers window. The Project Overview
+On the right there are three windows: the first is the @Win{Project
+Overview} window, the second is the @Win{Object Explorer} and the third is
+the @Win{Properties"/"Editor Signal Handlers} window. The @Win{Project
+Overview}
 window lists the files and images associated with the project; to open
 any form (@File{.ui} file), or the code associated with it (in
-the @File{.ui.h} file), simply single click it. The Object
-Explorer window lists the current form's widgets and members. The
-Properties"/"Editor window is used to view and change the properties
+the @File{.ui.h} file), simply single click it. The @Win{Object
+Explorer} window lists the current form's widgets and members. The
+@Win{Properties"/"Editor} window is used to view and change the properties
 of forms and widgets. We will cover the use of @QDR's
 windows, dialogs, menu options and tools as we create the example
 application.
@@ -129,7 +132,7 @@ application.
 @Begin
 @LP
 Our @File{colortool} application is going to be a standard
-C++ application, so we need to create a C++ project and add our
+@Cpp application, so we need to create a @Cpp project and add our
 files and code to this project.
 
 @Figure
@@ -152,9 +155,11 @@ advantage that all the forms you create for the project are available
 via a single mouse click rather than having to be loaded individually
 through file open dialogs. An additional benefit of using project
 files is that they allow you to store all your images in a single file
-rather than duplicate them in each form in which they appear. See The
-Designer Approach chapter's Project management section for detailed
-information on the benefits of using project files.
+rather than duplicate them in each form in which they appear. See
+@TitlePageRef{the.designer.approach} chapter's
+@TitlePageRef{project.management}
+section for detailed information on the benefits of using project
+files.
 @PP
 Project files use the @File{.pro} suffix and are used
 by the @File{qmake} tool to create makefiles for the relevant
@@ -168,50 +173,54 @@ Create a new project as follows:
 Click @Option{File"|"New} to invoke the @Win{New File} dialog.
 }
 @LI{
-Click "\""C++ Project"\"" to create a C++ project, then click @Option{OK}
+Click @Option{@Cpp Project} to create a @Cpp project, then click @OK
 to pop up the @Win{Project Settings} dialog.
 }
 @LI{
 Click the ellipsis button to invoke the @Win{Save As} dialog. Use
 this dialog to navigate to where you want to create the new project,
-ideally creating a new folder for it (e.g. called "\""colortool"\""),
+ideally creating a new folder for it (e.g. called @File{colortool}),
 using the @Option{Create New Folder} toolbar button.
 }
 @LI{
-Enter a filename of "\""colortool.pro"\"", then click @Option{OK}. The project's
-name will now be "\""colortool"\""; click @Option{OK} to close the
+Enter a filename of @File{colortool.pro}, then click @OK. The project's
+name will now be @File{colortool}; click @OK to close the
 @Win{Project Settings} dialog.
 @LLP
-@Figure @Location { Raw } 0.5 @Scale @IncludeGraphic { "images/mw-projset.eps.gz"
-}
+@Figure
+    @Caption { The Project Settings Dialog }
+    @Location { Raw }
+    0.5 @Scale @IncludeGraphic { "images/mw-projset.eps.gz" }
 
 }
 @LI{
 Click @Option{File"|"Save} to save the project.
 }
 @EndList
-@Figure 0.5 @Scale @IncludeGraphic { "images/mw-newfile.eps.gz" }
+@Figure
+    @Caption { The New File Dialog }
+    0.5 @Scale @IncludeGraphic { "images/mw-newfile.eps.gz" }
 @LP
 The @Win{New File} dialog is used to create all the files that
-can be used in a @QDR project. This includes C++ source
+can be used in a @QDR project. This includes @Cpp source
 files, an automatically generated @File{main.cpp} file
 (if you are in a project), and a variety of forms based on pre-defined
 templates. (You can create your own templates too.)
 
 @PP
-For the @File{colortool} application we want to start
-with a main window form. When we create this form, @QDR
-will present a wizard which we can use to automatically create
-menu and toolbar options and automatically create the relevant
-signal"/"slot connections. For every menu option or toolbar button,
-@QDR will create a single @Class{QAction}qaction @Index{ QAction } (see the Actions
-and Action Groups sidebar).
+For the @File{colortool} application we want to start with a main
+window form. When we create this form, @QDR will present a wizard
+which we can use to automatically create menu and toolbar options and
+automatically create the relevant signal"/"slot connections. For every
+menu option or toolbar button, @QDR will create a single
+@Class{QAction}qaction @Index{ QAction } (see the ``Actions and Action
+Groups'' @PageRef{actions.and.action.groups.sidebar} sidebar).
 
 @Figure
 { Actions and Action Groups } @Sidebar {
-An @I{action} is an operation that the user initiates through
-the user interface, for example, saving a file or changing some
-text's font weight to bold.
+An @PageMark{actions.and.action.groups.sidebar} @I{action} is an
+operation that the user initiates through the user interface, for
+example, saving a file or changing some text's font weight to bold.
 @PP
 We often want the user to be able to perform an action using a variety
 of means. For example, to save a file we might want the user to be
@@ -233,9 +242,9 @@ Some actions should operate together like radio buttons. For example,
 if we have left align, center align and right align actions, only one
 should be 'on' at any one time. An @I{action group} (a
 @Class{QActionGroup}qactiongroup @Index{ QActionGroup } object) is used to
-group a set of actions together. If the action group's @Prop{exclusive} property is TRUE then only one of the actions in
+group a set of actions together. If the action group's @Prop{exclusive} property is @TRUE then only one of the actions in
 the group can be on at any one time. If the user changes the state of
-an action in an action group where @Prop{exclusive} is TRUE,
+an action in an action group where @Prop{exclusive} is @TRUE,
 everything associated with the actions in the action group, e.g. menu
 items and toolbar buttons, are updated.
 @PP
@@ -280,14 +289,17 @@ adding.toolbar.buttons @SubIndex{ Toolbar Buttons }
 
 @PP
 Click @Option{File"|"New} to invoke the @Win{New File} dialog, click
-"\""Main Window"\"" to create a main window form, then click @Option{OK}.
+@Option{Main Window} to create a main window form, then click @OK.
 A new @Class{QMainWindow}qmainwindow @Index{ QMainWindow } form will
 be created and the @Win{Main Window Wizard} will pop up.
 
 @PP
 Click @Option{File"|"Save} to save the form as @File{mainform.ui}.
-@DP
-@Heading { Using the Main Window Wizard{@PageMark{using.the.main.window.wizard}} }
+@BeginSubSections
+@SubSection
+    @Title { Using the Main Window Wizard }
+    @Tag{using.the.main.window.wizard}
+@Begin
 @BulletList
 @LI{
 The @Win{Choose available menus and toolbars} wizard page appears
@@ -323,10 +335,8 @@ adding.toolbar.buttons @SubIndex{ Toolbar Buttons }
 signals.and.slots @RawIndex{ Signals and Slots }
 signals.and.slots.connecting.actions @SubIndex{ Connecting Actions }
 @Figure
-    @Caption { 
-@I{Main Window Wizard: Choosing menus and toolbars} }
- 0.5 @Scale @IncludeGraphic { "images/mw-menuwiz.eps.gz"
-}}
+    @Caption { The Main Window Wizard: Choosing menus and toolbars }
+ 0.5 @Scale @IncludeGraphic { "images/mw-menuwiz.eps.gz" }}
 @LI{
 The @TitlePageRef{setup.toolbar} wizard page is used to populate a toolbar
 with actions from each of the default action categories. The
@@ -356,10 +366,8 @@ Copy a <Separator> to the Toolbar list box. Change the Category
 to Edit and copy the Cut Copy and Find actions to the Toolbar
 list box. Click @Option{Next} and then click @Option{Finish}.
 @Figure
-    @Caption { 
-@I{Main Window Wizard: Setting up the toolbar} }
- 0.5 @Scale @IncludeGraphic { "images/mw-settoolwiz.eps.gz"
-}}
+    @Caption { The Main Window Wizard: Setting up the toolbar }
+    0.5 @Scale @IncludeGraphic { "images/mw-settoolwiz.eps.gz" }}
 @EndList
 If you preview the form (@Option{Ctrl+T}) the File and Edit menus
 will be available and you'll be able to drag the toolbar either
@@ -369,13 +377,12 @@ not yet functional, but we will rectify this as we progress.
 You leave preview mode by clicking the form's Close box (or the
 platform-specific equivalent).
 @Figure
-    @Caption { @I{Previewing the Form} }
- 0.5 @Scale @IncludeGraphic { "images/mw-previewform.eps.gz"
-}
+    @Caption { Previewing the Form }
+    0.5 @Scale @IncludeGraphic { "images/mw-previewform.eps.gz" }
 @LP
 Now that we've created the form we will need to change some of
-its properties. (See the Using the Property Editor sidebar
-@PageRef{using.the.property.editor.sidebar}.)
+its properties. (See the ``Using the Property Editor''
+@PageRef{using.the.property.editor.sidebar} sidebar.)
 @Figure
     @CD 
     @Tbl
@@ -416,8 +423,8 @@ If you want to change the same property to the same value for
 a whole set of widgets, (e.g. to give them all a common cursor,
 tooltip, colors, etc.), @Option{Click} one of the widgets, then @Option{Shift+Click}
 the others to select them all. (Alternatively, click the first
-widget's name in Object Explorer, then @Option{Shift+Click} all the
-others in Object Explorer: this technique is especially useful
+widget's name in @Win{Object Explorer}, then @Option{Shift+Click} all the
+others in @Win{Object Explorer}: this technique is especially useful
 for forms with lots of nested widgets and layouts.) The properties
 they have in common will be shown in the property editor, and
 any change made to one property will be made to that same property
@@ -438,8 +445,8 @@ property the value
 	    B {
 @Figure
     @Location { Raw }
-    @Caption { @I{The Property Editor} }
- 0.5 @Scale @IncludeGraphic { "images/mw-propedit.eps.gz" }
+    @Caption { The Property Editor }
+    0.5 @Scale @IncludeGraphic { "images/mw-propedit.eps.gz" }
 }
 	@Rowc A {
 will be shown in a drop down combobox; click the
@@ -478,27 +485,31 @@ redo @RawIndex{ Redo }
 redo.undo.and.redo @SubIndex{ Undo and Redo }
 	}
 }
-@LD @Heading { Setting Properties{@PageMark{setting.properties}} }
-
+@End @SubSection
+@SubSection
+    @Title { Setting Properties }
+    @Tag{setting.properties}
+@Begin
+@LP
 Click the form. This will make all the form's properties appear
-in the Property Editor. Change the form's @Prop{name} to "\""MainForm"\""
-and its @Prop{caption} to "\""Color Tool"\"".
+in the Property Editor. Change the form's @Prop{name} to `MainForm'
+and its @Prop{caption} to `Color Tool'.
 
 @PP
 The main window wizard created a few slots and actions that are
 not relevant to our application, so we'll delete them.
 
 @PP
-Click the Object Explorer's Members tab. Right click the @Func{filePrint()}
-slot, then click Delete from the popup menu. In the same way
+Click the @Win{Object Explorer}'s @Option{Members} tab. Right click the @Func{filePrint()}
+slot, then click @Option{Delete} from the popup menu. In the same way
 delete the @Func{editUndo()}, @Func{editRedo()} and @Func{editPaste()} slots. (Right
-click @Func{editUndo()}, then click Delete, etc.) Later we'll see how
+click @Func{editUndo()}, then click @Option{Delete}, etc.) Later we'll see how
 to create new slots when we add further functionality to the
 application.
 
 @PP
 Right click the filePrintAction action in the Action Editor window,
-then click Delete Action from the popup menu. In the same way
+then click @Option{Delete Action} from the popup menu. In the same way
 delete the editUndoAction, editRedoAction and editPasteAction
 actions.
 
@@ -511,13 +522,14 @@ Click the form's @Option{File} menu. (Note, we're clicking our newly
 created form's @Option{File} menu, not @QDR's @Option{File}
 menu!) There are @I{two} separators above the Exit menu option
 (the @Option{File"|"Print} option was in-between until we deleted
-it). Right click one of these separators, then click Delete Separator.
+it). Right click one of these separators, then click @Option{Delete
+Separator}.
 Don't worry if you miss and delete a menu option by accident:
 if you delete the wrong thing click @Option{Edit"|"Undo} to undelete.
 The form's @Option{Edit} menu has a redundant separator at the top
 (the undo and redo options were there). Delete this separator
 in the same way. (Click the form's @Option{Edit} menu, right click
-the separator, click Delete Separator.) Again, don't worry if
+the separator, click @Option{Delete Separator}.) Again, don't worry if
 you delete a menu option by mistake, just press @Option{Ctrl+Z} to
 undo.
 
@@ -575,7 +587,7 @@ which will be put in
 	    B {
 @Figure
     @Location { Raw }
-    @Caption { @I{Object Explorer} }
+    @Caption { Object Explorer }
  0.5 @Scale @IncludeGraphic { "images/mw-objexplor.eps.gz" }
 }
     @Rowc A {
@@ -583,8 +595,9 @@ the generated constructor's code, and you can add
 forward declarations and any includes you require. To add a variable
 or declaration, right click the appropriate item, e.g. Class
 Variables, then click @Option{New} then enter your text, e.g. 
-@Class{QString} @Var{m_filename}. If one or more items exist, right
-clicking will popup a menu that has New, Edit and Delete options. If
+@Code{QString m_filename}. If one or more items exist, right
+clicking will popup a menu that has @Option{New}, @Option{Edit} and
+@Option{Delete} options. If
 you want to enter multiple items, e.g. multiple include files or
 multiple data members, it is easiest to right click in the relevant
 section, then click @Option{Edit} to invoke an Edit dialog. To edit code,
@@ -624,11 +637,15 @@ If you subclass the form you create your own subclassing @Index{
 Subclassing } cpp @Index{ .cpp } @File{.cpp} files which can
 contain your own constructor, destructor, functions, slots,
 declarations and variables as your requirements dictate. (See
-Subclassing for more information.)
+@TitlePageRef{subclassing} for more information.)
 }
 }
-@LD @Heading { Adding Custom Actions{@PageMark{adding.custom.actions}} }
-
+@End @SubSection
+@SubSection
+    @Title { Adding Custom Actions }
+    @Tag{adding.custom.actions}
+@Begin
+@LP
 We want to provide the user with actions that are specific to
 our application. We want to provide the ability to switch between
 the two views we will be offering, and allow the user to add
@@ -639,11 +656,11 @@ to the toolbar.
 @PP
 Right click the form's menu bar to pop up its context menu, then
 click the @Option{Add Menu Item} option. This creates a new menu item
-called "\""Menu"\"" to the right of the existing menu bar items. Click
-"\""Menu"\"" and drag it to the left of the "\""Help"\"" menu and release
+called `Menu' to the right of the existing menu bar items. Click
+`Menu' and drag it to the left of the `Help' menu and release
 it there. (A vertical red line indicates its position.) Right
-click "\""Menu"\"", then click @Option{Rename Menu Item}. Change its name
-to "\"""&"View"\"". The "&" (ampserand) makes the following letter
+click @Option{Menu}, then click @Option{Rename Menu Item}. Change its name
+to `"&"View'. The "&" (ampserand) makes the following letter
 an @Option{Alt} key accelerator (i.e. in this case @Option{Alt+V} will
 pop up the @Option{View} menu).
 
@@ -657,11 +674,12 @@ accelerators, making it easy to spot the problem if it occurs.
 }
 @PP
 We could create a new toolbar for the view menu items, but instead
-we'll put a separator at the end of the existing toolbar and
-add the view options after the separator. (Alternatively we could
-have created an entirely new toolbar. See Creating and Populating
-Toolbars for more information on doing this.) Right click the
-right-most toolbar button ("\""Find"\""), then click @Option{Insert Separator}.
+we'll put a separator at the end of the existing toolbar and add the
+view options after the separator. (Alternatively we could have created
+an entirely new toolbar. See the ``Creating and Populating Toolbars''
+@PageRef{creating.and.populating.toolbars} sidebar for more
+information on doing this.) Right click the right-most toolbar button
+(@Option{Find}), then click @Option{Insert Separator}.
 
 @PP
 @Figure 
@@ -673,11 +691,12 @@ Now we'll create our form's custom actions.
 
 @Figure
 { Creating and Populating Toolbars } @Sidebar {
-A new toolbar is created by right clicking on the menu bar (or
-to the right of the existing toolbar(s)) then clicking @Option{Add Toolbar}. The new toolbar is empty and is visible only by its
-@I{toolbar handle}. (Toolbar handle's are usually represented
-as a gray area containing either two thick vertical lines or
-with many small pits).
+A @PageMark{creating.and.populating.toolbars} new toolbar is created
+by right clicking on the menu bar (or to the right of the existing
+toolbar(s)) then clicking @Option{Add Toolbar}. The new toolbar is
+empty and is visible only by its @I{toolbar handle}. (Toolbar handle's
+are usually represented as a gray area containing either two thick
+vertical lines or with many small pits).
 creating.toolbars @Index{ Creating Toolbars }
 adding @RawIndex{ Adding }
 adding.toolbars @SubIndex{ Toolbars }
@@ -685,8 +704,8 @@ toolbars.creating @Index{ Toolbars, Creating }
 @LLP
 @Figure
     @Location { Raw }
-    @Caption { @I{Toolbar Handle} }
- 0.5 @Scale @IncludeGraphic { "images/mw-toolbarpits.eps.gz" }
+    @Caption { Toolbar Handle }
+    0.5 @Scale @IncludeGraphic { "images/mw-toolbarpits.eps.gz" }
 @LP
 Actions are added to toolbars simply by dragging them from the
 Action Editor to the toolbar, and dropping them on the toolbar
@@ -703,7 +722,7 @@ adding.toolbar.separators @SubIndex{ Toolbar Separators }
 @LLP
 @Figure
     @Location { Raw }
-    @Caption { @I{Dragging the Action Group to the Toolbar} }
+    @Caption { Dragging the Action Group to the Toolbar }
  0.5 @Scale @IncludeGraphic { "images/mw-dragaction.eps.gz" }
 @LP
 All the actions in an action group are added to a toolbar in
@@ -719,9 +738,9 @@ vertical gray lines), can be dragged and dropped into new positions
 in the toolbar at any time. Separators can be inserted by right
 clicking a toolbar button and clicking @Option{Insert Separator}.
 Toolbar buttons and separators can be deleted by right clicking
-them and then clicking Delete Item. Toolbars can be deleted by
-right clicking their toolbar handle and then clicking Delete
-Toolbar.
+them and then clicking @Option{Delete Item}. Toolbars can be deleted by
+right clicking their toolbar handle and then clicking @Option{Delete
+Toolbar}.
 separator @RawIndex{ Separator }
 separator.toolbar.button @SubIndex{ Toolbar button }
 deleting @RawIndex{ Deleting }
@@ -738,11 +757,11 @@ previewing.toolbars @SubIndex{ Toolbars }
 @LLP
 @Figure
     @Location { Raw }
-    @Caption { @I{Toolbar with all the Actions Added} }
+    @Caption { Toolbar with all the Actions Added }
  0.5 @Scale @IncludeGraphic { "images/mw-actiongroup.eps.gz"
 }
 @LP
-@I { Adding Widgets to the Toolbar{@PageMark{adding.widgets.to.the.toolbar}} }
+@Heading { Adding Widgets to the Toolbar{@PageMark{adding.widgets.to.the.toolbar}} }
 @LP
 Sometimes a simple button is insufficient for our needs. For
 example, if we wanted the user to be able to choose a font name
@@ -776,25 +795,29 @@ that can sensibly be inserted directly into a toolbar are @I{ComboBox}es,
 @I{SpinBox}es and @I{Line Edit}s.
 }
 
-@LD @I { Adding the Options Action{@PageMark{adding.the.options.action}} }
-
-Right click the first action in the Action Editor, then click
-@Option{New Action}. The Property Editor now shows the new action's
-properties. Change the action's name to "\""optionsAction"\"". Click
-the ellipsis button on the @Prop{iconSet} property to pop up the
+@BeginSubSubSections
+@SubSubSection
+    @Title { Adding the Options Action }
+    @Tag{adding.the.options.action}
+@Begin
+@LP
+Right click the first action in the @Win{Action Editor}, then click
+@Option{New Action}. The @Win{Property Editor} now shows the new action's
+properties. Change the action's name to `optionsAction'. Click
+the @Option{...} button on the @Prop{iconSet} property to pop up the
 @Win{Choose an Image} dialog. Click the @Option{Add...} button to pop
 up the @Win{Choose Images...} file selection dialog. Navigate to
 @File{"qt/tools/designer/pics/small"}; click the
 @File{tabwidget.png} image, then click @Option{Open}. The @File{tabwidget.png} image now appears highlighted in the
-@Win{Choose an Image} dialog; click @Option{OK} to use it. Change the
-@Prop{text} property to "\""Options"\"" and change the @Prop{menuText} property
-to "\"""&"Options..."\"".
+@Win{Choose an Image} dialog; click @OK to use it. Change the
+@Prop{text} property to `Options' and change the @Prop{menuText} property
+to `"&"Options...'.
 
 @PP
 Click the optionsAction in the Action Editor and drag it to the
 Edit menu. The Edit menu will pop up; drag the optionsAction
 down the menu (a horizontal red line indicates its position),
-and drop it at the end after the "\""Find"\"" option.
+and drop it at the end after the `Find' option.
 
 @PP
 Since we also want to make this option available from the toolbar,
@@ -804,52 +827,65 @@ horizontal red line indicates its position during the drag.)
 
 @PP
 The options action ought to be visually separated from the other
-Edit menu options. Click the form's Edit menu, then right click
-the "\""Find"\"" option, then click @Option{Insert Separator}.
+Edit menu options. Click the form's @Option{Edit} menu, then right click
+the @Option{Find} option, then click @Option{Insert Separator}.
 
 @PP
 We'll connect and code this action later.
 
-@LD @I { Adding the Add Action{@PageMark{adding.the.add.action}} }
-
-Right click the first action in the Action Editor, then click
-@Option{New Action}. Change the action's @Prop{name} property to "\""editAddAction"\"".
+@End @SubSubSection
+@SubSubSection
+    @Title { Adding the Add Action }
+    @Tag{adding.the.add.action}
+@Begin
+@LP
+Right click the first action in the @Win{Action Edito}r, then click
+@Option{New Action}. Change the action's @Prop{name} property to
+`editAddAction'.
 Change its @Prop{iconSet} property to @File{widgetstack.png}.
 (Click the @Prop{iconSet} property's ellipsis button, click @Option{Add...},
 click @File{widgetstack.png}, then click @Option{Open}, then
-click @Option{OK}.) Change the @Prop{text} property to "\""Add"\"" and the
-@Prop{menuText} property to "\"""&"Add..."\"". Change the @Prop{accel} property
-to "\""Ctrl+A"\"".
+click @OK.) Change the @Prop{text} property to `Add' and the
+@Prop{menuText} property to `"&"Add...'. Change the @Prop{accel} property
+to `Ctrl+A'.
 
 @PP
 Click the editAddAction and drag it to be the first item in the
 Edit menu. (Drag it to the edit menu and drop it when the horizontal
-red line is above the "\""Cut"\"" menu option.)
+red line is above the `Cut' menu option.)
 
 @PP
 Click the editAddAction again, and this time drag it to the toolbar.
 Drop it to the left of the scissors (Cut) toolbar button.
 
-@LD @I { Tidying Up{@PageMark{tidying.up}} }
-
-We're going to use "\""Cut"\"" for deleting colors, so we'll change
-the user-visible name to "\""Delete"\"" to make its meaning clearer.
+@End @SubSubSection
+@SubSubSection
+    @Title { Tidying Up }
+    @Tag{tidying.up}
+@Begin
+@LP
+We're going to use `Cut' for deleting colors, so we'll change
+the user-visible name to `Delete' to make its meaning clearer.
 Click the editCutAction in the Action Editor to make its properties
 appear in the Property Editor. Change its @Prop{text} property to
-"\""Delete"\"" and change its @Prop{menuText} property to "\"""&"Delete"\"".
+`Delete' and change its @Prop{menuText} property to `"&"Delete'.
 
 @PP
 A side-effect of the above change is that @Option{Alt+C} (originally
-used for "\""Cut"\"") is now unused. Click the editCopyAction action
+used for `Cut') is now unused. Click the editCopyAction action
 in the Action Editor, and change its @Prop{menuText} property to
-"\"""&"Copy"\"".
+`"&"Copy'.
 
 @PP
 We can always check to see if there are any accelerator conflicts
 by clicking @Option{Edit"|"Check Accelerators} (or @Option{Alt+R}).
 
-@LD @I { Adding an Action Group{@PageMark{adding.an.action.group}} }
-
+@End @SubSubSection
+@SubSubSection
+    @Title { Adding an Action Group }
+    @Tag{adding.an.action.group}
+@Begin
+@LP
 We want to provide the user with a choice of views, but since
 they can only use one view at a time we need to ensure that the
 menu options and toolbar buttons they use to switch between views
@@ -858,11 +894,11 @@ this: we simply put the relevant actions in an action group and
 let Qt take care of the details.
 
 @PP
-Right click an action in the Action Editor, then click @Option{New Action Group}. The action group's properties are now showing
+Right click an action in the @Win{Action Editor}, then click @Option{New Action Group}. The action group's properties are now showing
 in the Property Editor. Change the action group's @Prop{name} property
-to "\""viewActionGroup"\"", and change its @Prop{text} property to "\""View"\"".
+to `viewActionGroup', and change its @Prop{text} property to `View'.
 We want the action group to be @Prop{exclusive}, i.e. for only one
-of its actions to be "\""on"\"" at any one time; but there's no need
+of its actions to be `on' at any one time; but there's no need
 to set the @Prop{exclusive} property since it defaults to True which
 is what we want.
 
@@ -871,44 +907,48 @@ We'll now create the view actions. The process is virtually the
 same as for actions that are not in an action group; the only
 difference is that when we right click to pop up the context
 menu, we @I{must} right click the relevant action group, not
-just anything in the Action Editor.
+just anything in the @Win{Action Editor}.
 
 @PP
 Right click the viewActionGroup, then click @Option{New Action}. Change
-this action's @Prop{name} property to "\""viewTableAction"\"". Set its
+this action's @Prop{name} property to `viewTableAction'. Set its
 @Prop{toggleAction} property to True and set its @Prop{on} property
 to True. We want it to be a toggle action because either the
-user is using this view (it is "\""on"\"") or another view (it is "\""off"\"").
-We set this action to "\""on"\"" because it will be the default view.
+user is using this view (it is `on') or another view (it is `off').
+We set this action to `on' because it will be the default view.
 Change its @Prop{iconSet} property to @File{table.png}. (Click
 the @Prop{iconSet} property's ellipsis button, click @Option{Add..},
 click @File{table.png}, then click @Option{Open}, then click
-@Option{OK}.) Change the @Prop{text} property to "\""View Table"\"" and the
-@Prop{menuText} property to "\""View "&"Table"\"". Change the @Prop{accel}
-property to "\""Ctrl+T"\"", and set the @Prop{toolTip} property to "\""View
-Table (Ctrl+T)"\"". When the user clicks the @Option{View} menu and hovers
-the mouse over the "\""View Table"\"" option the tool tip will appear
+@OK.) Change the @Prop{text} property to `View Table' and the
+@Prop{menuText} property to `View "&"Table'. Change the @Prop{accel}
+property to `Ctrl+T, and set the @Prop{toolTip} property to `View
+Table (Ctrl+T)'. When the user clicks the @Option{View} menu and hovers
+the mouse over the `View Table' option the tool tip will appear
 in the status bar. Similarly when the user hovers the mouse over
-the "\""View Table"\"" toolbar button, the tool tip text will appear
+the `View Table' toolbar button, the tool tip text will appear
 both in the status bar and in a temporary yellow label next to
 the toolbar button.
 
 @PP
 Right click the viewActionGroup, then click @Option{New Action}. Change
-this action's @Prop{name} property to "\""viewIconsAction"\"". Set its
+this action's @Prop{name} property to `viewIconsAction'. Set its
 @Prop{toggleAction} property to True. Change its @Prop{iconSet} property
 to @File{iconview.png}. Change the @Prop{text} property to
-"\""View Icons"\"" and the @Prop{menuText} property to "\""View "&"Icons"\"".
-Change the @Prop{toolTip} property to "\""View Icons (Ctrl+I)"\"", and
-set the @Prop{accel} property to "\""Ctrl+I"\"".
+`View Icons' and the @Prop{menuText} property to `View "&"Icons'.
+Change the @Prop{toolTip} property to `View Icons (Ctrl+I)', and
+set the @Prop{accel} property to `Ctrl+I'.
 
 @PP
 Note that the Action Editor window is dockable, so if you don't
 want it to float freely you can drag it to one of @QDR's
 dock areas (top, left, right, bottom of the main window) if preferred.
 
-@LD @I { Using an Action Group{@PageMark{using.an.action.group}} }
-
+@End @SubSubSection
+@SubSubSection
+    @Title { Using an Action Group }
+    @Tag{using.an.action.group}
+@Begin
+@LP
 Now that we've created the view actions we need to make them
 available to the user.
 
@@ -930,7 +970,10 @@ Don't forget that you can preview to see things in action with
 regularly! If you preview now you will find that if you click
 the view toolbar buttons and menu options that both the toolbar
 buttons and the menu items automatically stay in sync.
-
+@End @SubSubSection
+@EndSubSubSections
+@End @SubSection
+@EndSubSections
 @End @Section
 @Section
     @Title { Creating the Main Widget }
@@ -946,7 +989,8 @@ commonly used as an application's main widget are @Class{QListView}qlistview @In
 we want to provide our users with two different views of the
 same data, we'll use a @Class{QWidgetStack}qwidgetstack @Index{ QWidgetStack } as our main widget. The
 @Class{QWidgetStack}qwidgetstack @Index{ QWidgetStack } has no visual representation of its own; you
-place one or more widgets on each @Class{QWidgetStack}qwidgetstack @Index{ QWidgetStack } "\""page"\"", as
+place one or more widgets on each @Class{QWidgetStack}qwidgetstack
+@Index{ QWidgetStack } `page', as
 if each page was a form in its own right, and then provide the
 user with some mechanism for switching between pages. (This is
 similar in principle to using a @Class{QTabWidget}qtabwidget @Index{ QTabWidget }.) We want to provide
@@ -957,13 +1001,15 @@ page; but this merely reflects the application's design -- we
 could have placed any number of widgets on each page.
 
 @PP
-Click the Toolbox's Containers button, then click WidgetStack.
+Click the @Win{Toolbox}'s @Option{Containers} button, then click
+@Option{WidgetStack}.
 Click approximately in the middle of the form to place the widget
-stack. Change the widget stack's @Prop{name} property to "\""colorWidgetStack"\"".
+stack. Change the widget stack's @Prop{name} property to
+`colorWidgetStack'.
 
 @Figure
-    @Caption { @I{ Widget Placement}}
- 0.5 @Scale @IncludeGraphic { "images/mw-addmainwidg.eps.gz" }
+    @Caption { Widget Placement }
+    0.5 @Scale @IncludeGraphic { "images/mw-addmainwidg.eps.gz" }
 @LP
 When placing widgets on forms using @QDR, you only
 need to place things in @I{approximately} the right place. And
@@ -987,35 +1033,36 @@ Click the form itself, then click the @Option{Lay Out Vertically}
 toolbar button. The widget stack now fills the entire form. We're
 now ready to populate the widget stack's pages with widgets.
 
-@Figure 0.5 @Scale @IncludeGraphic { "images/mw-laymainwidg.eps.gz"
-}
-
+@Figure
+    @Caption { Laying out the Widget Stack }
+    0.5 @Scale @IncludeGraphic { "images/mw-laymainwidg.eps.gz" }
 
 @LP
-Click the Toolbox's Views button. Click Table, then click approximately
-in the middle of the widget stack. Change the table's @Prop{name}
-property to "\""colorTable"\"", change its @Prop{numRows} property to
-"\""0"\"", and its @Prop{readOnly} property to "\""True"\"".
+Click the @Win{Toolbox}'s @Option{Views} button. Click @Option{Table},
+then click approximately in the middle of the widget stack. Change the
+table's @Prop{name} property to `colorTable', change its
+@Prop{numRows} property to `0', and its @Prop{readOnly} property to
+`True'.
 
 @PP
 If you right click a widget to pop up its context menu, in most
-cases the first item will be an "\""Edit"\"" option. The Table widget
-is no different in this respect, and its "\""Edit"\"" option leads
+cases the first item will be an @Option{Edit} option. The Table widget
+is no different in this respect, and its @Option{Edit} option leads
 to a dialog through which columns and rows can have their titles
 changed, etc.
 
 @PP
-Right click the table, then click @Option{Edit...} to invoke the @I{Edit
-Table} dialog. Change the Label for column 1 to "\""Name"\"". Click
-"\""2"\"" in the Columns list so that column 2's label is shown in
-the Label line edit. Change column 2's label to "\""Hex"\"". In the
-same way change column 3's label to "\""Web"\"". (The reference section
-provides full information on this dialog.) Click @Option{OK} to close
+Right click the table, then click @Option{Edit...} to invoke the @Win{Edit
+Table} dialog. Change the Label for column 1 to `Name'. Click
+`2' in the Columns list so that column 2's label is shown in
+the Label line edit. Change column 2's label to `Hex'. In the
+same way change column 3's label to `Web'. (The reference section
+provides full information on this dialog.) Click @OK to close
 the dialog.
 
-@Figure 0.5 @Scale @IncludeGraphic { "images/mw-colortable.eps.gz" }
-
-
+@Figure
+    @Caption { Adding the Table }
+    0.5 @Scale @IncludeGraphic { "images/mw-colortable.eps.gz" }
 @LP
 Click the widget stack, then click the @Option{Lay Out Vertically}
 toolbar button. The table now fits inside the widget stack, and
@@ -1023,51 +1070,54 @@ will resize with the widget stack (which in turn will resize
 with the form: try clicking @Option{Ctrl+T} to preview and resize
 the previewed form).
 
-@Figure 0.5 @Scale @IncludeGraphic { "images/mw-laycolortable.eps.gz" }
-
-
+@Figure
+    @Caption { Laying out the Table }
+    0.5 @Scale @IncludeGraphic { "images/mw-laycolortable.eps.gz" }
 @LP
-Click the "\""page"\"" object in Object Explorer. Change its @Prop{name}
-property to "\""tablePage"\"".
+Click the `page' object in @Win{Object Explorer}. Change its @Prop{name}
+property to `tablePage'.
 
 @PP
 We're now ready to create the next page. Right click the widget
 stack, then click @Option{Add Page} on the context menu. The table
-has "\""disappeared"\"", or rather the new widget stack page obscures
+has `disappeared', or rather the new widget stack page obscures
 the first widget stack page which contains the table. Click IconView
 in the Toolbox, then click approximately in the middle of the
-widget stack. Change the IconView's @Prop{name} property to "\""colorIconView"\""
-and change its @Prop{resizeMode} property to "\""Adjust"\"". We want our
+widget stack. Change the IconView's @Prop{name} property to
+`colorIconView'
+and change its @Prop{resizeMode} property to `Adjust'. We want our
 color swatches to appear in neat columns so change the @Prop{gridX}
-property to "\""100"\"".
+property to `100'.
 
-@Figure 0.5 @Scale @IncludeGraphic { "images/mw-coloriconv.eps.gz" }
-
+@Figure
+    @Caption { Adding the IconView }
+    0.5 @Scale @IncludeGraphic { "images/mw-coloriconv.eps.gz" }
 
 @LP
 It is often useful to create IconView items during design, but
 it isn't appropriate for our application. Right click the IconView
 to popup its context menu, then click @Option{Edit...} to invoke the
 @Win{Edit IconView} dialog. Click @Option{Delete Item} to delete the
-default item, then click @Option{OK}.
+default item, then click @OK.
 
 @PP
 Click the widget stack, then click the @Option{Lay Out Vertically}
 toolbar button. The icon view now fits inside the widget stack.
 
-@Figure 0.5 @Scale @IncludeGraphic { "images/mw-laycoloriconv.eps.gz" }
-
-
+@Figure
+    @Caption { Laying out the IconView }
+    0.5 @Scale @IncludeGraphic { "images/mw-laycoloriconv.eps.gz" }
 @LP
-Click the "\""page"\"" object in Object Explorer. Change its name to
-"\""iconsPage"\"".
+Click the `page' object in @Win{Object Explorer}. Change its name to
+`iconsPage'.
 
 @PP
 Right click the widget stack, then click @Option{Previous Page}.
 
 @PP
 That completes the user interface design for our application's
-main window. Note that if you preview the form clicking the "\""View"\""
+main window. Note that if you preview the form clicking the
+@Option{View}
 menu options and toolbar buttons has no effect. This is because
 we haven't written any code to be executed when the actions triggered
 by these menu options and toolbar buttons occur. We'll write
@@ -1095,68 +1145,79 @@ variables. For example, we need to keep track of whether a view
 needs updating (because the user loaded a new set of colors,
 or added or deleted colors in the other view).
 
-@LD @Heading { Adding Member Variables{@PageMark{adding.member.variables}} }
-
-Click Object Explorer's Members tab. Right click "\""Class Variables"\""
-(towards the bottom), then click @Option{Edit}. The @I{Edit Class
-Variables} dialog appears. Click the @Option{Add} button, and type
-in "\""QMap<QString,QColor> m_colors"\"". We will use this map to relate
-user color names to colors. Click the @Option{Add} button again, and
-type in "\""bool m_changed"\"". We'll use this variable to keep track
-of whether the data has changed or not; this is useful for offering
-the user a prompt to save unsaved changes when they exit or open
-a new file, for example.
-
-@Figure 0.5 @Scale @IncludeGraphic { "images/mw-editvar.eps.gz" }
-
+@BeginSubSections
+@SubSection
+    @Title { Adding Member Variables }
+    @Tag{adding.member.variables}
+@Begin
 @LP
-In the same way add "\""QString m_filename;"\"" so that we can keep
-track of the file the user has open. Add "\""bool m_table_dirty"\""
-and "\""bool m_icons_dirty"\"". If the user adds a color when viewing
+Click @Win{Object Explorer}'s @Option{Members} tab. Right click @Option{Class
+Variables} (towards the bottom), then click @Option{Edit}. The @I{Edit
+Class Variables} dialog appears. Click the @Option{Add} button, and
+type in @Code @Verbatim{QMap<QString,QColor> m_colors}. We will use
+this map to relate user color names to colors. Click the @Option{Add}
+button again, and type in @Code{bool m_changed}. We'll use this
+variable to keep track of whether the data has changed or not; this is
+useful for offering the user a prompt to save unsaved changes when
+they exit or open a new file, for example.
+
+@Figure
+    @Caption { The Edit Variables Dialog }
+    0.5 @Scale @IncludeGraphic { "images/mw-editvar.eps.gz" }
+@LP
+In the same way add @Code{QString m_filename;} so that we can keep
+track of the file the user has open. Add @Code{bool m_table_dirty}
+and @Code{bool m_icons_dirty}. If the user adds a color when viewing
 the table we'll mark the icons as 'dirty' so that the icon view
 will be updated if the user changes to view the icons, and vice
-versa. Add "\""bool m_show_web;"\"" -- we'll use this to record whether
+versa. Add @Code{bool m_show_web;} -- we'll use this to record whether
 or not the user wants a column in the table to indicate which
-colors are web colors. Add "\""int m_clip_as;"\"" -- we'll use this
+colors are web colors. Add @Code{int m_clip_as;} -- we'll use this
 to choose what to put on the clipboard when the user clicks @Option{File"|"Copy}.
-We'll keep a pointer to the global clipboard, so add "\""QClipboard
-*clipboard;"\"". Finally add "\""QStringList m_comments;"\"". This is
+We'll keep a pointer to the global clipboard, so add @Code{QClipboard
+*clipboard;}. Finally add @Code{QStringList m_comments;}. This is
 used for loading and saving color files and is explained later.
 
 @PP
 You should now have the following variables:
 
-@ID @Tbl
-    margin { 0.15f }
-    aformat { @Cell A | @Cell B }
-{
-    @Rowa A { QMap<QString,QColor> } B { m_colors; }
-    @Rowa A { bool } B { m_changed; }
-    @Rowa A { QString } B { m_filename; }
-    @Rowa A { bool } B { m_table_dirty; }
-    @Rowa A { bool } B { m_icons_dirty; }
-    @Rowa A { bool } B { m_show_web; }
-    @Rowa A { int } B { m_clip_as; }
-    @Rowa A { QClipboard *} B { clipboard; }
-    @Rowa A { QStringList } B { m_comments; }
-}
+@TaggedList labelwidth { 12f } gap { 0.75vx } indent { @ParaIndent }
+@TagItem{ QMap<QString,QColor> }{m_colors; }
+@TagItem{ bool }{m_changed; }
+@TagItem{ QString }{m_filename; }
+@TagItem{ bool }{m_icons_dirty; }
+@TagItem{ bool }{m_table_dirty; }
+@TagItem{ bool }{m_show_web; }
+@TagItem{ int }{m_clip_as; }
+@TagItem{ QClipboard *}{clipboard; }
+@TagItem{ QStringList }{m_comments; }
+@EndList
 
-Press @Option{Enter}, to confirm the last variable, then click @Option{Close}
-to close the dialog. All the variables now appear in Object Explorer's
-Members tab.
+Press @Option{Enter}, to confirm the last variable, then click @Close
+to close the dialog. All the variables now appear in @Win{Object
+Explorer}'s
+@Option{Members} tab.
 
-@LD @I { Adding Forward Declarations{@PageMark{adding.forward.declarations}} }
-
+@End @SubSection
+@SubSection
+    @Title { Adding Forward Declarations }
+    @Tag{adding.forward.declarations}
+@Begin
+@LP
 Some of the variables we've created are of classes that need
-forward declarations. Right click Forward Declarations (in Object
-Explorer's Members tab), then click @Option{Edit}. This pops up the
+forward declarations. Right click @Option{Forward Declarations} (in
+@Win{Object
+Explorer}'s @Option{Members} tab), then click @Option{Edit}. This pops up the
 @Win{Edit Forward Declarations} dialog. This dialog works in exactly
 the same way as the @Win{Edit Class Variables} dialog that we've
-just used. Add the following forward declarations: "\""class QString;"\""
-and "\""class QColor;"\"". Close the dialog and the forward declarations
-appear in Object Explorer.
+just used. Add the following forward declarations: @Code{class
+QString;}
+and @Code{class QColor;}. Close the dialog and the forward declarations
+appear in @Win{Object Explorer}.
 
-@Figure 0.5 @Scale @IncludeGraphic { "images/mw-editforw.eps.gz" }
+@Figure
+    @Caption { The Edit Forwarrd Declarations Dialog }
+    0.5 @Scale @IncludeGraphic { "images/mw-editforw.eps.gz" }
 
 @LP
 You should now have the following forward declarations:
@@ -1166,19 +1227,26 @@ class QString;
 class QColor;
 }
 
-@LD @I { Adding Includes{@PageMark{adding.includes}} }
+@End @SubSection
+@SubSection
+    @Title { Adding Includes }
+    @Tag{adding.includes}
+@Begin
+@LP
+Our form will also need some included files. Includes may be added in
+the declaration, or (for preference) in the implementation. Right
+click @Option{Includes (in Implementation)}, then click @Option{Edit}.
+Use the dialog that pops up to enter @Code @Verbatim{"qcolor.h"} and
+@Code @Verbatim{"qstring.h"}. Since we're going to use the clipboard
+we'll need access to the global clipboard object via
+@Class{QApplication}qapplication @Index{ QApplication }, so also add
+@Code @Verbatim{"qapplication.h"} and @Code @Verbatim{"qclipboard.h"}.
+We'll also be doing some drawing (e.g. the color swatches), so add
+@Code @Verbatim{"qpainter.h"} too, then close the dialog.
 
-Our form will also need some included files. Includes may be
-added in the declaration, or (for preference) in the implementation.
-Right click "\""Includes (in Implementation)"\"", then click @Option{Edit}.
-Use the dialog that pops up to enter "\""qcolor.h"\"" and "\""qstring.h"\"".
-Since we're going to use the clipboard we'll need access to the
-global clipboard object via @Class{QApplication}qapplication @Index{ QApplication }, so also add "\""qapplication.h"\""
-and "\""qclipboard.h"\"". We'll also be doing some drawing (e.g. the
-color swatches), so add "\""qpainter.h"\"" too, then close the dialog.
-
-@Figure 0.5 @Scale @IncludeGraphic { "images/mw-editincimp.eps.gz" }
-
+@Figure
+    @Caption { The Edit Includes (in Implementation) Dialog }
+    0.5 @Scale @IncludeGraphic { "images/mw-editincimp.eps.gz" }
 @LP
 When entering include files you can include double quotes or
 angle brackets if you wish; if you don't use either @QDR
@@ -1199,15 +1267,19 @@ You should now have added the following includes (in implementation):
 "\""qpainter.h"\""
 }
 
-@LD @Heading { Signals and Slots Connections{@PageMark{signals.and.slots.connections}} }
-
+@End @SubSection
+@SubSection
+    @Title { Signals and Slots Connections }
+    @Tag{signals.and.slots.connections}
+@Begin
+@LP
 Most of the signals and slots connections were created automatically
 by the main window wizard when we created the main form. We have
 added some new actions since then, and we need to ensure that
 they are connected to slots so that we can code their behavior.
 
 @Figure
-    @Caption { @I{ Creating Signals and Slots Connections} }
+    @Caption { Creating Signals and Slots Connections }
  0.5 @Scale @IncludeGraphic { "images/mw-conn1.eps.gz" }
 @LP
 Click @Option{Edit"|"Connections} to invoke the @Win{View and Edit Connections}
@@ -1227,33 +1299,40 @@ of connections in one go.)
 We want to update the status bar so that the user can see information
 about the color they're on. Click @Option{Edit"|"Connections} to invoke
 the @Win{View and Edit Connections} dialog. Click @Option{New} to create
-a new connection. Change the Sender to "\""colorTable"\"" and the Signal
-to "\""currentChanged(int,int)"\"". Change the Receiver to "\""MainForm"\"".
+a new connection. Change the Sender to `colorTable' and the Signal
+to @Func{currentChanged(int,int)}. Change the Receiver to `MainForm'.
 
-@Figure 0.5 @Scale @IncludeGraphic { "images/mw-conn2.eps.gz" }
+@Figure
+    @Caption { The View and Edit Connections Dialog }
+    0.5 @Scale @IncludeGraphic { "images/mw-conn2.eps.gz" }
 
 @LP
 We want to connect to our own custom slot which we haven't yet
 created. Click the @Option{Edit Slots...} button to invoke the @I{Edit
-Functions} dialog. Change the slot name (which defaults to "\""newSlot"\"")
-to "\""changedTableColor(int,int)"\"". Click @Option{OK} to close the dialog.
+Functions} dialog. Change the slot name (which defaults to `newSlot')
+to @Func{changedTableColor(int,int)}. Click @OK to close the dialog.
 
-@Figure 0.5 @Scale @IncludeGraphic { "images/mw-editfunc.eps.gz" }
+@Figure
+    @Caption { The Edit Functions Dialog }
+    0.5 @Scale @IncludeGraphic { "images/mw-editfunc.eps.gz" }
 
 @LP
 Now change the Slot in the @Win{View and Edit Connections} dialog
-to our newly created "\""changedTableColor(int,int)"\"" slot.
+to our newly created @Func{changedTableColor(int,int)} slot.
 
-@Figure 0.5 @Scale @IncludeGraphic { "images/mw-conn3.eps.gz" }
+@Figure
+    @Caption { The View and Edit Connections Dialog }
+    0.5 @Scale @IncludeGraphic { "images/mw-conn3.eps.gz" }
 
 @LP
 Click @Option{New} to create a new connection. Change the Sender to
-"\""colorIconView"\"" and the Signal to "\""currentChanged(QIconViewItem*)"\"".
-Change the Receiver to "\""MainForm"\"". Click the @Option{Edit Slots...}
+`colorIconView' and the Signal to
+@Func{currentChanged(QIconViewItem*)}.
+Change the Receiver to `MainForm'. Click the @Option{Edit Slots...}
 button to invoke the @Win{Edit Functions} dialog. Change the slot
-name to "\""changedIconColor(QIconViewItem*)"\"". Click @Option{OK} to close
+name to @Func{changedIconColor(QIconViewItem*)}. Click @OK to close
 the dialog. Now change the Slot in the @Win{View and Edit Connections}
-dialog to "\""changedIconColor(QIconViewItem*)"\"".
+dialog to @Func{changedIconColor(QIconViewItem*)}.
 
 @PP
 Now we can implement our @Func{changedTableColor()} and
@@ -1268,9 +1347,9 @@ ensure that the icon view does not show the deleted color.
 
 @PP
 Click @Option{New} to create a new connection. Change the Sender to
-"\""colorWidgetStack"\"", the Signal to "\""aboutToShow(int)"\"", and the
-Receiver to "\""MainForm"\"". Create a new slot called "\""aboutToShow()"\""
-and make this the Slot that the widget stack's "\""aboutToShow(int)"\""
+`colorWidgetStack', the Signal to @Func{aboutToShow(int)}, and the
+Receiver to `MainForm'. Create a new slot called @Func{aboutToShow()}
+and make this the Slot that the widget stack's @Func{aboutToShow(int)}
 signal connects to. The signal includes the ID of the widget
 that is about to be shown; but we don't need it so we create
 a slot that doesn't take any parameters.
@@ -1282,19 +1361,25 @@ but it is more convenient (and easier to extend) if we connect
 the action group as a whole.
 
 @PP
-Create a new connection with the "\""viewActionGroup"\"" as the Sender.
-Change the Signal to "\""selected(QAction*)"\"" and change the Receiver
-to "\""MainForm"\"". Create a slot called "\""changeView(QAction*)"\"" and
+Create a new connection with the `viewActionGroup' as the Sender.
+Change the Signal to @Func{selected(QAction*)} and change the Receiver
+to `MainForm'. Create a slot called @Func{changeView(QAction*)} and
 make this the slot that the signal connects to.
 
 @PP
-Click @Option{OK} to close the @Win{View and Edit Connections} dialog.
+Click @OK to close the @Win{View and Edit Connections} dialog.
 We are now ready to write the code.
 
-@Figure 0.5 @Scale @IncludeGraphic { "images/mw-conn4.eps.gz" }
+@Figure
+    @Caption { The View and Edit Connections Dialog }
+    0.5 @Scale @IncludeGraphic { "images/mw-conn4.eps.gz" }
 
-@LD @Heading { Editing the Code: Setting Up{@PageMark{editing.the.code.setting.up}} }
-
+@End @SubSection
+@SubSection
+    @Title { Preparing to Add the Code }
+    @Tag{preparing.to.add.the.code}
+@Begin
+@LP
 There is quite a lot of code to include in the application, but
 this does not mean that a lot of typing is required! All the
 code is reproduced here so, if you're reading an electronic copy,
@@ -1320,16 +1405,20 @@ enter the names of the arguments in the functions' parameter
 lists.
 }
 @PP
-Click @File{mainform.ui.h} in the Project Overview window.
+Click @File{mainform.ui.h} in the @Win{Project Overview} window.
 A code editor window showing the empty slots appears.
 
 @PP
-Unfortunately all the slots are called "\""Form1::"\""... instead of
-"\""MainForm::"\"".... This is easily remedied. Click @Option{Search"|"Replace...},
-to invoke the @Win{Replace Text} dialog. Enter "\""Form1"\"" as the Find
-text and "\""MainForm"\"" as the Replace text, then click @Option{Replace All}. Click @Option{Close}.
+Unfortunately all the slots are called `Form1::...' instead of
+`MainForm::...' This is easily remedied. Click @Option{Search"|"Replace...},
+to invoke the @Win{Replace Text} dialog. Enter `Form1' as the Find
+text and `MainForm' as the Replace text, then click @Option{Replace All}. Click @Close.
 
-@LD @I { Adding Constants{@PageMark{adding.constants}} }
+@BeginSubSubSections
+@SubSubSection
+    @Title { Adding Constants }
+    @Tag{adding.constants}
+@Begin
 @LD @Code @RawVerbatim @Begin
     const int CLIP_AS_HEX = 0;
     const int CLIP_AS_NAME = 1;
@@ -1341,15 +1430,21 @@ text and "\""MainForm"\"" as the Replace text, then click @Option{Replace All}. 
     const QString APP_KEY = "/ColorTool/";
 @End @RawVerbatim
 We define some useful constants for our form since it's easier
-to remember "\""CLIP_AS_RGB"\"" than "\""2"\"". The two @Class{QString}qstring @Index{ QString }s are
+to remember @Code{CLIP_AS_RGB} than `2'. The two @Class{QString}qstring @Index{ QString }s are
 used by @Class{QSettings}qsettings @Index{ QSettings } when we come to load and save user preferences;
 they're explained when we cover @Func{loadOptions()} and
 @Func{saveOptions()}. Note that we can insert any valid
-C++ into a @File{.ui.h} file including constant declarations
+@Cpp into a @File{.ui.h} file including constant declarations
 as we've done here and @Code{"#"include}s, etc.
 qstring @Index{ QString }
-
-@PP
+@End @SubSubSection
+@EndSubSubSections
+@End @SubSection
+@SubSection
+    @Title { Adding the Functions }
+    @Tag {adding.the.functions }
+@Begin
+@LP
 Since we're not subclassing if we want to have code executed
 during construction we must create an @Func{init()} function;
 this will be called at the end of the form's constructor.
@@ -1373,15 +1468,15 @@ this will be called at the end of the form's constructor.
 @End @RawVerbatim
 The @PageMark{init} first thing we do is take a pointer to the global clipboard
 object. The @Func{setSelectionMode()} call ensures that
-the clipboard works as expected on all all platforms. The "\""findForm"\""
-and "\""loadSettings()"\"" lines will be covered later; if you're entering
+the clipboard works as expected on all all platforms. The @Code{findForm}
+and @Code{loadSettings()} lines will be covered later; if you're entering
 the code, comment them out for now. We set the filename to be
 empty because the user hasn't opened a file. We set changed to
 false since no changes have taken place yet. But we mark both
 the table and the icon view as dirty since we want these to be
 drawn straight away. We call the @Func{clearData()} function
 that we'll write next; this function clears all the color data,
-and if called with "\""TRUE"\"", it creates new colors with default
+and if called with @Code{@TRUE}, it creates new colors with default
 values.
 qapplication @Index{ QApplication }
 
@@ -1485,7 +1580,7 @@ icon view with data.
     }
 @End @RawVerbatim
 This @PageMark{populate} function is at the heart of the application. It visually
-presents the data to the user. If the table is "\""dirty"\"" (e.g.
+presents the data to the user. If the table is `dirty' (e.g.
 if the user has added or deleted colors in the icon view, or
 has opened a color file) we will populate the table. We start
 by deleting the contents of every cell. Next we change the number
@@ -1503,35 +1598,36 @@ qiconviewitem @Index{ QIconViewItem }
 We now create an iterator for our colors map, and iterate over
 every color. The colors map has the user's color names as its
 keys, and @Class{QColor}qcolor @Index{ QColor } instances as values. We retrieve the color
-and fill our pixmap with that color. We then set the "\""Name"\"" column
+and fill our pixmap with that color. We then set the `Name' column
 (column @Var{COL_NAME}), to have the color's name (@Code{it.key()}) and the pixmap we've just filled with that
 color. @Class{QColor}qcolor @Index{ QColor }'s @Func{name()} function returns a string
-that is the hex representation of a color, e.g. "\"""#"12AB2F"\"";
-we retrieve this and set the second ("\""Hex"\"") column to this value.
+that is the hex representation of a color, e.g. `"#"12AB2F';
+we retrieve this and set the second (`Hex') column to this value.
 
 @PP
 If the user wants to see if which colors are web colors we create
 a @Class{QCheckTableItem}qchecktableitem @Index{ QCheckTableItem }, and check it if it is a web color. (We'll
 cover @Func{isWebColor()} shortly.) We then insert this
-@Class{QCheckTableItem}qchecktableitem @Index{ QCheckTableItem } into the "\""Web"\"" column.
+@Class{QCheckTableItem}qchecktableitem @Index{ QCheckTableItem } into
+the `Web' column.
 
 @PP
 Having populated the table we call @Func{adjustColumn()}
 to ensure that each column is just wide enough to show its widest
-entry, and show or hide the "\""Web"\"" column depending on the user's
+entry, and show or hide the `Web' column depending on the user's
 preference.
 
 @PP
-Finally we set @Var{m_table_dirty} to FALSE, since it
+Finally we set @Var{m_table_dirty} to @FALSE, since it
 is now up-to-date.
 
 @PP
-If the icon view is "\""dirty"\"" we @Func{clear()} it of any
+If the icon view is `dirty' we @Func{clear()} it of any
 existing data. We then iterate over each color in our colors
 map. For each color we create a new @Class{QIconViewItem}qiconviewitem @Index{ QIconViewItem }; we label
 the item with the user's color name and provide a pixmap (generated
 by @Func{colorSwatch()}, covered shortly) in the relevant
-color. Finally we set @Var{m_icons_dirty} to "\""FALSE"\"",
+color. Finally we set @Var{m_icons_dirty} to `@FALSE',
 since it is now up-to-date.
 
 
@@ -1579,8 +1675,12 @@ qpixmap @Index{ QPixmap }
 qcolor @Index{ QColor }
 qpainter @Index{ QPainter }
 
-@LD @Heading { Creating main.cpp{@PageMark{creating.main.cpp}} }
-
+@End @SubSection
+@SubSection
+    @Title { Creating main.cpp }
+    @Tag{creating.main.cpp}
+@Begin
+@LP
 Now that we've entered some of the code it would be nice to build
 and run the application to get a feel for the progress we've
 made. To do this we need to create a @Func{main()} function.
@@ -1590,10 +1690,10 @@ to create this file for us.
 
 @PP
 Click @Option{File"|"New} to invoke the @Win{New File} dialog. Click
-"\""C++ Main-File"\"", then click OK. The @Win{Configure Main-File} dialog
+@Option{@Cpp Main-File}, then click @OK. The @Win{Configure Main-File} dialog
 appears, listing the all the forms in the project. We've only
-got one form, "\""MainForm"\"", so it is already highlighted. Click
-@Option{OK} to create a @File{main.cpp} file that loads our
+got one form, `MainForm', so it is already highlighted. Click
+@OK to create a @File{main.cpp} file that loads our
 MainForm.
 
 @LD @Code @RawVerbatim @Begin
@@ -1616,7 +1716,7 @@ qapplication @Index{ QApplication }
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
 @End @RawVerbatim
 If we left this code as-is, the user could by-pass our own termination
-code by clicking the main window's close (X) button. Since we
+code by clicking the main window's @Close (@Multiply) button. Since we
 want to give the user the option to save any unsaved changes
 we need to ensure that we intercept any attempt to close the
 application. To achieve this we delete the connection and add
@@ -1625,15 +1725,15 @@ to close the application and call our @Func{fileExit()}
 function.
 
 @PP
-Click @File{main.cpp} in the Project Overview window.
+Click @File{main.cpp} in the @Win{Project Overview} window.
 The file will appear in an editing window. Delete the connect
 line.
 
 @PP
-Click @File{mainform.ui.h} in the Project Overview window;
+Click @File{mainform.ui.h} in the @Win{Project Overview} window;
 (you may need to click @File{mainform.ui} first to reveal
-@File{mainform.ui.h}). Right click "\""fileExit()"\"" in Object
-Explorer's Members list (under Slots, public), then click @Option{Goto Implementation}. Add the following slot above the @Func{fileExit()}
+@File{mainform.ui.h}). Right click @Func{fileExit()} in @Win{Object
+Explorer}'s Members list (under Slots, public), then click @Option{Goto Implementation}. Add the following slot above the @Func{fileExit()}
 slot:
 
 @LD @Code @RawVerbatim @Begin
@@ -1658,8 +1758,12 @@ we'll revise this function to give the user the opportunity to
 save any unsaved data.
 qapplication @Index{ QApplication }
 
-@LD @I { Building and Running{@PageMark{building.and.running}} }
-
+@End @SubSection
+@SubSection
+    @Title { Building and Running }
+    @Tag{building.and.running}
+@Begin
+@LP
 We now have some code in the application and a @File{main.cpp}
 containing the @Func{main()} function, so we should be
 able to compile, link and run the application.
@@ -1674,7 +1778,7 @@ and run @File{qmake} to generate a Makefile:
     qmake -o Makefile colortool.pro
 @End @RawVerbatim
 Now make the project (run @File{nmake} on Windows, @File{make} on other platforms). Providing you commented
-out the "\""findForm"\"" and "\""loadSettings"\"" lines in the @Func{init()}
+out the `findForm' and `loadSettings' lines in the @Func{init()}
 function, the program should build. (If it doesn't build see
 the Troubleshooting section.)
 
@@ -1682,11 +1786,15 @@ the Troubleshooting section.)
 Once the make has finished, run the program. You still can't
 change views since we haven't written the code for that yet,
 but it does create a default set of colors. You can terminate
-the application by clicking the close (X) button or by clicking
+the application by clicking the @Close (@Multiply) button or by clicking
 @Option{File"|"Exit}.
 
-@LD @Heading { Editing the Code: Updating the Status Bar{@PageMark{editing.the.code.updating.the.status.bar}} }
-
+@End @SubSection
+@SubSection
+    @Title { Updating the Status Bar }
+    @Tag{updating.the.status.bar}
+@Begin
+@LP
 We want to show information about the current color in the status
 bar, and we want to ensure that when the user changes their view
 or loads in a color file, the relevant view is updated.
@@ -1728,17 +1836,16 @@ above. It also calls @Func{changedColor()} with the name
 of the current color.
 qiconviewitem @Index{ QIconViewItem }
 
-@LD @I { changedColor(){@PageMark{changedcolor}} }
-
-This is a function that we need to write from scratch. Simply
+@PP
+The @Func{changedcolor()} function that we need to write from scratch. Simply
 enter its code into @QDR's code editor and it will
-automatically appear in Object Explorer's Members tab (under
+automatically appear in @Win{Object Explorer}'s @Option{Members} tab (under
 Functions, public).
 
 @PP
 By default any function that it typed directly into the code
 editor becomes a public function. To change this, right click
-the function's name in Object Explorer's Members list, and click
+the function's name in @Win{Object Explorer}'s @Option{Members} list, and click
 @Option{Properties} to invoke the @Win{Edit Functions} dialog. This
 dialog can be used to change various attributes of the function,
 including changing it into a slot.
@@ -1772,9 +1879,12 @@ Note that @Class{QMainWindow}qmainwindow @Index{ QMainWindow } only creates a st
 use one. Since we haven't used one up until now we've had no
 problem, but if we were to try compiling we'd get an error because
 we're now using a status bar but haven't declared the relevant
-header. Click Object Explorer's Members tab and add a "\""qstatusbar.h"\""
-to the "\""Includes (In Implementation)"\"" section. (Right click "\""Includes
-(In Implementation)"\"", click @Option{New}, enter "\""qstatusbar.h"\"" then
+header. Click @Win{Object Explorer}'s @Option{Members} tab and add a @Code
+@Verbatim{"qstatusbar.h"}
+to the @Option{Includes (In Implementation)} section. (Right click
+@Option{Includes
+(In Implementation)}, click @Option{New}, enter @Code
+@Verbatim{"qstatusbar.h"} then
 press @Option{Enter}.)
 
 @PP
@@ -1788,8 +1898,12 @@ Move to different colors and see the status bar indicating the
 color you are on. (If it doesn't build see the Troubleshooting
 section.)
 
-@LD @Heading { Changing Views{@PageMark{changing.views}} }
-
+@End @SubSection
+@SubSection
+    @Title { Changing Views }
+    @Tag{changing.views}
+@Begin
+@LP
 Up to now we have not yet been able to see the icon view in action
 because there's been no code in place to switch views. We'll
 address this issue now.
@@ -1809,11 +1923,15 @@ or menu options, so we just need to write in the code.
     }
 @End @RawVerbatim
 (If you're cutting and pasting the code don't forget to name
-the @Class{QAction}qaction @Index{ QAction } parameter "\""action"\"".)
+the @Class{QAction}qaction @Index{ QAction } parameter `action'.)
 qaction @Index{ QAction }
 
-@LD @Heading { Editing the Code: File Handling{@PageMark{editing.the.code.file.handling}} }
-
+@End @SubSection
+@SubSection
+    @Title { File Handling }
+    @Tag{file.handling}
+@Begin
+@LP
 Since the X Consortium has already defined a file format for
 relating colors to color names we will use their format rather
 than creating one specially for the application. This has the
@@ -1871,20 +1989,20 @@ data. That's what this function does.
         return TRUE;
     }
 @End @RawVerbatim
-If the data has changed (@Var{m_changed} is TRUE), we
+If the data has changed (@Var{m_changed} is @TRUE), we
 present the user with a message box offering the option of saving
 their data, or cancelling the current operation (e.g. not loading
 a new file, or not creating a new set of colors), or abandoning
 their changes and continuing. We make the @Option{Save} button the
-default button (pressed by @Option{Enter}) and the @Option{Cancel} button
+default button (pressed by @Option{Enter}) and the @Cancel button
 the escape button (pressed by @Option{Esc}).
 qstring @Index{ QString }
 qmessagebox @Index{ QMessageBox }
 
 @PP
 Since we're using a @Class{QMessageBox}qmessagebox @Index{ QMessageBox } we need to include the relevant
-header. (Right click "\""Includes (in Implementation)"\"", then click
-@Option{New}. Type "\""qmessagebox.h"\"" and press @Option{Enter}.)
+header. (Right click @Option{Includes (in Implementation)}, then click
+@Option{New}. Type @Code @Verbatim{"qmessagebox.h"} and press @Option{Enter}.)
 
 @PP
 You should now have added the following declaration to your includes
@@ -1909,7 +2027,7 @@ You should now have added the following declaration to your includes
     }
 @End @RawVerbatim
 If @PageMark{fileopen} it isn't okay to clear the data (i.e. the user has unsaved
-changes and clicked @Option{Cancel} in the message box poped up by
+changes and clicked @Cancel in the message box poped up by
 @Func{okToClear()}), we simply return. Otherwise we ask
 the user for a filename using one of @Class{QFileDialog}qfiledialog @Index{ QFileDialog }'s static
 functions, and if we got the filename we attempt to load the
@@ -1919,8 +2037,8 @@ qfiledialog @Index{ QFileDialog }
 
 @PP
 Since we're using a @Class{QFileDialog}qfiledialog @Index{ QFileDialog } we need to include the relevant
-header. (Right click "\""Includes (in Implementation)"\"", then click
-@Option{New}. Type "\""qfiledialog.h"\"" and press @Option{Enter}.)
+header. (Right click @Option{Includes (in Implementation)}, then click
+@Option{New}. Type @Code @Verbatim{"qfiledialog.h"} and press @Option{Enter}.)
 
 @PP
 You should now have added the following declaration to your includes
@@ -1993,7 +2111,7 @@ for example.
 @PP
 There are numerous approaches we could have taken to parsing
 these files, but we've opted for a simple regular expression
-(regex). The regex is more "\""liberal"\"" regarding the whitespace
+(regex). The regex is more `liberal' regarding the whitespace
 in the input than the format demands.
 
 @PP
@@ -2007,20 +2125,21 @@ out first even if they appeared in the middle of the file.)
 
 @PP
 Once we've populated the @Var{m_colors} map we mark the
-visible view as "\""dirty"\"" and call @Func{populate()} to
+visible view as `dirty' and call @Func{populate()} to
 update it. We then mark the visible view as not dirty and the
 non-visible view as dirty. This ensures that when user changes
 the view, the view they switch to will be updated. We could have
 simply marked both views as dirty and updated them both, but
-it is more efficient to update "\""lazily"\"", after all the user may
+it is more efficient to update `lazily', after all the user may
 only ever use one view, so why waste their time updating the
 other one.
 
 @PP
 Since we're using @Class{QFile}qfile @Index{ QFile } and @Class{QRegExp}qregexp @Index{ QRegExp } we need to include
-the relevant headers. (Right click "\""Includes (in Implementation)"\"",
-then click @Option{New}. Type "\""qfile.h"\"" and press @Option{Enter}. Repeat
-this process to add "\""qregexp.h"\"".)
+the relevant headers. (Right click @Option{Includes (in
+Implementation)},
+then click @Option{New}. Type @Code @Verbatim{"qfile.h"} and press @Option{Enter}. Repeat
+this process to add @Code @Verbatim{"qregexp.h"}.)
 
 @PP
 You should now have added the following declarations to your
@@ -2034,12 +2153,16 @@ includes (in implementation):
 
 @LD @Box {
 @Centre @Heading{ The Regular Expression }
+@LP
 The regex we've used can be broken up into the following pieces:
 @LLP
 @Centre @Tbl
-    font { Helvetica Base }
+    afont { Helvetica Base }
     indent { ctr }
-    aformat { @Cell indent { left } A |
+    aformat { @Cell font { @InitialFont } indent { left } A |
+	      @Cell B | @Cell C | @Cell D | @Cell E | @Cell F |
+	      @Cell G | @Cell H | @Cell I | @Cell J | @Cell K }
+    bformat { @Cell font { @InitialFont } indent { left } A |
 	      @Cell B | @Cell C | @Cell D | @Cell E | @Cell F |
 	      @Cell G | @Cell H | @Cell I | @Cell J | @Cell K }
 {
@@ -2058,23 +2181,21 @@ The regex we've used can be broken up into the following pieces:
     @Rowa
 	A { Pieces: }
 	B{A}C{B}   D{C}     E{B}   F{C}     G{B}   H{C}     I{B}   J{D}       K{E}
-    @Rowa
+    @Rowb
 	A { Captures: }
-	D { cap(1) } F { cap(2) } H { cap(3) } J { cap(4) }
+	D{@Code{cap(1)}} F{@Code{cap(2)}} H{@Code{cap(3)}} J{@Code{cap(4)}}
 }
-
-Piece A says the regex must match from the beginning of the string,
-and piece E says the regex must match to the end of the string:
+@LP
+Piece @Sans{A} says the regex must match from the beginning of the string,
+and piece @Sans{E} says the regex must match to the end of the string:
 so the regex must match the whole string or not match at all.
-The 'B' pieces match zero or more whitespaces (i.e. the gaps
-between each number), and the 'C' pieces match one or more digits,
-i.e. the numbers. Piece D matches one or more non-whitespace
+The @Sans{B} pieces match zero or more whitespaces (i.e. the gaps
+between each number), and the @Sans{C} pieces match one or more digits,
+i.e. the numbers. Piece @Sans{D} matches one or more non-whitespace
 followed by anything else, i.e. the name of the color.
-
 @PP
 The parentheses are used to @I{capture} the parts of the match
 that they enclose. The captured parts are numbered from 1.
-
 @PP
 For more information on regexes see the @Class{QRegExp}qregexp @Index{ QRegExp } documentation.
 }
@@ -2190,8 +2311,12 @@ colors and use those. In the next section we'll cover adding
 and deleting colors so that you can create your own color files.
 (If it doesn't build see the Troubleshooting section.)
 
-@LD @Heading { Editing the Code: The Edit Options{@PageMark{editing.the.code.the.edit.options}} }
-
+@End @SubSection
+@SubSection
+    @Title { The Edit Options }
+    @Tag{the.edit.options}
+@Begin
+@LP
 Adding a new color, finding a color and handling user options
 all require custom dialogs, so we'll defer them until the
 @TitlePageRef{creating.dialogs} chapter
@@ -2216,6 +2341,8 @@ where we deal with dialogs.
                 colorTable->setCurrentCell( colorTable->numRows() - 1, 0 );
             m_icons_dirty = TRUE;
         }
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
         else if ( visible == iconsPage && colorIconView->currentItem() ) {
             QIconViewItem *item = colorIconView->currentItem();
             name = item->text();
@@ -2239,16 +2366,16 @@ where we deal with dialogs.
             statusBar()->message( QString( "Failed to delete '%1'" ).arg( name ), 5000 );
     }
 @End @RawVerbatim
-If @PageMark{editcut} the user is viewing the table view we delete the current row.
-We set the new current cell to be the one following the deleted
-row, or if the one we deleted was last, its predecessor. We mark
-the @I{other} view (the icon view) as dirty, to make sure that
-it is updated if the user switches views. Similarly, if the user
-is viewing the icon view, we make the next (or previous if there
-is no next) item current and delete the one they were on. We
-then mark the table view as dirty. If we deleted a color (i.e.
-there was a current color in one of the views), we remove it
-from the @Var{m_colors} map and mark the data as changed.
+If @PageMark{editcut} the user is viewing the table view we delete the
+current row. We set the new current cell to be the one following the
+deleted row, or if the one we deleted was last, its predecessor. We
+mark the @I{other} view (the icon view) as dirty, to make sure that it
+is updated if the user switches views. Similarly, if the user is
+viewing the icon view, we make the next (or previous if there is no
+next) item current and delete the one they were on. We then mark the
+table view as dirty. If we deleted a color (i.e. there was a current
+color in one of the views), we remove it from the @Var{m_colors} map
+and mark the data as changed.
 qstring @Index{ QString }
 qwidget @Index{ QWidget }
 qiconviewitem @Index{ QIconViewItem }
@@ -2269,6 +2396,8 @@ qiconviewitem @Index{ QIconViewItem }
             QIconViewItem *item = colorIconView->currentItem();
             text = item->text();
         }
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
         if ( ! text.isNull() ) {
             QColor color = m_colors[text];
             switch ( m_clip_as ) {
@@ -2296,7 +2425,8 @@ qstring @Index{ QString }
 qwidget @Index{ QWidget }
 qiconviewitem @Index{ QIconViewItem }
 qcolor @Index{ QColor }
-
+@End @SubSection
+@EndSubSections
 @End @Section
 @Section
     @Title { Summary }

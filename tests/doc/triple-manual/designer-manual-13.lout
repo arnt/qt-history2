@@ -59,13 +59,13 @@ their size, type, date, and attributes. Click the Size, Type,
 Date, or Attributes column headers to sort the folders or files.
 
 @PP
-Click @Option{OK} to open the selected file. Click @Option{Cancel} to leave
+Click @OK to open the selected file. Click @Cancel to leave
 the dialog without opening a new file.
 
 @LD @I { The Recently Opened Tab{@PageMark{the.recently.opened.tab}} }
 @PP
 This tab displays all of the recently opened files or projects
-in a window. Select a file or project and then click @Option{OK} to
+in a window. Select a file or project and then click @OK to
 open it.
 
 @End @Section
@@ -84,7 +84,7 @@ open it.
 Click @Option{File"|"New} (or press @Option{Ctrl+N}) to invoke the
 @Win{New
 File} dialog. This dialog offers four kinds of files to choose
-from: C++ Project, Forms, Source files, and Main files.
+from: @Cpp Project, Forms, Source files, and Main files.
 
 @PP
 The 'Insert Into' drop-down combobox lists the open projects,
@@ -96,16 +96,16 @@ combobox.
 @PP
 The 'Dialog' file type is highlighted by default when the @Win{New
 File} dialog pops up. Click on the file type you want to use
-and click @Option{OK} to create it. Click @Option{Cancel} to leave the
-dialog without creating a new file. Note that if you select C++
+and click @OK to create it. Click @Cancel to leave the
+dialog without creating a new file. Note that if you select @Cpp
 Project, the 'Insert Into' combobox will be disabled, since it
-is not possible to insert a new C++ Project into an existing
+is not possible to insert a new @Cpp Project into an existing
 project.
 
-@LD @I { C++ Project Files{@PageMark{c.project.files}} }
+@LD @I { @Cpp Project Files{@PageMark{c.project.files}} }
 @PP
-Click @Option{C++ Project} to start a new project. This option invokes
-the Project Settings Dialog [p.~@PageOf{project.settings.dialog}]. C++ projects are saved as @File{".pro"}
+Click @Option{@Cpp Project} to start a new project. This option invokes
+the Project Settings Dialog [p.~@PageOf{project.settings.dialog}]. @Cpp projects are saved as @File{".pro"}
 files, which include the information @QDR needs to
 manage projects. When you add a form to your project in @QDR, it is automatically added to the FORMS section of
 the project file. The @File{".pro"} file contains the list
@@ -165,22 +165,22 @@ buttons at the right of the form.
 The @Option{Tab Dialog} form has a tab widget as its central widget,
 along with Help, OK and Cancel buttons along the bottom.
 
-@LD @I { C++ Source File{@PageMark{c.source.file}} }
+@LD @I { @Cpp Source File{@PageMark{c.source.file}} }
 @PP
-Click @Option{C++ Source File [p.~@PageOf{c.source.file}]} to create a new empty C++ file. The
+Click @Option{@Cpp Source File [p.~@PageOf{c.source.file}]} to create a new empty @Cpp file. The
 file will automatically be added to the project when it is saved.
 
-@LD @I { C++ Header File{@PageMark{c.header.file}} }
+@LD @I { @Cpp Header File{@PageMark{c.header.file}} }
 @PP
-Click @Option{C++ Header File [p.~@PageOf{c.header.file}]} to create a new empty C++ header file.
+Click @Option{@Cpp Header File [p.~@PageOf{c.header.file}]} to create a new empty @Cpp header file.
 The file will automatically be added to the project when it is
 saved.
 
-@LD @I { C++ Main File{@PageMark{c.main.file}} }
+@LD @I { @Cpp Main File{@PageMark{c.main.file}} }
 @PP
-Click @Option{C++ Main File [p.~@PageOf{c.main.file}]} to invoke the Configure Main-File Dialog [p.~@PageOf{configure.main.file.dialog}]
+Click @Option{@Cpp Main File [p.~@PageOf{c.main.file}]} to invoke the Configure Main-File Dialog [p.~@PageOf{configure.main.file.dialog}]
 which will create a basic @File{"main.cpp"} file automatically.
-C++ Main file is not an option if you do not have a project open.
+@Cpp Main file is not an option if you do not have a project open.
 In addition, this file type is not avalable in the @Win{Qt Designer New"/"Open} dialog because you cannot create a main.cpp file
 without creating a project.
 
@@ -192,7 +192,7 @@ without creating a project.
  0.3 @Scale @IncludeGraphic { "images/rd-configmf.eps.gz"
 }
 @PP
-Click @Option{File"|"New"|"C++ Main-File} to invoke the @Win{Configure
+Click @Option{File"|"New"|"@Cpp Main-File} to invoke the @Win{Configure
 Main-File} dialog. Use this dialog to configure the main file
 and its forms.
 
@@ -202,8 +202,8 @@ edit. Choose the form to use as the application's main form from
 the line edit by clicking it.
 
 @PP
-Click @Option{OK} to accept the configurations and @QDR
-will create a default @File{"main.cpp"} file. Click @Option{Cancel}
+Click @OK to accept the configurations and @QDR
+will create a default @File{"main.cpp"} file. Click @Cancel
 to leave the dialog.
 
 @PP
@@ -241,7 +241,7 @@ their size, type, date, and attributes. Click the Size, Type,
 Date, or Attributes column headers to sort the folders or files.
 
 @PP
-Click @Option{Open} to open the selected file. Click @Option{Cancel} to
+Click @Option{Open} to open the selected file. Click @Cancel to
 leave the dialog without opening a new file.
 
 @PP
@@ -272,7 +272,7 @@ the Size, Type, Date, or Attributes column headers to sort the
 folders or files.
 
 @PP
-Click @Option{Save} to save the selected file. Click @Option{Cancel} to
+Click @Option{Save} to save the selected file. Click @Cancel to
 leave the dialog without saving the file.
 
 @PP
@@ -303,7 +303,7 @@ Click the Size, Type, Date, or Attributes column headers to sort
 the folders or files.
 
 @PP
-Click @Option{Save} to save the selected form. Click @Option{Cancel} to
+Click @Option{Save} to save the selected form. Click @Cancel to
 leave the dialog without saving the form.
 
 @LD @Heading { Create Template Dialog{@PageMark{create.template.dialog}} }
@@ -324,7 +324,7 @@ Click the 'Baseclass for Template' scroll bar to choose a base
 class for the template.
 
 @PP
-Click @Option{Create} to create the template. Click @Option{Cancel} to
+Click @Option{Create} to create the template. Click @Cancel to
 leave the dialog without creating a template.
 
 @PP
@@ -366,8 +366,8 @@ Type combobox. To remove a function, click the function you want
 to delete, and then click the @Option{Delete Function} button.
 
 @PP
-Click @Option{OK} to save all changes made to the functions. Click
-@Option{Cancel} to leave the dialog without making any changes to
+Click @OK to save all changes made to the functions. Click
+@Cancel to leave the dialog without making any changes to
 the functions.
 
 @LD @Heading { View and Edit Connections Dialog{@PageMark{view.and.edit.connections.dialog}} }
@@ -398,8 +398,8 @@ the @Option{Edit Slots} button. This will invoke the @Win{Edit Functions}
 dialog.
 
 @PP
-Click @Option{OK} to save all changes made to the connections. Click
-@Option{Cancel} to leave the dialog without making any changes to
+Click @OK to save all changes made to the connections. Click
+@Cancel to leave the dialog without making any changes to
 the connections.
 
 @LD @Heading { Form Settings Dialog{@PageMark{form.settings.dialog}} }
@@ -456,15 +456,15 @@ specify the function names (no signatures or parantheses) which
 should be used to retrieve the margin and spacing.
 
 @PP
-Click @Option{OK} to accept changes to the form settings. Click @Option{Cancel}
+Click @OK to accept changes to the form settings. Click @Cancel
 to leave the dialog without making any changes.
 
 @LD @Heading { Preferences Dialog{@PageMark{preferences.dialog}} }
 @PP
 Click @Option{Edit"|"Preferences} to invoke the @Win{Preferences} dialog.
 This dialog has a tab for 'General' preferences. If you have
-the C++ Editor plugin, the dialog will also have a tab for the
-C++ Editor.
+the @Cpp Editor plugin, the dialog will also have a tab for the
+@Cpp Editor.
 
 @LD @I { General Tab{@PageMark{general.tab}} }
 @PP
@@ -523,15 +523,15 @@ The 'Toolbars' section has a 'Show Text Labels' checkbox. Click
 the checkbox to display the text labels for each icon shown in
 the @QDR toolbar.
 
-@LD @I { C++ Editor Tab{@PageMark{c.editor.tab}} }
+@LD @I { @Cpp Editor Tab{@PageMark{c.editor.tab}} }
 @PP
 @Figure
     @Caption { 
-@I{Preferences- C++ Editor Tab} }
+@I{Preferences- @Cpp Editor Tab} }
  0.3 @Scale @IncludeGraphic { "images/rd-prefedit1.eps.gz"
 }
 @PP
-The C++ Editor tab provides options for customizing the editor.
+The @Cpp Editor tab provides options for customizing the editor.
 The 'Syntax Highlighting' section lets you change the way the
 syntax is viewed in the editor. Click the 'Element' listbox and
 choose an element. Click the 'Family' listbox to change the font
@@ -550,8 +550,8 @@ Matching checkboxes checked by default. Click the checkboxes
 to de-select them.
 
 @PP
-Click @Option{OK} to accept changes to @Win{Preferences} dialog. Click
-@Option{Cancel} to leave the dialog without making any changes.
+Click @OK to accept changes to @Win{Preferences} dialog. Click
+@Cancel to leave the dialog without making any changes.
 
 @End @Section
 @Section
@@ -581,7 +581,7 @@ their size, type, date, and attributes. Click the Size, Type,
 Date, or Attributes column headers to sort the folders or files.
 
 @PP
-Click @Option{Open} to open the selected file. Click @Option{Cancel} to
+Click @Option{Open} to open the selected file. Click @Cancel to
 leave the dialog without opening a file.
 
 @LD @Heading { Manage Image Collection Dialog{@PageMark{manage.image.collection.dialog}} }
@@ -614,7 +614,7 @@ Click the 'Details' toolbar button to view the folders and file
 names along with their size, type, date, and attributes. Click
 the Size, Type, Date, or Attributes column headers to sort the
 folders or files. Click @Option{Open} to open the selected file. Click
-@Option{Cancel} to leave the dialog without opening a file.
+@Cancel to leave the dialog without opening a file.
 
 @PP
 To delete an image from from the iconview, click the image and
@@ -622,7 +622,7 @@ then click the @Option{Delete} button.
 
 @PP
 Changes made to the image collection are applied immediately.
-Click the @Option{Close} button to leave the dialog.
+Click the @Close button to leave the dialog.
 
 @LD @Heading { Edit Database Connections Dialog{@PageMark{edit.database.connections.dialog}} }
 @PP
@@ -654,7 +654,7 @@ To remove a connection, click the connection in the listbox and
 then click the @Option{Delete Connection} button.
 
 @PP
-Click @Option{Close} to leave the @Win{Database Connections} dialog.
+Click @Close to leave the @Win{Database Connections} dialog.
 
 @LD @Heading { Project Settings Dialog{@PageMark{project.settings.dialog}} }
 @PP
@@ -679,15 +679,15 @@ in the 'Database File' line edit type the new name in the line
 edit or click the @Option{...} button to invoke the @Win{Save
 As Dialog}.
 
-@LD @I { C++ Tab{@PageMark{c.tab}} }
+@LD @I { @Cpp Tab{@PageMark{c.tab}} }
 @PP
 @Figure
     @Caption { 
-@I{Project Settings- C++ Tab} }
+@I{Project Settings- @Cpp Tab} }
  0.3 @Scale @IncludeGraphic { "images/rd-projset2.eps.gz"
 }
 @PP
-Click the C++ Tab [p.~@PageOf{c.tab}] to change the @File{"qmake"} options.
+Click the @Cpp Tab [p.~@PageOf{c.tab}] to change the @File{"qmake"} options.
 See the qmake documentation for details on what these options
 mean. Click the 'Template' combobox and choose application or
 library to create makefiles for building applications or libraries.
@@ -706,8 +706,8 @@ should be searched for include files when compiling the project.
 Type the 'Includepath' values in the line edit.
 
 @PP
-Cick @Option{OK} to accept changes to the project settings. Click
-@Option{Cancel} to exit the dialog without making any changes to the
+Cick @OK to accept changes to the project settings. Click
+@Cancel to exit the dialog without making any changes to the
 project settings.
 
 @End @Section
@@ -742,7 +742,7 @@ the text is found, it is highlighted in the file. Continue clicking
 @Option{Find} to search for subsequent occurrences of the search text.
 
 @PP
-Click the @Option{Close} button to leave the dialog.
+Click the @Close button to leave the dialog.
 
 @LD @Heading { Replace Text Dialog{@PageMark{replace.text.dialog}} }
 @PP
@@ -776,7 +776,7 @@ of the text in the file. Click @Option{Replace All} button to replace
 all occurences of the search text in the file at once.
 
 @PP
-Click the @Option{Close} button to leave the dialog.
+Click the @Close button to leave the dialog.
 
 @LD @Heading { Goto Line Dialog{@PageMark{goto.line.dialog}} }
 @PP
@@ -797,7 +797,7 @@ button. The cursor is placed at the beginning of the line in
 the file.
 
 @PP
-Click the @Option{Close} button to leave the dialog.
+Click the @Close button to leave the dialog.
 
 @End @Section
 @Section
@@ -832,7 +832,7 @@ To delete a widget, click the widget in the listbox and then
 click the @Option{Delete Widget} button.
 
 @PP
-Click @Option{Close} to leave the Edit Custom Widgets dialog.
+Click @Close to leave the Edit Custom Widgets dialog.
 
 @LD @I { The Definition Tab{@PageMark{the.definition.tab}} }
 @PP
@@ -914,7 +914,7 @@ To delete a property from the listbox, click the property and
 then click the @Option{Delete Property} button.
 
 @PP
-Click @Option{Close} to leave the @Win{Edit Custom Widgets} dialog.
+Click @Close to leave the @Win{Edit Custom Widgets} dialog.
 
 @PP
 @Figure
@@ -934,8 +934,8 @@ a widget, then click @Option{Remove}. To move a widget up or down
 in the Common Widgets list, click the up or down arrows.
 
 @PP
-Click @Option{OK} to accept the configurations to the toolbox. Click
-@Option{Cancel} to leave the dialog.
+Click @OK to accept the configurations to the toolbox. Click
+@Cancel to leave the dialog.
 
 @End @Section
 @Section
@@ -983,7 +983,7 @@ Use this dialog to apply HTML formatting to your text using the
 format toolbars and menus.
 
 @PP
-Click @Option{OK} to accept the text and formatting. Click @Option{Cancel}
+Click @OK to accept the text and formatting. Click @Cancel
 to leave the dialog without saving any text or formatting.
 
 @LD @Heading { Edit Text Dialog{@PageMark{edit.text.dialogx}} }
@@ -1002,7 +1002,7 @@ selecting @Option{Edit Text}.
 Use this dialog to change the widget's text.
 
 @PP
-Click @Option{OK} to accept changes to the text. Click @Option{Cancel}
+Click @OK to accept changes to the text. Click @Cancel
 to leave the dialog without making changes to the text.
 
 @LD @Heading { Text Dialog{@PageMark{text.dialog}} }
@@ -1020,7 +1020,7 @@ widget.
 Used this dialog to change the line edit's text.
 
 @PP
-Click @Option{OK} to accept changes to the text. Click @Option{Cancel}
+Click @OK to accept changes to the text. Click @Cancel
 to leave the dialog without making changes to the text.
 
 @LD @Heading { Title Dialog{@PageMark{title.dialog}} }
@@ -1039,7 +1039,7 @@ Use this dialog to change the title of a selected widget by typing
 the new title in the line edit.
 
 @PP
-Click @Option{OK} to accept changes to the title. Click @Option{Cancel}
+Click @OK to accept changes to the title. Click @Cancel
 to leave the dialog without making changes to the title.
 
 @LD @Heading { Page Title Dialog{@PageMark{page.title.dialog}} }
@@ -1057,7 +1057,7 @@ and selecting @Option{Edit Page Title}.
 Use this dialog to change the title of each tab in the Tab widget.
 
 @PP
-Click @Option{OK} to accept new page titles. Click @Option{Cancel} to leave
+Click @OK to accept new page titles. Click @Cancel to leave
 the dialog without making any changes.
 
 @LD @Heading { Choose an Image Dialog{@PageMark{choose.an.image.dialog}} }
@@ -1073,12 +1073,12 @@ use for a widget.
 
 @PP
 To choose an image from the listbox, click the image and then
-click @Option{OK}. To add an image, click the @Option{Add} button to invoke
+click @OK. To add an image, click the @Option{Add} button to invoke
 the @Win{Choose Images...} dialog. To delete an image, click the
 image in the listbox and then click the @Option{Delete} button.
 
 @PP
-Click @Option{Cancel} to leave the dialog without making any changes
+Click @Cancel to leave the dialog without making any changes
 to images.
 
 @LD @Heading { Edit Listbox Dialog{@PageMark{edit.listbox.dialog}} }
@@ -1110,8 +1110,8 @@ the changes.
 
 @PP
 Click @Option{Apply} to accept changes to the listbox widget. Click
-@Option{OK} to leave the dialog once the changes have been accepted.
-Click @Option{Cancel} to leave the dialog without saving any changes.
+@OK to leave the dialog once the changes have been accepted.
+Click @Cancel to leave the dialog without saving any changes.
 
 @LD @Heading { Edit Listview{@PageMark{edit.listview}} }
 @PP
@@ -1169,8 +1169,8 @@ the @Option{Move Down} buttons.
 
 @PP
 Click @Option{Apply} to accept changes to the listview widget. Click
-@Option{OK} to leave the dialog once the changes have been accepted.
-Click @Option{Cancel} to leave the dialog without saving any changes.
+@OK to leave the dialog once the changes have been accepted.
+Click @Cancel to leave the dialog without saving any changes.
 
 @LD @Heading { Edit Iconview Dialog{@PageMark{edit.iconview.dialog}} }
 @PP
@@ -1194,8 +1194,8 @@ iconview, click the item and then click the @Option{Delete Item} button.
 
 @PP
 Click @Option{Apply} to accept changes to the iconview widget. Click
-@Option{OK} to leave the dialog once the changes have been accepted.
-Click @Option{Cancel} to leave the dialog without saving any changes.
+@OK to leave the dialog once the changes have been accepted.
+Click @Cancel to leave the dialog without saving any changes.
 
 @LD @Heading { Edit Table Dialog{@PageMark{edit.table.dialog}} }
 @PP
@@ -1246,8 +1246,8 @@ the @Option{Move Up} or @Option{Move Down} buttons.
 
 @PP
 Click @Option{Apply} to accept changes to the table widget. Click
-@Option{OK} to leave the dialog once the changes have been accepted.
-Click @Option{Cancel} to leave the dialog without saving any changes.
+@OK to leave the dialog once the changes have been accepted.
+Click @Cancel to leave the dialog without saving any changes.
 
 @End @Section
 @Section
@@ -1290,7 +1290,7 @@ file you select in the preview box located on the right side
 of the dialog.
 
 @PP
-Click @Option{OK} to accept the pixmap file. Click @Option{Cancel} to leave
+Click @OK to accept the pixmap file. Click @Cancel to leave
 the dialog without choosing a pixmap file.
 
 @LD @Heading { Select Color Dialog{@PageMark{select.color.dialog}} }
@@ -1326,8 +1326,8 @@ to click the @Option{Add to Custom Colors} when you have chosen a
 color.
 
 @PP
-Click @Option{OK} to accept changes to the @Win{Select Color} dialog.
-Click @Option{Cancel} to exit the dialog without selecting a color
+Click @OK to accept changes to the @Win{Select Color} dialog.
+Click @Cancel to exit the dialog without selecting a color
 or adding custom colors.
 
 @LD @Heading { Edit Palette Dialog{@PageMark{edit.palette.dialog}} }
@@ -1356,7 +1356,7 @@ to invoke the @Win{Tune Palette} dialog. Click the 'Select Palette'
 combobox in the 'Preview' section to choose a palette to preview.
 
 @PP
-Click @Option{OK} to accept the changes to the palette. Click @Option{Cancel}
+Click @OK to accept the changes to the palette. Click @Cancel
 to leave the dialog without making changes to the palette.
 
 @LD @Heading { Tune Palette Dialog{@PageMark{tune.palette.dialog}} }
@@ -1390,7 +1390,7 @@ the combobox to select a color role for the 3-D effects. Click
 the @Option{Select Color} button to invoke the @Win{Select Color} dialog.
 
 @PP
-Click @Option{OK} to accept changes to the palette. Click @Option{Cancel}
+Click @OK to accept changes to the palette. Click @Cancel
 to leave the dialog without making changes to the palette.
 
 @LD @Heading { Select Font Dialog{@PageMark{select.font.dialog}} }
@@ -1422,7 +1422,7 @@ the 'Script' and choose a style of writing. View your font selections
 and styles in the 'Sample' listbox.
 
 @PP
-Click @Option{OK} to accept changes to the font. Click @Option{Cancel}
+Click @OK to accept changes to the font. Click @Cancel
 to leave the dialog without making any changes to the font.
 
 @End @Section
@@ -1444,7 +1444,7 @@ unsaved changes. The dialog displays the text 'Save changes to
 your project.pro'?. Click @Option{Yes} to save the changes. If the
 project has any forms with unsaved changes, the @Win{Save Form
 As} dialog is invoked when you click @Option{Yes}. Click @Option{No} to
-close the project without saving any changes. Click @Option{Cancel}
+close the project without saving any changes. Click @Cancel
 to leave the dialog without closing the project and without making
 any changes.
 
@@ -1466,7 +1466,7 @@ to the Form?'. Click @Option{Yes} to save the form. If the form has
 not been previously saved, the @Win{Save Form As} dialog is invoked.
 Click @Option{No} to close the form without saving any changes or
 without saving the form if it has not been saved previously.
-Click @Option{Cancel} to leave the dialog without closing or exiting
+Click @Cancel to leave the dialog without closing or exiting
 the form and without saving the form.
 
 @End @Section
@@ -1486,7 +1486,7 @@ the Object Explorer window.
  0.3 @Scale @IncludeGraphic { "images/mw-editforw.eps.gz"
 }
 @PP
-From the Source tab in the Object Explorer Window, right click
+From the Source tab in the @Win{Object Explorer} Window, right click
 the 'Forward Declarations' folder and select 'Edit' from the
 context menu to invoke the @Win{Edit Forward Declarations} dialog.
 Use this dialog to add, edit, or remove declarations in the source
@@ -1502,7 +1502,7 @@ then click @Option{Rename}. The cursor will appear in the line edit,
 allowing you to change the name.
 
 @PP
-Click @Option{Close} to leave the @Win{Edit Forward Declarations} dialog.
+Click @Close to leave the @Win{Edit Forward Declarations} dialog.
 
 @LD @Heading { Edit Includes (in Declaration) Dialog{@PageMark{edit.includes.in.declaration.dialog}} }
 @PP
@@ -1512,7 +1512,7 @@ Click @Option{Close} to leave the @Win{Edit Forward Declarations} dialog.
  0.3 @Scale @IncludeGraphic { "images/rd-editincdec.eps.gz"
 }
 @PP
-From the Source tab in the Object Explorer Window, right click
+From the Source tab in the @Win{Object Explorer} Window, right click
 the 'Includes (in Declaration)' folder and select 'Edit' from
 the context menu to invoke the @Win{Edit Includes (in Declarations)}
 dialog. Use this dialog to add, edit, or remove includes in the
@@ -1527,7 +1527,7 @@ include, click the include and then click @Option{Rename}. The cursor
 will appear in the line edit, allowing you to change the name.
 
 @PP
-Click @Option{Close} to leave the @Win{Edit Include (in Declaration)}
+Click @Close to leave the @Win{Edit Include (in Declaration)}
 dialog.
 
 @LD @Heading { Edit Includes (in Implementation) Dialog{@PageMark{edit.includes.in.implementation.dialog}} }
@@ -1538,7 +1538,7 @@ dialog.
  0.3 @Scale @IncludeGraphic { "images/mw-editincimp.eps.gz"
 }
 @PP
-From the Source tab in the Object Explorer Window, right click
+From the Source tab in the @Win{Object Explorer} Window, right click
 the 'Includes (in Implementation)' folder and select 'Edit' from
 the context menu to invoke the @Win{Edit Includes (in Implementation)}
 dialog. Use this dialog to add, edit, or remove includes in the
@@ -1553,7 +1553,7 @@ include, click the include and then click @Option{Rename}. The cursor
 will appear in the line edit, allowing you to change the name.
 
 @PP
-Click @Option{Close} to leave the @Win{Edit Include (in Implementation)}
+Click @Close to leave the @Win{Edit Include (in Implementation)}
 dialog.
 
 @LD @Heading { Edit Class Variables Dialog{@PageMark{edit.class.variables.dialog}} }
@@ -1564,7 +1564,7 @@ dialog.
  0.3 @Scale @IncludeGraphic { "images/mw-editvar.eps.gz"
 }
 @PP
-From the Source tab in the Object Explorer Window, right click
+From the Source tab in the @Win{Object Explorer} Window, right click
 the 'Class Variables' folder and select 'Edit' from the context
 menu to invoke the @Win{Edit Class Variables} dialog. Use this
 dialog to add, edit, or remove class variables in the source
@@ -1579,7 +1579,7 @@ variable, click the variable and then click @Option{Rename}. The cursor
 will appear in the line edit, allowing you to change the name.
 
 @PP
-Click @Option{Close} to leave the @Win{Edit Class Variables} dialog.
+Click @Close to leave the @Win{Edit Class Variables} dialog.
 
 @End @Section
 @EndSections

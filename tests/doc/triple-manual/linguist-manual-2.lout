@@ -2,11 +2,11 @@
     @Title { Release Manager }
     @Tag { release.manager }
 @Begin
-release.manager @Index{ Release Manager }
 @LP
-Two tools are provided for the release manager, @File{lupdate} and @File{lrelease}.
-These tools depend on @File{qmake} project files. You don't have
-to use @File{qmake}, though.
+Two tools are provided for the release manager, @File{lupdate} and
+@File{lrelease}. These tools depend on @File{qmake} project files. You
+don't have to use @File{qmake}, though.
+release.manager @Index{ Release Manager }
 
 @PP
 A third tool, @File{qm2ts}, can be used for converting
@@ -17,26 +17,29 @@ Qt 2.x message files to @File{.ts} files.
     @Title { Qt Project Files }
     @Tag { qt.project.files }
 @Begin
-pro.files @Index{ .pro Files }
-project.files @Index{ Project Files }
-qmake @RawIndex{ qmake }
-qmake.project.files @SubIndex{ Project Files }
 @LP
 @File{lupdate} and @File{lrelease} depend on
 information in the application's @File{.pro} Qt project file.
 There must be an entry in the @Code{TRANSLATIONS} section of
 the project file for each language that is additional to the native
 language. A typical entry looks like this:
+pro.files @Index{ .pro Files }
+project.files @Index{ Project Files }
+qmake @RawIndex{ qmake }
+qmake.project.files @SubIndex{ Project Files }
 translations @RawIndex{ TRANSLATIONS }
-translations.in.project.files @SubIndex{ in Project Files }@LD @Code @RawVerbatim @Begin
+translations.in.project.files @SubIndex{ in Project Files }
+@LD @Code @RawVerbatim @Begin
     TRANSLATIONS    = tt2_fr.ts \
                       tt2_nl.ts
 @End @RawVerbatim
 Using a locale within the translation file name is useful for
 determining which language to load at runtime. This is explained
-in Chapter 4: Programmers.
+in @TitlePageRef{programmers}.
 
-
+@PP
+An example of a complete @File{.pro} file with four translation
+source files:
 headers @RawIndex{ HEADERS }
 headers.in.project.files @SubIndex{ in Project Files }
 sources @RawIndex{ SOURCES }
@@ -44,10 +47,7 @@ sources.in.project.files @SubIndex{ in Project Files }
 forms @RawIndex{ FORMS }
 forms.in.project.files @SubIndex{ in Project Files }
 translations @RawIndex{ TRANSLATIONS }
-translations.in.project.files @SubIndex{ in Project Files }@PP
-An example of a complete @File{.pro} file with four translation
-source files:
-
+translations.in.project.files @SubIndex{ in Project Files }
 @LD @Code @RawVerbatim @Begin
     HEADERS         = main-dlg.h \
                       options-dlg.h
@@ -60,7 +60,11 @@ source files:
                       superapp_no.ts \
                       superapp_se.ts
 @End @RawVerbatim
-
+@Func{QApplication::setDefaultCodec()} makes it possible to choose
+an 8-bit encoding for literal strings that appear within @Func{tr()}
+calls. This is useful for applications whose source language
+is, for example, Chinese or Japanese. If no encoding is set,
+@Func{tr()} uses Latin-1.
 qapplication @RawIndex{ QApplication }
 qapplication.defaultcodec @SubIndex{ defaultCodec() }
 defaultcodec @RawIndex{ defaultCodec() }
@@ -70,14 +74,8 @@ defaultcodec.in.project.files @SubIndex{ in Project Files }
 chinese.language @Index{ Chinese Language }
 japanese.language @Index{ Japanese Language }
 
-QApplication::setDefaultCodec() makes it possible to choose
-a 8-bit encoding for literal strings that appear within @Func{tr()}
-calls. This is useful for applications whose source language
-is, for example, Chinese or Japanese. If no encoding is set,
-@Func{tr()} uses Latin-1.
-
 @PP
-If you do use the QApplication::defaultCodec() mechanism in your
+If you do use the @Func{QApplication::defaultCodec()} mechanism in your
 application, @QLT needs you to set the @Code{DEFAULTCODEC}
 entry in the @File{.pro} file as well. For example:
 
@@ -89,18 +87,17 @@ entry in the @File{.pro} file as well. For example:
     @Title { lupdate }
     @Tag { lupdate }
 @Begin
-lupdate @Index{ lupdate }
 @LP
 Usage: @Code{lupdate myproject.pro}
-
-
-qt.designer @Index{ Qt Designer }@PP
+lupdate @Index{ lupdate }
+@PP
 This is a simple command line tool. @File{lupdate} reads a Qt @File{.pro}
 project file, finds the translatable strings in the specified
 source, header and @QDR interface files, and produces
 or updates the @File{.ts} translation files listed in
 the project file. The translation files are given to the translator
 who uses @QLT to read the files and insert the translations.
+qt.designer @Index{ Qt Designer }
 
 @PP
 Companies that have their own translators in-house may find it
@@ -119,31 +116,31 @@ with those found during the initial test phase. The second and
 any subsequent @File{lupdate} runs would probably take place during
 the final beta phase.
 
-
-ts.files @Index{ .ts Files }
-translation.source.files @Index{ Translation Source Files }
-xml @Index{ XML }@PP
+@PP
 The @File{.ts} file format is a simple human-readable
 XML format that can be used with version control systems if required.
+ts.files @Index{ .ts Files }
+translation.source.files @Index{ Translation Source Files }
+xml @Index{ XML }
 
 @End @Section
 @Section
     @Title { lrelease }
     @Tag { lrelease }
 @Begin
-lrelease @Index{ lrelease }
 @LP
 Usage: @Code{lrelease myproject.pro}
+lrelease @Index{ lrelease }
 
-
-qm.files @Index{ .qm Files }
-qt.message.files @Index{ Qt Message Files }@PP
+@PP
 This is another simple command line tool. It reads a Qt @File{.pro}
 project file and produces the @File{.qm} files used by
 the application, one for each @File{.ts} translation source
 file listed in the project file. The @File{.qm} file format
 is a compact binary format that provides extremely fast lookups
 for translations.
+qm.files @Index{ .qm Files }
+qt.message.files @Index{ Qt Message Files }
 
 @PP
 This tool is run whenever a release of the application is to
@@ -157,7 +154,7 @@ them and use them automatically.
 
 @PP
 Note that @File{lrelease} will only incorporate translations that are
-marked as "\""done"\"". If a translation is missing, or has failed
+marked as `done'. If a translation is missing, or has failed
 validation, the original text will be used instead.
 
 @End @Section

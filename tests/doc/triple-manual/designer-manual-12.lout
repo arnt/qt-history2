@@ -372,11 +372,11 @@ button to leave this mode.
 @LI{
 @Option{Lay Out Horizontally}@LLP
 
- Click this toolbar button (or press @Option{Ctrl+H}) to lay out the selected widgets or layouts side by side. Use @Option{Shift+Click} to select each widget or layout, and then choose this toolbar button to group them horizontally. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the Object Explorer Window.}
+ Click this toolbar button (or press @Option{Ctrl+H}) to lay out the selected widgets or layouts side by side. Use @Option{Shift+Click} to select each widget or layout, and then choose this toolbar button to group them horizontally. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the @Win{Object Explorer} Window.}
 @LI{
 @Option{Lay Out Vertically}@LLP
 
- Click this toolbar button (or press @Option{Ctrl+L}) to lay out the selected widgets one above the other. Use @Option{Shift+Click} to select each widget or layout, and then choose this toolbar button to group them vertically. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the Object Explorer Window.}
+ Click this toolbar button (or press @Option{Ctrl+L}) to lay out the selected widgets one above the other. Use @Option{Shift+Click} to select each widget or layout, and then choose this toolbar button to group them vertically. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the @Win{Object Explorer} Window.}
 @LI{
 @Option{Lay out in a Grid}@LLP
 
@@ -384,11 +384,11 @@ button to leave this mode.
 @LI{
 @Option{Lay Out Horizontally (in Splitter)}@LLP
 
- Click this toolbar button to lay out the selected groups of widgets or layouts side by side with a splitter between each group. Use @Option{Shift+Click} to select each widget or layout, and then choose this toolbar button to group them horizontally. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the Object Explorer Window.}
+ Click this toolbar button to lay out the selected groups of widgets or layouts side by side with a splitter between each group. Use @Option{Shift+Click} to select each widget or layout, and then choose this toolbar button to group them horizontally. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the @Win{Object Explorer} Window.}
 @LI{
 @Option{Lay Out Vertically (in Splitter)}@LLP
 
- Click this toolbar button to lay out the selected groups of widgets or layouts one above the other with a splitter between each group. Use @Option{Shift+Click} to select each widget or layout, and then choose this toolbar button to group them vertically. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the Object Explorer Window.}
+ Click this toolbar button to lay out the selected groups of widgets or layouts one above the other with a splitter between each group. Use @Option{Shift+Click} to select each widget or layout, and then choose this toolbar button to group them vertically. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the @Win{Object Explorer} Window.}
 @LI{
 @Option{Break Layout}@LLP
 

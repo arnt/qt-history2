@@ -16,6 +16,7 @@ macro @QQ { {1.05 @Scale { Chancery BoldSlope } @Font { Qt Quarterly }} }
 macro @Asterisk { { Dingbats Base } @Font { H } }
 macro @Bsterisk { { Dingbats Base } @Font { J } }
 macro @Number {N{+0.25f @VShift{0.8 @Scale{@Underline o}}}} # N°
+macro @Comma { |0.65s } # For numbers, e.g. 1,500 => 1{@Comma}500
 
 macro @TTGreenColour		{{cmyk 0.40 0.00 1.00 0.01}}
 macro @LightGreyColour		{{rgb 0.90 0.90 0.90}}
@@ -25,15 +26,32 @@ macro @SBPP { //0.35f 2f @Wide &0c }
 def @Code right x { { 0.75 1.00 } @Scale { Courier Base } @Font x }
 def @Class right x { { 0.75 1.00 } @Scale { Courier Bold } @Font x }
 def @File right x { { 0.75 1.00 } @Scale { Courier Base } @Font x } # File or Program
-def @Func right x { { 0.75 1.00 } @Scale { Courier Bold } @Font x } 
+def @Func right x { { 0.75 1.00 } @Scale { Courier Base } @Font x } 
 def @Option right x { { Helvetica Base -1p } @Font  x } # Button, toolbar button, menu option or key sequence
 def @Prop right x { { Helvetica Slope -1p } @Font x } # Property
 def @Win right x { Slope @Font x } # Window or dialog
 def @Var right x { { 0.75 1.00 } @Scale { Courier Slope } @Font x } 
 
+macro @OK { { Helvetica Base -1p } @Font { OK } }
+macro @Cancel { { Helvetica Base -1p } @Font { Cancel } }
+macro @Close { { Helvetica Base -1p } @Font { Close } }
+macro @Cpp { {C |0.55fo +0.015f @VShift{+|0.3s +}} }
+macro @TRUE { { 0.75 1.00 } @Scale { Courier Base } @Font { TRUE } }
+macro @FALSE { { 0.75 1.00 } @Scale { Courier Base } @Font { FALSE } }
+
+def @Sans right x { { Helvetica Base -1p } @Font  x }
+
 
 import @BasicSetup
-def @Key right x {
+def @Filename right x
+{
+    //0c
+    @Right @Underline @File x
+}
+
+import @BasicSetup
+def @Key right x
+{
     @CurveBox margin { 0.1f } paint { grey } 
     @CurveBox margin { 0.2f } paint { lightgrey } 
     { Helvetica Base -3p } @Font x 

@@ -73,18 +73,18 @@ of the subtleties and complexities of human language:
 @LI{
 A single phrase may need to be translated into several different
 forms depending on context, e.g. @I{open} in English might become
-@I{{@Char odieresis}ffnen}, "\""open file"\"", or @I{aufbauen},
-"\""open internet connection"\"", in German.
+@I{{@Char odieresis}ffnen}, `open file', or @I{aufbauen},
+`open internet connection', in German.
 }
 @LI{
 Keyboard accelerators may need to be changed but without introducing
-conflicts, e.g. "\"""&"Quit"\"" in English becomes "\""Avslutt"\"" in Norwegian
-which doesn't contain a "\""Q"\"". We cannot use a letter that is already
+conflicts, e.g. `"&"Quit' in English becomes `Avslutt' in Norwegian
+which doesn't contain a `Q'. We cannot use a letter that is already
 in use -- unless we change several accelerators.
 }
 @LI{
-Phrases that contain variables, for example, "\""The 25 files selected
-will take 63 seconds to process"\"", where the two numbers are inserted
+Phrases that contain variables, for example, `The 25 files selected
+will take 63 seconds to process', where the two numbers are inserted
 programmatically at runtime may need to be reworded because in
 a different language the word order and therefore the placement
 of the variables may have to change.
