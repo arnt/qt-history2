@@ -9,7 +9,6 @@
 // specific APIs
 
 #include <unistd.h>
-#include <sys/types.h>
 
 
 // We are hot - unistd.h should have turned on all the specific
@@ -21,29 +20,15 @@
 
 
 #include <ctype.h>
-#include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <grp.h>
 #include <limits.h>
 #include <locale.h>
-#include <pwd.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-
-#include <netinet/in.h>
-
-#include <sys/ioctl.h>
-#include <sys/ipc.h>
-#include <sys/time.h>
-#include <sys/select.h>
-#include <sys/shm.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-
+#include <stat.h>
 
 #define QT_STATBUF		struct stat
 #define QT_STATBUF4TSTAT	struct stat
@@ -77,12 +62,6 @@
 
 #define QT_SOCKLEN_T	int
 #define QT_NREAD	FIONREAD
-
-inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
-{ return ::accept(s, addr, addrlen); }
-
-inline int qt_socket_listen(int s, int backlog)
-{ return ::listen(s, backlog); }
 
 
 #endif // QPLATFORMDEFS_H
