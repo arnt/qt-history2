@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#247 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#248 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -10723,10 +10723,10 @@ void QString::setLength( uint newLen )
     label.setText( tr("I have %1 to your %2").arg(mine).arg(yours) );
   \endcode
 
-  If there is no <tt>%<em>digit</em></tt> pattern, a
-  \link warning() warning message\endlink is printed and the
-  text as appended with a space at the end of the string.
-  This is error-recovery and should not be occur in correct code.
+  If there is no <tt>%<em>digit</em></tt> pattern, a warning message
+  (qWarning()) is printed and the text as appended with a space at the
+  end of the string.  This is error-recovery and should not be occur
+  in correct code.
 
   \a fieldwidth is the minimum amount of space the text will be padded
   to.  A positive value produces right-aligned text, while a negative
@@ -11261,12 +11261,12 @@ int QString::contains( const char* str, bool cs ) const
 
 /*!
   \overload int QString::find (char c, int index, bool cs) const
-  
+
 */
 
 /*!
   \overload int QString::findRev (char c, int index, bool cs) const
-  
+
 */
 
 /*!
