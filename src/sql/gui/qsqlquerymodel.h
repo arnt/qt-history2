@@ -57,7 +57,7 @@ public:
 
     virtual void setQuery(const QSqlQuery &query);
     void setQuery(const QString &query, const QSqlDatabase &db = QSqlDatabase());
-    const QSqlQuery query() const;
+    QSqlQuery query() const;
     virtual void clear();
 
     QSqlError lastError() const;

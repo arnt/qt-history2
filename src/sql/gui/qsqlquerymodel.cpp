@@ -281,7 +281,7 @@ bool QSqlQueryModel::setHeaderData(int section, Qt::Orientation orientation, int
 
     \sa setQuery()
 */
-const QSqlQuery QSqlQueryModel::query() const
+QSqlQuery QSqlQueryModel::query() const
 {
     return d->query;
 }
