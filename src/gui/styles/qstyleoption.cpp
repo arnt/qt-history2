@@ -463,19 +463,6 @@ QStyleOptionTab::QStyleOptionTab(int version)
 */
 
 /*!
-    \enum QStyleOptionProgressBar::ProgressBarFeature
-
-    This describes features for a progress bar.
-
-    \value None Indicates a normal progress bar.
-    \value CenterIndicator Indicates that the percentage indicator \l
-        progressBarString should be centered.
-    \value PercentageVisible Indicates that the \l progressBarString should also be drawn.
-        follow the style.
-
-*/
-
-/*!
     Constructs a QStyleOptionProgressBar. The members variables are
     initialized to default values.
 */
@@ -497,41 +484,58 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
 
 
 /*!
-    \property QStyleOptionProgressBar::features
-    \brief Describes the features of the progress bar.
+    \property QStyleOptionProgressBar::minimum
+    \brief The minimum value for the progress bar
 
-    This variable is a bitwise OR of the features of the progress bar.
-
-    \sa ProgressBarFeature
+    This is the minimum value in the progress bar.
+    \sa QProgressBar::minimum
 */
 
 /*!
-    \property QStyleOptionProgressBar::progressString
-    \brief The progress of the progress bar as a string.
+    \property QStyleOptionProgressBar::maximum
+    \brief The maximum value for the progress bar
 
-    This is the progress expressed as a string. An empty string
-    indicates that the progress bar hasn't started yet.
-
-    \sa QProgressBar::progressString
+    This is the maximum value in the progress bar.
+    \sa QProgressBar::maximum
 */
 
 /*!
-    \property QStyleOptionProgressBar::totalSteps
-    \brief The total steps for the progress bar.
+    \property QStyleOptionProgressBar::text
+    \brief The text for the progress bar.
 
-    The total number of steps for the progress bar. A \l totalSteps
-    of 0 indicates that a busy indicator should be drawn instead of a
-    standard progress bar.
+    The progress bar text is usually just the progress expressed as a string.
+    An empty string indicates that the progress bar has not started yet.
 
-    \sa QProgressBar::totalSteps
+    \sa QProgressBar::text
+*/
+
+/*!
+    \property QStyleOptionProgressBar::textVisible
+    \brief A flag indicating whether or not text is visible.
+
+    If this flag is true then the text is visible. Otherwise, the text is not visible.
+
+    \sa QProgressBar::textVisible
+*/
+
+
+/*!
+    \property QStyleOptionProgressBar::textAlignment
+    \brief The text alignment for the text in the QProgressBar
+
+    This can be used as a guide on where the text should be in the progressbar.
+
+    \sa QProgressBar::textAlignment
 */
 
 /*!
     \property QStyleOptionProgressBar::progress
     \brief the current progress for the progress bar.
 
-    The current progress. A value of -1 indicates that the progress
-    hasn't started yet.
+    The current progress. A value of QStyleOptionProgressBar::minimum - 1
+    indicates that the progress hasn't started yet.
+
+    \sa QProgressBar::value
 */
 
 /*!

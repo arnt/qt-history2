@@ -190,9 +190,12 @@ public:
 
     QStyleOptionProgressBar();
 
-    QDOC_PROPERTY(QString progressString)
-    QDOC_PROPERTY(int totalSteps)
+    QDOC_PROPERTY(int minimum)
+    QDOC_PROPERTY(int maximum)
     QDOC_PROPERTY(int progress)
+    QDOC_PROPERTY(QString text)
+    QDOC_PROPERTY(Qt::Alignment textAlignment)
+    QDOC_PROPERTY(bool textVisible)
 
 protected:
     QStyleOptionProgressBar(int version);
