@@ -6037,44 +6037,81 @@ QConstString::~QConstString()
     Returns TRUE if the string starts with \a s; otherwise returns
     FALSE.
 
+    If \a cs is TRUE (the default), the search is case sensitive;
+    otherwise the search is case insensitive.
+
     \code
-	QString string("Bananas");
-	bool a = string.startsWith("Ban");      //  a == TRUE
+	QString str( "Bananas" );
+	str.startsWith( "Ban" );     // returns TRUE
+	str.startsWith( "Car" );     // returns FALSE
     \endcode
 
     \sa endsWith()
 */
-bool QString::startsWith( const QString& s ) const
+bool QString::startsWith( const QString& s, bool cs ) const
 {
     if ( isNull() )
 	return s.isNull();
     if ( s.length() > length() )
 	return FALSE;
-    for ( int i =0; i < (int) s.length(); i++ ) {
-	if ( d->unicode[i] != s[i] )
-	    return FALSE;
+    if ( cs ) {
+	for ( int i = 0; i < (int) s.length(); i++ ) {
+	    if ( d->unicode[i] != s[i] )
+		return FALSE;
+	}
+    } else {
+	for ( int i = 0; i < (int) s.length(); i++ ) {
+	    if ( d->unicode[i].lower() != s[i].lower() )
+		return FALSE;
+	}
     }
     return TRUE;
+}
+
+bool QString::startsWith( const QString& s ) const
+{
+    return startsWith( s, TRUE );
 }
 
 /*!
     Returns TRUE if the string ends with \a s; otherwise returns
     FALSE.
 
+    If \a cs is TRUE (the default), the search is case sensitive;
+    otherwise the search is case insensitive.
+
+    \code
+	QString str( "Bananas" );
+	str.endsWith( "anas" );         // returns TRUE
+	str.endsWith( "pple" );         // returns FALSE
+    \endcode
+
     \sa startsWith()
 */
-bool QString::endsWith( const QString& s ) const
+bool QString::endsWith( const QString& s, bool cs ) const
 {
     if ( isNull() )
 	return s.isNull();
     int pos = length() - s.length();
     if ( pos < 0 )
 	return FALSE;
-    for ( uint i = 0; i < s.length(); i++ ) {
-	if ( d->unicode[pos+i] != s[(int)i] )
-	    return FALSE;
+    if ( cs ) {
+	for ( int i = 0; i < (int) s.length(); i++ ) {
+	    if ( d->unicode[pos + i] != s[i] )
+		return FALSE;
+	}
+    } else {
+	for ( int i = 0; i < (int) s.length(); i++ ) {
+	    if ( d->unicode[pos + i].lower() != s[i].lower() )
+		return FALSE;
+	}
     }
     return TRUE;
+}
+
+bool QString::endsWith( const QString& s ) const
+{
+    return endsWith( s, TRUE );
 }
 
 /*! \fn void QString::detach()

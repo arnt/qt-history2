@@ -659,8 +659,18 @@ public:
     const char* data() const { return ascii(); }
 #endif
 
-    bool startsWith( const QString& ) const;
-    bool endsWith( const QString& ) const;
+#if defined(Q_QDOC)
+    bool startsWith( const QString& str, bool cs = TRUE ) const;
+    bool endsWith( const QString& str, bool cs = TRUE ) const;
+#else
+    // ### Qt 4.0: merge these two into one, and remove Q_QDOC hack
+    bool startsWith( const QString& str ) const;
+    bool startsWith( const QString& str, bool cs ) const;
+
+    // ### Qt 4.0: merge these two into one, and remove Q_QDOC hack
+    bool endsWith( const QString& str ) const;
+    bool endsWith( const QString& str, bool cs ) const;
+#endif
 
     void setLength( uint newLength );
 
@@ -702,14 +712,14 @@ class Q_EXPORT QCharRef {
     QCharRef(QString* str, uint pos) : s(*str), p(pos) { }
 
 public:
-    // most QChar operations repeated here...
+    // most QChar operations repeated here
 
     // all this is not documented: We just say "like QChar" and let it be.
 #ifndef Q_QDOC
     ushort unicode() const { return s.constref(p).unicode(); }
     char latin1() const { return s.constref(p).latin1(); }
 
-    // An operator= for each QChar cast constructor...
+    // An operator= for each QChar cast constructors
     QCharRef operator=(char c ) { s.ref(p)=c; return *this; }
     QCharRef operator=(uchar c ) { s.ref(p)=c; return *this; }
     QCharRef operator=(QChar c ) { s.ref(p)=c; return *this; }
