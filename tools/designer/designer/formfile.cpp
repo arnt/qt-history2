@@ -213,7 +213,7 @@ bool FormFile::save( bool withMsgBox )
 
 bool FormFile::saveAs()
 {
-    QString f = fileName();
+    QString f = pro->makeAbsolute( fileName() );
     if ( fileNameTemp )
 	f = pro->makeAbsolute( QString( formWindow()->name() ).lower() + ".ui" );
     QString fn = QFileDialog::getSaveFileName( f,
@@ -231,7 +231,7 @@ bool FormFile::saveAs()
     pro->setModified( TRUE );
     timeStamp.setFileName( pro->makeAbsolute( codeFile() ) );
     if ( ed )
-	ed->setCaption( tr( "Edit %1" ).arg( filename ) );
+	ed->setCaption( tr( "Edit %1" ).arg( formWindow()->name() ) );
     setModified( TRUE );
     return save();
 }
