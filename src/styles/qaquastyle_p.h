@@ -44,9 +44,6 @@
 #include <qpushbutton.h>
 #include <qprogressbar.h>
 
-extern QColor qt_mac_highlight_color;
-extern bool qt_mac_scrollbar_arrows_together;
-
 class QAquaFocusWidget : public QWidget
 {
     Q_OBJECT
