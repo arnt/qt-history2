@@ -75,7 +75,7 @@ public:
 					   const QVariant &v6 = QVariant(),
 					   const QVariant &v7 = QVariant(),
 					   const QVariant &v8 = QVariant() );
-    QAxObject *createSubObject( const QCString &name, const QVariant &var = QVariant() );
+    QAxObject *querySubObject( const QCString &name, const QVariant &var = QVariant() );
 
     virtual QMetaObject *metaObject() const;
     virtual bool qt_invoke( int, QUObject* );

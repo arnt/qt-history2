@@ -1939,17 +1939,64 @@ static inline QCString qt_rmWS( const char *s )
 
 
 /*!
+    \internal
+*/
+bool QAxBase::internalInvoke( const QCString &name, void *inout, const QVariant &var )
+{
+    CComPtr<IDispatch> disp;
+    ptr->QueryInterface( IID_IDispatch, (void**)&disp );
+    if ( !disp || !inout )
+	return FALSE;
+
+    DISPID dispid;
+    OLECHAR *names = (TCHAR*)qt_winTchar(name, TRUE );
+    disp->GetIDsOfNames( IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid );
+    if ( dispid == DISPID_UNKNOWN ) {
+#ifdef QT_CHECK_STATE
+	const char *coclass = metaObject()->classInfo( "CoClass" );
+	qWarning( "QAxBase::internalInvoke: %s: No such method or property in %s [%s]", (const char*)name, control().latin1(), 
+	    coclass ? coclass: "unknown" );
+#endif
+	return FALSE;
+    }
+
+    VARIANTARG *res = (VARIANTARG*)inout;
+    VARIANT arg;
+    DISPPARAMS params;
+    if ( !var.isValid() ) {
+	params.cArgs = 0;
+	params.cNamedArgs = 0;
+	params.rgdispidNamedArgs = 0;
+	params.rgvarg = 0;
+    } else {
+	arg = QVariantToVARIANT( var );
+	params.cArgs = 1;
+	params.cNamedArgs = 0;
+	params.rgdispidNamedArgs = 0;
+	params.rgvarg = &arg;
+    }
+
+    HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, res, 0, 0 );
+
+    return checkHRESULT( hres );
+}
+
+
+/*!
     Calls the function \a function of the COM object passing the parameters \a var1 ... \a var8, 
     and returns the value, or an invalid QVariant if the function does not return a value.
 
     \a function has to be provided as the full prototype, like e.g. in QObject::connect().
-
     \code
     activeX->dynamicCall( "Navigate(const QString&)", "www.trolltech.com" );
     \endcode
 
-    dynamicCall can not be used to read or write properties. Instead, use QObject::property()
-    and QObject::setProperty() respectively.
+    You can also use this method to set and get property values:
+    \code
+    activeX->dynamicCall( "Value", 5 );
+    QString text = activeX->dynamicCall( "Text" ).toString();
+    \endcode
+    Using QObject::setProperty and QObject::property however is faster.
 
     It is only possible to call functions through dynamicCall that have parameters or return
     values of datatypes supported in QVariant. See the QAxBase class documentation for a list of 
@@ -1977,18 +2024,33 @@ QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1,
 							 const QVariant &var7, 
 							 const QVariant &var8 )
 {
+    bool ok = FALSE;
+    QVariant result;
+
     int id = metaObject()->findSlot( qt_rmWS(function), TRUE );
     if ( id < 0 ) {
+	// it's not a slot; try a property
+	if ( var1.isValid() ) {
+	    ok = qObject()->setProperty( function, var1 );
+	} else {
+	    result = qObject()->property( function );
+	    ok = result.isValid();
+	}
+	if ( ok )
+	    return result;
+    } else {
+	ok = TRUE;
+    }
+    if ( !ok ) {
 #if defined(QT_CHECK_RANGE)
 	const char *coclass = metaObject()->classInfo( "CoClass" );
-	qWarning( "QAxBase::dynamicCall: %s: No such method in %s [%s]", (const char*)function, control().latin1(), 
-	    coclass ? coclass: "unknown" );
+	qWarning( "QAxBase::dynamicCall: %s: No such method or property in %s [%s]"
+	    , (const char*)function, control().latin1(), coclass ? coclass: "unknown" );
 #endif
 	return QVariant();
     }
     const QMetaData *slot_data = 0;
     slot_data = metaObject()->slot( id, TRUE );
-    QVariant result;
 
     if ( slot_data ) {
 	const QUMethod *slot = 0;
@@ -2052,51 +2114,9 @@ QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1,
 }
 
 /*!
-    \internal
-*/
-bool QAxBase::internalInvoke( const QCString &name, void *inout, const QVariant &var )
-{
-    CComPtr<IDispatch> disp;
-    ptr->QueryInterface( IID_IDispatch, (void**)&disp );
-    if ( !disp || !inout )
-	return FALSE;
+    Returns a pointer to a QAxObject wrapping the COM object provided by the method or 
+    property \a name, passing \a var as an optional parameter.
 
-    DISPID dispid;
-    OLECHAR *names = (TCHAR*)qt_winTchar(name, TRUE );
-    disp->GetIDsOfNames( IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid );
-    if ( dispid == DISPID_UNKNOWN ) {
-#ifdef QT_CHECK_STATE
-	const char *coclass = metaObject()->classInfo( "CoClass" );
-	qWarning( "QAxBase::dynamicGet: %s: No such property in %s [%s]", (const char*)name, control().latin1(), 
-	    coclass ? coclass: "unknown" );
-#endif
-	return FALSE;
-    }
-
-    VARIANTARG *res = (VARIANTARG*)inout;
-    VARIANT arg;
-    DISPPARAMS params;
-    if ( !var.isValid() ) {
-	params.cArgs = 0;
-	params.cNamedArgs = 0;
-	params.rgdispidNamedArgs = 0;
-	params.rgvarg = 0;
-    } else {
-	arg = QVariantToVARIANT( var );
-	params.cArgs = 1;
-	params.cNamedArgs = 0;
-	params.rgdispidNamedArgs = 0;
-	params.rgvarg = &arg;
-    }
-
-    HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, res, 0, 0 );
-
-    return checkHRESULT( hres );
-}
-
-/*!
-    Returns a pointer to a QAxObject wrapping the COM object provided by calling the
-    method or property getter for \a name, passing \a var as an optional parameter.
     The returned object is a child of this object (which is either of type QAxObject or
     QAxWidget), and is deleted when this object is being  deleted. It is however safe to 
     delete the returned object.
@@ -2113,27 +2133,43 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, const QVariant 
     }
     \endcode
 */
-QAxObject *QAxBase::createSubObject( const QCString &name, const QVariant &var )
+QAxObject *QAxBase::querySubObject( const QCString &name, const QVariant &var )
 {
-    QObject *that = qObject();
     QAxObject *object = 0;
 
     VARIANTARG res;
-    if ( !internalInvoke( name, &res, var ) )
-	return FALSE;
+    internalInvoke( name, &res, var );
     switch ( res.vt ) {
     case VT_DISPATCH:
-	object = new QAxObject( res.pdispVal, that, name );
+	object = new QAxObject( res.pdispVal, qObject(), name );
 	break;
     case VT_UNKNOWN:
-	object = new QAxObject( res.punkVal, that, name );
+	object = new QAxObject( res.punkVal, qObject(), name );
+	break;
+    case VT_EMPTY:
+#ifdef QT_CHECK_STATE
+	{
+	    const char *coclass = metaObject()->classInfo( "CoClass" );
+	    qWarning( "QAxBase::querySubObject: %s: error calling function or property in %s (%s)"
+		, (const char*)name, control().latin1(), coclass ? coclass: "unknown" );
+	}
+#endif
 	break;
     default:
+#ifdef QT_CHECK_STATE
+	{
+	    const char *coclass = metaObject()->classInfo( "CoClass" );
+	    qWarning( "QAxBase::querySubObject: %s: method or property is not of interface type in %s (%s)"
+		, (const char*)name, control().latin1(), coclass ? coclass: "unknown" );
+	}
+#endif
 	break;
     }
 
     return object;
 }
+
+
 
 class QtPropertyBag : public IPropertyBag
 {
