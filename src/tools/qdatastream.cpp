@@ -479,7 +479,7 @@ void QDataStream::setByteOrder( int bo )
   QDataStream read functions
  *****************************************************************************/
 
-#if defined(Q_OS_HPUX) && !defined(__LP64__) 
+#if defined(Q_OS_HPUX) && !defined(__LP64__)
 extern "C" long long __strtoll( const char *, char**, int );
 #endif
 
@@ -507,7 +507,7 @@ static Q_INT64 read_int_ascii( QDataStream *s )
 #  endif
 #elif defined(Q_OS_DARWIN) && defined(QT_MACOSX_VERSION) && QT_MACOSX_VERSION < 0x1020
     return strtoq( buf, (char**)0, 10 );
-#elif defined(Q_OS_OSF) && defined(Q_CC_DEC)
+#elif defined(Q_OS_OSF)
     return strtol( buf, (char**)0, 10 );
 #else
     return strtoll( buf, (char**)0, 10 );	// C99 function
