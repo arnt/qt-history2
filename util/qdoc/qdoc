@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#208 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#209 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1996,17 +1996,36 @@ sub classlist {
     $prefix =~ s/.$// while( $prefix ne substr( $url, 0, length $prefix ) );
     $prefix_length = length $prefix;
 
+
+    
+
     # find out where each column starts
-    $colindex[0] = 0;
-    $tmp = sprintf("%d",$#classurls/3-1); # end of first column - approximately
+
+    $i = 0;
+    $tmp = 0;
+    $colindex[$i++] = 0;
+
+    $tmp = sprintf("%d",$tmp+($#classurls-$tmp)/5-1); # end of first column - approximately
     $tmp++ while( substr( $classurls[$tmp  ], $prefix_length, 1 ) eq
 		  substr( $classurls[$tmp+1], $prefix_length, 1 ) );
-    $colindex[1] = $tmp+1;
-    $tmp = sprintf( "%d", ($tmp+$#classurls)/2-1 ); # end of second column
+    $colindex[$i++] = $tmp+1;
+
+    $tmp = sprintf("%d",$tmp+($#classurls-$tmp)/4-1); # end of next column 
     $tmp++ while( substr( $classurls[$tmp  ], $prefix_length, 1 ) eq
 		  substr( $classurls[$tmp+1], $prefix_length, 1 ) );
-    $colindex[2] = $tmp+1;
-    $colindex[3] = $#classurls+1;
+    $colindex[$i++] = $tmp+1;
+
+    $tmp = sprintf("%d",$tmp+($#classurls-$tmp)/3-1); # end of next column 
+    $tmp++ while( substr( $classurls[$tmp  ], $prefix_length, 1 ) eq
+		  substr( $classurls[$tmp+1], $prefix_length, 1 ) );
+    $colindex[$i++] = $tmp+1;
+
+    $tmp = sprintf( "%d", $tmp+($#classurls-$tmp)/2-1 ); # end of next column
+    $tmp++ while( substr( $classurls[$tmp  ], $prefix_length, 1 ) eq
+		  substr( $classurls[$tmp+1], $prefix_length, 1 ) );
+    $colindex[$i++] = $tmp+1;
+
+    $colindex[$i++] = $#classurls+1;
 
     # build the table
     $result = "<table>\n";

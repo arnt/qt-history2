@@ -36,9 +36,8 @@ static char ident[] = "$Id: classes.doc,v 1.8 1999/04/28 09:53:43 aavit Exp $";
 
 <h1 align=center>Class Index</h1><br clear="all">
 
-<multicol cols=5>
   \classlist
-</multicol>
+
 \extensionlist
 
 */
