@@ -1,13 +1,16 @@
-                GLWidget - A Qt wrapper widget for OpenGL
+		     OpenGL for Qt - The QGL classes
 
-GLWidget (glwidget.h) is a Qt wrapper class for OpenGL and Mesa. To use
-OpenGL in your Qt application, create a subclass of GLWidget and implement
-some virtual functions. The HTML file glwidget.html contains documentation
-for the GLWidget.
+QGLWidget (qglwidget.h) is a Qt wrapper class for OpenGL and Mesa. To use
+OpenGL in your Qt application, create a subclass of QGLWidget and
+implement two or more virtual functions. The HTML file qgl.html
+contains documentation for the GLWidget.
 
-Study the Nurb (nurb.h) example to see how you can make your own OpenGL
-widgets. The NurbSample widget in main.cpp contains a Nurb widget and some
-buttons to manipulate the Nurb's parameters.
+The documentation is incomplete and I don't have enough sample programs.
+The gears.cpp file is a reworked example from the Mesa 2.0 distribution.
+The GearWidget is a simple OpenGL widget.
+
+If you have a small and intuitive example program that you want to give to
+us, I can include it in the distribution.
 
 Permission to use, copy, modify, and distribute this software and its
 documentation for any purpose and without fee is hereby granted, provided
