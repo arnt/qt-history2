@@ -567,9 +567,6 @@ int QSocketDevice::accept()
 	        case WSAEFAULT:
 		    e = InternalError;
 		    break;
-	        case WSAEINTR:
-		    // ### ?
-		    break;
 	        case WSAEMFILE:
 	        case WSAEINPROGRESS:
 	        case WSAENOBUFS:
