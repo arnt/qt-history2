@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#37 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,10 +18,11 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#36 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#37 $";
 #endif
 
-/*! \class QMenuBar qmenubar.h
+/*!
+  \class QMenuBar qmenubar.h
 
   \brief The QMenuBar class provides a horizontal menu bar.
 
@@ -289,6 +290,7 @@ void QMenuBar::show()
     }
     if ( w )
 	resize( w->width(), height() );
+    updateRects();
     QWidget::show();
     raise();
 }
@@ -381,7 +383,7 @@ int QMenuBar::itemAtPos( const QPoint &pos )	// get item at pos (x,y)
 //
 
 /*!
-Called from QFrame::paintEvent().
+  Called from QFrame::paintEvent().
 */
 
 void QMenuBar::drawContents( QPainter *p )	// draw menu bar
@@ -391,7 +393,7 @@ void QMenuBar::drawContents( QPainter *p )	// draw menu bar
     int		 fw = frameWidth();
 
     p->setClipRect( fw, fw, width() - 2*fw, height() - 2*fw );
-    updateRects();
+
     for ( int i=0; i<(int)mitems->count(); i++ ) {
 	QMenuItem *mi = mitems->at( i );
 	QRect r = irects[i];
@@ -416,7 +418,7 @@ void QMenuBar::drawContents( QPainter *p )	// draw menu bar
 }
 
 /*!
-Handles mouse press events for the menu bar.
+  Handles mouse press events for the menu bar.
 */
 
 void QMenuBar::mousePressEvent( QMouseEvent *e )
@@ -452,7 +454,7 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 }
 
 /*!
-Handles mouse release events for the menu bar.
+  Handles mouse release events for the menu bar.
 */
 
 void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
@@ -484,7 +486,7 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 }
 
 /*!
-Handles mouse move events for the menu bar.
+  Handles mouse move events for the menu bar.
 */
 
 void QMenuBar::mouseMoveEvent( QMouseEvent *e )
@@ -505,7 +507,7 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 }
 
 /*!
-Handles key press events for the menu bar.
+  Handles key press events for the menu bar.
 */
 
 void QMenuBar::keyPressEvent( QKeyEvent *e )
@@ -573,7 +575,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 }
 
 /*!
-Handles resize events for the menu bar.
+  Handles resize events for the menu bar.
 */
 
 void QMenuBar::resizeEvent( QResizeEvent * )
