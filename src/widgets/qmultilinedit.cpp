@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#53 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -57,6 +57,8 @@ static int textWidthWithTabs( const QFontMetrics &fm,const char *s,int nChars )
 
     int         dist = 0;
     const char *tmp  = s;
+    if ( !tmp )
+	return 0;
     int tabDist = tabStopDist(fm);
     while ( *tmp && tmp - s < nChars ) {
 	if ( *tmp == '\t') {
@@ -524,23 +526,50 @@ QString QMultiLineEdit::markedText() const
 	ASSERT( markBeginY >= 0);
 	ASSERT( markEndY < (int)contents->count() );
 	
-	QString tmp;
 	QString *firstS, *lastS;
 	firstS = getString( markBeginY );
 	lastS  = getString( markEndY );
 	ASSERT( firstS != lastS );
 
-	tmp = firstS->mid( markBeginX, firstS->length() - markBeginX  );
+	int len = firstS->length() - markBeginX + 1;
 
 	for( int i = markBeginY + 1 ; i < markEndY ; i++ ) {
-	    tmp += "\n";
-	    tmp += *(contents->at( i ));
+	    len += lineLength( i ) + 1;
 	}
-	tmp += "\n";
+	len += markEndX + 1;
 
-	if ( markEndX != 0 ) {
-	    tmp += lastS->left( markEndX  );
+	QString tmp( len + 1 );
+	int idx = 0;
+
+	if ( firstS ) {
+	    const char *p = firstS->data() + markBeginX;
+	    while (( tmp[idx++] = *p++ ))
+		;
+	    tmp[idx-1] = '\n';
+	} else {
+	    tmp[idx++] = '\n';
 	}
+
+	for( int i = markBeginY + 1; i < markEndY ; i++ ) {
+	    const char *p;
+	    p = (contents->at( i ))->data();
+	    if ( p ) {
+		while (( tmp[idx++] = *p++ ))
+		    ;
+		tmp[idx-1] = '\n';
+	    } else {
+		tmp[idx++] = '\n';
+	    }
+	}
+	if ( lastS ) {
+	    int i = 0;
+	    while ( i < markEndX )
+		tmp[idx++] = (*lastS)[i++];
+	    tmp[idx] = 0;
+	} else {
+	    tmp[idx++] = 0;
+	}
+
 	return tmp;
     }
 }
@@ -576,11 +605,24 @@ QString QMultiLineEdit::text() const
     if ( contents->count() == 0 )
 	return QString( "" );
 
-    QString tmp = contents->at( 0 )->copy();
-    for( int i = 1 ; i < (int)contents->count() ; i++ ) {
-	tmp += "\n";
-	tmp += *(contents->at( i ));
+    int len = 0;
+    for( int i = 0 ; i < (int)contents->count() ; i++ ) {
+	len += lineLength( i ) + 1;
     }
+
+    QString tmp( len + 1 );
+    int idx = 0;
+    for( int i = 0 ; i < (int)contents->count() ; i++ ) {
+	const char *p = (contents->at( i ))->data();
+	if ( p ) {
+	    while (( tmp[idx++] = *p++ ))
+		;
+	    tmp[idx-1] = '\n';
+	} else {
+	    tmp[idx++] = '\n';
+	}
+    }
+    tmp[idx-1] = 0;
     return tmp;
 }
 
@@ -594,7 +636,7 @@ void QMultiLineEdit::selectAll()
     markAnchorX    = 0;
     markAnchorY    = 0;
     markDragY = numLines() - 1;
-    markDragX = lineLength( cursorY );
+    markDragX = lineLength( markDragY );
     markIsOn = ( markDragX != markAnchorX ||  markDragY != markAnchorY );
     repaint( TRUE );
 }
@@ -825,6 +867,9 @@ void QMultiLineEdit::pageDown( bool mark )
     bool oldAuto = autoUpdate();
     if ( mark )
 	setAutoUpdate( FALSE );
+
+    if ( partiallyInvisible( cursorY ) )
+	cursorY = topCell();
     int delta = cursorY - topCell();
     int pageSize = viewHeight() / cellHeight();
     int newTopCell = QMIN( topCell() + pageSize, numLines() - 1 - pageSize );
@@ -875,6 +920,8 @@ void QMultiLineEdit::pageUp( bool mark )
     bool oldAuto = autoUpdate();
     if ( mark )
 	setAutoUpdate( FALSE );
+    if ( partiallyInvisible( cursorY ) )
+	cursorY = topCell();
     int delta = cursorY - topCell();
     int pageSize = viewHeight() / cellHeight();
     bool partial = delta == pageSize && viewHeight() != pageSize * cellHeight();
@@ -915,8 +962,31 @@ void QMultiLineEdit::pageUp( bool mark )
 	turnMarkOff();
 }
 
+/*
+  Scans txt, returning one line in s, returns the address of the next
+  line, 0 if end of text.
 
-
+ */
+static const char *getOneLine( const char *txt, QString **s )
+{
+    if ( !txt ) {
+	*s = new QString;
+	return 0;
+    }
+    int len = 0;
+    const char *p = txt;
+    while ( *p && *p != '\n' ) {
+	p++;
+	len++;
+    }
+    *s = new QString( len + 1 );
+    memmove( (*s)->data(), txt, len );
+    (**s)[len] = 0;
+    if (*p)
+	return p+1;
+    else
+	return 0;
+}
 
 
 /*!
@@ -936,61 +1006,52 @@ void QMultiLineEdit::insertAt( const char *txt, int line, int col )
 
     QString *oldLine = getString( line );
     ASSERT( oldLine );
-
-    QString t;
-    if ( txt )
-	t.setRawData( txt, strlen(txt) + 1 );
-    else
-	t = "";
-
-    int from = 0;
-
     bool cursorAfter = atEnd() || cursorY > line 
-		       || cursorY == line && cursorX >= col;
+	  || cursorY == line && cursorX >= col;
     bool onLineAfter = cursorY == line && cursorX >= col;
 
-    int to = t.find( '\n' );
-    if ( to < 0 ) { //just one line
-	oldLine->insert( col, t );
+    QString *textLine;
+    const char *p = getOneLine( txt, &textLine );
+
+    if ( !p ) { //single line
+	oldLine->insert( col, *textLine );
 	int w = textWidth( oldLine );
 	setWidth( QMAX( cellWidth(), w ) );
 	if ( onLineAfter )
-	    cursorX += t.length();
-    } else { //multiline
-	bool aupd = autoUpdate();
-	setAutoUpdate( FALSE );
+	    cursorX += textLine->length();
+	if ( autoUpdate() )
+	    repaint( FALSE );
+    } else {
+	int w = cellWidth();
 	QString newString = oldLine->mid( col, oldLine->length() );
 	oldLine->remove( col, oldLine->length() );
 	if ( onLineAfter )
 	    cursorX -= oldLine->length();
-	*oldLine += t.left( to );
+	*oldLine += *textLine;
+	w = QMAX( textWidth( oldLine ), w );
 	line++;
 	cursorY++;
 	if ( line >= numLines() ) {
 	    insertLine( "", numLines() );
 	}
-	from = to + 1;
-	while ( (to = t.find( '\n', from )) > 0 ) {
-	    insertLine( t.mid( from, to - from ), line++ );
-	    from = to + 1;
+
+	while (( p = getOneLine( p, &textLine ) )) {
+	    ASSERT ( textLine );
+	    contents->insert( line++, textLine );
+	    w = QMAX( textWidth( textLine ), w );
 	    if ( cursorAfter )
 		cursorY++;
 	}
-	int lastLen = t.length() - from;
+	int lastLen = textLine->length();
 	if ( onLineAfter )
 	    cursorX += lastLen;
-	newString.prepend( t.right( lastLen ) );
+	newString.prepend( *textLine );
+	w = QMAX( textWidth( textLine ), w );
 	insertLine( newString, line );
-	updateCellWidth();
-	setAutoUpdate( aupd );
-	if ( aupd )
+	setWidth( w );
+	if ( autoUpdate() )
 	    repaint( FALSE );
     }
-    textDirty = TRUE;
-    ASSERT( numLines() != 0 );
-    makeVisible();
-    if ( txt )
-	t.resetRawData( txt, strlen(txt) + 1 );
 }
 
 
@@ -1009,55 +1070,27 @@ void QMultiLineEdit::insertLine( const char *txt, int line )
 	//debug ("insertLine: removing dummy, %d", count() );
 	dummy = FALSE;
     }
+    if ( line < 0 || line >= numLines() )
+	line = numLines();
+    QString *textLine;
+    int w = cellWidth();
+    const char *p = txt;
+    do {
+	p = getOneLine( p, &textLine );
+	ASSERT ( textLine );
+	contents->insert( line++, textLine );
+	w = QMAX( textWidth( textLine ), w );
+    } while ( p );
 
-    QString t;
-    if ( txt )
-	t.setRawData( txt, strlen(txt) + 1 );
-    else
-	t = "";
+    setWidth( w );
+    setNumRows( contents->count() );
+    if ( autoUpdate() ) //### && visibleChanges
+	repaint( FALSE );
 
-    int to = t.find( '\n' );
-    if ( to < 0 ) { //just one line
-	QString *txtCopy = new QString( txt );
-	if ( line < 0 || !contents->insert( line, txtCopy ) ) {
-            line = numLines();
-	    contents->append( txtCopy );
-        }
-	bool updt = autoUpdate() && rowIsVisible( line );
-	int w = textWidth( txtCopy );
-	setWidth( QMAX( cellWidth(), w ) );
-	setNumRows( contents->count() );
-
-	if ( updt )
-	    repaint( FALSE );
-    } else { //multiline
-	int from = 0;
-	bool hadAutoUpdate = autoUpdate();
-	setAutoUpdate( FALSE );
-	if ( line < 0 || line >= numLines() )
-	    line = numLines();
-	while ( to >= 0 ) {
-	    insertLine( t.mid( from, to - from ), line++ );
-	    from = to + 1;
-	    to = t.find( '\n', from );
-	}
-	int lastLen = t.length() - from;
-	insertLine( t.right( lastLen ), line );
-	setNumRows( contents->count() );
-	updateCellWidth();
-	if ( hadAutoUpdate ) {
-	    setAutoUpdate( TRUE );
-	    repaint(FALSE);
-	}
-    }
-    textDirty = TRUE;
     ASSERT( numLines() != 0 );
     makeVisible();
-    if ( txt )
-	t.resetRawData( txt, strlen(txt) + 1 );
+    textDirty = TRUE;
 }
-
-
 
 /*!
   Deletes the line at line number \a line. If \a
@@ -1678,6 +1711,7 @@ int QMultiLineEdit::mapFromView( int xPos, int line )
 int QMultiLineEdit::mapToView( int xIndex, int line )
 {
     QString *s = getString( line );
+    ASSERT( s );
     xIndex = QMIN( (int)s->length(), xIndex );
     QFontMetrics fm( font() );
     return BORDER + textWidthWithTabs( fm, *s, xIndex ) - 1;
