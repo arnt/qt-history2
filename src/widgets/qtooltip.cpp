@@ -373,8 +373,10 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 	if ( !t )
 	    w = w->isTopLevel() ? 0 : w->parentWidget();
     }
+    if ( !w )
+	return FALSE;
 
-    if ( !t ) {
+    if ( !t && e->type() != QEvent::MouseMove) {
 	if ( ( e->type() >= QEvent::MouseButtonPress &&
 	       e->type() <= QEvent::FocusOut) || e->type() == QEvent::Leave )
 	    hideTip();
@@ -395,6 +397,7 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
     case QEvent::MouseMove:
 	{ // a whole scope just for one variable
 	    QMouseEvent * m = (QMouseEvent *)e;
+
 	    QPoint mousePos = w->mapFromGlobal( m->globalPos() );
 
 	    if ( currentTip && !currentTip->rect.contains( mousePos ) ) {
