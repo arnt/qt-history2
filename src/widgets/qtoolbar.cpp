@@ -616,7 +616,7 @@ void QToolBar::resizeEvent( QResizeEvent *e )
 		    QToolButton *b = (QToolButton*)w;
 		    QString s = b->textLabel();
 		    if ( s.isEmpty() )
-			s = "";
+			s = b->text();
 		    int id;
 		    if ( b->popup() && b->popupDelay() == 0 )
 			id = d->extensionPopup->insertItem( b->iconSet(), s, b->popup() );
