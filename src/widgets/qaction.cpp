@@ -185,6 +185,9 @@ QActionPrivate::QActionPrivate()
     on = 0;
     menuitems.setAutoDelete( TRUE );
     comboitems.setAutoDelete( TRUE );
+#ifndef QT_NO_TOOLTIP
+    tipGroup.setDelay( FALSE );
+#endif
 }
 
 QActionPrivate::~QActionPrivate()
@@ -493,33 +496,6 @@ QString QAction::toolTip() const
     return d->toolTip();
 }
 
-
-/*!
-  \property QAction::statusTipDelay
-  \brief whether the status bar tip is delayed.
-
-  If set to TRUE (the default), the status bar tip is displayed at the
-  time of the tool tip.  If set to FALSE, then the status bar tip is displayed
-  immediately when the cursor enters the action.
-
-  \sa QToolTipGroup::setDelay() setStatusTip()
-*/
-
-void QAction::setStatusTipDelay( bool delay )
-{
-#ifndef QT_NO_TOOLTIP
-    d->tipGroup.setDelay( delay );
-#endif
-}
-
-bool QAction::statusTipDelay() const
-{
-#ifndef QT_NO_TOOLTIP
-    return d->tipGroup.delay();
-#else
-    return FALSE;
-#endif
-}
 
 /*! \property QAction::statusTip
   \brief the action's status tip
