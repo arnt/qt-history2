@@ -1268,6 +1268,7 @@ void QListBox::clear()
     d->mousePressColumn = -1;
     d->mouseMoveRow = -1;
     d->mouseMoveColumn = -1;
+    d->selectable.clear();
     clearSelection();
     blockSignals( FALSE );
     triggerUpdate( TRUE );
