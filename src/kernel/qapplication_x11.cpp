@@ -4214,6 +4214,21 @@ void QApplication::closePopup( QWidget *popup )
 	 else
 	     aw->setFocus();
 	 QFocusEvent::resetReason();
+	 if ( popupWidgets->count() == 1 && !qt_nograb() ){ // grab mouse/keyboard
+	     int r = XGrabKeyboard( aw->x11Display(), aw->winId(), TRUE,
+				    GrabModeSync, GrabModeAsync, CurrentTime );
+	     if ( (popupGrabOk = (r == GrabSuccess)) ) {
+		 r = XGrabPointer( aw->x11Display(), aw->winId(), TRUE,
+				   (uint)(ButtonPressMask | ButtonReleaseMask |
+					  ButtonMotionMask | EnterWindowMask |
+					  LeaveWindowMask | PointerMotionMask),
+				   GrabModeSync, GrabModeAsync,
+				   None, None, CurrentTime );
+
+		 if ( (popupGrabOk = (r == GrabSuccess)) )
+		     XAllowEvents( aw->x11Display(), SyncPointer, CurrentTime );
+	     }
+	 }
      }
 }
 
