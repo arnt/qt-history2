@@ -202,6 +202,11 @@
 class QComboBoxPopup : public QPopupMenu
 {
 public:
+    QComboBoxPopup( QWidget *parent = 0, const char *name = 0 )
+	: QPopupMenu( parent, name )
+    {
+    }
+
     int itemHeight( int index )
     {
 	return QPopupMenu::itemHeight( index );
@@ -216,11 +221,6 @@ struct QComboData
     {
 	duplicatesEnabled = TRUE;
 	cb->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
-    }
-    ~QComboData()
-    {
-	delete pop;
-	//delete lBox; //lBox is child of combobox
     }
 
     bool usingListBox()  { return usingLBox; }
@@ -348,7 +348,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     if ( style() == WindowsStyle ) {
 	setUpListBox();
     } else {
-	d->setPopupMenu( new QComboBoxPopup );
+	d->setPopupMenu( new QComboBoxPopup( this, "in-combo" ) );
 	d->popup()->setFont( font() );
 	connect( d->popup(), SIGNAL(activated(int)),
 			     SLOT(internalActivate(int)) );
