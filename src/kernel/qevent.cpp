@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#77 $
 **
 ** Implementation of event classes
 **
@@ -746,7 +746,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 
 /*!
   \fn void QCloseEvent::accept()
-  Sets the accep flag of the close event object.
+  Sets the accept flag of the close event object.
 
   Setting the accept flag indicates that the receiver of this event agrees
   to close the widget.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#371 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#372 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -421,7 +421,6 @@ static const char * latin2locales[] = {
 static const char * latin5locales[] = {
     "bg", "bg_BG", "bulgarian", "mk", "mk_MK", "ru", "ru_RU", "ru_SU",
     "russian", "sp", "sp_YU", 0 };
-
 
 static const char * latin6locales[] = {
     "ar_AA", "ar_SA", "arabic", 0 };
@@ -1522,7 +1521,7 @@ static QPostEventList *postedEvents = 0;	// list of posted events
 
 
 /*!
-  Stores the event in a queue and returns immediatly.
+  Stores the event in a queue and returns immediately.
 
   The event must be allocated on the heap, as it is deleted when the event
   has been posted.
@@ -2012,7 +2011,7 @@ bool QApplication::processNextEvent( bool canWait )
 	    return TRUE;
     }
 
-    if ( quit_now || app_exit_loop )		// break immediatly
+    if ( quit_now || app_exit_loop )		// break immediately
 	return FALSE;
 
     static timeval zerotm;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#157 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#158 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -1619,7 +1619,7 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
   \sa drawPixmap() QPixmap::convertFromImage()
 */
 void QPainter::drawImage( int x, int y, const QImage & image,
-			    int sx, int sy, int sw, int sh )
+			  int sx, int sy, int sw, int sh )
 {
     if ( !isActive() || image.isNull() )
 	return;

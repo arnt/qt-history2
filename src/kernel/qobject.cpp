@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#175 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#176 $
 **
 ** Implementation of QObject class
 **
@@ -34,16 +34,17 @@
 /*! \class Qt qnamespace.h
   \brief The Qt class is a namespace for miscellaneous identifiers
   that need to global-like.
-  
+
   Normally, you can ignore this class.  QObject and a few other
   classes inherit it, so that all the identifiers in the Qt namespace
   are visible to you without qualification.
-  
+
   However, occasionally you may need to say \c Qt::black instead just
   \c black, particularly in static utility functions (such as many
   class factories).
-*/  
- 
+  
+*/
+
 
 /*!
   \class QObject qobject.h
