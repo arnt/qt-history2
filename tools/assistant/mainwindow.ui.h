@@ -211,7 +211,7 @@ void MainWindow::setObjectsEnabled( bool b )
     }
     QObjectList *l = queryList( "QAction" );
     QObject *obj;
-    QObjectListIt it( *l );
+    QObjectListIterator it( *l );
     while ( (obj = it.current()) != 0 ) {
         ++it;
         ((QAction*)obj)->setEnabled( b );
