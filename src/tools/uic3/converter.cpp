@@ -321,8 +321,7 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
             hasMenuText = true;
             prop->setAttributeName("text");
         } else if (name == QLatin1String("text")) {
-            delete prop;
-            it.remove();
+            prop->setAttributeName("iconText");
         } else if (name == QLatin1String("iconSet")) {
             prop->setAttributeName(QLatin1String("icon"));
         } else if (name == QLatin1String("accel")) {
