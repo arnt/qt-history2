@@ -225,7 +225,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 		out() << "<img src=\"" << protect( fileName ) << "\"";
 		if ( !text.isEmpty() )
 		    out() << " alt=\"" << protect( text ) << "\"";
-		out() << ">";
+		out() << " />";
 	    }
 	    if (atom->type() == Atom::Image)
 		out() << "</center>";
@@ -1483,7 +1483,7 @@ void HtmlGenerator::generateDetailedMember(const Node *node, const InnerNode *re
         out() << "<h3 class=\"flags\">";
         out() << "<a name=\"" + refForNode( node ) + "\"></a>";
         generateSynopsis(enume, relative, marker, CodeMarker::Detailed);
-        out() << "<br>";
+        out() << "<br />";
         generateSynopsis(enume->flagsType(), relative, marker, CodeMarker::Detailed);
         out() << "</h3>\n";
     } else {
