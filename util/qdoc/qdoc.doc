@@ -609,7 +609,7 @@
       \\e mouse. Others call these \\e mice.
 
       Have you noticed that over half of linguistic
-      papers has a title of the form "X or Y?"?
+      papers have a title of the form "X or Y?"?
     *&#47;</pre>
    The command should stand on its own line with the name of the HTML
    file to generate as argument (mouse.html).
