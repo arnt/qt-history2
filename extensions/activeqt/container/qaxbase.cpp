@@ -2655,14 +2655,19 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
             arg.vt = VT_ERROR;
             arg.scode = DISP_E_TYPEMISMATCH;
             
-            // map void* to VARIANTARG.
+            // map void* to VARIANTARG via QVariant
+            QVariant qvar;
             if (proptype == "QVariant")
-                QVariantToVARIANT(*(QVariant*)v[0], arg, proptype);
-            else if (!prop.isEnumType())
-                QVariantToVARIANT(QCoreVariant(QCoreVariant::nameToType(proptype), v[0]), arg, proptype);
+                qvar = *(QVariant*)v[0];
+            else if (proptype.endsWith('*'))
+                qVariantSet(qvar, *(void**)v[0], proptype);
+            else if (prop.isEnumType())
+                qvar = *(int*)v[0];
             else
-                QVariantToVARIANT(QVariant(QVariant::Int, v[0]), arg, proptype);
-            if (arg.vt == VT_EMPTY) {
+                qvar = QCoreVariant(QCoreVariant::nameToType(proptype), v[0]);
+
+            QVariantToVARIANT(qvar, arg, proptype);
+            if (arg.vt == VT_EMPTY || arg.vt == VT_ERROR) {
 #ifndef QT_NO_DEBUG
                 qWarning("QAxBase::setProperty(): Unhandled property type %s", proptype.constData());
 #endif
@@ -2736,13 +2741,16 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     for (p = 0; p < params.cArgs; ++p) {
         bool out;
         QByteArray type = d->metaobj->paramType(signature, p, &out);
-        QVariant qvar;
-        if (type == "IDispatch*")
-            qVariantSet(qvar, *(IDispatch**)v[p+1], "IDispatch*");
-        else if (type == "IUnknown*")
-            qVariantSet(qvar, *(IUnknown**)v[p+1], "IUnknown*");
-        else
-            qvar = QVariant(QVariant::nameToType(type), v[p + 1]);
+        QVariant qvar(QVariant::nameToType(type), v[p + 1]);
+        if (!qvar.isValid()) {
+            if (type == "IDispatch*")
+                qVariantSet(qvar, *(IDispatch**)v[p+1], "IDispatch*");
+            else if (type == "IUnknown*")
+                qVariantSet(qvar, *(IUnknown**)v[p+1], "IUnknown*");
+            else if (d->metaobj->indexOfEnumerator(type) != -1)
+                qvar = *(int*)v[p + 1];
+        }
+
         QVariantToVARIANT(qvar, params.rgvarg[params.cArgs - p - 1], type, out);
     }
     
