@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#60 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -299,7 +299,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    if ( mask_tmp )
 		mask->freeMemDC();
 	} else {
-	    MaskBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
+	    MaskBltA( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
 		     sx, sy, MAKEROP4(0x00aa0000,ropCodes[rop]) );
 	}
     } else {

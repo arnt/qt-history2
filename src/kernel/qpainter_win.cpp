@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#139 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#140 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -970,12 +970,12 @@ void QPainter::nativeXForm( bool enable )
 	m.eDx  = mtx.dx();
 	m.eDy  = mtx.dy();
 	SetGraphicsMode( hdc, GM_ADVANCED );
-	SetWorldTransform( hdc, &m );
+	SetWorldTransformA( hdc, &m );
     } else {
 	m.eM11 = m.eM22 = (float)1.0;
 	m.eM12 = m.eM21 = m.eDx = m.eDy = (float)0.0;
 	SetGraphicsMode( hdc, GM_ADVANCED );
-	ModifyWorldTransform( hdc, &m, MWT_IDENTITY );
+	ModifyWorldTransformA( hdc, &m, MWT_IDENTITY );
 	SetGraphicsMode( hdc, GM_COMPATIBLE );
     }
 }

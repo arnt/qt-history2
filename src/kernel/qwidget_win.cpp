@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#183 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#184 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -121,7 +121,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     int	 exsty = 0;
 
     if ( window ) {
-	style = GetWindowLong( window, GWL_STYLE );
+	style = GetWindowLongA( window, GWL_STYLE );
 	topLevel = FALSE; // #### needed for some IE plugins??
     } else if ( popup ) {
 	style = WS_POPUP;
@@ -173,8 +173,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    destroyw = winid;
 	id = window;
 	setWinId( window );
-	SetWindowLong( window, GWL_STYLE, style );
-	SetWindowLong( window, GWL_WNDPROC, (LONG)QtWndProc );
+	SetWindowLongA( window, GWL_STYLE, style );
+	SetWindowLongA( window, GWL_WNDPROC, (LONG)QtWndProc );
     } else if ( desktop ) {			// desktop widget
 	id = GetDesktopWindow();
 	QWidget *otherDesktop = find( id );	// is there another desktop?
@@ -476,7 +476,10 @@ void QWidget::setCaption( const QString &caption )
 	return; // for less flicker
     createExtra();
     extra->topextra->caption = caption;
-    SetWindowText( winId(), (TCHAR*)qt_winTchar(caption,TRUE) );
+    if ( qt_winver == WV_NT )
+	SetWindowText( winId(), (TCHAR*)qt_winTchar(caption,TRUE) );
+    else
+	SetWindowTextA( winId(), caption.ascii() );
 }
 
 
@@ -533,9 +536,9 @@ void QWidget::setIcon( const QPixmap &pixmap )
 	extra->winIcon = CreateIconIndirect( &ii );
 	DeleteObject( im );
     }
-    SendMessage( winId(), WM_SETICON, 0, /* ICON_SMALL */
+    SendMessageA( winId(), WM_SETICON, 0, /* ICON_SMALL */
 		 (long)extra->winIcon );
-    SendMessage( winId(), WM_SETICON, 1, /* ICON_BIG */
+    SendMessageA( winId(), WM_SETICON, 1, /* ICON_BIG */
 		 (long)extra->winIcon );
 }
 
@@ -563,9 +566,9 @@ void QWidget::grabMouse()
     if ( !qt_nograb() ) {
 	if ( mouseGrb )
 	    mouseGrb->releaseMouse();
-	journalRec = SetWindowsHookEx( WH_JOURNALRECORD,
+	journalRec = SetWindowsHookExA( WH_JOURNALRECORD,
 				       (HOOKPROC)qJournalRecordProc,
-				       GetModuleHandle(0), 0 );
+				       GetModuleHandleA(0), 0 );
 	SetCapture( winId() );
 	mouseGrb = this;
     }
@@ -576,9 +579,9 @@ void QWidget::grabMouse( const QCursor &cursor )
     if ( !qt_nograb() ) {
 	if ( mouseGrb )
 	    mouseGrb->releaseMouse();
-	journalRec = SetWindowsHookEx( WH_JOURNALRECORD,
+	journalRec = SetWindowsHookExA( WH_JOURNALRECORD,
 				       (HOOKPROC)qJournalRecordProc,
-				       GetModuleHandle(0), 0 );
+				       GetModuleHandleA(0), 0 );
 	SetCapture( winId() );
 	mouseGrbCur = new QCursor( cursor );
 	SetCursor( mouseGrbCur->handle() );

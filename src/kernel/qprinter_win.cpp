@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#43 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -89,6 +89,12 @@ bool QPrinter::aborted() const
 }
 
 
+static
+bool windowPrintDlg(PRINTDLG* pd)
+{
+    return (qt_winver == WV_NT ? PrintDlg( pd ) : PrintDlgA( pd ) ) != 0;
+}
+
 bool QPrinter::setup( QWidget *parent )
 {
     if ( parent )
@@ -105,7 +111,7 @@ bool QPrinter::setup( QWidget *parent )
     memset( &pd, 0, sizeof(PRINTDLG) );
     pd.lStructSize = sizeof(PRINTDLG);
     pd.Flags	 = PD_RETURNDEFAULT;
-    bool result = PrintDlg( &pd ) != 0;
+    bool result = windowPrintDlg(&pd);
     if ( result ) {
 	pd.Flags	 = PD_RETURNDC;
 	if ( outputToFile() )
@@ -129,7 +135,7 @@ bool QPrinter::setup( QWidget *parent )
 		GlobalUnlock( pd.hDevMode );
 	    }
 	}
-	result = PrintDlg( &pd ) != 0;
+	result = windowPrintDlg(&pd);
 	if ( result && pd.hDC == 0 )
 	    result = FALSE;
 	if ( result ) {				// get values from dlg
@@ -228,7 +234,10 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	memset( &di, 0, sizeof(DOCINFO) );
 	di.cbSize = sizeof(DOCINFO);
 	di.lpszDocName = (TCHAR*)qt_winTchar(doc_name,TRUE);
-	if ( ok && StartDoc(hdc, &di) == SP_ERROR )
+	if ( ok &&
+	    ( qt_winver == WV_NT
+		    ? StartDoc(hdc, &di)
+		    : StartDocA(hdc, &di) == SP_ERROR ) )
 	    ok = FALSE;
 	if ( ok && StartPage(hdc) == SP_ERROR )
 	    ok = FALSE;

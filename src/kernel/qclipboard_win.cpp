@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#28 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -103,22 +103,28 @@ bool QClipboard::event( QEvent *e )
 
     MSG *m = (MSG *)((QCustomEvent*)e)->data();
 
+    bool propagate=FALSE;
     switch ( m->message ) {
 
 	case WM_CHANGECBCHAIN:
 	    if ( (HWND)m->wParam == nextClipboardViewer )
 		nextClipboardViewer = (HWND)m->lParam;
-	    else if ( nextClipboardViewer )
-		SendMessage( nextClipboardViewer, m->message,
-			     m->wParam, m->lParam );
+	    else
+		propagate = TRUE;
 	    break;
 
 	case WM_DRAWCLIPBOARD:
-	    if ( nextClipboardViewer )
-		SendMessage( nextClipboardViewer, m->message,
-			     m->wParam, m->lParam );
+	    propagate = TRUE;
 	    emit dataChanged();
 	    break;
+    }
+    if ( propagate && nextClipboardViewer ) {
+	if ( qt_winver == Qt::WV_NT )
+	    SendMessage( nextClipboardViewer, m->message,
+			 m->wParam, m->lParam );
+	else
+	    SendMessageA( nextClipboardViewer, m->message,
+			 m->wParam, m->lParam );
     }
 
     return TRUE;
@@ -194,7 +200,7 @@ QPixmap QClipboard::pixmap() const
     BITMAP bm;
     HDC    hdc = GetDC( 0 );
     HDC    hdcMemSrc = CreateCompatibleDC( hdc );
-    GetObject( h, sizeof(BITMAP), &bm );
+    GetObjectA( h, sizeof(BITMAP), &bm );
     SelectObject( hdcMemSrc, h );
     QPixmap pixmap( bm.bmWidth, bm.bmHeight );
     BitBlt( pixmap.handle(), 0,0, pixmap.width(), pixmap.height(),
@@ -218,7 +224,7 @@ void QClipboard::setPixmap( const QPixmap &pixmap )
 
     if ( !pixmap.isNull() ){
 	BITMAP bm;
-	GetObject( pixmap.hbm(), sizeof(BITMAP), &bm );
+	GetObjectA( pixmap.hbm(), sizeof(BITMAP), &bm );
 	HBITMAP hbm = CreateBitmapIndirect( &bm );
 	HDC hdc = GetDC( 0 );
 	HDC hdcMemDst = CreateCompatibleDC( hdc );

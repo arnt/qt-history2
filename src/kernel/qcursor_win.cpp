@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#44 $
 **
 ** Implementation of QCursor class for Win32
 **
@@ -433,5 +433,5 @@ void QCursor::update() const
 #endif
 	    return;
     }
-    data->hcurs = LoadCursor( 0, sh );
+    data->hcurs = LoadCursorA( 0, sh );
 }
