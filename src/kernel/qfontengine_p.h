@@ -17,6 +17,7 @@ typedef unsigned short glyph_t;
 struct offset_t;
 typedef int advance_t;
 class QOpenType;
+struct TransformedFont;
 
 #if defined( Q_WS_X11 ) || defined( Q_WS_WIN) || defined( Q_WS_MAC )
 class QFontEngine : public QShared
@@ -44,7 +45,12 @@ public:
 	QWS
     };
 
-    QFontEngine() { count = 0; cache_count = 0; }
+    QFontEngine() {
+	count = 0; cache_count = 0;
+#ifdef Q_WS_X11
+	transformed_fonts = 0;
+#endif
+    }
     virtual ~QFontEngine();
 
     /* returns 0 as glyph index for non existant glyphs */
@@ -115,6 +121,9 @@ public:
     short lbearing;
     short rbearing;
 #endif // Q_WS_WIN
+#ifdef Q_WS_X11
+    TransformedFont *transformed_fonts;
+#endif
 };
 #elif defined( Q_WS_QWS )
 class QGfx;
@@ -213,13 +222,24 @@ private:
 #ifdef Q_WS_X11
 #include "qt_x11.h"
 
+
+struct TransformedFont
+{
+    float xx;
+    float xy;
+    float yx;
+    float yy;
+    union {
+	Font xlfd_font;
+	XftFont *xft_font;
+    };
+    TransformedFont *next;
+};
+
 #ifndef QT_NO_XFTFREETYPE
 #include <freetype/freetype.h>
 #include "ftxopen.h"
-#endif
 
-
-#ifndef QT_NO_XFTFREETYPE
 class QTextCodec;
 
 class QFontEngineXft : public QFontEngine
