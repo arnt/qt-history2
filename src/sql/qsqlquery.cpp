@@ -138,7 +138,7 @@ void QSqlResultShared::slotResultDestroyed()
     interface that generates SQL automatically and through which
     fields are accessible by name.)
 
-    QSqlQuery supports prepared query execution and the binding of
+    QSqlQuery supports prepared query execution and binding of
     parameter values to placeholders. Since not all databases support
     these features, Qt emulates them when necessary. For example, the
     Oracle and ODBC drivers have proper prepared query support, and Qt
@@ -311,6 +311,7 @@ bool QSqlQuery::exec ( const QString& query )
     if ( d->count > 1 )
 	*this = driver()->createQuery();
     d->sqlResult->setQuery( query.stripWhiteSpace() );
+    d->executedQuery = d->sqlResult->lastQuery();
     if ( !driver()->isOpen() || driver()->isOpenError() ) {
 #ifdef QT_CHECK_RANGE
 	qWarning("QSqlQuery::exec: database not open" );
@@ -377,6 +378,8 @@ int QSqlQuery::at() const
 /*!
     Returns the text of the current query being used, or QString::null
     if there is no current query text.
+    
+    /sa executedQuery()
 */
 
 QString QSqlQuery::lastQuery() const
@@ -957,6 +960,7 @@ bool QSqlQuery::exec()
 	return FALSE;
     if ( driver()->hasFeature( QSqlDriver::PreparedQueries ) ) {
 	ret = d->sqlResult->extension()->exec();
+	d->executedQuery = d->sqlResult->lastQuery();
     } else {
 	// fake preparation - just replace the placeholders..
 	QString query = d->sqlResult->lastQuery();
@@ -997,6 +1001,7 @@ bool QSqlQuery::exec()
 	// have to retain the original query w/placeholders..
 	QString orig = d->sqlResult->lastQuery();
 	ret = exec( query );
+	d->executedQuery = query;
 	d->sqlResult->setQuery( orig );
     }
     d->sqlResult->extension()->resetBindCount();
@@ -1105,4 +1110,30 @@ QVariant QSqlQuery::boundValue( int pos ) const
     return d->sqlResult->extension()->boundValue( pos );
 }
 
+/*!
+    Returns a list of the bound values.
+*/
+QValueList<QVariant> QSqlQuery::boundValues() const
+{
+    if ( !d->sqlResult || !d->sqlResult->extension() )
+	return QValueList<QVariant>();
+    return d->sqlResult->extension()->boundValues();
+}
+
+/*!
+    Returns the last query that was executed.
+
+    In most cases this function returns the same as lastQuery(). If a
+    prepared query with placeholders is executed on a DBMS that does
+    not support it, the preparation of this query is emulated. The
+    placeholders in the original query are replaced with their bound
+    values to form a new query. This function returns the modified
+    query. Useful for debugging purposes.
+    
+    /sa lastQuery()
+*/
+QString QSqlQuery::executedQuery() const
+{
+    return d->executedQuery;
+}
 #endif // QT_NO_SQL

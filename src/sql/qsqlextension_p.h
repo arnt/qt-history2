@@ -86,6 +86,7 @@ struct Holder {
 QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QMap<QString,Param>;
 QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QMap<int,QString>;
 QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QValueVector<Holder>;
+QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QValueList<QVariant>;
 #endif
 
 class QM_EXPORT_SQL QSqlExtension {
@@ -101,6 +102,7 @@ public:
     virtual QVariant parameterValue( int pos );
     QVariant boundValue( const QString& holder ) const;
     QVariant boundValue( int pos ) const;
+    QValueList<QVariant> boundValues() const;
     void clear();
     void clearValues();
     void clearIndex();

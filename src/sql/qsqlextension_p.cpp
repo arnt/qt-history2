@@ -124,6 +124,15 @@ QVariant QSqlExtension::boundValue( int pos ) const
     return values[ index[ pos ] ].value;
 }
 
+QValueList<QVariant> QSqlExtension::boundValues() const
+{
+    QMap<QString, Param>::ConstIterator it;
+    QValueList<QVariant> l;
+    for ( it = values.begin(); it != values.end(); ++it )
+	l.append( it.data().value );
+    return l;
+}
+
 QSqlExtension::BindMethod QSqlExtension::bindMethod()
 {
     return bindm;
