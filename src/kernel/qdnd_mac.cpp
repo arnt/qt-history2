@@ -129,13 +129,15 @@ bool QDropEvent::provides( const char *fmt ) const
     return FALSE;
 }
 
-static struct {
+static struct SM {
     ScrapFlavorType mac_type;
+    enum { Scrap_Raw, Scrap_Other } mac_info;
     const char *qt_type; 
 } scrap_map[] = {
-    { kScrapFlavorTypeUnicode, "text/plain;charset=ISO-10646-UCS-2" }, //highest priority
-    { kScrapFlavorTypeText, "text/plain" },
-    { 0, NULL } 
+    { kScrapFlavorTypeUnicode, SM::Scrap_Raw, "text/plain;charset=ISO-10646-UCS-2" }, //highest priority
+    { kScrapFlavorTypeText, SM::Scrap_Raw, "text/plain" },
+    { kDragFlavorTypeHFS, SM::Scrap_Other, "text/uri-list" },
+    { 0, SM::Scrap_Other, NULL } 
 };
 
 QByteArray QDropEvent::encodedData( const char *fmt ) const
@@ -168,15 +170,37 @@ QByteArray QDropEvent::encodedData( const char *fmt ) const
 		    qDebug( "Failure to get GetFlavorDataSize for %d", (int)info );
 		    return 0;
 		}
-		buffer = (char *)malloc( flavorsize );
-		GetFlavorData( current_dropobj, ref, info, buffer, &flavorsize, 0 );
-		ret.assign( buffer, flavorsize );
-		return ret;
+		if(scrap_map[sm].mac_info == SM::Scrap_Raw) { //general raw case
+		    buffer = (char *)malloc( flavorsize );
+		    GetFlavorData( current_dropobj, ref, info, buffer, &flavorsize, 0 );
+		    ret.assign( buffer, flavorsize );
+		    return ret;
+		} else if(info == kDragFlavorTypeHFS) {
+		    if(flavorsize != sizeof(HFSFlavor)) {
+			qDebug("%s:%d Unexpected case in HFS Flavor", __FILE__, __LINE__);
+			continue;
+		    }
+		    FSRef fsref;
+		    HFSFlavor hfs;
+		    GetFlavorData( current_dropobj, ref, info, &hfs, &flavorsize, 0 );
+		    FSpMakeFSRef(&hfs.fileSpec, &fsref);
+		    buffer = (char *)malloc( 1024 );
+		    FSRefMakePath(&fsref, (UInt8 *)buffer, 1024);
+		    QCString s = QUriDrag::localFileToUri(QString::fromUtf8((const char *)buffer));
+		    free(buffer);
+		    buffer = NULL;
+		    //now encode them to be handled by quridrag
+		    int l = qstrlen(s);
+		    ret.resize(l+2);
+		    memcpy(ret.data(),s,l);
+		    memcpy(ret.data()+l,"\r\n",2);
+		    return ret;
+		} 
 	    }
 	}
 
 	if ( (info >> 16) != ('QTxx' >> 16) ) {
-	    qDebug( "%s:%d Unknown type %c%c%c%c", __FILE__, __LINE__,
+	    qDebug( "+%s:%d Unknown type %c%c%c%c", __FILE__, __LINE__,
 		    char(info >> 24), char((info >> 16) & 255), char((info >> 8) & 255), char(info & 255 ) );
 	    continue;
 	}
@@ -229,7 +253,7 @@ const char* QDropEvent::format( int i ) const
 	for(int sm = 0; scrap_map[sm].qt_type; sm++) 
 	    if(info == scrap_map[sm].mac_type)
 		return scrap_map[sm].qt_type;
-	qDebug( "%s:%d Unknown type %c%c%c%c", __FILE__, __LINE__,
+	qDebug( "-%s:%d Unknown type %c%c%c%c", __FILE__, __LINE__,
 		char(info >> 24), char((info >> 16) & 255), char((info >> 8) & 255), 
 		char(info & 255 ) );
     }
