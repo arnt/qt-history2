@@ -111,7 +111,7 @@ public:
     unsigned int regr2(volatile unsigned int);
     void reset_engine();
     void wait_for_idle();
-    
+
 private:
 
     unsigned char * regbase;
@@ -120,13 +120,13 @@ private:
     void do_scissors(QRect &);
 
     bool checkSourceDest();
-    bool checkDest();
+    void setDest();
 
 };
 
 // Read a 32-bit graphics card register from 2d engine register block
 template<const int depth,const int type>
-inline unsigned int QGfxMach64<depth,type>::regr(volatile unsigned int 
+inline unsigned int QGfxMach64<depth,type>::regr(volatile unsigned int
 						 regindex)
 {
     unsigned long int val;
@@ -155,7 +155,7 @@ inline void regw(volatile unsigned int regindex,
 {
     *((volatile unsigned long int *)(regbase+regindex))=val;
 }
-		 
+
 // Write a 32-bit graphics card register to 3d engine register block
 template<const int depth,const int type>
 inline void QGfxMach64<depth,type>::regw2(volatile unsigned int regindex,
@@ -180,7 +180,7 @@ inline void QGfxMach64<depth,type>::regwf2(volatile unsigned int regindex,
 
 // Read a 32-bit value from 3d engine register block
 template<const int depth,const int type>
-inline unsigned int QGfxMach64<depth,type>::regr2(volatile unsigned int 
+inline unsigned int QGfxMach64<depth,type>::regr2(volatile unsigned int
 						  regindex)
 {
     if(no3d)
@@ -203,7 +203,7 @@ inline void QGfxMach64<depth,type>::wait_for_fifo(short entries)
     tmp->fifocount+=entries;
     if(tmp->fifocount<tmp->fifomax)
 	return;
-    
+
     int trycount=0;
 
     while(trycount++) {
@@ -278,7 +278,7 @@ template<const int depth,const int type>
 QGfxMach64<depth,type>::QGfxMach64(unsigned char * a,int b,int c)
     : QGfxRaster<depth,type>(a,b,c)
 {
-    
+
     regbase=::regbase;
     regbase2=::regbase2;
 }
@@ -353,10 +353,8 @@ inline void QGfxMach64<depth,type>::setPixWidth(int d,int s,int sc,bool b)
 template<const int depth,const int type>
 inline bool QGfxMach64<depth,type>::checkSourceDest()
 {
-    if ( !checkDest() ) {
-	return FALSE;
-    }
-
+    setDest();
+    
     int sourcepixelpitch;
     ulong src_buffer_offset;
     if (srctype == SourcePen) {
@@ -385,17 +383,14 @@ inline bool QGfxMach64<depth,type>::checkSourceDest()
 // source image data
 
 template<const int depth,const int type>
-inline bool QGfxMach64<depth,type>::checkDest()
+inline void QGfxMach64<depth,type>::setDest()
 {
     ulong buffer_offset;
-    if (!gfx_screen->onCard(buffer,buffer_offset)) {
-	return FALSE;
-    }
+    gfx_screen->onCard(buffer,buffer_offset);
     int pixelstep=(linestep()*8)/depth;
     setPixWidth(depth,depth);
     wait_for_fifo(1);
     regw(DST_OFF_PITCH,(( pixelstep / 8 ) << 22) | (buffer_offset / 8));
-    return TRUE;
 }
 
 template<const int depth,const int type>
@@ -415,11 +410,7 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     // to avoid synchronization problems with other processes
     QWSDisplay::grab( TRUE );
     if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_LINE) {
-	if(!checkDest()) {
-	    QWSDisplay::ungrab();
-	    QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);
-	    return;
-	}
+	setDest();
 	// The scaler engine operates independently of the 2d engine
 	// so we need to wait for it to finish if it's doing something
 	if((*gfx_optype)>1)
@@ -544,11 +535,13 @@ void QGfxMach64<depth,type>::fillRect(int rx,int ry,int w,int h)
 	return;
     }
 
-    if(!checkDest() || myrop!=CopyROP) {
+    if(myrop!=CopyROP) {
 	QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
 	return;
     }
 
+    setDest();
+    
     QWSDisplay::grab( TRUE );
 
     GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
@@ -1051,12 +1044,12 @@ void QGfxMach64<depth,type>::tiledBlt(int rx,int ry,int w,int h)
 	    regw(SRC_CNTL,0x00000001);
 	    regw(DP_WRITE_MASK,0xffffffff);
 	    QColor tmp=cpen.color();
-#ifndef QT_NO_QWS_REPEATER	    
+#ifndef QT_NO_QWS_REPEATER
 	    QScreen * tmp2=qt_screen;
 	    qt_screen=gfx_screen;
-#endif	    
+#endif
 	    regw(DP_FRGD_CLR,tmp.alloc());
-#ifndef QT_NO_QWS_REPEATER	    
+#ifndef QT_NO_QWS_REPEATER
 	    qt_screen=tmp2;
 #endif
 	    regw(DP_MIX,0x00070003);
@@ -1689,7 +1682,7 @@ bool QMachScreen::initDevice()
 
     // We use 58 fifos, at least 64 should be free
     shared->fifocount=58;
-    
+
     return true;
 }
 
