@@ -48,12 +48,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-extern int line_count;
-extern "C" void yyerror(const char *foo)
-{
-    fprintf(stderr, "%d: %s\n", line_count, foo);
-}
-
 static bool createDir( const QString& fullPath )
 {
     QDir dirTmp;

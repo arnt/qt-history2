@@ -99,7 +99,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
 	inc.replace(QRegExp("\\\\*$"), "");
 	t << " -I\"" << inc << "\"";
     }
-    t << " -I\"" << "$(QTDIR)\\mkspecs\\win32-borland" << "\""
+    t << " -I\"" << specdir() << "\""
       << endl;
 
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {

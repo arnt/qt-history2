@@ -88,7 +88,12 @@ like this:
 
 The above code will add the QT_DLL define to the makefile if \e qmake
 is used on a Windows platform.  If \e qmake is used on a different
-platform than Windows, the define will be ignored.
+platform than Windows, the define will be ignored. You may also perform
+single line conditionals/assignments with qmake like this:
+
+\code
+   win32:DEFINES += QT_DLL
+\endcode
 
 For example, suppose we want to process something on all platforms
 \e except for Windows. We can achieve this by negating the scope like
@@ -132,6 +137,7 @@ It is also possible to check for two things before processing some
 settings.  For instance, if you want to check if the platform is
 Windows and that the thread configuration is set, you would write
 this:
+
 \code
     win32 {
 	thread {
@@ -147,6 +153,21 @@ like this:
     win32:thread {
 	DEFINES += QT_THREAD_SUPPORT
     }
+\endcode
+
+Once a test has been performed you may also do else/elseif operations. With
+this you may easily write complicated tests. This can be done with the
+special 'else' scope, it can be combined with other scopes (separated by
+colons as above) for example:
+
+\code
+   win32:thread {
+      DEFINES += QT_THREAD_SUPPORT
+   } else:debug {
+      DEFINES += QT_NOTHREAD_DEBUG
+   } else {
+      warning("Unknown configuration")
+   }
 \endcode
 
 \section1 Variables
@@ -228,7 +249,9 @@ contains 'three two three'.
 \section1 Test Functions
 
 \e qmake provides built-in functions that perform simple, yet powerful
-tests.  
+tests. These tests may be used in place of scopes (as described above), in
+some cases it is more usefull to use the test function by itself ignoring
+its test value.
 
 \section2 contains( variablename, value )
 

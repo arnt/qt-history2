@@ -48,7 +48,10 @@
 #endif
 
 int line_count;
-extern "C" void yyerror(const char *);
+static void qmake_error_msg(const char *msg)
+{
+    fprintf(stderr, "%d: %s\n", line_count, msg);
+}
 
 static QString varMap(const QString &x)
 {
@@ -71,15 +74,20 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     if(s.isEmpty()) /* blank_line */
 	return TRUE;
 
-    if(s == "}") {
-	debug_msg(1, "Project Parser: %s:%d : Leaving block %d", file.latin1(), line_count, scope_block);
+    if(s.stripWhiteSpace().left(1) == "}") {
+	debug_msg(1, "Project Parser: %s:%d : Leaving block %d", file.latin1(), 
+		  line_count, scope_block);
+	test_status = ((scope_flag & (0x01 << scope_block)) ? TestFound : TestSeek);
 	scope_block--;
-	return TRUE;
+	s = s.mid(1).stripWhiteSpace();
+	if(s.isEmpty())
+	    return TRUE;
     } else if(!(scope_flag & (0x01 << scope_block))) {
 	/* adjust scope for each block which appears on a single line */
 	for(int i = (s.contains('{')-s.contains('}')); i; i--)
 	    scope_flag &= ~(0x01 << (++scope_block));
-	debug_msg(1, "Project Parser: %s:%d : Ignored due to block being false.", file.latin1(), line_count);
+	debug_msg(1, "Project Parser: %s:%d : Ignored due to block being false.", 
+		  file.latin1(), line_count);
 	return TRUE;
     }
 
@@ -88,8 +96,8 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 #define SKIP_WS(d) while(*d && (*d == ' ' || *d == '\t')) d++
     const char *d = s.latin1();
     SKIP_WS(d);
-    bool scope_failed = FALSE;
-    int parens = 0;
+    bool scope_failed = FALSE, else_line = FALSE;
+    int parens = 0, scope_count=0;
     while(*d && *d != '=') {
 	if((*d == '+' || *d == '-' || *d == '*' || *d == '~')) {
 	    if(*(d+1) == '=') {
@@ -99,7 +107,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 		SKIP_WS(k);
 		if(*k == '=') {
 		    QString msg;
-		    yyerror(file + ": + *d + must be followed immediatly by =");
+		    qmake_error_msg(file + ": + *d + must be followed immediatly by =");
 		    return FALSE;
 		}
 	    }
@@ -111,63 +119,86 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	    --parens;
 
 	if(*d == ':' || *d == '{' || ( *d == ')' && !parens )) {
+	    scope_count++;
 	    scope = var.stripWhiteSpace();
 	    if ( *d == ')' )
 		scope += *d; /* need this */
 	    var = "";
 
-	    bool test = FALSE, invert_test = (scope.left(1) == "!");
-	    if(invert_test)
-		scope = scope.right(scope.length()-1);
-
-	    int lparen = scope.find('(');
-	    if(lparen != -1) { /* if there is an lparen in the scope, it IS a function */
-		if(!scope_failed) {
-		    int rparen = scope.findRev(')');
-		    if(rparen == -1) {
-			QCString error;
-			error.sprintf("%s: Function missing right paren: %s", file.latin1(), scope.latin1());
-			yyerror(error);
-			return FALSE;
-		    }
-		    QString func = scope.left(lparen);
-		    QStringList args = QStringList::split(',', scope.mid(lparen+1, rparen - lparen - 1));
-		    for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit)
-			(*arit) = (*arit).stripWhiteSpace(); /* blah, get rid of space */
-		    test = doProjectTest(func, args, place);
-		    if ( *d == ')' && !*(d+1) )
-			return TRUE;  /* assume we are done */
-		}
+	    bool test = FALSE;
+	    if(scope.lower() == "else" || scope == "|") {
+		if(scope_count != 1 || test_status == TestNone) {
+		    qmake_error_msg(file + ": Unexpected " + scope + " ('" + s + "')");
+		    return FALSE;
+		} 
+		else_line = TRUE;
+		test = (test_status == TestSeek);
+		debug_msg(1, "Project Parser: %s:%d : Else%s %s.", file.latin1(), line_count, 
+			  scope == "else" ? "" : QString(" (" + scope + ")").latin1(), 
+			  test ? "considered" : "excluded");
 	    } else {
-		test = isActiveConfig(scope.stripWhiteSpace());
+		QString comp_scope = scope;
+		bool invert_test = (comp_scope.left(1) == "!");
+		if(invert_test)
+		    comp_scope = comp_scope.right(comp_scope.length()-1);
+		int lparen = comp_scope.find('(');
+		if(lparen != -1) { /* if there is an lparen in the scope, it IS a function */
+		    if(!scope_failed) {
+			int rparen = comp_scope.findRev(')');
+			if(rparen == -1) {
+			    QCString error;
+			    error.sprintf("%s: Function missing right paren: %s ('%s')", 
+					  file.latin1(), comp_scope.latin1(), s.latin1());
+			    qmake_error_msg(error);
+			    return FALSE;
+			}
+			QString func = comp_scope.left(lparen);
+			QStringList args = QStringList::split(',', 
+							      comp_scope.mid(
+								  lparen+1, rparen - lparen - 1));
+			for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit)
+			    (*arit) = (*arit).stripWhiteSpace(); /* blah, get rid of space */
+			test = doProjectTest(func, args, place);
+			if ( *d == ')' && !*(d+1) ) {
+			    if(invert_test)
+				test = !test;
+			    test_status = (test ? TestFound : TestSeek);
+			    return TRUE;  /* assume we are done */
+			}
+		    }
+		} else {
+		    test = isActiveConfig(comp_scope.stripWhiteSpace());
+		}
+		if(invert_test)
+		    test = !test;
 	    }
-
-	    if(invert_test)
-		test = !test;
 	    if(!test && !scope_failed) {
-		debug_msg(1, "Project Parser: %s:%d : Test (%s%s) failed.", file.latin1(), line_count,
-			  invert_test ? "not " : "", scope.latin1());
+		debug_msg(1, "Project Parser: %s:%d : Test (%s) failed.", file.latin1(), 
+			  line_count, scope.latin1());
 		scope_failed = TRUE;
 	    }
-	    if(*d == '{') {/* scoping block */
+	    if(*d == '{') { /* scoping block */
 		if(!scope_failed)
 		    scope_flag |= (0x01 << (++scope_block));
 		else
 		    scope_flag &= ~(0x01 << (++scope_block));
-
-		debug_msg(1, "Project Parser: %s:%d : Entering block %d (%d).", file.latin1(), line_count,
-			  scope_block, !scope_failed);
+		debug_msg(1, "Project Parser: %s:%d : Entering block %d (%d).", file.latin1(), 
+			  line_count, scope_block, !scope_failed);
 	    }
 	} else {
 	    var += *d;
 	}
 	d++;
     }
+    if(!scope_count || (scope_count == 1 && else_line)) 
+	test_status = TestNone;
+    else if(!else_line || test_status != TestFound)
+	test_status = (scope_failed ? TestSeek : TestFound);
     if(scope_failed)
 	return TRUE; /* oh well */
     if(!*d) {
 	if(!var.isEmpty())
-	    yyerror(file + ": Parse Error");
+	    qmake_error_msg(file + ": Parse Error ('" + s + "')");
 	return var.isEmpty(); /* allow just a scope */
     }
 
@@ -180,6 +211,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     if(vals.right(1) == "}") {
 	debug_msg(1, "Project Parser: %s:%d : Leaving block %d", file.latin1(), 
 		  line_count, scope_block);
+	test_status = ((scope_flag & (0x01 << scope_block)) ? TestFound : TestSeek);
 	scope_block--;
 	vals.truncate(vals.length()-1);
     }
@@ -231,18 +263,21 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     /* now do the operation */
     if(op == "~=") {
 	if(vallist.count() != 1) {
-	    yyerror(file + ": ~= operator only accepts one right hand paramater");
+	    qmake_error_msg(file + ": ~= operator only accepts one right hand paramater ('" + 
+		s + "')");
 	    return FALSE;
 	}
 	QString val(vallist.first());
 	if(val.length() < 4 || val.at(0) != 's') {
-	    yyerror(file + ": ~= operator only can handle s/// function");
+	    qmake_error_msg(file + ": ~= operator only can handle s/// function ('" +
+		s + "')");
 	    return FALSE;
 	}
 	QChar sep = val.at(1);
 	QStringList func = QStringList::split(sep, val, TRUE);
 	if(func.count() < 3 || func.count() > 4) {
-	    yyerror(file + ": ~= operator only can handle s/// function");
+	    qmake_error_msg(file + ": ~= operator only can handle s/// function ('" + 
+		s + "')");
 	    return FALSE;
 	}
 	bool global = FALSE, case_sense = TRUE;
@@ -287,6 +322,7 @@ bool
 QMakeProject::read(QString file, QMap<QString, QStringList> &place)
 {
     /* scope blocks start at true */
+    test_status = TestNone;
     scope_flag = 0x01;
     scope_block = 0;
 
@@ -501,7 +537,7 @@ QMakeProject::isActiveConfig(const QString &x)
 bool
 QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString, QStringList> &place)
 {
-    if( func == "exists") {
+    if(func == "exists") {
 	if(args.count() != 1) {
 	    fprintf(stderr, "%d: exists(file) requires one argument.\n", line_count);
 	    return FALSE;
@@ -588,10 +624,12 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 	int l = line_count;
 	int sb = scope_block;
 	int sf = scope_flag;
+	TestStatus sc = test_status;
 	bool r = read(file.latin1(), place);
 	if(r)
 	    vars["QMAKE_INTERNAL_INCLUDED_FILES"].append(file);
 	line_count = l;
+	test_status = sc;
 	scope_flag = sf;
 	scope_block = sb;
 	return r;
@@ -630,7 +668,7 @@ QMakeProject::doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringL
 		QCString error;
 		error.sprintf("%s: Function (in REQUIRES) missing right paren: %s",
 			      projectFile().latin1(), chk.latin1());
-		yyerror(error);
+		qmake_error_msg(error);
 	    } else {
 		QString func = chk.left(lparen);
 		QStringList args = QStringList::split(',', chk.mid(lparen+1, rparen - lparen - 1));

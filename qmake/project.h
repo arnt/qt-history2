@@ -43,6 +43,7 @@
 
 class QMakeProject
 {
+    enum TestStatus { TestNone, TestFound, TestSeek } test_status;
     int scope_block, scope_flag;
 
     QString pfile, cfile;
