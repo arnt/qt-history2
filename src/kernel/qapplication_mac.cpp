@@ -549,6 +549,22 @@ void qt_event_request_menubarupdate()
     PostEventToQueue(GetMainEventQueue(), request_menubarupdate_pending, kEventPriorityHigh);
     ReleaseEvent(request_menubarupdate_pending);
 }
+static bool menubar_modal_state = FALSE;
+void qt_mac_set_modal_state(bool b)
+{
+    menubar_modal_state = b;
+    MenuRef mr = AcquireRootMenu();
+    for(int i = 1; i < CountMenuItems(mr); i++) {
+	MenuRef mr2;
+	GetMenuItemHierarchicalMenu(mr, i+1, &mr2);
+	if(b)
+	    DisableMenuItem(mr2, 0);
+	else
+	    EnableMenuItem(mr2, 0);
+    }	
+    ReleaseMenu(mr);
+    qt_mac_command_set_enabled(kHICommandQuit, !b);
+}
 #endif
 
 static EventTypeSpec events[] = {
@@ -1235,16 +1251,10 @@ void qt_enter_modal(QWidget *widget)
 	Q_CHECK_PTR(qt_modal_stack);
     }
     qt_modal_stack->insert(0, widget);
-    if(!app_do_modal) {
-	MenuRef mr = AcquireRootMenu();
-	for(int i = 1; i < CountMenuItems(mr); i++) {
-	    MenuRef mr2;
-	    GetMenuItemHierarchicalMenu(mr, i+1, &mr2);
-	    DisableMenuItem(mr2, 0);
-	}
-	ReleaseMenu(mr);
-	qt_mac_command_set_enabled(kHICommandQuit, FALSE);
-    }
+#if !defined(QMAC_QMENUBAR_NO_NATIVE)
+    if(!app_do_modal) 
+	qt_mac_set_modal_state(TRUE);
+#endif
     app_do_modal = TRUE;
 }
 
@@ -1265,16 +1275,10 @@ void qt_leave_modal(QWidget *widget)
     else qDebug("Failure to remove %s::%s::%p -- %p", widget->className(), widget->name(), widget, qt_modal_stack);
 #endif
     app_do_modal = (qt_modal_stack != 0);
-    if(!app_do_modal) {
-	MenuRef mr = AcquireRootMenu();
-	for(int i = 1; i < CountMenuItems(mr); i++) {
-	    MenuRef mr2;
-	    GetMenuItemHierarchicalMenu(mr, i+1, &mr2);
-	    EnableMenuItem(mr2, 0);
-	}
-	ReleaseMenu(mr);
-	qt_mac_command_set_enabled(kHICommandQuit, TRUE);
-    }
+#if !defined(QMAC_QMENUBAR_NO_NATIVE)
+    if(!app_do_modal) 
+	qt_mac_set_modal_state(FALSE);
+#endif
 }
 
 QWidget *qt_tryModalHelperMac( QWidget * top ) {
@@ -1444,6 +1448,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	} else if(ekind == kEventQtRequestMenubarUpdate) {
 	    request_menubarupdate_pending = NULL;
 	    QMenuBar::macUpdateMenuBar();
+	    qt_mac_set_modal_state(menubar_modal_state);
 #endif
 	} else if(ekind == kEventQtRequestSelect) {
 	    request_select_pending = NULL;
@@ -2213,6 +2218,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    widget->setFocus();
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 		QMenuBar::macUpdateMenuBar();
+		qt_mac_set_modal_state(menubar_modal_state); //just to update..
 #endif
 	    }
 	} else if(ekind == kEventWindowDeactivated) {
