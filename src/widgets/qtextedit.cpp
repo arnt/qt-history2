@@ -2980,9 +2980,10 @@ void QTextEdit::insert( const QString &text, uint insertionFlags )
 void QTextEdit::insertAt( const QString &text, int para, int index )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( d->optimMode )
+    if ( d->optimMode ) {
 	optimInsert( text, para, index );
 	return;
+    }
 #endif
     QTextParagraph *p = doc->paragAt( para );
     if ( !p )
@@ -3005,9 +3006,10 @@ void QTextEdit::insertAt( const QString &text, int para, int index )
 void QTextEdit::insertParagraph( const QString &text, int para )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( d->optimMode )
+    if ( d->optimMode ) {
 	optimInsert( text + "\n", para, 0 );
 	return;
+    }
 #endif
     for ( int i = 0; i < (int)doc->numSelections(); ++i )
 	doc->removeSelection( i );
