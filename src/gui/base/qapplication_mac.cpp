@@ -745,7 +745,7 @@ static void qt_event_request_context(QWidget *w=0, EventRef *where=0)
 {
     if(!where)
 	where = &request_context_pending;
-    if(*where || QMacBlockingFunction::blocking())
+    if(*where)
 	return;
     CreateEvent(0, kEventClassQt, kEventQtRequestContext, GetCurrentEventTime(),
 		kEventAttributeUserEvent, where);
