@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#93 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#94 $
 **
 ** Implementation of QButton widget class
 **
@@ -19,7 +19,7 @@
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#93 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#94 $");
 
 
 static const int autoRepeatDelay  = 300;
@@ -321,23 +321,22 @@ void QButton::setText( const char *text )
 
 void QButton::setPixmap( const QPixmap &pixmap )
 {
-    int  w, h;
+    bool newSize;
     if ( bpixmap ) {
-	w = bpixmap->width();
-	h = bpixmap->height();
+	newSize = pixmap.width() != bpixmap->width() ||
+		  pixmap.height() != bpixmap->height();
+        *bpixmap = pixmap;
     } else {
-	bpixmap = new QPixmap;
+	newSize = TRUE;
+	bpixmap = new QPixmap( pixmap );
 	CHECK_PTR( bpixmap );
-	w = h = -1;
     }
-    bool sameSize = w == bpixmap->width() && h == bpixmap->height();
-    *bpixmap = pixmap;
     if ( bpixmap->depth() == 1 && !bpixmap->mask() )
 	bpixmap->setMask( *((QBitmap *)bpixmap) );
     int oldAccelChar = shortcutChar(btext);
     if ( !btext.isNull() )
 	btext.resize( 0 );
-    if ( autoresize && !sameSize )
+    if ( autoresize && newSize )
 	adjustSize();
     if ( oldAccelChar )
 	setAccel( 0 );
