@@ -1381,7 +1381,7 @@ void QWidgetPrivate::stackUnder_sys(QWidget* w)
   (In all comments below: s/X/Windows/g)
  */
 
-void QWidgetPrivate::setWSGeometry()
+void QWidgetPrivate::setWSGeometry(bool dontShow)
 {
 
     /*
@@ -1473,9 +1473,9 @@ void QWidgetPrivate::setWSGeometry()
     // the movement. Rationale: moving unmapped windows is much faster
     // than moving mapped windows
     MoveWindow(q->winId(), xrect.x(), xrect.y(), xrect.width(), xrect.height(), true);
-    if (mapWindow) {
-            q->setAttribute(Qt::WA_Mapped);
-            ShowWindow(q->winId(), SW_SHOWNOACTIVATE);
+    if (mapWindow && !dontShow) {
+        q->setAttribute(Qt::WA_Mapped);
+        ShowWindow(q->winId(), SW_SHOWNOACTIVATE);
     }
 
 }
