@@ -258,11 +258,7 @@ public:
     }
     QValueList<QImageTextKeyLang> list()
     {
-	QValueList<QImageTextKeyLang> r;
-	QMap<QImageTextKeyLang,QString>::Iterator it = text_lang.begin();
-	for ( ; it != text_lang.end(); ++it )
-	    r.append( it.key() );
-	return r;
+	return text_lang.keys();
     }
 
     QStringList languages()
