@@ -490,7 +490,7 @@ QSize QLabel::sizeForWidth( int w ) const
     int m  = 2*indent();
     if ( m < 0 ) {
 	if ( fw > 0 )
-	    m = fm.width( 'x' );
+	    m = fm.width( QChar('x') );
 	else
 	    m = 0;
     }
