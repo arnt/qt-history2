@@ -261,7 +261,6 @@ QTextOStreamIterator:
     qCopy( l.begin(), l.end(), QTextOStreamIterator(str) );
 \endcode
 
-\omit
 Here is another example which copies a range of elements from one
 container into another.  It uses the qBackInserter() template function
 which creates a QBackInsertIterator<> whose job is to insert elements
@@ -275,7 +274,6 @@ into the end of a container.  For example:
     QValueVector<int> v;
     qCopy( l.begin(), l.end(), qBackInserter(v) );
 \endcode
-\endomit
 
 \target qCopyBackward
 Another template function is
