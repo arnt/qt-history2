@@ -253,9 +253,9 @@ public:
     inline QT_COMPAT void setCursorPosition(int para, int index)
     {
         QTextCursor c = cursor();
-        c.moveTo(QTextCursor::Start);
-        c.moveTo(QTextCursor::NextBlock, QTextCursor::MoveAnchor, para);
-        c.moveTo(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, index);
+        c.movePosition(QTextCursor::Start);
+        c.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, para);
+        c.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, index);
         setCursor(c);
     }
 
