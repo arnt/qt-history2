@@ -6,10 +6,10 @@
 SYSCONF_LINK_TARGET	= #$ $text .= 'lib$(TARGET).a' . "\n";
 SYSCONF_LINK_LIB	= #${
         if ( $project{"TMAKE_AR_CMD"} ) {
-            $project{"TMAKE_AR_CMD"} =~ s/TARGETA/TARGET/g;
+            $project{"TMAKE_AR_CMD"} =~ s/TARGETA/$(DESTDIR)$(SYSCONF_LINK_TARGET)/g;
         } else {
             $project{"TMAKE_AR_CMD"} =
-                '$(AR) $(TARGET) $(OBJECTS) $(OBJMOC)';
+                '$(AR) $(DESTDIR)$(SYSCONF_LINK_TARGET) $(OBJECTS) $(OBJMOC)';
         }
 	$text .= 'rm -f $(DESTDIR)$(SYSCONF_LINK_TARGET); ';
 	if ( $project{"TMAKE_AR_CMD"} ) {
@@ -18,6 +18,6 @@ SYSCONF_LINK_LIB	= #${
 	}
 	if ( $project{"TMAKE_RANLIB"} ) {
 	    $text .= " \\\n\t\t\t\t";
-	    ExpandGlue("TMAKE_RANLIB","",""," \$(TARGET)");
+	    ExpandGlue("TMAKE_RANLIB","",""," \$(DESTDIR)$(SYSCONF_LINK_TARGET)");
 	}
 #$}
