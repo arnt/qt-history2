@@ -304,22 +304,22 @@
     </message>
     <message>
         <source>Executable &apos;%1&apos; requires Qt %2, found Qt %3.</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;exécutable &apos;%1&apos; requiert Qt %2 (Qt %3 présent).</translation>
     </message>
     <message>
         <source>Incompatible Qt Library Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Erreur: bibliothèque Qt incompatible</translation>
     </message>
 </context>
 <context>
     <name>QAquaStyle</name>
     <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
 </context>
 <context>
@@ -1026,11 +1026,11 @@ Vérifier le chemin et le nom du fichier.</translation>
     </message>
     <message>
         <source>Host %1 not found</source>
-        <translation type="unfinished">Hôte %1 introuvable</translation>
+        <translation>Hôte %1 introuvable</translation>
     </message>
     <message>
         <source>Connection refused to host %1</source>
-        <translation type="unfinished">Connecté à l&apos;hôte %1 refusée</translation>
+        <translation>Connection à l&apos;hôte %1 refusée</translation>
     </message>
     <message>
         <source>Unknown error</source>
@@ -1092,11 +1092,11 @@ Vérifier le chemin et le nom du fichier.</translation>
     </message>
     <message>
         <source>Not connected</source>
-        <translation type="unfinished">Non connecté</translation>
+        <translation>Non connecté</translation>
     </message>
     <message>
         <source>Connection refused for data connection</source>
-        <translation type="unfinished">Connexion donnée refusée</translation>
+        <translation>Connexion donnée refusée</translation>
     </message>
 </context>
 <context>
@@ -1304,7 +1304,7 @@ en
     <name>QMenuBar</name>
     <message>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">(TODO: Trouver les termes Mac)</translation>
     </message>
     <message>
         <source>Config</source>
@@ -1316,7 +1316,7 @@ en
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished">Options</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Setting</source>
@@ -1678,43 +1678,43 @@ en
     <name>QSql</name>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Supprimer</translation>
+        <translation>Supprimer</translation>
     </message>
     <message>
         <source>Delete this record?</source>
-        <translation type="unfinished">Supprimer cet enregistrement ?</translation>
+        <translation>Supprimer cet enregistrement ?</translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished">Oui</translation>
+        <translation>Oui</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished">Non</translation>
+        <translation>Non</translation>
     </message>
     <message>
         <source>Insert</source>
-        <translation type="unfinished">Insérer</translation>
+        <translation>Insérer</translation>
     </message>
     <message>
         <source>Update</source>
-        <translation type="unfinished">Actualiser</translation>
+        <translation>Actualiser</translation>
     </message>
     <message>
         <source>Save edits?</source>
-        <translation type="unfinished">Enregistrer les modifications ?</translation>
+        <translation>Enregistrer les modifications ?</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
     <message>
         <source>Confirm</source>
-        <translation type="unfinished">Confirmer</translation>
+        <translation>Confirmer</translation>
     </message>
     <message>
         <source>Cancel your edits?</source>
-        <translation type="unfinished">Annuler vos modifications ?</translation>
+        <translation>Annuler vos modifications ?</translation>
     </message>
     <message>
         <source>Could not open database connection</source>
