@@ -47,8 +47,6 @@ class QCanvasItem;
 class QCanvasView;
 class QCanvasPixmap;
 class QCanvasItemList;
-
-
 class QCanvasItemExtra;
 
 class QM_EXPORT_CANVAS QCanvasItem : public Qt

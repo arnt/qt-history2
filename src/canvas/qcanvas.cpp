@@ -332,6 +332,14 @@ void QCanvasItemList::drawUnique( QPainter& painter )
     }
 }
 
+QCanvasItemList QCanvasItemList::operator+(const QCanvasItemList &l) const
+{
+    QCanvasItemList l2(*this);
+    for(const_iterator it = l.begin(); it != l.end(); ++it)
+       l2.append(*it);
+    return l2;
+}
+
 class QCanvasChunk {
 public:
     QCanvasChunk() : changed(TRUE) { }
