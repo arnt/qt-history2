@@ -37,6 +37,9 @@
 
 \title Internationalization with Qt
 
+\keyword internationalization
+\keyword i18n
+
 The internationalization of an application is the process of making
 the application usable by people in countries other than one's own. 
 
@@ -74,10 +77,10 @@ const char* and char from traditional C.
 
 \section2 Use \link QObject::tr() tr()\endlink for all Literal Text
 
-Wherever your program uses \c {"quoted text"} for text that will
+Wherever your program uses \c{"quoted text"} for text that will
 be presented to the user, ensure that it is processed by the \l
 QApplication::translate() function. Essentially all that is necessary
-to achieve this is to use \l QObject::tr(). For example, assuming
+to achieve this is to use \l QObject::tr(). For example, assuming the
 \c LoginWidget is a subclass of QWidget:
 
 \code
@@ -203,28 +206,32 @@ lupdate and \e lrelease.
 Translation of a Qt application is a three-step process:
 
 \list 1
-  \i Run \e lupdate to extract translatable text from
-  the C++ source code of the Qt application, resulting in a
-  message file for translators (a .ts file). The utility
-  recognizes the tr() construct and the QT_*_NOOP macros described
-  above and produces .ts files (usually one per language).
-  \i Provide translations for the source texts in the .ts
-  file, using Qt Linguist. Since .ts files are in XML
-  format, you can also edit them by hand.
-  \i Run \e lrelease to obtain a light-weight message
-  file (a .qm file) from the .ts file, suitable only for end
-  use. 	You can see the .ts files as "source files", and .qm
-  as "object files". The translator edits the .ts files, but
-  the users of your application only need the .qm files. Both
-  kinds of files are platform and locale independent.
+
+\i Run \e lupdate to extract translatable text from the C++ source
+code of the Qt application, resulting in a message file for
+translators (a \c .ts file). The utility recognizes the tr() construct
+and the QT_*_NOOP macros described above and produces \c .ts files
+(usually one per language).
+
+\i Provide translations for the source texts in the \c .ts file, using
+\e{Qt Linguist}. Since \c .ts files are in XML format, you can also
+edit them by hand.
+
+\i Run \e lrelease to obtain a light-weight message file (a \c .qm
+file) from the \c .ts file, suitable only for end use. Think of the \c
+.ts files as "source files", and \c .qm files as "object files". The
+translator edits the \c .ts files, but the users of your application
+only need the \c .qm files. Both kinds of files are platform and
+locale independent.
+
 \endlist
 
-Typically, you will repeat these steps for every release of
-your application. The \e lupdate utility does its best
-to reuse the translations from previous releases.
+Typically, you will repeat these steps for every release of your
+application. The \e lupdate utility does its best to reuse the
+translations from previous releases.
 
-Before you run \e lupdate, you should prepare a project
-file. Here's an example project file (.pro file):
+Before you run \e lupdate, you should prepare a project file. Here's
+an example project file (\c .pro file):
 
 \code
     HEADERS         = funnydialog.h \
@@ -239,39 +246,38 @@ file. Here's an example project file (.pro file):
 		      superapp_se.ts
 \endcode
 
-When you run \e lupdate or \e lrelease, you
-must give the name of the project file as a command-line
-argument.
+When you run \e lupdate or \e lrelease, you must give the name of the
+project file as a command-line argument.
 
-In this example, four exotic languages are supported: Danish,
-Finnish, Norwegian and Swedish. If you use qmake (or tmake), you
-usually don't need an extra project file for \e lupdate; your
-qmake project file will work fine once you add the TRANSLATIONS entry.
+In this example, four exotic languages are supported: Danish, Finnish,
+Norwegian and Swedish. If you use \link qmake-manual.book
+qmake\endlink (or \c tmake), you usually don't need an extra project
+file for \e lupdate; your \c qmake project file will work fine once
+you add the \c TRANSLATIONS entry.
 
-In your application, you must \l QTranslator::load()
-the translation files appropriate for the user's language, and
-install them using \l QApplication::installTranslator().
+In your application, you must \l QTranslator::load() the translation
+files appropriate for the user's language, and install them using \l
+QApplication::installTranslator().
 
-If you have been using the old Qt tools (findtr, msg2qm and
-mergetr), you can use \e qm2ts to convert your old
-.qm files.
+If you have been using the old Qt tools (\c findtr, \c msg2qm and \c
+mergetr), you can use \e qm2ts to convert your old \c .qm files.
 
-\e linguist, \e lupdate and \e lrelease are installed in
-\c $QTDIR/bin. Click Help|Manual in Qt Linguist to access the
-user's manual; it contains a tutorial to get you started.
+\e linguist, \e lupdate and \e lrelease are installed in \c
+$QTDIR/bin. Click Help|Manual in \e{Qt Linguist} to access the user's
+manual; it contains a tutorial to get you started.
 
-While these utilities offer a convenient way to create .qm files, any
-system that writes .qm files is sufficient. You could make an
+While these utilities offer a convenient way to create \c .qm files,
+any system that writes \c .qm files is sufficient. You could make an
 application that adds translations to a QTranslator with
-QTranslator::insert() and then writes a .qm file with
+QTranslator::insert() and then writes a \c .qm file with
 QTranslator::save(). This way the translations can come from any
 source you choose.
 
 \target qt-itself
 Qt itself contains about 400 strings that will also need to be
 translated into the languages that you are targeting. You will find
-translation files for French and German in \c $QTDIR/translations
-as well as a template for translating to other languages.
+translation files for French and German in \c $QTDIR/translations as
+well as a template for translating to other languages.
 
 Typically, your application's main() function will look like this:
 \code
@@ -297,17 +303,17 @@ Typically, your application's main() function will look like this:
 
 \section2 Support for Encodings
 
-The QTextCodec class and the facilities in QTextStream make it easy
-to support many input and output encodings for your users' data. When
-an application starts, the locale of the machine will determine the
-8-bit encoding used when dealing with 8-bit data - such as for font
+The QTextCodec class and the facilities in QTextStream make it easy to
+support many input and output encodings for your users' data. When an
+application starts, the locale of the machine will determine the 8-bit
+encoding used when dealing with 8-bit data: such as for font
 selection, text display, 8-bit text I/O and character input.
 
-The application may occasionally require encodings other
-than the default local 8-bit encoding. For example, an application
-in a Cyrillic KOI8-R locale (the de-facto standard locale in Russia)
-might need to output Cyrillic in the ISO 8859-5 encoding. Code for
-this would be:
+The application may occasionally require encodings other than the
+default local 8-bit encoding. For example, an application in a
+Cyrillic KOI8-R locale (the de-facto standard locale in Russia) might
+need to output Cyrillic in the ISO 8859-5 encoding. Code for this
+would be:
 
 \code
     QString string = ...; // some Unicode text
@@ -318,14 +324,12 @@ this would be:
     ...; // use encoded_string in 8-bit operations
 \endcode
 
-For converting Unicode to local 8-bit encodings,
-a shortcut is available: the
-\link QString::local8Bit() local8Bit\endlink() method of
-QString returns such 8-bit data. Another useful shortcut
-is the \link QString::utf8() utf8\endlink() method, which
-returns text in the 8-bit UTF-8 encoding - interesting in
-that it perfectly preserves Unicode information while looking
-like plain US-ASCII if the Unicode is wholly US-ASCII.
+For converting Unicode to local 8-bit encodings, a shortcut is
+available: the \link QString::local8Bit() local8Bit\endlink() method
+of QString returns such 8-bit data. Another useful shortcut is the
+\link QString::utf8() utf8\endlink() method, which returns text in the
+8-bit UTF-8 encoding: this perfectly preserves Unicode information
+while looking like plain US-ASCII if the Unicode is wholly US-ASCII.
 
 For converting the other way, there are the QString::fromUtf8() and
 QString::fromLocal8Bit() convenience functions, or the general code,
@@ -344,33 +348,33 @@ conversion:
 Ideally Unicode I/O should be used as this maximizes the portability
 of documents between users around the world, but in reality it is
 useful to support all the appropriate encodings that your users will
-need to process existing documents. In general, Unicode (UTF16 or
-UTF8) is best for information transferred between arbitrary
-people, while within a language or national group, a local standard
-is often more appropriate. The most important encoding to support is
-the one returned by QTextCodec::codecForLocale(), as this is the one
-the user is most likely to need for communicating with other people
-and applications (this is the codec used by local8Bit()).
+need to process existing documents. In general, Unicode (UTF-16 or
+UTF-8) is best for information transferred between arbitrary people,
+while within a language or national group, a local standard is often
+more appropriate. The most important encoding to support is the one
+returned by QTextCodec::codecForLocale(), as this is the one the user
+is most likely to need for communicating with other people and
+applications (this is the codec used by local8Bit()).
 
 Since most Unix systems do not have built-in support for converting
 between local 8-bit encodings and Unicode, it may be necessary to
-write your own QTextCodec subclass. Depending on the urgency, it
-may be useful to contact Trolltech technical support or ask on
-the qt-interest mailing list to see if someone else is already working
-on supporting the encoding. A useful interim measure can be to
-use the QTextCodec::loadCharmapFile() function to build a data-driven
-codec, although this approach has a memory and speed penalty,
-especially with dynamically loaded libraries. For details of writing
-your own QTextCodec, see the main QTextCodec class documentation.
+write your own QTextCodec subclass. Depending on the urgency, it may
+be useful to contact Trolltech technical support or ask on the
+\c qt-interest mailing list to see if someone else is already working
+on supporting the encoding. A useful interim measure can be to use the
+QTextCodec::loadCharmapFile() function to build a data-driven codec,
+although this approach has a memory and speed penalty, especially with
+dynamically loaded libraries. For details of writing your own
+QTextCodec, see the main QTextCodec class documentation.
 
 \keyword localization
 
 \section2 Localize
 
-Localization is the process of adapting to local conventions
-such as date and time presentations. Such localizations can be
-accomplished using appropriate tr() strings, even "magic" words,
-as this somewhat contrived example shows:
+Localization is the process of adapting to local conventions such as
+date and time presentations. Such localizations can be accomplished
+using appropriate tr() strings, even "magic" words, as this somewhat
+contrived example shows:
 
 \code
     void Clock::setTime(const QTime& t)
@@ -390,10 +394,10 @@ stretched metaphors.
 \section1 System Support
 
 Operating systems and window systems supporting Unicode are still in
-the early stages of development. The level of support
-available in the underlying system influences the support Qt provides
-on that platform, but applications written with Qt need not generally
-be too concerned with the actual limitations.
+the early stages of development. The level of support available in the
+underlying system influences the support Qt provides on that platform,
+but applications written with Qt need not generally be too concerned
+with the actual limitations.
 
 \section2 Unix/X11
 
@@ -412,7 +416,7 @@ be too concerned with the actual limitations.
     with Unicode options in QTextStream.
 \endlist
 
-\section2 Windows 95/98/NT
+\section2 Windows
 
 \list
 \i Qt provides full Unicode support, including input methods, fonts,
@@ -430,18 +434,17 @@ be too concerned with the actual limitations.
 
 While Trolltech doesn't have the resources or expertise in all the
 languages of the world to immediately include support in Qt, we are
-very keen to work with people who do have the expertise. Over the
-next few minor version numbers, we hope to add support for your
-language of choice, until everyone can use Qt and all the programs
-developed with Qt, regardless of their language.
+very keen to work with people who do have the expertise. Over the next
+few minor version numbers, we hope to add support for your language of
+choice, until everyone can use Qt and all the programs developed with
+Qt, regardless of their language.
 
-Languages with single-byte encodings
-(European Latin-1 and KOI8-R, etc.) and multi-byte encodings 
-(East Asian EUC-JP, etc.) are supported. 
-Support for the "complex" encodings - those requiring
-right-to-left input or complex character composition (eg. Arabic,
-Hebrew, and Thai script) is implemented, but the range of Indic scripts
-(Hindi, Devanagari, Bengali, etc.) is still under development. 
+Languages with single-byte encodings (European Latin-1 and KOI8-R,
+etc.) and multi-byte encodings (East Asian EUC-JP, etc.) are
+supported. Support for the "complex" encodings: those requiring
+right-to-left input or complex character composition (e.g. Arabic,
+Hebrew, and Thai script) is implemented, but the range of Indic
+scripts (Hindi, Devanagari, Bengali, etc.) is still under development.
 The current state of activity is:
 
 \table
@@ -485,33 +488,33 @@ The current state of activity is:
 \i Under external development.
 \endtable
 
-More information on the support of different writing systems in Qt can be found
-in \link scripts.html the documentation about writing systems \endlink.
+More information on the support of different writing systems in Qt can
+be found in \link scripts.html the documentation about writing systems
+\endlink.
 
 If you are interested in contributing to existing efforts, or
-supporting new encodings beyond those mentioned above, your
-work can be considered for inclusion in the official Qt distribution,
-or just included with your application.
+supporting new encodings beyond those mentioned above, your work can
+be considered for inclusion in the official Qt distribution, or just
+included with your application.
 
-Eventually, we hope to help Unix become as Unicode-oriented as
-Windows is becoming. This means better font support in the font servers,
-with new developments like the True Type font servers
-\link http://www.dcs.ed.ac.uk/home/jec/programs/xfsft/ xfsft \endlink,
-\link ftp://sunsite.unc.edu/pub/Linux/X11/fonts/ xfstt \endlink,
-and x-tt, as well as
-\link http://www.ietf.org/rfc/rfc2279.txt UTF-8 \endlink
-(a Unicode encoding) filenames such as with the
-\link http://www.sun.com/software/white-papers/wp-unicode/ Unicode
-support in Solaris 7 \endlink.
+Eventually, we hope to help Unix become as Unicode-oriented as Windows
+is becoming. This means better font support in the font servers, with
+new developments like the True Type font servers \link
+http://www.dcs.ed.ac.uk/home/jec/programs/xfsft/ xfsft \endlink, \link
+ftp://sunsite.unc.edu/pub/Linux/X11/fonts/ xfstt \endlink, and x-tt,
+as well as \link http://www.ietf.org/rfc/rfc2279.txt UTF-8 \endlink (a
+Unicode encoding) filenames such as with the \link
+http://www.sun.com/software/white-papers/wp-unicode/ Unicode support
+in Solaris 7 \endlink.
 
 \section1 Note about Locales on X11
 
 Many Unix distributions contain only partial support for some locales.
-For example, if you have a \c /usr/share/locale/ja_JP.EUC
-directory, this does not necessarily mean you can display Japanese text;
-you also need JIS encoded fonts (or Unicode fonts), and that
-\c /usr/share/locale/ja_JP.EUC directory needs to be complete.
-For best results, use complete locales from your system vendor.
+For example, if you have a \c /usr/share/locale/ja_JP.EUC directory,
+this does not necessarily mean you can display Japanese text; you also
+need JIS encoded fonts (or Unicode fonts), and that \c
+/usr/share/locale/ja_JP.EUC directory needs to be complete. For best
+results, use complete locales from your system vendor.
 
 \section1 Relevant Qt Classes
 

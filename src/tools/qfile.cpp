@@ -119,9 +119,15 @@ extern bool qt_file_access( const QString& fn, int t );
     systems you may want to use encodeName() (and decodeName()) to
     convert the file name into the local encoding.
 
-    \important readAll(), writeBlock()
+    \important readAll()
 
     \sa QDataStream, QTextStream
+*/
+
+/*!
+    \fn Q_LONG QFile::writeBlock( const QByteArray& data )
+
+    \overload
 */
 
 

@@ -87,42 +87,50 @@ bool QFile::remove( const QString &fileName )
 #endif
 
 /*!
-  Opens the file specified by the file name currently set, using the mode \a m.
-  Returns TRUE if successful, otherwise FALSE.
+    Opens the file specified by the file name currently set, using the
+    mode \a m. Returns TRUE if successful, otherwise FALSE.
 
-  \keyword IO_Raw
-  \keyword IO_ReadOnly
-  \keyword IO_WriteOnly
-  \keyword IO_ReadWrite
-  \keyword IO_Append
-  \keyword IO_Truncate
-  \keyword IO_Translate
+    \keyword IO_Raw
+    \keyword IO_ReadOnly
+    \keyword IO_WriteOnly
+    \keyword IO_ReadWrite
+    \keyword IO_Append
+    \keyword IO_Truncate
+    \keyword IO_Translate
 
-  The mode parameter \a m must be a combination of the following flags:
-  \list
-  \i \c IO_Raw specified raw (non-buffered) file access.
-  \i \c IO_ReadOnly opens the file in read-only mode.
-  \i \c IO_WriteOnly opens the file in write-only mode (and truncates it if it
-        is a buffered file).
-  \i \c IO_ReadWrite opens the file in read/write mode, equivalent to
-     \c (IO_ReadOnly | IO_WriteOnly).
-  \i \c IO_Append opens the file in append mode. This mode is very useful
-  when you want to write something to a log file. The file index is set to
-  the end of the file. Note that the result is undefined if you position the
-  file index manually using at() in append mode.
-  \i \c IO_Truncate truncates the file.
-  \i \c IO_Translate enables carriage returns and linefeed translation
-  for text files under MS-DOS, Windows and OS/2.
-  \endlist
+    The mode parameter \a m must be a combination of the following flags:
+    \table
+    \header \i Flag \i Meaning
+    \row \i IO_Raw
+	 \i Raw (non-buffered) file access.
+    \row \i IO_ReadOnly
+	 \i Opens the file in read-only mode.
+    \row \i IO_WriteOnly
+	 \i Opens the file in write-only mode (and truncates it if it
+	    is a buffered file).
+    \row \i IO_ReadWrite
+	 \i Opens the file in read/write mode, equivalent to \c
+	    (IO_ReadOnly | IO_WriteOnly).
+    \row \i IO_Append
+	 \i Opens the file in append mode. This mode is very useful
+	    when you want to write something to a log file. The file
+	    index is set to the end of the file. Note that the result
+	    is undefined if you position the file index manually using
+	    at() in append mode.
+    \row \i IO_Truncate
+	 \i Truncates the file.
+    \row \i IO_Translate
+	 \i Enables carriage returns and linefeed translation for text
+	    files under Windows.
+    \endtable
 
-  The raw access mode is best when I/O is block-operated using 4kB block size
-  or greater. Buffered access works better when reading small portions of
-  data at a time.
+    The raw access mode is best when I/O is block-operated using a 4KB
+    block size or greater. Buffered access works better when reading
+    small portions of data at a time.
 
-  <strong>Important:</strong> When working with buffered files, data may
-  not be written to the file at once. Call flush()
-  to make sure that the data is really written.
-
+    \warning When working with buffered files, data may not be written
+    to the file at once. Call flush() to make sure that the data is
+    really written.
 
     \warning If you have a buffered file opened for both reading and
     writing you must not perform an input operation immediately after
@@ -130,18 +138,18 @@ bool QFile::remove( const QString &fileName )
     or a file positioning operation, e.g. at(), between input and
     output operations, otherwise the buffer may contain garbage.
 
-  If the file does not exist and \c IO_WriteOnly or \c IO_ReadWrite is
-  specified, it is created.
+    If the file does not exist and \c IO_WriteOnly or \c IO_ReadWrite
+    is specified, it is created.
 
-  Example:
-  \code
-    QFile f1( "/tmp/data.bin" );
-    QFile f2( "readme.txt" );
-    f1.open( IO_Raw | IO_ReadWrite | IO_Append );
-    f2.open( IO_ReadOnly | IO_Translate );
-  \endcode
+    Example:
+    \code
+	QFile f1( "/tmp/data.bin" );
+	QFile f2( "readme.txt" );
+	f1.open( IO_Raw | IO_ReadWrite | IO_Append );
+	f2.open( IO_ReadOnly | IO_Translate );
+    \endcode
 
-  \sa name(), close(), isOpen(), flush()
+    \sa name(), close(), isOpen(), flush()
 */
 
 bool QFile::open( int m )
@@ -549,8 +557,6 @@ Q_LONG QFile::readBlock( char *p, Q_ULONG len )
     return nread;
 }
 
-/*! \overload Q_ULONG QFile::writeBlock( const QByteArray& data )
-*/
 
 /*! \reimp
 

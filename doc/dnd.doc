@@ -332,6 +332,13 @@ feedback as the drag progresses, to start timers, to scroll the
 window, or whatever is appropriate (don't forget to stop the scrolling
 and timers in a dragLeaveEvent() though).
 
+The QApplication object (available as the \c qApp global) also
+provides some drag and drop related functions:
+\l{QApplication::setStartDragTime()},
+\l{QApplication::setStartDragDistance()}, and their corresponding
+getters, \l{QApplication::startDragTime()} and
+\l{QApplication::startDragDistance()}.
+
 \section1 Inter-operating with Other Applications
 
 On X11, the public <a class="r"

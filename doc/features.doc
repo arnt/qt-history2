@@ -39,15 +39,15 @@
 
 The file \c src/tools/qfeatures.h includes the file \c
 src/tools/qconfig.h. By modifying \c qconfig.h, you can define a
-subset of the full Qt functionality that you wish to have available
-on your installation.
+subset of the full Qt functionality that you wish to be available in
+your installation.
 
 Note that such modification is only supported on Qt/Embedded
 platforms, where reducing the size of Qt is
-important and the application-set is often fixed.
+important and the application set is often fixed.
 
 The \c config.h definition file simply defines macros to disable
-features.  Some features are dependent on other features and these
+features. Some features are dependent on other features and these
 dependencies are expressed in \c qfeatures.h.
 
 The available options are:
@@ -56,21 +56,20 @@ The available options are:
 \header \i Macro \i Disables \i Set automatically by
 
 \header \i31 Images (\l QImageIO)
-
 \row \i QT_NO_IMAGEIO_BMP
-     \i The Microsoft Bitmap image file format.
+     \i Microsoft Bitmap image file format.
      \i &nbsp;
 \row \i QT_NO_IMAGEIO_PPM
-     \i The Portable Pixmap image file format.
+     \i Portable Pixmap image file format.
      \i &nbsp;
 \row \i QT_NO_IMAGEIO_XBM
-     \i The X11 Bitmap image file format.
+     \i X11 Bitmap image file format.
      \i &nbsp;
 \row \i QT_NO_IMAGEIO_XPM
-     \i The X11 Pixmap image file format.
+     \i X11 Pixmap image file format.
      \i &nbsp;
 \row \i QT_NO_IMAGEIO_PNG
-     \i The Portable Network Graphics image file format.
+     \i Portable Network Graphics image file format.
      \i &nbsp;
 
 \header \i31 Animation
@@ -96,7 +95,6 @@ The available options are:
      \i &nbsp;
 
 \header \i31 Internationalization
-
 \row \i QT_NO_I18N
      \i Conversions between Unicode and 8-bit encodings.
      \i &nbsp;
@@ -107,7 +105,7 @@ The available options are:
 
 \header \i31 MIME
 \row \i QT_NO_MIME
-     \i Multipurpose Internet Mail Extensions, an internet standard for encoding
+     \i Multipurpose Internet Mail Extensions, an Internet standard for encoding
 	and tagging typed data (eg. text, images, colors) (\l QMimeSource)
      \i &nbsp;
 \row \i QT_NO_RICHTEXT
@@ -125,13 +123,12 @@ The available options are:
      \i Playing audio files (\l QSound)
      \i &nbsp;
 
-\header \i31 Scipting
+\header \i31 Scripting
 \row \i QT_NO_PROPERTIES
-     \i Scripting of Qt-based applications.
+     \i Scripting Qt-based applications.
      \i &nbsp;
 
 \header \i31 Qt/Embedded-specific
-
 \row \i QT_NO_QWS_CURSOR
      \i The cursor sprite on Qt/Embedded. Pen-operated devices would not
 	normally need this feature.
@@ -178,8 +175,9 @@ The available options are:
 	and by some HTML documents (\l QColor, \l QStyleSheet)
      \i &nbsp;
 \row \i QT_NO_TRANSFORMATIONS
-     \i Used by a number of classes in Qt. With this, rotation and scaling
-	are possible. Without it, only co-ordinate translation (\l QWMatrix)
+     \i Used by a number of classes in Qt. With this, rotation and
+	scaling are possible. Without it you can only do coordinate
+	translation (\l QWMatrix)
      \i &nbsp;
 \row \i QT_NO_PSPRINTER
      \i PostScript printer support.
@@ -214,7 +212,7 @@ The available options are:
      \i Value control (\l QDial)
      \i QT_NO_WIDGETS
 \row \i QT_NO_WORKSPACE
-     \i Multi-document interface (\l QWorkspace)
+     \i MDI (Multiple Document Interface) (\l QWorkspace)
      \i QT_NO_WIDGETS
 \row \i QT_NO_LCDNUMBER
      \i LCD-like number display (\l QLCDNumber)

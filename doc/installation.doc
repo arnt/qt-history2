@@ -72,9 +72,9 @@ where you choose to install Qt.
     mv qt-version qt
 \endcode
 
-    The rest of this file assumes that Qt is installed in /usr/local/qt.
+    The rest of this file assumes that Qt is installed in \c /usr/local/qt.
 
-\i  Set some environment variables in the file .profile (or .login,
+\i  Set some environment variables in the file .profile (or \c .login,
     depending on your shell) in your home directory. Create the
     file if it is not there already.
 
@@ -87,7 +87,7 @@ where you choose to install Qt.
 
     This is done like this:
 
-    In .profile (if your shell is bash, ksh, zsh or sh), add the
+    In \c .profile (if your shell is bash, ksh, zsh or sh), add the
     following lines:
 
 \code
@@ -99,7 +99,7 @@ where you choose to install Qt.
     export QTDIR PATH MANPATH LD_LIBRARY_PATH
 \endcode
 
-    In .login (in case your shell is csh or tcsh), add the following lines:
+    In \c .login (in case your shell is csh or tcsh), add the following lines:
 
 \code
     setenv QTDIR /usr/local/qt
@@ -109,7 +109,7 @@ where you choose to install Qt.
 \endcode
 
     After you have done this, you will need to login again, or
-    re-source the profile before continuing, so that at least $QTDIR
+    re-source the profile before continuing, so that at least \c $QTDIR
     is set.  The installation will give an error message and not
     proceed otherwise.
 
@@ -118,7 +118,8 @@ where you choose to install Qt.
     your license file as described in your distribution.
 
 \i  Compile the Qt library, and build the example programs,
-    the tutorial and the tools (eg. the Designer) as follows.
+    the tutorial and the tools (e.g. \link designer-manual.book Qt
+    Designer\endlink) as follows.
 
     Type:
 \code
@@ -126,8 +127,8 @@ where you choose to install Qt.
 \endcode
 
     This will configure the Qt library for your machine. Note that
-    GIF support is turned off by default. Run ./configure -help
-    to get a list of configuration options. Read PLATFORMS for a
+    GIF support is turned off by default. Run \c{./configure -help}
+    to get a list of configuration options. Read \c PLATFORMS for a
     list of supported platforms.
 
     To create the library and compile all examples and the tutorial:
@@ -135,9 +136,9 @@ where you choose to install Qt.
     make
 \endcode
     If you have problems, see
-    \l http://www.trolltech.com/platforms/.
+    \l{http://www.trolltech.com/platforms/}.
 
-\i  In very few cases you may need to run /sbin/ldconfig or something
+\i  In very few cases you may need to run \c /sbin/ldconfig or something
     similar at this point if you are using shared libraries.
 
     If you have problems running the example programs, e.g. messages like
@@ -145,12 +146,14 @@ where you choose to install Qt.
     can't load library 'libqt.so.2'
 \endcode
     you probably need to put a reference to the qt library in a
-    configuration file and run /sbin/ldconfig as root on your system.
-    And don't forget to set LD_LIBRARY_PATH as explained in 2) above.
+    configuration file and run \c /sbin/ldconfig as root on your system.
+    And don't forget to \c set LD_LIBRARY_PATH as explained in 2) above.
 
-\i  The online HTML documentation is installed in /usr/local/qt/doc/html/
-    The main page is /usr/local/qt/doc/html/index.html
-    The man pages are installed in /usr/local/qt/doc/man/
+\i  The online HTML documentation is installed in \c /usr/local/qt/doc/html/
+    The main page is \c{/usr/local/qt/doc/html/index.html}.
+    The man pages are installed in \c{/usr/local/qt/doc/man/}.
+    The documentation is also accessible using \link assistant.book Qt
+    Assistant\endlink.
 \endlist
 
 You're done.  Qt is now installed.
