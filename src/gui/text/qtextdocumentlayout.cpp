@@ -8,6 +8,7 @@
 #include <qdebug.h>
 #include <qrect.h>
 #include <qpalette.h>
+#include <qdebug.h>
 
 #include "qabstracttextdocumentlayout_p.h"
 
@@ -70,6 +71,7 @@ public:
 
     QSize pageSize;
     bool pagedLayout;
+    bool inLayout;
     mutable QTextBlockIterator currentBlock;
     int currentYPos;
 
@@ -274,6 +276,8 @@ void QTextDocumentLayoutPrivate::relayoutDocument()
 
 void QTextDocumentLayoutPrivate::layoutBlock(QTextBlockIterator bl)
 {
+    inLayout = true;
+
     QTextBlockFormat blockFormat = bl.blockFormat();
     QTextLayout *tl = bl.layout();
     currentBlock = bl;
@@ -306,6 +310,8 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlockIterator bl)
     tl->setPosition(QPoint(0, cy));
 
     currentYPos += blockFormat.bottomMargin();
+
+    inLayout = false;
 }
 
 void QTextDocumentLayoutPrivate::floatMargins(int *left, int *right)
@@ -395,6 +401,9 @@ int QTextDocumentLayout::hitTest(const QPoint &point, QText::HitTestAccuracy acc
 
 void QTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &format)
 {
+    if (!d->inLayout)
+        return;
+
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
     QTextObjectHandler handler = d->handlers.value(f.objectType());
@@ -418,6 +427,7 @@ void QTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &form
     QTextDocumentLayoutPrivate::Float fl;
     fl.rect = QRect((pos == QTextFloatFormat::Left ? 0 : d->pageSize.width() - s.width()), d->currentYPos,
                     s.width(), s.height());
+//     qDebug() << "layoutObject:" << fl.rect;
 
     d->floats[group] = fl;
 
@@ -434,12 +444,9 @@ void QTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextObject
     QTextFormatGroup *group = f.group();
     if (group)
         pos = group->commonFormat().toFloatFormat().position();
-    QRect r = rect;
-    if (pos != QTextFloatFormat::None) {
-        QTextDocumentLayoutPrivate::Float f = d->floats.value(group);
-        r = f.rect;
-    }
+    QRect r = pos != QTextFloatFormat::None ? d->floats.value(group).rect : rect;
 
+//     qDebug() << "drawObject at" << r;
     QAbstractTextDocumentLayout::drawObject(p, r, item, format, selType);
 }
 
