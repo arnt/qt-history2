@@ -1069,14 +1069,15 @@ void VcprojGenerator::initOld()
     if ( project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty() ) {
 	QStringList dlldirs = project->variables()["DLLDESTDIR"];
 	QString copydll("");
-	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) {
+	QStringList::Iterator dlldir;
+	for ( dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) {
 	    if ( !copydll.isEmpty() )
 		copydll += " && ";
 	    copydll += "copy  &quot;$(TargetPath)&quot; &quot;" + *dlldir + "&quot;";
 	}
 
 	QString deststr( "Copy " + dest + " to " );
-	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ) {
+	for ( dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ) {
 	    deststr += *dlldir;
 	    ++dlldir;
 	    if ( dlldir != dlldirs.end() )
