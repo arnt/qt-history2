@@ -109,7 +109,11 @@ depend:
 
 include:
 	-rm -f $(INCDIR)/*.h
-	( cd $(INCDIR) ; ln -s ../src/{tools,kernel,widgets,dialogs}/*.h . )
+	( cd $(INCDIR) ; \
+	  ln -s ../src/tools/*.h . ; \
+	  ln -s ../src/kernel/*.h . ; \
+	  ln -s ../src/widgets/*.h . ; \
+	  ln -s ../src/dialogs/*.h . )
 
 clean:
 	-rm -f dodepend
