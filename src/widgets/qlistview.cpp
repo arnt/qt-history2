@@ -3921,7 +3921,7 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
     d->pressedEmptyArea = e->y() > contentsHeight();
     if ( i && !i->isEnabled() )
 	return;
-    if ( d->startEdit && ( i != currentItem() || !i->isSelected() ) )
+    if ( d->startEdit && ( i != currentItem() || (i && !i->isSelected()) ) )
 	d->startEdit = FALSE;
     QListViewItem *oldCurrent = currentItem();
 
@@ -4404,7 +4404,7 @@ void QListView::focusInEvent( QFocusEvent *e )
 	d->focusItem = firstChild();
 	emit currentChanged( d->focusItem );
 	repaintItem( d->focusItem );
-    } 
+    }
     if ( e->reason() == QFocusEvent::Mouse ) {
 	d->ignoreEditAfterFocus = TRUE;
 	d->startEdit = FALSE;
