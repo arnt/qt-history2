@@ -111,10 +111,9 @@ QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal:
     to_edge     = FALSE;
 
     d->printerOptions = 0;
-    setPrintRange( AllPages );
     setOptionEnabled( PrintToFile, TRUE );
     setOptionEnabled( PrintPageRange, TRUE );
-    setOptionEnabled( CollateCopies, TRUE );
+    setPrintRange( AllPages );
 }
 
 QPrinter::~QPrinter()

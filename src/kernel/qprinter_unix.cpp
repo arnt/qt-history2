@@ -124,10 +124,9 @@ QPrinter::QPrinter( PrinterMode m )
 	     &(tmp->bottomMargin), &(tmp->rightMargin) );
     d = tmp;
     d->printerOptions = 0;
-    setOptionEnabled( PrintPageRange, TRUE );
     setOptionEnabled( PrintToFile, TRUE );
-    setOptionEnabled( CollateCopies, TRUE );
-    setPageRange( All );
+    setOptionEnabled( PrintPageRange, TRUE );
+    setPrintRange( AllPages );
 
     switch ( m ) {
 	case ScreenResolution:
