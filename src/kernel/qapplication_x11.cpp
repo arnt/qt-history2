@@ -3250,15 +3250,24 @@ int QApplication::x11ProcessEvent( XEvent* event )
     }
 
     if ( event->type == PropertyNotify ) {	// some properties changed
-	if ( event->xproperty.window == QPaintDevice::x11AppRootWindow() ) {
-	    // root properties
+	if ( event->xproperty.window == QPaintDevice::x11AppRootWindow( 0 ) ) {
+	    // root properties for the first screen
 	    if ( event->xproperty.atom == qt_clipboard_sentinel ) {
 		if (qt_check_clipboard_sentinel( event ) )
 		    emit clipboard()->dataChanged();
 	    } else if ( event->xproperty.atom == qt_selection_sentinel ) {
 		if (qt_check_selection_sentinel( event ) )
 		    emit clipboard()->selectionChanged();
-	    } else if ( event->xproperty.atom == qt_input_encoding ) {
+	    } else if ( obey_desktop_settings ) {
+		if ( event->xproperty.atom == qt_resource_manager )
+		    qt_set_x11_resources();
+		else if ( event->xproperty.atom == qt_settings_timestamp )
+		    QApplication::x11_apply_settings();
+	    }
+	}
+	if ( event->xproperty.window == QPaintDevice::x11AppRootWindow() ) {
+	    // root properties
+	    if ( event->xproperty.atom == qt_input_encoding ) {
 		qt_set_input_encoding();
 	    } else if ( event->xproperty.atom == qt_net_supported ) {
 		qt_get_net_supported();
@@ -3266,11 +3275,6 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		qt_get_net_virtual_roots();
 	    } else if ( event->xproperty.atom == qt_net_workarea ) {
 		qt_desktopwidget_update_workarea();
-	    } else if ( obey_desktop_settings ) {
-		if ( event->xproperty.atom == qt_resource_manager )
-		    qt_set_x11_resources();
-		else if ( event->xproperty.atom == qt_settings_timestamp )
-		    QApplication::x11_apply_settings();
 	    }
 	} else if ( widget ) {
 	    if (event->xproperty.window == widget->winId()) { // widget properties

@@ -113,14 +113,13 @@ protected:
     friend class QDragManager;
     friend class QMimeSource;
 
-private:	// Disabled copy constructor and operator=
-#if defined(Q_WS_X11)
-    void clobber();
-#elif defined(Q_WS_MAC)
+private:
+#if defined(Q_WS_MAC)
     void loadScrap(bool convert);
     void saveScrap();
 #endif
 
+    // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QClipboard( const QClipboard & );
     QClipboard &operator=( const QClipboard & );
