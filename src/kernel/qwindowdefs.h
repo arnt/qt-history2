@@ -62,9 +62,6 @@ class QByteArray;
 class QWidgetList;
 class QWidgetListIt;
 
-template<class K, class V> class QHash;
-typedef QHash<int, QWidget *> QWidgetMapper;
-
 // Window system dependent definitions
 
 #if defined(Q_WS_MAC)
@@ -138,6 +135,9 @@ struct QWSEvent;
 class QGfx;
 
 #endif // Q_WS_QWS
+
+template<class K, class V> class QHash;
+typedef QHash<WId, QWidget *> QWidgetMapper;
 
 class QApplication;
 
