@@ -1045,6 +1045,11 @@ uint QDomNodeList::length() const
  *
  **************************************************************/
 
+inline void QDomNodePrivate::setOwnerDocument( QDomDocumentPrivate* doc ) {
+    ownerNode = doc;
+    hasParent = FALSE;
+}
+
 QDomNodePrivate::QDomNodePrivate( QDomDocumentPrivate* doc, QDomNodePrivate *par )
 {
     if ( par )
@@ -1445,12 +1450,6 @@ QDomNodePrivate* QDomNodePrivate::appendChild( QDomNodePrivate* newChild )
 {
     // No reference manipulation needed. Done in insertAfter.
     return insertAfter( newChild, 0 );
-}
-
-inline void QDomNodePrivate::setOwnerDocument( QDomDocumentPrivate* doc )
-{
-    ownerNode = doc;
-    hasParent = FALSE;
 }
 
 QDomDocumentPrivate* QDomNodePrivate::ownerDocument()
