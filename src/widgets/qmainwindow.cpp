@@ -828,18 +828,18 @@ protected:
 		menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Left )
 				     && win->isDockEnabled( tb->t, QMainWindow::Left ) );
 		int right = menu.insertItem( QMainWindow::tr( "&Right" ) );
-		menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Right )
+		menu.setItemEnabled( right, win->isDockEnabled( QMainWindow::Right )
 				     && win->isDockEnabled( tb->t, QMainWindow::Right ) );
 		int top = menu.insertItem( QMainWindow::tr( "&Top" ) );
-		menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Top )
+		menu.setItemEnabled( top, win->isDockEnabled( QMainWindow::Top )
 				     && win->isDockEnabled( tb->t, QMainWindow::Top ) );
 		int bottom = menu.insertItem( QMainWindow::tr( "&Bottom" ) );
-		menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Bottom )
+		menu.setItemEnabled( bottom, win->isDockEnabled( QMainWindow::Bottom )
 				     && win->isDockEnabled( tb->t, QMainWindow::Bottom ) );
 		menu.insertSeparator();
 		int hide = menu.insertItem( QMainWindow::tr( "R&estore" ) );
 		QMainWindow::ToolBarDock dock = tb->oldDock;
-		menu.setItemEnabled( left, win->isDockEnabled( dock )
+		menu.setItemEnabled( hide, win->isDockEnabled( dock )
 				     && win->isDockEnabled( tb->t, dock ) );
 		int res = menu.exec( e->globalPos() );
 		pressed = FALSE;
