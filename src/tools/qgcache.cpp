@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#8 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#9 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qstring.h"				/* used for statistics */
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgcache.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgcache.cpp#9 $";
 #endif
 
 
@@ -223,8 +223,6 @@ GCI QGCache::take( const char *key )
     GCI gci = tmp ? tmp->data : 0;
     if ( tmp ) {
 	tCost -= tmp->cost;
-	if ( copyK )
-	    delete (char*)tmp->key;
 	lruList->remove( tmp );			// remove from list and delete
     }
     return gci;
@@ -234,10 +232,10 @@ void QGCache::clear()
 {
     register QCacheItem *ci;
     while ( (ci = lruList->first()) ) {
+	dict->remove( ci->key );		// remove from dict
 	deleteItem( ci->data );			// delete data
 	if ( copyK )
 	    delete (char*)ci->key;
-	dict->remove( ci->key );		// remove from dict
 	lruList->removeFirst();			// remove from list
     }
     tCost = 0;
@@ -267,8 +265,10 @@ bool QGCache::makeRoomFor( long cost, short priority )
 	lruList->dumps++;
 	lruList->dumpCosts += ci->cost;
 #endif
-	deleteItem( ci->data );			// delete data
 	dict->remove( ci->key );		// remove from dict
+	if ( copyK )
+	    delete (char*)ci->key;
+	deleteItem( ci->data );			// delete data
 	lruList->removeLast();			// remove from list
     }
     tCost -= cntCost;
