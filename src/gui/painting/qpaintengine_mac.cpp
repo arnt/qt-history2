@@ -139,14 +139,13 @@ void qt_clear_paintevent_clipping(QPaintDevice *dev)
   QQuickDrawPaintEngine member functions
  *****************************************************************************/
 QQuickDrawPaintEngine::QQuickDrawPaintEngine(QPaintDevice *pdev)
-    : QPaintEngine(*(new QQuickDrawPaintEnginePrivate),
-		   GCCaps(UsesFontEngine))
+    : QPaintEngine(*(new QQuickDrawPaintEnginePrivate), GCCaps(UsesFontEngine))
 {
     d->pdev = pdev;
 }
 
-QQuickDrawPaintEngine::QQuickDrawPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *pdev)
-    : QPaintEngine(dptr, GCCaps(UsesFontEngine))
+QQuickDrawPaintEngine::QQuickDrawPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *pdev, GCCaps devcaps)
+    : QPaintEngine(dptr, devcaps)
 {
     d->pdev = pdev;
 }
@@ -1063,13 +1062,13 @@ inline bool qt_mac_update_cg(QCoreGraphicsPaintEnginePrivate *paint_d)
  *****************************************************************************/
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintDevice *pdev)
-    : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate), pdev)
+    : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate), pdev, GCCaps(UsesFontEngine))
 {
     d->pdev = pdev;
 }
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *pdev)
-    : QQuickDrawPaintEngine(dptr, pdev)
+    : QQuickDrawPaintEngine(dptr, pdev, GCCaps(UsesFontEngine))
 {
     d->pdev = pdev;
 }
@@ -1284,6 +1283,8 @@ void
 QCoreGraphicsPaintEngine::updateXForm(QPainterState *ps)
 {
     Q_ASSERT(isActive());
+
+
 }
 
 void
