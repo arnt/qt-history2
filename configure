@@ -71,7 +71,7 @@ if [ "$relpath" != `pwd` ]; then
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_UIC=$outpath/bin/uic\""
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_QMAKE=$outpath/bin/qmake\""
     #hacky src line
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC_SRC=$outpath/src/moc\""
+    QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC_SRC=$relpath/src/moc\""
 else
     touch .test.qt.
     if [ '!' -f ${QTDIR}/.test.qt. ];
@@ -1373,8 +1373,8 @@ echo
 if true #[ '!' -f "$outpath/bin/qmake" ]
 then
     echo Creating qmake...
-    [ -f $outpath/qmake/GNUmakefile ] && chmod 666 $outpath/qmake/GNUmakefile
-    [ -f $outpath/qmake/Makefile ] && chmod 666 $outpath/qmake/Makefile
+    rm -f $outpath/qmake/GNUmakefile
+    rm -f $outpath/qmake/Makefile
     case "$LIBDL" in
     auto) DYLIB_LINK="-ldl" ;;
     no)   DYLIB_LINK="" ;;
@@ -1421,7 +1421,7 @@ for a in `cat .sorted.projects`; do
     dir=`dirname $a | sed -e "s;$sepath;.;g"`
     test -d $dir || mkdir -p $dir
     N=$outpath/$dir/Makefile
-    QMAKE_EXTRA_ARGS="\"QMAKE_ABSOLUTE_SOURCE_PATH=$outpath/$dir\""
+    QMAKE_EXTRA_ARGS="\"QMAKE_ABSOLUTE_SOURCE_PATH=$relpath/$dir\""
     PIPE="$outpath/bin/qmake $QMAKE_ALL_ARGS $QMAKE_EXTRA_ARGS -o $N -mkspec $CONF $a"
     if [ "x$CONCURRENT" = "x0" ] || [ "x$CONCURRENT" = "x1" ]
     then
