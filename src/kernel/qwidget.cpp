@@ -1573,8 +1573,8 @@ bool QWidget::isFullScreen() const
     strange effects on desktop changes or when the user raises other
     windows.
 
-    Future X11 window managers that follow modern post-ICCCM
-    specifications may support full-screen mode properly.
+    X11 window managers that follow modern post-ICCCM specifications
+    support full-screen mode properly.
 
     \sa showNormal(), showMaximized(), show(), hide(), isVisible()
 */
