@@ -38,8 +38,7 @@ public:
     QWidget *editor(QAbstractItemDelegate::BeginEditAction action, QWidget *parent,
                     const QStyleOptionViewItem &option,
                     const QAbstractItemModel *model, const QModelIndex &index);
-    void releaseEditor(EndEditAction action, QWidget *editor,
-                       QAbstractItemModel *model, const QModelIndex &index);
+    void releaseEditor(QWidget *editor);
 
     void setEditorData(QWidget *editor,
                        const QAbstractItemModel *model,

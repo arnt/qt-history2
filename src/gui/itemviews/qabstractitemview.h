@@ -112,8 +112,9 @@ protected slots:
     virtual void verticalScrollbarAction(int action);
     virtual void horizontalScrollbarAction(int action);
     virtual void selectionModelDestroyed();
-    virtual void doneEditing(QWidget *editor, QAbstractItemDelegate::EndEditAction action);
+    virtual void doneEditing(QWidget *editor);
     virtual void commitData(QWidget *editor);
+    virtual void editorDestroyed(QObject *editor);
 
 signals:
     void rootChanged(const QModelIndex &old, const QModelIndex &root);
@@ -145,9 +146,9 @@ protected:
     virtual void setSelection(const QRect&, QItemSelectionModel::SelectionFlags command) = 0;
     virtual QRect selectionViewportRect(const QItemSelection &selection) const = 0;
 
-    virtual bool beginEdit(const QModelIndex &index,
-                           QAbstractItemDelegate::BeginEditAction action, QEvent *event);
-    virtual void endEdit(const QModelIndex &index, QAbstractItemDelegate::EndEditAction action);
+    virtual bool edit(const QModelIndex &index, QAbstractItemDelegate::BeginEditAction action,
+                      QEvent *event);
+    virtual void endEdit(const QModelIndex &index, bool accepted = true);
 
     virtual QItemSelectionModel::SelectionFlags selectionCommand(Qt::ButtonState state,
                                                                  const QModelIndex &index,

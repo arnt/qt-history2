@@ -51,11 +51,6 @@ public:
 
     Q_DECLARE_FLAGS(BeginEditActions, BeginEditAction);
 
-    enum EndEditAction {
-        Accepted = 1,
-        Cancelled = 2
-    };
-
     // painting
     virtual void paint(QPainter *painter, const QStyleOptionViewItem &option,
                        const QAbstractItemModel *model, const QModelIndex &index) const = 0;
@@ -71,8 +66,7 @@ public:
                             const QAbstractItemModel *model,
                             const QModelIndex &index);
 
-    virtual void releaseEditor(EndEditAction action, QWidget *editor,
-                               QAbstractItemModel *model, const QModelIndex &index);
+    virtual void releaseEditor(QWidget *editor);
 
     virtual void setEditorData(QWidget *editor,
                                const QAbstractItemModel *model,
@@ -92,7 +86,7 @@ public:
 
 signals:
     void commitData(QWidget *editor);
-    void doneEditing(QWidget *editor, QAbstractItemDelegate::EndEditAction action);
+    void doneEditing(QWidget *editor);
 
 protected:
     QString ellipsisText(const QFontMetrics &fontMetrics, int width, int align,

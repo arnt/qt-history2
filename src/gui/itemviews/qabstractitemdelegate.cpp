@@ -168,19 +168,15 @@ QWidget *QAbstractItemDelegate::editor(BeginEditAction, QWidget *, const QStyleO
 }
 
 /*!
-    Notifies the delegate that the given \a editor is no longer in use
-    for the item at the given \a index in the \a model.
-    The way the edit was completed is specified by \a action;
-    see \c EndEditAction. Typically the delegate should destroy the
-    editor at this point.
+    Notifies the delegate that the given \a editor is no longer in use.
+    Typically the delegate should destroy the editor at this point.
 
     The base implementation does nothing. If you want custom editing
     you will probably need to reimplement this function.
 
     \sa editorType() editor() setEditorData() setModelData()
 */
-void QAbstractItemDelegate::releaseEditor(EndEditAction, QWidget *,
-                                          QAbstractItemModel *, const QModelIndex &)
+void QAbstractItemDelegate::releaseEditor(QWidget *)
 {
     // do nothing
 }

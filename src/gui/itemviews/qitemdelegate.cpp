@@ -217,20 +217,13 @@ QWidget *QItemDelegate::editor(BeginEditAction action, QWidget *parent,
 }
 
 /*!
-    \fn void QItemDelegate::releaseEditor(EndEditAction action, QWidget *editor, QAbstractItemModel *model, const QModelIndex &index)
+    Releases the \a editor.
 
-    Releases the \a editor that was created to edit the item specified by the
-    \a model and item \a index. The \a action specifies whether the editing
-    operation was completed successfully.
-
-    \sa QAbstractItemDelegate::EndEditAction QAbstractItemDelegate::releaseEditor()
+    \sa QAbstractItemDelegate::releaseEditor()
 */
 
-void QItemDelegate::releaseEditor(EndEditAction action, QWidget *editor,
-                                  QAbstractItemModel *model, const QModelIndex &index)
+void QItemDelegate::releaseEditor(QWidget *editor)
 {
-    if (action == QAbstractItemDelegate::Accepted)
-        setModelData(editor, model, index);
     editor->deleteLater();
 }
 
@@ -240,7 +233,8 @@ void QItemDelegate::releaseEditor(EndEditAction action, QWidget *editor,
 */
 
 void QItemDelegate::setEditorData(QWidget *editor,
-                                  const QAbstractItemModel *model, const QModelIndex &index) const
+                                  const QAbstractItemModel *model,
+                                  const QModelIndex &index) const
 {
     QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);
     if (lineEdit) {
@@ -255,7 +249,8 @@ void QItemDelegate::setEditorData(QWidget *editor,
 */
 
 void QItemDelegate::setModelData(QWidget *editor,
-                                 QAbstractItemModel *model, const QModelIndex &index) const
+                                 QAbstractItemModel *model,
+                                 const QModelIndex &index) const
 {
     QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);
     if (lineEdit)
@@ -520,12 +515,14 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
     QLineEdit *editor = ::qt_cast<QLineEdit*>(object);
     if (editor && event->type() == QEvent::KeyPress) {
         switch (static_cast<QKeyEvent *>(event)->key()) {
-        case Qt::Key_Escape:
-            emit doneEditing(editor, QAbstractItemDelegate::Cancelled);
-            return true;
         case Qt::Key_Enter:
         case Qt::Key_Return:
-            emit doneEditing(editor, QAbstractItemDelegate::Accepted);
+            emit commitData(editor);
+        case Qt::Key_Escape:
+            emit doneEditing(editor);
+//             editor->hide();
+//             editor->parentWidget()->setFocus();
+//             editor->deleteLater();
             return true;
         default:
             break;

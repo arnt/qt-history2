@@ -31,10 +31,6 @@ public:
 
     bool shouldEdit(QAbstractItemDelegate::BeginEditAction action, const QModelIndex &index);
     bool shouldAutoScroll(const QPoint &pos);
-
-    QWidget *requestEditor(QAbstractItemDelegate::BeginEditAction action,
-                           QEvent *event, const QModelIndex &index);
-
     void doDelayedItemsLayout();
 
     mutable QAbstractItemModel *model;
