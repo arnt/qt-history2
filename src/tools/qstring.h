@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#129 $
+** $Id: //depot/qt/main/src/tools/qstring.h#130 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -111,7 +111,7 @@ public:
       Symbol_Math,	    //   Sm
       Symbol_Currency,	    //   Sc
       Symbol_Modifier,	    //   Sk
-      Symbol_Other,	    //   So
+      Symbol_Other	    //   So
     };
 
     enum Direction
