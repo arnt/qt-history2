@@ -2458,13 +2458,22 @@ ClassDoc::ClassDoc( const Location& loc, const QString& html,
 		    const QString& module, const QString& extension,
 		    const StringSet& headers, const QStringList& important )
     : Doc( Class, loc, html, className ), bf( brief ), mod( module ),
-      ext( extension ), h( headers ), imp( important )
+      ext( extension ), h( headers )
 {
     setFileName( config->classRefHref(className) );
 
     if ( !ext.isEmpty() ) {
 	extlist.insert( ext );
 	classext.insert( className, ext );
+    }
+
+    StringSet::ConstIterator i = important.begin();
+    while ( i != important.end() ) {
+	QString name = *i;
+	if ( name.endsWith(parenParen) )
+	    name.truncate( name.length() - 2 );
+	imp.append( name );
+	++i;
     }
 
     /*

@@ -281,9 +281,12 @@ static void tangle( Decl *child, QValueList<Decl *> *membersp,
 static void fillInImportantChildren( ClassDecl *classDecl,
 				     QValueList<Decl *> *importantChildren )
 {
-    StringSet important, importantMet;
-    if ( classDecl->classDoc() != 0 )
-	important = classDecl->classDoc()->important();
+    if ( classDecl->classDoc() == 0 ||
+	 classDecl->classDoc()->important().isEmpty() )
+	return;
+
+    StringSet important = classDecl->classDoc()->important();
+    StringSet importantMet;
     StringSet importantSignatures;
 
     QValueStack<ClassDecl *> stack;
@@ -296,7 +299,7 @@ static void fillInImportantChildren( ClassDecl *classDecl,
 
 	st = c->superTypes().begin();
 	while ( st != c->superTypes().end() ) {
-	    Decl *bd = classDecl->rootContext()->resolvePlain( (*st).base() );
+	    Decl *bd = c->rootContext()->resolvePlain( (*st).base() );
 	    if ( bd != 0 && bd->kind() == Decl::Class )
 		stack.push( (ClassDecl *) bd );
 	    ++st;

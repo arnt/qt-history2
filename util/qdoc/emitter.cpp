@@ -103,8 +103,8 @@ void Emitter::nailDownDecls()
 
 void Emitter::nailDownDocs()
 {
-    root.destructSymbolTables();
     root.fillInDocs();
+    root.destructSymbolTables(); // ### needed?
     root.buildPlainSymbolTables( TRUE );
 
     /*
