@@ -415,8 +415,10 @@ bool QSqlRecord::contains( const QString& name ) const
 void QSqlRecord::clearValues( bool nullify )
 {
     checkDetach();
-    for ( uint i = 0; i < count(); ++i ) {
-	QVariant v;
+    QVariant v;
+    uint cnt = count();
+    for ( uint i = 0; i < cnt; ++i ) {
+	v.clear();
 	v.cast( field( i )->type() );
 	field( i )->setValue( v );
 	if ( nullify )
