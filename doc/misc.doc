@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.29 1998/06/25 00:54:38 agulbra Exp $
+** $Id: misc.doc,v 2.30 1998/08/20 21:27:02 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.29 1998/06/25 00:54:38 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 2.30 1998/08/20 21:27:02 agulbra Exp $";
 #endif
 
 
@@ -128,8 +128,8 @@ PARTICULAR PURPOSE.
 <hr>
 <p>
 <p align=center>
-(The <a href="faq.html">FAQ</a> contains a number of questions related
-to the license.)
+(The <a href="http://www.troll.no/faq/free.html">FAQ</a> contains a
+number of questions related to the license.)
 
 */
 
