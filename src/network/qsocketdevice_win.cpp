@@ -118,7 +118,7 @@ void QSocketDevice::close()
 	return;
     setFlags( IO_Sequential );
     setStatus( IO_Ok );
-    ::closesocket( fd ); // ### do we need error handling here?
+    ::closesocket( fd );
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug( "QSocketDevice::close: Closed socket %x", fd );
 #endif
@@ -143,7 +143,6 @@ void QSocketDevice::setBlocking( bool enable )
     if ( !isValid() )
 	return;
 
-    // ### error handling?
     unsigned long dummy;
     ioctlsocket( fd, FIONBIO, (enable?0:&dummy) );
 }
@@ -303,14 +302,11 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 		e = InternalError;
 		break;
 	    case WSAEINVAL:
-		// I experienced that this should be not an error situation.
 		break;
 	    case WSAECONNREFUSED:
 		e = ConnectionRefused;
 		break;
 	    case WSAEISCONN:
-		//e = Impossible; // ### ?
-		//break;
 		goto successful;
 	    case WSAENETUNREACH:
 	    case WSAETIMEDOUT:
