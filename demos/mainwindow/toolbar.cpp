@@ -13,9 +13,11 @@
 
 #include "toolbar.h"
 
+#include <qmainwindow.h>
 #include <qmenu.h>
 #include <qpainter.h>
 #include <qspinbox.h>
+
 #include <stdlib.h>
 
 static QPixmap genIcon(const QString &string, const QColor &color)
@@ -54,9 +56,11 @@ static QPixmap genIcon(const QString &string, const QColor &color)
 static QPixmap genIcon(int number, const QColor &color)
 { return genIcon(QString::number(number), color); }
 
-ToolBar::ToolBar(QMainWindow *parent)
+ToolBar::ToolBar(QWidget *parent)
     : QToolBar(parent), spinbox(0), spinboxAction(0)
 {
+    setWindowTitle(tr("Main Tool Bar"));
+
     menu = new QMenu("One", this);
     menu->setIcon(genIcon(1, Qt::white));
     menu->addAction(genIcon("1.1", Qt::yellow), "One One");
@@ -79,10 +83,6 @@ ToolBar::ToolBar(QMainWindow *parent)
     seven->setCheckable(true);
     QAction *eight = addAction(genIcon(8, Qt::black), "Eight");
     eight->setCheckable(true);
-
-    showHideAction = new QAction(this);
-    showHideAction->setText(tr("Hide"));
-    connect(showHideAction, SIGNAL(triggered()), SLOT(showHide()));
 
     orderAction = new QAction(this);
     orderAction->setText(tr("Order Items in Tool Bar"));
@@ -158,7 +158,12 @@ ToolBar::ToolBar(QMainWindow *parent)
     connect(movableAction, SIGNAL(checked(bool)), allowedAreasActions, SLOT(setEnabled(bool)));
 
     menu = new QMenu(tr("&Toolbar"), this);
-    menu->addAction(showHideAction);
+
+    // change default text of the toggle view action
+    QAction *toggleViewAction = this->toggleViewAction();
+    toggleViewAction->setText(tr("Visible"));
+    menu->addAction(toggleViewAction);
+
     menu->addSeparator();
     menu->addAction(orderAction);
     menu->addAction(randomizeAction);
@@ -178,7 +183,10 @@ ToolBar::ToolBar(QMainWindow *parent)
 
 void ToolBar::polishEvent(QEvent *)
 {
-    const Qt::ToolBarArea area = this->area();
+    QMainWindow *mainWindow = qt_cast<QMainWindow *>(parentWidget());
+    Q_ASSERT(mainWindow != 0);
+
+    const Qt::ToolBarArea area = mainWindow->toolBarArea(this);
     const Qt::ToolBarAreas areas = allowedAreas();
 
     movableAction->setChecked(isMovable());
@@ -207,19 +215,6 @@ void ToolBar::polishEvent(QEvent *)
         bottomAction->setEnabled(areas & Qt::ToolBarAreaBottom);
     }
 }
-
-void ToolBar::hideEvent(QHideEvent *)
-{
-    showHideAction->setText(tr("Show"));
-}
-
-void ToolBar::showEvent(QShowEvent *)
-{
-    showHideAction->setText(tr("Hide"));
-}
-
-void ToolBar::showHide()
-{ setShown(!isShown()); }
 
 void ToolBar::order()
 {
@@ -291,9 +286,13 @@ void ToolBar::allow(Qt::ToolBarArea area, bool a)
 
 void ToolBar::place(Qt::ToolBarArea area, bool p)
 {
-    if (!p) return;
+    if (!p)
+        return;
 
-    setArea(area);
+    QMainWindow *mainWindow = qt_cast<QMainWindow *>(parentWidget());
+    Q_ASSERT(mainWindow != 0);
+
+    mainWindow->addToolBar(this, area);
 
     if (allowedAreasActions->isEnabled()) {
         allowLeftAction->setEnabled(area != Qt::ToolBarAreaLeft);

@@ -28,7 +28,6 @@ class ToolBar : public QToolBar
     QSpinBox *spinbox;
     QAction *spinboxAction;
 
-    QAction *showHideAction;
     QAction *orderAction;
     QAction *randomizeAction;
     QAction *addSpinBoxAction;
@@ -49,22 +48,18 @@ class ToolBar : public QToolBar
     QAction *bottomAction;
 
 public:
-    ToolBar(QMainWindow *parent);
+    ToolBar(QWidget *parent);
 
     QMenu *menu;
 
 protected:
     virtual void polishEvent(QEvent *);
 
-    virtual void hideEvent(QHideEvent *);
-    virtual void showEvent(QShowEvent *);
-
 private:
     void allow(Qt::ToolBarArea area, bool allow);
     void place(Qt::ToolBarArea area, bool place);
 
 private slots:
-    void showHide();
     void order();
     void randomize();
     void addSpinBox();

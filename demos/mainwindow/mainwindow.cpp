@@ -75,6 +75,7 @@ void MainWindow::setupToolBar()
 {
     toolbar = new ToolBar(this);
     toolbar->setAllowedAreas(Qt::ToolBarAreaTop | Qt::ToolBarAreaBottom);
+    addToolBar(toolbar);
 }
 
 void MainWindow::setupMenuBar()
