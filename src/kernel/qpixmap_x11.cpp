@@ -137,7 +137,7 @@ static bool qt_create_mitshm_buffer( const QPaintDevice* dev, int w, int h )
 			     IPC_CREAT | 0777 );
     ok = xshminfo.shmid != -1;
     if ( ok ) {
-	xshmimg->data = shmat( xshminfo.shmid, 0, 0 );
+	xshmimg->data = (char*)shmat( xshminfo.shmid, 0, 0 );
 	xshminfo.shmaddr = xshmimg->data;
 	ok = xshminfo.shmaddr != 0;
     }
@@ -1732,7 +1732,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     if ( use_mitshm ) {
 	dptr = (uchar *)xshmimg->data;
 	uchar fillbyte = bpp == 8 ? white.pixel() : 0xff;
-	for ( y=0; y<h; y++ )
+	for ( int y=0; y<h; y++ )
 	    memset( dptr + y*xshmimg->bytes_per_line, fillbyte, dbpl );
     } else {
 #endif
