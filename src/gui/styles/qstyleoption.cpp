@@ -153,12 +153,12 @@ void QStyleOption::init(const QWidget *widget)
 
 /*!
     \property QStyleOption::palette
-    \brief The palette that should be used in when painting the control
+    \brief the palette that should be used in when painting the control
 */
 
 /*!
     \property QStyleOption::rect
-    \brief The area that should be used for various calculations and painting.
+    \brief the area that should be used for various calculations and painting.
 
     This can have different meanings for different types of elements.
     For example, for \l QStyle::CE_PushButton it would be the
@@ -169,7 +169,7 @@ void QStyleOption::init(const QWidget *widget)
 
 /*!
     \property QStyleOption::state
-    \brief The QStyle::StyleFlags that are used when drawing the control.
+    \brief the style flags that are used when drawing the control
 
     \sa QStyle::drawPrimitive(), QStyle::drawControl(), QStyle::drawComplexControl(),
         QStyle::StyleFlags
@@ -177,12 +177,14 @@ void QStyleOption::init(const QWidget *widget)
 
 /*!
     \property QStyleOption::type
-    \brief The \l OptionType of the QStyleOption
+    \brief the option type of the style option
+
+    \sa OptionType
 */
 
 /*!
     \property QStyleOption::version
-    \brief The version of the QStyleOption
+    \brief the version of the style option
 
     This value can be used by subclasses to implement extensions
     without breaking compatibility. If you use qt_cast<T>(), you
