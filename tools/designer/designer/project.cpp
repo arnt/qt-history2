@@ -11,7 +11,6 @@
 
 #include "project.h"
 #include "formwindow.h"
-// #include "config.h"
 #include "designerappiface.h"
 #include "../interfaces/languageinterface.h"
 #include "pixmapcollection.h"

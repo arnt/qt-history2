@@ -22,7 +22,6 @@
 #include "propertyeditor.h"
 #include "metadatabase.h"
 #include "resource.h"
-// #include "config.h"
 #include "hierarchyview.h"
 #include "newformimpl.h"
 #include "workspace.h"

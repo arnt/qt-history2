@@ -16,7 +16,6 @@
 #include "../interfaces/widgetinterface.h"
 
 #include <qfeatures.h>
-// #include "../designer/config.h"
 #include "../designer/database2.h"
 #include <qdom.h>
 #include <qdir.h>
