@@ -162,6 +162,8 @@ struct QTablePrivate
     uint redirectMouseEvent : 1;
     QIntDict<int> hiddenRows, hiddenCols;
     QTimer *geomTimer;
+    int lastVisRow;
+    int lastVisCol;
 };
 
 struct QTableHeaderPrivate
@@ -1999,6 +2001,8 @@ void QTable::init( int rows, int cols )
 #endif
     d = new QTablePrivate;
     d->geomTimer = new QTimer( this );
+    d->lastVisCol = 0;
+    d->lastVisRow = 0;
     connect( d->geomTimer, SIGNAL( timeout() ), this, SLOT( updateGeometriesSlot() ) );
     shouldClearSelection = FALSE;
     dEnabled = FALSE;
@@ -2741,7 +2745,9 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    }
 	}
     }
-
+    d->lastVisCol = collast;
+    d->lastVisRow = rowlast;
+    
     // draw indication of current cell
     QRect focusRect = cellGeometry( curRow, curCol );
     p->translate( focusRect.x(), focusRect.y() );
@@ -4303,7 +4309,10 @@ void QTable::columnWidthChanged( int col )
 	repaintContents( w, contentsY(),
 			 s.width() - w + 1, visibleHeight(), FALSE );
 
-    updateColWidgets( col );
+    // update widgets that are affected by this change
+    if ( widgets.size() )
+	for ( int c = col; c <= d->lastVisCol; ++c )
+	    updateColWidgets( c );
     delayedUpdateGeometries();
 }
 
@@ -4329,7 +4338,10 @@ void QTable::rowHeightChanged( int row )
 	repaintContents( contentsX(), h,
 			 visibleWidth(), s.height() - h + 1, FALSE );
 
-    updateRowWidgets( row );
+    // update widgets that are affected by this change
+    if ( widgets.size() )
+	for ( int r = row; r <= d->lastVisRow; ++r )
+	    updateRowWidgets( r );
     delayedUpdateGeometries();
 }
 
