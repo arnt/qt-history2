@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#7 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#8 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -352,6 +352,10 @@ public:
 
 	Key_unknown = 0xffff
     };
+    enum ArrowType
+    { UpArrow, DownArrow, LeftArrow, RightArrow };
+
+
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#41 $
 **
 ** Implementation of draw utilities
 **
@@ -669,22 +669,22 @@ void qDrawPlainRect( QPainter *p, const QRect &r, const QColor &c,
 }
 
 
-static void qDrawWinArrow( QPainter *p, ArrowType type, bool down,
+static void qDrawWinArrow( QPainter *p, Qt::ArrowType type, bool down,
 			   int x, int y, int w, int h,
 			   const QColorGroup &g, bool enabled )
 {
     QPointArray a;				// arrow polygon
     switch ( type ) {
-    case UpArrow:
+    case Qt::UpArrow:
 	a.setPoints( 7, -3,1, 3,1, -2,0, 2,0, -1,-1, 1,-1, 0,-2 );
 	break;
-    case DownArrow:
+    case Qt::DownArrow:
 	a.setPoints( 7, -3,-1, 3,-1, -2,0, 2,0, -1,1, 1,1, 0,2 );
 	break;
-    case LeftArrow:
+    case Qt::LeftArrow:
 	a.setPoints( 7, 1,-3, 1,3, 0,-2, 0,2, -1,-1, -1,1, -2,0 );
 	break;
-    case RightArrow:
+    case Qt::RightArrow:
 	a.setPoints( 7, -1,-3, -1,3, 0,-2, 0,2, 1,-1, 1,1, 2,0 );
 	break;
     }
@@ -728,7 +728,7 @@ static void qDrawWinArrow( QPainter *p, ArrowType type, bool down,
 
 // motif arrows look the same whether they are used or not
 // is this correct?
-static void qDrawMotifArrow( QPainter *p, ArrowType type, bool down,
+static void qDrawMotifArrow( QPainter *p, Qt::ArrowType type, bool down,
 			     int x, int y, int w, int h,
 			     const QColorGroup &g, bool )
 {
@@ -737,7 +737,7 @@ static void qDrawMotifArrow( QPainter *p, ArrowType type, bool down,
     QPointArray bBot;				// bottom shadow.
     QPointArray bLeft;				// left shadow.
     QWMatrix	matrix;				// xform matrix
-    bool vertical = type == UpArrow || type == DownArrow;
+    bool vertical = type == Qt::UpArrow || type == Qt::DownArrow;
     bool horizontal = !vertical;
     int	 dim = w < h ? w : h;
     int	 colspec = 0x0000;			// color specification array
@@ -784,7 +784,7 @@ static void qDrawMotifArrow( QPainter *p, ArrowType type, bool down,
 	}
     }
 
-    if ( type == UpArrow || type == LeftArrow ) {
+    if ( type == Qt::UpArrow || type == Qt::LeftArrow ) {
 	matrix.translate( x, y );
 	if ( vertical ) {
 	    matrix.translate( 0, h - 1 );
@@ -798,7 +798,7 @@ static void qDrawMotifArrow( QPainter *p, ArrowType type, bool down,
 	else
 	    colspec = horizontal ? 0x1443 : 0x1434;
     }
-    else if ( type == DownArrow || type == RightArrow ) {
+    else if ( type == Qt::DownArrow || type == Qt::RightArrow ) {
 	matrix.translate( x, y );
 	if ( vertical ) {
 	    matrix.translate( w-1, 0 );
@@ -851,7 +851,7 @@ static void qDrawMotifArrow( QPainter *p, ArrowType type, bool down,
 }
 
 
-void qDrawArrow( QPainter *p, ArrowType type, Qt::GUIStyle style, bool down,
+void qDrawArrow( QPainter *p, Qt::ArrowType type, Qt::GUIStyle style, bool down,
 		 int x, int y, int w, int h,
 		 const QColorGroup &g, bool enabled )
 {
