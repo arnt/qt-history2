@@ -268,13 +268,13 @@ void HierarchyList::objectClicked( QListViewItem *i )
 		 w->parent()->parent() &&
 		 ( w->parent()->parent()->inherits( "QTabWidget" ) ||
 		   w->parent()->parent()->inherits( "QWizard" ) ) ) {
-		if ( w->parent()->parent()->inherits( "QTabWidget" ) )
+		if ( w->parent()->parent()->inherits( "QTabWidget" ) ) 
 		    ( (QTabWidget*)w->parent()->parent() )->showPage( w );
 		else
 		    ( (QDesignerWizard*)w->parent()->parent() )->
 			setCurrentPage( ( (QDesignerWizard*)w->parent()->parent() )->
 					pageNum( w ) );
-		w = (QWidget*)w->parent()->parent();
+		o = (QWidget*)w->parent()->parent();
 		formWindow->emitUpdateProperties( formWindow->currentWidget() );
 	    } else if ( w->parent() && w->parent()->inherits( "QWidgetStack" ) ) {
 		( (QDesignerWidgetStack*)w->parent() )->raiseWidget( w );
