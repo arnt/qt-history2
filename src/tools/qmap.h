@@ -678,7 +678,7 @@ public:
     }
     size_type count( const key_type& k ) const
     {
-	iterator it( sh->find( k ).node );
+	const_iterator it( sh->find( k ).node );
 	if ( it != end() ) {
 	    size_type c = 0;
 	    while ( it != end() ) {
