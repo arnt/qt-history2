@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#39 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#40 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -2418,8 +2418,8 @@ bool QXmlSimpleReader::parseContinue( const QXmlInputSource& input )
 */
 bool QXmlSimpleReader::parseProlog()
 {
-    bool xmldecl_possible = TRUE;
-    bool doctype_read = FALSE;
+    static bool xmldecl_possible;
+    static bool doctype_read;
 
     const signed char Init             = 0;
     const signed char EatWS            = 1; // eat white spaces
@@ -2449,9 +2449,17 @@ bool QXmlSimpleReader::parseProlog()
 	{ EatWS,  Lt,    -1,    -1,    -1,       -1,       -1      }, // Comment
 	{ EatWS,  Lt,    -1,    -1,    -1,       -1,       -1      }  // PI
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
     bool parseOk = TRUE;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	xmldecl_possible = TRUE;
+	doctype_read = FALSE;
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -2589,8 +2597,6 @@ parseError:
 */
 bool QXmlSimpleReader::parseElement()
 {
-    QString uri, lname, prefix;
-
     const signed char Init             =  0;
     const signed char ReadName         =  1;
     const signed char Ws1              =  2;
@@ -2625,9 +2631,15 @@ bool QXmlSimpleReader::parseElement()
 	{ Ws3,       Attribute,   STagEnd,     EmptyTag,    -1        }, // Attribute
 	{ -1,        Attribute,   STagEnd,     EmptyTag,    -1        }  // Ws3
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
     bool parseOk = TRUE;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -2665,6 +2677,7 @@ bool QXmlSimpleReader::parseElement()
 		// call the handler
 		if ( contentHnd ) {
 		    if ( d->useNamespaces ) {
+			QString uri, lname;
 			d->namespaceSupport.processName( d->tags.top(), FALSE, uri, lname );
 			if ( !contentHnd->startElement( uri, lname, d->tags.top(), d->attList ) ) {
 			    d->error = contentHnd->errorString();
@@ -2722,7 +2735,6 @@ bool QXmlSimpleReader::parseElement()
 		d->attList.uriList.clear();
 		d->attList.localnameList.clear();
 		d->attList.valueList.clear();
-		// namespace support?
 		if ( d->useNamespaces ) {
 		    d->namespaceSupport.pushContext();
 		}
@@ -2821,7 +2833,6 @@ error:
 */
 bool QXmlSimpleReader::parseElementETagBegin2()
 {
-
     // pop the stack and compare it with the name
     if ( d->tags.pop() != name() ) {
 	d->error = XMLERR_TAGMISMATCH;
@@ -2917,7 +2928,7 @@ bool QXmlSimpleReader::parseElementAttribute()
 */
 bool QXmlSimpleReader::parseContent()
 {
-    bool charDataRead = FALSE;
+    static bool charDataRead;
 
     const signed char Init             =  0;
     const signed char ChD              =  1; // CharData
@@ -2982,9 +2993,16 @@ bool QXmlSimpleReader::parseContent()
 	{ CDS1,  CDS1,  CDS1,     CDS1,     CDS1,     CDS1,   CDS1,    CDS1,     CDS3,      CDS1 }, // CDS2
 	{ CDS1,  Init,  CDS1,     CDS1,     CDS1,     CDS1,   CDS1,    CDS1,     CDS3,      CDS1 }  // CDS3
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
     bool parseOk = TRUE;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	charDataRead = FALSE;
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -3005,10 +3023,13 @@ bool QXmlSimpleReader::parseContent()
 
 	// do some actions according to state
 	switch ( state ) {
+#if 0
+	    // ### this case is never executed, right?
 	    case Init:
 		// next character
 		next();
 		break;
+#endif
 	    case ChD:
 		// on first call: clear string
 		if ( !charDataRead ) {
@@ -3224,9 +3245,15 @@ bool QXmlSimpleReader::parseMisc()
 	{ -1,     -1,    PI,    Comment,  -1        }, // Lt
 	{ -1,     -1,    -1,    -1,       Comment2  }  // Comment
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
     bool parseOk = TRUE;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -3367,9 +3394,15 @@ bool QXmlSimpleReader::parsePI()
 	{ Char,   Char,      Char,  Qm,     Char   }, // Char
 	{ Char,   Char,      Done,  Qm,     Char   }, // Qm
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
     bool parseOk = TRUE;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -3546,10 +3579,7 @@ parseError:
 */
 bool QXmlSimpleReader::parseDoctype()
 {
-    bool startDTDwasReported = FALSE;
-    // some init-stuff
-    d->systemId = QString::null;
-    d->publicId = QString::null;
+    static bool startDTDwasReported;
 
     const signed char Init             =  0;
     const signed char Doctype          =  1; // read the doctype
@@ -3590,9 +3620,18 @@ bool QXmlSimpleReader::parseDoctype()
 	{ -1,     -1,        -1,        -1,    MPE,   PER,   -1,    Mup       }, // Ws4
 	{ -1,     -1,        -1,        -1,    -1,    -1,    Done,  -1        }  // MPE
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
     bool parseOk = TRUE;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	startDTDwasReported = FALSE;
+	d->systemId = QString::null;
+	d->publicId = QString::null;
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -3737,10 +3776,6 @@ parseError:
 */
 bool QXmlSimpleReader::parseExternalID()
 {
-    // some init-stuff
-    d->systemId = QString::null;
-    d->publicId = QString::null;
-
     const signed char Init             =  0;
     const signed char Sys              =  1; // parse 'SYSTEM'
     const signed char SysWS            =  2; // parse the whitespace after 'SYSTEM'
@@ -3785,9 +3820,17 @@ bool QXmlSimpleReader::parseExternalID()
 	{ PDone,   PDone,   PDone,   PDone,   PubWS2,   PDone   }, // PubE
 	{ SysSQ,   SysDQ,   PDone,   PDone,   PDone,    PDone   }  // PubWS2
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
     bool parseOk = TRUE;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	d->systemId = QString::null;
+	d->publicId = QString::null;
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -3931,9 +3974,15 @@ bool QXmlSimpleReader::parseMarkupdecl()
 	{ -1,    -1,    -1,    Dash,    CA,    CE,    -1,    CN,    -1     }, // Em
 	{ -1,    -1,    -1,    -1,      -1,    -1,    CEL,   CEN,   -1     }  // CE
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
     bool parseOk = TRUE;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -4082,9 +4131,15 @@ bool QXmlSimpleReader::parsePEReference()
 	{ -1,      -1,     Name  }, // Next
 	{ Done,    -1,     -1    }  // Name
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
     bool parseOk = TRUE;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -4214,9 +4269,15 @@ bool QXmlSimpleReader::parseAttlistDecl()
 	{ Ws4,     Ws4,     -1,      -1,       -1,      -1,      -1,      -1      }, // Attval
 	{ -1,      Done,    Attdef,  Attdef,   Attdef,  Attdef,  Attdef,  Attdef  }  // Ws4
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
     bool parseOk = TRUE;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -4429,9 +4490,15 @@ bool QXmlSimpleReader::parseAttType()
 	{ EN2,     -1,      ADone,   EN,      -1,      -1,      -1,      -1,      -1,      -1,      -1,      -1,      -1,      -1     }, // ENNmt
 	{ -1,      -1,      ADone,   EN,      -1,      -1,      -1,      -1,      -1,      -1,      -1,      -1,      -1,      -1     }  // EN2
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
     bool parseOk = TRUE;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -4644,9 +4711,15 @@ bool QXmlSimpleReader::parseAttValue()
 	{ SqC,   Done,  SqRef,  -1,   SqC   }, // SqRef
 	{ SqC,   Done,  SqRef,  -1,   SqC   }  // SqRef
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
     bool parseOk = TRUE;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -4779,9 +4852,15 @@ bool QXmlSimpleReader::parseElementDecl()
 	{ WsD,    Done,  -1,      -1,    -1,     -1,      -1,    -1,     -1,      -1,     -1,     -1,     -1     }, // Cp2
 	{ -1,     Done,  -1,      -1,    -1,     -1,      -1,    -1,     -1,      -1,     -1,     -1,     -1     }  // WsD
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
     bool parseOk = TRUE;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -4970,9 +5049,15 @@ bool QXmlSimpleReader::parseNotationDecl()
 	{ Ws3,    Done,  -1,     -1     }, // ExtID
 	{ -1,     Done,  -1,     -1     }  // Ws3
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
     bool parseOk = TRUE;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -5098,9 +5183,15 @@ bool QXmlSimpleReader::parseChoiceSeq()
 	{ -1,     Ws1,   -1,    -1,    -1,     -1,      -1,      -1,      Name  }, // More (same as Init)
 	{ Ws2,    -1,    Done,  Ws2,   Ws2,    Ws2,     More,    More,    -1    }  // Name (same as CS)
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
     bool parseOk = TRUE;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -5241,9 +5332,15 @@ bool QXmlSimpleReader::parseEntityDecl()
 	{ WsE,   -1,     -1,      Done,  -1,     -1      }, // PEEID
 	{ -1,    -1,     -1,      Done,  -1,     -1      }  // WsE
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
     bool parseOk = TRUE;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -5487,9 +5584,15 @@ bool QXmlSimpleReader::parseEntityValue()
 	{ SqC,   Done,  SqRef,  SqPER,  SqC   }, // SqPER
 	{ SqC,   Done,  SqRef,  SqPER,  SqC   }  // SqRef
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
     bool parseOk = TRUE;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -5603,8 +5706,14 @@ bool QXmlSimpleReader::parseComment()
 	{ ComE,    Com,   Com }, // Com2
 	{ -1,      Done,  -1  }  // ComE
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -5704,9 +5813,15 @@ bool QXmlSimpleReader::parseAttribute()
 	{ -1,        Eq,    -1,      -1,      -1    }, // Ws
 	{ -1,        -1,    Quotes,  Quotes,  -1    }  // Eq
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
     bool parseOk = TRUE;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -5795,8 +5910,14 @@ bool QXmlSimpleReader::parseName()
 	{ Name,      Name,      Done  }, // Name1
 	{ Name,      Name,      Done  }  // Name
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -5874,8 +5995,14 @@ bool QXmlSimpleReader::parseNmtoken()
 	{ Name,      Done  }, // NameF
 	{ Name,      Done  }  // Name
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -5935,7 +6062,8 @@ parseError:
 */
 bool QXmlSimpleReader::parseReference()
 {
-    // temporary variables
+    // temporary variables (only used in very local context, so they don't
+    // interfere with incremental parsing)
     uint tmp;
     bool ok;
 
@@ -5969,8 +6097,14 @@ bool QXmlSimpleReader::parseReference()
 	{ -1,     DoneH,   -1,      -1,      ChHex,  ChHex,  -1    }, // ChHex
 	{ -1,     DoneN,   -1,      -1,      -1,     -1,     -1    }  // Name
     };
-    signed char state = Init;
+    signed char state;
     signed char input;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	state = Init;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
@@ -6233,20 +6367,27 @@ bool QXmlSimpleReader::processReference()
 
 
 /*
-  Parse over a simple string.
+  Parses over a simple string.
 
   After the string was successfully parsed, the head is on the first
   character after the string.
 */
 bool QXmlSimpleReader::parseString( const QString& s )
 {
-    signed char Done                   = s.length();
+    static signed char Done;
 
     const signed char InpCharExpected  = 0; // the character that was expected
     const signed char InpUnknown       = 1;
 
-    signed char state = 0; // state in this function is the position in the string s
+    signed char state; // state in this function is the position in the string s
     signed char input;
+
+    if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	Done = s.length();
+	state = 0;
+    } else {
+	// ### incremental continue stuff
+    }
 
     while ( TRUE ) {
 
