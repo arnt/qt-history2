@@ -53,6 +53,9 @@
 #include "qtimer.h"
 #include "qstringlist.h"
 #include "qstyle.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+#include "qaccessible.h"
+#endif
 
 #include <stdlib.h>
 
@@ -1828,6 +1831,7 @@ void QListBox::setCurrentItem( QListBoxItem * i )
 
     QListBoxItem * o = d->current;
     d->current = i;
+    int ind = index( i );
 
     if ( i && selectionMode() == Single ) {
 	bool changed = FALSE;
@@ -1839,12 +1843,18 @@ void QListBox::setCurrentItem( QListBoxItem * i )
 	    i->s = TRUE;
 	    changed = TRUE;
 	    emit selectionChanged( i );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	    QAccessible::updateAccessibility( viewport(), ind+1, QAccessible::StateChanged );
+#endif
 	}
-	if ( changed )
+	if ( changed ) {
 	    emit selectionChanged();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	    QAccessible::updateAccessibility( viewport(), 0, QAccessible::Selection );
+#endif
+	}
     }
 
-    int ind = index( i );
     d->currentColumn = ind / numRows();
     d->currentRow = ind % numRows();
     if ( o )
@@ -1857,12 +1867,15 @@ void QListBox::setCurrentItem( QListBoxItem * i )
     QString tmp;
     if ( i )
 	tmp = i->text();
-    int tmp2 = index( i );
     emit highlighted( i );
     if ( !tmp.isNull() )
 	emit highlighted( tmp );
-    emit highlighted( tmp2 );
+    emit highlighted( ind );
     emit currentChanged( i );
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessible::updateAccessibility( viewport(), ind+1, QAccessible::Focus );
+#endif
 }
 
 
@@ -2294,6 +2307,7 @@ void QListBox::updateSelection()
 	 d->mousePressColumn >= 0 && d->mousePressRow >= 0 ) {
 	QListBoxItem * i = item( d->mouseMoveColumn * numRows() +
 				 d->mouseMoveRow );
+	int ind = index(i);
 	if ( selectionMode() == Single || selectionMode() == NoSelection ) {
 	    if ( i && ( d->mouseInternalPress || testWFlags(WType_Popup) ) )
 		setCurrentItem( i );
@@ -2312,6 +2326,11 @@ void QListBox::updateSelection()
 		    i->s = TRUE;
 		    blockSignals( block );
 		    emit selectionChanged();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+		    QAccessible::updateAccessibility( viewport(), ind+1, QAccessible::StateChanged );
+		    QAccessible::updateAccessibility( viewport(), 0, QAccessible::Selection );
+		    QAccessible::updateAccessibility( viewport(), ind+1, QAccessible::SelectionAdd );
+#endif
 		}
 		triggerUpdate( FALSE );
 	    } else {
@@ -2326,6 +2345,10 @@ void QListBox::updateSelection()
 		    while( i && rtmp <= r2 ) {
 			if ( (bool)i->s != (bool)d->select && i->isSelectable() ) {
 			    i->s = d->select;
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+			    QAccessible::updateAccessibility( viewport(), ind+1, QAccessible::StateChanged );
+			    QAccessible::updateAccessibility( viewport(), ind+1, d->select ? QAccessible::SelectionAdd : QAccessible::SelectionRemove );
+#endif
 			    i->dirty = TRUE;
 			    d->dirtyDrag = changed = TRUE;
 			}
@@ -2337,6 +2360,9 @@ void QListBox::updateSelection()
 		if ( changed ) {
 		    if (!d->dragging) // emit after dragging stops instead
 			emit selectionChanged();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+		    QAccessible::updateAccessibility( viewport(), 0, QAccessible::Selection );
+#endif
 		    triggerUpdate( FALSE );
 		}
 	    }
@@ -2797,6 +2823,12 @@ void QListBox::toggleCurrentItem()
     if ( d->current->s || d->current->isSelectable() ) {
 	d->current->s = !d->current->s;
 	emit selectionChanged();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	int ind = index( d->current );
+	QAccessible::updateAccessibility( viewport(), 0, QAccessible::Selection );
+	QAccessible::updateAccessibility( viewport(), ind+1, QAccessible::StateChanged );
+	QAccessible::updateAccessibility( viewport(), ind+1, d->current->s ? QAccessible::SelectionAdd : QAccessible::SelectionRemove );
+#endif
     }
     updateItem( d->current );
 }
@@ -2834,6 +2866,7 @@ void QListBox::setSelected( QListBoxItem * item, bool select )
 	(bool)item->s == select || d->selectionMode == NoSelection )
 	return;
 
+    int ind = index( item );
     bool emitHighlighted = (d->current != item) ||
 			   ( item->s != (uint) select && select );
     if ( selectionMode() == Single ) {
@@ -2843,7 +2876,6 @@ void QListBox::setSelected( QListBoxItem * item, bool select )
 		d->current->s = FALSE;
 	    d->current = item;
 
-	    int ind = index( item );
 	    d->currentColumn = ind / numRows();
 	    d->currentRow = ind % numRows();
 
@@ -2855,9 +2887,18 @@ void QListBox::setSelected( QListBoxItem * item, bool select )
     item->s = (uint)select;
     updateItem( item );
 
-    if ( d->selectionMode == Single && select )
+    if ( d->selectionMode == Single && select ) {
 	emit selectionChanged( item );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	QAccessible::updateAccessibility( viewport(), ind+1, QAccessible::StateChanged );
+#endif
+    }
     emit selectionChanged();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessible::updateAccessibility( viewport(), 0, QAccessible::Selection );
+    if ( d->selectionMode != Single )
+	QAccessible::updateAccessibility( viewport(), ind+1, select ? QAccessible::SelectionAdd : QAccessible::SelectionRemove );
+#endif
 
     if ( emitHighlighted ) {
 	QString tmp;
@@ -4362,8 +4403,12 @@ void QListBox::doRubberSelection( const QRect &old, const QRect &rubber )
 	    }
 	}
     }
-    if ( changed )
+    if ( changed ) {
 	emit selectionChanged();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	QAccessible::updateAccessibility( viewport(), 0, QAccessible::Selection );
+#endif
+    }
     viewport()->repaint( pr, TRUE );
 }
 
@@ -4586,8 +4631,12 @@ void QListBox::selectRange( QListBoxItem *from, QListBoxItem *to, bool invert, b
 	if ( i == to )
 	    break;
     }
-    if ( changed )
+    if ( changed ) {
 	emit selectionChanged();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	QAccessible::updateAccessibility( viewport(), 0, QAccessible::Selection );
+#endif
+    }
 }
 
 /*! \reimp */
