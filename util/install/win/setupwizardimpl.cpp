@@ -2163,7 +2163,14 @@ bool SetupWizardImpl::findFileInPaths( const QString &fileName, const QStringLis
 {
 	QDir d;
 	for( QStringList::ConstIterator it = paths.begin(); it != paths.end(); ++it ) {
-	    if( d.exists( (*it) +QDir::separator() + fileName ) )
+	    // Remove any leading or trailing ", this is commonly used in the environment
+	    // variables
+	    QString path = (*it);
+	    if ( path.startsWith( "\"" ) )
+		path = path.right( path.length() - 1 );
+	    if ( path.endsWith( "\"" ) )
+		path = path.left( path.length() - 1 );
+	    if( d.exists( path + QDir::separator() + fileName ) )
 		return true;
 	}
 	return false;
