@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#152 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#153 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -187,7 +187,7 @@ static void qDrawCheckMark( QPainter *p, int x, int y, int w, int h,
 {
     int markW, markH;
     getSizeOfBitmap( gs, &markW, &markH );
-    int posX = x + ( w - markW )/2;
+    int posX = x + ( w - markW )/2 - 1;
     int posY = y + ( h - markH )/2;
 
     if ( gs == WindowsStyle ) {
