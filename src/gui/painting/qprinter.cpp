@@ -109,9 +109,6 @@
   If you want to abort the print job, abort() will try its best to
   stop printing. It may cancel the entire job or just part of it.
 
-  \omit ### Need a function to setup() without a dialog (i.e. use defaults).
-  \endomit
-
   If your current locale converts "," to ".", you will need to set
   a locale that doen't do this (e.g. the "C" locale) before using
   QPrinter.
@@ -230,7 +227,7 @@
   \value B8 64 x 91 mm
   \value B9 45 x 64 mm
   \value C5E 163 x 229 mm
-  \value Comm10E 105 x 241 mm, US Common #10 Envelope
+  \value Comm10E 105 x 241 mm, US Common 10 Envelope
   \value DLE 110 x 220 mm
   \value Executive 7.5 x 10 inches, 191 x 254 mm
   \value Folio 210 x 330 mm

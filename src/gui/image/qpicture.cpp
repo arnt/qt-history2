@@ -258,18 +258,6 @@ bool QPicture::load(QIODevice *dev, const char *format)
     detach();
     QByteArray a = dev->readAll();
 
-#if 0 // ### debug - remember to remove me!
-    QByteArray ba = a;
-    for (int i = 1; i <=  ba.size(); ++i) {
-        fprintf(stderr,"%02x", (uchar) ba.at(i-1));
-        if ((i % 2) == 0)
-            fprintf(stderr," ");
-        if ((i % 20) == 0)
-            fprintf(stderr,"\n");
-    }
-    fprintf(stderr,"\n###\n");
-#endif
-
     d->pictb.setData(a);                        // set byte array in buffer
     return d->checkFormat();
 }
@@ -649,7 +637,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
 #endif
                 break;
             case PdcSetWMatrix:
-#ifndef QT_NO_TRANSFORMATIONS        // #### fix me!
+#ifndef QT_NO_TRANSFORMATIONS
                 s >> matrix >> i_8;
                 painter->setWorldMatrix(matrix, i_8);
 #endif
@@ -685,240 +673,6 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
     return false;
 }
 
-
-#if 0 // ### port
-/*!
-  \internal
-  Implementation of the function forwarded above to the internal data struct.
-*/
-bool QPicture::QPicturePrivate::cmd(int c, QPainter *pt, QPDevCmdParam *p)
-{
-    QDataStream s;
-    s.setDevice(&pictb);
-    // when moving up to 4 the QDataStream version remained at 3
-    s.setVersion(formatMajor != 4 ? formatMajor : 3);
-    if (c ==  PdcBegin) {                        // begin; write header
-        pictb.open(IO_WriteOnly | IO_Truncate);
-        s.writeRawBytes(mfhdr_tag, 4);
-        s << (Q_UINT16)0 << (Q_UINT16)formatMajor << (Q_UINT16)formatMinor;
-        s << (Q_UINT8)c << (Q_UINT8)sizeof(Q_INT32);
-        brect = QRect();
-        if (formatMajor >= 4) {
-            s << (Q_INT32)brect.left() << (Q_INT32)brect.top()
-              << (Q_INT32)brect.width() << (Q_INT32)brect.height();
-        }
-        trecs = 0;
-        s << (Q_UINT32)trecs;                        // total number of records
-        formatOk = false;
-        return true;
-    } else if (c == PdcEnd) {                // end; calc checksum and close
-        trecs++;
-        s << (Q_UINT8)c << (Q_UINT8)0;
-        QByteArray buf = pictb.buffer();
-        int cs_start = sizeof(Q_UINT32);                // pos of checksum word
-        int data_start = cs_start + sizeof(Q_UINT16);
-        int brect_start = data_start + 2*sizeof(Q_INT16) + 2*sizeof(Q_UINT8);
-        int pos = pictb.at();
-        pictb.at(brect_start);
-        if (formatMajor >= 4) { // bounding rectangle
-            s << (Q_INT32)brect.left() << (Q_INT32)brect.top()
-              << (Q_INT32)brect.width() << (Q_INT32)brect.height();
-        }
-        s << (Q_UINT32)trecs;                        // write number of records
-        pictb.at(cs_start);
-        Q_UINT16 cs = (Q_UINT16)qChecksum(buf.constData()+data_start, pos-data_start);
-        s << cs;                                // write checksum
-        pictb.close();
-        return true;
-    }
-    trecs++;
-    s << (Q_UINT8)c;                                // write cmd to stream
-    s << (Q_UINT8)0;                                // write dummy length info
-    int pos = (int)pictb.at();                        // save position
-    QRect br;                                        // bounding rect addition
-    bool corr = false;                                // correction for pen width
-
-    switch (c) {
-        case PdcDrawPoint:
-        case PdcMoveTo:
-        case PdcLineTo:
-        case PdcSetBrushOrigin:
-            s << *p[0].point;
-            br = QRect(*p[0].point, QSize(1, 1));
-            corr = true;
-            break;
-        case PdcDrawLine:
-            s << *p[0].point << *p[1].point;
-            br = QRect(*p[0].point, *p[1].point).normalize();
-            corr = true;
-            break;
-        case PdcDrawRect:
-        case PdcDrawEllipse:
-            s << *p[0].rect;
-            br = *p[0].rect;
-            corr = true;
-            break;
-        case PdcDrawRoundRect:
-        case PdcDrawArc:
-        case PdcDrawPie:
-        case PdcDrawChord:
-            s << *p[0].rect << (Q_INT16)p[1].ival << (Q_INT16)p[2].ival;
-            br = *p[0].rect;
-            corr = true;
-            break;
-        case PdcDrawLineSegments:
-        case PdcDrawPolyline:
-            s << *p[0].ptarr;
-            br = p[0].ptarr->boundingRect();
-            corr = true;
-            break;
-#ifndef QT_NO_BEZIER
-        case PdcDrawCubicBezier:
-            s << *p[0].ptarr;
-            br = p[0].ptarr->cubicBezier().boundingRect();
-            corr = true;
-            break;
-#endif
-        case PdcDrawPolygon:
-            s << *p[0].ptarr << (Q_INT8)p[1].ival;
-            br = p[0].ptarr->boundingRect();
-            corr = true;
-            break;
-        case PdcDrawText2:
-            if (formatMajor == 1) {
-                pictb.at(pos - 2);
-                s << (Q_UINT8)PdcDrawText << (Q_UINT8)0;
-                s << *p[0].point << (*p[1].str).toLatin1();
-            }
-            else {
-                s << *p[0].point << *p[1].str;
-            }
-            br = pt->fontMetrics().boundingRect(*p[1].str);
-            br.moveBy(p[0].point->x(), p[0].point->y());
-            break;
-        case PdcDrawText2Formatted:
-            if (formatMajor == 1) {
-                pictb.at(pos - 2);
-                s << (Q_UINT8)PdcDrawTextFormatted << (Q_UINT8)0;
-                s << *p[0].rect << (Q_INT16)p[1].ival << (*p[2].str).toLatin1();
-            }
-            else {
-                s << *p[0].rect << (Q_INT16)p[1].ival << *p[2].str;
-            }
-            br = *p[0].rect;
-            break;
-        case PdcDrawPixmap:
-            if (formatMajor < 4) {
-                s << *p[0].point;
-                s << *p[1].pixmap;
-                br = QRect(*p[0].point, p[1].pixmap->size());
-            } else {
-                s << *p[0].rect;
-                s << *p[1].pixmap;
-                br = *p[0].rect;
-            }
-            break;
-        case PdcDrawImage:
-            if (formatMajor < 4) {
-                QPoint pt(p[0].point->x(), p[0].point->y());
-                s << pt;
-                s << *p[1].image;
-                br = QRect(*p[0].point, p[1].image->size());
-            } else {
-                s << *p[0].rect;
-                s << *p[1].image;
-                br = *p[0].rect;
-            }
-            break;
-        case PdcSave:
-        case PdcRestore:
-            break;
-        case PdcSetBkColor:
-            s << *p[0].color;
-            break;
-        case PdcSetBkMode:
-        case PdcSetROP:
-            s << (Q_INT8)p[0].ival;
-            break;
-        case PdcSetFont:
-            s << *p[0].font;
-            break;
-        case PdcSetPen:
-            s << *p[0].pen;
-            break;
-        case PdcSetBrush:
-            s << *p[0].brush;
-            break;
-        case PdcSetTabStops:
-            s << (Q_INT16)p[0].ival;
-            break;
-        case PdcSetTabArray:
-            s << (Q_INT16)p[0].ival;
-            if (p[0].ival) {
-                int *ta = p[1].ivec;
-                for (int i=0; i<p[0].ival; i++)
-                    s << (Q_INT16)ta[i];
-            }
-            break;
-        case PdcSetUnit:
-        case PdcSetVXform:
-        case PdcSetWXform:
-        case PdcSetClip:
-            s << (Q_INT8)p[0].ival;
-            break;
-#ifndef QT_NO_TRANSFORMATIONS
-        case PdcSetWindow:
-        case PdcSetViewport:
-            s << *p[0].rect;
-            break;
-        case PdcSetWMatrix:
-            s << *p[0].matrix << (Q_INT8)p[1].ival;
-            break;
-#endif
-        case PdcSetClipRegion:
-            s << *p[0].rgn;
-            s << (Q_INT8)p[1].ival; // currently an empty byte due to no more CoordMode
-            break;
-        default:
-            qWarning("QPicture::cmd: Command %d not recognized", c);
-    }
-    int newpos = (int)pictb.at();                // new position
-    int length = newpos - pos;
-    if (length < 255) {                        // write 8-bit length
-        pictb.at(pos - 1);                        // position to right index
-        s << (Q_UINT8)length;
-    } else {                                        // write 32-bit length
-        s << (Q_UINT32)0;                                // extend the buffer
-        pictb.at(pos - 1);                        // position to right index
-        s << (Q_UINT8)255;                        // indicate 32-bit length
-        char *p = pictb.buffer().data();
-        memmove(p+pos+4, p+pos, length);        // make room for 4 byte
-        s << (Q_UINT32)length;
-        newpos += 4;
-    }
-    pictb.at(newpos);                                // set to new position
-
-    if (br.isValid()) {
-        if (corr) {                                // widen bounding rect
-            int w2 = pt->pen().width() / 2;
-            br.setCoords(br.left() - w2, br.top() - w2,
-                          br.right() + w2, br.bottom() + w2);
-        }
-#ifndef QT_NO_TRANSFORMATIONS
-        br = pt->worldMatrix().map(br);
-#endif
-        if (pt->hasClipping()) {
-            QRect cr = pt->clipRegion().boundingRect();
-            br &= cr;
-        }
-        if (br.isValid())
-            brect |= br;                        // merge with existing rect
-    }
-
-    return true;
-}
-#endif // 0
-
 /*!
     Internal implementation of the virtual QPaintDevice::metric()
     function.
@@ -935,7 +689,6 @@ int QPicture::metric(int m) const
 {
     int val;
     switch (m) {
-        // ### hard coded dpi and color depth values !
         case QPaintDeviceMetrics::PdmWidth:
             val = d->brect.width();
             break;
@@ -1000,55 +753,6 @@ void QPicture::detach_helper()
     if (!--x->ref)
         delete x;
 }
-
-/*****************************************************************************
-  QPainter member functions
- *****************************************************************************/
-
-// #ifdef Q_Q3PAINTER // ### needs to be converted to the 4.0 painter
-// /*!
-//     Replays the picture \a pic translated by (\a x, \a y).
-
-//     This function does exactly the same as QPicture::play() when
-//     called with (\a x, \a y) = (0, 0).
-// */
-
-// void QPainter::drawPicture(int x, int y, const QPicture &pic)
-// {
-//     save();
-//     translate(x, y);
-//     ((QPicture*)&pic)->play((QPainter*)this);
-//     restore();
-// }
-
-// /*!
-//     \fn void QPainter::drawPicture(const QPoint &p, const QPicture &pic)
-//     \overload
-
-//     Draws picture \a pic at point \a p.
-// */
-
-// void QPainter::drawPicture(const QPoint &p, const QPicture &pic)
-// {
-//     drawPicture(p.x(), p.y(), pic);
-// }
-
-// /*!
-//   \obsolete
-
-//   Use one of the other QPainter::drawPicture() functions with a (0, 0)
-//   offset instead.
-// */
-
-// void QPainter::drawPicture(const QPicture &pic)
-// {
-//     drawPicture(0, 0, pic);
-// }
-// #endif
-/*!
-    Assigns a \link shclass.html shallow copy\endlink of \a p to this
-    picture and returns a reference to this picture.
-*/
 
 QPicture& QPicture::operator=(const QPicture &p)
 {

@@ -132,13 +132,6 @@
 
 bool qt_old_transformations = true;
 
-// ### DOC: What does this tell us? Should it be public?
-/*!
-    \fn bool QWMatrix::isTranslate() const
-
-    \internal
-*/
-
 /*!
     \enum QWMatrix::TransformationMode
 

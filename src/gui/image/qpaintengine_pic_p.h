@@ -57,11 +57,6 @@ public:
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
     void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
 
-#if defined Q_WS_WIN // ### not liking this!!
-    HDC handle() const { return 0; }
-#else
-    Qt::HANDLE handle() const {return 0; }
-#endif
     Type type() const { return Picture; }
 
 protected:

@@ -232,7 +232,6 @@ void QPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFl
     }
 
     if (!useFontEngine) {
-	qWarning("pper");
         // Fallback: rasterize into a pixmap and draw the pixmap
         QPixmap pm(ti.width, ti.ascent + ti.descent);
         pm.fill(Qt::white);

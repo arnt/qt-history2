@@ -50,7 +50,6 @@ QPicturePaintEngine::~QPicturePaintEngine()
 {
 }
 
-// ### serialize unclipped?
 bool QPicturePaintEngine::begin(QPaintDevice *pd)
 {
     Q_ASSERT(pd);
@@ -146,21 +145,12 @@ void QPicturePaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBr
     writeCmdLength(pos, QRect(), false);
 }
 
-// ### Missing implementation?
-void QPicturePaintEngine::updateXForm(const QWMatrix & /* ps */)
+void QPicturePaintEngine::updateXForm(const QWMatrix &matrix)
 {
-//     int pos;
-//     SERIALIZE_CMD(PdcSetWMatrix);
-//     d->s << ps->matrix << (Q_INT8) true; // ### fix combine param
-//     writeCmdLength(pos, QRect(), false);
-
-//     SERIALIZE_CMD(PdcSetWXform);
-//     d->s << (Q_INT8) ps->WxF;
-//     writeCmdLength(pos, QRect(), false);
-
-//     SERIALIZE_CMD(PdcSetVXform);
-//     d->s << (Q_INT8) ps->VxF;
-//     writeCmdLength(pos, QRect(), false);
+    int pos;
+    SERIALIZE_CMD(PdcSetWMatrix);
+    d->s << matrix << (Q_INT8) false;
+    writeCmdLength(pos, QRect(), false);
 }
 
 void QPicturePaintEngine::updateClipRegion(const QRegion &region, bool clipEnabled)

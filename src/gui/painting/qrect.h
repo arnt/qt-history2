@@ -17,6 +17,7 @@
 
 #ifndef QT_H
 #include "qsize.h"
+#include "qpoint.h"
 #endif // QT_H
 
 #if defined(topLeft)

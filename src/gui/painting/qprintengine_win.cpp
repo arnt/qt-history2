@@ -30,8 +30,6 @@
 #define d d_func()
 #define q q_func()
 
-// ### Specify american sizes with inches
-
 static const struct {
     int winSizeName;
     QPrinter::PageSize qtSizeName;
@@ -903,10 +901,10 @@ QPrinter::PageOrder QWin32PrintEngine::pageOrder() const
     return QPrinter::FirstPageFirst;
 }
 
-void QWin32PrintEngine::setResolution(int /* resolution */)
+void QWin32PrintEngine::setResolution(int resolution)
 {
-    //d->resolution = resolution;
-    // ### requires some non trivial reinitialization.
+    d->resolution = resolution;
+    d->setupPrinterMapping();
 }
 
 int QWin32PrintEngine::resolution() const

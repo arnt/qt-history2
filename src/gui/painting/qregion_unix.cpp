@@ -54,7 +54,7 @@ struct QRegionPrivate {
 #elif defined(Q_WS_MAC)
 # include "qregion_mac.cpp"
 #elif defined(Q_WS_QWS)
-static QRegionPrivate qrp; //### make it work now without checking for null pointers all the time
+static QRegionPrivate qrp;
 QRegion::QRegionData QRegion::shared_empty = {Q_ATOMIC_INIT(1), &qrp};
 #endif
 
@@ -2513,9 +2513,6 @@ QRect QRegion::boundingRect() const
 */
 QVector<QRect> QRegion::rects() const
 {
-    //### QVector has the concept of an allocated size which
-    // is different from the actual size. We should use that
-    // instead of storing the size separately.
     if (d->qt_rgn) {
         d->qt_rgn->rects.resize(d->qt_rgn->numRects);
         return d->qt_rgn->rects;
@@ -2574,7 +2571,7 @@ void QRegion::setRects(const QRect *rects, int num)
 bool QRegion::operator==(const QRegion &r) const
 {
     if (!d->qt_rgn || !r.d->qt_rgn)
-        return r.d->qt_rgn == d->qt_rgn; //###yuck
+        return r.d->qt_rgn == d->qt_rgn;
 
     if (d == r.d)
         return true;

@@ -644,7 +644,6 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 
     if (x < 0 || y < 0 || x + w > width() || y + h > height()) {
         // bitBlt will not cover entire image - clear it.
-        // ### should deal with each side separately for efficiency
         image.fill(0);
         if (x < 0) {
             dx = -x;
@@ -1165,8 +1164,7 @@ bool QImage::create(int width, int height, int depth, int numColors,
     const int bpl = (width*depth+7)/8;                // bytes per scanline
     const int pad = 0;
 #else
-    const int bpl = ((width*depth+31)/32)*4;        // bytes per scanline
-    // #### WWA: shouldn't this be (width*depth+7)/8:
+    const int bpl = ((width*depth+31)/8);        // bytes per scanline
     const int pad = bpl - (width*depth)/8;        // pad with zeros
 #endif
     if (INT_MAX / bpl < height) { // sanity check for potential overflow
@@ -1947,7 +1945,6 @@ static bool dither_to_1(const QImage *src, QImage *dst,
 #endif
 
 #ifndef QT_NO_IMAGE_16_BIT
-//###### Endianness issues!
 static inline bool is16BitGray(ushort c)
 {
     int r=(c & 0xf800) >> 11;
@@ -2237,12 +2234,6 @@ QImage QImage::convertBitOrder(Endian bitOrder) const
     }
     memcpy(image.colorTable(), colorTable(), numColors()*sizeof(QRgb));
     return image;
-}
-
-// ### Candidate for qrgb,h
-static bool qIsGray(QRgb c)
-{
-    return qRed(c) == qGreen(c) && qRed(c) == qBlue(c);
 }
 
 /*!
@@ -2709,9 +2700,6 @@ QImage QImage::scale(const QSize& s, Qt::ScaleMode mode) const
     QWMatrix wm;
     wm.scale((double)newSize.width() / width(), (double)newSize.height() / height());
     img = xForm(wm);
-    // ### I should test and resize the image if it has not the right size
-//    if (img.width() != newSize.width() || img.height() != newSize.height())
-//        img.resize(newSize.width(), newSize.height());
     return img;
 }
 #endif
@@ -5324,6 +5312,7 @@ static void read_async_image(QImageIO *iio)
             if (d->isDirectAccess())
                 d->seek(startAt + totLen);
             else {
+                qFatal("just testing....");
                 // ### We have (probably) read too much from the stream into
                 // the buffer, and there is no way to put it back!
             }
@@ -5727,7 +5716,6 @@ static void write_xpm_image(QImageIO * iio)
     else
         return;
 
-    // ### 8-bit case could be made faster
     QImage image;
     if (iio->image().depth() != 32)
         image = iio->image().convertDepth(32);
@@ -5837,7 +5825,6 @@ QImage QImage::convertDepthWithPalette(int d, QRgb* palette, int palette_count, 
         return convertDepth(8, conversion_flags)
                .convertDepthWithPalette(d, palette, palette_count, conversion_flags);
     } else if (depth() == 8) {
-        // ### this could be easily made more efficient
         return convertDepth(32, conversion_flags)
                .convertDepthWithPalette(d, palette, palette_count, conversion_flags);
     } else {

@@ -56,7 +56,6 @@ public:
 
     void        reset();
     inline bool isIdentity() const;
-    inline bool isTranslate() const;
 
     QWMatrix   &translate(double dx, double dy);
     QWMatrix   &scale(double sx, double sy);

@@ -33,4 +33,7 @@ Q_GUI_EXPORT inline int qGray(int r, int g, int b)// convert R,G,B to gray 0..25
 Q_GUI_EXPORT inline int qGray(QRgb rgb)                // convert RGB to gray 0..255
 { return qGray(qRed(rgb), qGreen(rgb), qBlue(rgb)); }
 
+Q_GUI_EXPORT inline bool qIsGray(QRgb rgb)
+{ return qRed(rgb) == qGreen(rgb) && qRed(rgb) == qBlue(rgb); }
+
 #endif // QRGB_H
