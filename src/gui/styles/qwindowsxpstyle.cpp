@@ -831,7 +831,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             p->save();
             p->setPen(option->palette.dark().color());
             p->translate(0, option->rect.height()/2 - 4);
-            if (flags & State_Up) { // invert logic to follow Windows style guide
+            if (flags & State_UpArrow) { // invert logic to follow Windows style guide
                 p->drawLine(option->rect.x(), option->rect.y(), option->rect.x()+8, option->rect.y());
                 p->drawLine(option->rect.x()+1, option->rect.y()+1, option->rect.x()+7, option->rect.y()+1);
                 p->drawLine(option->rect.x()+2, option->rect.y()+2, option->rect.x()+6, option->rect.y()+2);
@@ -1391,7 +1391,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 partId = SPNP_UP;
                 if (!(sb->stepEnabled & QAbstractSpinBox::StepUpEnabled) || !(flags & State_Enabled))
                     stateId = UPS_DISABLED;
-                else if (sb->activeSubControls == SC_SpinBoxUp && (sb->state & QStyle::State_Down))
+                else if (sb->activeSubControls == SC_SpinBoxUp && (sb->state & QStyle::State_Sunken))
                     stateId = UPS_PRESSED;
                 else if (sb->activeSubControls == SC_SpinBoxUp && (sb->state & QStyle::State_MouseOver))
                     stateId = UPS_HOT;
