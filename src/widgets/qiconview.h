@@ -57,6 +57,8 @@ struct QIconViewItemPrivate;
 class QIconViewItem;
 class QIconViewItemLineEdit;
 
+class QStringList;
+
 /*****************************************************************************
  *
  * Class QIconDragItem
@@ -70,11 +72,15 @@ public:
     virtual ~QIconDragItem();
     virtual QByteArray data() const;
     virtual void setData( const QByteArray &d );
+#if defined(_CC_GNU_) && __GNUC__ == 2 && __GNUC_MINOR__ <= 7
+    bool operator== ( const QIconDragItem& const );
+#endif // _CC_GNU_
 
 private:
     QByteArray ba;
 
 };
+
 
 /*****************************************************************************
  *
@@ -111,6 +117,9 @@ private:
 	Item( const QIconDragItem &i1, const IconDragItem &i2 ) : data( i1 ), item( i2 ) {}
 	QIconDragItem data;
 	IconDragItem item;
+#if defined(_CC_GNU_) && __GNUC__ == 2 && __GNUC_MINOR__ <= 7
+	bool operator== ( const QIconDrag::Item& ) const;
+#endif // _CC_GNU_
     };
 
 public:
@@ -130,6 +139,7 @@ private:
     QChar endMark;
 
 };
+
 
 /*****************************************************************************
  *

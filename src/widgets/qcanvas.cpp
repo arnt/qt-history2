@@ -257,7 +257,11 @@ public:
 	    return (long)that.ptr > (long)ptr;
 	return that.ptr->z() > ptr->z();
     }
-    operator QCanvasItem*() { return ptr; }
+    bool operator==(const QCanvasItemPtr& that) const
+    {
+	    return that.ptr == ptr;
+    }
+    operator QCanvasItem*() const { return ptr; }
 
 private:
     QCanvasItem* ptr;

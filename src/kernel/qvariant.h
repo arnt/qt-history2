@@ -26,8 +26,8 @@
 #ifndef QVARIANT_H
 #define QVARIANT_H
 
-#if defined(_CC_GNU_)
-#if __GNUC__ == 2 && __GNUC_MINOR__ <= 7 && defined(QVALUELIST_H)
+#if defined(_CC_GNU_) && __GNUC__ == 2 && __GNUC_MINOR__ <= 7
+#if defined(QVALUELIST_H)
 #warning "This version of the GNU compiler will not let you include \
 qvaluelist.h before qvariant.h"
 #endif
@@ -51,12 +51,12 @@ class QColor;
 class QPalette;
 class QColorGroup;
 class QIconSet;
-// Relevant header files removed from above, so we need these declarations here
+// Relevant header files removed from above for GCC 2.7.* compatibility, so...
 class QVariant;
 class QStringList;
 template <class T> class QValueList;
 template <class T> struct QValueListNode;
-template<class Key, class T> class QMap;
+template <class Key, class T> class QMap;
 
 /**
  * This class acts like a union. It can hold one value at the
@@ -192,14 +192,7 @@ protected:
 
 };
 
-#if defined(_CC_GNU_)
-#if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
-//  Dummy operator needed by this compiler
-Q_EXPORT bool operator== ( const QVariant&, const QVariant& );
-#endif
-#endif // _CC_GNU_
-
-// These header files must be down here for GCC 2.7.2.3 compatibility
+// These header files are down here for GCC 2.7.* compatibility
 #ifndef QT_H
 #include "qvaluelist.h"
 #include "qstringlist.h"
@@ -220,5 +213,9 @@ Q_EXPORT QDataStream& operator>> ( QDataStream& s, QVariant& p );
 Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QVariant& p );
 Q_EXPORT QDataStream& operator>> ( QDataStream& s, QVariant::Type& p );
 Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QVariant::Type p );
+
+#if defined(_CC_GNU_) && __GNUC__ == 2 && __GNUC_MINOR__ <= 7
+Q_EXPORT bool operator== ( const QVariant&, const QVariant& );
+#endif // _CC_GNU_
 
 #endif

@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qvariant.h"
+
 #include "qstring.h"
 #include "qfont.h"
 #include "qpixmap.h"
