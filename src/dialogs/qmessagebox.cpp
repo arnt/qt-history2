@@ -146,13 +146,10 @@ static const char * const qtlogo_xpm[] = {
 };
 
 
-
-
-// BEING REVISED: paul
 /*!
-\class QMessageBox qmessagebox.h
-\brief The QMessageBox class provides a modal dialog with a short message, an icon, and some buttons.
-\ingroup dialogs
+  \class QMessageBox
+  \brief The QMessageBox class provides a modal dialog with a short message, an icon, and some buttons.
+  \ingroup dialogs
   \mainclass
 
 Message boxes are used to provide informative messages and to ask
@@ -1332,26 +1329,29 @@ int QMessageBox::critical( QWidget *parent, const QString &caption,
 
 
 /*!
-  Displays a simple message box about Qt, with caption \a
-  caption and centered over \a parent (if \a parent is not 0).  The
-  message includes the version number of Qt being used by the
-  application.
+    Displays a simple message box about Qt, with caption \a caption
+    and centered over \a parent (if \a parent is not 0).  The message
+    includes the version number of Qt being used by the application.
 
-  This is useful for inclusion in the Help menu. See the
-  examples/menu/menu.cpp example.
+    This is useful for inclusion in the Help menu of an application.
+    See the examples/menu/menu.cpp example.
+
+    QApplication provides this functionality as a slot.
+
+    \sa QApplication::aboutQt()
 */
 
 void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
 {
-    QString c = caption;
-    if ( c.isNull() )
-        c = "About Qt";
     QMessageBox *mb = new QMessageBox( parent, "qt_msgbox_about_qt" );
     Q_CHECK_PTR( mb );
     mb->setWFlags( WDestructiveClose );
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    mb->setCaption( caption.isNull()?QString::fromLatin1("About Qt"):caption );
+    QString c = caption;
+    if ( c.isNull() )
+        c = tr( "About Qt" );
+    mb->setCaption( c );
 #endif
     mb->setText( *translatedTextAboutQt );
     QPixmap pm;
@@ -1359,16 +1359,16 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
     if ( qGray(mb->palette().active().text().rgb()) >
          qGray(mb->palette().active().base().rgb()) )
     {
-        // light on dark, adjust some colors
-        logo.setColor( 0,0xFFffffff);
-        logo.setColor( 1,0xFF666666);
-        logo.setColor( 2,0xFFcccc66);
-        logo.setColor( 4,0xFFcccccc);
-        logo.setColor( 6,0xFFffff66);
-        logo.setColor( 7,0xFF999999);
-        logo.setColor( 8,0xFF3333FF);
-        logo.setColor( 9,0xFFffff33);
-        logo.setColor(11,0xFFcccc99);
+        // light on dark, adjust some colors (where's 10?)
+        logo.setColor( 0, 0xffffffff );
+        logo.setColor( 1, 0xff666666 );
+        logo.setColor( 2, 0xffcccc66 );
+        logo.setColor( 4, 0xffcccccc );
+        logo.setColor( 6, 0xffffff66 );
+        logo.setColor( 7, 0xff999999 );
+        logo.setColor( 8, 0xff3333ff );
+        logo.setColor( 9, 0xffffff33 );
+        logo.setColor( 11, 0xffcccc99 );
     }
     if ( pm.convertFromImage( logo ) )
         mb->setIconPixmap( pm );
