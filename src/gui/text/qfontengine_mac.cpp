@@ -548,8 +548,20 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
                 height = device->metric(QPaintDevice::PdmHeight);
             drawy = height-drawy;
         }
-        ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, FixRatio(x, 1),
-                      FixRatio(drawy, 1));
+        // check whether x or y is outside our 16bit limits. If it is, need to do some transforms.
+        if (qAbs(x) > SHRT_MAX || qAbs(drawy) > SHRT_MAX) {
+            CGContextSaveGState(ctx);
+            CGAffineTransform myMatrix = CGContextGetCTM(ctx);
+            float tx = myMatrix.tx;
+            float ty = myMatrix.ty;
+            CGContextTranslateCTM(ctx, -tx, ty);
+            ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd,
+                         FixRatio(qRound(x + tx), 1), FixRatio(qRound(drawy - ty), 1));
+            CGContextRestoreGState(ctx);
+        } else {
+            ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, FixRatio(x, 1),
+                         FixRatio(drawy, 1));
+        }
     }
     if(ctx_port)
         QDEndCGContext(ctx_port, &ctx);
