@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#62 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#61 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#62 $";
 #endif
 
 
@@ -477,7 +477,7 @@ void QPainter::setBrush( BrushStyle style )	// set brush
 void QPainter::setBrush( const QColor &color )	// set solid brush width color
 {
     QBrush brush( color );
-    if ( isActive() && gc_brush && cbrush.style() == SolidBrush )
+    if ( isActive() && gc_brush && cbrush.style() == SolidPattern )
 	XSetForeground( dpy, gc_brush, color.pixel() );
     else if ( cbrush != brush )
 	setf( DirtyBrush );
@@ -612,11 +612,20 @@ void QPainter::updatePen()			// update after changed pen
 
 void QPainter::updateBrush()			// update after changed brush
 {
+static char dense1_pat[] = { 0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff };
+static char dense2_pat[] = { 0x77, 0xff, 0xdd, 0xff, 0x77, 0xff, 0xdd, 0xff };
+static char dense3_pat[] = { 0x55, 0xbb, 0x55, 0xee, 0x55, 0xbb, 0x55, 0xee };
+static char dense4_pat[] = { 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa };
+static char dense5_pat[] = { 0xaa, 0x44, 0xaa, 0x11, 0xaa, 0x44, 0xaa, 0x11 };
+static char dense6_pat[] = { 0x88, 0x00, 0x22, 0x00, 0x88, 0x00, 0x22, 0x00 };
+static char dense7_pat[] = { 0x00, 0x44, 0x00, 0x00, 0x00, 0x44, 0x00, 0x00 };
+/*
 static char pix1_pat[] = { 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa };
 static char pix2_pat[] = { 0xaa, 0x44, 0xaa, 0x11, 0xaa, 0x44, 0xaa, 0x11 };
 static char pix3_pat[] = { 0x88, 0x00, 0x22, 0x00, 0x88, 0x00, 0x22, 0x00 };
 static char pix4_pat[] = { 0x00, 0x44, 0x00, 0x00, 0x00, 0x44, 0x00, 0x00 };
 static char pix5_pat[] = { 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00 };
+*/
 static char hor_pat[] = {			// horizontal pattern
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -651,9 +660,9 @@ static char dcross_pat[] = {			// diagonal cross pattern
     0x80, 0x80, 0x41, 0x41, 0x22, 0x22, 0x14, 0x14, 0x08, 0x08, 0x14, 0x14,
     0x22, 0x22, 0x41, 0x41, 0x80, 0x80, 0x41, 0x41 };
 static char *pat_tbl[] = {
-    pix1_pat, pix2_pat, pix3_pat, pix4_pat, pix5_pat,
-    hor_pat, ver_pat, cross_pat,
-    bdiag_pat, fdiag_pat, dcross_pat };
+    dense1_pat, dense2_pat, dense3_pat, dense4_pat, dense5_pat,
+    dense6_pat, dense7_pat,
+    hor_pat, ver_pat, cross_pat, bdiag_pat, fdiag_pat, dcross_pat };
 
     clearf(DirtyBrush);				// brush becomes clean
     if ( testf(ExtDev) ) {
@@ -666,9 +675,9 @@ static char *pat_tbl[] = {
     char *pat = 0;				// pattern
     int sz = 0;					// defalt pattern size: sz*sz
     int s  = FillSolid;
-    if ( cbrush.style() >= Pix1Pattern && cbrush.style() <= DiagCrossPattern ){
-	pat = pat_tbl[ cbrush.style()-Pix1Pattern ];
-	if ( cbrush.style() <= Pix5Pattern )
+    if ( cbrush.style()>=Dense1Pattern && cbrush.style()<=DiagCrossPattern ) {
+	pat = pat_tbl[ cbrush.style()-Dense1Pattern ];
+	if ( cbrush.style() <= Dense7Pattern )
 	    sz = 8;
 	else if ( cbrush.style() <= CrossPattern )
 	    sz = 24;
@@ -2492,7 +2501,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	pp->setFont( cfont );
 	pp->setPen( cpen.color() );
 	pp->updatePen();
-	pp->setBrush( QBrush(bg_col, Pix1Pattern) );
+	pp->setBrush( QBrush(bg_col, Dense4Pattern) );
 	pp->updateBrush();
     }
     else {
