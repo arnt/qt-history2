@@ -282,8 +282,8 @@ inline bool QVariant_to_helper(const QCoreVariant &v, QCoreVariant::Type tp, voi
 { return QCoreVariant::handler->cast(&v.d, tp, ptr, 0); }
 
 template <typename T>
-inline int qt_variant_metatype_id(T *t = 0)
-{ return qt_metatype_id<T>(t); }
+inline int qt_variant_metatype_id(T *)
+{ return QMetaTypeId<T>::qt_metatype_id(); }
 
 template<>
 inline int qt_variant_metatype_id(QCoreVariantMap *) { return QCoreVariant::Map; }
