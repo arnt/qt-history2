@@ -285,6 +285,7 @@ private:
     HWND& m_hWndCD;
 
     HMENU hmenuShared;
+    HOLEMENU holemenu;
     HWND hwndMenuOwner;
     QMap<HMENU, QPopupMenu*> menuMap;
     QGuardedPtr<QMenuBar> menuBar;
@@ -1280,7 +1281,7 @@ void QAxServerBase::createMenu( QMenuBar *menuBar )
     menuWidths.width[1] = menuBar->count()+1;
     m_spInPlaceFrame->GetWindow( &hwndMenuOwner );
 
-    HOLEMENU holemenu = OleCreateMenuDescriptor( hmenuShared, &menuWidths );
+    holemenu = OleCreateMenuDescriptor( hmenuShared, &menuWidths );
     hres = m_spInPlaceFrame->SetMenu( hmenuShared, holemenu, m_hWnd );
     if ( FAILED(hres) ) {
 	::DestroyMenu( hmenuShared );
@@ -2551,6 +2552,8 @@ HRESULT WINAPI QAxServerBase::UIDeactivate()
 	    spInPlaceUIWindow->Release();
 	}
 	if ( m_spInPlaceFrame ) {
+	    m_spInPlaceFrame->RemoveMenus( hmenuShared );
+	    holemenu = 0;
 	    m_spInPlaceFrame->SetMenu( 0, 0, m_hWnd );
 	    if ( hmenuShared ) {
 		DestroyMenu( hmenuShared );
@@ -2902,7 +2905,6 @@ HRESULT QAxServerBase::internalActivate()
 		    statusBar->hide();
 		}
 	    }
-	    m_spInPlaceFrame->SetBorderSpace(0);
 	}
 	if ( spInPlaceUIWindow ) {
 	    spInPlaceUIWindow->SetActiveObject( this, QStringToBSTR(class_name) );
