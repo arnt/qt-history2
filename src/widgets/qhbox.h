@@ -16,11 +16,11 @@
 
 #ifndef QT_H
 #include "qwidget.h"
+#include "qframe.h"
 #endif // QT_H
 
 #ifndef QT_NO_HBOX
 
-#include "qframe.h"
 
 class QBoxLayout;
 
