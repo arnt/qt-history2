@@ -705,7 +705,7 @@ void qCritical(const char *msg, ...)
 }
 
 void qSystemWarning(const char *msg, int code)
-{ qCritical("%s (%s)", msg, qt_error_string(code).local8Bit()); }
+{ qCritical("%s\n\t%s", msg, qt_error_string(code).local8Bit()); }
 
 
 /*!
