@@ -374,8 +374,8 @@ QString QLibrary::library() const
     if (filename.lastIndexOf('.') <= filename.lastIndexOf('/'))
         filename += ".dll";
 #else
-    QStringList filters = "";
-#ifdef Q_OS_MACX
+    QStringList filters("");
+#ifdef Q_OS_MAC
     filters << ".so";
     filters << ".bundle";
     filters << ".dylib"; //the last one is also the default one..
@@ -384,14 +384,13 @@ QString QLibrary::library() const
 #else
     filters << ".so";
 #endif
-    for(QStringList::Iterator it = filters.begin(); true;) {
-        QString filter = (*it);
-        ++it;
+    for (int i = 0; i < filters.count(); ++i) {
+        const QString filter(filters.at(i));
 
-        if(QFile::exists(filename + filter)) {
+        if (QFile::exists(filename + filter)) {
             filename += filter;
             break;
-        } else if(!filter.isEmpty()) {
+        } else if (!filter.isEmpty()) {
             QString tmpfilename = filename;
             const int x = tmpfilename.lastIndexOf("/");
             if (x != -1) {
@@ -402,7 +401,7 @@ QString QLibrary::library() const
                 tmpfilename = QString("lib%1").arg(filename);
             }
             tmpfilename += filter;
-            if(QFile::exists(tmpfilename) || it == filters.end()) {
+            if (QFile::exists(tmpfilename) || i == filters.count() - 1) {
                 filename = tmpfilename;
                 break;
             }
