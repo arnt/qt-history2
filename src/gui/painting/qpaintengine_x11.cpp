@@ -1633,7 +1633,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
     } else {
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
         ::Picture src_pict = pixmap.xftPictureHandle();
-        if (src_pict && d->picture) {
+        if (X11->use_xrender && X11->has_xft && src_pict && d->picture) {
             ::Picture msk_pict = ((mode == Qt::ComposePixmap
                                    && !pixmap.data->alpha
                                    && pixmap.data->mask)
