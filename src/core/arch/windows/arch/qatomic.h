@@ -16,24 +16,42 @@
 
 // use compiler intrinsics for all atomic functions
 extern "C" {
-    int _InterlockedCompareExchange(volatile int *, int, int);
     int _InterlockedIncrement(volatile int *);
     int _InterlockedDecrement(volatile int *);
     int _InterlockedExchange(volatile int *, int);
 }
-#pragma intrinsic (_InterlockedCompareExchange)
 #pragma intrinsic (_InterlockedIncrement)
 #pragma intrinsic (_InterlockedDecrement)
 #pragma intrinsic (_InterlockedExchange)
 
 #ifndef _M_IX86
 extern "C" {
+    int _InterlockedCompareExchange(volatile int *, int, int);
     void *_InterlockedCompareExchangePointer(void * volatile *, void *, void *);
     void *_InterlockedExchangePointer(void * volatile *, void *, void *);
 }
+#  pragma intrinsic (_InterlockedCompareExchange)
 #  pragma intrinsic (_InterlockedCompareExchangePointer)
 #  pragma intrinsic (_InterlockedExchangePointer)
 #else
+#  if _MSC_VER >= 1300
+// Let's hope MSVC++.NET gets it right
+extern "C" int _InterlockedCompareExchange(volatile int *, int, int);
+#    pragma intrinsic (_InterlockedCompareExchange)
+#  else
+// MSVC++ 6.0 doesn't generate correct code when optimization are turned on!
+inline int _InterlockedCompareExchange(volatile int *pointer, int newval, int expected)
+{
+    __asm {
+        mov EDX,pointer
+        mov EAX,expected
+        mov ECX,newval
+        lock cmpxchg dword ptr[EDX],ECX
+        mov newval,EAX
+    }
+    return newval;
+}
+#  endif // _MSC_VER
 #  define _InterlockedCompareExchangePointer(a,b,c) \
         (void *)_InterlockedCompareExchange((volatile int *)(a), (int)(b), (int)(c))
 #  define _InterlockedExchangePointer(a, b) \
