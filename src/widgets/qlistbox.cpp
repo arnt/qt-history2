@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#124 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#125 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#124 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#125 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -1721,13 +1721,12 @@ void QListBox::setMaxItemWidth( int len )
 */
 
 /*!
-  Sets the list box to multi-selection mode if \a enable is TRUE,
-  and to single-selection mode if \a enable is FALSE.
+
+  Sets the list box to multi-selection mode if \a enable is TRUE, and to
+  single-selection mode if \a enable is FALSE.
 
   Single- and multi-selections modes work the same, except that the
-  highlighed() and selected() signals are emitted at different times,
-  and that the setSelected() and toggleCurrentItem() functions are available
-  only in multi-selection mode.
+  highlighed() and selected() signals are emitted at different times.
 
   \sa isMultiSelection()
 */
@@ -1769,14 +1768,29 @@ void QListBox::toggleCurrentItem()
   Selects the item at position \a index if \a select is TRUE, or
   unselects it if \a select is FALSE.  May also repaint the item.
 
-  Does nothing if the listbox is a single-selection listbox.
+  If the listbox is a single-selection listbox and and \a select is TRUE,
+  setCurrentItem will be called. 
 
-  \sa setMultiSelection()
+  If the listbox is a single-selection listbox and and \a select is FALSE,
+  clearSelection() will be called if \a index is the currently selected
+  item.
+
+  \sa setMultiSelection(), setCurrentItem(), clearSelection(), currentItem()
 */
 
 void QListBox::setSelected( int index, bool select )
 {
-    if ( !multiSelect || currentItem() < 0 )
+    if ( !multiSelect ) {
+	if ( select ) {
+	    setCurrentItem( index );
+	} else {
+	    if ( index == current )
+		clearSelection();
+	}
+	return;
+    }
+
+    if ( currentItem() < 0 )
 	return;
 
     QListBoxItem *lbi = item( index );
