@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclb_win.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qclb_win.cpp#8 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -22,7 +22,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_win.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_win.cpp#8 $");
 
 
 /*****************************************************************************
@@ -31,6 +31,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_win.cpp#7 $");
 
 static HWND nextClipboardViewer = 0;
 static bool inClipboardChain = FALSE;
+
 
 static QWidget *clipboardOwner()
 {
@@ -89,7 +90,7 @@ void *QClipboard::data( const char *format ) const
 	    return 0;
     }
 
-    static QByteArray *text   = 0;
+    static QString *text   = 0;
     static QPixmap    *pixmap = 0;
 
     if ( !OpenClipboard(clipboardOwner()->winId()) )
@@ -105,14 +106,22 @@ void *QClipboard::data( const char *format ) const
     if ( f == CFText ) {
 	delete pixmap;
 	pixmap = 0;
+#if 1
+	HANDLE htext = GlobalAlloc(GMEM_MOVEABLE, GlobalSize(h));
+	char *src = (char *)GlobalLock(h);
+	char *dst = (char *)GlobalLock(htext);
+	strcpy( dst, src );
+	delete text;
+	text = new QString( dst );
+	GlobalUnlock(h);
+	GlobalUnlock(htext);
+	GlobalFree(htext);
+#else
 	char *d = (char *)GlobalLock( h );
-	int len = strlen(d) + 1;
-	if ( text == 0 )
-	    text = new QByteArray( len );
-	else
-	    text->resize( len );
-	memcpy( text->data(), d, len );
+	delete text;
+	text = new QString( d );
 	GlobalUnlock( h );
+#endif
 	ptr = text->data();
     } else if ( f == CFPixmap ) {
 	delete text;
