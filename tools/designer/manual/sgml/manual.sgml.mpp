@@ -1,0 +1,28 @@
+\setfilter[]<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN"[
+<!ENTITY chap00 SYSTEM "chap-preface.sgml">
+<!ENTITY chap01 SYSTEM "chap-01.sgml">
+<!ENTITY chap02 SYSTEM "chap-02.sgml">
+<!ENTITY chap03 SYSTEM "chap-03.sgml">
+<!ENTITY chap04 SYSTEM "chap-04.sgml">
+<!ENTITY chap05 SYSTEM "chap-05.sgml">
+<!ENTITY chap11 SYSTEM "chap-creating-database-applications.sgml">
+<!ENTITY chap06 SYSTEM "chap-06.sgml">
+<!ENTITY chap07 SYSTEM "chap-07.sgml">
+<!ENTITY chap08 SYSTEM "chap-08.sgml">
+<!ENTITY chap09 SYSTEM "chap-09.sgml">
+<!ENTITY chap10 SYSTEM "chap-10.sgml">
+]>
+<book>
+&chap00;
+&chap01;
+&chap02;
+&chap03;
+&chap04;
+&chap05;
+&chap11;
+&chap06;
+&chap07;
+&chap08;
+&chap09;
+&chap10;
+</book>
