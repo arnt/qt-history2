@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#101 $
+** $Id: //depot/qt/main/src/moc/moc.y#102 $
 **
 ** Parser and code generator for meta object compiler
 **
 ** Created : 930417
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1998 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** This file contains the parser and code generator for the meta object
@@ -786,6 +786,7 @@ Q1String  includePath;				// #include file path
 Q1String  qtPath;				// #include qt file path
 bool	  noInclude     = FALSE;		// no #include <filename>
 bool	  generatedCode = FALSE;		// no code generated
+bool	  mocError = FALSE;			// moc parsing error occurred
 Q1String  className;				// name of parsed class
 Q1String  superclassName;			// name of super class
 FuncList  signals;				// signal interface
@@ -930,14 +931,15 @@ int main( int argc, char **argv )
     if ( !outputFile.isNull() )
 	fclose( out );
 
-    if ( !generatedCode && displayWarnings ) {
+    if ( !generatedCode && displayWarnings && !mocError ) {
         fprintf( stderr, "%s:%d: Warning: %s\n", fileName.data(), 0,
 		 "No relevant classes found. No output generated." );
     }
 
     slots.clear();
     signals.clear();
-    return 0;
+
+    return mocError ? 1 : 0;
 }
 
 void replace( char *s, char c1, char c2 )
@@ -1097,8 +1099,8 @@ void addExpressionChar( char c )
 
 void yyerror( char *msg )			// print yacc error message
 {
-
-    fprintf( stderr, "%s:%d: Error: %s\n", fileName.data(), lineNo, msg);
+    mocError = TRUE;
+    fprintf( stderr, "%s:%d: Error: %s\n", fileName.data(), lineNo, msg );
 }
 
 void moc_err( char *s )
@@ -1260,7 +1262,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.35 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.36 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
