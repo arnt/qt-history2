@@ -36,6 +36,7 @@
 **********************************************************************/
 
 #include "qwidgetstack.h"
+#include "private/qlayoutengine_p.h"
 #ifndef QT_NO_WIDGETSTACK
 
 #include "qobjectlist.h"
@@ -63,7 +64,7 @@ public:
 
 
 /*!
-    \class QWidgetStack qwidgetstack.h
+    \class QWidgetStack
     \brief The QWidgetStack class provides a stack of widgets of which
     only the top widget is user-visible.
 
@@ -81,9 +82,9 @@ public:
     the stack.
 
     QWidgetStack also provides the ability to manipulate widgets
-    through application-specified integer ids. You can also translate
-    from widget pointers to ids using id() and from ids to widget
-    pointers using widget(). These numeric ids are unique (per
+    through application-specified integer IDs. You can also translate
+    from widget pointers to IDs using id() and from IDs to widget
+    pointers using widget(). These numeric IDs are unique (per
     QWidgetStack, not globally), but QWidgetStack does not attach any
     additional meaning to them.
 
@@ -140,21 +141,18 @@ void QWidgetStack::init()
 QWidgetStack::~QWidgetStack()
 {
     delete focusWidgets;
-    focusWidgets = 0;
     delete d;
-    d = 0;
     delete dict;
-    dict = 0;
 }
 
 
 /*!
-    Adds widget \a w to this stack of widgets, with id \a id.
+    Adds widget \a w to this stack of widgets, with ID \a id.
 
-    If you pass an id \>= 0 this id is used. If you pass an \a id of
+    If you pass an id \>= 0 this ID is used. If you pass an \a id of
     -1 (the default), the widgets will be numbered automatically. If
     you pass -2 a unique negative integer will be generated. No widget
-    has an id of -1. Returns the id or -1 on failure (e.g. \w is 0).
+    has an ID of -1. Returns the ID or -1 on failure (e.g. \w is 0).
 
     If \a w is not a child of this QWidgetStack moves it using
     reparent().
@@ -167,6 +165,9 @@ int QWidgetStack::addWidget( QWidget * w, int id )
 
     if ( !w || w == invisible )
 	return -1;
+
+    // prevent dublicates
+    removeWidget( w );
 
     if ( id >= 0 && dict->find( id ) )
 	id = -2;
@@ -224,7 +225,7 @@ void QWidgetStack::removeWidget( QWidget * w )
 
 
 /*!
-    Raises the widget with id, \a id, to the top of the widget stack.
+    Raises the widget with ID \a id to the top of the widget stack.
 
     \sa visibleWidget()
 */
@@ -262,11 +263,12 @@ static bool isChildOf( QWidget* child, QWidget *parent )
     Raises widget \a w to the top of the widget stack.
 */
 
-void QWidgetStack::raiseWidget( QWidget * w )
+void QWidgetStack::raiseWidget( QWidget *w )
 {
-    if ( !w || w == invisible || w->parent() != this || w == topWidget)
+    if ( !w || w == invisible || w->parent() != this || w == topWidget )
 	return;
-
+    if ( id(w) == -1 )
+	addWidget( w );
     if ( !isVisible() ) {
 	topWidget = w;
 	return;
@@ -417,8 +419,8 @@ void QWidgetStack::show()
 
 
 /*!
-    Returns the widget with id \a id. Returns 0 if this widget stack
-    does not manage a widget with id \a id.
+    Returns the widget with ID \a id. Returns 0 if this widget stack
+    does not manage a widget with ID \a id.
 
     \sa id() addWidget()
 */
@@ -430,7 +432,7 @@ QWidget * QWidgetStack::widget( int id ) const
 
 
 /*!
-    Returns the id of the \a widget. Returns -1 if \a widget is 0 or
+    Returns the ID of the \a widget. Returns -1 if \a widget is 0 or
     is not being managed by this widget stack.
 
     \sa widget() addWidget()
@@ -465,8 +467,8 @@ QWidget * QWidgetStack::visibleWidget() const
     \fn void QWidgetStack::aboutToShow( int )
 
     This signal is emitted just before a managed widget is shown if
-    that managed widget has an id != -1. The argument is the numeric
-    id of the widget.
+    that managed widget has an ID != -1. The argument is the numeric
+    ID of the widget.
 
     If you call visibleWidget() in a slot connected to aboutToShow(),
     the widget it returns is the one that is currently visible, not
@@ -519,7 +521,7 @@ QSize QWidgetStack::sizeHint() const
 	    sh.rwidth() = 0;
 	if ( w->sizePolicy().verData() == QSizePolicy::Ignored )
 	    sh.rheight() = 0;
-	size = size.expandedTo( sh ).expandedTo( w->minimumSize() );
+	size = size.expandedTo( sh ).expandedTo( qSmartMinSize(w) );
     }
     if ( size.isNull() )
 	size = QSize( 128, 64 );
@@ -542,12 +544,7 @@ QSize QWidgetStack::minimumSizeHint() const
 
     while ( (w = it.current()) != 0 ) {
 	++it;
-	QSize sh = w->minimumSizeHint();
-	if ( w->sizePolicy().horData() == QSizePolicy::Ignored )
-	    sh.rwidth() = 0;
-	if ( w->sizePolicy().verData() == QSizePolicy::Ignored )
-	    sh.rheight() = 0;
-	size = size.expandedTo( sh ).expandedTo( w->minimumSize() );
+	size = size.expandedTo( qSmartMinSize(w) );
     }
     if ( size.isNull() )
 	size = QSize( 64, 32 );
