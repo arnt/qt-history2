@@ -80,11 +80,13 @@ bool QFontDef::operator==( const QFontDef &other ) const
     if (!ignorePitch && !other.ignorePitch && fixedPitch != other.fixedPitch)
 	return FALSE;
 
+    if (stretch != 0 && other.stretch != 0 && stretch != other.stretch)
+	return FALSE;
+
     return ( styleHint     == other.styleHint
 	    && styleStrategy == other.styleStrategy
 	    && weight        == other.weight
 	    && italic        == other.italic
-	    && stretch       == other.stretch
 	    && this_family   == other_family
 	    && (this_foundry.isEmpty()
 		|| other_foundry.isEmpty()
