@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#41 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -121,9 +121,10 @@ bool QPrinter::aborted() const
   user cancelled the operation.
 */
 
-bool QPrinter::setup( QWidget * )
+bool QPrinter::setup( QWidget * parent )
 {
-    return QPrintDialog::getPrinterSetup( this );
+    QPrintDialog prndlg( this, parent );
+    return prndlg.exec() == QDialog::Accepted;
 }
 
 
