@@ -276,6 +276,12 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
                 }
             }
             if (haveMessage) {
+                if (msg.message == WM_QUIT) {
+                    if (QCoreApplication::instance())
+                        QCoreApplication::instance()->quit();
+                    return false;
+                }
+
                 if (!filterEvent(&msg)) {
                     TranslateMessage(&msg);
                     QT_WA({
