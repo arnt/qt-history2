@@ -86,12 +86,12 @@ extern bool qt_file_access( const QString& fn, int t );
   fileName(). The fileName()'s parts can be extracted with baseName()
   and extension().
 
-  The file's dates are returned by lastModified() and lastRead().
-  Information about the file's access permissions is obtained with
-  isReadable(), isWritable() and isExecutable(). The file's ownership
-  is available from owner(), ownerId(), group() and groupId(). You can
-  examine a file's permissions and ownership in a single statement using
-  the permission() function.
+  The file's dates are returned by created(), lastModified() and
+  lastRead(). Information about the file's access permissions is
+  obtained with isReadable(), isWritable() and isExecutable(). The
+  file's ownership is available from owner(), ownerId(), group() and
+  groupId(). You can examine a file's permissions and ownership in a
+  single statement using the permission() function.
 
   If you need to read and traverse directories, see the QDir class.
 */
@@ -112,7 +112,6 @@ extern bool qt_file_access( const QString& fn, int t );
     \value ReadOther The file is readable by anyone.
     \value WriteOther The file is writable by anyone.
     \value ExeOther The file is executable by anyone.
-
 */
 
 
