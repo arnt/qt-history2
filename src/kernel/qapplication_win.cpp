@@ -2169,12 +2169,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 							 || qApp->type() == QApplication::Tty )
 		break;
 
-	    qApp->style().unPolish( qApp );
-
 	    if ( widget->testWState(Qt::WState_Polished) )
 		qApp->style().unPolish(widget);
-
-	    qApp->style().polish( qApp );
 
 	    if ( widget->testWState(Qt::WState_Polished) )
 		qApp->style().polish(widget);

@@ -73,7 +73,6 @@ static char * dockCloseXPM[] = {
 "...  ...",
 "..    .."};
 
-static ulong ref = 0;
 static bool use_xp  = FALSE;
 static bool init_xp = FALSE;
 static QMap<QString,HTHEME> *handleMap = 0;
@@ -147,8 +146,6 @@ public:
 	    init_xp = TRUE;
 	    use_xp = QWindowsXPStyle::resolveSymbols() && pIsThemeActive() && pIsAppThemed();
 	}
-	if ( use_xp )
-	    ref++;
 
 	COLORREF cref;
 	// Active Title Bar ( Color 1 in the gradient )
@@ -176,22 +173,18 @@ public:
     void cleanup()
     {
 	init_xp = FALSE;
-	if ( use_xp ) {
-	    if ( !--ref ) {
-		use_xp  = FALSE;
-		delete limboWidget;
-		limboWidget = 0;
-		delete tabbody;
-		tabbody = 0;
-		if ( handleMap ) {
-		    QMap<QString, HTHEME>::Iterator it;
-		    for ( it = handleMap->begin(); it != handleMap->end(); ++it )
-			pCloseThemeData( it.data() );
-		    delete handleMap;
-		    handleMap = 0;
-		}
-	    }
+	use_xp  = FALSE;
+	if ( handleMap ) {
+	    QMap<QString, HTHEME>::Iterator it;
+	    for ( it = handleMap->begin(); it != handleMap->end(); ++it )
+		pCloseThemeData( it.data() );
+	    delete handleMap;
+	    handleMap = 0;
 	}
+	delete limboWidget;
+	delete tabbody;
+	limboWidget = 0;
+	tabbody = 0;
 	delete dockCloseActive;
 	delete dockCloseInactive;
 	dockCloseActive = dockCloseInactive = 0;
@@ -416,9 +409,6 @@ void QWindowsXPStyle::unPolish( QApplication *app )
 
 void QWindowsXPStyle::polish( QApplication *app )
 {
-    static bool isPolished = FALSE;
-    if ( !isPolished )
-	ref--;
     QWindowsStyle::polish( app );
     init_xp = FALSE;
     d->init();
@@ -430,8 +420,6 @@ void QWindowsXPStyle::polish( QApplication *app )
     d->groupBoxTextColor = qRgb( GetRValue(cref), GetGValue(cref), GetBValue(cref) );
     pGetThemeColor( theme.handle(), BP_GROUPBOX, GBS_DISABLED, TMT_TEXTCOLOR, &cref );
     d->groupBoxTextColor = qRgb( GetRValue(cref), GetGValue(cref), GetBValue(cref) );
-
-    isPolished = TRUE;
 }
 
 void QWindowsXPStyle::polish( QWidget *widget )
@@ -503,22 +491,6 @@ void QWindowsXPStyle::polish( QWidget *widget )
 		widget->parentWidget() &&
 		widget->parentWidget()->inherits( "QTabWidget" ) ) {
 	widget->setPaletteBackgroundPixmap( *d->tabBody( widget ) );
-    } else if ( widget->inherits( "QMenuBar" ) ) {
-	QPalette pal = widget->palette();
-
-	XPThemeData theme( widget, 0, "MENUBAR", 0, 0 );
-	if ( theme.isValid() ) {
-	    COLORREF cref;
-	    pGetThemeColor( theme.handle(), 0, 0, TMT_MENUBAR, &cref );
-	    QColor menubar( qRgb(GetRValue(cref),GetGValue(cref),GetBValue(cref)) );
-	    pal.setColor( QColorGroup::Button, menubar );
-	} else {
-	    QPalette apal = QApplication::palette();
-	    pal.setColor( QPalette::Active, QColorGroup::Button, apal.color( QPalette::Active, QColorGroup::Button ) );
-	    pal.setColor( QPalette::Inactive, QColorGroup::Button, apal.color( QPalette::Inactive, QColorGroup::Button ) );
-	    pal.setColor( QPalette::Disabled, QColorGroup::Button, apal.color( QPalette::Disabled, QColorGroup::Button ) );
-	}
-	widget->setPalette( pal );
     }
 
     if ( !widget->ownPalette() )
@@ -529,7 +501,19 @@ void QWindowsXPStyle::polish( QWidget *widget )
 
 void QWindowsXPStyle::unPolish( QWidget *widget )
 {
+    // Unpolish of widgets is the first thing that
+    // happens when a theme changes, or the theme
+    // engine is turned off. So we detect it here.
+    bool newState = QWindowsXPStyle::resolveSymbols() && pIsThemeActive() && pIsAppThemed();
+    if ( use_xp != newState ) {
+	if ( use_xp = newState )
+	    d->init();
+	else
+	    d->cleanup();
+    }
+
     widget->removeEventFilter( this );
+
     if ( widget->inherits( "QTitleBar" ) && !widget->inherits( "QDockWindowTitleBar" ) ) {
 	SetWindowRgn( widget->winId(), 0, TRUE );
 	if ( !QString::compare( widget->name(), "_workspacechild_icon_" ) )
@@ -540,9 +524,15 @@ void QWindowsXPStyle::unPolish( QWidget *widget )
 		widget->parentWidget() &&
 		widget->parentWidget()->inherits( "QTabWidget" ) ) {
 	widget->setPaletteBackgroundPixmap( QPixmap() );
+	widget->unsetPalette();
     } else if ( widget->inherits( "QTabBar" ) ) {
 	disconnect( widget, SIGNAL(selected(int)), this, SLOT(activeTabChanged()) );
-    } 
+    } else if ( widget->inherits( "QDockWindowHandle" ) ||
+		widget->inherits( "QMenuBar" ) ||
+		( widget->inherits( "QToolButton" ) &&
+		  !QString::compare( "qt_close_button1", widget->name() ) ) ) {
+	widget->unsetPalette();
+    }
 
     if ( !widget->ownPalette() )
 	 widget->setBackgroundOrigin( QWidget::WidgetOrigin );
@@ -2072,7 +2062,7 @@ int QWindowsXPStyle::styleHint( StyleHint stylehint,
 /*! \reimp */
 bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 {
-    if ( !o || !o->isWidgetType() || e->type() == QEvent::Paint || !use_xp)
+    if ( !o || !o->isWidgetType() || e->type() == QEvent::Paint || !use_xp )
 	return QWindowsStyle::eventFilter( o, e );
 
     QWidget *widget = (QWidget*)o;
