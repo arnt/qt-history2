@@ -226,10 +226,10 @@ static int qt_x11indices[QFont::NScripts + 1] = {
 
 
 
+bool qt_has_xft = FALSE;
 
 // Data needed for XftFreeType support
 #ifndef QT_NO_XFTFREETYPE
-static bool qt_has_xft = FALSE;
 typedef QIntDict<QPixmap> QPixmapDict;
 static QPixmapDict *qt_xft_render_sources = 0;
 QCleanupHandler<QPixmapDict> cleanup_pixmapdict;
@@ -1059,9 +1059,9 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
 
 // draw the text run cache... nonspacing marks, bidi reordering and all compositions
 // will have already been done by the time we get here
-void QFontPrivate::drawText( Display *dpy, int /*screen*/, Qt::HANDLE hd, Qt::HANDLE /*rendhd*/,
-			     GC gc, const QColor &/*pen*/, Qt::BGMode bgmode,
-			     const QColor& /*bgcolor*/, int x, int y,
+void QFontPrivate::drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE rendhd,
+			     GC gc, const QColor &pen, Qt::BGMode bgmode,
+			     const QColor& bgcolor, int x, int y,
 			     const QFontPrivate::TextRun *cache )
 {
     Qt::HANDLE fid_last = 0;

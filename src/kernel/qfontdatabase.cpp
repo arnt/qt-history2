@@ -700,11 +700,157 @@ static QFontDatabasePrivate *db=0;
 
 #ifdef Q_WS_X11
 
+
+#ifndef QT_NO_XFTFREETYPE
+static const char *getXftWeightString(int xftweight)
+{
+    int qtweight = QFont::Black;
+    if (xftweight <= (XFT_WEIGHT_LIGHT + XFT_WEIGHT_MEDIUM) / 2)
+	qtweight = QFont::Light;
+    if (xftweight <= (XFT_WEIGHT_MEDIUM + XFT_WEIGHT_DEMIBOLD) / 2)
+	qtweight = QFont::Normal;
+    if (xftweight <= (XFT_WEIGHT_DEMIBOLD + XFT_WEIGHT_BOLD) / 2)
+	qtweight = QFont::DemiBold;
+    if (xftweight <= (XFT_WEIGHT_BOLD + XFT_WEIGHT_BLACK) / 2)
+	qtweight = QFont::Bold;
+
+    if (qtweight <= (QFont::Light + QFont::Normal) / 2)
+	return "Light";
+    if (qtweight <= (QFont::Normal + QFont::DemiBold) / 2)
+	return "Normal";
+    if (qtweight <= (QFont::DemiBold + QFont::Bold) / 2)
+	return "DemiBold";
+    if (qtweight <= (QFont::Bold + QFont::Black) / 2)
+	return "Bold";
+    return "Black";
+}
+#endif // QT_NO_XFTFREETYPE
+
+
+extern bool qt_has_xft; // defined in qfont_x11.cpp
+
 void QFontDatabase::createDatabase()
 {
     if ( db ) return;
 
     db = new QFontDatabasePrivate;
+
+#ifndef QT_NO_XFTFREETYPE
+
+    // #define QFDB_DEBUG
+
+    if (qt_has_xft) {
+	XftFontSet  *foundries;
+	XftFontSet  *families;
+	XftFontSet  *styles;
+	char	    *foundry_name, *qt_foundry_name;
+	char	    *family_name;
+	char	    *style_value;
+	int	    weight_value;
+	int	    slant_value;
+	int	    foundry_i;
+	int	    family_i;
+	int	    style_i;
+	static char default_foundry[] = "Unknown";
+
+	foundries = XftListFonts (qt_xdisplay (),
+				  qt_xscreen (),
+				  0,
+				  XFT_FOUNDRY,
+				  0);
+
+#ifdef QFDB_DEBUG
+	printf ("Foundries ");
+	XftFontSetPrint (foundries);
+#endif
+	for (foundry_i = 0; foundry_i < foundries->nfont; foundry_i++) {
+	    if (XftPatternGetString(foundries->fonts[foundry_i],
+				    XFT_FOUNDRY, 0, &foundry_name) == XftResultMatch) {
+		qt_foundry_name = foundry_name;
+	    } else {
+		foundry_name = 0;
+		qt_foundry_name = default_foundry;
+	    }
+
+	    QtFontFoundry *foundry = new QtFontFoundry(qt_foundry_name);
+	    Q_CHECK_PTR(foundry);
+	    db->addFoundry(foundry);
+
+	    if (foundry_name)
+		families = XftListFonts(qt_xdisplay (), qt_xscreen(),
+					XFT_FOUNDRY, XftTypeString, foundry_name, 0,
+					XFT_FAMILY, 0);
+	    else
+		families = XftListFonts(qt_xdisplay (),
+					qt_xscreen(),
+					0,
+					XFT_FAMILY, 0);
+#ifdef QFDB_DEBUG
+	    printf ("Families ");
+	    XftFontSetPrint (families);
+#endif
+	    for (family_i = 0; family_i < families->nfont; family_i++) {
+		if (XftPatternGetString(families->fonts[family_i],
+					XFT_FAMILY, 0, &family_name) == XftResultMatch) {
+		    QtFontFamily *family = new QtFontFamily ( foundry, family_name);
+		    Q_CHECK_PTR (family);
+		    foundry->addFamily (family);
+
+		    if (foundry_name) {
+			styles = XftListFonts (qt_xdisplay (),
+					       qt_xscreen(),
+					       XFT_FOUNDRY, XftTypeString, foundry_name,
+					       XFT_FAMILY, XftTypeString, family_name,
+					       0,
+					       XFT_STYLE,
+					       XFT_WEIGHT,
+					       XFT_SLANT,
+					       0);
+		    } else {
+			styles = XftListFonts (qt_xdisplay (),
+					       qt_xscreen(),
+					       XFT_FAMILY, XftTypeString, family_name,
+					       0,
+					       XFT_STYLE,
+					       XFT_WEIGHT,
+					       XFT_SLANT,
+					       0);
+		    }
+
+#ifdef QFDB_DEBUG
+		    printf ("Styles ");
+		    XftFontSetPrint (styles);
+#endif
+		    for (style_i = 0; style_i < styles->nfont; style_i++) {
+			if (XftPatternGetString (styles->fonts[style_i],
+						 XFT_STYLE, 0, &style_value) ==
+			    XftResultMatch) {
+			    QtFontStyle *style = new QtFontStyle (family, style_value);
+			    Q_CHECK_PTR (style);
+
+			    slant_value = XFT_SLANT_ROMAN;
+			    weight_value = XFT_WEIGHT_MEDIUM;
+			    XftPatternGetInteger (styles->fonts[style_i],
+						  XFT_SLANT, 0, &slant_value);
+			    XftPatternGetInteger (styles->fonts[style_i],
+						  XFT_WEIGHT, 0, &weight_value);
+			    style->ital = slant_value != XFT_SLANT_ROMAN;
+			    style->lesserItal = FALSE;
+			    style->weightString = getXftWeightString(weight_value);
+			    style->setSmoothlyScalable();
+			    family->addStyle (style);
+			}
+		    }
+		    XftFontSetDestroy (styles);
+		}
+	    }
+	    XftFontSetDestroy(families);
+	    if (qt_foundry_name == default_foundry)
+		break;
+	}
+	XftFontSetDestroy (foundries);
+    }
+#endif
 
     int fontCount;
     // force the X server to give us XLFDs
