@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#37 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#38 $
 **
 ** Implementation of QMessageBox class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#38 $");
 
 // Message box icons, from page 210 of the Windows style guide.
 
@@ -860,7 +860,7 @@ int QMessageBox::critical( QWidget *parent,
   body text \a text.
 
   about() looks for a suitable icon for the box in four locations:
-  <ol> <li>It prefers \a link QWidget::icon() parent->icon() \endlink
+  <ol> <li>It prefers \link QWidget::icon() parent->icon() \endlink
   if that exists.  <li>If not, it tries the top level widget
   containing \a parent <li>If that too fails, it tries the \link
   QApplication::mainWidget() main widget. \endlink <li>As a last
