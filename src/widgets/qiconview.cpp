@@ -2300,7 +2300,8 @@ void QIconView::takeItem( QIconViewItem *item )
 }
 
 /*!
-  Returns the index of \a item or -1 if there is something wrong.
+  Returns the index of \a item or -1 if \a item doesn't exist
+  in this icon view.
 */
 
 int QIconView::index( const QIconViewItem *item ) const
@@ -2322,23 +2323,6 @@ int QIconView::index( const QIconViewItem *item ) const
 
 	return j;
     }
-}
-
-/*!
-  Returns the selected item. This only works in single selection mode.
-*/
-
-QIconViewItem *QIconView::selectedItem() const
-{
-    if ( selectionMode() != Single )
-	return 0;
-
-    QIconViewItem* item = firstItem();
-    for( ; item; item = item->nextItem() )
-	if ( item->isSelected() )
-	    return item;
-
-    return 0;
 }
 
 /*!
@@ -2820,7 +2804,7 @@ void QIconView::clearSelection()
 /*!
   If \a select is TRUE, all items get selected, else all get unselected.
   This works only in the selection modes Multi and Extended. In
-  Single and NoSelection mode the selection of the current item is 
+  Single and NoSelection mode the selection of the current item is
   just set to \a select.
 */
 

@@ -289,7 +289,6 @@ public:
 
     QIconViewItem *firstItem() const;
     QIconViewItem *lastItem() const;
-    QIconViewItem *selectedItem() const;
     QIconViewItem *currentItem() const;
     virtual void setCurrentItem( QIconViewItem *item );
     virtual void setSelected( QIconViewItem *item, bool s, bool cb = FALSE );
