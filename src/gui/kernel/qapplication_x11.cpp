@@ -310,10 +310,9 @@ extern QWidgetList *qt_modal_stack;                // stack of modal widgets
 // window where mouse buttons have been pressed
 static Window pressed_window = XNone;
 
-static QWidget     *popupButtonFocus = 0;
-static QWidget     *popupOfPopupButtonFocus = 0;
-static bool            popupCloseDownMode = false;
-static bool            popupGrabOk;
+// popup control
+static bool popupReplayMouse = false;
+static bool popupGrabOk;
 
 static bool sm_blockUserInput = false;                // session management
 
@@ -393,8 +392,8 @@ int                qt_ncols_option  = 216;
 int                qt_visual_option = -1;
 bool                qt_cmap_option         = false;
 
-QWidget               *qt_button_down         = 0;                // widget got last button-down
-
+QWidget *qt_button_down = 0; // last widget to be pressed with the mouse
+static QWidget *qt_popup_down = 0;  // popup that contains the pressed widget
 
 
 // stuff in qt_xdnd.cpp
@@ -2119,11 +2118,7 @@ GC qt_xget_readonly_gc(int scrn, bool monochrome)        // get read-only GC
 
 GC qt_xget_temp_gc(int scrn, bool monochrome)                // get temporary GC
 {
-    if (scrn < 0 || scrn >= X11->screenCount) {
-        qDebug("invalid screen (tmp) %d %d", scrn, X11->screenCount);
-        QWidget* bla = 0;
-        bla->setObjectName("hello");
-    }
+    Q_ASSERT(scrn >= 0 && scrn < X11->screenCount);
     GC gc;
     if (monochrome) {
         if (!app_gc_tmp_m)                        // create GC for bitmap
@@ -3204,26 +3199,29 @@ bool qt_try_modal(QWidget *widget, XEvent *event)
         }
     }
 
+    // allow mouse release events to be sent to widgets that have been pressed
+    if (event->type == ButtonRelease && widget == qt_button_down)
+        return true;
+
     if (qt_tryModalHelper(widget))
         return true;
 
-    bool block_event  = false;
+    // disallow mouse/key events
     switch (event->type) {
-        case ButtonPress:                        // disallow mouse/key events
-        case ButtonRelease:
-        case MotionNotify:
-        case XKeyPress:
-        case XKeyRelease:
-        case EnterNotify:
-        case LeaveNotify:
-        case ClientMessage:
-            block_event         = true;
-            break;
-        default:
-            break;
+    case ButtonPress:
+    case ButtonRelease:
+    case MotionNotify:
+    case XKeyPress:
+    case XKeyRelease:
+    case EnterNotify:
+    case LeaveNotify:
+    case ClientMessage:
+        return false;
+    default:
+        break;
     }
 
-    return !block_event;
+    return true;
 }
 
 
@@ -3253,22 +3251,15 @@ void QApplication::openPopup(QWidget *popup)
     Display *dpy = popup->x11Info().display();
     if (popupWidgets->count() == 1 && !qt_nograb()){ // grab mouse/keyboard
         int r = XGrabKeyboard(dpy, popup->winId(), false,
-                               GrabModeSync, GrabModeAsync, CurrentTime);
+                              GrabModeAsync, GrabModeAsync, X11->time);
         if ((popupGrabOk = (r == GrabSuccess))) {
             r = XGrabPointer(dpy, popup->winId(), true,
-                              (uint)(ButtonPressMask | ButtonReleaseMask |
-                                     ButtonMotionMask | EnterWindowMask |
-                                     LeaveWindowMask | PointerMotionMask),
-                              GrabModeSync, GrabModeAsync,
-                              XNone, XNone, CurrentTime);
-
-            if ((popupGrabOk = (r == GrabSuccess)))
-                XAllowEvents(dpy, SyncPointer, CurrentTime);
-            else
-                XUngrabKeyboard(dpy, CurrentTime);
+                             (ButtonPressMask | ButtonReleaseMask | ButtonMotionMask
+                              | EnterWindowMask | LeaveWindowMask | PointerMotionMask),
+                             GrabModeAsync, GrabModeAsync, XNone, XNone, X11->time);
+            if (!(popupGrabOk = (r == GrabSuccess)))
+                XUngrabKeyboard(dpy, X11->time);
         }
-    } else if (popupGrabOk) {
-        XAllowEvents( dpy, SyncPointer, CurrentTime);
     }
 
     // popups are not focus-handled by the window system (the first
@@ -3287,26 +3278,26 @@ void QApplication::closePopup(QWidget *popup)
     if (!popupWidgets)
         return;
     popupWidgets->removeAll(popup);
-    if (popup == popupOfPopupButtonFocus) {
-        popupButtonFocus = 0;
-        popupOfPopupButtonFocus = 0;
+    if (popup == qt_popup_down) {
+        qt_button_down = 0;
+        qt_popup_down = 0;
     }
     if (popupWidgets->count() == 0) {                // this was the last popup
-        popupCloseDownMode = true;                // control mouse events
         delete popupWidgets;
         popupWidgets = 0;
         if (!qt_nograb() && popupGrabOk) {        // grabbing not disabled
             Display *dpy = popup->x11Info().display();
             if (mouseButtonState != 0
-                || popup->geometry(). contains(QPoint(mouseGlobalXPos, mouseGlobalYPos))
-                || popup->testAttribute(Qt::WA_NoMouseReplay))
-                {        // mouse release event or inside
-                    XAllowEvents(dpy, AsyncPointer, CurrentTime);
+                || popup->geometry().contains(QPoint(mouseGlobalXPos, mouseGlobalYPos))
+                || popup->testAttribute(Qt::WA_NoMouseReplay)) {
+                // mouse release event or inside
+                popupReplayMouse = false;
             } else {                                // mouse press event
                 mouseButtonPressTime -= 10000;        // avoid double click
-                XAllowEvents(dpy, ReplayPointer,CurrentTime);
+                popupReplayMouse = true;
             }
-            XUngrabPointer(dpy, CurrentTime);
+            XUngrabPointer(dpy, X11->time);
+            XUngrabKeyboard(dpy, X11->time);
             XFlush(dpy);
         }
         if (active_window) {
@@ -3322,29 +3313,29 @@ void QApplication::closePopup(QWidget *popup)
         // first popup grabbed the keyboard), so we have to do that
         // manually: A popup was closed, so the previous popup gets
         // the focus.
-         QFocusEvent::setReason(QFocusEvent::Popup);
-         QWidget* aw = popupWidgets->last();
-         if (aw->focusWidget())
-             aw->focusWidget()->setFocus();
-         else
-             aw->setFocus();
-         QFocusEvent::resetReason();
-         if (popupWidgets->count() == 1 && !qt_nograb()){ // grab mouse/keyboard
-             int r = XGrabKeyboard(aw->x11Info().display(), aw->winId(), false,
-                                    GrabModeSync, GrabModeAsync, CurrentTime);
-             if ((popupGrabOk = (r == GrabSuccess))) {
-                 r = XGrabPointer(aw->x11Info().display(), aw->winId(), true,
-                                   (uint)(ButtonPressMask | ButtonReleaseMask |
-                                          ButtonMotionMask | EnterWindowMask |
-                                          LeaveWindowMask | PointerMotionMask),
-                                   GrabModeSync, GrabModeAsync,
-                                   XNone, XNone, CurrentTime);
+        QFocusEvent::setReason(QFocusEvent::Popup);
+        QWidget* aw = popupWidgets->last();
+        if (aw->focusWidget())
+            aw->focusWidget()->setFocus();
+        else
+            aw->setFocus();
+        QFocusEvent::resetReason();
 
-                 if ((popupGrabOk = (r == GrabSuccess)))
-                     XAllowEvents(aw->x11Info().display(), SyncPointer, CurrentTime);
-             }
-         }
-     }
+        // regrab the keyboard and mouse in case 'popup' lost the grab
+        if (popupWidgets->count() == 1 && !qt_nograb()){ // grab mouse/keyboard
+            Display *dpy = aw->x11Info().display();
+            int r = XGrabKeyboard(dpy, aw->winId(), false,
+                                  GrabModeAsync, GrabModeAsync, X11->time);
+            if ((popupGrabOk = (r == GrabSuccess))) {
+                r = XGrabPointer(dpy, aw->winId(), true,
+                                 (ButtonPressMask | ButtonReleaseMask | ButtonMotionMask
+                                  | EnterWindowMask | LeaveWindowMask | PointerMotionMask),
+                                 GrabModeAsync, GrabModeAsync, XNone, XNone, X11->time);
+                if (!(popupGrabOk = (r == GrabSuccess)))
+                    XUngrabKeyboard(dpy, X11->time);
+            }
+        }
+    }
 }
 
 /*****************************************************************************
@@ -3356,10 +3347,6 @@ void QApplication::closePopup(QWidget *popup)
 //
 // Xlib doesn't give mouse double click events, so we generate them by
 // comparing window, time and position between two mouse press events.
-//
-
-//
-// Keyboard event translation
 //
 
 static int translateButtonState(int s)
@@ -3406,19 +3393,19 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         while(XPending(X11->display))  { // compress mouse moves
             XNextEvent(X11->display, &nextEvent);
             if (nextEvent.type == ConfigureNotify
-                 || nextEvent.type == PropertyNotify
-                 || nextEvent.type == Expose
-                 || nextEvent.type == NoExpose) {
+                || nextEvent.type == PropertyNotify
+                || nextEvent.type == Expose
+                || nextEvent.type == NoExpose) {
                 qApp->x11ProcessEvent(&nextEvent);
                 continue;
             } else if (nextEvent.type != MotionNotify ||
-                        nextEvent.xmotion.window != event->xmotion.window ||
-                        nextEvent.xmotion.state != event->xmotion.state) {
+                       nextEvent.xmotion.window != event->xmotion.window ||
+                       nextEvent.xmotion.state != event->xmotion.state) {
                 XPutBackEvent(X11->display, &nextEvent);
                 break;
             }
             if (!qt_x11EventFilter(&nextEvent)
-                 && !x11Event(&nextEvent)) // send event through filter
+                && !x11Event(&nextEvent)) // send event through filter
                 lastMotion = nextEvent.xmotion;
             else
                 break;
@@ -3431,15 +3418,15 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         globalPos.ry() = lastMotion.y_root;
         state = translateButtonState(lastMotion.state);
         if (qt_button_down && (state & (Qt::LeftButton |
-                                         Qt::MidButton |
-                                         Qt::RightButton)) == 0)
+                                        Qt::MidButton |
+                                        Qt::RightButton)) == 0)
             qt_button_down = 0;
 
         // throw away mouse move events that are sent multiple times to the same
         // position
         bool throw_away = false;
         if (x_root_save == globalPos.x() &&
-             y_root_save == globalPos.y())
+            y_root_save == globalPos.y())
             throw_away = true;
         x_root_save = globalPos.x();
         y_root_save = globalPos.y();
@@ -3456,8 +3443,8 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         globalPos.ry() = xevent->xcrossing.y_root;
         state = translateButtonState(xevent->xcrossing.state);
         if (qt_button_down && (state & (Qt::LeftButton |
-                                         Qt::MidButton |
-                                         Qt::RightButton)) == 0)
+                                        Qt::MidButton |
+                                        Qt::RightButton)) == 0)
             qt_button_down = 0;
         if (!qt_button_down)
             state = state & ~(Qt::LeftButton | Qt::MidButton | Qt::RightButton);
@@ -3478,14 +3465,8 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         case 7:
             // the fancy mouse wheel.
 
-            // take care about grabbing. We do this here since it
-            // is clear that we return anyway
-            if (qApp->inPopupMode() && popupGrabOk)
-                XAllowEvents(x11Info().display(), SyncPointer, CurrentTime);
-
             // We are only interested in ButtonPress.
             if (event->type == ButtonPress){
-
                 // compress wheel events (the X Server will simply
                 // send a button press for each single notch,
                 // regardless whether the application can catch up
@@ -3493,7 +3474,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
                 int delta = 1;
                 XEvent xevent;
                 while (XCheckTypedWindowEvent(x11Info().display(),winId(),
-                                               ButtonPress,&xevent)){
+                                              ButtonPress,&xevent)){
                     if (xevent.xbutton.button != event->xbutton.button){
                         XPutBackEvent(x11Info().display(), &xevent);
                         break;
@@ -3509,7 +3490,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
                 int btn = event->xbutton.button;
                 delta *= 120 * ((btn == Button4 || btn == 6) ? 1 : -1);
                 bool hor = ((btn == Button4 || btn == Button5) && (state&Qt::AltButton) ||
-                             (btn == 6 || btn == 7));
+                            (btn == 6 || btn == 7));
                 translateWheelEvent(globalPos.x(), globalPos.y(), delta, state, (hor)?Qt::Horizontal:Qt::Vertical);
             }
             return true;
@@ -3531,11 +3512,11 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             if (!qt_button_down || !qt_button_down->testWFlags(Qt::WMouseNoMask))
                 qt_button_down = this;
             if (mouseActWindow == event->xbutton.window &&
-                 mouseButtonPressed == button &&
-                 (long)event->xbutton.time -(long)mouseButtonPressTime
-                 < QApplication::doubleClickInterval() &&
-                 QABS(event->xbutton.x - mouseXPos) < 5 &&
-                 QABS(event->xbutton.y - mouseYPos) < 5) {
+                mouseButtonPressed == button &&
+                (long)event->xbutton.time -(long)mouseButtonPressTime
+                < QApplication::doubleClickInterval() &&
+                QABS(event->xbutton.x - mouseXPos) < 5 &&
+                QABS(event->xbutton.y - mouseYPos) < 5) {
                 type = QEvent::MouseButtonDblClick;
                 mouseButtonPressTime -= 2000;        // no double-click next time
             } else {
@@ -3562,7 +3543,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
 #endif
             if (manualGrab) {                        // release manual grab
                 manualGrab = false;
-                XUngrabPointer(x11Info().display(), CurrentTime);
+                XUngrabPointer(x11Info().display(), X11->time);
                 XFlush(x11Info().display());
             }
 
@@ -3575,6 +3556,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         return false;
 
     if (qApp->inPopupMode()) {                        // in popup mode
+        QWidget *activePopupWidget = qApp->activePopupWidget();
         QWidget *popup = qApp->activePopupWidget();
         if (popup != this) {
             if (testWFlags(Qt::WType_Popup) && rect().contains(pos))
@@ -3584,23 +3566,17 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         }
         bool releaseAfter = false;
         QWidget *popupChild  = popup->childAt(pos);
-        QWidget *popupTarget = popupChild ? popupChild : popup;
 
-        if (popup != popupOfPopupButtonFocus){
-            popupButtonFocus = 0;
-            popupOfPopupButtonFocus = 0;
-        }
-
-        if (!popupTarget->isEnabled()) {
-            if (popupGrabOk)
-                XAllowEvents(x11Info().display(), SyncPointer, CurrentTime);
+        if (popup != qt_popup_down){
+            qt_button_down = 0;
+            qt_popup_down = 0;
         }
 
         switch (type) {
         case QEvent::MouseButtonPress:
         case QEvent::MouseButtonDblClick:
-            popupButtonFocus = popupChild;
-            popupOfPopupButtonFocus = popup;
+            qt_button_down = popupChild;
+            qt_popup_down = popup;
             break;
         case QEvent::MouseButtonRelease:
             releaseAfter = true;
@@ -3610,53 +3586,58 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         }
 
         Display* dpy = x11Info().display(); // store display, send() may destroy us
-
-
         int oldOpenPopupCount = openPopupCount;
 
-        if (popupButtonFocus) {
-            QMouseEvent e(type, popupButtonFocus->mapFromGlobal(globalPos),
-                           globalPos, button, state);
-            QApplication::sendSpontaneousEvent(popupButtonFocus, &e);
-            if (releaseAfter) {
-                popupButtonFocus = 0;
-                popupOfPopupButtonFocus = 0;
-            }
+        // deliver event
+        popupReplayMouse = false;
+        if (qt_button_down) {
+            QMouseEvent e(type, qt_button_down->mapFromGlobal(globalPos),
+                          globalPos, button, state);
+            QApplication::sendSpontaneousEvent(qt_button_down, &e);
         } else if (popupChild) {
             QMouseEvent e(type, popupChild->mapFromGlobal(globalPos),
-                           globalPos, button, state);
+                          globalPos, button, state);
             QApplication::sendSpontaneousEvent(popupChild, &e);
         } else {
             QMouseEvent e(type, pos, globalPos, button, state);
             QApplication::sendSpontaneousEvent(popup, &e);
         }
 
-        if (type == QEvent::MouseButtonPress && button == Qt::RightButton && (openPopupCount == oldOpenPopupCount)) {
+        if (qApp->activePopupWidget() != activePopupWidget
+            && popupReplayMouse) {
+            // the active popup was closed, replay the mouse event
+            if (!isPopup()) {
+                QMouseEvent e(type, mapFromGlobal(globalPos), globalPos, button, state);
+                QApplication::sendSpontaneousEvent(this, &e);
+            }
+            popupReplayMouse = false;
+        } else if (type == QEvent::MouseButtonPress
+                   && button == Qt::RightButton
+                   && (openPopupCount == oldOpenPopupCount)) {
             QWidget *popupEvent = popup;
-            if(popupButtonFocus)
-                popupEvent = popupButtonFocus;
+            if (qt_button_down)
+                popupEvent = qt_button_down;
             else if(popupChild)
                 popupEvent = popupChild;
             QContextMenuEvent e(QContextMenuEvent::Mouse, pos, globalPos, state);
             QApplication::sendSpontaneousEvent(popupEvent, &e);
         }
 
-        if (releaseAfter)
+        if (releaseAfter) {
             qt_button_down = 0;
+            qt_popup_down = 0;
+        }
 
-        if (qApp->inPopupMode()) { // still in popup mode
-            if (popupGrabOk)
-                XAllowEvents(dpy, SyncPointer, CurrentTime);
-        } else {
+        if (!qApp->inPopupMode()) {
             if (type != QEvent::MouseButtonRelease && state != 0 &&
-                 QWidget::find((WId)mouseActWindow)) {
+                QWidget::find((WId)mouseActWindow)) {
                 manualGrab = true;                // need to manually grab
                 XGrabPointer(dpy, mouseActWindow, False,
-                              (uint)(ButtonPressMask | ButtonReleaseMask |
-                                     ButtonMotionMask |
-                                     EnterWindowMask | LeaveWindowMask),
-                              GrabModeAsync, GrabModeAsync,
-                              XNone, XNone, CurrentTime);
+                             (uint)(ButtonPressMask | ButtonReleaseMask |
+                                    ButtonMotionMask |
+                                    EnterWindowMask | LeaveWindowMask),
+                             GrabModeAsync, GrabModeAsync,
+                             XNone, XNone, CurrentTime);
             }
         }
 
@@ -3670,16 +3651,9 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             pos = w->mapFromGlobal(globalPos);
         }
 
-        if (popupCloseDownMode) {
-            popupCloseDownMode = false;
-            if (testWFlags(Qt::WType_Popup))        // ignore replayed event
-                return true;
-        }
-
-        if (type == QEvent::MouseButtonRelease &&
-             (state & (~button) & (Qt::LeftButton |
-                                    Qt::MidButton |
-                                    Qt::RightButton)) == 0) {
+        if (type == QEvent::MouseButtonRelease
+            && (state & (~button) & (Qt::LeftButton | Qt::MidButton | Qt::RightButton)) == 0) {
+            // no more buttons pressed on the widget
             qt_button_down = 0;
         }
 
@@ -3688,7 +3662,9 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         QMouseEvent e(type, pos, globalPos, button, state);
         QApplication::sendSpontaneousEvent(widget, &e);
 
-        if (type == QEvent::MouseButtonPress && button == Qt::RightButton && (openPopupCount == oldOpenPopupCount)) {
+        if (type == QEvent::MouseButtonPress
+            && button == Qt::RightButton
+            && (openPopupCount == oldOpenPopupCount)) {
             QContextMenuEvent e(QContextMenuEvent::Mouse, pos, globalPos, state);
             QApplication::sendSpontaneousEvent(widget, &e);
         }
@@ -4050,6 +4026,10 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
 
     return true;
 }
+
+//
+// Keyboard event translation
+//
 
 #ifndef XK_ISO_Left_Tab
 #define        XK_ISO_Left_Tab                                        0xFE20
