@@ -45,6 +45,14 @@ void ListWidgetEditor::fillContentsFromListWidget(QListWidget *listWidget)
 
 void ListWidgetEditor::fillContentsFromComboBox(QComboBox *comboBox)
 {
+    for (int i=0; i<comboBox->count(); ++i) {
+        QListWidgetItem *item = new QListWidgetItem();
+        item->setText(comboBox->itemText(i));
+        item->setIcon(comboBox->itemIcon(i));
+        ui.listWidget->addItem(item);
+    }
+
+    ui.listWidget->setCurrentRow(ui.listWidget->count() - 1);
 }
 
 void ListWidgetEditor::on_newItemButton_clicked()
@@ -118,11 +126,11 @@ void ListWidgetEditor::on_previewButton_clicked()
     if (currentRow == -1)
         return;
     QListWidgetItem *item = ui.listWidget->item(currentRow);
-    
+
     FindIconDialog dialog(m_form, 0);
     QString file_path;
     QString qrc_path;
-    
+
     QIcon icon = item->icon();
     if (icon.isNull()) {
         file_path = m_form->absolutePath(QString()) + QDir::separator();
