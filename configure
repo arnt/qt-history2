@@ -1951,6 +1951,11 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	  EXTRA_LFLAGS="$EXTRA_CFLAGS \$(QNX_LFLAGS)"
 	  EXTRA_CFLAGS="$EXTRA_CFLAGS \$(QNX_CFLAGS)"
 	fi
+	if [ '!' -z "$D_FLAGS" ]; then
+	    for DEF in $D_FLAGS; do
+		EXTRA_CFLAGS="$EXTRA_CFLAGS -D${DEF}"
+	    done
+        fi
 	QMAKE_BIN_DIR="$QT_INSTALL_BINS"
 	[ -z "$QMAKE_BIN_DIR" ] && QMAKE_BIN_DIR="${QT_INSTALL_PREFIX}/bin"
 	QMAKE_DATA_DIR="$QT_INSTALL_DATA"
