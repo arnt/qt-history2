@@ -338,6 +338,9 @@ QString QSqlDriver::sqlStatement(StatementType type, const QString &tableName,
         break;
     case WhereStatement:
         if (preparedStatement) {
+            for (int i = 0; i < rec.count(); ++i)
+                s.append(rec.fieldName(i)).append(QLatin1String(" = ? AND "));
+        } else {
             for (i = 0; i < rec.count(); ++i) {
                 s.append(rec.fieldName(i));
                 QString val = formatValue(rec.field(i));
@@ -347,9 +350,6 @@ QString QSqlDriver::sqlStatement(StatementType type, const QString &tableName,
                     s.append(QLatin1String(" = ")).append(val);
                 s.append(QLatin1String(" AND "));
             }
-        } else {
-            for (int i = 0; i < rec.count(); ++i)
-                s.append(rec.fieldName(i)).append(QLatin1String(" = ? AND "));
         }
         if (!s.isEmpty()) {
             s.prepend(QLatin1String("WHERE "));
@@ -357,9 +357,9 @@ QString QSqlDriver::sqlStatement(StatementType type, const QString &tableName,
         }
         break;
     case UpdateStatement:
-        s.append(QLatin1String("UPDATE TABLE ")).append(tableName).append(QLatin1String(" SET "));
+        s.append(QLatin1String("UPDATE ")).append(tableName).append(QLatin1String(" SET "));
         for (i = 0; i < rec.count(); ++i) {
-            if (!rec.isGenerated(i))
+            if (!rec.isGenerated(i) || !rec.value(i).isValid())
                 continue;
             s.append(rec.fieldName(i)).append(QLatin1Char('='));
             if (preparedStatement)
