@@ -55,7 +55,7 @@ static QThreadInstance *main_instance = 0;
 static QMutexPool *qt_thread_mutexpool = 0;
 
 
-static pthread_once_t storage_key_once;
+static pthread_once_t storage_key_once = PTHREAD_ONCE_INIT;
 static pthread_key_t storage_key;
 static void create_storage_key()
 {
