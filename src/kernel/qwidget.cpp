@@ -3255,7 +3255,7 @@ void QWidget::sendHideEventsToChildren( bool spontaneous )
   guarantee since the initialization of the subclasses might not be
   finished.
 
-  After this function, the wiget has a proper font and palette and
+  After this function, the widget has a proper font and palette and
   QApplication::polish() has been called. 
   
   Remember to call QWidget's implementation when reimplementing this
