@@ -2175,14 +2175,11 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                              kHIThemeOrientationNormal);
             if (cc == QStyle::CC_Slider && slider->subControls & QStyle::SC_SliderTickmarks) {
                 int numMarks;
-                if (slider->tickInterval) {
-                    if (slider->orientation == Qt::Horizontal)
-                        numMarks = slider->rect.width() / slider->tickInterval;
-                    else
-                        numMarks = slider->rect.height() / slider->tickInterval;
-                } else {
+                if (slider->tickInterval)
+                        numMarks = (slider->maximum - slider->minimum + 1)
+					/ slider->tickInterval;
+                else
                     numMarks = (slider->maximum - slider->minimum + 1) / slider->pageStep;
-                }
                 if (tdi.trackInfo.slider.thumbDir == kThemeThumbPlain) {
                     // They asked for both, so we'll give it to them.
                     tdi.trackInfo.slider.thumbDir = kThemeThumbDownward;
@@ -3714,14 +3711,11 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                 qt_mac_dispose_rgn(r);
             if (slider->subControls & QStyle::SC_SliderTickmarks) {
                 int numTicks;
-                if (slider->tickInterval) {
-                    if (slider->orientation == Qt::Horizontal)
-                        numTicks = slider->rect.width() / slider->tickInterval;
-                    else
-                        numTicks = slider->rect.height() / slider->tickInterval;
-                } else {
+                if (slider->tickInterval)
+                        numTicks = (slider->maximum - slider->minimum + 1)
+					/ slider->tickInterval;
+                else
                     numTicks = (slider->maximum - slider->minimum + 1) / slider->pageStep;
-                }
                 if (tdi.trackInfo.slider.thumbDir == kThemeThumbPlain) {
                     tdi.trackInfo.slider.thumbDir = kThemeThumbDownward;
                     DrawThemeTrackTickMarks(&tdi, numTicks, 0, 0);
