@@ -3,6 +3,7 @@
 #customizing
 P4=/usr/local/bin/p4	#p4 location
 P4PORT=p4.troll.no:866	#point p4 to the correct server
+myexprcount=0
 
 #internal variables
 CREATED_MANIFEST=no
@@ -303,6 +304,8 @@ done
 status "Creating moc files.."
 pushd $DISTDIR/qt/src/moc >/dev/null 2>&1
 $QMAKE_PATH -spec $QTDIR/mkspecs/linux-g++ moc.pro -o Makefile
+pwd
+ls -al
 make moc_lex.cpp
 make moc_yacc.cpp
 rm -f Makefile
@@ -368,6 +371,7 @@ for a in `find $DISTDIR/qt/dist/ -name "changes-$REL_VERSION"`; do
 done
 
 myexpr () {
+    myexprcount=$(( $myxeprcount + 1 ))
     echo "$1" | egrep "$3" >/dev/null 2>&1
     return
 }
@@ -876,4 +880,5 @@ rm -f ${TMP_FILE}
 cp -a $MANIFEST_FILE $OUT_TREE/manifest >/dev/null 2>&1
 [ "x$CREATED_MANIFEST" = "xyes" ] && rm -f ${MANIFEST_FILE}
 status "mkdists done"
+echo "myexprcount: $myexprcount"
 exit 0
