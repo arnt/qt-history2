@@ -249,6 +249,7 @@ Q_DECLARE_TYPEINFO(QGlyphFragment, Q_PRIMITIVE_TYPE);
 
 class QFontPrivate;
 class QTextFormatCollection;
+class QPalette;
 
 class QTextEngine {
 public:
@@ -334,6 +335,7 @@ public:
     unsigned int widthOnly : 1;
     unsigned int reserved : 24;
     unsigned int textFlags;
+    QPalette *pal;
 
     int allocated;
     void **memory;

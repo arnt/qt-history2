@@ -298,6 +298,14 @@ void QTextLayout::setTextFlags(int textFlags)
     d->textFlags = textFlags;
     d->lines.clear();
 }
+
+
+void QTextLayout::setPalette(const QPalette &p)
+{
+    d->pal = new QPalette(p);
+}
+
+
 void QTextLayout::beginLayout( QTextLayout::LayoutMode m, int textFlags )
 {
     d->items.clear();
@@ -799,16 +807,20 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 	if (selections) {
 	    for (int j = 0; j < nSelections; ++j) {
 		const Selection &s = selections[j];
-		if (s.from + s.length > from && s.from < from+length) {
-		    QRect highlight = QRect(QPoint(pos.x() + l.cursorToX(qMax(s.from, from)),
+		if (s.type() != Highlight)
+		    continue;
+		if (!d->pal)
+		    continue;
+
+		if (s.from() + s.length() > from && s.from() < from+length) {
+		    QRect highlight = QRect(QPoint(pos.x() + l.cursorToX(qMax(s.from(), from)),
 						   pos.y() + sl.y),
-					    QPoint(pos.x() + l.cursorToX(qMin(s.from + s.length, from+length)) - 1,
+					    QPoint(pos.x() + l.cursorToX(qMin(s.from() + s.length(), from+length)) - 1,
 						   pos.y() + sl.y + sl.ascent + sl.descent));
 		    p->save();
 		    p->setClipRect(highlight, QPainter::CoordPainter);
-		    if (s.type == Highlight)
-			p->fillRect(highlight, s.highlight);
-		    p->setPen(s.highlightText);
+		    p->fillRect(highlight, d->pal->highlight());
+		    p->setPen(d->pal->highlightedText());
 		    l.draw(p, pos.x(), pos.y());
 		    p->restore();
 		}

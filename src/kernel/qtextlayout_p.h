@@ -113,7 +113,7 @@ public:
     QTextEngine *engine() const { return eng; }
     int line() const { return i; }
 
-    void draw( QPainter *p, int x, int y );
+    void draw(QPainter *p, int x, int y);
 
 private:
     friend class QTextLayout;
@@ -149,6 +149,7 @@ public:
 
     void setFormat(int from, int length, int format);
     void setTextFlags(int textFlags);
+    void setPalette(const QPalette &);
 
     int numItems() const;
     QTextItem itemAt( int i ) const;
@@ -202,15 +203,20 @@ public:
     int previousCursorPosition( int oldPos, CursorMode mode = SkipCharacters ) const;
 
     enum SelectionType {
-	Highlight,
-	Underline
+	Underline = -1,
+	Highlight = -2
     };
-    struct Selection {
-	int from;
-	int length;
-	SelectionType type;
-	QColor highlight;
-	QColor highlightText;
+    class Selection {
+	int f;
+	int l;
+	int t;
+    public:
+	Selection() : f(-1), l(0), t(0) {}
+	//Selection(int f, int l, int formatIndex) : from(f), length(l), selectionType(formatIndex) {}
+	Selection(int from, int length, SelectionType type) : f(from), l(length), t(type) {}
+	inline int from() const { return f; }
+	inline int length() const { return l; }
+	inline int type() const { return t; }
     };
 
     enum { NoCursor = -1 };
