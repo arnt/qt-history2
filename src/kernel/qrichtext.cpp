@@ -3749,9 +3749,16 @@ int QTextString::width( int idx ) const
 #endif
      {
 	 int r = c->c.row();
-	 if( r < 0x06 || r > 0x1f )
-	     w = c->format()->width( c->c );
-	 else {
+	 if( r < 0x06 || r > 0x1f ) {
+	     // On some systems (like HP-UX) the width of
+	     // the nbsp is different from that of a space,
+	     // resulting in a strange selection that doesn't
+	     // do what you want at all.
+	     if ( c->c == QChar::nbsp )
+		 w = c->format()->width( ' ' );
+	     else
+		 w = c->format()->width( c->c );
+	 } else {
 	     // complex text. We need some hacks to get the right metric here
 	     QString str;
 	     int pos = 0;
