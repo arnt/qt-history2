@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#40 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#41 $
 **
 ** Implementation of QTabDialog class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#41 $");
 
 
 /*!
@@ -123,8 +123,7 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#40 $");
   separate dialog.
 
   <li> There should be no implicit ordering of the pages.  If there
-  is, it is probably better to use a \link QWizardDialog wizard dialog.
-  \endlink
+  is, it is probably better to use a wizard dialog.
 
   If some of the pages seem to be ordered and others not, perhaps they
   ought not to be joined in a tab dialog.
