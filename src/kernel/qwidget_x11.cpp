@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#295 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#296 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -836,7 +836,7 @@ bool QWidget::isActiveWindow() const
 {
     QWidget* tlw = topLevelWidget();
     return tlw == qApp->activeWindow()
-		|| (tlw->extra && tlw->extra->topextra && tlw->extra->topextra->swallowed); //#### 
+		|| (tlw->extra && tlw->extra->topextra && tlw->extra->topextra->embedded); //####
 
 //    Window win;
 //     int revert;
@@ -1724,6 +1724,7 @@ int QWidget::metric( int m ) const
 void QWidget::createSysExtra()
 {
     extra->xic = 0;
+    extra->xDndProxy = 0;
 }
 
 void QWidget::deleteSysExtra()

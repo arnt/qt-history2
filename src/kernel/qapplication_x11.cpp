@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#391 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#392 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -172,7 +172,7 @@ static Atom	qt_wm_protocols;		// window manager protocols
 Atom		qt_wm_delete_window;		// delete window protocol
 static Atom	qt_qt_scrolldone;		// scroll synchronization
 
-static Atom	qt_swallowed_window;
+static Atom	qt_embedded_window;
 static Atom	qt_focus_in;
 static Atom	qt_focus_out;
 static Atom	qt_unicode_key_press;
@@ -783,8 +783,8 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
     qt_x11_intern_atom( "WM_STATE", &qt_wm_state );
     qt_x11_intern_atom( "RESOURCE_MANAGER", &qt_resource_manager );
     qt_x11_intern_atom( "QT_SIZEGRIP", &qt_sizegrip );
-    
-    qt_x11_intern_atom( "QT_SWALLOWED_WINDOW", &qt_swallowed_window );
+
+    qt_x11_intern_atom( "QT_EMBEDDED_WINDOW", &qt_embedded_window );
     qt_x11_intern_atom( "QT_FOCUS_IN", &qt_focus_in );
     qt_x11_intern_atom( "QT_FOCUS_OUT", &qt_focus_out );
     qt_x11_intern_atom( "QT_UNICODE_KEY_PRESS", &qt_unicode_key_press );
@@ -1443,6 +1443,10 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 
     if ( !qt_wm_state )
 	return w;
+
+    //########### why so complex? Why not findChildWidget(...)->topLevelWidget();? me
+
+
     target = qt_x11_findClientWindow( target, qt_wm_state, TRUE );
     c = QWidget::find( (WId)target );
     if ( !c ) {
@@ -2219,6 +2223,11 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if ( inPopupMode() ) // some delayed focus event to ignore
 	    break;
 	active_window = widget->topLevelWidget();
+	if (active_window && active_window->extra->topextra->embedded) {
+	    ((XEvent*)event)->xfocus.window = active_window->extra->topextra->parentWinId;
+	    XSendEvent(appDpy, active_window->extra->topextra->parentWinId, NoEventMask, FALSE, (XEvent*)event);
+	}
+	
 	QWidget *w = widget->focusWidget();
 	if (w && (w->isFocusEnabled() || w->isTopLevel() ) )
 	    w->setFocus();
@@ -2284,7 +2293,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    }
 	}
 	else if ( event->xclient.format == 16 ) {
-	    if ( event->xclient.message_type == qt_unicode_key_press 
+	    if ( event->xclient.message_type == qt_unicode_key_press
 		 || event->xclient.message_type == qt_unicode_key_release ) {
 		
 		QWidget *g = QWidget::keyboardGrabber();
@@ -2360,20 +2369,22 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		widget->createTLExtra();
 		widget->fpos = frect.topLeft();
 		widget->extra->topextra->fsize = frect.size();
+		
+		// store the parent. Useful for many things, embedding for instance.
 		widget->extra->topextra->parentWinId = parent;
 		
 		{
+		    // check whether the widget was embedded rather than managed.
 		    Atom type;
 		    int format;
 		    unsigned long length, after;
 		    unsigned char *data;
-		    if ( XGetWindowProperty( appDpy, widget->winId(), qt_swallowed_window, 0, 1,
-						 TRUE, qt_swallowed_window, &type, &format,
+		    if ( XGetWindowProperty( appDpy, widget->winId(), qt_embedded_window, 0, 1,
+						 TRUE, qt_embedded_window, &type, &format,
 						 &length, &after, &data ) == Success ) {
 			if (data && data[0] ) {
 			    // extra/topextra was created above
-			    widget->extra->topextra->swallowed = 1;
-			    debug("ooops, I'm swallowed!");
+			    widget->extra->topextra->embedded = 1;
 			}
 			if (data)
 			    XFree( data );
@@ -3103,6 +3114,11 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		     focusProxy()? (focusProxy()->focusPolicy() & ClickFocus)
 		     : (focusPolicy() & ClickFocus ) ) {
 		    setFocus();
+		    QWidget* active_window = qApp->activeWindow();
+		    if (active_window && active_window->extra->topextra->embedded) {
+			((XEvent*)event)->xfocus.window = active_window->extra->topextra->parentWinId;
+			XSendEvent(appDpy, active_window->extra->topextra->parentWinId, NoEventMask, FALSE, (XEvent*)event);
+		    }
 		}
 		break;
 	    case Button4: case Button5:
@@ -3522,13 +3538,13 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     char       ascii = 0;
 
      QWidget* tlw = topLevelWidget();
-    if (!grab && tlw && tlw->extra && tlw->extra->topextra && tlw->extra->topextra->swallowed) {
+    if (!grab && tlw && tlw->extra && tlw->extra->topextra && tlw->extra->topextra->embedded) {
 	((XEvent*)event)->xkey.window = tlw->extra->topextra->parentWinId;
 	XSendEvent(appDpy, tlw->extra->topextra->parentWinId, NoEventMask, FALSE, (XEvent*)event);
 	return TRUE;
     }
-    
-    
+
+
     bool   autor = FALSE;
 
     QEvent::Type type = (event->type == XKeyPress) ? QEvent::KeyPress : QEvent::KeyRelease;

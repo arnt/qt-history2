@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#317 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#318 $
 **
 ** Implementation of QWidget class
 **
@@ -818,7 +818,7 @@ void QWidget::createTLExtra()
 	extra->topextra->iconic = 0;
 #if defined(_WS_X11_)
 	extra->topextra->normalGeometry = QRect(0,0,-1,-1);
-	extra->topextra->swallowed = 0;
+	extra->topextra->embedded = 0;
 	extra->topextra->parentWinId = 0;
 #endif
     }
@@ -2417,7 +2417,7 @@ QFocusData * QWidget::focusData( bool create )
   full word, because the required recalculation of the layout of the
   paragraph is roughly the same.
 
-  If a widgets supports multiple byte unicode input, it is always save
+  If a widgets supports multiple byte unicode input, it is always safe
   (and also recommended!) to turn the compression on.
 
   \sa QKeyEvent::text();

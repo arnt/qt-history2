@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#192 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#193 $
 **
 ** Definition of QWidget class
 **
@@ -592,8 +592,8 @@ struct QTLWExtra {
     uint     iconic: 1;				// iconified [cur. win32 only]
 #if defined(_WS_X11_)
     QRect    normalGeometry;			// used by showMin/maximized
-    uint swallowed : 1;
-    WId parentWinId;
+    WId parentWinId;				// parent window Id (valid after reparenting)
+    uint embedded : 1;			// window is embedded in another Qt application
 #endif
 };
 
@@ -609,6 +609,7 @@ struct QWExtra {
     QOleDropTarget *dropTarget;			// drop target
 #endif
 #if defined(_WS_X11_)
+    WId xDndProxy;				// XDND forwarding to embedded windows
     void    *xic;				// XIM Input Context
 #endif
     char     bg_mode;				// background mode

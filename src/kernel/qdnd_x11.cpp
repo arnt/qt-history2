@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#69 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -86,6 +86,8 @@ Atom qt_xdnd_action_copy;
 // clean up the stuff used.
 static void qt_xdnd_cleanup();
 
+static void qt_xdnd_send_leave();
+
 // XDND selection
 Atom qt_xdnd_selection;
 // other selection
@@ -124,6 +126,11 @@ QIntDict<QByteArray> * qt_xdnd_target_data = 0;
 
 // first drag object, or 0
 QDragObject * qt_xdnd_source_object = 0;
+
+// for embedding only
+static QWidget* current_embedding_widget  = 0;
+static XEvent last_enter_event;
+
 
 class QShapedPixmapWidget : public QWidget {
     QPixmap pixmap;
@@ -262,10 +269,51 @@ static QWidget * find_child( QWidget * tlw, QPoint & p )
 }
 
 
+class QExtraWidget : public QWidget
+{
+public:
+    QWExtra* getExtra() { return extraData(); }
+};
+
+static bool checkEmbedded(QWidget* w, const XEvent* xe)
+{
+    if (!w)
+	return FALSE;
+
+    if (current_embedding_widget != 0 && current_embedding_widget != w) {
+	qt_xdnd_current_target = ((QExtraWidget*)current_embedding_widget)->getExtra()->xDndProxy;
+	qt_xdnd_send_leave();
+	qt_xdnd_current_target = 0;
+	current_embedding_widget = 0;
+    }
+
+    QWExtra* extra = ((QExtraWidget*)w)->getExtra();
+    if ( extra && extra->xDndProxy != 0 ) {
+	
+	if (current_embedding_widget != w) {
+	
+ 	    last_enter_event.xany.window = extra->xDndProxy;
+ 	    XSendEvent( qt_xdisplay(), extra->xDndProxy, FALSE, NoEventMask,
+ 			&last_enter_event );
+	    current_embedding_widget = w;
+	}
+	
+	((XEvent*)xe)->xany.window = extra->xDndProxy;
+	XSendEvent( qt_xdisplay(), extra->xDndProxy, FALSE, NoEventMask,
+		    (XEvent*)xe );
+	qt_xdnd_current_widget = w;
+	return TRUE;
+    }
+    current_embedding_widget = 0;
+    return FALSE;
+}
+
 void qt_handle_xdnd_enter( QWidget *, const XEvent * xe )
 {
     //if ( !w->neveHadAChildWithDropEventsOn() )
 	//return; // haven't been set up for dnd
+
+    last_enter_event.xclient = xe->xclient;
 
     qt_xdnd_target_answerwas = FALSE;
 
@@ -291,12 +339,16 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe )
 }
 
 
+
 void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
 {
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
 
     QPoint p( (l[2] & 0xffff0000) >> 16, l[2] & 0x0000ffff );
     QWidget * c = find_child( w, p ); // changes p to to c-local coordinates
+
+    if (checkEmbedded(c, xe))
+	return;
 
     if ( !c || !c->acceptDrops() && c->isDesktop() )
 	return;
@@ -421,6 +473,12 @@ void qt_handle_xdnd_leave( QWidget *w, const XEvent * xe )
 	return; // sanity
     }
 
+    if (checkEmbedded(current_embedding_widget, xe)) {
+	current_embedding_widget = 0;
+	qt_xdnd_current_widget = 0;
+	return;
+    }
+
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
 
     QDragLeaveEvent e;
@@ -440,7 +498,7 @@ void qt_handle_xdnd_leave( QWidget *w, const XEvent * xe )
 }
 
 
-static void qt_xdnd_send_leave()
+void qt_xdnd_send_leave()
 {
     if ( !qt_xdnd_current_target )
 	return;
@@ -473,6 +531,7 @@ static void qt_xdnd_send_leave()
 }
 
 
+
 void qt_handle_xdnd_drop( QWidget *, const XEvent * xe )
 {
     if ( !qt_xdnd_current_widget ) {
@@ -480,6 +539,12 @@ void qt_handle_xdnd_drop( QWidget *, const XEvent * xe )
 	return; // sanity
     }
 
+    if (checkEmbedded(qt_xdnd_current_widget, xe)){
+	current_embedding_widget = 0;
+	qt_xdnd_dragsource_xid = 0;
+	qt_xdnd_current_widget = 0;
+	return;
+    }
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
 
     //debug( "xdnd drop" );
@@ -507,6 +572,8 @@ void qt_handle_xdnd_finished( QWidget *, const XEvent * xe )
 
     if ( l[0] && l[0] == qt_xdnd_current_target ) {
 	//
+	(void ) checkEmbedded( qt_xdnd_current_widget, xe);
+	current_embedding_widget = 0;
 	qt_xdnd_current_target = 0;
     }
 }
@@ -763,10 +830,11 @@ void QDragManager::move( const QPoint & globalPos )
     if ( target == qt_xrootwin() ) {
 	// Ok.
     } else if ( target ) {
+	//me
 	target = qt_x11_findClientWindow( target, qt_wm_state, TRUE );
-	if ( qt_xdnd_deco && !target || target == qt_xdnd_deco->winId() ) {
-	    target = findRealWindow(globalPos,qt_xrootwin(),6);
-	}
+ 	if ( qt_xdnd_deco && !target || target == qt_xdnd_deco->winId() ) {
+ 	    target = findRealWindow(globalPos,qt_xrootwin(),6);
+ 	}
     }
 
     if ( target == 0 )
