@@ -749,7 +749,9 @@ void Configure::generateConfigfiles()
 void Configure::displayConfig()
 {
     // Give some feedback
-    if ( QFile::exists( QDir::homeDirPath() + "/.qt-license" ) ) {
+    if( QFile::exists( qtDir + "/LICENSE.TROLL" ) ) {
+	cout << "Trolltech license file used." << qtDir + "/LICENSE.TROLL" << endl;
+    } else if ( QFile::exists( QString("\"%1%2\"").arg( QDir::homeDirPath() ).arg( "/.qt-license" ) ) ) {
 	cout << "License file used..........." << QDir::homeDirPath() << "/.qt-license" << endl;
 	cout << "Licensee...................." << licenseInfo[ "LICENSEE" ] << endl;
 	cout << "License ID.................." << licenseInfo[ "LICENSEID" ] << endl;
