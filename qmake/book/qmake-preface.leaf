@@ -2,10 +2,17 @@
 
 \section1 Introduction to qmake
 
-\e qmake is a tool created by Trolltech to help create makefiles for your development projects.
+\e qmake is a tool created by Trolltech to write makefiles for
+different compilers and platforms.
 
-It can be a difficult and tedious task to create makefiles for your development projects, especially if you are developing on more than one platform and with 
-different compilers.  \e qmake handles the makefile generation for you, so that you can spend more time developing rather than creating makefiles.
+Writing makefiles by hand can be difficult and error prone, especially
+if several makefiles are required for different compiler and platform
+combinations. With \e qmake developers create a simple single
+'project' file, and run \e qmake to generate the appropriate
+makefiles. \e qmake takes care of all the compiler and platform
+dependencies, freeing developers to focus on their code. Trolltech use
+\e qmake as the primary build tool for the Qt library, and for the
+tools supplied with Qt.
 
-\e qmake has additional features for generating makefile for Qt applications which include ensuring the relevant defines are set and the appropriate steps for
-using moc and uic are put in.
+\e qmake also takes care of Qt's special requirements, automatically
+including build rules for \link moc.html moc\endlink and \e uic.

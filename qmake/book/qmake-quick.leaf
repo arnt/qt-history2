@@ -2,88 +2,113 @@
 
 \section1 Creating a project file
 
-In order to use \e qmake to generate a makefile for your application you need to have a project (.pro) file.
-A basic project file contains information about your application such as which files are needed to compile it 
-and basic configuration settings for the application.
+\e qmake uses information stored in project (.pro) files to determine
+what should go in the makefiles it generates.
 
-A simple project file will look something like the following.
+A basic project file contains information about the application, for
+example, which files are needed to compile the application, and which
+configuration settings to use.
 
+Here's a simple example project file:
 \code
-	SOURCES = hello.cpp
-	HEADERS = hello.h
-	CONFIG += qt warn_on release
-	TARGET = hello
+    SOURCES = hello.cpp
+    HEADERS = hello.h
+    CONFIG += qt warn_on release
 \endcode
 
-We'll go through this line by line briefly for now, and later on in the manual we will go into more detail about
-the available options.
+We'll provide a brief line-by-line explanation, deferring the detail
+until later on in the manual.
 
 \code
-	SOURCES = hello.cpp
+    SOURCES = hello.cpp
 \endcode
 
-This line specifies the source files for your application, in this case we only have one \e hello.cpp.  If you have
-more than one in your project then you can either put it on the same line leaving a space between the source files
-
+This line specifies the source files that implement the application. In this
+case there is just one file, \e hello.cpp. Most applications require
+multiple files; this situation is dealt with by listing all the files
+on the same line space separated, like this:
 \code
-	SOURCES = hello.cpp main.cpp
+    SOURCES = hello.cpp main.cpp
 \endcode
 
-Or you can put it on a separate line, if you do this then you need to put a \e \ after the last source file so it 
-looks like
-
+Alternatively, each file can be listed on a separate line, by escaping
+the newlines, like this:
 \code
-	SOURCES = hello.cpp \
-		    main.cpp
+    SOURCES = hello.cpp \
+		main.cpp
 \endcode
 
-Now we'll move onto the HEADERS line
+A more verbose approach is to list each file separately, like this:
+\code
+    SOURCES += hello.cpp
+    SOURCES += main.cpp
+\endcode
+This approach uses "+=" rather than "=" which is safer, because it
+always adds a new file to the existing list rather than replacing the
+list.
+
+The HEADERS line is used to specify the header files created for use
+by the application, e.g. 
 \code 
-	HEADERS = hello.h
+    HEADERS += hello.h
 \endcode
 
-This line specifies the header files for your application, this is used in the same way as the SOURCES line.
+Any of the approaches used to list source files may be used for header
+files.
 
-The next line is the CONFIG line
+The CONFIG line is used to give \e qmake information about the
+application's configuration.
 \code 
-	CONFIG += qt warn_on release
+    CONFIG += qt warn_on release
 \endcode
 
-The config line specifies the basic configuration of the application.  For now, ignore the \e += part of the line,
-just ensure that you use this when you create your own project files.  
+The "+=" is used here, because we add our configuration options to any
+that are already present. This is safer than using "=" which replaces
+all options with just those specified.
 
-The \e qt part of the CONFIG line tells \e qmake that the application is built using Qt.  This means that \e qmake will 
-link against the Qt libraries when linking and add in the neccesary include paths for compiling.
+The \e qt part of the CONFIG line tells \e qmake that the application
+is built using Qt.  This means that \e qmake will link against the Qt
+libraries when linking and add in the neccesary include paths for
+compiling.
 
-The \e warn_on part of the CONFIG line tells \e qmake that it should set the compiler flags for outputting warnings.
+The \e warn_on part of the CONFIG line tells \e qmake that it should
+set the compiler flags so that warnings are output.
 
-The \e release part of the CONFIG line tells \e qmake that the application is to be built as a release application. 
-If you wish to build your application as a debug application then specify \e debug here instead of release.
+The \e release part of the CONFIG line tells \e qmake that the
+application must be built as a release application. During
+development, programmers may prefer to replace \e release with \e
+debug, which is discussed later.
 
-The last line in the project file is the TARGET line
-
+\omit
+The last line in the project file is the TARGET line:
 \code
-	TARGET = hello
+    TARGET = hello
 \endcode
+The target line simply specifies what the name of the target should be
+for the application.  You shouldn't put an extension here because \e
+qmake will do this for you.
+\endomit
 
-The target line simply specifies what the name of the target should be for the application.  You shouldn't put an 
-extension here because \e qmake will do this for you.
-
-When you create a project file, just save it as a \e .pro file, for example, we might save the project file in our 
-example as \e hello.pro
+Project files are plain text (i.e. use an editor like notepad, vim
+or xemacs) and must be saved with a '.pro' extension. The name of the
+application's executable will be the same as the project file's name,
+but with an extension appropriate to the platform. For example, a
+project file called 'hello.pro' will produce 'hello.exe' on Windows
+and 'hello' on Unix.
 
 \section1 Generating a makefile 
 
-When you have created your project file it is very easy to generate a makefile, all you need to do is go to where you have
-created your project file and type:
+When you have created your project file it is very easy to generate a
+makefile, all you need to do is go to where you have created your
+project file and type:
 
+Makefiles are generated from the '.pro' files like this:
 \code
-	qmake -o Makefile hello.pro 
+    qmake -o Makefile hello.pro 
 \endcode
 
-And this will create a makefile for your application.  If you want to create to a Visual Studio project file for your application
-then just put:
-
+For Visual Studio users, \e qmake can also generate '.dsp' files, for
+example:
 \code
-	qmake -t vcapp -o hello.dsp hello.pro
+    qmake -t vcapp -o hello.dsp hello.pro
 \endcode
