@@ -1,0 +1,417 @@
+/*! \class QListIterator
+
+*/
+
+/*! \class QLinkedListIterator
+
+*/
+
+/*! \class QVectorIterator
+
+*/
+
+/*! \class QListMutableIterator
+
+*/
+
+/*! \class QLinkedListMutableIterator
+
+*/
+
+/*! \class QVectorMutableIterator
+
+*/
+
+/*! \fn QListIterator::QListIterator(const QList<T> &list)
+    \fn QLinkedListIterator::QLinkedListIterator(const QLinkedList<T> &list)
+    \fn QListMutableIterator::QListMutableIterator(QList<T> &list)
+    \fn QLinkedListMutableIterator::QLinkedListMutableIterator(QLinkedList<T> &list)
+
+    Constructs an iterator for traversing \a list. The iterator is
+    set to be at the front of the list (before the first item).
+
+    \sa operator=()
+*/
+
+/*! \fn QVectorIterator::QVectorIterator(const QVector<T> &vector)
+    \fn QVectorMutableIterator::QVectorMutableIterator(QVector<T> &vector)
+
+    Constructs an iterator for traversing \a vector. The iterator is
+    set to be at the front of the vector (before the first item).
+
+    \sa operator=()
+*/
+
+/*! \fn void QListMutableIterator::operator=(QList<T> &list)
+    \fn void QLinkedListMutableIterator::operator=(QLinkedList<T> &list)
+    \fn void QListIterator::operator=(const QList<T> &list)
+    \fn void QLinkedListIterator::operator=(const QLinkedList<T> &list)
+
+    Makes the iterator operate on \a list. The iterator is set to be
+    at the front of the list (before the first item).
+
+    \sa toFront(), toBack()
+*/
+
+/*! \fn void QVectorIterator::operator=(const QVector<T> &vector)
+    \fn void QVectorMutableIterator::operator=(QVector<T> &vector)
+
+    Makes the iterator operate on \a vector. The iterator is set to be
+    at the front of the vector (before the first item).
+
+    \sa toFront(), toBack()
+*/
+
+/*! \fn void QListIterator::toFront()
+    \fn void QLinkedListIterator::toFront()
+    \fn void QVectorIterator::toFront()
+    \fn void QListMutableIterator::toFront()
+    \fn void QLinkedListMutableIterator::toFront()
+    \fn void QVectorMutableIterator::toFront()
+
+    Moves the iterator to the front of the container (before the
+    first item).
+
+    \sa toBack(), next()
+*/
+
+/*! \fn void QListIterator::toBack()
+    \fn void QLinkedListIterator::toBack()
+    \fn void QListMutableIterator::toBack()
+    \fn void QLinkedListMutableIterator::toBack()
+    \fn void QVectorIterator::toBack()
+    \fn void QVectorMutableIterator::toBack()
+
+    Moves the iterator to the back of the container (after the last
+    item).
+
+    \sa toFront(), prev()
+*/
+
+/*! \fn bool QListIterator::hasNext() const
+    \fn bool QLinkedListIterator::hasNext() const
+    \fn bool QVectorIterator::hasNext() const
+    \fn bool QListMutableIterator::hasNext() const
+    \fn bool QLinkedListMutableIterator::hasNext() const
+    \fn bool QVectorMutableIterator::hasNext() const
+
+    Returns true if the iterator is \a not at the back of the
+    container; otherwise returns false.
+
+    \sa hasPrev(), next()
+*/
+
+/*! \fn const T &QListIterator::next()
+    \fn const T &QLinkedListIterator::next()
+    \fn const T &QVectorIterator::next()
+
+    Returns the next item and advances the iterator by one position.
+
+    Calling this function on an iterator located at the back of the
+    container leads to undefined results.
+
+    \sa hasNext(), peekNext(), prev()
+*/
+
+/*! \fn T &QListMutableIterator::next()
+    \fn T &QLinkedListMutableIterator::next()
+    \fn T &QVectorMutableIterator::next()
+
+    Returns a reference to the next item, and advances the iterator
+    by one position.
+
+    Calling this function on an iterator located at the back of the
+    container leads to undefined results.
+
+    \sa hasNext(), peekNext(), prev()
+*/
+
+/*! \fn const T &QListIterator::peekNext() const
+    \fn const T &QLinkedListIterator::peekNext() const
+    \fn const T &QVectorIterator::peekNext() const
+
+    Returns the next item without moving the iterator.
+
+    Calling this function on an iterator located at the back of the
+    container leads to undefined results.
+
+    \sa hasNext(), next(), peekPrev()
+*/
+
+/*! \fn T &QListMutableIterator::peekNext() const
+    \fn T &QLinkedListMutableIterator::peekNext() const
+    \fn T &QVectorMutableIterator::peekNext() const
+
+    Returns a reference to the next item, without moving the iterator.
+
+    Calling this function on an iterator located at the back of the
+    container leads to undefined results.
+
+    \sa hasNext(), next(), peekPrev()
+*/
+
+/*! \fn bool QListIterator::hasPrev() const
+    \fn bool QLinkedListIterator::hasPrev() const
+    \fn bool QVectorIterator::hasPrev() const
+    \fn bool QListMutableIterator::hasPrev() const
+    \fn bool QLinkedListMutableIterator::hasPrev() const
+    \fn bool QVectorMutableIterator::hasPrev() const
+
+    Returns true if the iterator is \a not at the front of the
+    container; otherwise returns false.
+
+    \sa hasNext(), prev()
+*/
+
+/*! \fn const T &QListIterator::prev()
+    \fn const T &QLinkedListIterator::prev()
+    \fn const T &QVectorIterator::prev()
+
+    Returns the previous item and moves the iterator back by one
+    position.
+
+    Calling this function on an iterator located at the front of the
+    container leads to undefined results.
+
+    \sa hasPrev(), peekPrev(), next()
+*/
+
+/*! \fn T &QListMutableIterator::prev()
+    \fn T &QLinkedListMutableIterator::prev()
+    \fn T &QVectorMutableIterator::prev()
+    \fn T &QListMutableIterator::peekPrev() const
+    \fn T &QLinkedListMutableIterator::peekPrev() const
+    \fn T &QVectorMutableIterator::peekPrev() const
+
+    Returns a reference to the previous item and moves the iterator
+    back by one position.
+
+    Calling this function on an iterator located at the front of the
+    container leads to undefined results.
+
+    \sa hasPrev(), peekPrev(), next()
+*/
+
+/*! \fn const T &QListIterator::peekPrev() const
+    \fn const T &QLinkedListIterator::peekPrev() const
+    \fn const T &QVectorIterator::peekPrev() const
+
+    Returns the previous item without moving the iterator.
+
+    Calling this function on an iterator located at the front of the
+    container leads to undefined results.
+
+    \sa hasPrev(), prev(), peekNext()
+*/
+
+/*! \fn bool QListIterator::findNext(const T &value)
+    \fn bool QLinkedListIterator::findNext(const T &value)
+    \fn bool QVectorIterator::findNext(const T &value)
+    \fn bool QListMutableIterator::findNext(const T &value)
+    \fn bool QLinkedListMutableIterator::findNext(const T &value)
+    \fn bool QVectorMutableIterator::findNext(const T &value)
+
+*/
+
+/*! \fn bool QListIterator::findPrev(const T &value)
+    \fn bool QLinkedListIterator::findPrev(const T &value)
+    \fn bool QVectorIterator::findPrev(const T &value)
+    \fn bool QListMutableIterator::findPrev(const T &value)
+    \fn bool QLinkedListMutableIterator::findPrev(const T &value)
+    \fn bool QVectorMutableIterator::findPrev(const T &value)
+
+*/
+
+/*! \fn void QListMutableIterator::remove()
+    \fn void QLinkedListMutableIterator::remove()
+    \fn void QVectorMutableIterator::remove()
+
+*/
+
+/*! \fn void QListMutableIterator::setValue(const T &value) const
+    \fn void QLinkedListMutableIterator::setValue(const T &value) const
+    \fn void QVectorMutableIterator::setValue(const T &value) const
+
+*/
+
+/*! \fn const T &QListMutableIterator::value() const
+    \fn const T &QLinkedListMutableIterator::value() const
+    \fn const T &QVectorMutableIterator::value() const
+
+*/
+
+/*! \fn void QListMutableIterator::insert(const T &value)
+    \fn void QLinkedListMutableIterator::insert(const T &value)
+    \fn void QVectorMutableIterator::insert(const T &value)
+
+*/
+
+/*! \class QMapIterator
+
+*/
+
+/*! \class QHashIterator
+
+*/
+
+/*! \class QMapMutableIterator
+
+*/
+
+/*! \class QHashMutableIterator
+
+*/
+
+/*! \fn QMapIterator::QMapIterator(const QMap<Key, T> &map)
+
+*/
+
+/*! \fn QHashIterator::QHashIterator(const QHash<Key, T> &hash)
+
+*/
+
+/*! \fn QMapMutableIterator::QMapMutableIterator(QMap<Key, T> &map)
+
+*/
+
+/*! \fn QHashMutableIterator::QHashMutableIterator(QHash<Key, T> &hash)
+
+*/
+
+/*! \fn void QMapIterator::operator=(const QMap<Key, T> &map)
+
+*/
+
+/*! \fn void QHashIterator::operator=(const QHash<Key, T> &hash)
+
+*/
+
+/*! \fn void QMapMutableIterator::operator=(QMap<Key, T> &map)
+
+*/
+
+/*! \fn void QHashMutableIterator::operator=(QHash<Key, T> &hash)
+
+*/
+
+/*! \fn void QMapIterator::toFront()
+    \fn void QHashIterator::toFront()
+    \fn void QMapMutableIterator::toFront()
+    \fn void QHashMutableIterator::toFront()
+
+*/
+
+*/
+
+/*! \fn void QMapIterator::toBack()
+    \fn void QHashIterator::toBack()
+    \fn void QMapMutableIterator::toBack()
+    \fn void QHashMutableIterator::toBack()
+
+*/
+
+/*! \fn bool QMapIterator::hasNext() const
+    \fn bool QHashIterator::hasNext() const
+    \fn bool QMapMutableIterator::hasNext() const
+    \fn bool QHashMutableIterator::hasNext() const
+
+*/
+
+/*! \fn const_iterator QMapIterator::next()
+    \fn const_iterator QHashIterator::next()
+
+*/
+
+/*! \fn iterator QMapMutableIterator::next()
+    \fn iterator QHashMutableIterator::next()
+
+*/
+
+/*! \fn const_iterator QMapIterator::peekNext() const
+    \fn const_iterator QHashIterator::peekNext() const
+
+*/
+
+/*! \fn iterator QMapMutableIterator::peekNext() const
+    \fn iterator QHashMutableIterator::peekNext() const
+
+*/
+
+/*! \fn bool QMapIterator::hasPrev() const
+    \fn bool QHashIterator::hasPrev() const
+    \fn bool QMapMutableIterator::hasPrev() const
+    \fn bool QHashMutableIterator::hasPrev() const
+
+*/
+
+/*! \fn const_iterator QMapIterator::prev()
+    \fn const_iterator QHashIterator::prev()
+
+*/
+
+/*! \fn iterator QMapMutableIterator::prev() const
+    \fn iterator QHashMutableIterator::prev() const
+
+*/
+
+/*! \fn const_iterator QMapIterator::peekPrev() const
+    \fn const_iterator QHashIterator::peekPrev() const
+
+*/
+
+/*! \fn iterator QMapMutableIterator::peekPrev() const
+    \fn iterator QHashMutableIterator::peekPrev() const
+
+*/
+
+/*! \fn const T &QMapIterator::value() const
+    \fn const T &QHashIterator::value() const
+    \fn const T &QMapMutableIterator::value() const
+    \fn const T &QHashMutableIterator::value() const
+
+*/
+
+/*! \fn const Key &QMapIterator::key() const
+    \fn const Key &QHashIterator::key() const
+    \fn const Key &QMapMutableIterator::key() const
+    \fn const Key &QHashMutableIterator::key() const
+
+*/
+
+/*! \fn bool QMapIterator::findNext(const T &value)
+    \fn bool QHashIterator::findNext(const T &value)
+    \fn bool QMapMutableIterator::findNext(const T &value)
+    \fn bool QHashMutableIterator::findNext(const T &value)
+
+*/
+
+/*! \fn bool QMapIterator::findPrev(const T &value)
+    \fn bool QHashIterator::findPrev(const T &value)
+    \fn bool QMapMutableIterator::findPrev(const T &value)
+    \fn bool QHashMutableIterator::findPrev(const T &value)
+
+*/
+
+/*! \fn bool QMapIterator::findNextKey(const Key &key)
+    \fn bool QHashIterator::findNextKey(const Key &key)
+    \fn bool QMapMutableIterator::findNextKey(const Key &key)
+    \fn bool QHashMutableIterator::findNextKey(const Key &key)
+
+*/
+
+/*! \fn bool QMapIterator::findPrevKey(const Key &key)
+    \fn bool QHashIterator::findPrevKey(const Key &key)
+    \fn bool QMapMutableIterator::findPrevKey(const Key &key)
+    \fn bool QHashMutableIterator::findPrevKey(const Key &key)
+
+*/
+
+/*! \fn void QMapMutableIterator::remove()
+    \fn void QHashMutableIterator::remove()
+
+*/
+
+/*! \fn void QMapMutableIterator::setValue(const T &value)
+    \fn void QHashMutableIterator::setValue(const T &value)
+
+*/
