@@ -769,8 +769,10 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 	    if ( encoding->encoding != QFontPrivate::defaultEncodingID )
 		this_score += 10;
 	}
-	if ( !( pitch == 'm' && encoding->pitch == 'c' ) && pitch != encoding->pitch )
-	    this_score += 200;
+	if (pitch != '*') {
+	    if ( !( pitch == 'm' && encoding->pitch == 'c' ) && pitch != encoding->pitch )
+		this_score += 200;
+	}
 #endif
 	if ( styleKey != style->key )
 	    this_score += 100;
@@ -830,7 +832,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
     styleKey.italic = request.italic;
     styleKey.weight = request.weight;
     styleKey.stretch = request.stretch;
-    char pitch = request.fixedPitch ? 'm' : 'p';
+    char pitch = request.ignorePitch ? '*' : request.fixedPitch ? 'm' : 'p';
 
     parseFontName( request.family, foundry_name, family_name );
 
@@ -1024,6 +1026,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	fe->fontDef.italic        = best_style->key.italic;
 	fe->fontDef.fixedPitch    = best_family->fixedPitch;
 	fe->fontDef.stretch       = best_style->key.stretch;
+	fe->fontDef.ignorePitch   = FALSE;
 
 	if ( fp ) {
 	    QFontCache::Key key( request, script, fp->screen );

@@ -42,7 +42,8 @@ struct QFontDef
     inline QFontDef()
 	: pointSize( -1 ), pixelSize( -1 ),
 	  styleHint( QFont::AnyStyle ), styleStrategy( QFont::PreferDefault ),
-	  weight( 50 ), italic( FALSE ), fixedPitch( FALSE ), stretch( 100 )
+	  weight( 50 ), italic( FALSE ), fixedPitch( FALSE ), stretch( 100 ),
+	  ignorePitch(TRUE)
     {
     }
 
@@ -63,7 +64,8 @@ struct QFontDef
     uint fixedPitch :  1;
     uint stretch    : 12; // 0-400
 
-    uint reserved   : 16; // for future extensions
+    uint ignorePitch : 1;
+    uint reserved   : 15; // for future extensions
 
     bool operator==( const QFontDef &other ) const;
     inline bool operator<( const QFontDef &other ) const

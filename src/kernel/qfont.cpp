@@ -52,8 +52,14 @@ bool QFontDef::operator==( const QFontDef &other ) const
       QFontDef comparison is more complicated than just simple
       per-member comparisons.
 
-      When comparing point/pixel sizes, either point or pixelsize could be -1.
-      in This case we have to compare the non negative size value.
+      When comparing point/pixel sizes, either point or pixelsize
+      could be -1.  in This case we have to compare the non negative
+      size value.
+
+      This test will fail if the point-sizes differ by 1/2 point or
+      more or they do not round to the same value.  We have to do this
+      since our API still uses 'int' point-sizes in the API, but store
+      deci-point-sizes internally.
 
       To compare the family members, we need to parse the font names
       and compare the family/foundry strings separately.  This allows
@@ -66,14 +72,18 @@ bool QFontDef::operator==( const QFontDef &other ) const
 
     if ((pointSize == -1 || other.pointSize == -1) && pixelSize != other.pixelSize)
 	return FALSE;
-    if ((pixelSize == -1 || other.pixelSize == -1) && pointSize != other.pointSize)
+    if ((pixelSize == -1 || other.pixelSize == -1) && pointSize != other.pointSize &&
+	(QABS(pointSize - other.pointSize) >= 5 ||
+	 qRound(pointSize/10.) != qRound(other.pointSize/10.)))
+	return FALSE;
+
+    if (!ignorePitch && !other.ignorePitch && fixedPitch != other.fixedPitch)
 	return FALSE;
 
     return ( styleHint     == other.styleHint
 	    && styleStrategy == other.styleStrategy
 	    && weight        == other.weight
 	    && italic        == other.italic
-	    && fixedPitch    == other.fixedPitch
 	    && stretch       == other.stretch
 	    && this_family   == other_family
 	    && (this_foundry.isEmpty()
@@ -641,10 +651,6 @@ void QFont::setFamily( const QString &family )
 {
     detach();
 
-    if ( ( d->mask & QFontPrivate::Family ) &&
-	 d->request.family == family )
-	return;
-
     d->request.family = family;
 #if defined(Q_WS_X11)
     d->request.addStyle = QString::null;
@@ -692,12 +698,7 @@ void QFont::setPointSize( int pointSize )
 
     detach();
 
-    pointSize *= 10;
-    if ( ( d->mask & QFontPrivate::Size ) &&
-	 d->request.pointSize == pointSize )
-	return;
-
-    d->request.pointSize = pointSize;
+    d->request.pointSize = pointSize * 10;
     d->request.pixelSize = -1;
 
     d->mask |= QFontPrivate::Size;
@@ -719,12 +720,7 @@ void QFont::setPointSizeFloat( float pointSize )
 
     detach();
 
-    int ps = int(pointSize * 10.0 + 0.5);
-    if ( ( d->mask & QFontPrivate::Size ) &&
-	 d->request.pointSize == ps )
-	return;
-
-    d->request.pointSize = (int) ps;
+    d->request.pointSize = qRound(pointSize * 10.0);
     d->request.pixelSize = -1;
 
     d->mask |= QFontPrivate::Size;
@@ -758,10 +754,6 @@ void QFont::setPixelSize( int pixelSize )
     }
 
     detach();
-
-    if ( ( d->mask & QFontPrivate::Size ) &&
-	 d->request.pixelSize == pixelSize )
-	return;
 
     d->request.pixelSize = pixelSize;
     d->request.pointSize = -1;
@@ -811,10 +803,6 @@ void QFont::setItalic( bool enable )
 {
     detach();
 
-    if ( ( d->mask & QFontPrivate::Italic ) &&
-	 (bool) d->request.italic == enable )
-	return;
-
     d->request.italic = enable;
     d->mask |= QFontPrivate::Italic;
 }
@@ -861,10 +849,6 @@ void QFont::setWeight( int weight )
 
     detach();
 
-    if ( ( d->mask & QFontPrivate::Weight ) &&
-	 (int) d->request.weight == weight )
-	return;
-
     d->request.weight = weight;
     d->mask |= QFontPrivate::Weight;
 }
@@ -910,10 +894,6 @@ void QFont::setUnderline( bool enable )
 {
     detach();
 
-    if ( ( d->mask & QFontPrivate::Underline ) &&
-	 (bool) d->underline == enable )
-	return;
-
     d->underline = enable;
     d->mask |= QFontPrivate::Underline;
 }
@@ -936,10 +916,6 @@ bool QFont::overline() const
 void QFont::setOverline( bool enable )
 {
     detach();
-
-    if ( ( d->mask & QFontPrivate::Overline ) &&
-	 (bool) d->overline == enable )
-	return;
 
     d->overline = enable;
     d->mask |= QFontPrivate::Overline;
@@ -965,10 +941,6 @@ void QFont::setStrikeOut( bool enable )
 {
     detach();
 
-    if ( ( d->mask & QFontPrivate::StrikeOut ) &&
-	 (bool) d->strikeOut == enable )
-	return;
-
     d->strikeOut = enable;
     d->mask |= QFontPrivate::StrikeOut;
 }
@@ -993,11 +965,8 @@ void QFont::setFixedPitch( bool enable )
 {
     detach();
 
-    if ( ( d->mask & QFontPrivate::FixedPitch ) &&
-	 (bool) d->request.fixedPitch == enable )
-	return;
-
     d->request.fixedPitch = enable;
+    d->request.ignorePitch = FALSE;
     d->mask |= QFontPrivate::FixedPitch;
 }
 
