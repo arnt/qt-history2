@@ -246,9 +246,9 @@ bool QAbstractItemDelegate::editorEvent(QEvent *,
     width, the alignment by \a align, and the string by \a org.
 */
 QString QAbstractItemDelegate::ellipsisText(const QFontMetrics &fontMetrics, int width, int align,
-                                            const QString &org) const
+                                            const QString &org)
 {
-    static QString ell("...");
+    const QLatin1String ell("...");
     int ellWidth = fontMetrics.width(ell);
     QString text;
     int i = 0;

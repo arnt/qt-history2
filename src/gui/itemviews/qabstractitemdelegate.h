@@ -74,8 +74,7 @@ signals:
 protected:
     Q_DISABLE_COPY(QAbstractItemDelegate)
     QAbstractItemDelegate(QObjectPrivate &, QObject *parent = 0);
-    QString ellipsisText(const QFontMetrics &fontMetrics, int width, int align,
-                         const QString &org) const;
+    static QString ellipsisText(const QFontMetrics &fontMetrics, int width, int align, const QString &org);
 };
 
 #endif // QABSTRACTITEMDELEGATE_H
