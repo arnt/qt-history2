@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/gex.cpp#1 $
+** $Id: //depot/qt/main/tests/layout/gex.cpp#2 $
 **
 ** QGridLayout example
 **
@@ -14,7 +14,31 @@
 #include <qpushbt.h>
 #include <qlayout.h>
 
-RCSTAG("$Id: //depot/qt/main/tests/layout/gex.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/tests/layout/gex.cpp#2 $");
+
+#include <qwidget.h>
+
+class Kill : public QWidget 
+{
+public:
+    Kill( QWidget *parent, const char *name=0 )
+	:QWidget(parent,name) {}
+protected:
+    void mouseReleaseEvent( QMouseEvent * );
+};
+
+#include <qevent.h>
+#include <qapp.h>
+
+void Kill::mouseReleaseEvent( QMouseEvent *m )
+{
+    QWidget *w = QApplication::widgetAt( mapToGlobal( m->pos() ),TRUE);
+    if ( w && w != this && w != parentWidget() )
+	delete w;
+}
+
+
+
 
 int main( int argc, char **argv )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/hex.cpp#1 $
+** $Id: //depot/qt/main/tests/layout/hex.cpp#2 $
 **
 ** Geometry management example: Putting a QBoxLayout inside a 
 ** QGridLayout
@@ -15,7 +15,30 @@
 #include <qpushbt.h>
 #include <qlayout.h>
 
-RCSTAG("$Id: //depot/qt/main/tests/layout/hex.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/tests/layout/hex.cpp#2 $");
+
+#include <qwidget.h>
+
+class Kill : public QWidget 
+{
+public:
+    Kill( QWidget *parent, const char *name=0 )
+	:QWidget(parent,name) {}
+protected:
+    void mouseReleaseEvent( QMouseEvent * );
+};
+
+#include <qevent.h>
+#include <qapp.h>
+
+void Kill::mouseReleaseEvent( QMouseEvent *m )
+{
+    QWidget *w = QApplication::widgetAt( mapToGlobal( m->pos() ),TRUE);
+    if ( w && w != this && w != parentWidget() )
+	delete w;
+}
+
+
 
 int main( int argc, char **argv )
 {
@@ -45,6 +68,11 @@ int main( int argc, char **argv )
 	lab->setBackgroundColor(darkGreen);
 	above->addWidget( lab );
     }
+
+    Kill* kill = new Kill( f );
+    above->addWidget( kill );
+    kill->setBackgroundColor( red );
+
     QBoxLayout *below = new QBoxLayout( QBoxLayout::LeftToRight );
     box->addLayout( below, 4 );
     for ( i=0; i<3; i++ ) {
