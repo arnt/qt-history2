@@ -1162,8 +1162,10 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
     if ( toggleclose &&
 	 // pressing an item twice closes in windows, but not in motif :/
 	 style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle &&
-	 actItem == item )
+	 actItem == item ) {
 	showMenu = FALSE;
+	setAltMode( FALSE );
+    }
     setActiveItem( item, showMenu, !hasMouseTracking() );
     toggleclose = 0;
 }
