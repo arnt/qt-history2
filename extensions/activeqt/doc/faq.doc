@@ -224,4 +224,8 @@
     the OBJECT tag of your web-site. The value can point to the server
     file itself, to an \c INF file listing other files the server requires
     (e.g. the Qt DLL), or a compressed \c CAB archive.
+
+    INF and CAB files are documented in almost every book available about
+    ActiveX and COM programming as well as in the MSDN library and various
+    other Online resources.
 */
