@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qshared.h#5 $
+** $Id: //depot/qt/main/src/tools/qshared.h#6 $
 **
 ** Definition of QShared struct
 **
@@ -15,7 +15,8 @@
 
 #include "qglobal.h"
 
-class QShared					// really a struct
+
+class QShared
 {
 public:
     QShared()		{ count = 1; }
@@ -23,5 +24,6 @@ public:
     bool deref()	{ return !--count; }
     uint count;
 };
+
 
 #endif // QSHARED_H
