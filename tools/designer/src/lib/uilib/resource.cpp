@@ -50,14 +50,6 @@ public:
 
 Resource::Resource()
 {
-    m_idToSizeType.insert("QSizePolicy::Fixed", QSizePolicy::Fixed);
-    m_idToSizeType.insert("QSizePolicy::Minimum", QSizePolicy::Minimum);
-    m_idToSizeType.insert("QSizePolicy::Maximum", QSizePolicy::Maximum);
-    m_idToSizeType.insert("QSizePolicy::Preferred", QSizePolicy::Preferred);
-    m_idToSizeType.insert("QSizePolicy::MinimumExpanding", QSizePolicy::MinimumExpanding);
-    m_idToSizeType.insert("QSizePolicy::Expanding", QSizePolicy::Expanding);
-    m_idToSizeType.insert("QSizePolicy::Ignored", QSizePolicy::Ignored);
-
     m_defaultMargin = INT_MIN;
     m_defaultSpacing = INT_MIN;
 }
@@ -362,6 +354,16 @@ QLayoutItem *Resource::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWi
 
         DomSpacer *ui_spacer = ui_layoutItem->elementSpacer();
 
+        int e_index = FakeSpacer::staticMetaObject.indexOfEnumerator("QSizePolicy::Policy");
+        Q_ASSERT(e_index != -1);
+
+        QMetaEnum sizePolicy_enum = FakeSpacer::staticMetaObject.enumerator(e_index);
+
+        e_index = FakeSpacer::staticMetaObject.indexOfEnumerator("Qt::Orientation");
+        Q_ASSERT(e_index != -1);
+
+        QMetaEnum orientation_enum = FakeSpacer::staticMetaObject.enumerator(e_index);
+
         foreach (DomProperty *p, ui_spacer->elementProperty()) {
             QVariant v = toVariant(&FakeSpacer::staticMetaObject, p); // ### remove me
             if (v.isNull())
@@ -370,9 +372,10 @@ QLayoutItem *Resource::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWi
             if (p->attributeName() == QLatin1String("sizeHint") && p->kind() == DomProperty::Size) {
                 size = v.toSize();  // ###  remove me
             } else if (p->attributeName() == QLatin1String("sizeType") && p->kind() == DomProperty::Enum) {
-                sizeType = m_idToSizeType.value(p->elementEnum(), QSizePolicy::Expanding);
+                sizeType = static_cast<QSizePolicy::Policy>(sizePolicy_enum.keyToValue(p->elementEnum().toLatin1()));
             } else if (p->attributeName() == QLatin1String("orientation") && p->kind() == DomProperty::Enum) {
-                isVspacer = isVertical(p->elementEnum());
+                Qt::Orientation o = static_cast<Qt::Orientation>(orientation_enum.keyToValue(p->elementEnum().toLatin1()));
+                isVspacer = (o == Qt::Vertical);
             }
         }
 

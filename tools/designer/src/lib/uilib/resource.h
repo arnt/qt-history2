@@ -16,10 +16,10 @@
 
 #include "uilib_global.h"
 
-#include <QList>
-#include <QHash>
-#include <QPalette>
-#include <QSizePolicy>
+#include <QtCore/QList>
+#include <QtCore/QHash>
+#include <QtGui/QSizePolicy>
+#include <QtGui/QPalette>
 
 class QObject;
 class QVariant;
@@ -123,7 +123,6 @@ private:
     void setupColorGroup(QPalette &palette, DomColorGroup *group);
     DomColorGroup *saveColorGroup(const QPalette &palette);
 
-    QHash<QString, QSizePolicy::Policy> m_idToSizeType;
     int m_defaultMargin;
     int m_defaultSpacing;
 
