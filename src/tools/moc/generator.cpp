@@ -140,28 +140,8 @@ static inline QByteArray noRef(const QByteArray &type)
 
 Generator::Generator(FILE *outfile, ClassDef *classDef) :out(outfile), cdef(classDef)
 {
-    /*
-      When calling a superclass implementation of func(), we use
-      SuperClass::func() rather than NameSpace::SuperClass::func() to work
-      around a bug in MSVC 6. The bug occurs if the super-class is in a
-      namespace and the sub-class isn't.
-
-      Exception: If the superclass has the same name as the subclass, we
-      want non-MSVC users to have a working generated files.
-    */
-    if (cdef->superclassList.size()) {
+    if (cdef->superclassList.size())
         purestSuperClass = cdef->superclassList.first().first;
-        /*
-          Make sure qualified template arguments (e.g., foo<bar::baz>)
-          don't interfere.
-        */
-        int pos = purestSuperClass.lastIndexOf("::", purestSuperClass.indexOf('<'));
-        if (pos != -1) {
-            purestSuperClass = purestSuperClass.mid(pos + 2);
-            if (purestSuperClass == cdef->classname)
-                purestSuperClass = cdef->superclassList.first().first;
-        }
-    }
 }
 
 int Generator::strreg(const char *s)
