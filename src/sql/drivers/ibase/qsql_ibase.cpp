@@ -708,7 +708,7 @@ bool QIBaseResult::reset (const QString& query)
     return TRUE;
 }
 
-bool QIBaseResult::gotoNext(QtSqlCachedResult::RowCache* row)
+bool QIBaseResult::gotoNext(QtSqlCachedResult::ValueCache& row, int rowIdx)
 {
     ISC_STATUS stat = isc_dsql_fetch(d->status, &d->stmt, 1, d->sqlda);
     
@@ -719,12 +719,11 @@ bool QIBaseResult::gotoNext(QtSqlCachedResult::RowCache* row)
     }
     if (d->isError("Could not fetch next item", QSqlError::Statement))
 	return FALSE;
-    if (!row) // not interested in actual values
+    if (rowIdx < 0) // not interested in actual values
 	return TRUE;
 
-    Q_ASSERT(row);
-    Q_ASSERT((int)row->size() == d->sqlda->sqld);
     for (int i = 0; i < d->sqlda->sqld; ++i) {
+	int idx = rowIdx + i;
 	char *buf = d->sqlda->sqlvar[i].sqldata;
 	int size = d->sqlda->sqlvar[i].sqllen;
 	Q_ASSERT(buf);
@@ -733,7 +732,7 @@ bool QIBaseResult::gotoNext(QtSqlCachedResult::RowCache* row)
 	    // null value
 	    QVariant v;
 	    v.cast(qIBaseTypeName2(d->sqlda->sqlvar[i].sqltype));
-	    (*row)[i] = v;
+	    row[idx] = v;
 	    continue;
 	}
 	
@@ -742,28 +741,28 @@ bool QIBaseResult::gotoNext(QtSqlCachedResult::RowCache* row)
 	switch(d->sqlda->sqlvar[i].sqltype & ~1) {
 	case SQL_VARYING:
 	    // pascal strings - a short with a length information followed by the data
-	    (*row)[i] = QString::fromUtf8(buf + sizeof(short), *(short*)buf);
+	    row[idx] = QString::fromUtf8(buf + sizeof(short), *(short*)buf);
 	    break;
 	case SQL_INT64:
 	    if (d->sqlda->sqlvar[i].sqlscale < 0)
-		(*row)[i] = *(Q_LLONG*)buf * pow(10, d->sqlda->sqlvar[i].sqlscale);
+		row[idx] = *(Q_LLONG*)buf * pow(10, d->sqlda->sqlvar[i].sqlscale);
 	    else
-		(*row)[i] = QVariant(*(Q_LLONG*)buf);
+		row[idx] = QVariant(*(Q_LLONG*)buf);
 	    break;
 	case SQL_LONG:
 	    if (sizeof(int) == sizeof(long)) //dear compiler: please optimize me out.
-		(*row)[i] = QVariant((int)(*(long*)buf));
+		row[idx] = QVariant((int)(*(long*)buf));
 	    else
-		(*row)[i] = QVariant((Q_LLONG)(*(long*)buf));
+		row[idx] = QVariant((Q_LLONG)(*(long*)buf));
 	    break;
 	case SQL_SHORT:
-	    (*row)[i] = QVariant((int)(*(short*)buf));
+	    row[idx] = QVariant((int)(*(short*)buf));
 	    break;
 	case SQL_FLOAT:
-	    (*row)[i] = QVariant((double)(*(float*)buf));	    
+	    row[idx] = QVariant((double)(*(float*)buf));	    
 	    break;
 	case SQL_DOUBLE:
-	    (*row)[i] = QVariant(*(double*)buf);
+	    row[idx] = QVariant(*(double*)buf);
 	    break;
 	case SQL_TIMESTAMP: {
 	    // have to demangle the structure ourselves because isc_decode_timestamp
@@ -772,7 +771,7 @@ bool QIBaseResult::gotoNext(QtSqlCachedResult::RowCache* row)
 	    QTime t;
 	    t = t.addMSecs((int)((ISC_TIMESTAMP*)buf)->timestamp_time / 10);
 	    QDate d = bd.addDays((int)((ISC_TIMESTAMP*)buf)->timestamp_date);
-	    (*row)[i] = QDateTime(d, t);
+	    row[idx] = QDateTime(d, t);
 	}
 	break;
 	case SQL_TYPE_TIME: {
@@ -780,22 +779,22 @@ bool QIBaseResult::gotoNext(QtSqlCachedResult::RowCache* row)
 	    // strips the msecs
 	    QTime t;
 	    t = t.addMSecs((int)(*(ISC_TIME*)buf) / 10);
-	    (*row)[i] = t;
+	    row[idx] = t;
 	}
 	break;
 	case SQL_TEXT:
-	    (*row)[i] = QString::fromUtf8(buf, size);
+	    row[idx] = QString::fromUtf8(buf, size);
 	    break;
 	case SQL_BLOB:
-	    (*row)[i] = d->fetchBlob((ISC_QUAD*)buf);
+	    row[idx] = d->fetchBlob((ISC_QUAD*)buf);
 	    break;
 	case SQL_ARRAY:
 	    qDebug("SQL_ARRAY");
-	    (*row)[i] = d->fetchArray(i, (ISC_QUAD*)buf);
+	    row[idx] = d->fetchArray(i, (ISC_QUAD*)buf);
 	    break;
 	default:
 	    // unknown type - don't even try to fetch
-	    (*row)[i] = QVariant();
+	    row[idx] = QVariant();
 	    break;
 	}	
     }

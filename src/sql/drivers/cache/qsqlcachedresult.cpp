@@ -36,92 +36,89 @@
 #include "qsqlcachedresult.h"
 #include <qdatetime.h>
 
-static const uint initial_cache_size = 128;
+// numbers of rows to initially reserve
+static const uint initial_cache_size = 32;
 
 class QtSqlCachedResultPrivate
 {
 public:
     QtSqlCachedResultPrivate();
-    bool seek(int i);
+    bool canSeek(int i) const;
+    inline int cacheCount() const;
     void init(int count, bool fo);
     void cleanup();
-    QtSqlCachedResult::RowCache* next();
+    int nextIndex();
     void revertLast();
 
-    QtSqlCachedResult::RowsetCache *cache;
-    QtSqlCachedResult::RowCache *current;
+    QtSqlCachedResult::ValueCache cache;
     int rowCacheEnd;
     int colCount;
     bool forwardOnly;
 };
 
 QtSqlCachedResultPrivate::QtSqlCachedResultPrivate():
-    cache(0), current(0), rowCacheEnd(0), colCount(0), forwardOnly(FALSE)
+    rowCacheEnd(0), colCount(0), forwardOnly(false)
 {
 }
 
 void QtSqlCachedResultPrivate::cleanup()
 {
-    if (cache) {
-	for (int i = 0; i < rowCacheEnd; ++i)
-	    delete (*cache)[i];
-	delete cache;
-	cache = 0;
-    }
-    if (forwardOnly)
-	delete current;
-    current = 0;
-    forwardOnly = FALSE;
+    cache.clear();
+    forwardOnly = false;
     colCount = 0;
     rowCacheEnd = 0;
 }
 
 void QtSqlCachedResultPrivate::init(int count, bool fo)
 {
+    Q_ASSERT(count);
     cleanup();
     forwardOnly = fo;
     colCount = count;
-    if (fo)
-	current = new QtSqlCachedResult::RowCache(count);
-    else
-	cache = new QtSqlCachedResult::RowsetCache(initial_cache_size);
+    if (fo) {
+	cache.resize(count);
+	rowCacheEnd = count;
+    } else {
+	cache.resize(initial_cache_size * count);
+    }
 }
 
-QtSqlCachedResult::RowCache *QtSqlCachedResultPrivate::next()
+int QtSqlCachedResultPrivate::nextIndex()
 {
     if (forwardOnly)
-	return current;
-
-    Q_ASSERT(cache);
-    current = new QtSqlCachedResult::RowCache(colCount);
-    if (rowCacheEnd == (int)cache->size())
-	cache->resize(cache->size() * 2);
-    cache->insert(rowCacheEnd++, current);
-    return current;
+	return 0;
+    int newIdx = rowCacheEnd;
+    if (newIdx + colCount > cache.size())
+	cache.resize(cache.size() * 2);
+    rowCacheEnd += colCount;
+    
+    return newIdx;
 }
 
-bool QtSqlCachedResultPrivate::seek(int i)
+bool QtSqlCachedResultPrivate::canSeek(int i) const
 {
     if (forwardOnly || i < 0)
-	return FALSE;
-    if (i >= rowCacheEnd)
-	return FALSE;
-    current = (*cache)[i];
-    return TRUE;
+	return false;
+    return rowCacheEnd >= (i + 1) * colCount;
 }
 
 void QtSqlCachedResultPrivate::revertLast()
 {
     if (forwardOnly)
 	return;
-    --rowCacheEnd;
-    delete current;
-    current = 0;
+    rowCacheEnd -= colCount;
+}
+
+inline int QtSqlCachedResultPrivate::cacheCount() const
+{
+    Q_ASSERT(!forwardOnly);
+    Q_ASSERT(colCount);
+    return rowCacheEnd / colCount;
 }
 
 //////////////
 
-QtSqlCachedResult::QtSqlCachedResult(const QSqlDriver * db ): QSqlResult ( db )
+QtSqlCachedResult::QtSqlCachedResult(const QSqlDriver * db): QSqlResult (db)
 {
     d = new QtSqlCachedResultPrivate();
 }
@@ -139,40 +136,41 @@ void QtSqlCachedResult::init(int colCount)
 bool QtSqlCachedResult::fetch(int i)
 {
     if ((!isActive()) || (i < 0))
-	return FALSE;
+	return false;
     if (at() == i)
-	return TRUE;
+	return true;
     if (d->forwardOnly) {
 	// speed hack - do not copy values if not needed
 	if (at() > i || at() == QSql::AfterLast)
-	    return FALSE;
+	    return false;
 	while(at() < i - 1) {
-	    if (!gotoNext(0))
-		return FALSE;
+	    if (!gotoNext(d->cache, -1))
+		return false;
 	    setAt(at() + 1);
 	}
-	if (!gotoNext(d->current))
-	    return FALSE;
+	if (!gotoNext(d->cache, 0))
+	    return false;
 	setAt(at() + 1);
-	return TRUE;
+	return true;
     }
-    if (d->seek(i)) {
+    if (d->canSeek(i)) {
 	setAt(i);
-	return TRUE;
+	return true;
     }
-    setAt(d->rowCacheEnd - 1);
+    if (d->rowCacheEnd > 0)
+	setAt(d->cacheCount());
     while (at() < i) {
 	if (!cacheNext())
-	    return FALSE;
+	    return false;
     }
-    return TRUE;
+    return true;
 }
 
 bool QtSqlCachedResult::fetchNext()
 {
-    if (d->seek(at() + 1)) {
+    if (d->canSeek(at() + 1)) {
 	setAt(at() + 1);
-	return TRUE;
+	return true;
     }
     return cacheNext();
 }
@@ -185,11 +183,11 @@ bool QtSqlCachedResult::fetchPrev()
 bool QtSqlCachedResult::fetchFirst()
 {
     if (d->forwardOnly && at() != QSql::BeforeFirst) {
-	return FALSE;
+	return false;
     }
-    if (d->seek(0)) {
+    if (d->canSeek(0)) {
 	setAt(0);
-	return TRUE;
+	return true;
     }
     return cacheNext();
 }
@@ -198,56 +196,63 @@ bool QtSqlCachedResult::fetchLast()
 {
     if (at() == QSql::AfterLast) {
 	if (d->forwardOnly)
-	    return FALSE;
+	    return false;
 	else
-	    return fetch(d->rowCacheEnd - 1);
+	    return fetch(d->cacheCount() - 1);
     }
 
     int i = at();
     while (fetchNext())
-	i++; /* brute force */
+	++i; /* brute force */
     if (d->forwardOnly && at() == QSql::AfterLast) {
 	setAt(i);
-	return TRUE;
+	return true;
     } else {
-	return fetch(d->rowCacheEnd - 1);
+	return fetch(i);
     }
 }
 
 QVariant QtSqlCachedResult::data(int i)
 {
-    if (!d->current || i >= (int)d->current->size() || i < 0)
+    int idx = d->forwardOnly ? i : at() * d->colCount + i;
+    if (i > d->colCount || i < 0 || at() < 0 || idx >= d->rowCacheEnd)
 	return QVariant();
 
-    return (*d->current)[i];
+    return d->cache.at(idx);
 }
 
 bool QtSqlCachedResult::isNull(int i)
 {
-    if (!d->current || i >= (int)d->current->size() || i < 0)
-	return TRUE;
+    int idx = d->forwardOnly ? i : at() * d->colCount + i;
+    if (i > d->colCount || i < 0 || at() < 0 || idx >= d->rowCacheEnd)
+	return true;
 
-    return (*d->current)[i].isNull();
+    return d->cache.at(idx).isNull();
 }
 
 void QtSqlCachedResult::cleanup()
 {
     setAt(QSql::BeforeFirst);
-    setActive(FALSE);
+    setActive(false);
     d->cleanup();
 }
 
 bool QtSqlCachedResult::cacheNext()
 {
-    if (!gotoNext(d->next())) {
+    if (!gotoNext(d->cache, d->nextIndex())) {
 	d->revertLast();
-	return FALSE;
+	return false;
     }
     setAt(at() + 1);
-    return TRUE;
+    return true;
 }
 
 int QtSqlCachedResult::colCount() const
 {
     return d->colCount;
+}
+
+QtSqlCachedResult::ValueCache &QtSqlCachedResult::cache()
+{
+return d->cache;
 }

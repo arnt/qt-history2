@@ -65,10 +65,10 @@ class QSQLiteResultPrivate
 public:
     QSQLiteResultPrivate(QSQLiteResult *res);
     void cleanup();
-    bool fetchNext(QtSqlCachedResult::RowCache *row);
+    bool fetchNext(QtSqlCachedResult::ValueCache &values, int idx, bool initialFetch);
     bool isSelect();
     // initializes the recordInfo and the cache
-    void init(const char **cnames, int numCols, QtSqlCachedResult::RowCache **row = 0);
+    void init(const char **cnames, int numCols);
     void finalize();
 
     QSQLiteResult* q;
@@ -79,9 +79,8 @@ public:
     const char *currentTail;
     sqlite_vm *currentMachine;
 
-    uint skippedStatus: 1; // the status of the fetchNext() that's skipped
-    QtSqlCachedResult::RowCache *skipRow;
-    
+    uint skippedStatus: 1; // the status of the fetchNext() that's skipped    
+    uint skipRow: 1; // skip the next fetchNext()?
     uint utf8: 1;
     QSqlRecord rInf;
 };
@@ -89,7 +88,7 @@ public:
 static const uint initial_cache_size = 128;
 
 QSQLiteResultPrivate::QSQLiteResultPrivate(QSQLiteResult* res) : q(res), access(0), currentTail(0),
-    currentMachine(0), skippedStatus(FALSE), skipRow(0), utf8(FALSE)
+    currentMachine(0), skippedStatus(FALSE), skipRow(false), utf8(FALSE)
 {
 }
 
@@ -100,8 +99,7 @@ void QSQLiteResultPrivate::cleanup()
     currentTail = 0;
     currentMachine = 0;
     skippedStatus = FALSE;
-    delete skipRow;
-    skipRow = 0;
+    skipRow = false;
     q->setAt(QSql::BeforeFirst);
     q->setActive(FALSE);
     q->cleanup();
@@ -122,7 +120,7 @@ void QSQLiteResultPrivate::finalize()
 }
 
 // called on first fetch
-void QSQLiteResultPrivate::init(const char **cnames, int numCols, QtSqlCachedResult::RowCache **row)
+void QSQLiteResultPrivate::init(const char **cnames, int numCols)
 {
     if (!cnames)
         return;
@@ -130,20 +128,16 @@ void QSQLiteResultPrivate::init(const char **cnames, int numCols, QtSqlCachedRes
     rInf.clear();
     if (numCols <= 0)
         return;
+    q->init(numCols);
 
     for (int i = 0; i < numCols; ++i) {
         const char* lastDot = strrchr(cnames[i], '.');
         const char* fieldName = lastDot ? lastDot + 1 : cnames[i];
         rInf.append(QSqlField(fieldName, nameToType(cnames[i+numCols])));
     }
-    // skip the first fetch
-    if (row && !*row) {
-	*row = new QtSqlCachedResult::RowCache(numCols);
-	skipRow = *row;
-    }
 }
 
-bool QSQLiteResultPrivate::fetchNext(QtSqlCachedResult::RowCache* row)
+bool QSQLiteResultPrivate::fetchNext(QtSqlCachedResult::ValueCache &values, int idx, bool initialFetch)
 {
     // may be caching.
     const char **fvals;
@@ -154,12 +148,11 @@ bool QSQLiteResultPrivate::fetchNext(QtSqlCachedResult::RowCache* row)
 
     if (skipRow) {
 	// already fetched
-	if (row)
-	    *row = *skipRow;
-	delete skipRow;
-	skipRow = 0;
+	Q_ASSERT(!initialFetch);
+	skipRow = false;
 	return skippedStatus;
     }
+    skipRow = initialFetch;
 
     if (!currentMachine)
 	return FALSE;
@@ -179,13 +172,13 @@ bool QSQLiteResultPrivate::fetchNext(QtSqlCachedResult::RowCache* row)
 	// check to see if should fill out columns
 	if (rInf.isEmpty())
 	    // must be first call.
-	    init(cnames, colNum, &row);
+	    init(cnames, colNum);
 	if (!fvals)
 	    return FALSE;
-	if (!row)
+	if (idx < 0 && !initialFetch)
 	    return TRUE;
 	for (i = 0; i < colNum; ++i)
-	    (*row)[i] = utf8 ? QString::fromUtf8(fvals[i]) : QString(fvals[i]);
+	    values[i + idx] = utf8 ? QString::fromUtf8(fvals[i]) : QString(fvals[i]);
 	return TRUE;
     case SQLITE_DONE:
 	if (rInf.isEmpty())
@@ -250,17 +243,15 @@ bool QSQLiteResult::reset (const QString& query)
     }
     // we have to fetch one row to find out about
     // the structure of the result set
-    d->skippedStatus = d->fetchNext(0);
+    d->skippedStatus = d->fetchNext(cache(), 0, true);
     setSelect(!d->rInf.isEmpty());
-    if (isSelect())
-	init(d->rInf.count());
     setActive(TRUE);
     return TRUE;
 }
 
-bool QSQLiteResult::gotoNext(QtSqlCachedResult::RowCache* row)
+bool QSQLiteResult::gotoNext(QtSqlCachedResult::ValueCache& row, int idx)
 {
-    return d->fetchNext(row);
+    return d->fetchNext(row, idx, false);
 }
 
 int QSQLiteResult::size()

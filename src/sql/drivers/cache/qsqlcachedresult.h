@@ -61,17 +61,15 @@ class Q_SQL_EXPORT QtSqlCachedResult: public QSqlResult
 public:
     virtual ~QtSqlCachedResult();
 
-    typedef QVector<QVariant> RowCache;
-    typedef QVector<RowCache*> RowsetCache;
+    typedef QVector<QVariant> ValueCache;
 
 protected:    
     QtSqlCachedResult(const QSqlDriver * db);
 
     void init(int colCount);
     void cleanup();
-    bool cacheNext();
 
-    virtual bool gotoNext(RowCache* row) = 0;
+    virtual bool gotoNext(ValueCache &values, int index) = 0;
 
     QVariant data(int i);
     bool isNull(int i);
@@ -82,8 +80,10 @@ protected:
     bool fetchLast();
 
     int colCount() const;
+ValueCache &cache();
 
 private:
+    bool cacheNext();
     QtSqlCachedResultPrivate *d;
 };
 

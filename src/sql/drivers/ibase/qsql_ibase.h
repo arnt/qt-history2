@@ -58,7 +58,7 @@ public:
     bool exec();    
 
 protected:
-    bool gotoNext(QtSqlCachedResult::RowCache* row);
+    bool gotoNext(QtSqlCachedResult::ValueCache& row, int rowIdx);
     bool reset (const QString& query);
     int size();
     int numRowsAffected();
