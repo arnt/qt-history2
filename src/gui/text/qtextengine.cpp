@@ -1257,10 +1257,17 @@ void QTextEngine::justify(const QScriptLine &line)
 //     qDebug("justifying from %d len %d, firstItem=%d, nItems=%d", line.from, line_length, firstItem, nItems);
     float minKashida = 0x100000;
 
+    // we need to do all shaping before we go into the next loop, as we there
+    // store pointers to the glyph data that could get reallocated by the shaping
+    // process.
     for (int i = 0; i < nItems; ++i) {
         QScriptItem &si = items[firstItem + i];
         if (!si.num_glyphs)
             shape(firstItem + i);
+    }
+
+    for (int i = 0; i < nItems; ++i) {
+        QScriptItem &si = items[firstItem + i];
 
         int kashida_type = QGlyphLayout::Arabic_Normal;
         int kashida_pos = -1;
