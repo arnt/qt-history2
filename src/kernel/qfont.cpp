@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#21 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -18,7 +18,7 @@
 #include "qwidcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#21 $";
 #endif
 
 
@@ -815,7 +815,7 @@ int QFontInfo::weight() const
   */
 
 
-int QFontInfo::underline() const
+bool QFontInfo::underline() const
 {
     UPDATE_DATA
     return (int) f.d->act.underline;
@@ -828,7 +828,7 @@ int QFontInfo::underline() const
   */
 
 
-int QFontInfo::strikeOut() const
+bool QFontInfo::strikeOut() const
 {
     UPDATE_DATA
     return (int) f.d->act.strikeOut;
