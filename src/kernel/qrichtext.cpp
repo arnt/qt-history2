@@ -3144,18 +3144,6 @@ void QTextDocument::draw( QPainter *p, const QRect &rect, const QColorGroup &cg,
     }
 }
 
-void QTextDocument::eraseParagraphEmptyArea( QTextParagraph *parag, QPainter *p,
-					     const QColorGroup &cg )
-{
-    if ( parag->rect().x() + parag->rect().width() <
-	 parag->document()->x() + parag->document()->width() ) {
-	p->fillRect( parag->rect().x() + parag->rect().width(), parag->rect().y(),
-		     ( parag->document()->x() + parag->document()->width() ) -
-		     ( parag->rect().x() + parag->rect().width() ),
-		     parag->rect().height(), cg.brush( QColorGroup::Base ) );
-    }
-}
-
 void QTextDocument::drawParagraph( QPainter *p, QTextParagraph *parag, int cx, int cy, int cw, int ch,
 			       QPixmap *&doubleBuffer, const QColorGroup &cg,
 			       bool drawCursor, QTextCursor *cursor, bool resetChanged )
@@ -3164,8 +3152,7 @@ void QTextDocument::drawParagraph( QPainter *p, QTextParagraph *parag, int cx, i
     if ( resetChanged )
 	parag->setChanged( FALSE );
     QRect ir( parag->rect() );
-    if ( QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) )
-	ir.setWidth( width() );
+    ir.setWidth( width() );
 
     bool uDoubleBuffer = useDoubleBuffer( parag, p );
 
@@ -3206,9 +3193,6 @@ void QTextDocument::drawParagraph( QPainter *p, QTextParagraph *parag, int cx, i
 	painter->translate( -ir.x(), -ir.y() );
     }
 
-    if ( uDoubleBuffer && !QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) )
-	eraseParagraphEmptyArea( parag, p, cg );
-
     parag->document()->nextDoubleBuffered = FALSE;
 }
 
@@ -3241,25 +3225,18 @@ QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch
 
     QPixmap *doubleBuffer = 0;
 
-    bool fullWidthSelection = QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection);
     while ( parag ) {
 	lastFormatted = parag;
 	if ( !parag->isValid() )
 	    parag->format();
 
 	QRect pr = parag->rect();
-	if ( fullWidthSelection )
-	    pr.setWidth( parag->document()->width() );
+	pr.setWidth( parag->document()->width() );
 	if ( pr.y() > cy + ch )
 	    goto floating;
 	QRect clipr( cx, cy, cw, ch );
 	if ( !pr.intersects( clipr ) || ( onlyChanged && !parag->hasChanged() ) ) {
-	    bool uDoubleBuffer = useDoubleBuffer( parag, p );
 	    pr.setWidth( parag->document()->width() );
-	    if ( uDoubleBuffer &&
-		 !QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) &&
-		pr.intersects( clipr ) )
-		eraseParagraphEmptyArea( parag, p, cg );
 	    parag = parag->next();
 	    continue;
 	}
@@ -4256,23 +4233,6 @@ void QTextParagraph::format( int start, bool doMove )
     for ( ; it != oldLineStarts.end(); ++it )
 	delete *it;
 
-    QTextStringChar *c = 0;
-    if ( !QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) ) {
-	// do not do this on mac, as the paragraph
-	// width has to be the full document width on mac as the selections
-	// always extend completely to the right. This is a bit inefficient,
-	// as this results in a bigger double buffer than needed but ok for
-	// now.
-	if ( lineStarts.count() == 1 ) {
-	    if ( !string()->isBidi() ) {
-		c = &str->at( str->length() - 1 );
-		r.setWidth( c->x + str->width( str->length() - 1 ) );
-	    } else {
-		r.setWidth( lineStarts[0]->w );
-	    }
-	}
-    }
-
     if ( !hasdoc ) { // qt_format_text bounding rect handling
 	it = lineStarts.begin();
 	int usedw = 0;
@@ -4565,8 +4525,27 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 	    }
 
 	    // if this is the first line and we are a list item, draw the the bullet label
-	    if ( line == 0 && isListItem() )
-		drawLabel( &painter, chr->x, y, 0, 0, baseLine, cg );
+	    if ( line == 0 && isListItem() ) {
+		int x = chr->x;
+		if (str->isBidi()) {
+		    if (str->isRightToLeft()) {
+			x = chr->x + str->width(0);
+			for (int k = 1; k < length(); ++k) {
+			    if (str->at(k).lineStart)
+				break;
+			    x = QMAX(x, str->at(k).x + str->width(k));
+			}
+		    } else {
+			x = chr->x;
+			for (int k = 1; k < length(); ++k) {
+			    if (str->at(k).lineStart)
+				break;
+			    x = QMIN(x, str->at(k).x);
+			}
+		    }
+		}
+		drawLabel( &painter, x, y, 0, 0, baseLine, cg );
+	    }
 	}
 
 	// check for cursor mark
@@ -4834,6 +4813,8 @@ void QTextParagraph::drawLabel( QPainter* p, int x, int y, int w, int h, int bas
     QFontMetrics fm( p->fontMetrics() );
     int size = fm.lineSpacing() / 3;
 
+    bool rtl = str->isRightToLeft();
+
     switch ( s ) {
     case QStyleSheetItem::ListDecimal:
     case QStyleSheetItem::ListLowerAlpha:
@@ -4872,19 +4853,25 @@ void QTextParagraph::drawLabel( QPainter* p, int x, int y, int w, int h, int bas
 		l.setNum( n );
 		break;
 	    }
-	    l += QString::fromLatin1(". ");
-	    p->drawText( r.right() - fm.width( l ), r.top() + base, l );
+	    if (rtl)
+		l.prepend(" .");
+	    else
+		l += QString::fromLatin1(". ");
+	    int x = ( rtl ? r.left() : r.right() - fm.width(l));
+	    p->drawText( x, r.top() + base, l );
 	}
 	break;
     case QStyleSheetItem::ListSquare:
 	{
-	    QRect er( r.right() - size * 2, r.top() + fm.height() / 2 - size / 2, size, size );
+	    int x = rtl ? r.left() + size : r.right() - size*2;
+	    QRect er( x, r.top() + fm.height() / 2 - size / 2, size, size );
 	    p->fillRect( er , cg.brush( QColorGroup::Text ) );
 	}
 	break;
     case QStyleSheetItem::ListCircle:
 	{
-	    QRect er( r.right()-size*2, r.top() + fm.height() / 2 - size / 2, size, size);
+	    int x = rtl ? r.left() + size : r.right() - size*2;
+	    QRect er( x, r.top() + fm.height() / 2 - size / 2, size, size);
 	    p->drawEllipse( er );
 	}
 	break;
@@ -4892,7 +4879,8 @@ void QTextParagraph::drawLabel( QPainter* p, int x, int y, int w, int h, int bas
     default:
 	{
 	    p->setBrush( cg.brush( QColorGroup::Text ));
-	    QRect er( r.right()-size*2, r.top() + fm.height() / 2 - size / 2, size, size);
+	    int x = rtl ? r.left() + size : r.right() - size*2;
+	    QRect er( x, r.top() + fm.height() / 2 - size / 2, size, size);
 	    p->drawEllipse( er );
 	    p->setBrush( Qt::NoBrush );
 	}
@@ -5111,7 +5099,7 @@ int QTextParagraph::bottomMargin() const
 int QTextParagraph::leftMargin() const
 {
     int m = ulm;
-    if ( listDepth() )
+    if ( listDepth() && !string()->isRightToLeft() )
 	m += listDepth() * document()->list_lm;
     return scale( m, QTextFormat::painter() );
 }
@@ -5125,6 +5113,8 @@ int QTextParagraph::firstLineMargin() const
 int QTextParagraph::rightMargin() const
 {
     int m = urm;
+    if ( listDepth() && string()->isRightToLeft() )
+	m += listDepth() * document()->list_lm;
     return scale( m, QTextFormat::painter() );
 }
 

@@ -901,7 +901,6 @@ public:
 
     void doLayout( QPainter *p, int w );
     void draw( QPainter *p, const QRect& rect, const QColorGroup &cg, const QBrush *paper = 0 );
-    void eraseParagraphEmptyArea( QTextParagraph *parag, QPainter *p, const QColorGroup &cg );
     bool useDoubleBuffer( QTextParagraph *parag, QPainter *p );
 
     void drawParagraph( QPainter *p, QTextParagraph *parag, int cx, int cy, int cw, int ch,
