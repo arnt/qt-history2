@@ -39,6 +39,11 @@
 #include "qstring.h"
 #include "qregexp.h"
 #include "qdatastream.h"
+
+#ifdef QT_THREAD_SUPPORT
+#  include <private/qmutexpool_p.h>
+#endif // QT_THREAD_SUPPORT
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -291,8 +296,15 @@ static void createCRC16Table()			// build CRC16 lookup table
 Q_UINT16 qChecksum( const char *data, uint len )
 {
     if ( !crc_tbl_init ) {			// create lookup table
-	createCRC16Table();
-	crc_tbl_init = TRUE;
+
+#ifdef QT_THREAD_SUPPORT
+	QMutexLocker locker( qt_global_mutexpool->get( &crc_tbl_init ) );
+#endif // QT_THREAD_SUPPORT
+
+	if ( !crc_tbl_init ) {
+	    createCRC16Table();
+	    crc_tbl_init = TRUE;
+	}
     }
     register Q_UINT16 crc = 0xffff;
     uchar c;

@@ -37,6 +37,10 @@
 #include "qregexp.h"
 #include "qstringlist.h"
 
+#ifdef QT_THREAD_SUPPORT
+#  include <private/qmutexpool_p.h>
+#endif // QT_THREAD_SUPPORT
+
 #include <windows.h>
 
 #if defined(Q_OS_OS2EMX)
@@ -547,6 +551,10 @@ const QFileInfoList * QDir::drives()
     // at most one instance of QFileInfoList is leaked, and this variable
     // points to that list
     static QFileInfoList * knownMemoryLeak = 0;
+
+#ifdef QT_THREAD_SUPPORT
+    QMutexLocker locker( qt_global_mutexpool->get( &knownMemoryLeak ) );
+#endif // QT_THREAD_SUPPORT
 
     if ( !knownMemoryLeak ) {
 	knownMemoryLeak = new QFileInfoList;

@@ -45,6 +45,10 @@
 #include "qregexp.h"
 #include "qstringlist.h"
 
+#ifdef QT_THREAD_SUPPORT
+#  include <private/qmutexpool_p.h>
+#endif // QT_THREAD_SUPPORT
+
 #include <stdlib.h>
 #include <limits.h>
 
@@ -270,9 +274,16 @@ const QFileInfoList * QDir::drives()
     static QFileInfoList * knownMemoryLeak = 0;
 
     if ( !knownMemoryLeak ) {
-	knownMemoryLeak = new QFileInfoList;
-	// non-win32 versions both use just one root directory
-	knownMemoryLeak->append( new QFileInfo( rootDirPath() ) );
+
+#ifdef QT_THREAD_SUPPORT
+	QMutexLocker locker( qt_global_mutexpool->get( &knownMemoryLeak ) );
+#endif // QT_THREAD_SUPPORT
+
+	if ( !knownMemoryLeak ) {
+	    knownMemoryLeak = new QFileInfoList;
+	    // non-win32 versions both use just one root directory
+	    knownMemoryLeak->append( new QFileInfo( rootDirPath() ) );
+	}
     }
 
     return knownMemoryLeak;

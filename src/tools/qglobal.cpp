@@ -94,7 +94,6 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 	*bigEndian = si_bigEndian;
 	return TRUE;
     }
-    si_alreadyDone = TRUE;
 
     si_wordSize = 0;
     Q_ULONG n = (Q_ULONG)(~0);
@@ -144,6 +143,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
     }
 
     *bigEndian = si_bigEndian = be32;
+    si_alreadyDone = TRUE;
     return TRUE;
 }
 
