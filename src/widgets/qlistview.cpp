@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#258 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#259 $
 **
 ** Implementation of QListView widget class
 **
@@ -750,7 +750,7 @@ void QListViewItem::sortChildItems( int column, bool ascending )
   For best results in Windows style, we suggest using an even number
   of pixels.
 
-  \sa ownHeight() totalHeight() isOpen();
+  \sa height() totalHeight() isOpen();
 */
 
 void QListViewItem::setHeight( int height )
@@ -767,7 +767,7 @@ void QListViewItem::setHeight( int height )
 
   This function works even if this item is not contained in a list view.
 
-  \sa setHeight() ownHeight() totalHeight()
+  \sa setHeight() height() totalHeight()
 */
 
 void QListViewItem::invalidateHeight()
@@ -786,7 +786,7 @@ void QListViewItem::invalidateHeight()
 
   Also does some bookkeeping.
 
-  \sa ownHeight() totalHeight()
+  \sa height() totalHeight()
 */
 
 void QListViewItem::setOpen( bool o )
@@ -948,7 +948,7 @@ void QListViewItem::enforceSortOrder() const
   This function does not maintain any invariants or repaint anything -
   QListView::setSelected() does that.
 
-  \sa ownHeight() totalHeight() */
+  \sa height() totalHeight() */
 
 void QListViewItem::setSelected( bool s )
 {
@@ -1257,7 +1257,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
     while ( child && y < h ) {
 	linebot = y + child->height()/2;
 	if ( (child->expandable || child->childCount()) &&
-	     (child->ownHeight() > 0) ) {
+	     (child->height() > 0) ) {
 	    // needs a box
 	    p->setPen( cg.dark() );
 	    p->drawRect( bx-4, linebot-4, 9, 9 );
