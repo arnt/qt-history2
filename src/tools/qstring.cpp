@@ -3645,8 +3645,8 @@ QString &QString::sprintf( const char* cformat, ... )
 		break;
 	    }
 	    case 'c': {
-	    	unsigned char c = va_arg(ap, int);
-		subst = c;
+	    	unsigned char ch = va_arg(ap, int);
+		subst = ch;
 		++c;
 		break;
 	    }
