@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#59 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#60 $
 **
 ** Definition of QFont class
 **
@@ -143,7 +143,7 @@ private:
     void	initFontInfo() const;
     void	load() const;
 #if defined(_WS_WIN_)
-    HFONT	create( bool *, HDC=0 ) const;
+    HFONT	create( bool *, HDC=0, bool=FALSE ) const;
     void       *textMetric() const;
 #endif
 

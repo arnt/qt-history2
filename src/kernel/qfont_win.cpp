@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#88 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -359,7 +359,7 @@ void QFont::load() const
 #endif
 
 
-HFONT QFont::create( bool *stockFont, HDC hdc ) const
+HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF ) const
 {
     QString fam = QFont::substitute( d->req.family );
     if ( d->req.rawMode ) {			// will choose a stock font
@@ -418,14 +418,20 @@ HFONT QFont::create( bool *stockFont, HDC hdc ) const
 
     LOGFONT lf;
     memset( &lf, 0, sizeof(LOGFONT) );
-    if ( hdc )
-	lf.lfHeight = -int((double)(d->req.pointSize
-				*GetDeviceCaps(hdc,LOGPIXELSY))
-			    /(double)720+0.5);
-    else
-	lf.lfHeight = -int((double)d->req.pointSize
-				*GetDeviceCaps(shared_dc, LOGPIXELSY)
-			    /(double)720+0.5);
+    if ( hdc ) {
+	if ( !VxF )
+	    lf.lfHeight = -int((float)d->req.pointSize*
+			       GetDeviceCaps(hdc,LOGPIXELSY)/(float)720+0.5);
+	else
+	    lf.lfHeight = -(d->req.pointSize/10);
+    } else {
+	lf.lfHeight = -(d->req.pointSize/10);
+/*
+    This code should adjust the font size on-screen, but it will be re-
+    introduced in Qt 2.0, maybe with some special API (aavit) to enable it.
+	lf.lfHeight = -int((float)d->req.pointSize*
+			   GetDeviceCaps(shared_dc,LOGPIXELSY)/(float)720+0.5);
+*/
     lf.lfWidth		= 0;
     lf.lfEscapement	= 0;
     lf.lfOrientation	= 0;
