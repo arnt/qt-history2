@@ -573,7 +573,7 @@ void QAbstractItemView::reset()
         itemDelegate()->releaseEditor(it.value());
     }
     d->editors.clear();
-    
+
     d->state = NoState;
     if (isVisible())
         doItemsLayout();
@@ -743,10 +743,10 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
         return;
 
     QPoint offset(horizontalOffset(), verticalOffset());
-    QItemSelectionModel::SelectionFlags command =
-        selectionCommand(e->state(), index, e->type());
     d->pressedItem = index;
     d->pressedState = e->state();
+    QItemSelectionModel::SelectionFlags command =
+        selectionCommand(e->state(), index, e->type());
     if ((command & QItemSelectionModel::Current) == 0)
         d->pressedPosition = pos + offset;
 
