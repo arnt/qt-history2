@@ -35,6 +35,7 @@
 #include "qapplication.h"
 #include "qlineedit.h"
 #include "qbitmap.h"
+#include "qeffects.h"
 #include <limits.h>
 
 //#define ANIMATED_COMBO
@@ -239,7 +240,6 @@ struct QComboData
     int fullHeight, currHeight;
 
     QLineEdit * ed;  // /bin/ed rules!
-    QTimer *showTimer;
     
     QSize sizeHint;
 
@@ -387,10 +387,6 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     d->discardNextMousePress = FALSE;
     d->shortClick = FALSE;
     d->useCompletion = FALSE;
-
-    d->showTimer = new QTimer( this );
-    connect( d->showTimer, SIGNAL( timeout() ),
-	     this, SLOT( showMore() ) );
 
     setFocusPolicy( StrongFocus );
 
@@ -1375,17 +1371,10 @@ void QComboBox::popup()
 	animate = TRUE;
 #endif
 
-	if ( animate ) {
-	    d->fullHeight = d->listBox()->height();
-	    d->currHeight = 0;
-	    bool sb = d->listBox()->height() <= d->listBox()->contentsHeight();
-	    d->listBox()->resize( d->listBox()->width(), 0 );
+	if ( animate )
+	    scrollEffect( d->listBox() );
+	else
 	    d->listBox()->show();
-	    d->listBox()->setVScrollBarMode( sb ? QScrollView::AlwaysOn : QScrollView::AlwaysOff );
-	    d->showTimer->start( 2 );
-	} else {
-	    d->listBox()->show();
-	}
     } else {
 	d->popup()->installEventFilter( this );
 	d->popup()->popup( mapToGlobal( QPoint(0,0) ), this->d->current );
@@ -1972,25 +1961,6 @@ void QComboBox::styleChange( QStyle& s )
 }
 
 /*!
-  \internal
-*/
-
-void QComboBox::showMore()
-{
-    if ( !d->listBox() )
-	return;
-    d->currHeight += 10;
-    if ( d->currHeight > d->fullHeight )
-	d->currHeight = d->fullHeight;
-    d->listBox()->resize( d->listBox()->width(), d->currHeight );
-    if ( d->currHeight >= d->fullHeight ) {
-	d->listBox()->setVScrollBarMode( QScrollView::Auto );
-	d->showTimer->stop();
-    }
-}
-
-
-/*!
   Returns whether the combox is editable or not.
 
   \sa setEditable()
@@ -2040,9 +2010,6 @@ void QComboBox::setUpListBox()
 	     SLOT(internalActivate(int)) );
     connect( d->listBox(), SIGNAL(highlighted(int)),
 	     SLOT(internalHighlight(int)));
-    d->showTimer = new QTimer( this );
-    connect( d->showTimer, SIGNAL( timeout() ),
-	     this, SLOT( showMore() ) );
 }
 
 

@@ -23,7 +23,6 @@
 
 #include "qwhatsthis.h"
 #ifndef QT_NO_COMPLEXWIDGETS
-
 #include "qapplication.h"
 #include "qpaintdevicemetrics.h"
 #include "qpixmap.h"
@@ -37,9 +36,6 @@
 #include "qtooltip.h"
 #include "qsimplerichtext.h"
 #include "qstylesheet.h"
-
-//#define ANIMATED_WHATSTHIS
-//#define BLEND_WHATSTHIS
 
 // REVISED: warwick
 /*!
@@ -539,27 +535,7 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
 	    y = 0;
 	
 	whatsThat->setGeometry( x, y, w + shadowWidth, h + shadowWidth );
-	
-	bool animate = FALSE;
-	bool blend = FALSE;
-#ifdef _WS_WIN_
-	animate = QApplication::winEffectSupport( UI_AnimateTooltip );
-	blend = QApplication::winEffectSupport( UI_FadeTooltip );
-#endif
-#ifdef ANIMATED_WHATSTHIS
-	animate = TRUE;
-#endif
-#ifdef BLEND_WHATSTHIS
-	blend = TRUE;
-#endif
-	if ( animate ) {
-	    if ( blend )
-		whatsThat->show();	// in a distant future...
-	    else
-		whatsThat->show();	// in a distant future...
-	} else {
-	    whatsThat->show();
-	}
+	whatsThat->show();
     }
     
     // now for super-clever shadow stuff.  super-clever mostly in

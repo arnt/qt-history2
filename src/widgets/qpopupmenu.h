@@ -103,6 +103,7 @@ private slots:
     void	modalActivation( int );
 
     void	subMenuTimer();
+    void	allowAnimation();
     void     toggleTearOff();
 
 private:

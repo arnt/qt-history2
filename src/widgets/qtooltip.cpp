@@ -28,11 +28,14 @@
 #include "qapplication.h"
 #include "qguardedptr.h"
 #include "qtimer.h"
+#include "qeffects.h"
 
 //#define ANIMATED_TOOLTIP
 //#define BLEND_TOOLTIP
 
 static bool globally_enabled = TRUE;
+
+static QTimer * preventAnimation = 0;
 
 // Magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -104,6 +107,7 @@ private slots:
     void    labelDestroyed();
     void    clientWidgetDestroyed();
     void    showTip();
+    void    allowAnimation();
 
 private:
     QTimer  wakeUp;
@@ -496,11 +500,11 @@ void QTipManager::showTip()
 	blend = TRUE;
 #endif
 
-	if ( animate && !previousTip ) {
+	if ( animate && !previousTip && !preventAnimation) {
 	    if ( blend )
-		label->show();  // in a distant future...
+		fadeEffect( label );
 	    else
-		label->show();  // in a distant future...
+		scrollEffect( label );
 	} else {
 	    label->show();
 	}
@@ -521,6 +525,11 @@ void QTipManager::showTip()
 
 void QTipManager::hideTip()
 {
+    if ( !preventAnimation )
+	preventAnimation = new QTimer( this );
+    preventAnimation->stop();
+    preventAnimation->singleShot( 1000, this, SLOT(allowAnimation()) );
+
     if ( label && label->isVisible() ) {
 	label->hide();
 	fallAsleep.start( 2000, TRUE );
@@ -541,7 +550,13 @@ void QTipManager::hideTip()
     widget = 0;
 }
 
-
+void QTipManager::allowAnimation()
+{
+    if ( preventAnimation ) {
+	delete preventAnimation;
+	preventAnimation = 0;
+    }
+}
 // NOT REVISED
 /*!
   \class QToolTip qtooltip.h

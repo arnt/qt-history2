@@ -144,7 +144,6 @@ private slots:
     void	internalHighlight( int );
     void	internalClickTimeout();
     void	returnPressed();
-    void	showMore();
 
 protected:
     void	paintEvent( QPaintEvent * );
@@ -155,14 +154,14 @@ protected:
     void	mouseDoubleClickEvent( QMouseEvent * );
     void	keyPressEvent( QKeyEvent *e );
     void	focusInEvent( QFocusEvent *e );
-    void     styleChange( QStyle& );
+    void	styleChange( QStyle& );
 
     void	popup(); //#### virtual in 3.0
-    void updateMask();
+    void	updateMask();
 
 private:
-    void     setUpListBox();
-    void     setUpLineEdit();
+    void	setUpListBox();
+    void	setUpLineEdit();
     void	popDownListBox();
     void	reIndex();
     void	currentChanged();

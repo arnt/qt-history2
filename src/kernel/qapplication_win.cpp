@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#384 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#385 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -889,6 +889,7 @@ bool QApplication::winEffectSupport( Qt::WindowsEffect effect )
 #else
 	    return FALSE;
 #endif
+	    break;
 	default:
 #if defined(SPI_GETUIEFFECTS)
 	    WINPARAM = SPI_GETUIEFFECTS;

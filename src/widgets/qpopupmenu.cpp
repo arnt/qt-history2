@@ -37,6 +37,7 @@
 #include "qwhatsthis.h"
 #include "qobjectlist.h"
 #include "qguardedptr.h"
+#include "qeffects.h"
 #include <ctype.h>
 
 //#define ANIMATED_POPUP
@@ -88,6 +89,7 @@ static void popupSubMenuLater( int msec, QPopupMenu * receiver ) {
     singleSingleShot->start( msec, TRUE );
 }
 
+static QTimer * preventAnimation = 0;
 
 // NOT REVISED
 /*!
@@ -404,14 +406,14 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 #ifdef ANIMATED_POPUP
     animate = TRUE;
 #endif
-#ifdef ANIMATED_BLEND
+#ifdef BLEND_POPUP
     blend = TRUE;
 #endif
-    if ( animate ) {
+    if ( animate && !preventAnimation ) {
 	if ( blend )
-	    show();	// in a distant future...
+	    fadeEffect( this );
 	else
-	    show();	// in a distant future...
+	    scrollEffect( this, parentMenu && parentMenu->isPopupMenu ? Horizontal : Vertical );
     } else {
 	show();
     }
@@ -539,6 +541,11 @@ void QPopupMenu::setFirstItemActive()
 void QPopupMenu::hideAllPopups()
 {
     register QMenuData *top = this;		// find top level popup
+    if ( !preventAnimation )
+	preventAnimation = new QTimer( this );
+    preventAnimation->stop();
+    preventAnimation->singleShot( 1000, this, SLOT(allowAnimation()) );
+
     if ( !isPopup() )
 	return; // nothing to do
 
@@ -555,6 +562,11 @@ void QPopupMenu::hideAllPopups()
 
 void QPopupMenu::hidePopups()
 {
+    if ( !preventAnimation )
+	preventAnimation = new QTimer( this );
+    preventAnimation->stop();
+    preventAnimation->singleShot( 1000, this, SLOT(allowAnimation()) );
+
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
     while ( (mi=it.current()) ) {
@@ -1522,6 +1534,13 @@ void QPopupMenu::subMenuTimer() {
     popup->popup( p );
 }
 
+void QPopupMenu::allowAnimation()
+{
+    if ( preventAnimation ) {
+	delete preventAnimation;
+	preventAnimation = 0;
+    }
+}
 
 void QPopupMenu::updateRow( int row )
 {
