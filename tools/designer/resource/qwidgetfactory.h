@@ -92,6 +92,11 @@ private:
 	QMap<QString, QString> *dbControls;
     };
 
+    struct Functions
+    {
+	QString functions;
+    };
+
     QValueList<Image> images;
     QWidget *toplevel;
     QListViewItem *lastItem;
@@ -102,8 +107,8 @@ private:
     QMap<QTable*, QValueList<Field> > fieldMaps;
     QList<QAction> actionList;
     QMap<QObject *, EventFunction> eventMap;
-    QString functions;
-    QStringList quickScriptSlots;
+    QMap<QString, QString> languageSlots;
+    QMap<QString, Functions*> languageFunctions;
 
 };
 

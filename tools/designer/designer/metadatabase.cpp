@@ -18,7 +18,8 @@
 **
 **********************************************************************/
 
-#include "../shared/eventinterface.h"
+#include "../interfaces/eventinterface.h"
+#include "../interfaces/languageinterface.h"
 #include "metadatabase.h"
 #include "widgetfactory.h"
 #include "formwindow.h"
@@ -33,6 +34,14 @@
 #include <qmainwindow.h>
 
 #include <stdlib.h>
+
+class NormalizeObject : public QObject
+{
+public:
+    NormalizeObject() : QObject() {}
+    static QCString normalizeSignalSlot( const char *signalSlot ) { return QObject::normalizeSignalSlot( signalSlot ); }
+};
+
 
 class MetaDataBaseRecord
 {
@@ -60,7 +69,9 @@ static QList<MetaDataBase::CustomWidget> *cWidgets = 0;
 static bool doUpdate = TRUE;
 static bool haveEvents = FALSE;
 static bool editorInstalled = FALSE;
+QStringList langList;
 static QInterfaceManager<EventInterface> *eventInterfaceManager = 0;
+static QInterfaceManager<LanguageInterface> *languageInterfaceManager = 0;
 
 /*!
   \class MetaDataBase metadatabase.h
@@ -558,6 +569,28 @@ bool MetaDataBase::hasSlot( QObject *o, const QCString &slot )
     return FALSE;
 }
 
+QString MetaDataBase::languageOfSlot( QObject *o, const QCString &slot )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return QString::null;
+    }
+
+    QString sl = slot;
+    NormalizeObject::normalizeSignalSlot( sl );
+    for ( QValueList<Slot>::Iterator it = r->slotList.begin(); it != r->slotList.end(); ++it ) {
+	Slot s = *it;
+	QString sl2 = s.slot;
+	NormalizeObject::normalizeSignalSlot( sl2 );
+	if ( sl == sl2 )
+	    return s.language;
+    }
+    return QString::null;
+}
+
 bool MetaDataBase::addCustomWidget( CustomWidget *wid )
 {
     setupDataBase();
@@ -964,16 +997,10 @@ QValueList<MetaDataBase::EventDescription> MetaDataBase::events( QObject *o )
 	return QValueList<MetaDataBase::EventDescription>();
     }
 
-    if ( !eventInterfaceManager ) {
-	QString dir = getenv( "QTDIR" );
-	dir += "/lib";
-	eventInterfaceManager = new QInterfaceManager<EventInterface>( IID_EventInterface, dir, "*qscript*.dll; *qscript*.so" );
-    }
-
-    if ( !eventInterfaceManager )
+    if ( !eventInterfaceManager || langList.count() == 1 )
 	return QValueList<MetaDataBase::EventDescription>();
-
-    EventInterface *iface = (EventInterface*)eventInterfaceManager->queryInterface( "Events" );
+    // ###### hack: uses first language. There should be a default language setting used here
+    EventInterface *iface = (EventInterface*)eventInterfaceManager->queryInterface( langList[ 0 ] );
     QValueList<MetaDataBase::EventDescription> list;
     if ( !iface )
 	return list;
@@ -987,13 +1014,6 @@ QValueList<MetaDataBase::EventDescription> MetaDataBase::events( QObject *o )
 
     return list;
 }
-
-class NormalizeObject : public QObject
-{
-public:
-    NormalizeObject() : QObject() {}
-    static QCString normalizeSignalSlot( const char *signalSlot ) { return QObject::normalizeSignalSlot( signalSlot ); }
-};
 
 bool MetaDataBase::setEventFunction( QObject *o, QObject *form, const QString &event, const QString &function, bool addIfNotExisting )
 {
@@ -1123,4 +1143,25 @@ QMap<QString, QString> MetaDataBase::functionBodies( QObject *o )
     }
 
     return r->functionBodies;
+}
+
+void MetaDataBase::setupInterfaceManagers()
+{
+    QString dir = getenv( "QTDIR" );
+    dir += "/plugins";
+    if ( !eventInterfaceManager ) {
+	eventInterfaceManager = new QInterfaceManager<EventInterface>( IID_EventInterface, dir, "*.dll; *.so" );
+	MetaDataBase::setEventsEnabled( !eventInterfaceManager->libraryList().isEmpty() );
+    }
+    if ( !languageInterfaceManager ) {
+	languageInterfaceManager = new QInterfaceManager<LanguageInterface>( IID_LanguageInterface, dir, "*.dll; *.so" );
+	langList = languageInterfaceManager->featureList();
+	if ( langList.find( "C++" ) == langList.end() )
+	    langList << "C++";
+    }
+}
+
+QStringList MetaDataBase::languages()
+{
+    return langList;
 }

@@ -22,12 +22,13 @@
 #define MAINWINDOW_H
 
 #include "metadatabase.h"
-#include "actioninterface.h" // for GCC 2.7.* compatibility
-#include "../shared/editorinterface.h"
-#include "../shared/logwindowinterface.h"
-#include "../shared/templatewizardiface.h"
-#include "../shared/eventinterface.h"
-#include "../shared/syntaxcheckinterface.h"
+#include "../interfaces/actioninterface.h" // for GCC 2.7.* compatibility
+#include "../interfaces/editorinterface.h"
+#include "../interfaces/templatewizardiface.h"
+#include "../interfaces/eventinterface.h"
+#include "../interfaces/languageinterface.h"
+#include "../interfaces/filterinterface.h"
+#include "../interfaces/programinterface.h"
 #include "sourceeditor.h"
 
 #if defined(HAVE_KDE)
@@ -53,6 +54,7 @@ class FormList;
 class Help;
 class ActionEditor;
 class Project;
+class OutputWindow;
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 #include <qtoolbar.h>
@@ -123,7 +125,8 @@ public:
     FormWindow *activeForm() const { return lastActiveFormWindow; }
 
     TemplateWizardInterface* templateWizardInterface( const QString& className );
-    QComponentInterface* applicationInterface() const { return appInterface; }
+    QUnknownInterface* designerInterface() const { return desInterface; }
+    OutputWindow *outputWindow() const { return oWindow; }
 
 public slots:
     void showProperties( QObject *w );
@@ -233,10 +236,10 @@ private:
     void setupHierarchyView();
     void setupFormList();
     void setupActionEditor();
-    void setupLogWindow();
+    void setupOutputWindow();
 
     void setupActionManager();
-    void setupEditor();
+    void setupPluginManagers();
 
     QWidget* previewFormInternal( QStyle* style = 0, QPalette* pal = 0 );
 
@@ -313,18 +316,19 @@ private:
     QRect propGeom, flGeom, hvGeom;
     bool client;
     QString templPath;
-    QInterfaceManager<ActionInterface> *actionPluginManager;
     ActionEditor *actionEditor;
     Project *currentProject;
+    QInterfaceManager<ActionInterface> *actionPluginManager;
     QInterfaceManager<EditorInterface> *editorPluginManager;
-    QInterfaceManager<LogWindowInterface> *logWindowPluginManager;
     QInterfaceManager<TemplateWizardInterface> *templateWizardPluginManager;
-    QInterfaceManager<SyntaxCheckInterface> *syntaxCheckPluginManager;
+    QInterfaceManager<ProgramInterface> *programPluginManager;
     QList<SourceEditor> sourceEditors;
     bool previewing;
-    QComponentInterface *appInterface;
+    QUnknownInterface *desInterface;
     QStringList recentlyFiles;
     QStringList recentlyProjects;
+    QString pluginDir, libDir;
+    OutputWindow *oWindow;
 
 };
 

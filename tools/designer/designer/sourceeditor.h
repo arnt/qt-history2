@@ -21,7 +21,7 @@
 #ifndef SOURCEEDITOR_H
 #define SOURCEEDITOR_H
 
-#include "../shared/editorinterface.h"
+#include "../interfaces/editorinterface.h"
 #include <qvbox.h>
 
 class FormWindow;
@@ -41,6 +41,9 @@ public:
 
     static QString sourceOfForm( FormWindow *fw );
 
+    QString language() const;
+    void setLanguage( const QString &l );
+
 protected:
     void closeEvent( QCloseEvent *e );
 
@@ -50,6 +53,7 @@ signals:
 private:
     EditorInterface *iFace;
     FormWindow *formWindow;
+    QString lang;
 
 };
 

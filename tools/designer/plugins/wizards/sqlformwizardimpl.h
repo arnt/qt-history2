@@ -1,7 +1,8 @@
 #ifndef SQLFORMWIZARD_H
 #define SQLFORMWIZARD_H
 #include "sqlformwizard.h"
-#include "../../shared/templatewizardiface.h"
+#include <templatewizardiface.h>
+#include <designerinterface.h>
 #include <qvaluelist.h>
 
 class SqlFormWizard : public SqlFormWizardBase
@@ -9,7 +10,8 @@ class SqlFormWizard : public SqlFormWizardBase
     Q_OBJECT
 
 public:
-    SqlFormWizard( QComponentInterface *aIface, QWidget *w, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
+    SqlFormWizard( QUnknownInterface *aIface, QWidget *w, QWidget* parent = 0, DesignerFormWindow *fw = 0,
+		   const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
     ~SqlFormWizard();
 
     void accept() const;
@@ -35,7 +37,8 @@ private:
 
 private:
     QWidget *widget;
-    QComponentInterface *appIface;
+    QUnknownInterface *appIface;
+    DesignerFormWindow *formWindow;
     enum Mode {
 	None,
 	Form,

@@ -4,7 +4,7 @@ HEADERS	= uic.h \
 		  ../shared/widgetdatabase.h \
 		  ../shared/domtool.h \
 		  ../integration/kdevelop/kdewidgets.h \
-		  ../shared/widgetinterface.h
+		  ../interfaces/widgetinterface.h
 
 SOURCES	= uic.cpp  \
 		  ../shared/widgetdatabase.cpp  \

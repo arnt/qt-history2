@@ -46,6 +46,7 @@
 #include "about.h"
 #include "multilineeditorimpl.h"
 #include "createtemplate.h"
+#include "outputwindow.h"
 #include <qinputdialog.h>
 #if defined(HAVE_KDE)
 #include <ktoolbar.h>
@@ -146,18 +147,15 @@ MainWindow::MainWindow( bool asClient )
       docPath( "$QTDIR/doc/html" ), fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
       previewing( FALSE )
 {
-    syntaxCheckPluginManager = 0;
-    appInterface = new DesignerApplicationInterfaceImpl;
-    appInterface->addRef();
+    desInterface = new DesignerInterfaceImpl( this );
+    desInterface->addRef();
 
-    // ### we need a better test to find if we have Quick installed or not
-    QString dir = getenv( "QTDIR" );
-    if ( QFile::exists( dir + "/lib/libqscript.so" ) || QFile::exists( dir + "/lib/qscript.dll" ) )
-	MetaDataBase::setEventsEnabled( TRUE );
+    pluginDir = getenv( "QTDIR" );
+    pluginDir += "/plugins";
+    libDir = getenv( "QTDIR" );
+    libDir += "/lib";
 
-    templateWizardPluginManager = new QInterfaceManager<TemplateWizardInterface>( IID_TemplateWizardInterface, dir + "/plugins", "*.dll; *.so" );
-
-    setupEditor();
+    setupPluginManagers();
 
     qApp->setMainWidget( this );
     QWidgetFactory::addWidgetFactory( new CustomWidgetFactory );
@@ -169,7 +167,6 @@ MainWindow::MainWindow( bool asClient )
     windowMenu = 0;
     actionWindowPropertyEditor = 0;
     hierarchyView = 0;
-    actionPluginManager = 0;
     actionEditor = 0;
     currentProject = 0;
     formList = 0;
@@ -199,7 +196,7 @@ MainWindow::MainWindow( bool asClient )
     setupHierarchyView();
     setupPropertyEditor();
     setupActionEditor();
-    setupLogWindow();
+    setupOutputWindow();
 
     setupActionManager();
     setupHelpActions();
@@ -242,9 +239,10 @@ MainWindow::MainWindow( bool asClient )
 
 MainWindow::~MainWindow()
 {
-    appInterface->release();
-    delete actionPluginManager;
-    delete editorPluginManager;
+    desInterface->release();
+//     delete actionPluginManager;
+//     delete editorPluginManager;
+//     delete templateWizardPluginManager;
 }
 
 void MainWindow::setupMDI()
@@ -1106,26 +1104,18 @@ void MainWindow::setupPropertyEditor()
     actionWindowPropertyEditor->setOn( TRUE );
 }
 
-void MainWindow::setupLogWindow()
+void MainWindow::setupOutputWindow()
 {
-    QString dir = getenv( "QTDIR" );
-    dir += "/lib";
-    logWindowPluginManager = 0;
-    logWindowPluginManager = new QInterfaceManager<LogWindowInterface>( IID_LogWindowInterface, dir, "*qscript*.dll; *qscript*.so" );
-    if ( !logWindowPluginManager )
-	return;
-    LogWindowInterface *iface = (LogWindowInterface*)logWindowPluginManager->queryInterface( "LogWindow" );
-    if ( !iface )
-	return;
     QDockWindow *dw = new QDockWindow;
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
     addToolBar( dw, Qt::Bottom );
-    dw->setWidget( iface->logWindow( dw ) );
+    oWindow = new OutputWindow( dw );
+    dw->setWidget( oWindow );
     dw->setFixedExtentHeight( 200 );
-    dw->setCaption( tr( "Logwindow" ) );
+    dw->setCaption( tr( "Output Window" ) );
     dw->hide();
-    // ##### add log window menu item to window menu, etc.
+    // ##### do logwindow menu stuff
 }
 
 void MainWindow::setupHierarchyView()
@@ -1358,9 +1348,7 @@ void MainWindow::fileOpen()
 {
     statusBar()->message( tr( "Select a file...") );
 
-    QString dir = getenv( "QTDIR" );
-    dir += "/plugins";
-    QInterfaceManager<ImportFilterInterface> manager( IID_ImportFilterInterface, dir );
+    QInterfaceManager<ImportFilterInterface> manager( IID_ImportFilterInterface, pluginDir );
     {
 	QString filename;
 	QStringList filterlist;
@@ -1876,32 +1864,23 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
     buffer.close();
     buffer.open( IO_ReadOnly );
 
-    if ( logWindowPluginManager ) {
-	LogWindowInterface *iface = (LogWindowInterface*)logWindowPluginManager->queryInterface( "LogWindow" );
-	if ( iface ) {
-	    iface->logWindow( 0 )->parentWidget()->show();
-	    if ( !syntaxCheckPluginManager ) {
-		QString dir = getenv( "QTDIR" );
-		syntaxCheckPluginManager = new QInterfaceManager<SyntaxCheckInterface>( IID_SyntaxCheckInterface, dir + "/lib",
-											"*qscript*.dll; *qscript*.so" );
-	    }
-	    if ( syntaxCheckPluginManager ) {
-		SyntaxCheckInterface *siface = (SyntaxCheckInterface*)syntaxCheckPluginManager->queryInterface( "SyntaxCheck" );
-		if ( siface ) {
-		    QString error;
-		    int line;
-		    siface->checkSyntax( SourceEditor::sourceOfForm( fw ), error, line );
-		    if ( !error.isEmpty() ) {
-			iface->setError( error, line );
-			if ( editorPluginManager ) {
-			    EditorInterface *eiface = (EditorInterface*)editorPluginManager->queryInterface( "Editor" );
-			    if ( eiface )
-				eiface->setError( line );
-			}
-			QApplication::restoreOverrideCursor();
-			return 0;
-		    }
+    oWindow->parentWidget()->show();
+    if ( programPluginManager ) {
+	// ###### hack: uses first language. There should be a default language setting used here
+	QString lang = MetaDataBase::languages()[ 0 ];
+	ProgramInterface *piface = (ProgramInterface*)programPluginManager->queryInterface( lang );
+	if ( piface ) {
+	    QStringList error;
+	    QValueList<int> line;
+	    if ( !piface->check( SourceEditor::sourceOfForm( fw ), error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
+		oWindow->setErrorMessages( error, line );
+		if ( editorPluginManager ) {
+		    EditorInterface *eiface = (EditorInterface*)editorPluginManager->queryInterface( lang );
+		    if ( eiface )
+			eiface->setError( line[ 0 ] );
 		}
+		QApplication::restoreOverrideCursor();
+		return 0;
 	    }
 	}
     }
@@ -2478,7 +2457,7 @@ FormWindow* MainWindow::insertFormWindow( int type )
 
     TemplateWizardInterface *iface = templateWizardInterface( fw->mainContainer()->className() );
     if ( iface ) {
-	iface->setup( fw->mainContainer()->className(), fw->mainContainer(), appInterface );
+	iface->setup( fw->mainContainer()->className(), fw->mainContainer(), fw->iFace(), desInterface );
 	iface->release();
     }
 
@@ -3749,9 +3728,7 @@ void MainWindow::showDialogHelp()
 
 void MainWindow::setupActionManager()
 {
-    QString dir = getenv( "QTDIR" );
-    dir += "/plugins";
-    actionPluginManager = new QInterfaceManager<ActionInterface>( IID_ActionInterface, dir, "*.dll; *.so" );
+    actionPluginManager = new QInterfaceManager<ActionInterface>( IID_ActionInterface, pluginDir, "*.dll; *.so" );
 
     QStringList lst = actionPluginManager->featureList();
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
@@ -3759,7 +3736,7 @@ void MainWindow::setupActionManager()
 	if ( !iface )
 	    continue;
 
-	iface->connectTo( appInterface );
+	iface->connectTo( desInterface );
 	QAction *a = iface->create( *it, this );
 	if ( !a )
 	    continue;
@@ -3796,24 +3773,25 @@ void MainWindow::editFunction( const QString &func )
     if ( !lastActiveFormWindow || !MetaDataBase::hasEditor() )
 	return;
     SourceEditor *editor = 0;
-    if ( sourceEditors.isEmpty() ) {
-	editor = new SourceEditor( workSpace(), (EditorInterface*)editorPluginManager->queryInterface( "Editor" ) );
+    QString lang = MetaDataBase::languageOfSlot( formWindow(), func.latin1() );
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+	if ( e->language() == lang ) {
+	    editor = e;
+	    break;
+	}
+    }
+    if ( !editor ) {
+	EditorInterface *eIface = (EditorInterface*)editorPluginManager->queryInterface( lang );
+	if ( !eIface )
+	    return;
+	editor = new SourceEditor( workSpace(), eIface );
+	editor->setLanguage( lang );
 	sourceEditors.append( editor );
-    } else {
-	editor = sourceEditors.first();
     }
     editor->show();
     editor->setFocus();
     editor->setForm( lastActiveFormWindow );
     editor->setFunction( func );
-}
-
-void MainWindow::setupEditor()
-{
-    QString dir = getenv( "QTDIR" );
-    dir += "/plugins";
-    editorPluginManager = new QInterfaceManager<EditorInterface>( IID_EditorInterface, dir, "*.dll; *.so" );
-    MetaDataBase::setEditor( editorPluginManager->library( "Editor" ) != 0 );
 }
 
 void MainWindow::setupRecentlyFilesMenu()
@@ -3860,7 +3838,15 @@ void MainWindow::addRecentlyOpened( const QString &fn, QStringList &lst )
 
 TemplateWizardInterface * MainWindow::templateWizardInterface( const QString& className )
 {
-    if ( templateWizardPluginManager )
-	return templateWizardPluginManager->queryInterface( className );
-    return 0;
+    return templateWizardPluginManager->queryInterface( className );
+}
+
+void MainWindow::setupPluginManagers()
+{
+    setupActionManager();
+    editorPluginManager = new QInterfaceManager<EditorInterface>( IID_EditorInterface, pluginDir, "*.dll; *.so" );
+    MetaDataBase::setEditor( !editorPluginManager->libraryList().isEmpty() );
+    templateWizardPluginManager = new QInterfaceManager<TemplateWizardInterface>( IID_TemplateWizardInterface, pluginDir, "*.dll; *.so" );
+    MetaDataBase::setupInterfaceManagers();
+    programPluginManager = new QInterfaceManager<ProgramInterface>( IID_ProgramInterface, pluginDir, "*.dll; *.so" );
 }

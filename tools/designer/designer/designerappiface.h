@@ -1,312 +1,163 @@
 #ifndef DESIGNERAPPIFACE_H
 #define DESIGNERAPPIFACE_H
 
-#include <qguardedptr.h>
-#include <qobjectlist.h>
-#include <qwidget.h> // for GCC 2.7.* compatibility
-#include <qptrdict.h>
-#include <../plugins/designerinterface.h>
+#include "../interfaces/designerinterface.h"
+#include "project.h"
 
-class MainWindow;
-class FormList;
-class FormListItem;
 class FormWindow;
-class HierarchyList;
-class HierarchyItem;
-class QStatusBar;
-class QListViewItemIterator;
+class MainWindow;
+class Project;
+class OutputWindow;
 
-/*
- * Application
- */
-
-class DesignerApplicationInterfaceImpl : public QComponentInterface
+class DesignerInterfaceImpl : public DesignerInterface
 {
 public:
-    DesignerApplicationInterfaceImpl();
-    virtual ~DesignerApplicationInterfaceImpl() {}
+    DesignerInterfaceImpl( MainWindow *mw );
 
-    // QUnknownInterface
-    QUnknownInterface *queryInterface( const QUuid & );
-    unsigned long addRef();
-    unsigned long release();
-    // QComponentInterface
-    QString name() const;
-    QString description() const;
-    QString version() const;
-    QString author() const;
+    DesignerProject *currentProject() const;
+    QList<DesignerProject> projectList() const;
+    void showStatusMessage( const QString & ) const;
+    DesignerDock *createDock() const;
+    DesignerOutputDock *outputDock() const;
 
-private:
-    unsigned long ref;
-};
 
-class DesignerMainWindowInterfaceImpl : public DesignerMainWindowInterface
-{
-public:
-    DesignerMainWindowInterfaceImpl( QUnknownInterface *);
-    virtual ~DesignerMainWindowInterfaceImpl();
-
-    QUnknownInterface *queryInterface( const QUuid & );
-    unsigned long addRef();
-    unsigned long release();
-
-    void fileNew();
-    void fileNewProject();
-    void fileCloseProject();
-    void fileOpen();
-    bool fileSave();
-    bool fileSaveAs();
-    void fileSaveAll();
-    void fileCreateTemplate();
-
-    void editUndo();
-    void editRedo();
-    void editCut();
-    void editCopy();
-    void editPaste();
-    void editDelete();
-    void editSelectAll();
-    void editLower();
-    void editRaise();
-    void editAdjustSize();
-    void editLayoutHorizontal();
-    void editLayoutVertical();
-    void editLayoutHorizontalSplit();
-    void editLayoutVerticalSplit();
-    void editLayoutGrid();
-    void editLayoutContainerHorizontal();
-    void editLayoutContainerVertical();
-    void editLayoutContainerGrid();
-    void editBreakLayout();
-    void editAccels();
-    void editSlots();
-    void editConnections();
-    void editFormSettings();
-    void editProjectSettings();
-    void editDatabaseConnections();
-    void editPreferences();
-
-    void previewForm();
-    void previewForm( const QString& );
-    void windowPropertyEditor( bool );
-    void windowHierarchyView( bool );
-    void windowFormList( bool );
-    void windowActionEditor( bool );
-
-    void toolsCustomWidget();
-
-    void helpContents();
-    void helpManual();
-    void helpAbout();
-    void helpAboutQt();
+    QUnknownInterface *queryInterface( const QUuid &uuid );
+    ulong addRef();
+    ulong release();
 
 private:
-    QUnknownInterface* appIface;
+    ulong ref;
     MainWindow *mainWindow;
-    unsigned long ref;
 
 };
 
-class DesignerStatusBarInterfaceImpl : public DesignerStatusBarInterface
+class DesignerProjectImpl: public DesignerProject
 {
 public:
-    DesignerStatusBarInterfaceImpl( QUnknownInterface* );
-    virtual ~DesignerStatusBarInterfaceImpl() {}
+    DesignerProjectImpl( Project *pr );
 
-    QUnknownInterface *queryInterface( const QUuid & );
-    unsigned long addRef();
-    unsigned long release();
-
-    void setMessage( const QString &, int ms = 3000 );
-    void clear();
-
-public:
-    QUnknownInterface* appIface;
-    QStatusBar *statusBar;
-    unsigned long ref;
-};
-
-class DesignerFormListInterfaceImpl : public DesignerFormListInterface
-{
-public:
-    DesignerFormListInterfaceImpl( QUnknownInterface* );
-    virtual ~DesignerFormListInterfaceImpl();
-
-    QUnknownInterface *queryInterface( const QUuid & );
-    unsigned long addRef();
-    unsigned long release();
-
-    const QPixmap* pixmap( DesignerFormInterface*, int col ) const;
-    void setPixmap( DesignerFormInterface*, int col, const QPixmap& );
-    QString text( DesignerFormInterface*, int col ) const;
-    void setText( DesignerFormInterface*, int col, const QString& );
-
-    uint count() const;
-    DesignerFormInterface* reset();
-    DesignerFormInterface* current();
-    DesignerFormInterface* next();
-    DesignerFormInterface* prev();
-
-    bool newForm();
-    bool loadForm();
-    bool saveAll() const;
-    void closeAll() const;
-
-    bool connect( const char *, QObject *, const char * );
-
-private:
-    QUnknownInterface* appIface;
-    FormList *formList;
-    QListViewItemIterator *listIterator;
-    unsigned long ref;
-};
-
-class DesignerFormInterfaceImpl : public DesignerFormInterface
-{
-public:
-    DesignerFormInterfaceImpl( FormListItem *fw, QUnknownInterface *ai );
-    virtual ~DesignerFormInterfaceImpl() {}
-
-    QUnknownInterface *queryInterface( const QUuid & );
-    unsigned long addRef();
-    unsigned long release();
-
-    QVariant property( const QCString& );
-    bool setProperty( const QCString&, const QVariant& );
-    void addWidget( QWidget *w );
-
+    DesignerFormWindow *currentForm() const;
+    QList<DesignerFormWindow> formList() const;
+    void addForm( DesignerFormWindow * );
+    void removeForm( DesignerFormWindow * );
+    QString fileName() const;
+    void setFileName( const QString & );
+    QString projectName() const;
+    void setProjectName( const QString & );
+    QString databaseFile() const;
+    void setDatabaseFile( const QString & );
+    void setupDatabases() const;
+    QList<DesignerDatabase> databaseConnections() const;
+    void addDatabase( DesignerDatabase * );
+    void removeDatabase( DesignerDatabase * );
     void save() const;
+
+private:
+    Project *project;
+
+};
+
+class DesignerDatabaseImpl: public DesignerDatabase
+{
+public:
+    DesignerDatabaseImpl( Project::DatabaseConnection *d );
+
+    QString name() const;
+    void setName( const QString & );
+    QString driver() const;
+    void setDriver( const QString & );
+    QString database() const;
+    void setDatabase( const QString & );
+    QString userName() const;
+    void setUserName( const QString & );
+    QString password() const;
+    void setPassword( const QString & );
+    QString hostName() const;
+    void setHostName( const QString & );
+    QStringList tables() const;
+    void setTables( const QStringList & );
+    QMap<QString, QStringList> fields() const;
+    void setFields( const QMap<QString, QStringList> & );
+    void open() const;
     void close() const;
-    void undo() const;
-    void redo() const;
-
-    bool connect( const char *, QObject *, const char * );
-
 private:
-    FormListItem *item;
-    QUnknownInterface *appIface;
+    Project::DatabaseConnection *db;
 
-    unsigned long ref;
 };
 
-class DesignerWidgetListInterfaceImpl : public DesignerWidgetListInterface
+class DesignerFormWindowImpl: public DesignerFormWindow
 {
 public:
-    DesignerWidgetListInterfaceImpl( QUnknownInterface * );
-    virtual ~DesignerWidgetListInterfaceImpl();
-
-    QUnknownInterface *queryInterface( const QUuid & );
-    unsigned long addRef();
-    unsigned long release();
-
-    uint count() const;
-    DesignerWidgetInterface *reset();
-    DesignerWidgetInterface *current();
-    DesignerWidgetInterface *next();
-    DesignerWidgetInterface *prev();
-
-    void selectAll() const;
-    void removeAll() const;
-
-private:
-    QUnknownInterface *appIface;
-    HierarchyList *hierarchy;
-    QListViewItemIterator *listIterator;
-
-    unsigned long ref;
-};
-
-class DesignerWidgetInterfaceImpl : public DesignerWidgetInterface
-{
-public:
-    DesignerWidgetInterfaceImpl( HierarchyItem *, QUnknownInterface * );
-    virtual ~DesignerWidgetInterfaceImpl() {}
-
-    QUnknownInterface *queryInterface( const QUuid & );
-    unsigned long addRef();
-    unsigned long release();
-
-    QVariant property( const QCString& );
-    bool setProperty( const QCString&, const QVariant& );
-
-    void setSelected( bool );
-    bool selected() const;
-
-    void remove();
-
-private:
-    HierarchyItem *item;
-    QUnknownInterface *appIface;
-
-    unsigned long ref;
-};
-
-class DesignerProjectInterfaceImpl : public DesignerProjectInterface
-{
-public:
-    DesignerProjectInterfaceImpl( QUnknownInterface *i );
-
-    QUnknownInterface *queryInterface( const QUuid & );
-    unsigned long addRef();
-    unsigned long release();
+    DesignerFormWindowImpl( FormWindow *fw );
 
     QString fileName() const;
-    QString projectName() const;
-    QString databaseFile() const;
-    QStringList uiFiles() const;
-
-    QStringList databaseConnectionList();
-    QStringList databaseTableList( const QString &connection );
-    QStringList databaseFieldList( const QString &connection, const QString &table );
-
-    void openDatabase( const QString &connection );
-    void closeDatabase( const QString &connection );
+    void setFileName( const QString & );
+    void save() const;
+    void insertWidget( QWidget * );
+    QWidget *create( const char *className, QWidget *parent, const char *name );
+    void removeWidget( QWidget * );
+    QWidgetList widgets() const;
+    void undo();
+    void redo();
+    void cut();
+    void copy();
+    void paste();
+    void adjustSize();
+    void editConnections();
+    void checkAccels();
+    void layoutH();
+    void layoutV();
+    void layoutHSplit();
+    void layoutVSplit();
+    void layoutG();
+    void layoutHContainer();
+    void layoutVContainer();
+    void layoutGContainer();
+    void breakLayout();
+    void selectWidget( QWidget * );
+    void selectAll();
+    void clearSelection();
+    bool isWidgetSelected( QWidget * ) const;
+    QWidgetList selectedWidgets() const;
+    QWidget *currentWidget() const;
+    void setCurrentWidget( QWidget * );
+    QList<QAction> actionList() const;
+    void addAction( QAction * );
+    void removeAction( QAction * );
+    void preview() const;
+    void addConnection( QObject *sender, const char *signal, QObject *receiver, const char *slot );
+    void setProperty( QObject *o, const char *property, const QVariant &value );
+    QVariant property( QObject *o, const char *property ) const;
+    void setPropertyChanged( QObject *o, const char *property, bool changed );
+    bool isPropertyChanged( QObject *o, const char *property ) const;
+    void setColumnFields( QObject *o, const QMap<QString, QString> & );
 
 private:
-    MainWindow *mainWindow;
-    QUnknownInterface *appIface;
-    unsigned long ref;
+    FormWindow *formWindow;
 
 };
 
-class DesignerMetaDatabaseInterfaceImpl : public DesignerMetaDatabaseInterface
+class DesignerDockImpl: public DesignerDock
 {
 public:
-    DesignerMetaDatabaseInterfaceImpl( QUnknownInterface *i );
+    DesignerDockImpl();
 
-    QUnknownInterface *queryInterface( const QUuid & );
-    unsigned long addRef();
-    unsigned long release();
-
-    void setFakeProperty( QObject *o, const QString &property, const QVariant& value );
-    QVariant fakeProperty( QObject * o, const QString &property );
-    void setPropertyChanged( QObject *o, const QString &property, bool changed );
-    bool isPropertyChanged( QObject *o, const QString &property );
-    void addConnection( QObject *o, QObject *sender, const QCString &signal,
-			QObject *receiver, const QCString &slot );
-    void setColumnFields( QObject *o, const QMap<QString, QString> &columnFields );
-
-private:
-    QUnknownInterface *appIface;
-    unsigned long ref;
-
+    QDockWindow *dockWindow() const;
 };
 
-class DesignerWidgetFactoryInterfaceImpl : public DesignerWidgetFactoryInterface
+class DesignerOutputDockImpl: public DesignerOutputDock
 {
 public:
-    DesignerWidgetFactoryInterfaceImpl( QUnknownInterface *i );
+    DesignerOutputDockImpl( OutputWindow *ow );
 
-    QUnknownInterface *queryInterface( const QUuid & );
-    unsigned long addRef();
-    unsigned long release();
-
-
-    QWidget *create( const char *className, QWidget *parent, const char *name = 0 );
+    QWidget *addView( const QString &pageName );
+    void appendDebug( const QString & );
+    void clearDebug();
+    void appendError( const QString &, int );
+    void clearError();
 
 private:
-    QUnknownInterface *appIface;
-    unsigned long ref;
+    OutputWindow *outWin;
 
 };
 

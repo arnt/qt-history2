@@ -21,7 +21,7 @@
 #if !defined(UIC)
 #include "../designer/pixmapchooser.h"
 #endif
-#include "widgetinterface.h"
+#include "../interfaces/widgetinterface.h"
 #include "widgetdatabase.h"
 
 #include "../integration/kdevelop/kdewidgets.h"

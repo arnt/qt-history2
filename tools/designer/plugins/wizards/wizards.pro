@@ -9,3 +9,4 @@ sql {
 }
 DESTDIR		= $(QTDIR)/plugins
 PROJECTNAME	= Wizards
+INCLUDEPATH	+= $(QTDIR)/tools/designer/interfaces

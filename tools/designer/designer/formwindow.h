@@ -48,6 +48,7 @@ class BreakLayoutCommand;
 class QPixmap;
 class QSizeGrip;
 class Project;
+class DesignerFormWindow;
 
 #if defined(Q_CC_MSVC) || defined(Q_FULL_TEMPLATE_INSTANTIATION)
 #include "orderindicator.h"
@@ -176,6 +177,8 @@ public:
     Project *project() const;
 
     void killAccels( QObject *top );
+
+    DesignerFormWindow *iFace();
 
 public slots:
     virtual void widgetChanged( QObject *w );

@@ -57,9 +57,7 @@ EditSlots::EditSlots( QWidget *parent, FormWindow *fw )
     if ( slotListView->firstChild() )
 	slotListView->setCurrentItem( slotListView->firstChild() );
 
-    comboLanguage->insertItem( "C++" );
-    if ( MetaDataBase::hasEvents() )
-	comboLanguage->insertItem( "QuickScript" );
+    comboLanguage->insertStringList( MetaDataBase::languages() );
 }
 
 void EditSlots::okClicked()

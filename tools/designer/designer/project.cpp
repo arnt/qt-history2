@@ -21,6 +21,7 @@
 #include "project.h"
 #include "formwindow.h"
 #include "config.h"
+#include "designerappiface.h"
 
 #include <qfile.h>
 #include <qtextstream.h>
@@ -543,4 +544,9 @@ QObjectList *Project::formList() const
     for ( QMap<FormWindow*, QString>::ConstIterator it = formWindows.begin(); it != formWindows.end(); ++it )
 	l->append( it.key()->child( 0, "QWidget" ) );
     return l;
+}
+
+DesignerProject *Project::iFace()
+{
+    return new DesignerProjectImpl( this );
 }

@@ -15,8 +15,7 @@ public:
     virtual QStringList featureList() const = 0;
     virtual QStringList events( QObject *obj ) const = 0;
     virtual void setEventHandler( QObject *obj, const QString &event, const QString &function ) = 0;
-    virtual void execute( QObject *obj, const QString &str ) = 0;
-    
+
 };
 
 #endif

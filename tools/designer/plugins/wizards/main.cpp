@@ -1,6 +1,6 @@
 #define Q_UUIDIMPL
 #include <qcleanuphandler.h>
-#include "../designerinterface.h"
+#include <designerinterface.h>
 #include <qfeatures.h>
 #include <qwidget.h>
 #include "sqlformwizardimpl.h"
@@ -16,11 +16,11 @@ public:
 
     QStringList featureList() const;
 
-    void setup( const QString &templ, QWidget *widget, QComponentInterface *aIface );
+    void setup( const QString &templ, QWidget *widget, DesignerFormWindow *fw, QUnknownInterface *aIface );
 
 private:
     unsigned long ref;
-    QComponentInterface *appIface;
+    QUnknownInterface *appIface;
 
 };
 
@@ -38,7 +38,7 @@ QStringList StandardTemplateWizardInterface::featureList() const
     return list;
 }
 
-void StandardTemplateWizardInterface::setup( const QString &templ, QWidget *widget, QComponentInterface *aIface )
+void StandardTemplateWizardInterface::setup( const QString &templ, QWidget *widget, DesignerFormWindow *fw, QUnknownInterface *aIface )
 {
 #ifndef QT_NO_SQL
     appIface = aIface;
@@ -47,7 +47,7 @@ void StandardTemplateWizardInterface::setup( const QString &templ, QWidget *widg
 	 templ == "QSqlWidget" ||
 	 templ == "QSqlDialog" ||
 	 templ == "QSqlTable" ) {
-	SqlFormWizard *wizard = new SqlFormWizard( appIface, widget, 0, 0, TRUE );
+	SqlFormWizard *wizard = new SqlFormWizard( appIface, widget, 0, fw, 0, TRUE );
 	wizard->exec();
     }
 #endif

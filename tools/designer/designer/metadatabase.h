@@ -157,6 +157,7 @@ public:
     static QValueList<Slot> slotList( QObject *o );
     static bool isSlotUsed( QObject *o, const QCString &slot );
     static bool hasSlot( QObject *o, const QCString &slot );
+    static QString languageOfSlot( QObject *o, const QCString &slot );
 
     static bool addCustomWidget( CustomWidget *w );
     static void removeCustomWidget( CustomWidget *w );
@@ -199,6 +200,9 @@ public:
     static QMap<QString, QString> eventFunctions( QObject *o );
     static void setFunctionBodies( QObject *o, const QMap<QString, QString> &bodies );
     static QMap<QString, QString> functionBodies( QObject *o );
+
+    static void setupInterfaceManagers();
+    static QStringList languages();
 
 };
 

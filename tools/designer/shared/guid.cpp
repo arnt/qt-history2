@@ -1,3 +1,11 @@
 #define Q_UUIDIMPL
-#include "../plugins/designerinterface.h"
-
+#include "../interfaces/designerinterface.h"
+#include "../interfaces/widgetinterface.h"
+#include "../interfaces/languageinterface.h"
+#include "../interfaces/eventinterface.h"
+#include "../interfaces/interpreterinterface.h"
+#include "../interfaces/actioninterface.h"
+#include "../interfaces/filterinterface.h"
+#include "../interfaces/templatewizardiface.h"
+#include "../interfaces/editorinterface.h"
+#include "../interfaces/programinterface.h"

@@ -33,7 +33,7 @@
 #include "formwindow.h"
 #include "multilineeditorimpl.h"
 #include "../integration/kdevelop/kdewidgets.h"
-#include "widgetinterface.h"
+#include "../interfaces/widgetinterface.h"
 #include "tableeditorimpl.h"
 
 #include <qfeatures.h>

@@ -33,18 +33,20 @@ HEADERS	= command.h \
 		  formsettingsimpl.h \
 		  asciivalidator.h \
 		  splashloader.h \
-		  ../shared/widgetinterface.h \
+		  ../interfaces/widgetinterface.h \
+		  ../interfaces/actioninterface.h \
+		  ../interfaces/filterinterface.h \
+		  ../interfaces/designerinterface.h \
 		  designerapp.h \
 		  designerappiface.h \
-		  actioninterface.h \
-		  filterinterface.h \
 		  actioneditorimpl.h \
 		  actionlistview.h \
 		  actiondnd.h \
 		  project.h \
 		  projectsettingsimpl.h \
 		  tableeditorimpl.h \
-		  sourceeditor.h 
+		  sourceeditor.h \
+		  outputwindow.h
 
 SOURCES	= command.cpp \
 		  formwindow.cpp \
@@ -87,8 +89,8 @@ SOURCES	= command.cpp \
 		  project.cpp \
 		  projectsettingsimpl.cpp \
 		  tableeditorimpl.cpp \
-		  sourceeditor.cpp 
-
+		  sourceeditor.cpp \
+		  outputwindow.cpp
 
 TARGET	= designer
 INCLUDEPATH	= ../shared ../util ../resource ../../../src/3rdparty/zlib/
@@ -103,7 +105,7 @@ PROJECTNAME	= Designer
 sql {
 	SOURCES  +=		  database.cpp		  dbconnectionsimpl.cpp
 	HEADERS += 		  database.h		  dbconnectionsimpl.h   propertyeditorsql.h
-	INTERFACES +=             dbconnections.ui 
+	INTERFACES +=             dbconnections.ui
 }
 
 target.path=$$QT_INSTALL_BINPATH

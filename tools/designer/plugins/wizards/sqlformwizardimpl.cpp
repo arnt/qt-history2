@@ -21,14 +21,12 @@
 #include <qsqlcursor.h>
 #endif
 
-
-#include "../designerinterface.h"
-
-SqlFormWizard::SqlFormWizard( QComponentInterface *aIface, QWidget *w,
-			      QWidget* parent,  const char* name, bool modal, WFlags fl )
+SqlFormWizard::SqlFormWizard( QUnknownInterface *aIface, QWidget *w,
+			      QWidget* parent, DesignerFormWindow *fw, const char* name, bool modal, WFlags fl )
     : SqlFormWizardBase( parent, name, modal, fl ), widget( w ), appIface( aIface ),
       mode( None )
 {
+    formWindow = fw;
     setFinishEnabled( databasePage, FALSE );
     setFinishEnabled( sqlPage, TRUE );
 
@@ -57,13 +55,19 @@ void SqlFormWizard::connectionSelected( const QString &c )
     if ( !appIface )
 	return;
 
-    DesignerProjectInterface *proIface = (DesignerProjectInterface*)appIface->queryInterface( IID_DesignerProjectInterface );
+    DesignerProject *proIface = (DesignerProject*)( (DesignerInterface*)appIface )->currentProject();
     if ( !proIface )
 	return;
 
     listBoxTable->clear();
     editTable->clear();
-    listBoxTable->insertStringList( proIface->databaseTableList( c ) );
+    QList<DesignerDatabase> databases = proIface->databaseConnections();
+    databases.setAutoDelete( TRUE );
+    for ( DesignerDatabase *d = databases.first(); d; d = databases.next() ) {
+	if ( d->name() == c  || ( d->name() == "(default)" || d->name().isEmpty() ) && c == "(default)")
+	    listBoxTable->insertStringList( d->tables() );
+    }
+    delete proIface;
 }
 
 void SqlFormWizard::tableSelected( const QString & )
@@ -73,27 +77,34 @@ void SqlFormWizard::tableSelected( const QString & )
 
 void SqlFormWizard::autoPopulate( bool populate )
 {
+    DesignerProject *proIface = (DesignerProject*)( (DesignerInterface*)appIface )->currentProject();
+    if ( !proIface )
+	return;
+    QList<DesignerDatabase> databases = proIface->databaseConnections();
     listBoxField->clear();
     listBoxSortField->clear();
     listBoxSelectedField->clear();
     if ( populate ) {
-	DesignerProjectInterface *proIface = (DesignerProjectInterface*)appIface->queryInterface( IID_DesignerProjectInterface );
-	if ( !proIface )
-	    return;
-	QStringList lst = proIface->databaseFieldList( editConnection->text(), editTable->text() );
-	// remove primary index fields, if any
-	proIface->openDatabase( editConnection->text() );
+	databases.setAutoDelete( TRUE );
+	for ( DesignerDatabase *d = databases.first(); d; d = databases.next() ) {
+	    if ( d->name() == editConnection->text() || ( d->name() == "(default)" || d->name().isEmpty() ) && editConnection->text() == "(default)" ) {
+		QStringList lst = *d->fields().find( editTable->text() );
+		// remove primary index fields, if any
+		d->open();
 #ifndef QT_NO_SQL
-	QSqlCursor tab( editTable->text() );
-	QSqlIndex pIdx = tab.primaryIndex();
-	for ( uint i = 0; i < pIdx.count(); i++ ) {
-	    listBoxField->insertItem( pIdx.field( i )->name() );
-	    lst.remove( pIdx.field( i )->name() );
-	}
+		QSqlCursor tab( editTable->text() );
+		QSqlIndex pIdx = tab.primaryIndex();
+		for ( uint i = 0; i < pIdx.count(); i++ ) {
+		    listBoxField->insertItem( pIdx.field( i )->name() );
+		    lst.remove( pIdx.field( i )->name() );
+		}
 #endif
-	proIface->closeDatabase( editConnection->text() );
-	listBoxSelectedField->insertStringList( lst );
-	listBoxSortField->insertStringList( lst );
+		d->close();
+		listBoxSelectedField->insertStringList( lst );
+		listBoxSortField->insertStringList( lst );
+	    }
+	}
+	delete proIface;
     }
 }
 
@@ -205,11 +216,12 @@ void SqlFormWizard::setupDatabaseConnections()
     if ( !appIface )
 	return;
 
-    DesignerMainWindowInterface *mwIface = (DesignerMainWindowInterface*)appIface->queryInterface( IID_DesignerMainWindowInterface );
-    if ( !mwIface )
+    DesignerProject *proIface = (DesignerProject*)( (DesignerInterface*)appIface )->currentProject();
+    if ( !proIface )
 	return;
-    mwIface->editDatabaseConnections();
+    proIface->setupDatabases();
     setupPage1();
+    delete proIface;
 }
 
 void SqlFormWizard::setupPage1()
@@ -217,7 +229,7 @@ void SqlFormWizard::setupPage1()
     if ( !appIface )
 	return;
 
-    DesignerProjectInterface *proIface = (DesignerProjectInterface*)appIface->queryInterface( IID_DesignerProjectInterface );
+    DesignerProject *proIface = (DesignerProject*)( (DesignerInterface*)appIface )->currentProject();
     if ( !proIface )
 	return;
 
@@ -229,31 +241,24 @@ void SqlFormWizard::setupPage1()
 	checkBoxEdit->setChecked( FALSE );
 	checkBoxNavig->setChecked( FALSE );
     }
-    QStringList lst = proIface->databaseConnectionList();
+    QList<DesignerDatabase> databases = proIface->databaseConnections();
+    databases.setAutoDelete( TRUE );
+    QStringList lst;
+    for ( DesignerDatabase *d = databases.first(); d; d = databases.next() )
+	lst << d->name();
     listBoxConnection->insertStringList( lst );
+    delete proIface;
 }
 
 static QPushButton *create_widget( QWidget *parent, const char *name,
-				   const QString &txt, const QRect &r, DesignerMetaDatabaseInterface *mdbIface,
-				   DesignerFormInterface *fIface, DesignerWidgetFactoryInterface *wfIface )
+				   const QString &txt, const QRect &r, DesignerFormWindow *fw )
 {
-    QPushButton *pb = (QPushButton*)wfIface->create( "QPushButton", parent, name );
+    QPushButton *pb = (QPushButton*)fw->create( "QPushButton", parent, name );
     pb->setText( txt );
     pb->setGeometry( r );
-    mdbIface->setPropertyChanged( pb, "text", TRUE );
-    mdbIface->setPropertyChanged( pb, "geometry", TRUE );
-    fIface->addWidget( pb );
+    fw->setPropertyChanged( pb, "text", TRUE );
+    fw->setPropertyChanged( pb, "geometry", TRUE );
     return pb;
-}
-
-static QWidget *find_formwindow( QWidget *w )
-{
-    while ( w ) {
-	if ( w->inherits( "FormWindow" ) )
-	    return w;
-	w = w->parentWidget();
-    }
-    return w;
 }
 
 void SqlFormWizard::accept()
@@ -262,11 +267,8 @@ void SqlFormWizard::accept()
 	return;
 
 #ifndef QT_NO_SQL
-    DesignerProjectInterface *proIface = (DesignerProjectInterface*)appIface->queryInterface( IID_DesignerProjectInterface );
-    DesignerMetaDatabaseInterface *mdbIface = (DesignerMetaDatabaseInterface*)appIface->queryInterface( IID_DesignerMetaDatabaseInterface );
-    DesignerWidgetFactoryInterface *wfIface = (DesignerWidgetFactoryInterface*)appIface->queryInterface( IID_DesignerWidgetFactoryInteface );
-    DesignerFormInterface *fIface = (DesignerFormInterface*)appIface->queryInterface( IID_DesignerFormInterface );
-    if ( !widget || !proIface || !mdbIface || !wfIface || !fIface ) {
+    DesignerProject *proIface = (DesignerProject*)( (DesignerInterface*)appIface )->currentProject();
+    if ( !widget || !proIface ) {
 	SqlFormWizardBase::accept();
 	return;
     }
@@ -277,13 +279,13 @@ void SqlFormWizard::accept()
     lst << conn << table;
 
     if ( !conn.isEmpty() && !table.isEmpty() ) {
-	mdbIface->setFakeProperty( widget, "database", lst );
-	mdbIface->setPropertyChanged( widget, "database", TRUE );
+	formWindow->setProperty( widget, "database", lst );
+	formWindow->setPropertyChanged( widget, "database", TRUE );
     }
 
     if ( !editFilter->text().isEmpty() ) {
 	widget->setProperty( "filter", editFilter->text() );
-	mdbIface->setPropertyChanged( widget, "filter", TRUE );
+	formWindow->setPropertyChanged( widget, "filter", TRUE );
     }
 
     if ( listBoxSortedField->count() ) {
@@ -291,10 +293,19 @@ void SqlFormWizard::accept()
 	for ( uint i = 0; i < listBoxSortedField->count(); ++i )
 	    lst << listBoxSortedField->text( i );
 	widget->setProperty( "sort", lst );
-	mdbIface->setPropertyChanged( widget, "sort", TRUE );
+	formWindow->setPropertyChanged( widget, "sort", TRUE );
     }
 
-    proIface->openDatabase( editConnection->text() );
+    QList<DesignerDatabase> databases = proIface->databaseConnections();
+    databases.setAutoDelete( TRUE );
+    DesignerDatabase *database = 0;
+    for ( DesignerDatabase *d = databases.first(); d; d = databases.next() ) {
+	if ( d->name() == editConnection->text() || ( d->name() == "(default)" || d->name().isEmpty() ) && editConnection->text() == "(default)" ) {
+	    database = d;
+	    d->open();
+	    break;
+	}
+    }
     QSqlCursor tab( editTable->text() );
     int columns = 2;
 
@@ -313,7 +324,6 @@ void SqlFormWizard::accept()
     const int SPACING = 25;
 
     uint j;
-    QWidget *fw = find_formwindow( widget );
     switch ( mode ) {
     case None:
 	break;
@@ -327,24 +337,22 @@ void SqlFormWizard::accept()
 	    QString labelName = field->name();
 	    labelName = labelName.mid(0,1).upper() + labelName.mid(1);
 	    labelName.replace( QRegExp("_"), " " );
-	    label = (QLabel*)wfIface->create( "QLabel", widget, QString( "label" + labelName ) );
+	    label = (QLabel*)formWindow->create( "QLabel", widget, QString( "label" + labelName ) );
 	    label->setText( labelName );
 	    label->setGeometry( SPACING, row+SPACING, SPACING*3, SPACING );
-	    mdbIface->setPropertyChanged( label, "text", TRUE );
-	    mdbIface->setPropertyChanged( label, "geometry", TRUE );
-	    fIface->addWidget( label );
+	    formWindow->setPropertyChanged( label, "text", TRUE );
+	    formWindow->setPropertyChanged( label, "geometry", TRUE );
 
 	    editorDummy = f->createEditor( widget, field );
-	    editor = wfIface->create( editorDummy->className(), widget, QString( QString( editorDummy->className() ) + labelName) );
+	    editor = formWindow->create( editorDummy->className(), widget, QString( QString( editorDummy->className() ) + labelName) );
 	    delete editorDummy;
 	    editor->setGeometry( SPACING * 5, row+SPACING, SPACING*3, SPACING );
-	    mdbIface->setPropertyChanged( editor, "geometry", TRUE );
-	    fIface->addWidget( editor );
+	    formWindow->setPropertyChanged( editor, "geometry", TRUE );
 
 	    QStringList lst;
 	    lst << conn << table << field->name();
-	    mdbIface->setFakeProperty( editor, "database", lst );
-	    mdbIface->setPropertyChanged( editor, "database", TRUE );
+	    formWindow->setProperty( editor, "database", lst );
+	    formWindow->setPropertyChanged( editor, "database", TRUE );
 
 	    row += SPACING + 5;
 
@@ -353,45 +361,45 @@ void SqlFormWizard::accept()
 	if ( checkBoxNavig->isChecked() ) {
 	    if ( checkBoxFirst->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonFirst", "|< &First",
-						 QRect( SPACING * 10, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
-		mdbIface->addConnection( fw, pb, "clicked()", widget, "firstRecord()" );
-		mdbIface->addConnection( fw, widget, "firstRecordAvailable(bool)", pb, "setEnabled(bool)" );
+						 QRect( SPACING * 10, SPACING, SPACING * 3, SPACING ), formWindow );
+		formWindow->addConnection( pb, "clicked()", widget, "firstRecord()" );
+		formWindow->addConnection( widget, "firstRecordAvailable( bool )", pb, "setEnabled()" );
 	    }
 	    if ( checkBoxPrev->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonPrev", "<< &Prev",
-						 QRect( SPACING * 13, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
-		mdbIface->addConnection( fw, pb, "clicked()", widget, "prevRecord()" );
-		mdbIface->addConnection( fw, widget, "prevRecordAvailable(bool)", pb, "setEnabled(bool)" );
+						 QRect( SPACING * 13, SPACING, SPACING * 3, SPACING ), formWindow );
+		formWindow->addConnection( pb, "clicked()", widget, "prevRecord()" );
+		formWindow->addConnection( widget, "prevRecordAvailable( bool )", pb, "setEnabled()" );
 	    }
 	    if ( checkBoxNext->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonNext", "&Next >>",
-						 QRect( SPACING * 16, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
-		mdbIface->addConnection( fw, pb, "clicked()", widget, "nextRecord()" );
-		mdbIface->addConnection( fw, widget, "nextRecordAvailable(bool)", pb, "setEnabled(bool)" );
+						 QRect( SPACING * 16, SPACING, SPACING * 3, SPACING ), formWindow );
+		formWindow->addConnection( pb, "clicked()", widget, "nextRecord()" );
+		formWindow->addConnection( widget, "nextRecordAvailable( bool )", pb, "setEnabled()" );
 	    }
 	    if ( checkBoxLast->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonLast", "&Last >|",
-						 QRect( SPACING * 19, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
-		mdbIface->addConnection( fw, pb, "clicked()", widget, "lastRecord()" );
-		mdbIface->addConnection( fw, widget, "lastRecordAvailable(bool)", pb, "setEnabled(bool)" );
+						 QRect( SPACING * 19, SPACING, SPACING * 3, SPACING ), formWindow );
+		formWindow->addConnection( pb, "clicked()", widget, "lastRecord()" );
+		formWindow->addConnection( widget, "lastRecordAvailable( bool )", pb, "setEnabled()" );
 	    }
 	}
 
 	if ( checkBoxEdit->isChecked() ) {
 	    if ( checkBoxInsert->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonInsert", "&Insert",
-						 QRect( SPACING * 10, SPACING *3, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
-		mdbIface->addConnection( fw, pb, "clicked()", widget, "insertRecord()" );
+						 QRect( SPACING * 10, SPACING *3, SPACING * 3, SPACING ), formWindow );
+		formWindow->addConnection( pb, "clicked()", widget, "insertRecord()" );
 	    }
 	    if ( checkBoxUpdate->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonUpdate", "&Update",
-						 QRect( SPACING * 13, SPACING *3, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
-		mdbIface->addConnection( fw, pb, "clicked()", widget, "updateRecord()" );
+						 QRect( SPACING * 13, SPACING *3, SPACING * 3, SPACING ), formWindow );
+		formWindow->addConnection( pb, "clicked()", widget, "updateRecord()" );
 	    }
 	    if ( checkBoxDelete->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonDelete", "&Delete",
-						 QRect( SPACING * 16, SPACING *3, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
-		mdbIface->addConnection( fw, pb, "clicked()", widget, "deleteRecord()" );
+						 QRect( SPACING * 16, SPACING *3, SPACING * 3, SPACING ), formWindow );
+		formWindow->addConnection( pb, "clicked()", widget, "deleteRecord()" );
 	    }
 	}
 	break;
@@ -400,28 +408,28 @@ void SqlFormWizard::accept()
 	    QSqlTable* sqlTable = ((QSqlTable*)widget);
 	    if ( checkBoxReadOnly->isChecked() ) {
 		sqlTable->setReadOnly( TRUE );
-		mdbIface->setPropertyChanged( sqlTable, "readOnly", TRUE );
+		formWindow->setPropertyChanged( sqlTable, "readOnly", TRUE );
 	    } else {
 		if ( checkBoxConfirmInserts->isChecked() ) {
 		    sqlTable->setConfirmInsert( TRUE );
-		    mdbIface->setPropertyChanged( sqlTable, "confirmInsert", TRUE );
+		    formWindow->setPropertyChanged( sqlTable, "confirmInsert", TRUE );
 		}
 		if ( checkBoxConfirmUpdates->isChecked() ) {
 		    sqlTable->setConfirmUpdate( TRUE );
-		    mdbIface->setPropertyChanged( sqlTable, "confirmUpdate", TRUE );
+		    formWindow->setPropertyChanged( sqlTable, "confirmUpdate", TRUE );
 		}
 		if ( checkBoxConfirmDeletes->isChecked() ) {
 		    sqlTable->setConfirmDelete( TRUE );
-		    mdbIface->setPropertyChanged( sqlTable, "confirmDelete", TRUE );
+		    formWindow->setPropertyChanged( sqlTable, "confirmDelete", TRUE );
 		}
 		if ( checkBoxConfirmCancels->isChecked() ) {
 		    sqlTable->setConfirmCancels( TRUE );
-		    mdbIface->setPropertyChanged( sqlTable, "confirmCancels", TRUE );
+		    formWindow->setPropertyChanged( sqlTable, "confirmCancels", TRUE );
 		}
 	    }
 	    if ( checkBoxSorting->isChecked() ) {
 		sqlTable->setSorting( TRUE );
-		mdbIface->setPropertyChanged( sqlTable, "sorting", TRUE );
+		formWindow->setPropertyChanged( sqlTable, "sorting", TRUE );
 	    }
 
 	    QMap<QString, QString> columnFields;
@@ -440,13 +448,15 @@ void SqlFormWizard::accept()
 
 		columnFields.insert( labelName, field->name() );
 	    }
-	    mdbIface->setColumnFields( widget, columnFields );
+	    formWindow->setColumnFields( widget, columnFields );
 	    break;
 	}
     }
 
-    proIface->closeDatabase( editConnection->text() );
+    database->close();
 #endif
 
     SqlFormWizardBase::accept();
+    delete formWindow;
+    delete proIface;
 }

@@ -1,8 +1,10 @@
-#include "../plugins/designerinterface.h"
+#include "../interfaces/eventinterface.h"
+#include "../interfaces/interpreterinterface.h"
+#include "../interfaces/languageinterface.h"
+#include "../interfaces/widgetinterface.h"
 
 #include "qwidgetfactory.h"
 #include <widgetdatabase.h>
-#include <widgetinterface.h>
 #include <qfeatures.h>
 #include "../integration/kdevelop/kdewidgets.h"
 #include "../designer/config.h"
@@ -64,6 +66,8 @@
 
 static QList<QWidgetFactory> widgetFactories;
 static QInterfaceManager<EventInterface> *eventInterfaceManager = 0;
+static QInterfaceManager<InterpreterInterface> *interpreterInterfaceManager = 0;
+static QInterfaceManager<LanguageInterface> *languageInterfaceManager = 0;
 
 
 /*!
@@ -226,20 +230,37 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 
 	if ( !eventInterfaceManager ) {
 	    QString dir = getenv( "QTDIR" );
-	    dir += "/lib";
-	    eventInterfaceManager = new QInterfaceManager<EventInterface>( IID_EventInterface, dir, "*qscript*.dll; *qscript*.so" );
+	    dir += "/plugins";
+	    eventInterfaceManager = new QInterfaceManager<EventInterface>( IID_EventInterface, dir, "*.dll; *.so" );
+	}
+	if ( !interpreterInterfaceManager ) {
+	    QString dir = getenv( "QTDIR" );
+	    dir += "/plugins";
+	    interpreterInterfaceManager = new QInterfaceManager<InterpreterInterface>( IID_InterpreterInterface, dir, "*.dll; *.so" );
+	}
+	if ( !languageInterfaceManager ) {
+	    QString dir = getenv( "QTDIR" );
+	    dir += "/plugins";
+	    languageInterfaceManager = new QInterfaceManager<LanguageInterface>( IID_LanguageInterface, dir, "*.dll; *.so" );
 	}
 
-	if ( eventInterfaceManager ) {
-	    EventInterface *eventInterface = (EventInterface*)eventInterfaceManager->queryInterface( "Events" );
-	    if ( eventInterface ) {
-		eventInterface->execute( widgetFactory->toplevel, widgetFactory->functions );
-		for ( QMap<QObject *, EventFunction>::Iterator it = widgetFactory->eventMap.begin();
-		      it != widgetFactory->eventMap.end(); ++it ) {
-		    QStringList::Iterator eit, fit;
-		    for ( eit = (*it).events.begin(), fit = (*it).functions.begin(); eit != (*it).events.end(); ++eit, ++fit ) {
-			QString func = *fit;
-			eventInterface->setEventHandler( it.key(), *eit, func );
+	if ( eventInterfaceManager && interpreterInterfaceManager && languageInterfaceManager ) {
+	    QStringList langs = languageInterfaceManager->featureList();
+	    for ( QStringList::Iterator lit = langs.begin(); lit != langs.end(); ++lit ) {
+		EventInterface *eventInterface = (EventInterface*)eventInterfaceManager->queryInterface( *lit );
+		InterpreterInterface *interpreterInterface = (InterpreterInterface*)interpreterInterfaceManager->queryInterface( *lit );
+		if ( eventInterface && interpreterInterface ) {
+		    QMap<QString, Functions*>::Iterator fit = widgetFactory->languageFunctions.find( *lit );
+		    if ( fit != widgetFactory->languageFunctions.end() )
+			interpreterInterface->exec( widgetFactory->toplevel, (*fit)->functions );
+		    for ( QMap<QObject *, EventFunction>::Iterator it = widgetFactory->eventMap.begin();
+			  it != widgetFactory->eventMap.end(); ++it ) {
+			QStringList::Iterator eit, fit;
+			for ( eit = (*it).events.begin(), fit = (*it).functions.begin(); eit != (*it).events.end(); ++eit, ++fit ) {
+			    QString func = *fit;
+			    if ( widgetFactory->languageSlots.find( func ) != widgetFactory->languageSlots.end() )
+				eventInterface->setEventHandler( it.key(), *eit, func );
+			}
 		    }
 		}
 	    }
@@ -1047,8 +1068,8 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 
 	    QObject::connect( sender, s, receiver, s2 );
 	} else if ( n.tagName() == "slot" ) {
-	    if ( n.attribute( "language" ) == "QuickScript" )
-		quickScriptSlots << n.firstChild().toText().data();
+	    QString s = n.firstChild().toText().data();
+	    languageSlots.insert( s.left( s.find( "(" ) ) , n.attribute( "language" ) );
 	}
 	n = n.nextSibling().toElement();
     }
@@ -1365,14 +1386,24 @@ void QWidgetFactory::loadFunctions( const QDomElement &e )
     while ( !n.isNull() ) {
 	if ( n.tagName() == "function" ) {
 	    QString name = n.attribute( "name" );
-	    if ( quickScriptSlots.find( name ) != quickScriptSlots.end() ) {
+	    QMap<QString, QString>::Iterator it = languageSlots.find( name.left( name.find( "(" ) ) );
+	    if ( it != languageSlots.end() ) {
+		Functions *funcs = 0;
+		QMap<QString, Functions*>::Iterator fit = languageFunctions.find( *it );
+		if ( fit == languageFunctions.end() ) {
+		    funcs = new Functions;
+		    languageFunctions.insert( *it, funcs );
+		} else {
+		    funcs = *fit;
+		}
+		QString s;
 		QString body = n.firstChild().toText().data();
 		s += "function " + name + body + "\n";
+		funcs->functions += s;
 	    }
 	}
 	n = n.nextSibling().toElement();
     }
-    functions = s;
 }
 
 QAction *QWidgetFactory::findAction( const QString &name )

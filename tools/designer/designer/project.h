@@ -34,6 +34,7 @@
 
 class FormWindow;
 class QObjectList;
+class DesignerProject;
 
 class Project
 {
@@ -107,6 +108,8 @@ public:
     void closeDatabase( const QString &connection );
 
     QObjectList *formList() const;
+
+    DesignerProject *iFace();
 
 private:
     void parse();

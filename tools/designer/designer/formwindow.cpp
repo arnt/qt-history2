@@ -31,6 +31,7 @@
 #include "pixmapchooser.h"
 #include "orderindicator.h"
 #include "hierarchyview.h"
+#include "designerappiface.h"
 
 #include <qevent.h>
 #include <qpainter.h>
@@ -288,7 +289,7 @@ void FormWindow::insertWidget()
 
     TemplateWizardInterface *iface = mainWindow()->templateWizardInterface( w->className() );
     if ( iface ) {
-	iface->setup( w->className(), w, mainWindow()->applicationInterface() );
+	iface->setup( w->className(), w, iFace(), mainWindow()->designerInterface() );
 	iface->release();
     }
 
@@ -2356,4 +2357,9 @@ void FormWindow::killAccels( QObject *top )
     for ( QObject *o = l->first(); o; o = l->next() )
 	( (QAccel*)o )->setEnabled( FALSE );
     delete l;
+}
+
+DesignerFormWindow *FormWindow::iFace()
+{
+    return new DesignerFormWindowImpl( this );
 }
