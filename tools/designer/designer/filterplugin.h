@@ -11,7 +11,7 @@ class FilterPlugIn : public FilterInterface, public QPlugIn
 public:
     FilterPlugIn( const QString& filename, LibraryPolicy = Default, const char* fn = 0 );
 
-    QCString queryPlugInInterface() const { return "FilterInterface"; }
+    QString queryInterface() const { return "FilterInterface"; }
 
     QStringList import( const QString& filter, const QString& filename );
 };

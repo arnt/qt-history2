@@ -23,14 +23,17 @@ DesignerApplication::DesignerApplication( int &argc, char **argv )
     : QApplication( argc, argv ), appIface( 0 )
 {
 #if defined(_WS_WIN_)
-    DESIGNER_OPENFILE = RegisterWindowMessage(LPCTSTR("QT_DESIGNER_OPEN_FILE"));
+    if ( winVersion() & Qt::WV_NT_based )
+	    DESIGNER_OPENFILE = RegisterWindowMessage((TCHAR*)"QT_DESIGNER_OPEN_FILE");
+    else
+	    DESIGNER_OPENFILE = RegisterWindowMessageA("QT_DESIGNER_OPEN_FILE");
 #endif
 }
 
 #endif
 
 
-QApplicationInterface * DesignerApplication::requestApplicationInterface()
+QApplicationInterface * DesignerApplication::queryInterface()
 {
     return appIface ? appIface : ( appIface = new DesignerApplicationInterface );
 }

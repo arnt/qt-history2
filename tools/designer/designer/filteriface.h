@@ -6,7 +6,7 @@
 class FilterInterface : public QPlugInInterface
 {
 public:
-    QCString queryPlugInInterface() const { return "FilterInterface"; }
+    QString queryInterface() const { return "FilterInterface"; }
 
     virtual QStringList import( const QString& filter, const QString& filename ) = 0;
 };

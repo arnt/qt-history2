@@ -20,7 +20,7 @@ public:
     DesignerApplication( int &argc, char **argv );
 #endif
 
-    QApplicationInterface *requestApplicationInterface();
+    QApplicationInterface *queryInterface();
     
 protected:
     QDateTime lastMod;

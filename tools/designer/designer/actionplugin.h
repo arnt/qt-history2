@@ -11,7 +11,7 @@ class ActionPlugIn : public ActionInterface, public QPlugIn
 public:
     ActionPlugIn( const QString& filename, LibraryPolicy = Default, const char* fn = 0 );
 
-    QCString queryPlugInInterface() const { return "ActionInterface"; }
+    QString queryInterface() const { return "ActionInterface"; }
 
     QAction* create( const QString& actionname, QObject* parent = 0 );
     QString group( const QString &actionname );
