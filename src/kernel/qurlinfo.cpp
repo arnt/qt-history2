@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#8 $
 **
 ** Implementation of QFileDialog class
 **
@@ -346,6 +346,11 @@ bool QUrlInfo::isExecutable() const
 bool QUrlInfo::greaterThan( const QUrlInfo &i1, const QUrlInfo &i2,
 			    int sortBy )
 {
+    if ( i1.name() == ".." )
+	return FALSE;
+    if ( i2.name() == ".." )
+	return TRUE;
+    
     switch ( sortBy ) {
     case QDir::Name:
 	return i1.name() > i2.name();
@@ -367,11 +372,16 @@ bool QUrlInfo::greaterThan( const QUrlInfo &i1, const QUrlInfo &i2,
 bool QUrlInfo::lessThan( const QUrlInfo &i1, const QUrlInfo &i2,
 			 int sortBy )
 {
+    if ( i1.name() == ".." )
+	return TRUE;
+    if ( i2.name() == ".." )
+	return FALSE;
+
     switch ( sortBy ) {
     case QDir::Name:
 	return i1.name() < i2.name();
     case QDir::Time:
-	return i1.lastModified() > i2.lastModified();
+	return i1.lastModified() < i2.lastModified();
     case QDir::Size:
 	return i1.size() < i2.size();
     default:
@@ -392,7 +402,7 @@ bool QUrlInfo::equal( const QUrlInfo &i1, const QUrlInfo &i2,
     case QDir::Name:
 	return i1.name() == i2.name();
     case QDir::Time:
-	return i1.lastModified() > i2.lastModified();
+	return i1.lastModified() == i2.lastModified();
     case QDir::Size:
 	return i1.size() == i2.size();
     default:
