@@ -953,7 +953,16 @@ int QTabBar::count() const
 
 
 /*!
-  The list of QTab objects in the tab bar.
+    The list of QTab objects in the tab bar.
+
+    This list is unlikely to be in the order that the QTab elements
+    appear visually. One way of iterating over the tabs is like this:
+    \code
+    for ( uint i = 0; i < myTabBar->count(); ++i ) {
+	nextTab = myTabBar->tabAt( i );
+	// do something with nextTab
+    }
+    \endcode
 */
 QPtrList<QTab> * QTabBar::tabList()
 {
@@ -1076,27 +1085,8 @@ void QTabBar::focusInEvent( QFocusEvent * )
     QTab *t = l->first();
     for ( ; t; t = l->next() ) {
 	if ( t->id == d->focus ) {
-	    QPainter p;
-	    p.begin( this );
-	    QRect r = t->r;
-	    p.setFont( font() );
-
-	    int iw = 0;
-	    int ih = 0;
-	    if ( t->iconset != 0 ) {
-		iw = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4;
-		ih = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).height();
-	    }
-	    QFontMetrics fm = p.fontMetrics();
-	    int fw = fm.width( t->label );
-	    fw -= t->label.contains('&') * fm.width('&');
-	    fw += t->label.contains("&&") * fm.width('&');
-	    int w = iw + fw + 4;
-	    int h = QMAX(fm.height() + 4, ih );
-	    paintLabel( &p, QRect( r.left() + ( r.width() -w ) /2 - 3,
-				   r.top() + ( r.height()-h ) / 2,
-				   w, h ), t, TRUE );
-	    p.end();
+	    repaint( t->r );
+	    break;
 	}
     }
 }
@@ -1109,37 +1099,8 @@ void QTabBar::focusOutEvent( QFocusEvent * )
     QTab *t = l->first();
     for ( ; t; t = l->next() ) {
 	if ( t->id == d->focus ) {
-	    QPainter p;
-	    p.begin( this );
-	    p.setBrushOrigin( rect().bottomLeft() );
-	    QRect r = t->r;
-	    p.setFont( font() );
-
-	    int iw = 0;
-	    int ih = 0;
-	    if ( t->iconset != 0 ) {
-		iw = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4;
-		ih = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).height();
-	    }
-	    QFontMetrics fm = p.fontMetrics();
-	    int fw = fm.width( t->label );
-	    fw -= t->label.contains('&') * fm.width('&');
-	    fw += t->label.contains("&&") * fm.width('&');
-	    int w = iw + fw + 4;
-	    int h = QMAX(fm.height() + 4, ih );
-	    p.fillRect( QRect( r.left() + ( r.width() -w ) / 2 - 4,
-				   r.top() + ( r.height()-h ) / 2 - 1,
-			       w + 4, h + 2 ), colorGroup().brush(QColorGroup::Background ) );
-
-	    QStyle::SFlags flags = QStyle::Style_Default;
-	    flags |= QStyle::Style_Selected;
-	    style().drawControl( QStyle::CE_TabBarTab, &p, this, t->rect(),
-				 colorGroup(), flags, QStyleOption(t) );
-
-	    paintLabel( &p, QRect( r.left() + ( r.width() -w ) /2 - 3,
-				   r.top() + ( r.height()-h ) / 2,
-				   w, h ), t, FALSE );
-	    p.end();
+	    repaint( t->r );
+	    break;
 	}
     }
 }
