@@ -319,7 +319,7 @@ NmakeMakefileGenerator::init()
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_DEBUG"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_DEBUG"];
 	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_DEBUG"];
-    } else if ( project->isActiveConfig("release") ) {
+    } else {
 	if ( project->isActiveConfig("thread") ) {
 	    if ( project->variables()["DEFINES"].contains("QT_DLL") ) {
 		project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MT_DLL"];

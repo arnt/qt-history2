@@ -452,10 +452,10 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 //		endGroups(t);
 		t << "\n# End Group\n";
 	    } else if( variable == "MSVCDSP_CONFIGMODE" ) {
-		if( project->isActiveConfig( "release" ) )
-		    t << "Release";
-		else
+		if( project->isActiveConfig( "debug" ) )
 		    t << "Debug";
+		else
+		    t << "Release";
 	    } else if( variable == "MSVCDSP_IDLSOURCES" ) {
 		QStringList list = project->variables()["MSVCDSP_IDLSOURCES"];
 		if(!project->isActiveConfig("flat"))
