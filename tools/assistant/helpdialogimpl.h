@@ -90,6 +90,7 @@ public slots:
     void toggleContents();
     void toggleIndex();
     void toggleBookmarks();
+    void toggleSearch();
 
 signals:
     void showLink( const QString &s );

@@ -1110,6 +1110,16 @@ void HelpDialog::toggleBookmarks()
 	parentWidget()->hide();
 }
 
+void HelpDialog::toggleSearch()
+{
+    if ( !isVisible() || tabWidget->currentPageIndex() != 3 ) {
+	tabWidget->setCurrentPage( 3 );
+	parentWidget()->show();
+    }
+    else
+	parentWidget()->hide();
+}
+
 void HelpDialog::setupFullTextIndex()
 {
     if ( fullTextIndex )
@@ -1153,6 +1163,8 @@ void HelpDialog::startSearch()
 {
     setCursor( waitCursor );
     QString str = termsEdit->text();
+    str = str.replace( "\'", "\"" );
+    str = str.replace( "`", "\"" );
     terms = QStringList::split( " ", str );
     QStringList termSeq;
     QStringList seqWords;

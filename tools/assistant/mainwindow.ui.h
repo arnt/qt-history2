@@ -348,15 +348,8 @@ void MainWindow::setup()
 		    helpDock, SLOT( toggleIndex() ) );
     a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+B") ) ),
 		    helpDock, SLOT( toggleBookmarks() ) );
-
-    a = new QAccel( dw );
-    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+T") ) ),
-		    helpDock, SLOT( toggleContents() ) );
-    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+I") ) ),
-		    helpDock, SLOT( toggleIndex() ) );
-    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+B") ) ),
-		    helpDock, SLOT( toggleBookmarks() ) );
-
+    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+S") ) ),
+		    helpDock, SLOT( toggleSearch() ) );
 
     // read configuration
     QString keybase("/Qt Assistant/3.1/");

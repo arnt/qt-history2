@@ -52,7 +52,7 @@
                 <cstring>tabWidget</cstring>
             </property>
             <property name="whatsThis" stdset="0">
-                <string>Displays help topics organized by category, index or bookmarks</string>
+                <string>Displays help topics organized by category, index or bookmarks. Another tab inherits the full text search.</string>
             </property>
             <widget class="QWidget">
                 <property name="name">
@@ -292,10 +292,22 @@
                         <property name="name">
                             <cstring>termsEdit</cstring>
                         </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Enter searchword(s).</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>&lt;b&gt;Enter search word(s).&lt;/b&gt;&lt;p&gt;Enter here the word(s) you are looking for. The words may contain wildcards (*). For a sequence of words quote them.&lt;/p&gt;</string>
+                        </property>
                     </widget>
                     <widget class="QListBox" row="5" column="0">
                         <property name="name">
                             <cstring>resultBox</cstring>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Found documents of the last search.</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>&lt;b&gt;Found documents&lt;/b&gt;&lt;p&gt;This list contains all found documents from the last search. The documents are ordered, i.e. the first document has the most matches.&lt;/p&gt;</string>
                         </property>
                     </widget>
                     <widget class="QLabel" row="4" column="0">
@@ -324,6 +336,12 @@
                                 <property name="text">
                                     <string>&amp;Help</string>
                                 </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Display the help page.</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Display the help page for the full text search.</string>
+                                </property>
                             </widget>
                             <spacer>
                                 <property name="name">
@@ -348,6 +366,12 @@
                                 </property>
                                 <property name="text">
                                     <string>Sea&amp;rch</string>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Start searching.</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Pressing this button starts the search.</string>
                                 </property>
                             </widget>
                         </hbox>
