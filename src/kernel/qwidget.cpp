@@ -1709,6 +1709,9 @@ QPoint QWidget::pos() const
     at least QSize(1, 1). For toplevel widgets, the minimum size
     might be larger, depending on the window manager.
 
+    If you want a top-level window to have a fixed size, call
+    setResizeMode( QLayout::FreeResize ) on its layout.
+
     resize() is virtual, and all other overloaded resize()
     implementations in Qt call it.
 
