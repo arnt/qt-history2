@@ -226,6 +226,7 @@ void QWizard::showPage( QWidget * page )
 
     layOut();
     updateButtons();
+    emit selected( p ? p->t : QString::null ); 
 }
 
 
@@ -674,7 +675,7 @@ void QWizard::removePage( QWidget * page )
   Returns a pointer to page a position \a pos, or 0 if \a pos is out of range.
   The first page has position 0.
 */
-  
+
 QWidget* QWizard::page( int pos ) const
 {
     if ( pos >= pageCount() || pos < 0 )

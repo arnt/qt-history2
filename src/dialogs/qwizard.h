@@ -89,6 +89,7 @@ protected slots:
 
 signals:
     void helpClicked();
+    void selected( const QString& );
 
 protected:
     virtual void layOutButtonRow( QHBoxLayout * );
