@@ -1887,8 +1887,11 @@ void QWidget::stackUnder(QWidget* w)
     int to;
     if (!w || isTopLevel() || p != w->parentWidget() || this == w)
         return;
-    if (p && (to = p->d->children.indexOf(w)) >= 0 && (from = p->d->children.indexOf(this)) >= 0)
+    if (p && (to = p->d->children.indexOf(w)) >= 0 && (from = p->d->children.indexOf(this)) >= 0) {
+        if (from < to)
+            --to;
         p->d->children.move(from, to);
+    }
     Window stack[2];
     stack[0] = w->winId();;
     stack[1] = winId();
