@@ -44,7 +44,11 @@ class QMYSQLResultPrivate : public QMYSQLDriverPrivate
 {
 public:
     QMYSQLResultPrivate() : QMYSQLDriverPrivate(), result(0), tc(QTextCodec::codecForLocale()),
-        rowsAffected(0), stmt(0), meta(0), inBinds(0), outBinds(0){}
+        rowsAffected(0)
+#if MYSQL_VERSION_ID >= 40102
+        , stmt(0), meta(0), inBinds(0), outBinds(0)
+#endif
+        {}
 
     MYSQL_RES* result;
     MYSQL_ROW  row;
@@ -55,17 +59,17 @@ public:
 
     bool bindInValues();
 
-    MYSQL_STMT* stmt;
-    MYSQL_RES* meta;
-
     QVector<char *> outFields;
     QVector<my_bool> isNullVector;
     QVector<unsigned long> buffLength;
 
+#if MYSQL_VERSION_ID >= 40102
+    MYSQL_STMT* stmt;
+    MYSQL_RES* meta;
+
     MYSQL_BIND *inBinds;
     MYSQL_BIND *outBinds;
-
-    QVector<my_bool> boolVector;
+#endif
 };
 
 static QTextCodec* codec(MYSQL* mysql)
@@ -147,6 +151,7 @@ static QSqlField qToField(MYSQL_FIELD *field, QTextCodec *tc)
     return f;
 }
 
+#if MYSQL_VERSION_ID >= 40102
 bool QMYSQLResultPrivate::bindInValues()
 {
     MYSQL_BIND *bind;
@@ -191,6 +196,7 @@ bool QMYSQLResultPrivate::bindInValues()
         return false;
     }
 }
+#endif
 
 QMYSQLResult::QMYSQLResult(const QMYSQLDriver* db)
 : QSqlResult(db)
@@ -233,8 +239,6 @@ void QMYSQLResult::cleanup()
     d->outFields.clear();
     d->isNullVector.clear();
     d->buffLength.clear();
-
-    d->boolVector.clear();
 
     if(d->outBinds) {
         delete[] d->outBinds;
@@ -556,21 +560,22 @@ bool QMYSQLResult::exec()
     MYSQL_BIND* currBind;
     QVector<MYSQL_TIME *> timeVector;
     QVector<QByteArray> stringVector;
+    QVector<my_bool> nullVector;
 
     const QVector<QCoreVariant> values = boundValues();
 
     if(mysql_stmt_param_count(d->stmt) > 0 &&
             mysql_stmt_param_count(d->stmt) == (uint)values.count()) {
 
-        d->boolVector.resize(values.count());
+        nullVector.resize(values.count());
         for (int i = 0; i < values.count(); ++i) {
             const QCoreVariant &val = boundValues().at(i);
             void *data = const_cast<void *>(val.constData());
 
             currBind = &d->outBinds[i];
 
-            d->boolVector[i] = static_cast<my_bool>(val.isNull());
-            currBind->is_null = &d->boolVector[i];
+            nullVector[i] = static_cast<my_bool>(val.isNull());
+            currBind->is_null = &nullVector[i];
 
             currBind->length = 0;
 
