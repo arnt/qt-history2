@@ -1910,15 +1910,25 @@ void QTextEdit::moveCursor( CursorAction action, bool select )
 	emit selectionChanged();
 	emit copyAvailable( doc->hasSelection( QTextDocument::Standard ) );
     } else {
-	bool redraw = doc->removeSelection( QTextDocument::Standard );
-	moveCursor( action );
 #ifdef Q_WS_MACX
+	QTextCursor cStart = doc->selectionStartCursor( QTextDocument::Standard );
+	QTextCursor cEnd = doc->selectionEndCursor( QTextDocument::Standard );
+	bool redraw = doc->removeSelection( QTextDocument::Standard );
+	if (redraw && action == MoveForward)
+	    *cursor = cEnd;
+	else if (redraw && action == MoveBackward)
+	    *cursor = cStart;
+	else
+	    moveCursor( action );
 	c2 = *cursor;
 	if (c1 == c2)
 	    if (action == MoveDown)
 		moveCursor( MoveEnd );
 	    else if (action == MoveUp)
 		moveCursor( MoveHome );
+#else
+	bool redraw = doc->removeSelection( QTextDocument::Standard );
+	moveCursor( action );
 #endif
 	if ( !redraw ) {
 	    ensureCursorVisible();
