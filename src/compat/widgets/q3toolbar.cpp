@@ -690,7 +690,6 @@ void Q3ToolBar::resizeEvent(QResizeEvent *e)
 */
 void Q3ToolBar::actionEvent(QActionEvent *e)
 {
-    // ################ temporary hack to see something in the toolbars
     if (e->type() == QEvent::ActionAdded) {
         QAction *a = e->action();
         QWidget *w;
