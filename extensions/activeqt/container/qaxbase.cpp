@@ -1416,7 +1416,7 @@ QString MetaObjectGenerator::guessTypes( const TYPEDESC &tdesc, ITypeInfo *info,
 	str = "Q_LLONG";
 	break;
     case VT_R4:
-	str = "float";
+	str = "double"; // float
 	break;
     case VT_R8:
 	str = "double";
@@ -2732,9 +2732,9 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
 	QString type = d->metaobj->paramType(signature, p, &out);
 	QVariant qvar;
 	if (type == "IDispatch*")
-	    qvar = QVariant(QVariant::UserData(v[p+1], "IDispatch**"));
+	    qvar = QVariant::UserData(*(IDispatch**)v[p+1], "IDispatch*");
 	else if (type == "IUnknown*")
-	    qvar = QVariant(QVariant::UserData(v[p+1], "IUnknown**"));
+	    qvar = QVariant::UserData(*(IUnknown**)v[p+1], "IUnknown*");
 	else
 	    qvar = QVariant(QVariant::nameToType(type.latin1()), v[p + 1]);
 	QVariantToVARIANT(qvar, params.rgvarg[params.cArgs - p - 1], type, out);
