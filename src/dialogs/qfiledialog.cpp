@@ -1968,7 +1968,7 @@ void QFileDialog::init()
 	*lastSize = size();
     } else
 	resize( *lastSize );
-    
+
     if ( detailViewMode ) {
 	d->stack->raiseWidget( files );
 	d->mcView->setOn( FALSE );
@@ -2535,7 +2535,7 @@ void QFileDialog::okClicked()
     *workingDirectory = url();
     detailViewMode = files->isVisible();
     *lastSize = size();
-    
+
     if ( d->mode == Directory ) {
 	if ( d->ignoreReturn ) {
 	    d->ignoreReturn = FALSE;
@@ -2895,7 +2895,7 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
     *workingDirectory = d->url;
     detailViewMode = files->isVisible();
     *lastSize = size();
-    
+
     if ( !newItem )
 	return;
 

@@ -247,7 +247,7 @@ void QComboData::updateLinedGeometry()
 	ed->setGeometry( combo->style().comboButtonRect( 0, 0, combo->width(), combo->height() ) );
 	return;
     }
-    
+
     const QPixmap *pix = combo->pixmap( current );
     QRect r( combo->style().comboButtonRect( 0, 0, combo->width(), combo->height() ) );
     if ( pix && pix->width() < r.width() )
@@ -898,8 +898,14 @@ int QComboBox::currentItem() const
 
 void QComboBox::setCurrentItem( int index )
 {
-    if ( index == d->current )
-	return;
+    if ( index == d->current ) {
+	bool ret = TRUE;
+	if ( d->ed && count() > 0 && d->current < count() && 
+	     d->ed->text() != text( d->current ) )
+	    ret = FALSE;
+	if ( ret ) 
+	    return;
+    }
     if ( !checkIndex( "setCurrentItem", name(), count(), index ) ) {
 	return;
     }
