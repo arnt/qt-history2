@@ -150,10 +150,10 @@
                 <cstring>labelProject</cstring>
             </property>
             <property name="text">
-                <string>Insert into:</string>
+                <string>&amp;Insert into:</string>
             </property>
             <property name="buddy" stdset="0">
-                <cstring>templateView</cstring>
+                <cstring>projectCombo</cstring>
             </property>
         </widget>
         <widget class="QComboBox" row="0" column="1">
