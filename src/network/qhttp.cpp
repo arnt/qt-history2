@@ -941,46 +941,61 @@ QString QHttpRequestHeader::toString() const
     \ingroup io
     \module network
 
-    This class is derived from QNetworkProtocol and can be used with
-    QUrlOperator. In practice this class is used through a
-    QUrlOperator rather than directly, for example:
+    This class provides two different interfaces: one is the QNetworkProtocol
+    interface that allows you to use HTTP through the QUrlOperator abstraction.
+    The other is a direct interface to HTTP that allows you to have more
+    control over the requests and that allows you to access the response header
+    fields.
+
+    Don't mix the two interfaces, since the behavior is not well-defined.
+
+
+    If you want to use QHttp with the QNetworkProtocol interface, you do not
+    use it directly, but rather through a QUrlOperator, for example:
+
     \code
     QUrlOperator op( "http://www.trolltech.com" );
     op.get( "index.html" );
     \endcode
 
-    Note: this code will only work if the QHttp class is registered;
-    to register the class, you must call qInitNetworkProtocols()
-    before using a QUrlOperator with HTTP.
+    This code will only work if the QHttp class is registered; to register the
+    class, you must call qInitNetworkProtocols() before using a QUrlOperator
+    with HTTP.
 
-    QHttp only supports the operations operationGet() and
-    operationPut(), i.e. QUrlOperator::get() and QUrlOperator::put(),
-    if you use it with a QUrlOperator. More control and flexibility is
-    available from the QHttpClient class.
+    The QNetworkProtocol interface for HTTP only supports the operations
+    operationGet() and operationPut(), i.e. QUrlOperator::get() and
+    QUrlOperator::put(), if you use it with a QUrlOperator.
 
-    If you really need to use QHttp directly, don't forget to set the
-    QUrlOperator on which it operates using setUrl().
+    The rest of the documentation describes the direct interface to HTTP. The
+    class works asynchronous, which means that no functions are blocking. They
+    return immediately and in case that an operation can't be executed
+    immediately, it is scheduled and executed later (you have to enter the
+    event loop for this). The results for such operations are reported through
+    signals.
+
+    The operations that can be scheduled (they are called "requests" in the
+    rest of the documentation) are the following: setHost(), get(), post(),
+    head() and request().
+
+    All of these requests return a unique identifier that allows you to keep
+    track of the request that is currently executed. When the execution of a
+    request starts, the requestStarted() signal with the identifier is emitted
+    and when the request is finished, the requestFinished() signal is emitted
+    with the identifier and a bool value that tells if the request was finished
+    with an error.
 
 
-    ### merge the following documentation nicely with the above
-
-    This class provides the functionality required to send HTTP
-    requests to an HTTP server and to receive replies from the server.
-    It provides full control over the request header and full access
-    to the response header.
-
-    Note that the QHttp class provides a much easier API for fetching
-    single URIs (it provides the QUrlOperator interface for HTTP) and
-    is more suitable for simple requirements.
+#### th following is not meged yet:
 
     To make an HTTP request you must set up suitable HTTP headers. The
     following example demonstrates, how to request the main HTML page
     from the Trolltech home page (i.e. the URL
     http://www.trolltech.com/index.html):
     \code
-    QHttp client;
     QHttpRequestHeader header( "GET", "/index.html" );
-    client.request( "www.trolltech.com", 80, header );
+    header.setValue( "Host", "www.trolltech.com" );
+    http->setHost( "www.trolltech.com" );
+    http->request( "www.trolltech.com", 80, header );
     \endcode
     \omit WE SHOULD SHOW A CONNECTION\endomit
 
