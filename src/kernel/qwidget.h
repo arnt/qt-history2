@@ -135,6 +135,7 @@ public:
 
 public slots:
     virtual void setEnabled( bool );
+    void setDisabled( bool );
 
     // Widget coordinates
 
@@ -197,7 +198,7 @@ public:
 			  PaletteMidlight, PaletteDark, PaletteMid,
 			  PaletteText, PaletteBrightText, PaletteBase,
 			  PaletteBackground, PaletteShadow, PaletteHighlight,
-			  PaletteHighlightedText, PaletteButtonText, 
+			  PaletteHighlightedText, PaletteButtonText,
 			  X11ParentRelative };
 
     BackgroundMode	backgroundMode() const;
@@ -782,8 +783,6 @@ inline bool QWidget::ownPalette() const
     return own_palette;
 }
 #endif
-
-
 
 // Extra QWidget data
 //  - to minimize memory usage for members that are seldom used.

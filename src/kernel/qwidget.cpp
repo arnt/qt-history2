@@ -1287,6 +1287,30 @@ void QWidget::setEnabled( bool enable )
 }
 
 /*!
+  Disables widget input events if \a disable is TRUE, otherwise enables
+  input events.
+
+  An enabled widget receives keyboard and mouse events; a disabled
+  widget does not.  Note that an enabled widget receives keyboard
+  events only when it is in focus.
+
+  Some widgets display themselves differently when they are disabled.
+  For example a button might draw its label grayed out. If your widget
+  needs to know when it becomes enabled or disabled, you can
+  reimplement the enabledChange() function.
+
+  Disabling a widget implicitely disables all its children.  Enabling
+  respectively enables all child widgets unless they have been
+  explicitly disabled.
+
+  \sa setEnabled(), isEnabled(), isEnabledTo(), QKeyEvent, QMouseEvent, enabledChange()
+*/
+void QWidget::setDisabled( bool disable )
+{
+    setEnabled( !disable );
+}
+
+/*!
   \fn void QWidget::enabledChange( bool oldEnabled )
 
   This virtual function is called from setEnabled(). \a oldEnabled is the
