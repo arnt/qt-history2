@@ -1901,6 +1901,10 @@ QStringList QSettings::readListEntry(const QString &key, bool *ok )
     return l;
 }
 
+#ifdef Q_OS_MAC
+void qt_setSettingsBasePath(const QString &); //qsettings_mac.cpp
+#endif
+
 /*!
     Insert platform-dependent paths from platform-independent information.
 
@@ -1945,9 +1949,9 @@ void QSettings::setPath( const QString &domain, const QString &product, Scope sc
     insertSearchPath( Windows, actualSearchPath );
 #elif !defined(QWS) && defined(Q_OS_MAC)
     QString topLevelDomain = domain.right( domain.length() - lastDot - 1 ) + ".";
-    if ( topLevelDomain.isEmpty() )
-	topLevelDomain = "com.";
-    actualSearchPath = "/" + topLevelDomain + domain.left( lastDot ) + product;
+    if ( !topLevelDomain.isEmpty() ) 
+	qt_setSettingsBasePath( topLevelDomain );
+    actualSearchPath = "/" + domain.left( lastDot ) + product;
     insertSearchPath( Mac, actualSearchPath );
 #else
     actualSearchPath = "/" + domain.mid( 0, lastDot ) + "/" + product;
