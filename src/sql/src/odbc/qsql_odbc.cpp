@@ -439,76 +439,67 @@ QVariant QODBCResult::data( int field )
 	    break;
 	case QVariant::Double:
 	    SQLDOUBLE dblbuf;
-	    isNull = FALSE;
 	    r = SQLGetData( d->hStmt,
 			    current+1,
 			    SQL_C_DOUBLE,
 			    (SQLPOINTER)&dblbuf,
 			    0,
 			    &lengthIndicator );
-	    if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
-		if ( lengthIndicator == SQL_NULL_DATA )
-		    isNull = TRUE;
+	    if ( ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) && ( lengthIndicator != SQL_NULL_DATA ) ) {
+		fieldCache[ current ] = QVariant( dblbuf );
+		nullCache[ current ] = FALSE;	
+	    } else {
+		fieldCache[ current ] = QVariant();
+		nullCache[ current ] = TRUE;	
 	    }
-	    fieldCache[ current ] = QVariant( dblbuf );
-	    nullCache[ current ] = isNull;
 	    break;
 	case QVariant::Date:
-		DATE_STRUCT dbuf;
-	    isNull = FALSE;
+	    DATE_STRUCT dbuf;
 	    r = SQLGetData( d->hStmt,
 			    current+1,
 				SQL_C_DATE,
 				(SQLPOINTER)&dbuf,
 				0,
 			    &lengthIndicator );
-	    if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
-			if ( lengthIndicator == SQL_NULL_DATA )
-				isNull = TRUE;
-		}
-	    if ( !isNull )
+	    if ( ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) && ( lengthIndicator != SQL_NULL_DATA ) ) {
 		fieldCache[ current ] = QVariant( QDate( dbuf.year, dbuf.month, dbuf.day ) );
-	    else
+		nullCache[ current ] = FALSE;
+	    } else {
 		fieldCache[ current ] = QVariant( QDate() );
-	    nullCache[ current ] = isNull;
+		nullCache[ current ] = TRUE;
+	    }
 	    break;
 	case QVariant::Time:
 	    TIME_STRUCT tbuf;
-	    isNull = FALSE;
 	    r = SQLGetData( d->hStmt,
 			    current+1,
 			    SQL_C_TIME,
 			    (SQLPOINTER)&tbuf,
 			    0,
 			    &lengthIndicator );
-	    if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
-		if ( lengthIndicator == SQL_NULL_DATA )
-		    isNull = TRUE;
-	    }
-	    if ( !isNull )
+	    if ( ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) && ( lengthIndicator != SQL_NULL_DATA ) ) {
 		fieldCache[ current ] = QVariant( QTime( tbuf.hour, tbuf.minute, tbuf.second ) );
-	    else
+		nullCache[ current ] = FALSE;
+	    } else {
 		fieldCache[ current ] = QVariant( QTime() );
-	    nullCache[ current ] = isNull;
+		nullCache[ current ] = TRUE;
+	    }
 	    break;
 	case QVariant::DateTime:
 	    TIMESTAMP_STRUCT dtbuf;
-	    isNull = FALSE;
 	    r = SQLGetData( d->hStmt,
 			    current+1,
 			    SQL_C_TIMESTAMP,
 			    (SQLPOINTER)&dtbuf,
 			    0,
 			    &lengthIndicator );
-	    if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
-		if ( lengthIndicator == SQL_NULL_DATA )
-		    isNull = TRUE;
-	    }
-	    if ( !isNull )
+	    if ( ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) && ( lengthIndicator != SQL_NULL_DATA ) ) {
 		fieldCache[ current ] = QVariant( QDateTime( QDate( dtbuf.year, dtbuf.month, dtbuf.day ), QTime( dtbuf.hour, dtbuf.minute, dtbuf.second ) ) );
-	    else
+		nullCache[ current ] = FALSE;
+	    } else {
 		fieldCache[ current ] = QVariant( QDateTime() );
-	    nullCache[ current ] = isNull;
+		nullCache[ current ] = TRUE;
+	    }
 	    break;
 	default:
 	case QVariant::String:
