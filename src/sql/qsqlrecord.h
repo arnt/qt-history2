@@ -58,7 +58,7 @@ public:
     virtual void remove(int pos);
 
 #ifndef QT_NO_COMPAT
-    virtual void insert(int pos, const QSqlField& field) { replace(pos, field); }
+    inline void insert(int pos, const QSqlField& field) { replace(pos, field); }
 #endif
 
 
