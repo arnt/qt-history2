@@ -114,6 +114,8 @@ private:
 #endif
 #if defined(Q_WS_QWS) || defined(Q_WS_X11) || defined(Q_WS_MAC)
 	QRegionPrivate *qt_rgn;
+#elif defined(Q_WS_WIN)
+    friend class QETWidget;
 #endif
     };
     struct QRegionData *d;

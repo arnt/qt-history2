@@ -3143,21 +3143,36 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code,
 //
 bool QETWidget::translatePaintEvent( const MSG & )
 {
-    QRegion rgn(0,0,1,1); // trigger handle
-    int res = GetUpdateRgn(winId(), (HRGN) rgn.handle(), FALSE);
-    if ( res == ERROR )
+    HRGN possible_region = CreateRectRgn(0,0,0,0);
+    int res = GetUpdateRgn(winId(), possible_region, FALSE);
+    if ( !GetUpdateRect( winId(), 0, FALSE )  // The update bounding rect is invalid
+	 || (res == ERROR)
+	 || (res == NULLREGION) ) {
+	DeleteObject( possible_region );
+	hdc = 0;
 	return TRUE;
+    }
 
     PAINTSTRUCT ps;
     hdc = BeginPaint( winId(), &ps );
-    if ( res != COMPLEXREGION ) {
+
+    if ( res == SIMPLEREGION ) {
+	DeleteObject( possible_region ); // Don't need it anymore
 	QRect psRect(QPoint(ps.rcPaint.left,ps.rcPaint.top), QPoint(ps.rcPaint.right-1,ps.rcPaint.bottom-1));
-	if ( !psRect.isValid() )
-	    goto cleanup;
-	rgn = psRect;
+
+	QPaintEvent e( psRect );
+	QApplication::sendSpontaneousEvent( this, (QEvent*) &e );
+
+    } else { // COMPLEXREGION
+	// Create region, which is not empty_region
+	QRegion rgn( false );
+	// Destructor will delete rgn
+	rgn.data->rgn = possible_region;
+	rgn.data->ref();
+
+	repaint(rgn);
     }
-    repaint(rgn);
-cleanup:
+
     hdc = 0;
     EndPaint( winId(), &ps );
     return TRUE;
