@@ -167,7 +167,7 @@
                                 <cstring>TextLabel4</cstring>
                             </property>
                             <property name="text">
-                                <string>&amp;Color:</string>
+                                <string>Co&amp;lor:</string>
                             </property>
                             <property name="buddy" stdset="0">
                                 <cstring>buttonColor</cstring>
