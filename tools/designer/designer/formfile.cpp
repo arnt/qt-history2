@@ -270,6 +270,8 @@ bool FormFile::closeEvent()
 	loadCode();
 	if ( ed )
 	    ed->editorInterface()->setText( cod );
+	if ( fileNameTemp )
+	    pro->removeFormFile( this );
 	MainWindow::self->workspace()->update();
 	break;
     case 2: // cancel

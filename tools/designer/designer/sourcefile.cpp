@@ -151,6 +151,11 @@ void SourceFile::setModified( bool m )
 
 bool SourceFile::closeEvent()
 {
+    if ( !isModified() && fileNameTemp ) {
+	pro->removeSourceFile( this );
+	return TRUE;
+    }
+
     if ( !isModified() )
 	return TRUE;
 
@@ -168,6 +173,8 @@ bool SourceFile::closeEvent()
 	load();
 	if ( ed )
 	    ed->editorInterface()->setText( txt );
+	if ( fileNameTemp )
+	    pro->removeSourceFile( this );
 	MainWindow::self->workspace()->update();
 	break;
     case 2: // cancel
