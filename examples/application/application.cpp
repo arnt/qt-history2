@@ -163,7 +163,8 @@ void ApplicationWindow::load( const QString &fileName )
     if ( !f.open( IO_ReadOnly ) )
 	return;
 
-    e->load( fileName );
+    QTextStream ts( &f );
+    e->setText( ts.read() );
     e->setModified( FALSE );
     setCaption( fileName );
     statusBar()->message( "Loaded document " + fileName, 2000 );
