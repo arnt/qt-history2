@@ -128,6 +128,13 @@
   QPushButton::autoDefault() to set and control the dialog's default
   button.
 
+  \target escapekey
+  \section1 Escape Key
+
+  If the user presses the Escape key in a dialog, QDialog::reject()
+  will be called. This will cause the window to close, but note that
+  no \link QCloseEvent closeEvent \endlink will occur.
+
   \target extensibility
   \section1 Extensibility
 
