@@ -2546,31 +2546,6 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
 	else if ( e->type() == QEvent::Leave || e->type() == QEvent::DragLeave )
 	    widget->clearWState( WState_HasMouse );
 
-	// throw away mouse events to disabled widgets
-	if ( !widget->isEnabled() ) {
-	    switch( e->type() ) {
-	    case QEvent::MouseMove:
-	    case QEvent::MouseButtonPress:
-	    case QEvent::MouseButtonRelease:
-	    case QEvent::MouseButtonDblClick:
-		consumed = TRUE;
-		goto done;
-
-	    case QEvent::Wheel:
-	    case QEvent::ContextMenu:
-	    case QEvent::DragEnter:
-	    case QEvent::DragLeave:
-	    case QEvent::DragMove:
-	    case QEvent::Drop:
-	    case QEvent::DragResponse:
-		((QMouseEvent*)e)->ignore();
-		goto done;
-
-	    default:
-		break;
-	    }
-	}
-
 	// throw away any mouse-tracking-only mouse events
 	if ( e->type() == QEvent::MouseMove &&
 	     (((QMouseEvent*)e)->state()&QMouseEvent::MouseButtonMask) == 0 &&
