@@ -1414,7 +1414,7 @@ QString QStyleSheet::escape( const QString& plain)
 	\c PlainText.
 	
     \value LogText A special, limited text format which is only used
-    by QTextEdit.
+    by QTextEdit in an optimized mode.
 */
 
 /*!
