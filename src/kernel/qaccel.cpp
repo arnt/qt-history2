@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#5 $
 **
 ** Implementation of QAccel class
 **
@@ -17,7 +17,7 @@
 #include "qsignal.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#5 $";
 #endif
 
 
@@ -27,7 +27,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#4 $";
 The QAccel class contains a number of accelerator items. An accelerator item
 consists of a keyboard code combined with modifiers (SHIFT, CTRL and ALT),
 for example <code>CTRL + Key_P</code> could be a shortcut for printing a
-document.
+document.  The key codes are listed in qkeycode.h.
 
 When pressed, an accelerator key sends out the signal activated() with a
 number that identifies this particular accelerator item.  Accelerator items
