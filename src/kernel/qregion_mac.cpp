@@ -143,6 +143,79 @@ QRegion::QRegion( const QRegion &r )
     data->ref();
 }
 
+//OPTIMIZATION FIXME, I think quickdraw can do this, this is just to get something going..
+static RgnHandle qt_mac_bitmapToRegion(const QBitmap& bitmap)
+{
+    QImage image = bitmap.convertToImage();
+
+    RgnHandle region = NewRgn();
+
+#define AddSpan \
+	{ \
+            RgnHandle rr = NewRgn(); \
+            SetRectRgn(rr, prev1, y, x-1, y); \
+	    UnionRgn( rr, region, region ); \
+	}
+
+    const int zero=0;
+    bool little = image.bitOrder() == QImage::LittleEndian;
+
+    int x, y;
+    for (y=0; y<image.height(); y++) {
+	uchar *line = image.scanLine(y);
+	int w = image.width();
+	uchar all=zero;
+	int prev1 = -1;
+	for (x=0; x<w; ) {
+	    uchar byte = line[x/8];
+	    if ( x>w-8 || byte!=all ) {
+		if ( little ) {
+		    for ( int b=8; b>0 && x<w; b-- ) {
+			if ( !(byte&0x01) == !all ) {
+			    // More of the same
+			} else {
+			    // A change.
+			    if ( all!=zero ) {
+				AddSpan
+				all = zero;
+			    } else {
+				prev1 = x;
+				all = ~zero;
+			    }
+			}
+			byte >>= 1;
+			x++;
+		    }
+		} else {
+		    for ( int b=8; b>0 && x<w; b-- ) {
+			if ( !(byte&0x80) == !all ) {
+			    // More of the same
+			} else {
+			    // A change.
+			    if ( all!=zero ) {
+				AddSpan
+				all = zero;
+			    } else {
+				prev1 = x;
+				all = ~zero;
+			    }
+			}
+			byte <<= 1;
+			x++;
+		    }
+		}
+	    } else {
+		x+=8;
+	    }
+	}
+	if ( all != zero ) {
+	    AddSpan
+	}
+    }
+    return region;
+}
+
+
 /*!
   Constructs a region from the bitmap \a bm.
 
@@ -159,8 +232,7 @@ QRegion::QRegion( const QBitmap &bm )
     data = new QRegionData;
     CHECK_PTR( data );
     data->is_null = FALSE;
-    data->rgn = NewRgn();
-    qDebug("Need to really do this function..");
+    data->rgn = qt_mac_bitmapToRegion(bm);
 }
 
 /*!
@@ -360,8 +432,9 @@ QRegion QRegion::eor( const QRegion &r ) const
 
 QRect QRegion::boundingRect() const
 {
-//    qDebug("Need to do this %s:%d", __FILE__, __LINE__);
-    return QRect(0, 0, 1024, 768); //take that!!! for now I return as much as I can..
+    Rect r;
+    GetRegionBounds(data->rgn, &r);
+    return QRect(r.top, r.left, r.right - r.top, r.bottom - r.left); 
 }
 
 
