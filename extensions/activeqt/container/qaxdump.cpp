@@ -112,25 +112,47 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
 	stream << "<h2>Public Slots:</h2>" << endl;
 	stream << "<ul>" << endl;
 
-	QMap<QString,QString> slotMap;
-	for (int islot = 0; islot < slotCount; ++islot) {
+	for (int islot = mo->slotOffset(); islot < slotCount; ++islot) {
 	    const QMetaMember slot = mo->slot(islot);
 
-	    QString returntype = slot.type();
+	    QString returntype(slot.type());
             if (returntype.isEmpty())
                 returntype = "void";
-	    slotMap[slot.signature()] = returntype;
-	}
-        QMap<QString,QString>::ConstIterator it;
-	for (it = slotMap.constBegin(); it != slotMap.constEnd(); ++it) {
-	    QString slot = it.key();
-	    int iname = slot.indexOf('(');
-	    QString name = slot.left(iname);
-	    QString params = slot.mid(iname);
-            QString rettype = it.value();
+            QString signature(slot.signature());
+            QString paramNames = slot.parameters();
+            if (!paramNames.isEmpty()) {
+                QString sigTypes(signature);
+                signature = signature.left(signature.indexOf('(') + 1);
+                sigTypes = sigTypes.mid(signature.length());
+                sigTypes.truncate(sigTypes.length() - 1);
+                while (!paramNames.isEmpty()) {
+                    QString paramName = paramNames.left(paramNames.indexOf(','));
+                    if (paramName.isEmpty())
+                        paramName = paramNames;
+                    paramNames = paramNames.mid(paramName.length() + 1);
+                    QString sigType = sigTypes.left(sigTypes.indexOf(','));
+                    if (sigType.isEmpty())
+                        sigType = sigTypes;
+                    sigTypes = sigTypes.mid(sigType.length() + 1);
+
+                    signature += sigType + " " + paramName;
+                    if (!paramNames.isEmpty())
+                        signature += ", ";
+                }
+                signature += ")";
+            } else {
+                signature = slot.signature();
+            }
+
+            QString slotsig = slot.signature();
+	    int iname = slotsig.indexOf('(');
+	    QString name = slotsig.left(iname);
+	    QString params = signature.mid(iname);
+            QString rettype = returntype;
 	    stream << "<li>" << rettype << " <a href=\"#" << name << "\"><b>" << name << "</b></a>" << params << ";</li>" << endl;
 
-	    QString detail = "<h3><a name=" + name + "></a>" + rettype + " " + slot + "<tt> [slot]</tt></h3>\n";
+            params = slotsig.mid(iname);
+	    QString detail = "<h3><a name=" + name + "></a>" + rettype + " " + signature + "<tt> [slot]</tt></h3>\n";
 	    detail += docuFromName(typeInfo, name);
 	    detail += "<p>Connect a signal to this slot:<pre>\n";
 	    detail += "\tQObject::connect(sender, SIGNAL(someSignal" + params + "), object, SLOT(" + name + params + "));";
@@ -175,20 +197,17 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
 	stream << "<h2>Signals:</h2>" << endl;
 	stream << "<ul>" << endl;
 
-	QMap<QString, QString> signalMap;
-	for (int isignal = 0; isignal < signalCount; ++isignal) {
+	for (int isignal = mo->signalOffset(); isignal < signalCount; ++isignal) {
 	    const QMetaMember signal = mo->signal(isignal);
-	    signalMap[signal.signature()] = "void";
-	}
-        QMap<QString,QString>::ConstIterator it;
-	for (it = signalMap.constBegin(); it != signalMap.constEnd(); ++it) {
-	    QString signal = it.key();
-	    int iname = signal.indexOf('(');
-	    QString name = signal.left(iname);
-	    QString params = signal.mid(iname);
 
-	    stream << "<li>" << it.value() << " <a href=\"#" << name << "\"><b>" << name << "</b></a>" << params << ";</li>" << endl;
-	    QString detail = "<h3><a name=" + name + "></a>" + it.value() + " " + signal + "<tt> [signal]</tt></h3>\n";
+	    QString signature = signal.signature();
+            signature.replace(',', ", ");
+	    int iname = signature.indexOf('(');
+	    QString name = signature.left(iname);
+	    QString params = signature.mid(iname);
+
+	    stream << "<li>void <a href=\"#" << name << "\"><b>" << name << "</b></a>" << params << ";</li>" << endl;
+	    QString detail = "<h3><a name=" + name + "></a>void " + signature + "<tt> [signal]</tt></h3>\n";
             if (typeLib) {
                 interCount = 0;
                 do {
@@ -225,21 +244,15 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
 	stream << "<h2>Properties:</h2>" << endl;
 	stream << "<ul>" << endl;
 
-	QMap<QString, QString> propMap;
 	for (int iprop = 0; iprop < propCount; ++iprop) {
 	    const QMetaProperty prop = mo->property(iprop);
-	    propMap[prop.name()] = prop.type();
-	}
-        QMap<QString,QString>::ConstIterator it;
-	for (it = propMap.constBegin(); it != propMap.constEnd(); ++it) {
-	    QString name = it.key();
-	    QString type = it.value();
+	    QString name(prop.name());
+	    QString type(prop.type());
 
 	    stream << "<li>" << type << " <a href=\"#" << name << "\"><b>" << name << "</b></a>;</li>" << endl;
 	    QString detail = "<h3><a name=" + name + "></a>" + type + " " + name + "</h3>\n";
 	    detail += docuFromName(typeInfo, name);
 	    QVariant::Type vartype = QVariant::nameToType(type.latin1());
-	    const QMetaProperty prop = mo->property(mo->indexOfProperty(name.latin1()));
 	    if (!prop.isReadable())
 		continue;
 
