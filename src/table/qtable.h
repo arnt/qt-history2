@@ -388,6 +388,7 @@ protected:
     void focusOutEvent( QFocusEvent* );
     void viewportResizeEvent( QResizeEvent * );
     void showEvent( QShowEvent *e );
+    void paintEvent( QPaintEvent *e );
     void setEditMode( EditMode mode, int row, int col );
 #ifndef QT_NO_DRAGANDDROP
     virtual void contentsDragEnterEvent( QDragEnterEvent *e );
@@ -500,7 +501,7 @@ private:
     int startDragCol;
     QPoint dragStartPos;
     int oldCurrentRow, oldCurrentCol;
-    QWidget *topLeftCorner;
+    QWidget *unused_topLeftCorner; //### remove in 4.0
     FocusStyle focusStl;
     QSize cachedSizeHint;
 

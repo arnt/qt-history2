@@ -1790,7 +1790,6 @@ void QTable::init( int rows, int cols )
     topHeader->setOrientation( Horizontal );
     topHeader->setTracking( TRUE );
     topHeader->setMovingEnabled( TRUE );
-    topLeftCorner = new QWidget( this, "qt_topleft_corner" );
     if ( QApplication::reverseLayout() )
 	setMargins( 0, fontMetrics().height() + 4, 30, 0 );
     else
@@ -3813,6 +3812,16 @@ void QTable::showEvent( QShowEvent *e )
     updateGeometries();
 }
 
+/*! \reimp
+*/
+
+void QTable::paintEvent( QPaintEvent *e )
+{
+    QRect topLeftCorner = QStyle::visualRect( QRect(frameWidth(), frameWidth(), VERTICALMARGIN, topMargin() ), rect() );
+    erase( topLeftCorner ); // erase instead of widget on top
+    QScrollView::paintEvent( e );
+}
+
 static bool inUpdateCell = FALSE;
 
 /*! Repaints the cell at \a row, \a col.
@@ -4044,7 +4053,6 @@ void QTable::updateGeometries()
 			     VERTICALMARGIN, visibleHeight() ), rect() ) );
     topHeader->setGeometry( QStyle::visualRect( QRect(VERTICALMARGIN + frameWidth(), frameWidth(),
 						      visibleWidth(), topMargin() ), rect() ) );
-    topLeftCorner->setGeometry( QStyle::visualRect( QRect(frameWidth(), frameWidth(), VERTICALMARGIN, topMargin() ), rect() ) );
     horizontalScrollBar()->raise();
     verticalScrollBar()->raise();
     topHeader->updateStretches();
