@@ -95,15 +95,18 @@ public:
     static void about( QWidget *parent, const QString &caption,
 		       const QString& text );
 
-    static void aboutQt( QWidget *parent, const QString& caption=QString::null );
+    static void aboutQt( QWidget *parent,
+			 const QString& caption=QString::null );
 
 #if 1 /* OBSOLETE */
     static int message( const QString &caption,
-			const QString& text,  const QString& buttonText=QString::null,
+			const QString& text, 
+			const QString& buttonText=QString::null,
 			QWidget *parent=0, const char *name=0 );
 
     static bool query( const QString &caption,
-		       const QString& text,  const QString& yesButtonText=QString::null,
+		       const QString& text, 
+		       const QString& yesButtonText=QString::null,
 		       const QString& noButtonText=QString::null,
 		       QWidget *parent=0, const char *name=0 );
 #endif
@@ -112,11 +115,13 @@ public:
     void	setText( const QString &);
 
     Icon	icon() const;
-    void	setIcon( Icon );	    //#### Bad API (see QWidget::setIcon). Should be setMessageIcon in 3.0
-    void	setIcon( const QPixmap & ); //#### Bad API (see QWidget::setIcon). Should be setMessageIcon in 3.0
 
-    const QPixmap *iconPixmap() const;		  //#### Bad API (see QWidget::setIcon). Should be messageIconPixmap in 3.0
-    void	setIconPixmap( const QPixmap & ); //#### Bad API (see QWidget::setIcon). Should be setMessageIconPixmap in 3.0
+    // ### the next four functions will probably be renamed in 3.0.
+    void	setIcon( Icon );
+    void	setIcon( const QPixmap & );
+
+    const QPixmap *iconPixmap() const;
+    void	setIconPixmap( const QPixmap & );
 
     QString	buttonText( int button ) const;
     void	setButtonText( int button, const QString &);

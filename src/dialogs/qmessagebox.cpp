@@ -239,34 +239,67 @@ static const char * const qtlogo_xpm[] = {
 
 // BEING REVISED: paul
 /*!
-  \class QMessageBox qmessagebox.h
-  \brief Displays a brief message, an icon, and some buttons.
-  \ingroup dialogs
+\class QMessageBox qmessagebox.h
+\brief Displays a brief message, an icon, and some buttons.
+\ingroup dialogs
 
-  A message box is a modal dialog that displays an icon, a text and up to
-  three push buttons.  It's used for simple messages and questions.
+A message box is a modal dialog that displays an icon, a text and up to
+three push buttons.  It's used for simple messages and questions.
 
-  QMessageBox provides a range of different messages, arranged roughly
-  along two axes: Severity and complexity.
+QMessageBox provides a range of different messages, arranged roughly
+along two axes: Severity and complexity.
 
-  Severity is
-  <ul>
-  <li> \c Information - for message boxes that are part of normal operation,
-  <li> \c Warning - for message boxes that tell the user about errors
-  or ask the user how to fix an error, or
-  <li> \c Critical - as Warning, but for critical errors.
-  </ul>
-  The message box has a different icon for each of the severity levels.
+Severity is
+<ul>
+<li> \c Information - for message boxes that are part of normal operation
+<li> \c Warning - for message boxes that tell the user about unusual errors
+<li> \c Critical - as Warning, but for critical errors
+</ul>
 
-  Complexity is one button (Ok, sometimes Dismiss for Motif
-  applications) for a simple messages, or two or even three buttons
-  for questions.
+The message box has a different icon for each of the severity levels.
 
+
+Complexity is one button (Ok) for a simple messages, or two or even
+three buttons for questions.
+
+There are static functions that let you do most of the common jobs,
+for example:
+
+If a program is unable to find a supporting file, but can do perfectly
+well without:
+
+\code
+  QMessageBox::information( this, "Application name",
+                            "Unable to find the user preferences file.\n"
+			    "The factory default will be used instead." );
+\endcode
+
+warning() can be used to tell the user about unusual errors, or
+errors which can't be easily fixed:
+
+\code
+  switch( QMessageBox::warning( this, "Application name",
+                                "Could not connect to the <mumble> server.\n"
+      			  "This program can't function correctly "
+      			  "without the server.\n\n",
+      			  "Try again", "Quit", 0,
+      			  0, 1 );
+  case 0: // Try again or Enter
+      // try again
+      break;
+  case 1: // Quit or Escape
+      // exit
+      break;
+  }
+\endcode
+
+    Finally, 
+  
   The text part of all message box messages can be either rich text or
   plain text. If you specify a rich text formatted string, it will be
   rendered using the default stylesheet. See
   QStyleSheet::defaultSheet() for details. With certain strings that
-  contain XML meta characters , the auto-rich text detection may fail,
+  contain XML meta characters, the auto-rich text detection may fail,
   interpreting plain text falsely as rich text. In these rare cases,
   use QStyleSheet::convertFromPlainText() to convert your plain text
   string to a visually equivalent rich text string or set the text
@@ -317,25 +350,6 @@ static const char * const qtlogo_xpm[] = {
   Again, the application name is used as window caption, as Microsoft
   recommends.  The Escape button cancels the entire Exit operation,
   and Enter/Return saves the document and exits.
-
-  warning() can be used to tell the user about unusual errors, or
-  errors which can't be easily fixed:
-
-  \code
-    switch( QMessageBox::warning( this, "Application name here",
-                                  "Could not connect to the <mumble> server.\n"
-				  "This program can't function correctly "
-				  "without the server.\n\n",
-				  "Try again", "Quit", 0,
-				  0, 1 );
-    case 0: // Try again or Enter
-        // try again
-	break;
-    case 1: // Quit or Escape
-        // exit
-	break;
-    }
-  \endcode
 
   Disk full errors are unusual (in a perfect world, they are) and they
   certainly can be hard to correct.  This example uses predefined buttons
@@ -621,7 +635,7 @@ void QMessageBox::init( int button0, int button1, int button2 )
     label = new QLabel( this, "text" );
     CHECK_PTR( label );
     label->setAlignment( AlignLeft );
-    
+
     if ( (button2 && !button1) || (button1 && !button0) ) {
 #if defined(CHECK_RANGE)
 	qWarning( "QMessageBox: Inconsistent button parameters" );
@@ -792,7 +806,7 @@ QMessageBox::Icon QMessageBox::icon() const
   \sa icon(), setIconPixmap(), iconPixmap()
 */
 //#### Bad API (see QWidget::setIcon). Should be setMessageIcon in 3.0 (same for setIconPixmap and friends)
-void QMessageBox::setIcon( Icon icon ) 
+void QMessageBox::setIcon( Icon icon )
 {
     setIconPixmap( standardIcon(icon, style()) );
     mbd->icon = icon;
