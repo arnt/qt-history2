@@ -3005,7 +3005,7 @@ bool QXmlSimpleReader::parseProlog()
     const signed char Em               = 3; // '!' read
     const signed char DocType          = 4; // read doctype
     const signed char Comment          = 5; // read comment
-    const signed char PI               = 6; // read PI
+    const signed char PInstr           = 6; // read PI
     const signed char Done             = 7;
 
     const signed char InpWs            = 0;
@@ -3020,11 +3020,11 @@ bool QXmlSimpleReader::parseProlog()
      /*  InpWs   InpLt  InpQm  InpEm  InpD      InpDash  InpUnknown */
 	{ EatWS,  Lt,    -1,    -1,    -1,       -1,       -1      }, // Init
 	{ -1,     Lt,    -1,    -1,    -1,       -1,       -1      }, // EatWS
-	{ -1,     -1,    PI,    Em,    Done,     -1,       Done    }, // Lt
+	{ -1,     -1,    PInstr,Em,    Done,     -1,       Done    }, // Lt
 	{ -1,     -1,    -1,    -1,    DocType,  Comment,  -1      }, // Em
 	{ EatWS,  Lt,    -1,    -1,    -1,       -1,       -1      }, // DocType
 	{ EatWS,  Lt,    -1,    -1,    -1,       -1,       -1      }, // Comment
-	{ EatWS,  Lt,    -1,    -1,    -1,       -1,       -1      }  // PI
+	{ EatWS,  Lt,    -1,    -1,    -1,       -1,       -1      }  // PInstr
     };
     signed char state;
     signed char input;
@@ -3072,7 +3072,7 @@ bool QXmlSimpleReader::parseProlog()
 		    }
 		}
 		break;
-	    case PI:
+	    case PInstr:
 		// call the handler
 		if ( contentHnd ) {
 		    if ( xmldecl_possible && !d->xmlVersion.isEmpty() ) {
@@ -3160,7 +3160,7 @@ bool QXmlSimpleReader::parseProlog()
 		    return FALSE;
 		}
 		break;
-	    case PI:
+	    case PInstr:
 		d->parsePI_xmldecl = xmldecl_possible;
 		if ( !parsePI() ) {
 		    parseFailed( &QXmlSimpleReader::parseProlog, state );
@@ -3510,7 +3510,7 @@ bool QXmlSimpleReader::parseContent()
     const signed char ChD2             =  3; // CharData help state
     const signed char Ref              =  4; // Reference
     const signed char Lt               =  5; // '<' read
-    const signed char PI               =  6; // PI
+    const signed char PInstr           =  6; // PI
     const signed char Elem             =  7; // Element
     const signed char Em               =  8; // '!' read
     const signed char Com              =  9; // Comment
@@ -3556,8 +3556,8 @@ bool QXmlSimpleReader::parseContent()
 	{ Lt,    ChD,   ChD,      ChD,      ChD,      Ref,    ChD,     ChD,      ChD2,      ChD  }, // ChD1
 	{ Lt,    -1,    ChD,      ChD,      ChD,      Ref,    ChD,     ChD,      ChD2,      ChD  }, // ChD2
 	{ Lt,    ChD,   ChD,      ChD,      ChD,      Ref,    ChD,     ChD,      ChD,       ChD  }, // Ref (same as Init)
-	{ -1,    -1,    Done,     PI,       Em,       -1,     -1,      -1,       -1,        Elem }, // Lt
-	{ Lt,    ChD,   ChD,      ChD,      ChD,      Ref,    ChD,     ChD,      ChD,       ChD  }, // PI (same as Init)
+	{ -1,    -1,    Done,     PInstr,   Em,       -1,     -1,      -1,       -1,        Elem }, // Lt
+	{ Lt,    ChD,   ChD,      ChD,      ChD,      Ref,    ChD,     ChD,      ChD,       ChD  }, // PInstr (same as Init)
 	{ Lt,    ChD,   ChD,      ChD,      ChD,      Ref,    ChD,     ChD,      ChD,       ChD  }, // Elem (same as Init)
 	{ -1,    -1,    -1,       -1,       -1,       -1,     Com,     CDS,      -1,        -1   }, // Em
 	{ Lt,    ChD,   ChD,      ChD,      ChD,      Ref,    ChD,     ChD,      ChD,       ChD  }, // Com (same as Init)
@@ -3595,7 +3595,7 @@ bool QXmlSimpleReader::parseContent()
 
     for (;;) {
 	switch ( state ) {
-	    case PI:
+	    case PInstr:
 		if ( contentHnd ) {
 		    if ( !contentHnd->processingInstruction(name(),string()) ) {
 			reportParseError( contentHnd->errorString() );
@@ -3770,7 +3770,7 @@ bool QXmlSimpleReader::parseContent()
 		d->contentCharDataRead = FALSE;
 		next();
 		break;
-	    case PI:
+	    case PInstr:
 		d->parsePI_xmldecl = FALSE;
 		if ( !parsePI() ) {
 		    parseFailed( &QXmlSimpleReader::parseContent, state );
@@ -3849,7 +3849,7 @@ bool QXmlSimpleReader::parseMisc()
     const signed char Lt               = 1; // '<' was read
     const signed char Comment          = 2; // read comment
     const signed char eatWS            = 3; // eat whitespaces
-    const signed char PI               = 4; // read PI
+    const signed char PInstr           = 4; // read PI
     const signed char Comment2         = 5; // read comment
 
     const signed char InpWs            = 0; // S
@@ -3861,7 +3861,7 @@ bool QXmlSimpleReader::parseMisc()
     static const signed char table[3][5] = {
      /*  InpWs   InpLt  InpQm  InpEm     InpUnknown */
 	{ eatWS,  Lt,    -1,    -1,       -1        }, // Init
-	{ -1,     -1,    PI,    Comment,  -1        }, // Lt
+	{ -1,     -1,    PInstr,Comment,  -1        }, // Lt
 	{ -1,     -1,    -1,    -1,       Comment2  }  // Comment
     };
     signed char state;
@@ -3894,7 +3894,7 @@ bool QXmlSimpleReader::parseMisc()
 	switch ( state ) {
 	    case eatWS:
 		return TRUE;
-	    case PI:
+	    case PInstr:
 		if ( contentHnd ) {
 		    if ( !contentHnd->processingInstruction(name(),string()) ) {
 			reportParseError( contentHnd->errorString() );
@@ -3943,7 +3943,7 @@ bool QXmlSimpleReader::parseMisc()
 	    case Lt:
 		next();
 		break;
-	    case PI:
+	    case PInstr:
 		d->parsePI_xmldecl = FALSE;
 		if ( !parsePI() ) {
 		    parseFailed( &QXmlSimpleReader::parseMisc, state );
@@ -3981,7 +3981,7 @@ bool QXmlSimpleReader::parsePI()
     const signed char Name             =  2; // read Name
     const signed char XMLDecl          =  3; // read XMLDecl
     const signed char Ws1              =  4; // eat ws after "xml" of XMLDecl
-    const signed char PI               =  5; // read PI
+    const signed char PInstr           =  5; // read PI
     const signed char Ws2              =  6; // eat ws after Name of PI
     const signed char Version          =  7; // read versionInfo
     const signed char Ws3              =  8; // eat ws after versionInfo
@@ -4007,7 +4007,7 @@ bool QXmlSimpleReader::parsePI()
 	{ -1,     -1,        -1,    -1,     -1     }, // Name (this state is left not through input)
 	{ Ws1,    -1,        -1,    -1,     -1     }, // XMLDecl
 	{ -1,     Version,   -1,    -1,     -1     }, // Ws1
-	{ Ws2,    -1,        -1,    Qm,     -1     }, // PI
+	{ Ws2,    -1,        -1,    Qm,     -1     }, // PInstr
 	{ Char,   Char,      Char,  Qm,     Char   }, // Ws2
 	{ Ws3,    -1,        -1,    ADone,  -1     }, // Version
 	{ -1,     EorSD,     -1,    ADone,  -1     }, // Ws3
@@ -4058,7 +4058,7 @@ bool QXmlSimpleReader::parsePI()
 			return FALSE;
 		    }
 		} else {
-		    state = PI;
+		    state = PInstr;
 		    stringClear();
 		}
 		break;
