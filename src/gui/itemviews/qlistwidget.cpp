@@ -407,6 +407,20 @@ bool QListWidgetItem::operator<(const QListWidgetItem &other) const
 
 #ifndef QT_NO_DATASTREAM
 
+QDataStream &operator>>(QDataStream &in, QListWidgetItem::Data &data)
+{
+    in >> data.role;
+    in >> data.value;
+    return in;
+}
+
+QDataStream &operator<<(QDataStream &out, const QListWidgetItem::Data &data)
+{
+    out << data.role;
+    out << data.value;
+    return out;
+}
+
 /*!
     Reads the item from stream \a in.
 
@@ -414,15 +428,7 @@ bool QListWidgetItem::operator<(const QListWidgetItem &other) const
 */
 void QListWidgetItem::read(QDataStream &in)
 {
-    int count;
-    int role;
-    QVariant value;
-    in >> count;
-    for (int i = 0; i < count; ++i) {
-        in >> role;
-        in >> value;
-        values.append(Data(role, value));
-    }
+    in >> values;
 }
 
 /*!
@@ -432,11 +438,7 @@ void QListWidgetItem::read(QDataStream &in)
 */
 void QListWidgetItem::write(QDataStream &out) const
 {
-    out << values.count();
-    for (int i = 0; i < values.count(); ++i) {
-        out << values.at(i).role;
-        out << values.at(i).value;
-    }
+    out << values;
 }
 
 /*!

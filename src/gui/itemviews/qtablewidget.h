@@ -119,6 +119,10 @@ private:
         int role;
         QVariant value;
     };
+#ifndef QT_NO_DATASTREAM
+    friend QDataStream &operator>>(QDataStream &in, QTableWidgetItem::Data &data);
+    friend QDataStream &operator<<(QDataStream &out, const QTableWidgetItem::Data &data);
+#endif
 
     QVector<Data> values;
     QTableWidget *view;
@@ -127,8 +131,8 @@ private:
 };
 
 #ifndef QT_NO_DATASTREAM
-Q_GUI_EXPORT QDataStream &operator<<(QDataStream &out, const QTableWidgetItem &item);
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &in, QTableWidgetItem &item);
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &out, const QTableWidgetItem &item);
 #endif
 
 class QTableWidgetPrivate;

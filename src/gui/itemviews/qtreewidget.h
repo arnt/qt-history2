@@ -120,6 +120,10 @@ private:
         int role;
         QVariant value;
     };
+#ifndef QT_NO_DATASTREAM
+    friend QDataStream &operator>>(QDataStream &in, QTreeWidgetItem::Data &data);
+    friend QDataStream &operator<<(QDataStream &out, const QTreeWidgetItem::Data &data);
+#endif
 
     // One item has a vector of column entries. Each column has a vector of (role, value) pairs.
     QVector< QVector<Data> > values;

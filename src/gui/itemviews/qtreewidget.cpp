@@ -1146,45 +1146,38 @@ bool QTreeWidgetItem::operator<(const QTreeWidgetItem &other) const
 
 #ifndef QT_NO_DATASTREAM
 
+QDataStream &operator>>(QDataStream &in, QTreeWidgetItem::Data &data)
+{
+    in >> data.role;
+    in >> data.value;
+    return in;
+}
+
+QDataStream &operator<<(QDataStream &out, const QTreeWidgetItem::Data &data)
+{
+    out << data.role;
+    out << data.value;
+    return out;
+}
+
 /*!
-    Reads the item from stream \a in.
+    Reads the item from stream \a in. This only reads data into a single item.
 
     \sa write()
 */
 void QTreeWidgetItem::read(QDataStream &in)
 {
-    int columnCount;
-    int valueCount;
-    int role;
-    QVariant value;
-    in >> columnCount;
-    for (int i = 0; i < columnCount; ++i) {
-        in >> valueCount;
-        values.append(QVector<Data>());
-        for (int j = 0; j < valueCount; ++j) {
-            in >> role;
-            in >> value;
-            values[i].append(Data(role, value));
-        }
-    }
+    in >> values;
 }
 
 /*!
-    Writes the item to stream \a out.
+    Writes the item to stream \a out. This only writes data from one single item.
 
     \sa read()
 */
 void QTreeWidgetItem::write(QDataStream &out) const
 {
-    out << values.count(); // column count
-    for (int i = 0; i < values.count(); ++i) {
-        QVector<Data> column = values.at(i);
-        out << column.count(); // number of values in the column
-        for (int j = 0; j < column.count(); ++j) {
-            out << column.at(j).role;
-            out << column.at(j).value;
-        }
-    }
+    out << values;
 }
 
 #endif // QT_NO_DATASTREAM

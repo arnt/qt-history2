@@ -840,6 +840,20 @@ bool QTableWidgetItem::operator<(const QTableWidgetItem &other) const
 
 #ifndef QT_NO_DATASTREAM
 
+QDataStream &operator>>(QDataStream &in, QTableWidgetItem::Data &data)
+{
+    in >> data.role;
+    in >> data.value;
+    return in;
+}
+
+QDataStream &operator<<(QDataStream &out, const QTableWidgetItem::Data &data)
+{
+    out << data.role;
+    out << data.value;
+    return out;
+}
+
 /*!
     Reads the item from stream \a in.
 
@@ -847,15 +861,7 @@ bool QTableWidgetItem::operator<(const QTableWidgetItem &other) const
 */
 void QTableWidgetItem::read(QDataStream &in)
 {
-    int count;
-    int role;
-    QVariant value;
-    in >> count;
-    for (int i = 0; i < count; ++i) {
-        in >> role;
-        in >> value;
-        values.append(Data(role, value));
-    }
+    in >> values;
 }
 
 /*!
@@ -865,26 +871,7 @@ void QTableWidgetItem::read(QDataStream &in)
 */
 void QTableWidgetItem::write(QDataStream &out) const
 {
-    out << values.count();
-    for (int i = 0; i < values.count(); ++i) {
-        out << values.at(i).role;
-        out << values.at(i).value;
-    }
-}
-
-/*!
-    \relates QTableWidgetItem
-
-    Writes the table widget item \a item to stream \a out.
-
-    This operator uses QTableWidgetItem::write().
-
-    \sa {Format of the QDataStream Operators}
-*/
-QDataStream &operator<<(QDataStream &out, const QTableWidgetItem &item)
-{
-    item.write(out);
-    return out;
+    out << values;
 }
 
 /*!
@@ -900,6 +887,21 @@ QDataStream &operator>>(QDataStream &in, QTableWidgetItem &item)
 {
     item.read(in);
     return in;
+}
+
+/*!
+    \relates QTableWidgetItem
+
+    Writes the table widget item \a item to stream \a out.
+
+    This operator uses QTableWidgetItem::write().
+
+    \sa {Format of the QDataStream Operators}
+*/
+QDataStream &operator<<(QDataStream &out, const QTableWidgetItem &item)
+{
+    item.write(out);
+    return out;
 }
 
 #endif // QT_NO_DATASTREAM

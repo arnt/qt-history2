@@ -103,6 +103,10 @@ private:
         int role;
         QVariant value;
     };
+#ifndef QT_NO_DATASTREAM
+    friend QDataStream &operator>>(QDataStream &in, QListWidgetItem::Data &data);
+    friend QDataStream &operator<<(QDataStream &out, const QListWidgetItem::Data &data);
+#endif
 
     QVector<Data> values;
     QListWidget *view;
