@@ -21,6 +21,7 @@ protected slots:
     void removeField();
     void addField();
     void setupDatabaseConnections();
+    void accept();
 
 private:
     void setupPage1();

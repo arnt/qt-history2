@@ -4,11 +4,12 @@
 #include <qcheckbox.h>
 #include <qlineedit.h>
 
-#include <qeditorfactory.h> //###remove
 #include <qlabel.h>
 #include <qgroupbox.h>
 #include <qlayout.h>
 #include <qsqleditorfactory.h>
+#include <qsqlindex.h>
+#include <qsqlcursor.h>
 
 #include "../designerinterface.h"
 
@@ -52,7 +53,20 @@ void SqlFormWizard::autoPopulate( bool populate )
 {
     listBoxSelectedField->clear();
     if ( populate ) {
-	//## prime listBoxSelectedField with selected table fields
+	DesignerProjectInterface *proIface = (DesignerProjectInterface*)appIface->queryInterface( IID_DesignerProjectInterface );
+	if ( !proIface )
+	    return;
+	QStringList lst = proIface->databaseFieldList( editConnection->text(), editTable->text() );
+	// remove primary index fields, if any
+	proIface->openDatabase( editConnection->text() );
+	QSqlCursor tab( editTable->text() );
+	QSqlIndex pIdx = tab.primaryIndex();
+	for ( uint i = 0; i < pIdx.count(); i++ ) {
+	    listBoxField->insertItem( pIdx.field( i )->name() );
+	    lst.remove( pIdx.field( i )->name() );
+	}
+	proIface->closeDatabase( editConnection->text() );
+	listBoxSelectedField->insertStringList( lst );
     }
 }
 
@@ -129,4 +143,57 @@ void SqlFormWizard::setupPage1()
 
     QStringList lst = proIface->databaseConnectionList();
     listBoxConnection->insertStringList( lst );
+}
+
+void SqlFormWizard::accept()
+{
+    DesignerProjectInterface *proIface = (DesignerProjectInterface*)appIface->queryInterface( IID_DesignerProjectInterface );
+    if ( !widget || !proIface ) {
+	SqlFormWizardBase::accept();
+	return;
+    }
+
+    proIface->openDatabase( editConnection->text() );
+    QSqlCursor tab( editTable->text() );
+    int columns = 2;
+
+    QSqlEditorFactory * f = QSqlEditorFactory::defaultFactory();
+
+    QWidget * editor;
+    QLabel * label;
+    QVBoxLayout * vb = new QVBoxLayout( widget );
+    QGridLayout * g  = new QGridLayout( vb );
+    g->setMargin( 5 );
+    g->setSpacing( 3 );
+    int visibleFields = listBoxSelectedField->count();
+
+    if( columns < 1 ) columns = 1;
+
+    int numPerColumn = visibleFields / columns;
+    if( (visibleFields % columns) > 0)
+	numPerColumn++;
+
+    int col = 0, currentCol = 0;
+
+    for( uint j = 0; j < listBoxSelectedField->count(); j++ ){
+	if( col >= numPerColumn ){
+	    col = 0;
+	    currentCol += 2;
+	}
+
+	QSqlField* field = tab.field( listBoxSelectedField->text( j ) );
+	if ( !field )
+	    continue;
+
+	label = new QLabel( field->name(), widget ); //## make pretty?
+	g->addWidget( label, col, currentCol );
+
+	editor = f->createEditor( widget, field );
+	g->addWidget( editor, col, currentCol + 1 );
+	col++;
+    }
+
+    proIface->closeDatabase( editConnection->text() );
+
+    SqlFormWizardBase::accept();
 }
