@@ -17,31 +17,37 @@
 /*!
   \class QIconEngine
 
-  \brief The QIconEngine class provides an abstract base class to be used as backend for QIcon.
+  \brief The QIconEngine class provides an abstract base class for QIcon renderers.
 
   \ingroup multimedia
 
-  An icon engine is the backend of a QIcon, every icon owns one icon
-  engine. The icon engine is responsible for drawing an icon in a
-  requested size, mode and state. This happens in the virtual function
-  paint(). Additionally there is a virtual function pixmap() that
-  returns the icon as pixmap (the default implementation simply uses
-  paint()), and another virtual addPixmap(), which is called by QIcon
-  when the users adds specicializations.
+  An icon engine provides the rendering functions for a QIcon. Each icon has a
+  corresponding icon engine that is responsible for drawing the icon with a
+  requested size, mode and state.
+
+  The icon is rendered by the paint() function, and the icon can additionally be
+  obtained as a pixmap with the pixmap() function (the default implementation
+  simply uses paint() to achieve this). The addPixmap() function can be used to
+  add new pixmaps to the icon engine, and is used by QIcon to add specialized
+  custom pixmaps.
+
+  The paint(), pixmap(), and addPixmap() functions are all virtual, and can
+  therefore be reimplemented in subclasses of QIconEngine.
 
   \sa QIconEnginePlugin
 
 */
 
-/*!\fn  virtual void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state) = 0;
+/*!
+  \fn virtual void QIconEngine::paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state) = 0;
 
-  Uses the \a painter to paint the icon with the required \a mode, and
+  Uses the given \a painter to paint the icon with the required \a mode and
   \a state into the rectangle \a rect.
 */
 
-/*!  Returns the size the engine is able to scale the icon to for a
-  requested \a size, \a mode and \a state. The default returns \a
-  size.
+/*!  
+  Returns the size of icon the engine is able to provide for the requested \a size,
+  \a mode and \a state. The default implementation returns the \a size given.
  */
 QSize QIconEngine::sizeUsed(const QSize &size, QIcon::Mode /*mode*/, QIcon::State /*state*/)
 {
@@ -57,7 +63,8 @@ QIconEngine::~QIconEngine()
 }
 
 
-/*!  Returns the icon as pixmap with the required \a size, \a mode,
+/*!  
+  Returns the icon as a pixmap with the required \a size, \a mode,
   and \a state. The default implementation creates a new pixmap and
   calls paint() to fill it.
 */
@@ -71,10 +78,12 @@ QPixmap QIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State st
     return pm;
 }
 
-/*!  Called by QIcon::addPixmap(). Adds a specialization \a pixmap for
-  \a mode and \a state. The default pixmap-based engine stores those
-  pixmaps and uses them later. Custom icon engines that implement
-  scalable vector formats are free to ignores those extra pixmaps.
+/*!  
+  Called by QIcon::addPixmap(). Adds a specialized \a pixmap for the given
+  \a mode and \a state. The default pixmap-based engine stores any supplied
+  pixmaps, and it uses them instead of scaled pixmaps if the size of a pixmap
+  matches the size of icon requested. Custom icon engines that implement
+  scalable vector formats are free to ignores any extra pixmaps.
  */
 void QIconEngine::addPixmap(const QPixmap &/*pixmap*/, QIcon::Mode /*mode*/, QIcon::State /*state*/)
 {
