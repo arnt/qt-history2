@@ -13,6 +13,7 @@
 ****************************************************************************/
 
 #include "qplatformdefs.h"
+#include <qapplication.h>
 
 // POSIX Large File Support redefines open -> open64
 #if defined(open)
@@ -51,7 +52,6 @@
 #include <limits.h>
 
 //#define QDNS_DEBUG
-
 
 static Q_UINT16 id; // ### seeded started by now()
 
@@ -809,7 +809,10 @@ public:
 public:
     QList<QDnsQuery *> queries;
     QHash<QString, QDnsDomain *> cache;
-    QSocketDevice * socket;
+    QSocketDevice * ipv4Socket;
+#if !defined (QT_NO_IPV6)
+    QSocketDevice * ipv6Socket;
+#endif
 };
 
 
@@ -845,10 +848,13 @@ void QDnsUgleHack::ugle( bool emitAnyway)
 
 
 QDnsManager::QDnsManager()
-    : QDnsSocket( QCoreApplication::instance(), "Internal DNS manager" ),
-      queries(QList<QDnsQuery *>()),
-      cache(QHash<QString, QDnsDomain *>()),
-      socket( new QSocketDevice( QSocketDevice::Datagram ) )
+    : QDnsSocket( qApp, "Internal DNS manager" ),
+      queries(QList<QDnsQuery *>() ),
+      cache(QHash<QString, QDnsDomain *>() ),
+      ipv4Socket( new QSocketDevice( QSocketDevice::Datagram, QSocketDevice::IPv4, 0 ) )
+#if !defined (QT_NO_IPV6)
+      , ipv6Socket( new QSocketDevice( QSocketDevice::Datagram, QSocketDevice::IPv6, 0 ) )
+#endif
 {
     cache.setAutoDelete( TRUE );
     globalManager = this;
@@ -858,13 +864,21 @@ QDnsManager::QDnsManager()
     connect( sweepTimer, SIGNAL(timeout()),
 	     this, SLOT(cleanCache()) );
 
-    QSocketNotifier * rn = new QSocketNotifier( socket->socket(),
-						QSocketNotifier::Read,
-						this, "dns socket watcher" );
-    socket->setAddressReusable( FALSE );
-    socket->setBlocking( FALSE );
-    connect( rn, SIGNAL(activated(int)),
-	     this, SLOT(answer()) );
+    QSocketNotifier * rn4 = new QSocketNotifier( ipv4Socket->socket(),
+						 QSocketNotifier::Read,
+						 this, "dns IPv4 socket watcher" );
+    ipv4Socket->setAddressReusable( FALSE );
+    ipv4Socket->setBlocking( FALSE );
+    connect( rn4, SIGNAL(activated(int)), SLOT(answer()) );
+
+#if !defined (QT_NO_IPV6)
+    QSocketNotifier * rn6 = new QSocketNotifier( ipv6Socket->socket(),
+						 QSocketNotifier::Read,
+						 this, "dns IPv6 socket watcher" );
+    ipv6Socket->setAddressReusable( FALSE );
+    ipv6Socket->setBlocking( FALSE );
+    connect( rn6, SIGNAL(activated(int)), SLOT(answer()) );
+#endif
 
     if ( !ns )
 	QDns::doResInit();
@@ -921,7 +935,10 @@ QDnsManager::~QDnsManager()
 	globalManager = 0;
     queries.setAutoDelete( TRUE );
     cache.setAutoDelete( TRUE );
-    delete socket;
+    delete ipv4Socket;
+#if !defined (QT_NO_IPV6)
+    delete ipv6Socket;
+#endif
 }
 
 static Q_UINT32 lastSweep = 0;
@@ -967,10 +984,26 @@ void QDnsManager::answer()
 {
     QByteArray a;
     a.resize( 16383 ); // large enough for anything, one suspects
-    int r = socket->readBlock( a.data(), a.size() );
+
+    int r;
+    bool useIpv4Socket = (((QSocketNotifier *)sender())->socket() == ipv4Socket->socket());
+
+    if (useIpv4Socket)
+	r = ipv4Socket->readBlock( a.data(), a.size() );
+#if !defined (QT_NO_IPV6)
+    else
+	r = ipv6Socket->readBlock( a.data(), a.size() );
+#endif
 #if defined(QDNS_DEBUG)
+#if !defined (QT_NO_IPV6)
     qDebug("DNS Manager: answer arrived: %d bytes from %s:%d", r,
-	   socket->peerAddress().toString().ascii(), socket->peerPort() );
+	   useIpv4Socket ? ipv4Socket->peerAddress().toString().ascii()
+	   : ipv6Socket->peerAddress().toString().ascii(),
+	   useIpv4Socket ? ipv4Socket->peerPort() : ipv6Socket->peerPort() );
+#else
+    qDebug("DNS Manager: answer arrived: %d bytes from %s:%d", r,
+           ipv4Socket->peerAddress().toString().ascii(), ipv4Socket->peerPort());;
+#endif
 #endif
     if ( r < 12 )
 	return;
@@ -1136,8 +1169,14 @@ void QDnsManager::transmitQuery( int i )
 	return;
     }
 
-    int nsindex = q->step % ns->count();
-    socket->writeBlock(p, pp, *ns->at(nsindex), 53);
+    int nsindex = q->step & ns->count();
+    QHostAddress receiver = *ns->at(nsindex);
+    if (receiver.isIPv4Address())
+	ipv4Socket->writeBlock(p.data(), pp, receiver, 53);
+#if !defined (QT_NO_IPV6)
+    else
+	ipv6Socket->writeBlock(p.data(), pp, receiver, 53);
+#endif
 #if defined(QDNS_DEBUG)
     qDebug( "issuing query 0x%04x (%d) about %s type %d to %s",
 	    q->id, q->step, q->l.ascii(), q->t,
@@ -1150,11 +1189,17 @@ void QDnsManager::transmitQuery( int i )
 	p[2] = 0;
 	++nsindex;
 	for (; nsindex < ns->count(); ++nsindex) {
-	    socket->writeBlock(p, pp, *ns->at(nsindex), 53);
+	    QHostAddress receiver = *ns->at(nsindex);
+            if (receiver.isIPv4Address())
+                ipv4Socket->writeBlock( p, pp, receiver, 53 );
+#if !defined (QT_NO_IPV6)
+            else
+                ipv6Socket->writeBlock( p, pp, receiver, 53 );
+#endif
+        }
 #if defined(QDNS_DEBUG)
 	    qDebug( "copying query to %s", server->toString().ascii() );
 #endif
-	}
     }
     q->step++;
     // some testing indicates that normal dns queries take up to 0.6
@@ -2384,6 +2429,7 @@ void QDns::doSynchronousLookup()
 
 #if defined(__GLIBC__) && ((__GLIBC__ > 2) || ((__GLIBC__ == 2) && (__GLIBC_MINOR__ >= 3)))
 #define Q_MODERN_RES_API
+#else
 #endif
 
 void QDns::doResInit()
@@ -2394,43 +2440,63 @@ void QDns::doResInit()
     ns->setAutoDelete( TRUE );
     domains = new QList<QByteArray>;
 
-    // ### critical bug.
-    // this is broken when some/all name servers use IPv6 addresses.
-
+    int i;
 #if defined(Q_MODERN_RES_API)
     struct __res_state res;
     res_ninit( &res );
-    int i;
-    // find the name servers to use
-    for( i=0; i < MAXNS && i < res.nscount; i++ )
-	ns->append( new QHostAddress( ntohl( res.nsaddr_list[i].sin_addr.s_addr ) ) );
-#  if defined(MAXDFLSRCH)
-    for( i=0; i < MAXDFLSRCH; i++ ) {
-	if ( res.dnsrch[i] && *(res.dnsrch[i]) )
-	    domains->append( QByteArray(QString::fromLatin1( res.dnsrch[i] ).toLower()) );
-	else
-	    break;
-    }
-#  endif
-    if ( *res.defdname )
-	domains->append( QByteArray(QString::fromLatin1( res.defdname ).toLower()) );
+#define Q_RES res
 #else
     res_init();
-    int i;
-    // find the name servers to use
-    for( i=0; i < MAXNS && i < _res.nscount; i++ )
-	ns->append( new QHostAddress( ntohl( _res.nsaddr_list[i].sin_addr.s_addr ) ) );
+#define Q_RES _res
+#endif
+
+    // since I could find no documentation whatsoever for the
+    // __res_state._u._ext struct, here's what I've dug up from the
+    // original bind source:
+    //
+    // Q_RES.nscount is the number of ipv4 name servers.
+    // Q_RES.nslist is a continuous list of ipv4 name servers.
+    // Q_RES._u._ext.nscount6 is the number of ipv6 name servers.
+    // Q_RES._u._ext.nsaddrs is a list of pointers to ipv6 name servers.
+    //
+    // the last list is not continuous; it can contain holes where the
+    // pointer is 0. experiments have shown that the holes appear
+    // exactly where the ipv4 addresses are listed in resolv.conf. so
+    // using this information, we are able to insert the addresses
+    // into ns in the correct order.
+
+    QList<QHostAddress *> temp;
+    temp.setAutoDelete( FALSE );
+
+    // find the ipv4 name servers to use
+    for( i=0; i < MAXNS && i < Q_RES.nscount; ++i )
+	temp.append( new QHostAddress( ntohl( Q_RES.nsaddr_list[i].sin_addr.s_addr ) ) );
+
+#if defined (QT_NO_IPV6)
+    *ns = temp;
+#else
+    // find the ipv6 name servers and use the ext struct to determine
+    // the order of entries.
+    for( i=0; i < MAXNS && i < (Q_RES.nscount + Q_RES._u._ext.nscount6); ++i ) {
+	if (!Q_RES._u._ext.nsaddrs[i]) {
+	    ns->append( temp.takeFirst() );
+	} else {
+	    Q_IPV6ADDR addr;
+	    memcpy( &addr, Q_RES._u._ext.nsaddrs[i]->sin6_addr.s6_addr, sizeof(addr) );
+	    ns->append( new QHostAddress( addr ) );
+	}
+    }
+#endif
 #  if defined(MAXDFLSRCH)
     for( i=0; i < MAXDFLSRCH; i++ ) {
-	if ( _res.dnsrch[i] && *(_res.dnsrch[i]) )
-	    domains->append( QByteArray(QString::fromLatin1( _res.dnsrch[i] ).toLower()) );
-	else
-	    break;
+        if ( Q_RES.dnsrch[i] && *(Q_RES.dnsrch[i]) )
+            domains->append(QByteArray(QString::fromLatin1(Q_RES.dnsrch[i]).toLower()));
+        else
+            break;
     }
 #  endif
-    if ( *_res.defdname )
-	domains->append( QByteArray(QString::fromLatin1( _res.defdname ).toLower()) );
-#endif
+    if (*Q_RES.defdname)
+        domains->append(QByteArray(QString::fromLatin1(Q_RES.defdname).toLower()));
 
     // the code above adds "0.0.0.0" as a name server at the slightest
     // hint of trouble. so remove those again.
