@@ -2902,6 +2902,12 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null,
 					parent, name, TRUE );
+
+    if ( parent && parent->icon() && !parent->icon()->isNull() )
+	dlg->setIcon( *parent->icon() );
+    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
+	dlg->setIcon( *qApp->mainWidget()->icon() );
+
     CHECK_PTR( dlg );
     if ( !caption.isNull() )
 	dlg->setCaption( caption );
@@ -3008,6 +3014,11 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 #endif
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name, TRUE );
+    if ( parent && parent->icon() && !parent->icon()->isNull() )
+	dlg->setIcon( *parent->icon() );
+    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
+	dlg->setIcon( *qApp->mainWidget()->icon() );
+
     CHECK_PTR( dlg );
     if ( !caption.isNull() )
 	dlg->setCaption( caption );
@@ -4718,6 +4729,11 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null,
 					parent, name, TRUE );
+    if ( parent && parent->icon() && !parent->icon()->isNull() )
+	dlg->setIcon( *parent->icon() );
+    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
+	dlg->setIcon( *qApp->mainWidget()->icon() );
+
     CHECK_PTR( dlg );
     dlg->setFilters( filters );
     if ( !caption.isNull() )
