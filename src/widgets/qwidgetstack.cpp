@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#2 $
 **
 ** Implementation of something useful.
 **
@@ -14,7 +14,7 @@
 #include "qobjcoll.h"
 #include "qlayout.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#2 $");
 
 
 class QWidgetStackPrivate {
@@ -47,6 +47,7 @@ QWidgetStack::QWidgetStack( QWidget * parent, const char * name )
     d = 0;
     dict = new QIntDict<QWidget>;
     l = 0;
+    topWidget = 0;
 }
 
 
@@ -94,6 +95,10 @@ void QWidgetStack::raiseWidget( int id )
 void QWidgetStack::raiseWidget( QWidget * w )
 {
     if ( !w || !isMyChild( w ) )
+	return;
+
+    topWidget = w;
+    if ( !isVisible() )
 	return;
 
     w->show();
@@ -178,7 +183,7 @@ void QWidgetStack::setChildGeometries()
     }
     l->setRowStretch( 1, 1 );
     l->setColStretch( 1, 1 );
-    
+
     const QObjectList * c = children();
     QObjectListIt it( *c );
     QObject * o;
@@ -204,11 +209,11 @@ void QWidgetStack::show()
 
 	while( (o=it.current()) != 0 ) {
 	    ++it;
-	    if ( o->isWidgetType() )
+	    if ( o->isWidgetType() && o != topWidget )
 		((QWidget *)o)->hide();
 	}
     }
-    
+
     setChildGeometries();
     QFrame::show();
 }
@@ -217,7 +222,7 @@ void QWidgetStack::show()
 /*!  Returns a pointer to the widget with ID \a id.  If this widget
   stack does not manage a widget with ID \a id, this function return
   0.
-  
+
   \sa id() addWidget()
 */
 
@@ -229,7 +234,7 @@ QWidget * QWidgetStack::widget( int id ) const
 
 /*!  Returns the ID of the \a widget.  If \a widget is 0 or is not
   being managed by this widget stack, this function returns 0.
-  
+
   \sa widget() addWidget()
 */
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#1 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#2 $
 **
 ** Definition of something or other
 **
@@ -33,7 +33,7 @@ public:
     void removeWidget( QWidget * );
 
     void show();
-    
+
     QWidget * widget( int ) const;
     int id( QWidget * ) const;
 
@@ -51,6 +51,7 @@ private:
     QWidgetStackPrivate * d;
     QIntDict<QWidget> * dict;
     QGridLayout * l;
+    QWidget * topWidget;
 };
 
 
