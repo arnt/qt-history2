@@ -683,7 +683,7 @@ void QSqlTable::endUpdate()
    allow inserts, nothing happens.
 
    Editing takes place using the cursor's edit buffer (see
-   QSqlCursor::insertBuffer()).
+   QSqlCursor::editBuffer()).
 
    When editing begins, a new row is created in the table marked with
    a '*' in the vertical header.
@@ -703,7 +703,7 @@ bool QSqlTable::beginInsert()
 	row = 0;
     setNumRows( d->insertPreRows + 1 );
     setCurrentCell( row, 0 );
-    d->editBuffer = d->cursor->insertBuffer();
+    d->editBuffer = d->cursor->editBuffer( TRUE );
     emit beginInsert( d->editBuffer );
     d->mode = QSqlTable::Insert;
     int lastRow = row;
@@ -734,7 +734,7 @@ bool QSqlTable::beginInsert()
    an existing row.  If the table is read-only, nothing happens.
 
    Editing takes place using the cursor's edit buffer (see
-   QSqlCursor::updateBuffer()).
+   QSqlCursor::editBuffer()).
 
 */
 
@@ -745,7 +745,7 @@ QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
     setCurrentCell( row, col );
     d->mode = QSqlTable::Update;
     if ( d->cursor->seek( row ) ) {
-	d->editBuffer = d->cursor->updateBuffer();
+	d->editBuffer = d->cursor->editBuffer();
 	emit beginUpdate( d->editBuffer );
 	return QTable::beginEdit( row, col, replace );
     }

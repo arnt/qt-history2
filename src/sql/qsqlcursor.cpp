@@ -48,14 +48,20 @@ class QSqlCursorPrivate
 public:
     QSqlCursorPrivate( const QString& name )
 	: lastAt( QSqlResult::BeforeFirst ), nm( name ), srt( name ), md( 0 )
-    {}
+    {
+	editBuffer = new QSqlRecord;
+    }
+    ~QSqlCursorPrivate(){
+	if( editBuffer ) delete editBuffer;
+    }
+    
     int               lastAt;
     QString           nm;
     QSqlIndex         srt;
     QString           ftr;
     int               md;
     QSqlIndex         priIndx;
-    QSqlRecord        editBuffer;
+    QSqlRecord      * editBuffer;
     QMap< int, bool >  calcFields;
 };
 
@@ -88,8 +94,8 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
     edit functions insert(), update() and del().
 
     To edit a database record, manipulate the cursor's edit buffer
-    (see insertBuffer() and updateBuffer()).  The edit buffer can then
-    be inserted or updated in the database.
+    (see editBuffer()).  The edit buffer can then be inserted or
+    updated in the database.
 
 */
 
@@ -230,8 +236,8 @@ void QSqlCursor::setName( const QString& name, bool autopopulate )
 {
     d->nm = name;
     if ( autopopulate ) {
-	d->editBuffer = driver()->record( name );
-	*this = d->editBuffer;
+	*(d->editBuffer) = driver()->record( name );
+	*this = *(d->editBuffer);
 	d->priIndx = driver()->primaryIndex( name );
 #ifdef QT_CHECK_RANGE
 	if ( isEmpty() )
@@ -597,30 +603,7 @@ QString QSqlCursor::toString( const QSqlIndex& i, QSqlRecord* rec, const QString
     }
     return filter;
 }
-
-
-/*!  Returns a pointer to the internal edit buffer.  All previous
-  pointers returned by insertBuffer() or updateBuffer() are
-  invalidated, and should not be used.  If \a clearValues is TRUE (the
-  default), the insert record buffer values are cleared, otherwise the
-  buffer will contain the field values of the current cursor buffer.
-  If \a prime is TRUE (the default), the buffer is primed using
-  primeInsert().
-
-  \sa primeInsert()
-
-*/
-QSqlRecord* QSqlCursor::insertBuffer( bool clearValues, bool prime )
-{
-    d->editBuffer.clear();
-    d->editBuffer = *((QSqlRecord*)this);
-    if ( clearValues )
-	d->editBuffer.clearValues();
-    if ( prime )
-	primeInsert( &d->editBuffer );
-    return &d->editBuffer;
-}
-
+ 
 /*!  Protected virtual function provided for derived classes to
   'prime' the field values of an insert record buffer (for example, to
   correctly initialize auto-incremented numeric fields).  The default
@@ -649,15 +632,15 @@ int QSqlCursor::insert( bool invalidate )
 {
     if ( ( d->md & Insert ) != Insert )
 	return FALSE;
-    int k = d->editBuffer.count();
+    int k = d->editBuffer->count();
     if( k == 0 ) return 0;
     QString str = "insert into " + name();
-    str += " (" + d->editBuffer.toString() + ")";
+    str += " (" + d->editBuffer->toString() + ")";
     str += " values (";
     QString vals;
     bool comma = FALSE;
     for( int j = 0; j < k; ++j ){
-	QSqlField* f = d->editBuffer.field( j );
+	QSqlField* f = d->editBuffer->field( j );
 	if ( !isCalculated( f->name() ) ) {
 	    if( comma )
 		vals += ",";
@@ -667,28 +650,30 @@ int QSqlCursor::insert( bool invalidate )
     }
     str += vals + ");";
     if ( invalidate )
-	QSqlRecord::operator=( d->editBuffer );
+	QSqlRecord::operator=( *(d->editBuffer) );
     return apply( str, invalidate );
 }
 
-/*!  Returns a pointer to the internal edit buffer.  All previous
-  pointers returned by updateBuffer() and insertBuffer() are
-  invalidated.  If \a copyCursor is TRUE (the default), the value of
-  the cursor buffer is copied into the edit buffer.  If \a prime is
-  TRUE (the default), the buffer is primed using primeUpdate().
+/*!  Returns a pointer to the internal edit buffer.  The edit buffer
+  is valid as long as the cursor is valid. If \a prime is FALSE (the
+  default), the value of the cursor buffer is copied into the edit
+  buffer, and primeUpdate() is called. If \a prime is TRUE, the
+  current edit buffer values are cleared, the edit buffer is then
+  primed using primeInsert().
 
-  \sa primeUpdate()
+  \sa primeInsert(), primeUpdate()
 */
 
-QSqlRecord* QSqlCursor::updateBuffer( bool copyCursor, bool prime )
+QSqlRecord* QSqlCursor::editBuffer( bool prime )
 {
-    d->editBuffer.clear();
-    d->editBuffer = *((QSqlRecord*)this);
-    if ( !copyCursor )
-	d->editBuffer.clearValues();
-    if ( prime )
-	primeUpdate( &d->editBuffer );
-    return &d->editBuffer;
+    if( prime ){
+	d->editBuffer->clearValues();
+	primeInsert( d->editBuffer );
+    } else {
+	*(d->editBuffer) = *((QSqlRecord*)this);
+	primeUpdate( d->editBuffer );
+    }
+    return d->editBuffer;
 }
 
 /*!  Protected virtual function provided for derived classes to
@@ -718,7 +703,7 @@ void QSqlCursor::primeUpdate( QSqlRecord* )
   QSqlCursor empCursor ( "Employee" );
   empCursor.select( "id=10");
   if ( empCursor.next() ) {
-      QSqlRecord* buf = empCursor.updateBuffer();
+      QSqlRecord* buf = empCursor.editBuffer();
       buf->setValue( "firstName", "Dave" );
       empCursor.update();  // update employee name using primary index
   }
@@ -732,7 +717,7 @@ int QSqlCursor::update( bool invalidate )
 {
     if ( primaryIndex().isEmpty() )
 	return 0;
-    return update( toString( primaryIndex(), &d->editBuffer, d->nm, "=", "and" ), invalidate );
+    return update( toString( primaryIndex(), d->editBuffer, d->nm, "=", "and" ), invalidate );
 }
 
 /*!  \overload
@@ -756,12 +741,12 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
     int k = count();
     if( k == 0 ) return 0;
     QString str = "update " + name();
-    str += " set " + toString( &d->editBuffer, QString::null, "=", "," );
+    str += " set " + toString( d->editBuffer, QString::null, "=", "," );
     if ( filter.length() )
  	str+= " where " + filter;
     str += ";";
     if ( invalidate )
-	QSqlRecord::operator=( d->editBuffer );
+	QSqlRecord::operator=( *(d->editBuffer) );
     return apply( str, invalidate );
 }
 

@@ -73,9 +73,9 @@ public:
     QSqlIndex         index( const char* fieldName ) const;
     virtual void      setPrimaryIndex( const QSqlIndex& idx );
 
-    virtual QSqlRecord* insertBuffer( bool clearValues = TRUE, bool prime = TRUE );
+
+    virtual QSqlRecord* editBuffer( bool prime = FALSE );
     virtual int         insert( bool invalidate = TRUE );
-    virtual QSqlRecord* updateBuffer( bool copyCursor = TRUE, bool prime = TRUE );
     virtual int         update( bool invalidate = TRUE );
     virtual int         del( bool invalidate = TRUE );
 

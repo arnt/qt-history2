@@ -54,11 +54,11 @@
   used to insert and extract values into and from the editor.
 
   For instance, a QLineEdit can be used to edit text strings and other
-  data types in QSqlTable or QSqlForm. QLineEdit defines several
-  properties, but it is only the "text" property that is used to
-  insert and extract text into and from the QLineEdit. Both QSqlTable
-  and QSqlForm uses a QSqlPropertyMap for inserting and extracting
-  values to and from an editor widget.
+  data types in QSqlTable or QSqlForm. Several properties are defined
+  in QLineEdit, but only the \a text property is used to insert and
+  extract text from QLineEdit. Both QSqlTable and QSqlForm uses a
+  global QSqlPropertyMap for inserting and extracting values to and
+  from an editor widget.
 
   If you want to use custom editors with your QSqlTable or QSqlForm,
   you have to install your own QSqlPropertyMap for that table or form.
@@ -66,38 +66,37 @@
 
   \code
   QSqlPropertyMap myMap;
-  QSqlCursor      myCursor( "mytable" );
-  QSqlForm        myForm;
+  QSqlForm        myForm( this );
   MySuperEditor   myEditor( this );
 
+  // Install the customized map
   myMap.insert( "MySuperEditor", "content" );
   myForm.installPropertyMap( &myMap );
+  ...
+  // Insert a field into the form that uses myEditor to edit the
+  // field 'somefield' in 'mytable'
+  myForm.insert( &myEditor, myBuffer->field( "somefield" ) );
   
-  // Insert a field into the form that uses MySuperEditor  
-  myForm.insert( &myEditor, myCursor.field( "somefield" ) );
-  
-  // Will update myWidget with the value from the mapped database
-  // field
+  // Will update myEditor with the value from the mapped database field
   myForm.readFields();
   ...
+  // Let the user edit the form
+  ...
+  // Update the database fields
   myForm.writeFields();
+  ...
   \endcode
   
-  You could also replace the default QSqlPropertyMap that are used 
-  if no custom maps are installed.
-  \code
+  You can also replace the global QSqlPropertyMap that is used by default:
+  \code 
+  // Keep in mind that QSqlPropertyMap takes ownership of the new 
+  // default map
   
-  // Keep in mind that QSqlPropertyMap takes ownership of the new
-  // default factory/map
-  
-  MyEditorFactory * myFactory = new MyEditorFactory;
   QSqlPropertyMap * myMap = new QSqlPropertyMap;
   
   myMap->insert( "MySuperEditor", "content" );  
-  QSqlEditorFactory::installDefaultFactory( myFactory );
   QSqlPropertyMap::installDefaultMap( myMap );
   ...
-  
   \endcode
 
   \sa QSqlTable, QSqlForm, QSqlEditorFactory
