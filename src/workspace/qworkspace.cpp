@@ -115,7 +115,7 @@
 extern QRgb qt_colorref2qrgb(COLORREF);
 
 const bool win32 = TRUE;
-#define TITLEBAR_SEPARATION 2
+#define TITLEBAR_SEPARATION 1
 #define BUTTON_WIDTH 16
 #define BUTTON_HEIGHT 14
 #define RANGE 16
@@ -249,7 +249,7 @@ static const char * const shade_xpm[] = {
 #else // !_WS_WIN_
 
 const bool win32 = FALSE;
-#define TITLEBAR_SEPARATION 2
+#define TITLEBAR_SEPARATION 1
 #define BUTTON_WIDTH 16
 #define BUTTON_HEIGHT 14
 #define RANGE 16
@@ -1550,6 +1550,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
 
     iconL = new QLabel( this, "icon" );
     iconL->setAlignment( AlignCenter );
+    iconL->setAutoMask( TRUE );
     iconL->setFocusPolicy( NoFocus );
     iconL->installEventFilter( this );
 
@@ -1579,11 +1580,11 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
 	    }
 	} else {
 #ifdef _WS_WIN_
-	    titleHeight = GetSystemMetrics( SM_CYSMCAPTION )-2;
+	    titleHeight = GetSystemMetrics( SM_CYSMCAPTION );
 	    if ( !titleHeight )
-		titleHeight = 14;
+		titleHeight = 16;
 #else
-	    titleHeight = 14;
+	    titleHeight = 16;
 #endif
 	    if (win32) {
    		closeB->resize( titleHeight-2, titleHeight-2 );
@@ -1700,9 +1701,11 @@ void QWorkspaceChildTitleBar::setText( const QString& title )
 
 void QWorkspaceChildTitleBar::setIcon( const QPixmap& icon )
 {
-    if ( icon.height() > 14 || icon.width() > 14 ) {
+    int w = iconL->contentsRect().width();
+    int h = iconL->contentsRect().height();
+    if ( icon.height() > h || icon.width() > w ) {
 	QPixmap p;
-	p.convertFromImage( icon.convertToImage().smoothScale( 14, 14 ) );
+	p.convertFromImage( icon.convertToImage().smoothScale( w, h ) );
 	iconL->setPixmap( p );
     } else {
 	iconL->setPixmap( icon );
@@ -1762,13 +1765,13 @@ bool QWorkspaceChildTitleBar::eventFilter( QObject * o, QEvent * e)
 
 void QWorkspaceChildTitleBar::resizeEvent( QResizeEvent * )
 { // NOTE: called with 0 pointer
-    int bo = ( height()- closeB->height() + 1 ) / 2;
-    closeB->move( width() - closeB->width() - bo, bo  );
+    int bo = ( height()- closeB->height() ) / 2;
+    closeB->move( width() - closeB->width() - bo - 1, bo  );
     maxB->move( closeB->x() - maxB->width() - bo, closeB->y() );
     iconB->move( maxB->x() - iconB->width(), maxB->y() );
     shadeB->move( closeB->x() - shadeB->width(), closeB->y() );
 
-    iconL->setGeometry( 0, 0, BUTTON_WIDTH, height()-1 );
+    iconL->setGeometry( 2, 0, BUTTON_WIDTH, height()-1 );
     int left = iconL->isVisibleTo( this ) ? iconL->width() : 0;
     int right = closeB->isVisibleTo( this ) ? closeB->x() : width();
     if ( iconB->isVisibleTo( this ) )
@@ -1776,18 +1779,17 @@ void QWorkspaceChildTitleBar::resizeEvent( QResizeEvent * )
     if ( shadeB->isVisibleTo( this ) )
 	right = shadeB->x();
 
-    int bottom = rect().bottom() - imode;
-    if ( window && !window->testWFlags( WStyle_Tool ) )
-	bottom--;
+    int bottom = rect().bottom() - imode - 1;
 
     if ( right != width() )
 	right-=2;
 
     titleL->setRightMargin( width() - right );
-    titleL->setLeftMargin( 2 );
+    titleL->setLeftMargin( iconL->isVisibleTo( this ) ? iconL->width()+4 : 2 );
 
-    titleL->setGeometry( QRect( QPoint( left, 0 ),
-				QPoint( rect().right(), bottom ) ) );
+
+    titleL->setGeometry( QRect( QPoint( 1, 0 ),
+ 				QPoint( rect().right()-1, bottom ) ) );
 }
 
 void QWorkspaceChildTitleBar::setActive( bool active )
@@ -1799,14 +1801,12 @@ void QWorkspaceChildTitleBar::setActive( bool active )
 
     titleL->setActive( active );
     if ( active ) {
-	iconL->setBackgroundColor( titleL->leftColor() );
 	if ( imode && !win32 ){
 	    iconB->show();
 	    maxB->show();
 	    closeB->show();
 	}
     } else {
-	iconL->setBackgroundColor( titleL->leftColor() );
 	if ( imode && !win32 ){
 	    iconB->hide();
 	    closeB->hide();
@@ -1868,7 +1868,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 
     if ( window && window->testWFlags( WStyle_Tool ) ) {
 	setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
-	setLineWidth( 1 );
+	setLineWidth( 2 );
 	setMinimumSize( 128, 0 );
     } else {
 	setFrameStyle( QFrame::WinPanel | QFrame::Raised );
@@ -1924,9 +1924,9 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 
     if ( titlebar ) {
 	int th = titlebar->sizeHint().height();
-	titlebar->setGeometry( r.x() , r.y(), r.width(), th+2);
-	cr = QRect( r.x(), r.y() + TITLEBAR_SEPARATION + th,
-	      r.width() , r.height() - TITLEBAR_SEPARATION - th);
+	titlebar->setGeometry( r.x() , r.y(), r.width(), th );
+	cr = QRect( r.x(), r.y() + titlebar->height() + TITLEBAR_SEPARATION + ( shademode ? 2 : 0 ),
+	      r.width() , r.height() - titlebar->height() - TITLEBAR_SEPARATION - ( shademode ? 2 : 0 ));
     } else {
 	cr = r;
     }
@@ -2015,6 +2015,8 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	break;
     case QEvent::CaptionChange:
 	setCaption( childWidget->caption() );
+	if ( iconw )
+ 	    iconw->setText( childWidget->caption() );
 	break;
     case QEvent::IconChange:
 	{
@@ -2355,7 +2357,7 @@ void QWorkspaceChild::showShaded()
 	shadeRestore = size();
 	shadeRestoreMin = minimumSize();
 	setMinimumHeight(0);
-	resize( width(), titlebar->sizeHint().height() );
+	resize( width(), titlebar->height() );
 	shademode = TRUE;
     }
 }
