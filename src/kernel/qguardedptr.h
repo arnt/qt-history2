@@ -116,19 +116,9 @@ public:
 	return *( (T*)priv->object() );
     }
 
-    operator T*()
+    operator T*() const
     {
 	return (T*) priv->object();
-    }
-
-    operator const T*() const
-    {
-	return (const T*) priv->object();
-    }
-
-    operator bool() const
-    {
-	return !isNull();
     }
 
 
