@@ -31,6 +31,13 @@ struct QPainterPathElement
         struct { float c1x, c1y, c2x, c2y, ex, ey; } curveData;
         struct { float x, y, w, h, start, length; } arcData;
     };
+
+    /*! Some factory functions */
+    static inline QPainterPathElement line(float x, float y);
+    static inline QPainterPathElement curve(float c1x, float c1y, float c2x, float c2y,
+                                            float ex, float ey);
+    static inline QPainterPathElement arc(float x, float y, float w, float h,
+                                          float start, float length);
 };
 
 /*!
@@ -38,7 +45,7 @@ struct QPainterPathElement
  */
 struct QPainterSubpath
 {
-    QPainterSubpath(const QPointF &p)
+    QPainterSubpath(const QPointF &p = QPoint(0, 0))
     {
         startPoint = p;
     };
@@ -93,7 +100,7 @@ public:
     QBitmap scanToBitmap(const QRect &clip, const QMatrix &xform, QRect *boundingRect);
 
     /* Creates a path containing the outline of this path of width \a penwidth */
-    QPainterPath createPathOutlineFlat(int penWidth, const QMatrix &matrix);
+    QPainterPath createStroke(const QPen &pen);
 
     QList<QPainterSubpath> subpaths;
     QPainterPath::FillMode fillMode;
@@ -101,6 +108,45 @@ public:
 
 void qt_find_ellipse_coords(const QRectF &r, float angle, float length,
                             QPointF* startPoint, QPointF *endPoint);
+
+
+inline QPainterPathElement QPainterPathElement::line(float x, float y)
+{
+    QPainterPathElement e;
+    e.type = Line;
+    e.lineData.x = x;
+    e.lineData.y = y;
+    return e;
+}
+
+inline QPainterPathElement QPainterPathElement::curve(float c1x, float c1y,
+                                                      float c2x, float c2y,
+                                                      float ex, float ey)
+{
+    QPainterPathElement e;
+    e.type = QPainterPathElement::Curve;
+    e.curveData.c1x = c1x;
+    e.curveData.c1y = c1y;
+    e.curveData.c2x = c2x;
+    e.curveData.c2y = c2y;
+    e.curveData.ex = ex;
+    e.curveData.ey = ey;
+    return e;
+}
+
+inline QPainterPathElement QPainterPathElement::arc(float x, float y, float w, float h,
+                                                    float start, float length)
+{
+    QPainterPathElement e;
+    e.arcData.x = x;
+    e.arcData.y = y;
+    e.arcData.w = w;
+    e.arcData.h = h;
+    e.arcData.start = start;
+    e.arcData.length = length;
+    return e;
+}
+
 
 
 #endif //QPAINTERPATH_P_H

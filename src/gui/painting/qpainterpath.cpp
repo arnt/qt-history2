@@ -62,11 +62,7 @@ void QPainterSubpath::lineTo(const QPointF &p)
            p.x(), p.y(), currentPoint.x(), currentPoint.y());
 #endif
 
-    QPainterPathElement elm;
-    elm.type = QPainterPathElement::Line;
-    elm.lineData.x = p.x();
-    elm.lineData.y = p.y();
-    elements.append(elm);
+    elements.append(QPainterPathElement::line(p.x(), p.y()));
     currentPoint = p;
 
 }
@@ -77,16 +73,8 @@ void QPainterSubpath::curveTo(const QPointF &c1, const QPointF &c2, const QPoint
     printf("QPainterSubpath::curveTo() end=(%.2f,%.2f), c1=(%.2f,%.2f), c2=(%.2f,%.2f)\n",
            end.x(), end.y(), c1.x(), c1.y(), c2.x(), c2.y());
 #endif
-
-    QPainterPathElement elm;
-    elm.type = QPainterPathElement::Curve;
-    elm.curveData.c1x = c1.x();
-    elm.curveData.c1y = c1.y();
-    elm.curveData.c2x = c2.x();
-    elm.curveData.c2y = c2.y();
-    elm.curveData.ex = end.x();
-    elm.curveData.ey = end.y();
-    elements.append(elm);
+    elements.append(QPainterPathElement::curve(c1.x(), c1.y(), c2.x(), c2.y(),
+                                               end.x(), end.y()));
     currentPoint = end;
 }
 
@@ -99,15 +87,9 @@ void QPainterSubpath::arcTo(const QRectF &rect, float angle, float alen)
     if (startPoint != currentPoint)
         lineTo(startPoint);
 
-    QPainterPathElement elm;
-    elm.type           = QPainterPathElement::Arc;
-    elm.arcData.x      = rect.x();
-    elm.arcData.y      = rect.y();
-    elm.arcData.w      = rect.width();
-    elm.arcData.h      = rect.height();
-    elm.arcData.start  = angle;
-    elm.arcData.length = alen;
-    elements.append(elm);
+    elements.append(QPainterPathElement::arc(rect.x(), rect.y(),
+                                             rect.width(), rect.height(),
+                                             angle, alen));
     currentPoint = endPoint;
 
 #ifdef QPP_DEBUG
@@ -330,36 +312,147 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
     return bm;
 }
 
+void qt_path_stroke_line(const QLineF &line,
+                         const QLineF &normal,
+                         QPainterSubpath *sp,
+                         QPointF *lastPoint,
+                         const QPainterPathElement &elm,
+                         const QPen &pen,
+                         int direction)
+{
+    QLineF ul(line);
+    ul.moveBy(normal);
+
+    if (direction>0) {
+        if (!sp->elements.isEmpty()) {
+            QPainterPathElement &prev = sp->elements.last();
+            if (prev.type == QPainterPathElement::Line) {
+                // Do flat connection for now..
+                if (sp->currentPoint != ul.start()) {
+                    sp->elements.append(QPainterPathElement::line(ul.startX(),
+                                                                  ul.startY()));
+                }
+                sp->elements.append(QPainterPathElement::line(ul.endX(),
+                                                              ul.endY()));
+            } else {
+                printf("%d : %s - curve not supported\n", __LINE__, __FILE__);
+            }
+        } else {
+            sp->startPoint = ul.start();
+            sp->elements.append(QPainterPathElement::line(ul.endX(), ul.endY()));
+        }
+        sp->currentPoint = ul.end();
+    } else { // Going other way around, so build backwards...
+        if (!sp->elements.isEmpty()) {
+            QPainterPathElement &prev = sp->elements.first();
+            if (prev.type == QPainterPathElement::Line) {
+                if (sp->startPoint != ul.end()) {
+                    sp->elements.prepend(QPainterPathElement::line(ul.startX(),
+                                                                   ul.startY()));
+                }
+                sp->elements.prepend(QPainterPathElement::line(ul.endX(), ul.endY()));
+            } else {
+                printf("%d : %s - curve not supported\n", __LINE__, __FILE__);
+            }
+        } else {
+            sp->currentPoint = ul.start();
+            sp->elements.prepend(QPainterPathElement::line(ul.startX(), ul.startY()));
+        }
+        sp->startPoint = ul.end();
+    }
+}
+
+#ifdef QPP_DEBUG
+void qt_path_debug_subpath(const QPainterSubpath &sp)
+{
+    printf("SUBPATH: start=(%.2f,%.2f), current=(%.2f,%.2f)\n",
+           sp.startPoint.x(), sp.startPoint.y(),
+           sp.currentPoint.x(), sp.currentPoint.y());
+
+    for (int i=0; i<sp.elements.size(); ++i) {
+        const QPainterPathElement &elm = sp.elements.at(i);
+        switch (elm.type) {
+        case QPainterPathElement::Line:
+            printf(" ---> LINE: (%.2f, %.2f)\n", elm.lineData.x, elm.lineData.y);
+            break;
+        }
+    }
+}
+#endif
+
 /*!
     \internal
 */
 
-QPainterPath QPainterPathPrivate::createPathOutlineFlat(int, const QMatrix &)
+QPainterPath QPainterPathPrivate::createStroke(const QPen &pen)
 {
-//     QPainterSubpath rightHand;
-//     QPainterSubpath leftHand;
-//     float width = penWidth / 2.0;
+    float penWidth2 = pen.width() / 2.0;
 
-//     for (int i=0; i<outlines.size(); ++i) {
-//         const QPointArray &outline = outlines.at(i);
-//         if (outline.isEmpty())
-//             continue;
+    QPainterPath stroke;
 
-//         if (outline.size() == 2)
-//             continue;
+    for (int spi=0; spi<subpaths.size(); ++spi) {
+        const QPainterSubpath &subpath = subpaths.at(spi);
 
-//         for (int l=2; l<outline.size(); ++l) {
-//             QLineF l1(outline.at(l-2), outline.at(l-1));
-//             QLineF l2(outline.at(l), outline.at(l+1));
+        QPainterSubpath usegs; // "up" segments, positive offset
+        QPainterSubpath dsegs; // "down" segments, negative offset
 
-//             QLineF n1 = l1.normalVector();
-//             QLineF n2 = l2.normalVector();
+        QPointF pt = subpath.startPoint;
 
-//         }
-//     }
+        for (int elmi=0; elmi<subpath.elements.size(); ++elmi) {
+            const QPainterPathElement &elm = subpath.elements.at(elmi);
+            switch (elm.type) {
+            case QPainterPathElement::Line: {
+                QLineF l(pt, QPointF(elm.lineData.x, elm.lineData.y));
+                QLineF n = l.normalVector();
+                n.setLength(pen.width() / 2);
 
-//     return outline;
-    return QPainterPath();
+                qt_path_stroke_line(l, n, &usegs, &pt, elm, pen, 1);
+
+                n = QLineF(n.end(), n.start());
+                qt_path_stroke_line(l, n, &dsegs, &pt, elm, pen, -1);
+
+                pt = l.end();
+                break;
+            }
+            case QPainterPathElement::Curve:
+                // Nothing yet..
+                break;
+            default:
+                // Nothing...
+                break;
+            }
+        }
+
+#ifdef QPP_DEBUG
+        qt_path_debug_subpath(usegs);
+        qt_path_debug_subpath(dsegs);
+#endif
+
+        if (!subpath.isClosed()) {
+            usegs.lineTo(dsegs.startPoint);
+            dsegs.elements.append(QPainterPathElement::line(usegs.startPoint.x(),
+                                                            usegs.startPoint.y()));
+            usegs.elements += dsegs.elements;
+            usegs.close();
+            stroke.d_func()->subpaths.append(usegs);
+#ifdef QPP_DEBUG
+        qt_path_debug_subpath(usegs);
+#endif
+        } else {
+            usegs.close();
+            dsegs.close();
+//             Q_ASSERT(usegs.isClosed());
+//             Q_ASSERT(dsegs.isClosed());
+
+            stroke.d_func()->subpaths.append(usegs);
+            stroke.d_func()->subpaths.append(dsegs);
+        }
+
+
+    }
+
+    stroke.setFillMode(QPainterPath::Winding);
+    return stroke;
 }
 
 #define d d_func()
@@ -426,7 +519,7 @@ QPainterPath QPainterPathPrivate::createPathOutlineFlat(int, const QMatrix &)
 QPainterPath::QPainterPath()
 {
     d_ptr = new QPainterPathPrivate;
-    d->subpaths.append(QPainterSubpath(QPointF(0, 0)));
+    d->subpaths.append(QPainterSubpath());
 }
 
 /*!
@@ -468,7 +561,7 @@ void QPainterPath::closeSubpath()
     if (d->subpaths.last().elements.isEmpty())
         return;
     d->subpaths.last().close();
-    d->subpaths.append(QPainterSubpath(QPointF(0, 0)));
+    d->subpaths.append(QPainterSubpath());
 }
 
 /*!
@@ -644,5 +737,5 @@ bool QPainterPath::isEmpty() const
 
 QPainterPath QPainterPath::createPathOutline(int width)
 {
-    return d->createPathOutlineFlat(width, QMatrix());
+    return d->createStroke(QPen(Qt::black, width));
 }
