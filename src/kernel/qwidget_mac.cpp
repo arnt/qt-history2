@@ -1384,6 +1384,12 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     if ( isDesktop() )
 	return;
     if ( extra ) {				// any size restrictions?
+	if(isTopLevel()) {
+	    if(extra->maxw && extra->maxh && extra->maxw == extra->minw && extra->maxh == extra->minh) 
+		ChangeWindowAttributes((WindowRef)handle(), 0, kWindowResizableAttribute);
+	    else
+		ChangeWindowAttributes((WindowRef)handle(), kWindowResizableAttribute, 0);
+	}
 	w = QMIN(w,extra->maxw);
 	h = QMIN(h,extra->maxh);
 	w = QMAX(w,extra->minw);
