@@ -26,6 +26,7 @@ public:
         pfont = 0;
         painter = 0;
         txop = 0;
+        changeFlags = 0;
     }
     QPainterState(const QPainterState *s) {
         font = s->font;
@@ -57,6 +58,7 @@ public:
         vw = s->vw;
         vh = s->vh;
         painter = s->painter;
+        changeFlags = 0;
     }
 
     ~QPainterState() {
@@ -88,6 +90,7 @@ public:
 
     Qt::BGMode bgMode;
     QPainter *painter;
+    uint changeFlags;
 };
 
 

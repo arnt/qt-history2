@@ -23,7 +23,6 @@
 
 QPaintEngine::QPaintEngine(PaintEngineFeatures caps)
     : dirtyFlag(0),
-      changeFlag(0),
       active(0),
       state(0),
       gccaps(caps),
@@ -34,7 +33,6 @@ QPaintEngine::QPaintEngine(PaintEngineFeatures caps)
 
 QPaintEngine::QPaintEngine(QPaintEnginePrivate &dptr, PaintEngineFeatures caps)
     : dirtyFlag(0),
-      changeFlag(0),
       active(0),
       state(0),
       gccaps(caps),
@@ -62,55 +60,43 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
 
     // assign state after we start checking so the if works, but before update
     // calls since we need it in some cases..
-
-    // Same state, do minimal update...
-    if (s==state) {
-        state = s;
-        if (testDirty(DirtyPen))
-            updatePen(s->pen);
-        if (testDirty(DirtyBrush))
-            updateBrush(s->brush, s->bgOrigin);
-        if (testDirty(DirtyFont))
-            updateFont(s->font);
-        if (testDirty(DirtyBackground))
-            updateBackground(s->bgMode, s->bgBrush);
-        if (testDirty(DirtyTransform))
-            updateXForm(s->matrix);
-        if (testDirty(DirtyClip))
-            updateClipRegion(s->clipRegion, s->clipEnabled);
-        if (testDirty(DirtyHints))
-            updateRenderHints(d->renderhints);
-        // Same painter, restoring old state.
-    } else if (state && s->painter == state->painter) {
-        state = s;
-        if ((changeFlag&DirtyPen)!=0)
-            updatePen(s->pen);
-        if ((changeFlag&DirtyBrush)!=0)
-            updateBrush(s->brush, s->bgOrigin);
-        if ((changeFlag&DirtyFont)!=0)
-            updateFont(s->font);
-        if ((changeFlag&DirtyBackground)!=0)
-            updateBackground(s->bgMode, s->bgBrush);
-        if ((changeFlag&DirtyTransform)!=0)
-            updateXForm(s->matrix);
-        if ((changeFlag&DirtyClip)!=0 || (changeFlag&DirtyClip) != 0)
-            updateClipRegion(s->clipRegion, s->clipEnabled);
-        if (testDirty(DirtyHints))
-            updateRenderHints(d->renderhints);
-        changeFlag = 0;
-        // Different painter or state == 0 which is true for first time call
+    if (!state || s->painter != state->painter) {
+        setDirty(AllDirty);
+    } else if (s != state) {
+        dirtyFlag = state->changeFlags;
     } else {
-        state = s;
-        changeFlag = 0;
-        updatePen(s->pen);
-        updateBrush(s->brush, s->bgOrigin);
-        updateFont(s->font);
-        updateBackground(s->bgMode, s->bgBrush);
-        updateXForm(s->matrix);
-        updateClipRegion(s->clipRegion, s->clipEnabled);
-        updateRenderHints(d->renderhints);
+        state->changeFlags |= dirtyFlag;
     }
-    dirtyFlag = 0;
+    state = s;
+
+    if (testDirty(DirtyPen)) {
+        updatePen(s->pen);
+        clearDirty(DirtyPen);
+    }
+    if (testDirty(DirtyBrush)) {
+        updateBrush(s->brush, s->bgOrigin);
+        clearDirty(DirtyBrush);
+    }
+    if (testDirty(DirtyFont)) {
+        updateFont(s->font);
+        clearDirty(DirtyFont);
+    }
+    if (testDirty(DirtyBackground)) {
+        updateBackground(s->bgMode, s->bgBrush);
+        clearDirty(DirtyBackground);
+    }
+    if (testDirty(DirtyTransform)) {
+        updateXForm(s->matrix);
+        clearDirty(DirtyTransform);
+    }
+    if (testDirty(DirtyClip)) {
+        updateClipRegion(s->clipRegion, s->clipEnabled);
+        clearDirty(DirtyClip);
+    }
+    if (testDirty(DirtyHints)) {
+        updateRenderHints(d->renderhints);
+        clearDirty(DirtyHints);
+    }
 }
 
 /*!

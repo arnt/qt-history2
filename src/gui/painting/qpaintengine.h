@@ -178,8 +178,8 @@ public:
     inline bool hasClipping() const { return testf(ClipOn); }
 
     inline bool testDirty(DirtyFlags df) { return (dirtyFlag & df) != 0; }
-    inline void setDirty(DirtyFlags df) { dirtyFlag|=df; changeFlag|=df; }
-    inline void unsetDirty(DirtyFlags df) { dirtyFlag &= (uint)(~df); }
+    inline void setDirty(DirtyFlags df) { dirtyFlag |= df; }
+    inline void clearDirty(DirtyFlags df) { dirtyFlag &= (uint)(~df); }
 
     bool hasFeature(Features feature) const { return (gccaps & feature) != 0; }
 
@@ -189,7 +189,6 @@ protected:
     QPaintEngine(QPaintEnginePrivate &data, PaintEngineFeatures devcaps=0);
 
     uint dirtyFlag;
-    uint changeFlag;
     uint active : 1;
     uint flags;
     QPainterState *state;
