@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #customizing
-P4=/usr/local/bin/p4          #p4 location
-P4PORT=p4.troll.no:866 #point p4 to the correct server
+P4=/usr/local/bin/p4	#p4 location
+P4PORT=p4.troll.no:866	#point p4 to the correct server
 
 #internal variables
 CREATED_MANIFEST=no
@@ -277,7 +277,7 @@ if [ -z $LOCAL_TREE ]; then
     $P4 -s -c $tmpclient sync -f $DISTDIR/qt/...${checkoutlabel} >/dev/null 2>&1
 else
     status "Copying Qt depot.."
-    [ ! -d $DISTDIR ] && mkdir -p $DISTDIR
+    [ ! -d $DISTDIR/qt ] && mkdir -p $DISTDIR/qt
     cp -ar $LOCAL_TREE $DISTDIR/qt
 fi
 
