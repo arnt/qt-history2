@@ -15,11 +15,12 @@
 #define QAXPRIVATE_DECL
 #include "qaxbase.cpp"
 
-static void docuFromName(ITypeInfo *typeInfo, const QString &name, QString &docu)
+static QString docuFromName(ITypeInfo *typeInfo, const QString &name)
 {
+    QString docu;
     if (!typeInfo)
-        return;
-    
+        return docu;
+
     MEMBERID memId;
     BSTR names = QStringToBSTR(name);
     typeInfo->GetIDsOfNames((BSTR*)&names, 1, &memId);
@@ -40,6 +41,8 @@ static void docuFromName(ITypeInfo *typeInfo, const QString &name, QString &docu
                 docu += QString("For more information, see help context %1 in %2.\n").arg(helpContext).arg(helpFile);
         }
     }
+
+    return docu;
 }
 
 static QString toType(const QString &t)
@@ -52,7 +55,7 @@ static QString toType(const QString &t)
     if (type.startsWith("Q"))
         type = type.mid(1);
     type[0] = type[0].toUpper();
-    if (type == "ValueList<QVariant>")
+    if (type == "VariantList")
         type = "List";
     else if (type == "Map<QVariant,QVariant>")
         type = "Map";
@@ -81,13 +84,13 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
 
     stream << "<h1 align=center>" << coClass << " Reference</h1>" << endl;
     stream << "<p>The " << coClass << " COM object is a " << that->qObject()->className();
-    stream << " with the CLSID " <<  that->control() << ".</p>";
-/*
+    stream << " with the CLSID " <<  that->control() << ".</p>" << endl;
+
     stream << "<h3>Interfaces</h3>" << endl;
     stream << "<ul>" << endl;
     const char *inter = 0;
-    int interCount = 1;  
-    while ((inter = mo->classInfo(mo->indexOfClassInfo(QString("Interface %1").arg(interCount))).value())) {
+    int interCount = 1;
+    while ((inter = mo->classInfo(mo->indexOfClassInfo("Interface " + QByteArray::number(interCount))).value())) {
 	stream << "<li>" << inter << endl;
 	interCount++;
     }
@@ -96,7 +99,7 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
     stream << "<h3>Event Interfaces</h3>" << endl;
     stream << "<ul>" << endl;
     interCount = 1;  
-    while ((inter = mo->classInfo(mo->indexOfClassInfo(QString("Event Interface %1").arg(interCount))).value())) {
+    while ((inter = mo->classInfo(mo->indexOfClassInfo("Event Interface " + QByteArray::number(interCount))).value())) {
 	stream << "<li>" << inter << endl;
 	interCount++;
     }
@@ -105,7 +108,6 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
     QStringList methodDetails, propDetails;
 
     const int slotCount = mo->slotCount();
-
     if (slotCount) {
 	stream << "<h2>Public Slots:</h2>" << endl;
 	stream << "<ul>" << endl;
@@ -113,217 +115,190 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
 	QMap<QString,QString> slotMap;
 	for (int islot = 0; islot < slotCount; ++islot) {
 	    const QMetaMember slot = mo->slot(islot);
-	    const QUMethod *method = slot->method;
 
-	    QString returntype;
-	    if (!method->count) {
-		returntype = "void";
-	    } else {
-		const QUParameter *param = method->parameters;
-		bool returnType = param->inOut == QUParameter::Out;
-		if (!returnType)
-		    returntype = "void";
-		else if (QUType::isEqual(&static_QUType_ptr, param->type))
-		    returntype = (const char*)param->typeExtra;
-		else if (QUType::isEqual(&static_QUType_enum, param->type) && param->typeExtra)
-		    returntype = ((QUEnum*)param->typeExtra)->name;
-		else if (QUType::isEqual(&static_QUType_varptr, param->type) && param->typeExtra) {
-		    QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
-		    returntype = QVariant::typeToName(vartype);
-		} else {
-		    returntype = param->type->desc();
-		}
-	    }
-	    slotMap[slot->name] = returntype;
+	    QString returntype = slot.type();
+            if (returntype.isEmpty())
+                returntype = "void";
+	    slotMap[slot.signature()] = returntype;
 	}
-	QMapConstIterator<QString,QString> it;
-	for (it = slotMap.begin(); it != slotMap.end(); ++it) {
+        QMap<QString,QString>::ConstIterator it;
+	for (it = slotMap.constBegin(); it != slotMap.constEnd(); ++it) {
 	    QString slot = it.key();
-	    int iname = slot.find('(');
+	    int iname = slot.indexOf('(');
 	    QString name = slot.left(iname);
 	    QString params = slot.mid(iname);
-	    stream << "<li>" << it.data() << " <a href=\"#" << name << "\"><b>" << name << "</b></a>" << params << ";</li>" << endl;
+            QString rettype = it.value();
+	    stream << "<li>" << rettype << " <a href=\"#" << name << "\"><b>" << name << "</b></a>" << params << ";</li>" << endl;
 
-	    QString detail = "<h3><a name=" + name + "></a>" + it.data() + " " + slot + "<tt> [slot]</tt></h3>\n";
-	    docuFromName(typeInfo, name, detail);
+	    QString detail = "<h3><a name=" + name + "></a>" + rettype + " " + slot + "<tt> [slot]</tt></h3>\n";
+	    detail += docuFromName(typeInfo, name);
 	    detail += "<p>Connect a signal to this slot:<pre>\n";
 	    detail += "\tQObject::connect(sender, SIGNAL(someSignal" + params + "), object, SLOT(" + name + params + "));";
 	    detail += "</pre>\n";
-	    const QMetaData *slotdata = mo->slot(mo->findSlot(slot.latin1(), true), true);
-	    if (!slotdata)
-		continue;
-	    const QUMethod *slotmethod = slotdata->method;
-	    int pcount = slotmethod->count;
-	    QVariant::Type rettype = QVariant::Invalid;
-	    bool retval = false;
-	    bool outparams = false;
-	    bool allVariants = true;
-	    for (int p = 0; p < slotmethod->count; ++p) {
-		if (!p && slotmethod->parameters->inOut == QUParameter::Out) {
-		    pcount--;
-		    retval = true;
-		    rettype = QVariant::nameToType(it.data());
-		    if (rettype == QVariant::Invalid && QUType::isEqual(slotmethod->parameters->type, &static_QUType_enum))
-			rettype = QVariant::Int;
-		}
-		if (p && slotmethod->parameters->inOut & QUParameter::Out)
-		    outparams = true;
-		if (allVariants && QUType::isEqual(slotmethod->parameters[p].type, &static_QUType_ptr)) {
-		    const char *typeExtra = (const char*)slotmethod->parameters[p].typeExtra;
-		    allVariants = !p && (!qstrcmp(typeExtra, "IDispatch*") || !qstrcmp(typeExtra, "IUnknown*"));
-		}
-	    }
-	    if (allVariants) {
-		detail += "<p>Or call the function directly:<pre>\n";
-		if (retval && rettype != QVariant::Invalid) {
-		    if (outparams) {
-			detail += "\tQValueList<QVariant> params;\n";
-			for (int p = 0; p < pcount; ++p)
-			    detail += "\tparams &lt;&lt; var" + QString::number(p+1) + ";\n";
-			detail += "\t" + QCString(QVariant::typeToName(rettype)) + " res = ";
-			detail += "object->dynamicCall(\"" + name + params + "\", params).";
-			detail += toType(QVariant::typeToName(rettype)) + ";\n";
-		    } else {
-			detail += "\t" + QCString(QVariant::typeToName(rettype)) + " res = ";
-			detail += "object->dynamicCall(\"" + name + params + "\"";
-			for (int p = 0; p < pcount; ++p)
-			    detail += ", var" + QString::number(p+1);
-			detail += ")." + toType(QVariant::typeToName(rettype)) + ";\n";
-		    }
-		} else if (retval) {
-		    detail += "\tQAxObject *res = object->querySubObject(\"" + name + params + "\"";
-		    for (int p = 0; p < pcount; ++p)
-			detail += ", var" + QString::number(p+1);
-		    detail += ");";
-		} else { // no return value
-		    if (outparams) {
-			detail += "\tQValueList<QVariant> params;\n";
-			for (int p = 0; p < pcount; ++p)
-			    detail += "\tparams &lt;&lt; var" + QString::number(p+1) + ";\n";
-			detail += "\tobject->dynamicCall(\"" + name + params + "\", params);\n";
-		    } else {
-			detail += "\tobject->dynamicCall(\"" + name + params + "\"";
-			for (int p = 0; p < pcount; ++p)
-			    detail += ", var" + QString::number(p+1);
-			detail += ");\n";
-		    }
-		}
-		detail += "</pre>\n";
+
+            if (1) {
+                detail += "<p>Or call the function directly:<pre>\n";
+
+                if (params != "()")
+                    detail += "\tQVariantList params = ...\n";
+                detail += "\t";
+                QString functionToCall = "dynamicCall";
+                if (rettype == "IDispatch*" || rettype == "IUnknown*") {
+                    functionToCall = "querySubObject(";
+                    rettype = "QAxObject *";
+                }
+                if (!rettype.isEmpty() && rettype != "void")
+                    detail += rettype + " result = ";
+                detail += "object->" + functionToCall + "(\"" + name + params + "\")";
+                if (!rettype.isEmpty() && rettype != "void" && rettype != "QAxObject *")
+                    detail += "." + toType(rettype);
+	        detail += ";</pre>\n";
 	    } else {
 		detail += "<p>This function has parameters of unsupported types and cannot be called directly.";
 	    }
 
 	    methodDetails << detail;
 	}
+
 	stream << "</ul>" << endl;
     }
-    int signalCount = mo->numSignals();
+    int signalCount = mo->signalCount();
     if (signalCount) {
+        ITypeLib *typeLib = 0;
+        if (typeInfo) {
+            UINT index = 0;
+            typeInfo->GetContainingTypeLib(&typeLib, &index);
+            typeInfo->Release();
+        }
+        typeInfo = 0;
+
 	stream << "<h2>Signals:</h2>" << endl;
 	stream << "<ul>" << endl;
 
 	QMap<QString, QString> signalMap;
 	for (int isignal = 0; isignal < signalCount; ++isignal) {
-	    const QMetaData *signal = mo->signal(isignal);
-	    signalMap[signal->name] = "void";
+	    const QMetaMember signal = mo->signal(isignal);
+	    signalMap[signal.signature()] = "void";
 	}
-	QMapConstIterator<QString,QString> it;
-	for (it = signalMap.begin(); it != signalMap.end(); ++it) {
+        QMap<QString,QString>::ConstIterator it;
+	for (it = signalMap.constBegin(); it != signalMap.constEnd(); ++it) {
 	    QString signal = it.key();
-	    int iname = signal.find('(');
+	    int iname = signal.indexOf('(');
 	    QString name = signal.left(iname);
 	    QString params = signal.mid(iname);
 
-	    stream << "<li>" << it.data() << " <a href=\"#" << name << "\"><b>" << name << "</b></a>" << params << ";</li>" << endl;
-	    QString detail = "<h3><a name=" + name + "></a>" + it.data() + " " + signal + "<tt> [signal]</tt></h3>\n";
-	    docuFromName(typeInfo, name, detail);
+	    stream << "<li>" << it.value() << " <a href=\"#" << name << "\"><b>" << name << "</b></a>" << params << ";</li>" << endl;
+	    QString detail = "<h3><a name=" + name + "></a>" + it.value() + " " + signal + "<tt> [signal]</tt></h3>\n";
+            if (typeLib) {
+                interCount = 0;
+                do {
+                    if (typeInfo)
+                        typeInfo->Release();
+                    typeInfo = 0;
+                    typeLib->GetTypeInfo(++interCount, &typeInfo);
+                    QString typeLibDocu = docuFromName(typeInfo, name);
+                    if (!typeLibDocu.isEmpty()) {
+                        detail += typeLibDocu;
+                        break;
+                    }
+                } while (typeInfo);
+            }
 	    detail += "<p>Connect a slot to this signal:<pre>\n";
 	    detail += "\tQObject::connect(object, SIGNAL(" + name + params + "), receiver, SLOT(someSlot" + params + "));";
 	    detail += "</pre>\n";
 
 	    methodDetails << detail;
+            if (typeInfo)
+                typeInfo->Release();
+            typeInfo = 0;
 	}
 	stream << "</ul>" << endl;
+
+        if (typeLib)
+            typeLib->Release();
     }
 
-    const int propCount = mo->numProperties();
+    const int propCount = mo->propertyCount();
     if (propCount) {
+        if (d->dispatch())
+	    d->dispatch()->GetTypeInfo(0, LOCALE_SYSTEM_DEFAULT, &typeInfo);
 	stream << "<h2>Properties:</h2>" << endl;
 	stream << "<ul>" << endl;
 
 	QMap<QString, QString> propMap;
 	for (int iprop = 0; iprop < propCount; ++iprop) {
-	    const QMetaProperty *prop = mo->property(iprop);
-	    propMap[prop->name()] = prop->type();
+	    const QMetaProperty prop = mo->property(iprop);
+	    propMap[prop.name()] = prop.type();
 	}
-	QMapConstIterator<QString,QString> it;
-	for (it = propMap.begin(); it != propMap.end(); ++it) {
+        QMap<QString,QString>::ConstIterator it;
+	for (it = propMap.constBegin(); it != propMap.constEnd(); ++it) {
 	    QString name = it.key();
-	    QString type = it.data();
+	    QString type = it.value();
 
 	    stream << "<li>" << type << " <a href=\"#" << name << "\"><b>" << name << "</b></a>;</li>" << endl;
 	    QString detail = "<h3><a name=" + name + "></a>" + type + " " + name + "</h3>\n";
-	    docuFromName(typeInfo, name, detail);
-	    QVariant::Type vartype = QVariant::nameToType(type);
-	    const QMetaProperty *prop = mo->property(mo->findProperty(name.latin1()));
-	    if (!prop)
+	    detail += docuFromName(typeInfo, name);
+	    QVariant::Type vartype = QVariant::nameToType(type.latin1());
+	    const QMetaProperty prop = mo->property(mo->indexOfProperty(name.latin1()));
+	    if (!prop.isReadable())
 		continue;
 
-	    bool castToType = false;
-	    if (vartype == QVariant::Invalid && prop->isEnumType()) {
+	    if (prop.isEnumType())
 		vartype = QVariant::Int;
-		castToType = true;
-	    }
-	    if (vartype != QVariant::Invalid) {
+
+            if (vartype != QVariant::Invalid) {
 		detail += "<p>Read this property's value using QObject::property:<pre>\n";
-		detail += "\t" + type + " val = ";
-		if (castToType) {
-		    detail += "(" + type + ")";
-		}
+                if (prop.isEnumType())
+		    detail += "\tint val = ";
+                else
+                    detail += "\t" + type + " val = ";
 		detail += "object->property(\"" + name + "\")." + toType(type) + ";\n";
 		detail += "</pre>\n";
-	    } else if (type == "IDispatch*" || type == "IUnkonwn*") {
+	    } else if (type == "IDispatch*" || type == "IUnknown*") {
 		detail += "<p>Get the subobject using querySubObject:<pre>\n";
 		detail += "\tQAxObject *" + name + " = object->querySubObject(\"" + name + "\");\n";
 		detail += "</pre>\n";
 	    } else {
 		detail += "<p>This property is of an unsupported type.\n";
 	    }
-	    if (prop->writable()) {
+	    if (prop.isWritable()) {
 		detail += "Set this property' value using QObject::setProperty:<pre>\n";
-		detail += "\t" + type + " newValue = ...\n";
+                if (prop.isEnumType()) {
+                    detail += "\tint newValue = ... // string representation of values also supported\n";
+                } else {
+		    detail += "\t" + type + " newValue = ...\n";
+                }
 		detail += "\tobject->setProperty(\"" + name + "\", newValue);\n";
 		detail += "</pre>\n";
 		detail += "Or using the ";
 		QString setterSlot;
-		if (name[0].upper() == name[0]) {
+                if (name[0].category() & QChar::Letter_Uppercase) {
 		    setterSlot = "Set" + name;
 		} else {
 		    QString nameUp = name;
-		    nameUp[0] = nameUp[0].upper();
+		    nameUp[0] = nameUp[0].toUpper();
 		    setterSlot = "set" + nameUp;
 		}
 		detail += "<a href=\"#" + setterSlot + "\">" + setterSlot + "</a> slot.\n";
 	    }
-	    if (prop->isEnumType()) {
-		QCString enumName = prop->enumData->name;
-		detail += "<p>See also <a href=\"#" + enumName + "\">" + enumName + "</a>.\n";
+	    if (prop.isEnumType()) {
+		detail += "<p>See also <a href=\"#" + type + "\">" + type + "</a>.\n";
 	    }
 
 	    propDetails << detail;
 	}
 	stream << "</ul>" << endl;
     }
-    QStrList enumerators = mo->enumeratorNames();
-    if (enumerators.count()) {
+
+    const int enumCount = mo->enumeratorCount();
+    if (enumCount) {
 	stream << "<hr><h2>Member Type Documentation</h2>" << endl;
-	for (uint i = 0; i < enumerators.count(); ++i) {
-	    const QMetaEnum *enumdata = mo->enumerator(enumerators.at(i));
-	    stream << "<h3><a name=" << enumdata->name << "></a>" << enumdata->name << "</h3>" << endl;
+	for (uint i = 0; i < enumCount; ++i) {
+	    const QMetaEnum enumdata = mo->enumerator(i);
+	    stream << "<h3><a name=" << enumdata.name() << "></a>" << enumdata.name() << "</h3>" << endl;
 	    stream << "<ul>" << endl;
-	    for (uint e = 0; e < enumdata->count; ++e) {
-		const QMetaEnum::Item *item = enumdata->items+e;
-		stream << "<li>" << item->key << "\t=" << item->value << "</li>" << endl;
+	    for (uint e = 0; e < enumdata.numKeys(); ++e) {
+		stream << "<li>" << enumdata.key(e) << "\t=" << enumdata.value(e) << "</li>" << endl;
 	    }
 	    stream << "</ul>" << endl;
 	}
@@ -340,7 +315,8 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
 	    stream << (*it) << endl;
 	}
     }
-*/
-    if (typeInfo) typeInfo->Release();
+
+    if (typeInfo)
+        typeInfo->Release();
     return docu;
 }
