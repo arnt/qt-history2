@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#3 $
 **
 ** Implementation of asynchronous I/O classes
 **
@@ -187,7 +187,7 @@ QIODeviceSource::QIODeviceSource(QIODevice* device, int buffer_size) :
 QIODeviceSource::~QIODeviceSource()
 {
     delete iod;
-    delete buffer;
+    delete [] buffer;
 }
 
 /*!
