@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#20 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#21 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -15,7 +15,7 @@
 #include "qdict.h"
 #include "qstring.h"				/* used for statistics */
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgcache.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgcache.cpp#21 $")
 
 
 // --------------------------------------------------------------------------
@@ -117,17 +117,13 @@ void QCList::take( QCacheItem *ci )
 }
 
 
-void QCList::reference( QCacheItem *ci )
+inline void QCList::reference( QCacheItem *ci )
 {
-    if ( ci ) {
 #if defined(DEBUG)
-	ASSERT( ci->node != 0 );
+    ASSERT( ci != 0 && ci->node != 0 );
 #endif
-	takeNode( ci->node );
-	ci->skipPriority = ci->priority;
-	QListM(QCacheItem)::insert( 0, ci );
-	ci->node = currentNode();
-    }
+    ci->skipPriority = ci->priority;
+    relinkNode( ci->node );			// relink as first item
 }
 
 
@@ -293,14 +289,16 @@ GCI QGCache::find( const char *key, bool ref ) const
     QCacheItem *ci = dict->find( key );
 #if defined(DEBUG)
     lruList->finds++;
+#endif
     if ( ci ) {
+#if defined(DEBUG)
 	lruList->hits++;
 	lruList->hitCosts += ci->cost;
+#endif
 	if ( ref )
 	    lruList->reference( ci );
 	return ci->data;
     }
-#endif
     return 0;
 }
 
