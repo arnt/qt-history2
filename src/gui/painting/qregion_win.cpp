@@ -285,8 +285,8 @@ bool QRegion::contains(const QRect &r) const
 
 
 /*!
-    Translates the region by \a dx on the X-axis and by \a dy on the
-    Y-axis.
+    Translates the region by \a dx on the x axis and by \a dy on the
+    y axis.
 */
 void QRegion::translate(int dx, int dy)
 {

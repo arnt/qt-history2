@@ -772,8 +772,8 @@ void QMatrix::reset()
 */
 
 /*!
-    Moves the coordinate system \a dx along the X-axis and \a dy along
-    the Y-axis.
+    Moves the coordinate system \a dx along the x axis and \a dy along
+    the y axis.
 
     Returns a reference to the matrix.
 

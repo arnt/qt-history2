@@ -614,15 +614,6 @@ QDebug operator<<(QDebug d, const QPointF &p)
 */
 
 /*!
-    \fn const QPointF operator*(const QPointF &point, float factor)
-
-    Multiplies the coordinates of the \a point by the given scale \a factor, and
-    returns a point with the new coordinates. (Scalar multiplication of a vector.)
-
-    \sa operator/()
-*/
-
-/*!
     \fn const QPointF operator-(const QPointF &point)
 
     Negates the coordinates of the \a point, and returns a point with the
