@@ -40,25 +40,26 @@
 #ifndef QT_NO_VBOX
 
 /*!
-  \class QVBox qvbox.h
-  \brief The QVBox widget provides vertical geometry management on its children.
+    \class QVBox qvbox.h
+    \brief The QVBox widget provides vertical geometry management of
+    its child widgets.
 
-  \ingroup geomanagement
-  \ingroup appearance
-  \ingroup organizers
+    \ingroup geomanagement
+    \ingroup appearance
+    \ingroup organizers
 
-  All its children will be placed vertically and sized
-  according to their sizeHint()s.
+    All its child widgets will be placed vertically and sized
+    according to their sizeHint()s.
 
-  \img qvbox-m.png QVBox
+    \img qvbox-m.png QVBox
 
-  \sa QVBox QHBox
+    \sa QHBox
 */
 
 
 /*!
-  Constructs a vbox widget with parent \a parent, name \a name and
-  widget flags \a f.
+    Constructs a vbox widget called \a name with parent \a parent and
+    widget flags \a f.
  */
 QVBox::QVBox( QWidget *parent, const char *name, WFlags f )
     :QHBox( FALSE, parent, name, f )

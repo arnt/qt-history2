@@ -194,7 +194,7 @@
 
   This list is first cleared and then each item in \a list is
   \link append() appended\endlink to this list.  Only the pointers are copied
-  (shallow copy) unless newItem() has been reimplemented().
+  (shallow copy) unless newItem() has been reimplemented.
 */
 
 /*!

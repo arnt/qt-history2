@@ -376,10 +376,10 @@ void QPixmap::deref()
 
 
 /*!
-  Constructs a monochrome pixmap, with width \a w and height \a h,
-  that is initialized with the data in \a bits. The \a isXbitmap
-  indicates whether the data is an X bitmap and defaults to FALSE.
-  This constructor is protected and used by the QBitmap class.
+    Constructs a monochrome pixmap, with width \a w and height \a h,
+    that is initialized with the data in \a bits. The \a isXbitmap
+    indicates whether the data is an X bitmap and defaults to FALSE.
+    This constructor is protected and used by the QBitmap class.
 */
 
 QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap)
@@ -428,22 +428,24 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap)
 
 
 /*!
-  This is a special-purpose function that detaches the pixmap from shared
-  pixmap data.
+    This is a special-purpose function that detaches the pixmap from
+    shared pixmap data.
 
-  A pixmap is automatically detached by Qt whenever its contents is about
-  to change.  This is done in all QPixmap member functions that modify the
-  pixmap (fill(), resize(), convertFromImage(), load(), etc.), in bitBlt()
-  for the destination pixmap and in QPainter::begin() on a pixmap.
+    A pixmap is automatically detached by Qt whenever its contents is
+    about to change. This is done in all QPixmap member functions
+    that modify the pixmap (fill(), resize(), convertFromImage(),
+    load(), etc.), in bitBlt() for the destination pixmap and in
+    QPainter::begin() on a pixmap.
 
-  It is possible to modify a pixmap without letting Qt know.
-  You can first obtain the system-dependent handle()
-  and then call system-specific functions (for instance, BitBlt under Windows)
-  that modify the pixmap contents.  In this case, you can call detach()
-  to cut the pixmap loose from other pixmaps that share data with this one.
+    It is possible to modify a pixmap without letting Qt know. You can
+    first obtain the system-dependent handle() and then call
+    system-specific functions (for instance, BitBlt under Windows)
+    that modify the pixmap contents. In such cases, you can call
+    detach() to cut the pixmap loose from other pixmaps that share
+    data with this one.
 
-  detach() returns immediately if there is just a single reference or if
-  the pixmap has not been initialized yet.
+    detach() returns immediately if there is just a single reference
+    or if the pixmap has not been initialized yet.
 */
 
 void QPixmap::detach()
@@ -465,9 +467,10 @@ void QPixmap::detach()
 
 
 /*!
-  Returns the default pixmap depth, i.e., the depth a pixmap gets
-  if -1 is specified.
-  \sa depth()
+    Returns the default pixmap depth, i.e. the depth a pixmap gets if
+    -1 is specified.
+
+    \sa depth()
 */
 
 int QPixmap::defaultDepth()
@@ -477,38 +480,38 @@ int QPixmap::defaultDepth()
 
 
 /*!
-  \fn QPixmap::Optimization QPixmap::optimization() const
+    \fn QPixmap::Optimization QPixmap::optimization() const
 
-  Returns the optimization setting for this pixmap.
+    Returns the optimization setting for this pixmap.
 
-  The default optimization setting is \c QPixmap::NormalOptim. You may
-  change this settings in two ways:
-  \list
-  \i Call setDefaultOptimization() to set the default optimization
-  for all new pixmaps.
-  \i Call setOptimization() to set a the optimization for individual
-  pixmaps.
-  \endlist
+    The default optimization setting is \c QPixmap::NormalOptim. You
+    can change this setting in two ways:
+    \list
+    \i Call setDefaultOptimization() to set the default optimization
+    for all new pixmaps.
+    \i Call setOptimization() to set the optimization for individual
+    pixmaps.
+    \endlist
 
-  \sa setOptimization(), setDefaultOptimization(), defaultOptimization()
+    \sa setOptimization(), setDefaultOptimization(), defaultOptimization()
 */
 
 /*!
-  Sets pixmap drawing optimization for this pixmap.
+    Sets pixmap drawing optimization for this pixmap.
 
-  The \a optimization setting affects pixmap operations, in particular
-  drawing of transparent pixmaps (bitBlt() a pixmap with a mask set) and
-  pixmap transformations (the xForm() function).
+    The \a optimization setting affects pixmap operations, in
+    particular drawing of transparent pixmaps (bitBlt() a pixmap with
+    a mask set) and pixmap transformations (the xForm() function).
 
-  Pixmap optimization involves keeping intermediate results in a cache
-  buffer and use the data in the cache to speed up bitBlt() and xForm().
-  The cost is more memory consumption, up to twice as much as an
-  unoptimized pixmap.
+    Pixmap optimization involves keeping intermediate results in a
+    cache buffer and using the cache to speed up bitBlt() and xForm().
+    The cost is more memory consumption, up to twice as much as an
+    unoptimized pixmap.
 
-  Use the setDefaultOptimization() to change the default optimization
-  for all new pixmaps.
+    Use the setDefaultOptimization() to change the default
+    optimization for all new pixmaps.
 
-  \sa optimization(), setDefaultOptimization(), defaultOptimization()
+    \sa optimization(), setDefaultOptimization(), defaultOptimization()
 */
 
 void QPixmap::setOptimization( Optimization optimization )
@@ -526,7 +529,7 @@ void QPixmap::setOptimization( Optimization optimization )
 
 
 /*!
-  Fills the pixmap with the color \a fillColor.
+    Fills the pixmap with the color \a fillColor.
 */
 
 void QPixmap::fill( const QColor &fillColor )
@@ -592,18 +595,17 @@ int QPixmap::metric( int m ) const
 }
 
 /*!
-  Converts the pixmap to a QImage. Returns a null image if the operation
-  failed.
+    Converts the pixmap to a QImage. Returns a null image if it fails.
 
-  If the pixmap has 1-bit depth, the returned image will also be 1
-  bit deep.  If the pixmap has 2- to 8-bit depth, the returned image
-  has 8-bit depth.  If the pixmap has greater than 8-bit depth, the
-  returned image has 32-bit depth.
+    If the pixmap has 1-bit depth, the returned image will also be 1
+    bit deep. If the pixmap has 2- to 8-bit depth, the returned image
+    has 8-bit depth. If the pixmap has greater than 8-bit depth, the
+    returned image has 32-bit depth.
 
-  Note that for the moment, alpha masks on monochrome images are
-  ignored.
+    Note that for the moment, alpha masks on monochrome images are
+    ignored.
 
-  \sa convertFromImage()
+    \sa convertFromImage()
 */
 
 QImage QPixmap::convertToImage() const
@@ -922,23 +924,23 @@ QImage QPixmap::convertToImage() const
 
 
 /*!
-  Converts image \a img and sets this pixmap. Returns TRUE if successful;
-  otherwise returns FALSE.
+    Converts image \a img and sets this pixmap. Returns TRUE if
+    successful; otherwise returns FALSE.
 
-  The \a conversion_flags argument is a bitwise-OR of the
-  \l{Qt::ImageConversionFlags}.
-  Passing 0 for \a conversion_flags gives all the default options.
+    The \a conversion_flags argument is a bitwise-OR of the
+    \l{Qt::ImageConversionFlags}. Passing 0 for \a conversion_flags
+    sets all the default options.
 
-  Note that even though a QPixmap with depth 1 behaves much like a
-  QBitmap, isQBitmap() returns FALSE.
+    Note that even though a QPixmap with depth 1 behaves much like a
+    QBitmap, isQBitmap() returns FALSE.
 
-  If a pixmap with depth 1 is painted with color0 and color1 and
-  converted to an image, the pixels painted with color0 will produce
-  pixel index 0 in the image and those painted with color1 will produce
-  pixel index 1.
+    If a pixmap with depth 1 is painted with color0 and color1 and
+    converted to an image, the pixels painted with color0 will produce
+    pixel index 0 in the image and those painted with color1 will
+    produce pixel index 1.
 
-  \sa convertToImage(), isQBitmap(), QImage::convertDepth(), defaultDepth(),
-  QImage::hasAlphaBuffer()
+    \sa convertToImage(), isQBitmap(), QImage::convertDepth(),
+    defaultDepth(), QImage::hasAlphaBuffer()
 */
 
 bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
@@ -1585,31 +1587,30 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
 
 /*!
-  Grabs the contents of the window \a window and makes a pixmap out of
-  it. Returns the pixmap.
+    Grabs the contents of the window \a window and makes a pixmap out
+    of it. Returns the pixmap.
 
-  The arguments \a (x, y) specify the offset in the window, whereas
-  \a (w, h) specify the width and height of the area to be copied.
+    The arguments \a (x, y) specify the offset in the window, whereas
+    \a (w, h) specify the width and height of the area to be copied.
 
-  If \a w is negative, the function copies everything to the right
-  border of the window.	 If \a h is negative, the function copies
-  everything to the bottom of the window.
+    If \a w is negative, the function copies everything to the right
+    border of the window. If \a h is negative, the function copies
+    everything to the bottom of the window.
 
-  Note that grabWindows() grabs pixels from the screen, not from the
-  window. If there is another window partially or
-  entirely over the one you grab, you get pixels from the overlying
-  window, too.
+    Note that grabWindows() grabs pixels from the screen, not from the
+    window. If there is another window partially or entirely over the
+    one you grab, you get pixels from the overlying window, too.
 
-  Note also that the mouse cursor is generally not grabbed.
+    Note also that the mouse cursor is generally not grabbed.
 
-  The reason we use a window identifier and not a QWidget is to enable
-  grabbing of windows that are not part of the application, window
-  system frames, and so on.
+    The reason we use a window identifier and not a QWidget is to
+    enable grabbing of windows that are not part of the application,
+    window system frames, and so on.
 
-  \warning Grabbing an area outside the screen is not safe in general.
-  This depends on the underlying window system.
+    \warning Grabbing an area outside the screen is not safe in
+    general. This depends on the underlying window system.
 
-  \sa grabWidget()
+    \sa grabWidget()
 */
 
 QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
@@ -1637,14 +1638,14 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 }
 
 /*!
-  Returns a copy of the pixmap that is transformed using \a matrix. The
-  original pixmap is not changed.
+    Returns a copy of the pixmap that is transformed using \a matrix.
+    The original pixmap is not changed.
 
-  The transformation \a matrix is internally adjusted to compensate
-  for unwanted translation, i.e. xForm() returns the smallest image
-  that contains all the transformed points of the original image.
+    The transformation \a matrix is internally adjusted to compensate
+    for unwanted translation, i.e. xForm() returns the smallest image
+    that contains all the transformed points of the original image.
 
-  \sa trueMatrix(), QWMatrix, QPainter::setWorldMatrix() QImage::xForm()
+    \sa trueMatrix(), QWMatrix, QPainter::setWorldMatrix() QImage::xForm()
 */
 
 QPixmap QPixmap::xForm( const QWMatrix &matrix ) const

@@ -511,6 +511,8 @@ static const int TxRotShear  = 3;
 
 
 /*!
+  \internal
+
   Internal function that initializes the painter.
 */
 
@@ -521,6 +523,8 @@ void QPainter::initialize()
 }
 
 /*!
+  \internal
+
   Internal function that cleans up the painter.
 */
 
@@ -532,6 +536,8 @@ void QPainter::cleanup()
 }
 
 /*!
+  \internal
+
   Internal function that destroys up the painter.
 */
 

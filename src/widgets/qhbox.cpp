@@ -39,23 +39,25 @@
 
 
 /*!
-  \class QHBox qhbox.h
-  \brief The QHBox widget provides horizontal geometry management for its children.
+    \class QHBox qhbox.h
+    \brief The QHBox widget provides horizontal geometry management
+    for its child widgets.
 
-  \ingroup organizers
-  \ingroup geomanagement
-  \ingroup appearance
+    \ingroup organizers
+    \ingroup geomanagement
+    \ingroup appearance
 
-  All the horizontal box's children will be placed alongside each
-  other and sized according to their sizeHint()s.
+    All the horizontal box's child widgets will be placed alongside
+    each other and sized according to their sizeHint()s.
 
-  Use setMargin() to add space around the edge, and use setSpacing() to
-  add space between the widgets. Use setStretchFactor() if you want
-  the widgets to be different sizes in proportion to one another.
+    Use setMargin() to add space around the edge, and use setSpacing()
+    to add space between the widgets. Use setStretchFactor() if you
+    want the widgets to be different sizes in proportion to one
+    another.
 
-  <img src=qhbox-m.png>
+    \img qhbox-m.png QHBox
 
-  \sa QHBoxLayout QVBox QGrid
+    \sa QHBoxLayout QVBox QGrid
 */
 
 

@@ -613,28 +613,29 @@ void write_png_image(QImageIO* iio)
 }
 
 /*!
-  \class QPNGImagePacker qpngio.h
-  \ingroup images
-  \ingroup graphics
-  \brief The QPNGImagePacker class creates well-compressed PNG animations.
+    \class QPNGImagePacker qpngio.h
+    \brief The QPNGImagePacker class creates well-compressed PNG animations.
 
-  By using transparency, QPNGImagePacker allows you to build a PNG image
-  from a sequence of QImages.
+    \ingroup images
+    \ingroup graphics
 
-  Images are added using packImage().
+    By using transparency, QPNGImagePacker allows you to build a PNG
+    image from a sequence of QImages.
+
+    Images are added using packImage().
 */
 
 
 /*!
-  Creates an image packer that writes PNG data to IO device \a iod using a
-  \a storage_depth bit encoding (use 8 or 32, depending on the
-  desired quality and compression requirements).
+    Creates an image packer that writes PNG data to IO device \a iod
+    using a \a storage_depth bit encoding (use 8 or 32, depending on
+    the desired quality and compression requirements).
 
     If the image needs to be modified to fit in a lower-resolution
-    result (eg. converting from 32-bit to 8-bit), use the \a
+    result (e.g. converting from 32-bit to 8-bit), use the \a
     conversionflags to specify how you'd prefer this to happen.
 
-  \sa Qt::ImageConversionFlags
+    \sa Qt::ImageConversionFlags
 */
 QPNGImagePacker::QPNGImagePacker(QIODevice* iod, int storage_depth,
 	int conversionflags) :
@@ -646,9 +647,10 @@ QPNGImagePacker::QPNGImagePacker(QIODevice* iod, int storage_depth,
 }
 
 /*!
-  Aligns pixel differences to \a x pixels.  For example, using 8 can
-  improve playback on certain hardware.  Normally the default of 1-pixel
-  alignment (i.e. no alignment) gives better compression and performance.
+    Aligns pixel differences to \a x pixels. For example, using 8 can
+    improve playback on certain hardware. Normally the default of
+    1-pixel alignment (i.e. no alignment) gives better compression and
+    performance.
 */
 void QPNGImagePacker::setPixelAlignment(int x)
 {
@@ -656,8 +658,9 @@ void QPNGImagePacker::setPixelAlignment(int x)
 }
 
 /*!
-  Adds the image \a img to the PNG animation, analyzing the differences
-  between this and the previous image to improve compression.
+    Adds the image \a img to the PNG animation, analyzing the
+    differences between this and the previous image to improve
+    compression.
 */
 bool QPNGImagePacker::packImage(const QImage& img)
 {
@@ -835,7 +838,7 @@ class QPNGFormatType : public QImageFormatType
   This subclass of QImageFormat decodes PNG format images,
   including animated PNGs.
 
-  Animated PNG images are standard PNG images.  The PNG standard
+  Animated PNG images are standard PNG images. The PNG standard
   defines two extension chunks that are useful for animations:
 
   \list
@@ -849,10 +852,10 @@ class QPNGFormatType : public QImageFormatType
 
   The subimages usually contain a offset chunk (oFFs) but need not.
 
-  The first image defines the "screen" size.  Any subsequent image that
+  The first image defines the "screen" size. Any subsequent image that
   doesn't fit is clipped.
 */
-/* ###TODO: decide on this point.  gIFg gives disposal types, so it can be done.
+/* ###TODO: decide on this point. gIFg gives disposal types, so it can be done.
   All images paste (\e not composite, just place all-channel copying)
   over the previous image to produce a subsequent frame.
 */
@@ -867,7 +870,7 @@ class QPNGFormatType : public QImageFormatType
   \ingroup io
 
   This subclass of QImageFormatType recognizes PNG format images, creating
-  a QPNGFormat when required.  An instance of this class is created
+  a QPNGFormat when required. An instance of this class is created
   automatically before any other factories, so you should have no need for
   such objects.
 */
@@ -936,7 +939,7 @@ CALLBACK_CALL_TYPE user_chunk_callback(png_structp png_ptr, png_infop info,
 
 
 /*!
-  Constructs a QPNGFormat object.
+    Constructs a QPNGFormat object.
 */
 QPNGFormat::QPNGFormat()
 {
@@ -950,7 +953,7 @@ QPNGFormat::QPNGFormat()
 
 
 /*!
-  Destroys a QPNGFormat object.
+    Destroys a QPNGFormat object.
 */
 QPNGFormat::~QPNGFormat()
 {
@@ -960,9 +963,9 @@ QPNGFormat::~QPNGFormat()
 
 
 /*!
-  This function decodes some data into image changes.
+    This function decodes some data into image changes.
 
-  Returns the number of bytes consumed.
+    Returns the number of bytes consumed.
 */
 int QPNGFormat::decode(QImage& img, QImageConsumer* cons,
 	const uchar* buffer, int length)

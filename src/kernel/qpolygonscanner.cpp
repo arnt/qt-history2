@@ -721,19 +721,20 @@ miInsertionSort(EdgeTableEntry *AET)
     return(changed);
 }
 
-/*! \overload
- */
+/*!
+    \overload
+*/
 void QPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int npoints)
 {
     scan( pa, winding, index, npoints, TRUE );
 }
 
-/*! \overload
+/*!
+    \overload
 
-  If \a stitchable is FALSE, the right and bottom edges of the polygon are
-    included. This causes adjacent polygons to overlap.
-
- */
+    If \a stitchable is FALSE, the right and bottom edges of the
+    polygon are included. This causes adjacent polygons to overlap.
+*/
 void QPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int npoints, bool stitchable)
 {
     scan( pa, winding, index, npoints,
@@ -741,25 +742,28 @@ void QPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int n
 }
 
 /*!
-  Calls processSpans() for all scanlines of the polygon defined by \a npoints
-  starting at \a index in \a pa.
+    Calls processSpans() for all scanlines of the polygon defined by
+    \a npoints starting at \a index in \a pa.
 
-  If \a winding is TRUE, the Winding algorithm rather than the Odd-Even
-    rule is used.
+    If \a winding is TRUE, the Winding algorithm rather than the
+    Odd-Even rule is used.
 
-  The \a edges is any bitwise combination of
-    QPolygonScanner::Left, 
-    QPolygonScanner::Right, 
-    QPolygonScanner::Top, and
-    QPolygonScanner::Bottom, and determines which edges are included.
+    The \a edges is any bitwise combination of:
+    \list
+    \i \c QPolygonScanner::Left
+    \i \c QPolygonScanner::Right
+    \i \c QPolygonScanner::Top
+    \i \c QPolygonScanner::Bottom
+    \endlist
+    \a edges determines which edges are included.
 
-    \warning The edges feature does not work properly
+    \warning The edges feature does not work properly.
 
 */
 void QPolygonScanner::scan( const QPointArray& pa, bool winding, int index, int npoints, Edge edges )
 {
 
-    
+
     DDXPointPtr ptsIn = (DDXPointPtr)pa.data();
     ptsIn += index;
     register EdgeTableEntry *pAET;  /* the Active Edge Table   */
