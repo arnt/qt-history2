@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qmime.cpp#14 $
 **
 ** Implementation of MIME support
 **
@@ -173,8 +173,8 @@ QMimeSourceFactory::QMimeSourceFactory() :
     d(new QMimeSourceFactoryData)
 {
     // add some reasonable defaults
-    setExtensionType("htm", "text/html");
-    setExtensionType("html", "text/html");
+    setExtensionType("htm", "text/html;charset=iso8859-1");
+    setExtensionType("html", "text/html;charset=iso8859-1");
     setExtensionType("txt", "text/plain");
     setExtensionType("xml", "text/xml;charset=utf8");
 }
@@ -231,17 +231,20 @@ static QMimeSource* data_internal(const QString& abs_name,
   QImageIO. Any other mime types are determined by the filename
   extension. The default settings are
   \code
-  setExtensionType("html", "text/html");
-  setExtensionType("htm", "text/html");
+  setExtensionType("html", "text/html;charset=iso8859-1");
+  setExtensionType("htm", "text/html;charset=iso8859-1");
   setExtensionType("txt", "text/plain");
   setExtensionType("xml", "text/xml;charset=utf8");
   \endcode
-  The effect of these is that filenames ending in "html", "htm", or "txt"
+  The effect of these is that filenames ending in "html" or "htm" will
+  be treated as text encoded in the iso8859-1 encoding, those ending in "txt"
   will be treated as text encoded in the local encoding; those ending in "xml"
   will be treated as text encoded in UTF8 encoding.  The text subtype ("html",
   "plain", or "xml") does not affect the factory, but users of the factory
   may behave differently. We recommend creating "xml" files where practical
-  as such files can be viewed regardless of the run-time encoding.
+  as such files can be viewed regardless of the run-time encoding, and can
+  encode any Unicode characters without resorting to encoding definitions
+  inside the file.
 
   Any file data that is not recognized will be retreived as a QMimeSource
   providing the "application/octet-stream" MIME type, which is just
