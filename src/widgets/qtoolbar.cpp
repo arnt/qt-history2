@@ -461,7 +461,7 @@ void QToolBar::hide()
 /*!  Returns a pointer to the QMainWindow which manages this toolbar.
 */
 
-QMainWindow * QToolBar::mainWindow()
+QMainWindow * QToolBar::mainWindow() const
 {
     return mw;
 }

@@ -76,7 +76,7 @@ public:
     void show();
     void hide();
 
-    QMainWindow * mainWindow();
+    QMainWindow * mainWindow() const;
 
     virtual void setStretchableWidget( QWidget * );
 
