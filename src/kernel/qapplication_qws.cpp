@@ -2396,9 +2396,10 @@ static bool qt_try_modal( QWidget *widget, QWSEvent *event )
     return !block_event;
 }
 
-
+static int openPopupCount = 0;
 void QApplication::openPopup( QWidget *popup )
 {
+    openPopupCount++;
     if ( !popupWidgets ) {			// create list
 	popupWidgets = new QWidgetList;
        if ( !activeBeforePopup )
@@ -2599,6 +2600,8 @@ bool QETWidget::translateMouseEvent( const QWSMouseEvent *event, int oldstate )
 		    break;				// nothing for mouse move
 	    }
 
+	    int oldOpenPopupCount = openPopupCount;
+
 	    if ( popupButtonFocus ) {
 		QMouseEvent e( type, popupButtonFocus->mapFromGlobal(globalPos),
 			       globalPos, button, oldstate );
@@ -2614,6 +2617,15 @@ bool QETWidget::translateMouseEvent( const QWSMouseEvent *event, int oldstate )
 	    } else {
 		QMouseEvent e( type, pos, globalPos, button, oldstate );
 		QApplication::sendSpontaneousEvent( popupChild ? popupChild : popup, & e );
+	    }
+	    if ( type == QEvent::MouseButtonPress && button == RightButton && ( openPopupCount == oldOpenPopupCount ) ) {
+		QWidget *popupEvent = popup;
+		if(popupButtonFocus)
+		    popupEvent = popupButtonFocus;
+		else if(popupChild)
+		    popupEvent = popupChild;
+		QContextMenuEvent e( QContextMenuEvent::Mouse, pos, globalPos, oldstate );
+		QApplication::sendSpontaneousEvent( popupEvent, &e );
 	    }
 
 	    if ( releaseAfter )
@@ -2643,6 +2655,8 @@ bool QETWidget::translateMouseEvent( const QWSMouseEvent *event, int oldstate )
 		qt_button_down = 0;
 	    }
 
+	    int oldOpenPopupCount = openPopupCount;
+
 	    QMouseEvent e( type, pos, globalPos, button, oldstate );
 #ifndef QT_NO_QWS_MANAGER
 	    if (widget->isTopLevel() && widget->d->topData()->qwsManager
@@ -2666,6 +2680,10 @@ bool QETWidget::translateMouseEvent( const QWSMouseEvent *event, int oldstate )
 		    QApplication::sendSpontaneousEvent( widget, &enter );
 		    (*mouseInWidget) = widget;
 		}
+		QApplication::sendSpontaneousEvent( widget, &e );
+	    }
+	    if ( type == QEvent::MouseButtonPress && button == RightButton && ( openPopupCount == oldOpenPopupCount ) ) {
+		QContextMenuEvent e( QContextMenuEvent::Mouse, pos, globalPos, oldstate );
 		QApplication::sendSpontaneousEvent( widget, &e );
 	    }
 	}
