@@ -15,7 +15,7 @@
 #include "formwindow.h"
 
 #include <abstractformeditor.h>
-#include <abstractwidgetdatabase.h>
+#include <widgetdatabase.h>
 
 QDesignerCustomWidget::QDesignerCustomWidget(FormWindow *formWindow, QWidget *parent)
     : QDesignerWidget(formWindow, parent),
@@ -38,7 +38,6 @@ AbstractWidgetDataBaseItem *QDesignerCustomWidget::widgetItem() const
     return 0;
 }
 
-
 QString QDesignerCustomWidget::widgetClassName() const
 {
     return m_widgetClassName;
@@ -47,6 +46,16 @@ QString QDesignerCustomWidget::widgetClassName() const
 void QDesignerCustomWidget::setWidgetClassName(const QString &widgetClassName)
 {
     m_widgetClassName = widgetClassName;    
+    createWidgetItem();
+}
+
+void QDesignerCustomWidget::createWidgetItem()
+{
+    if (!widgetItem()) {
+        WidgetDataBaseItem *item = new WidgetDataBaseItem();
+        item->setName(m_widgetClassName);
+        formWindow()->core()->widgetDataBase()->append(item);
+    }
 }
 
 bool QDesignerCustomWidget::isCompat() const

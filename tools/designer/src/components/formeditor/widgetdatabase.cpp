@@ -164,11 +164,13 @@ WidgetDataBase::WidgetDataBase(AbstractFormEditor *core, QObject *parent)
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QLayoutWidget")))->setContainer(true);
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QDesignerWidget")))->setContainer(true);
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QDesignerDialog")))->setContainer(true);
-    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QDesignerCompatWidget")))->setContainer(true);
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QSplitter")))->setContainer(true);
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QMainWindow")))->setContainer(true);
 
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QWidget")))->setContainer(true);
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QWidget")))->setForm(true);
+    
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QDialog")))->setContainer(true);
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QDialog")))->setForm(true);
 }
 
@@ -181,10 +183,13 @@ AbstractFormEditor *WidgetDataBase::core() const
     return m_core;
 }
 
-int WidgetDataBase::indexOfObject(QObject *object, bool resolveName) const
+int WidgetDataBase::indexOfObject(QObject *object, bool /*resolveName*/) const
 {
+    bool resolveName = true; // ### resolveName = false is ignored
+    
     if (resolveName)
         return AbstractWidgetDataBase::indexOfClassName(WidgetFactory::classNameOf(object));
+        
     return AbstractWidgetDataBase::indexOfObject(object, resolveName);
 }
 

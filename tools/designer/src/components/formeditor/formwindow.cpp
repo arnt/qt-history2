@@ -1858,7 +1858,7 @@ QWidget *FormWindow::findContainer(QWidget *w, bool excludeLayout) const
     QWidget *container = widgetFactory->containerOfWidget(mainContainer()); // default parent for new widget is the formwindow
     if (!isMainContainer(w)) { // press was not on formwindow, check if we can find another parent
         while (w) {
-            bool isContainer = widgetDataBase->isContainer(w, false) || w == mainContainer();
+            bool isContainer = widgetDataBase->isContainer(w, true) || w == mainContainer();
             if (!isContainer || (excludeLayout && qt_cast<QLayoutWidget*>(w))) { // ### skip QSplitter
                 w = w->parentWidget();
             } else {

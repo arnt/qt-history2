@@ -22,7 +22,6 @@ struct AbstractWidgetDataBaseItem;
 class QDesignerCustomWidget: public QDesignerWidget
 {
     Q_OBJECT
-    Q_PROPERTY(QString widgetClassName READ widgetClassName WRITE setWidgetClassName)
     Q_PROPERTY(bool compat READ isCompat WRITE setCompat STORED false)
     Q_PROPERTY(bool container READ isContainer WRITE setContainer STORED false)
 public:
@@ -39,6 +38,9 @@ public:
     
     bool isContainer() const;
     void setContainer(bool container);
+    
+private:
+    void createWidgetItem();
     
 private:
     QString m_widgetClassName;
