@@ -587,7 +587,7 @@ void MessageEditor::showContext( const QString& context, bool finished )
 }
 
 void MessageEditor::showMessage( const QString& text,
-				 const QString& /*comment*/,
+				 const QString& comment,
 				 const QString& fullContext,
 				 const QString& translation,
 				 MetaTranslatorMessage::Type type,
@@ -600,8 +600,17 @@ void MessageEditor::showMessage( const QString& text,
 
     editorPage->srcText->setText( QString("<p>") + richText( text ) +
 				  QString("</p>") );
-    editorPage->cmtText->setText( richText(fullContext.simplifyWhiteSpace()) );
-
+   
+    if ( !fullContext.isEmpty() && !comment.isEmpty() )
+	editorPage->cmtText->setText( richText(fullContext.simplifyWhiteSpace()) + 
+				      "\n" + richText(comment.simplifyWhiteSpace()) );
+    else if ( !fullContext.isEmpty() && comment.isEmpty() )
+	editorPage->cmtText->setText(richText(fullContext.simplifyWhiteSpace() ) );
+    else if ( fullContext.isEmpty() && !comment.isEmpty() )
+	editorPage->cmtText->setText( richText(comment.simplifyWhiteSpace() ) );
+    else 
+	editorPage->cmtText->setText( "" );
+    
     setTranslation( translation, FALSE);
     setFinished( type != MetaTranslatorMessage::Unfinished );
     QValueList<Phrase>::ConstIterator p;
