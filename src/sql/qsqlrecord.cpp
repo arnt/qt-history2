@@ -45,16 +45,21 @@ class QSqlRecordPrivate
 {
 public:
     QSqlRecordPrivate() {}
+    QSqlRecordPrivate( const QSqlRecordPrivate& other )
+	: fieldList( other.fieldList ), 
+	nogenFields( other.nogenFields )
+    {
+    }
     QSqlRecordPrivate& operator=( const QSqlRecordPrivate& other )
     {
 	fieldList = other.fieldList;
 	nogenFields = other.nogenFields;
 	return *this;
     }
-    QValueList< QSqlField > fieldList;    
-    QMap< int, bool >  nogenFields;    
+    QValueList< QSqlField > fieldList;
+    QMap< int, bool >  nogenFields;
 };
- 
+
 /*!
     \class QSqlRecord qsqlfield.h
     \brief Template class used for manipulating a list of SQL database fields.
@@ -214,6 +219,7 @@ void QSqlRecord::remove( int pos )
 void QSqlRecord::clear()
 {
     d->fieldList.clear();
+    d->nogenFields.clear();
 }
 
 /*!  Returns TRUE if there are no fields in the record, otherwise
@@ -246,7 +252,7 @@ void QSqlRecord::setGenerated( const QString& name, bool generated )
 {
     if ( !field( name ) )
 	return;
-    d->nogenFields[ position( name ) ] = generated;
+    d->nogenFields[ position( name ) ] = !generated;
 }
 
 bool QSqlRecord::isGenerated( const QString& name ) const

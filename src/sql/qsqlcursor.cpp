@@ -403,7 +403,7 @@ void QSqlCursor::setCalculated( const QString& name, bool calculated )
     if ( !field( name ) )
 	return;
     d->calcFields[ position( name ) ] = calculated;
-    setGenerated( name, FALSE );
+    setGenerated( name, !calculated );
 }
 
 /* Returns true if the field \a name is calculated, otherwise FALSE is
@@ -493,7 +493,7 @@ QString QSqlCursor::fieldEqualsValue( QSqlRecord* rec, const QString& prefix, co
     } else { /* use all fields */
  	for ( uint j = 0; j < count(); ++j ) {
 	    QSqlField* f = rec->field( j );
-	    if ( !isCalculated( f->name() ) ) {
+	    if ( !isCalculated( f->name() ) && isGenerated( f->name() ) ) {
 		if ( sep )
 		    filter += " " + fieldSep + " " ;
 		filter += qMakeFieldValue( driver(), prefix, f );
@@ -506,10 +506,13 @@ QString QSqlCursor::fieldEqualsValue( QSqlRecord* rec, const QString& prefix, co
 
 /*!  Returns a pointer to the internal record buffer used for
   inserting records.  All previous pointers returned by insertBuffer()
-  are invalidated.  If \a clearValues is TRUE (the default), the
-  insert record buffer values are cleared, otherwise the buffer will
-  contain the field values of the current cursor buffer.  If \a prime
-  is TRUE (the default), the buffer is primed using primeInsert().
+  are invalidated, and should not be used.  If \a clearValues is TRUE
+  (the default), the insert record buffer values are cleared,
+  otherwise the buffer will contain the field values of the current
+  cursor buffer.  If \a prime is TRUE (the default), the buffer is
+  primed using primeInsert().
+  
+  \sa primeInsert()
 
 */
 QSqlRecord* QSqlCursor::insertBuffer( bool clearValues, bool prime )
