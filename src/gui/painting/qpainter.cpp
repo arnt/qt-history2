@@ -2002,23 +2002,23 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
     \sa drawLineSegments(), drawPolyline(), QPen
 */
 
-void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int npoints)
+void QPainter::drawPolygon(const QPolygon &polygon, bool winding, int index, int npoints)
 {
     if (!isActive())
         return;
     d->engine->updateState(d->state);
 
-    if (a.isEmpty())
+    if (polygon.isEmpty())
 	return;
 
     if (npoints < 0)
-        npoints = a.size() - index;
-    if (index + npoints > (int)a.size())
-        npoints = a.size() - index;
+        npoints = polygon.size() - index;
+    if (index + npoints > (int)polygon.size())
+        npoints = polygon.size() - index;
     if (!isActive() || npoints < 2 || index < 0)
         return;
 
-    QPolygon pa = QPolygon::fromPointArray(a.mid(index, npoints));
+    QPolygon pa = (npoints - index != polygon.size() ? polygon.mid(index, npoints) : polygon);
 
     if ((d->state->txop > TxTranslate && !d->engine->hasFeature(QPaintEngine::CoordTransform))
         || (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
@@ -2030,10 +2030,10 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
             && !d->engine->hasFeature(QPaintEngine::LinearGradients))) {
         QPainterPath path;
         path.setFillMode(winding ? QPainterPath::Winding : QPainterPath::OddEven);
-        if (!a.isEmpty())
-            path.moveTo(a.at(0));
-        for (int i=1; i<a.size(); ++i)
-            path.lineTo(a.at(i));
+        if (!pa.isEmpty())
+            path.moveTo(pa.at(0));
+        for (int i=1; i<pa.size(); ++i)
+            path.lineTo(pa.at(i));
         path.closeSubpath();
         drawPath(path);
         return;
@@ -2044,6 +2044,12 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
 
     d->engine->drawPolygon(pa, winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
 }
+
+void QPainter::drawPolygon(const QPointArray &pa, bool winding, int index, int npoints)
+{
+    drawPolygon(QPolygon::fromPointArray(pa), winding, index, npoints);
+}
+
 
 /*!
     Draws the convex polygon defined by the \a npoints points in \a a

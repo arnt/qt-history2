@@ -144,7 +144,8 @@ class Q_GUI_EXPORT QPainter
     void drawChord(const QRect &, int a, int alen);
     void drawLineSegments(const QPointArray &, int index = 0, int nlines = -1);
     void drawPolyline(const QPointArray &pa, int index = 0, int npoints = -1);
-    void drawPolygon(const QPointArray &pa, bool winding = false, int index = 0, int npoints =- 1);
+    void drawPolygon(const QPointArray &pa, bool winding = false, int index = 0, int npoints = -1);
+    void drawPolygon(const QPolygon &polygon, bool winding = false, int index = 0, int npoints = -1);
     void drawConvexPolygon(const QPointArray &pa, int index = 0, int npoints = -1);
 
     void drawTiledPixmap(int x, int y, int w, int h, const QPixmap &, int sx=0, int sy=0,
