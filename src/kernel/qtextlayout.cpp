@@ -549,6 +549,11 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
     if ( descent )
 	*descent = desc;
 
+    if (levels != _levels)
+	delete []levels;
+    if (visual != _visual)
+	delete []visual;
+
     return result;
 }
 
