@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#407 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#408 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -114,7 +114,7 @@ static int	 appCmdShow	= 0;		// main window show command
 static int	 numZeroTimers	= 0;		// number of full-speed timers
 static HWND	 curWin		= 0;		// current window
 static HDC	 displayDC	= 0;		// display device context
-#define USE_HEARTBEAT
+//#define USE_HEARTBEAT
 #if defined(USE_HEARTBEAT)
 static int	 heartBeat	= 0;		// heatbeat timer
 #endif
@@ -1342,7 +1342,7 @@ bool QApplication::processNextEvent( bool canWait )
 	}
     }
 
-    if ( msg.message == WM_TIMER && msg.hwnd != 0 ) {		// timer message received
+    if ( msg.message == WM_TIMER ) {		// timer message received
 #if defined(QT_THREAD_SUPPORT)
 	qApp->lock();
 #endif
