@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#21 $
 **
 ** Implementation of QFileDialog class
 **
@@ -50,7 +50,7 @@ struct QUrlPrivate
     QString nameFilter;
     QDir dir;
     QMap<QString, QUrlInfo> entryMap;
-    QNetworkFileAccess *networkProtocol;
+    QNetworkProtocol *networkProtocol;
 };
 
 /*!
@@ -1028,7 +1028,7 @@ QString QUrl::path() const
 	if ( fi.isDir() )
 	    return QDir::cleanDirPath( QDir( d->path ).canonicalPath() );
 	else {
-	    QString p = QDir::cleanDirPath( fi.dir().canonicalPath() ); 
+	    QString p = QDir::cleanDirPath( fi.dir().canonicalPath() );
 	    return p + "/" + fi.fileName();
 	}
     }
@@ -1379,7 +1379,8 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 	    addEntry( inf );
 	}
 	emit finished( ActListDirectory );
-    } else if ( d->networkProtocol ) {
+    } else if ( d->networkProtocol && 
+		d->networkProtocol->supportedOperations() & QNetworkProtocol::OpListEntries ) {
 	emit start( ActListDirectory );
 	setNameFilter( nameFilter );
 	d->networkProtocol->listEntries( nameFilter, filterSpec, sortSpec );
@@ -1410,7 +1411,8 @@ void QUrl::mkdir( const QString &dirname )
 	    QString msg = QUrl::tr( "Could not create directory\n" + dirname );
 	    emit error( ErrCreateDir, msg );
 	}
-    } else if ( d->networkProtocol ) {
+    } else if ( d->networkProtocol &&
+	d->networkProtocol->supportedOperations() & QNetworkProtocol::OpMkdir ) {
 	d->networkProtocol->mkdir( dirname );
     } else
 	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
@@ -1433,7 +1435,8 @@ void QUrl::remove( const QString &filename )
 	    QString msg = QUrl::tr( "Could not delete file\n" + filename );
 	    emit error( ErrDeleteFile, msg );
 	}
-    } else if ( d->networkProtocol ) {
+    } else if ( d->networkProtocol &&
+	d->networkProtocol->supportedOperations() & QNetworkProtocol::OpRemove ) {
 	d->networkProtocol->remove( filename );
     } else
 	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
@@ -1452,7 +1455,8 @@ void QUrl::rename( const QString &oldname, const QString &newname )
 	QDir dir( d->path );
 	if ( dir.rename( oldname, newname ) )
 	    emit itemChanged( oldname, newname );
-    } else if ( d->networkProtocol ) {
+    } else if ( d->networkProtocol &&
+	d->networkProtocol->supportedOperations() & QNetworkProtocol::OpRename ) {
 	d->networkProtocol->rename( oldname, newname );
     } else
 	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
@@ -1528,7 +1532,8 @@ void QUrl::copy( const QStringList &files, const QString &dest, bool move )
 	    }
 	}
 	emit finished( move ? ActMoveFiles : ActCopyFiles );
-    } else if ( d->networkProtocol ) {
+    } else if ( d->networkProtocol && 
+	d->networkProtocol->supportedOperations() & QNetworkProtocol::OpCopy ) {
 	d->networkProtocol->copy( files, dest, move );
     } else
 	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
@@ -1545,7 +1550,8 @@ bool QUrl::isDir()
 	    emit urlIsDir();
 	else
 	    emit urlIsFile();
-    } else if ( d->networkProtocol ) {
+    } else if ( d->networkProtocol &&
+	d->networkProtocol->supportedOperations() & QNetworkProtocol::OpIsUrlDir ) {
 	d->networkProtocol->isUrlDir();
     } else {
 	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
@@ -1566,7 +1572,8 @@ bool QUrl::isFile()
 	    emit urlIsFile();
 	else
 	    emit urlIsDir();
-    } else if ( d->networkProtocol ) {
+    } else if ( d->networkProtocol && 
+	d->networkProtocol->supportedOperations() & QNetworkProtocol::OpIsUrlFile ) {
 	d->networkProtocol->isUrlFile();
     } else {
 	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
@@ -1582,7 +1589,8 @@ bool QUrl::isFile()
 
 void QUrl::put( const QCString &data )
 {
-    if ( d->networkProtocol )
+    if ( d->networkProtocol &&
+	d->networkProtocol->supportedOperations() & QNetworkProtocol::OpPut )
 	d->networkProtocol->put( data );
 }
 
@@ -1697,9 +1705,6 @@ void QUrl::getNetworkProtocol()
 	return;
     }
 
-    if ( p->inherits( "QNetworkFileAccess" ) ) {
-	d->networkProtocol = (QNetworkFileAccess*)p;
-	d->networkProtocol->setUrl( this );
-    } else
-	d->networkProtocol = 0;
+    d->networkProtocol = (QNetworkProtocol *)p;
+    d->networkProtocol->setUrl( this );
 }

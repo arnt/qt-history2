@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#4 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#5 $
 **
 ** Implementation of QFileDialog class
 **
@@ -37,7 +37,7 @@
 
 class QNetworkProtocol;
 
-class QInternetProtocolFactoryBase
+class QNetworkProtocolFactoryBase
 {
 public:
    virtual QNetworkProtocol *createObject() = 0;
@@ -45,7 +45,7 @@ public:
 };
 
 template< class Protocol >
-class QInternetProtocolFactory : public QInternetProtocolFactoryBase
+class QNetworkProtocolFactory : public QNetworkProtocolFactoryBase
 {
 public:
     QNetworkProtocol *createObject() {
@@ -54,7 +54,7 @@ public:
 
 };
 
-typedef QDict< QInternetProtocolFactoryBase > QNetworkProtocolDict;
+typedef QDict< QNetworkProtocolFactoryBase > QNetworkProtocolDict;
 extern Q_EXPORT QNetworkProtocolDict *qNetworkProtocolRegister;
 
 
@@ -73,6 +73,16 @@ public:
 	Error
     };
 
+    enum Operations {
+	OpListEntries = 1,
+	OpMkdir = 2,
+	OpRemove = 4,
+	OpRename = 8,
+	OpCopy = 16,
+	OpIsUrlDir = 32,
+	OpIsUrlFile = 64,
+	OpPut = 128
+    };
 
     QNetworkProtocol();
     virtual ~QNetworkProtocol();
@@ -82,35 +92,6 @@ public:
     virtual void close();
     virtual void setUrl( QUrl *u );
 
-    virtual void put( const QCString &data );
-
-    virtual QNetworkProtocol *copy() const;
-
-    static void registerNetworkProtocol( const QString &protocol, 
-					 QInternetProtocolFactoryBase *protocolFactory );
-    static QNetworkProtocol *getNetworkProtocol( const QString &protocol );
-
-signals:
-    void error( int ecode, const QString &msg );
-    void data( const QCString & );
-    void putSuccessful( const QCString & );
-    void connectionStateChanged( int state, const QString &data );
-    void finished( int );
-    void start( int );
-
-protected:
-    QUrl *url;
-
-};
-
-class QNetworkFileAccess : public QNetworkProtocol
-{
-    Q_OBJECT
-
-public:
-    QNetworkFileAccess();
-    virtual ~QNetworkFileAccess();
-
     virtual void listEntries( const QString &nameFilter, int filterSpec = QDir::DefaultFilter,
 			      int sortSpec = QDir::DefaultSort );
     virtual void mkdir( const QString &dirname );
@@ -119,10 +100,22 @@ public:
     virtual void copy( const QStringList &files, const QString &dest, bool move );
     virtual void isUrlDir();
     virtual void isUrlFile();
+    virtual void put( const QCString &data );
 
-    virtual QNetworkProtocol *copy() const;
+    static void registerNetworkProtocol( const QString &protocol,
+					 QNetworkProtocolFactoryBase *protocolFactory );
+    static QNetworkProtocol *getNetworkProtocol( const QString &protocol );
 
+    virtual int supportedOperations() const;
+    
 signals:
+    void error( int ecode, const QString &msg );
+    void data( const QCString & );
+    void putSuccessful( const QCString & );
+    void connectionStateChanged( int state, const QString &data );
+    void finished( int );
+    void start( int );
+
     void entry( const QUrlInfo & );
     void createdDirectory( const QUrlInfo & );
     void removed( const QString & );
@@ -132,7 +125,10 @@ signals:
     void copyProgress( const QString &, const QString &,
 		       int step, int total );
 
+protected:
+    QUrl *url;
 
 };
+
 
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#6 $
 **
 ** Implementation of QFileDialog class
 **
@@ -94,6 +94,64 @@ QNetworkProtocolDict *qNetworkProtocolRegister = 0;
 */
 
 /*!
+  \fn void QNetworkProtocol::entry( const QUrlInfo &i )
+
+  This signal is emitted after listEntries() was called and
+  a new entry (file) has been read from the list of files. \a i
+  holds the information about the new etry.
+*/
+
+/*!
+  \fn void QNetworkProtocol::createdDirectory( const QUrlInfo &i )
+
+  This signal is emitted when mkdir() has been succesful
+  and the directory has been created. \a i holds the information
+  about the new directory.
+*/
+
+/*!
+  \fn void QNetworkProtocol::removed( const QString &name )
+
+  This signal is emitted when remove() has been succesful
+  and the file has been removed. \a name is the filename
+  of the removed file.
+*/
+
+/*!
+  \fn void QNetworkProtocol::itemChanged( const QString &oldname, const QString &newname )
+
+  This signal is emitted whenever a file, which is a child of this URL,
+  has been changed e.g. by successfully calling rename(). \a oldname is
+  the original name of the file and \a newname is the name which the file
+  go now.
+*/
+
+/*!
+  \fn void QNetworkProtocol::urlIsDir()
+
+  When calling isFile() or isDir() and the URL is a dir, this signal
+  is emitted.
+*/
+
+/*!
+  \fn void QNetworkProtocol::urlIsFile()
+
+  When calling isFile() or isDir() and the URL is a file, this signal
+  is emitted.
+*/
+
+/*!
+  \fn void QNetworkProtocol::copyProgress( const QString &from, const QString &to, int step, int total )
+
+  When copying a file this signal is emitted. \a from is the file which
+  is copied, \a to the destination. \a step is the progress
+  (always <= \a total) or -1, if copying just started. \a total is the
+  number of steps needed to copy the file.
+
+  This signal can be used to show the progress when copying files.
+*/
+
+/*!
   #### todo
 */
 
@@ -158,17 +216,73 @@ void QNetworkProtocol::put( const QCString & )
   #### todo
 */
 
-QNetworkProtocol *QNetworkProtocol::copy() const
+void QNetworkProtocol::listEntries( const QString &, int, int)
 {
-    return new QNetworkProtocol();
 }
 
 /*!
   #### todo
 */
 
-void QNetworkProtocol::registerNetworkProtocol( const QString &protocol, 
-						QInternetProtocolFactoryBase *protocolFactory )
+void QNetworkProtocol::mkdir(const QString & )
+{
+}
+
+/*!
+  #### todo
+*/
+
+void QNetworkProtocol::remove( const QString & )
+{
+}
+
+/*!
+  #### todo
+*/
+
+void QNetworkProtocol::rename( const QString &, const QString & )
+{
+}
+
+/*!
+  #### todo
+*/
+
+void QNetworkProtocol::copy( const QStringList &, const QString &, bool )
+{
+}
+
+/*!
+  #### todo
+*/
+
+void QNetworkProtocol::isUrlDir()
+{
+}
+
+/*!
+  #### todo
+*/
+
+void QNetworkProtocol::isUrlFile()
+{
+}
+
+/*!
+  #### todo
+*/
+
+int QNetworkProtocol::supportedOperations() const
+{
+    return 0;
+}
+
+/*!
+  #### todo
+*/
+
+void QNetworkProtocol::registerNetworkProtocol( const QString &protocol,
+						QNetworkProtocolFactoryBase *protocolFactory )
 {
     if ( !qNetworkProtocolRegister )
 	qNetworkProtocolRegister = new QNetworkProtocolDict;
@@ -187,162 +301,11 @@ QNetworkProtocol *QNetworkProtocol::getNetworkProtocol( const QString &protocol 
 
     if ( protocol.isNull() )
 	return 0;
-    
-    QInternetProtocolFactoryBase *factory = qNetworkProtocolRegister->find( protocol );
+
+    QNetworkProtocolFactoryBase *factory = qNetworkProtocolRegister->find( protocol );
     if ( factory )
 	return factory->createObject();
-    
+
     return 0;
 }
 
-
-
-
-
-
-
-/*!
-  \class QNetworkFileAccess qnetworkprotocol.h
-
-*/
-
-/*!
-  \fn void QNetworkFileAccess::entry( const QUrlInfo &i )
-
-  This signal is emitted after listEntries() was called and
-  a new entry (file) has been read from the list of files. \a i
-  holds the information about the new etry.
-*/
-
-/*!
-  \fn void QNetworkFileAccess::createdDirectory( const QUrlInfo &i )
-
-  This signal is emitted when mkdir() has been succesful
-  and the directory has been created. \a i holds the information
-  about the new directory.
-*/
-
-/*!
-  \fn void QNetworkFileAccess::removed( const QString &name )
-
-  This signal is emitted when remove() has been succesful
-  and the file has been removed. \a name is the filename
-  of the removed file.
-*/
-
-/*!
-  \fn void QNetworkFileAccess::itemChanged( const QString &oldname, const QString &newname )
-
-  This signal is emitted whenever a file, which is a child of this URL,
-  has been changed e.g. by successfully calling rename(). \a oldname is
-  the original name of the file and \a newname is the name which the file
-  go now.
-*/
-
-/*!
-  \fn void QNetworkFileAccess::urlIsDir()
-
-  When calling isFile() or isDir() and the URL is a dir, this signal
-  is emitted.
-*/
-
-/*!
-  \fn void QNetworkFileAccess::urlIsFile()
-
-  When calling isFile() or isDir() and the URL is a file, this signal
-  is emitted.
-*/
-
-/*!
-  \fn void QNetworkFileAccess::copyProgress( const QString &from, const QString &to, int step, int total )
-
-  When copying a file this signal is emitted. \a from is the file which
-  is copied, \a to the destination. \a step is the progress
-  (always <= \a total) or -1, if copying just started. \a total is the
-  number of steps needed to copy the file.
-
-  This signal can be used to show the progress when copying files.
-*/
-
-/*!
-  #### todo
-*/
-
-QNetworkFileAccess::QNetworkFileAccess()
-    : QNetworkProtocol()
-{
-}
-
-
-/*!
-  #### todo
-*/
-
-QNetworkFileAccess::~QNetworkFileAccess()
-{
-}
-
-/*!
-  #### todo
-*/
-
-void QNetworkFileAccess::listEntries( const QString &, int, int)
-{
-}
-
-/*!
-  #### todo
-*/
-
-void QNetworkFileAccess::mkdir(const QString & )
-{
-}
-
-/*!
-  #### todo
-*/
-
-void QNetworkFileAccess::remove( const QString & )
-{
-}
-
-/*!
-  #### todo
-*/
-
-void QNetworkFileAccess::rename( const QString &, const QString & )
-{
-}
-
-/*!
-  #### todo
-*/
-
-void QNetworkFileAccess::copy( const QStringList &, const QString &, bool )
-{
-}
-
-/*!
-  #### todo
-*/
-
-void QNetworkFileAccess::isUrlDir()
-{
-}
-
-/*!
-  #### todo
-*/
-
-void QNetworkFileAccess::isUrlFile()
-{
-}
-
-/*!
-  #### todo
-*/
-
-QNetworkProtocol *QNetworkFileAccess::copy() const
-{
-    return new QNetworkFileAccess();
-}
