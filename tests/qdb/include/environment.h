@@ -130,7 +130,10 @@ struct LocalSQLResultSet : public LocalSQLDataSet
     enum GroupSetAction{
 	Value,
 	Count,
-	Sum
+	Sum,
+	Max,
+	Min,
+	Avg
     };
     /*! Returns the value of groupset field \a i (zero-based) according to \a action */
     virtual bool groupSetAction( GroupSetAction action, uint i, QVariant& v ) = 0;

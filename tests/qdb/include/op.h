@@ -1095,7 +1095,7 @@ public:
 class PushGroupValue : public Op
 {
 public:
-    PushGroupValue( const QVariant& id, const QVariant& P2 )
+    PushGroupValue( int id, const QVariant& P2 )
 	: Op( id, P2 ) {}
     QString name() const { return "pushgroupvalue"; }
     int exec( LocalSQLEnvironment* env )
@@ -1122,7 +1122,7 @@ public:
 class PushGroupCount : public Op
 {
 public:
-    PushGroupCount( const QVariant& id, const QVariant& P2 )
+    PushGroupCount( int id, const QVariant& P2 )
 	: Op( id, P2 ) {}
     QString name() const { return "pushgroupcount"; }
     int exec( LocalSQLEnvironment* env )
@@ -1149,7 +1149,7 @@ public:
 class PushGroupSum : public Op
 {
 public:
-    PushGroupSum( const QVariant& id, const QVariant& P2 )
+    PushGroupSum( int id, const QVariant& P2 )
 	: Op( id, P2 ) {}
     QString name() const { return "pushgroupsum"; }
     int exec( LocalSQLEnvironment* env )
@@ -1167,6 +1167,91 @@ public:
 	return TRUE;
     }
 };
+
+/* Push the avg of field P2 from the current group of the
+   result set identified by 'id' on to the top of the stack.  The result set
+   must be positioned on a valid group (see NextGroup).
+*/
+
+class PushGroupAvg : public Op
+{
+public:
+    PushGroupAvg( int id, const QVariant& P2 )
+	: Op( id, P2 ) {}
+    QString name() const { return "pushgroupavg"; }
+    int exec( LocalSQLEnvironment* env )
+    {
+	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
+	QVariant v;
+	if ( p2.type() == QVariant::String || p2.type() == QVariant::CString ) {
+	    if ( !res->groupSetAction( LocalSQLResultSet::Avg, p2.toString(), v ) )
+		return FALSE;
+	} else {
+	    if ( !res->groupSetAction( LocalSQLResultSet::Avg, p2.toInt(), v ) )
+		return FALSE;
+	}
+	env->stack()->push( v );
+	return TRUE;
+    }
+};
+
+/* Push the max of field P2 from the current group of the
+   result set identified by 'id' on to the top of the stack.  The result set
+   must be positioned on a valid group (see NextGroup).
+*/
+
+class PushGroupMax : public Op
+{
+public:
+    PushGroupMax( int id, const QVariant& P2 )
+	: Op( id, P2 ) {}
+    QString name() const { return "pushgroupmax"; }
+    int exec( LocalSQLEnvironment* env )
+    {
+	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
+	QVariant v;
+	if ( p2.type() == QVariant::String || p2.type() == QVariant::CString ) {
+	    if ( !res->groupSetAction( LocalSQLResultSet::Max, p2.toString(), v ) )
+		return FALSE;
+	} else {
+	    if ( !res->groupSetAction( LocalSQLResultSet::Max, p2.toInt(), v ) )
+		return FALSE;
+	}
+	env->stack()->push( v );
+	return TRUE;
+    }
+};
+
+
+/* Push the min of field P2 from the current group of the
+   result set identified by 'id' on to the top of the stack.  The result set
+   must be positioned on a valid group (see NextGroup).
+*/
+
+class PushGroupMin : public Op
+{
+public:
+    PushGroupMin( int id, const QVariant& P2 )
+	: Op( id, P2 ) {}
+    QString name() const { return "pushgroupmin"; }
+    int exec( LocalSQLEnvironment* env )
+    {
+	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
+	QVariant v;
+	if ( p2.type() == QVariant::String || p2.type() == QVariant::CString ) {
+	    if ( !res->groupSetAction( LocalSQLResultSet::Min, p2.toString(), v ) )
+		return FALSE;
+	} else {
+	    if ( !res->groupSetAction( LocalSQLResultSet::Min, p2.toInt(), v ) )
+		return FALSE;
+	}
+	env->stack()->push( v );
+	return TRUE;
+    }
+};
+
+
+
 
 
 

@@ -863,6 +863,55 @@ bool ResultSet::groupSetAction( GroupSetAction action, uint i, QVariant& v )
 	v = sum;
 	break;
     }
+    case Avg: {
+	double sum = 0;
+	int count = 0;
+	for ( ColumnKey::Iterator it = startit;
+	      ;
+	      ++it ){
+	    bool processingLast = ( startit == lastit );
+	    for ( uint s = 0; s < (*it).count(); ++s ) {
+		if ( processingLast && s > sublast )
+		     break;
+		sum += data[ it.data()[s] ][i].toDouble();
+		++count;
+	    }
+	    if ( processingLast )
+		break;
+	}
+	v = sum/count;
+	break;
     }
+    case Max:
+    case Min: {
+	double x = 0;
+	if ( action == Max )
+	    x = INT_MAX;
+	else
+	    x = INT_MIN;
+	for ( ColumnKey::Iterator it = startit;
+	      ;
+	      ++it ){
+	    bool processingLast = ( startit == lastit );
+	    for ( uint s = 0; s < (*it).count(); ++s ) {
+		if ( processingLast && s > sublast )
+		     break;
+		double d = data[ it.data()[s] ][i].toDouble();
+		if ( action == Max ) {
+		    if ( d > x )
+			x = d;
+		} else {
+		    if ( d < x )
+			x = d;
+		}
+	    }
+	    if ( processingLast )
+		break;
+	}
+	v = x;
+	break;
+    }
+    }
+
     return TRUE;
 }
