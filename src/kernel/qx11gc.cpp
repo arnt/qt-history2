@@ -596,11 +596,11 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
         bool mono = pm->depth() == 1;           // monochrome bitmap
         if ( mono ) {
             setf( MonoDev );
-            d->bg_brush = color0;
-            d->cpen.setColor( color1 );
+//             d->bg_brush = color0;
+//             d->cpen.setColor( color1 );
+	    ps->bgBrush = color0; // ### superhack - remove when fixed
+	    ps->pen.setColor(color1);
         }
-//         ww = vw = pm->width();                  // default view size
-//         wh = vh = pm->height();
     }
 
     d->clip_serial = gc_cache_clip_serial++;
@@ -680,25 +680,25 @@ void QX11GC::drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, const Q
         return;
     static char winfocus_line[] = {1, 1};
 
-//     QPen old_pen = d->cpen;
-//     RasterOp old_rop = (RasterOp) d->rop;
+    QPen old_pen = d->cpen;
+    RasterOp old_rop = (RasterOp) d->rop;
 
-//     if (xorPaint) {
-//         if (QColor::numBitPlanes() <= 8)
-//             setPen(color1);
-//         else
-//             setPen(white);
-//         setRasterOp(XorROP);
-//     } else {
-//         if (qGray(bgColor.rgb()) < 128)
-//             setPen(white);
-//         else
-//             setPen(black);
-//     }
+    if (xorPaint) {
+        if (QColor::numBitPlanes() <= 8)
+            d->cpen.setColor(color1);
+        else
+            d->cpen.setColor(white);
+        setRasterOp(XorROP);
+    } else {
+        if (qGray(bgColor.rgb()) < 128)
+            d->cpen.setColor(white);
+        else
+            d->cpen.setColor(black);
+    }
+    QPainterState ps; // ### hacky, backy - find a better way
+    ps.pen = d->cpen;
+    updatePen(&ps);
 
-//     if ( testf(ExtDev|VxF|WxF) ) {
-//         map( x, y, w, h, &x, &y, &w, &h );
-//     }
     if (w <= 0 || h <= 0) {
         if (w == 0 || h == 0)
             return;
@@ -709,15 +709,14 @@ void QX11GC::drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, const Q
 
     XDrawRectangle(d->dpy, d->hd, d->gc, x, y, w-1, h-1);
     XSetLineAttributes(d->dpy, d->gc, 0, LineSolid, CapButt, JoinMiter);
-//     setRasterOp(old_rop);
-//     setPen(old_pen);
+    setRasterOp(old_rop);
+    ps.pen = old_pen;
+    updatePen(&ps);
 }
 
 void QX11GC::updatePen(QPainterState *state)
 {
     d->cpen = state->pen;
-    d->cbrush = state->brush;
-//     d->bg_brush = state->bgBrush;
 
     int ps = d->cpen.style();
     bool cacheIt = !testf(ClipOn|MonoDev|NoCache) &&
@@ -871,6 +870,7 @@ void QX11GC::updatePen(QPainterState *state)
 void QX11GC::updateBrush(QPainterState *state)
 {
     d->cbrush = state->brush;
+    d->bg_brush = state->bgBrush;
 
     static const uchar dense1_pat[] = { 0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff };
     static const uchar dense2_pat[] = { 0x77, 0xff, 0xdd, 0xff, 0x77, 0xff, 0xdd, 0xff };
@@ -1110,10 +1110,11 @@ void QX11GC::setRasterOp(RasterOp r)
         return;
     }
     d->rop = r;
-    if (d->penRef)
-        updatePen(0);                            // get non-cached pen GC
-    if (d->brushRef)
-        updateBrush(0);                          // get non-cached brush GC
+//  This won't work - guaranteed
+//     if (d->penRef)
+//         updatePen(0);                            // get non-cached pen GC
+//     if (d->brushRef)
+//         updateBrush(0);                          // get non-cached brush GC
     XSetFunction(d->dpy, d->gc, ropCodes[d->rop]);
     XSetFunction(d->dpy, d->gc_brush, ropCodes[d->rop]);
 }
