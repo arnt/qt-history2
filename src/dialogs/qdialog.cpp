@@ -241,13 +241,9 @@ public:
 
 QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
     : QWidget( parent, name,
-	       (modal ? (f|WShowModal) : f) | WType_Dialog )
+	       (modal ? (f|WShowModal) : f) | WType_Dialog ),
+      rescode(0),did_move(0), did_resize(0), has_relpos(0),in_loop(0),in_close(0)
 {
-    rescode = 0;
-    did_move = FALSE;
-    did_resize = FALSE;
-    has_relpos = FALSE;
-    in_loop = FALSE;
     d = new QDialogPrivate;
 }
 
@@ -388,18 +384,7 @@ void QDialog::done( int r )
 {
     hide();
     setResult( r );
-
-    // We cannot use close() here, as close() calls closeEvent() calls
-    // reject() calls close(). But we can at least keep the
-    // mainWidget() and WDestructiveClose semantics. There should not
-    // be much of a difference whether the users types Alt-F4 or
-    // Escape. Without that, destructive-close dialogs were more or
-    // less useless without subclassing.
-    if ( qApp->mainWidget() == this )
-	qApp->quit();
-
-    if ( testWFlags(WDestructiveClose) )
-	deleteLater();
+    close();
 }
 
 /*!
@@ -650,7 +635,7 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
 #endif
     } else {
 	scrn = QApplication::desktop()->screenNumber( QCursor::pos() );
-    } 
+    }
     desk = QApplication::desktop()->availableGeometry( scrn );
 
     QWidgetList  *list = QApplication::topLevelWidgets();

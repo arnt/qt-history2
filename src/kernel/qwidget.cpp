@@ -799,8 +799,6 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     	maxInstances = instanceCounter;
 }
 
-static bool noMoreToplevels();
-
 /*!
   Destroys the widget.
 
@@ -3429,33 +3427,6 @@ void QWidget::setUpdatesEnabled( bool enable )
 	setWState( WState_BlockUpdates );
 }
 
-/*
-  Returns TRUE if there's no non-withdrawn top level window left
-  (except the desktop, popups, or dialogs with parents);
-  otherwise returns FALSE.
-
-  This is an internal function used by QWidget::close() to decide
-  whether to emit QApplication::lastWindowClosed() or not.
-*/
-
-static bool noMoreToplevels()
-{
-    QWidgetList *list   = qApp->topLevelWidgets();
-    QWidget     *widget = list->first();
-    while ( widget ) {
-	if ( !widget->isHidden()
-	     && !widget->isDesktop()
-	     && !widget->isPopup()
-	     && (!widget->testWFlags(Qt::WType_Dialog)
-		|| !widget->parentWidget()))
-	    break;
-	widget = list->next();
-    }
-    delete list;
-    return widget == 0;
-}
-
-
 /*!
   Shows the widget and its child widgets.
 
@@ -3837,19 +3808,47 @@ bool QWidget::close( bool alsoDelete )
     WId id	= winId();
     bool isMain = qApp->mainWidget() == this;
     bool checkLastWindowClosed = isTopLevel() && !isPopup();
-    QCloseEvent e;
-    QApplication::sendEvent( this, &e );
-    bool deleted = !QWidget::find(id);
-    if ( !deleted && !e.isAccepted() ) {
-	is_closing = 0;
-	return FALSE;
+    bool deleted = FALSE;
+    if ( !isHidden() ) {
+	/* send close events to non-hidden widgets only. For others it
+	 does not makes sense to reject a close event, plus it makes
+	 it easy to get into endless loops. The prime example is
+	 QDialog: In QDialog::done() the class calls close() in order
+	 to support destructive close semantics as well as the
+	 lastWindowClosed signal. If QWidget sent another close event
+	 although the dialog is already hidden, done() would get
+	 called again via reject() from closeEvent().
+	 */
+	QCloseEvent e;
+	QApplication::sendEvent( this, &e );
+	deleted = !QWidget::find(id);
+	if ( !deleted && !e.isAccepted() ) {
+	    is_closing = 0;
+	    return FALSE;
+	}
+	if ( !deleted )
+	    hide();
     }
-    if ( !deleted )
-	hide();
     if ( checkLastWindowClosed
-	 && qApp->receivers(SIGNAL(lastWindowClosed()))
-	 && noMoreToplevels() )
-	emit qApp->lastWindowClosed();
+	 && qApp->receivers(SIGNAL(lastWindowClosed())) ) {
+	/* if there is no non-withdrawn top level window left (except
+	   the desktop, popups, or dialogs with parents), we emit the
+	   lastWindowClosed signal */
+	QWidgetList *list   = qApp->topLevelWidgets();
+	QWidget     *widget = list->first();
+	while ( widget ) {
+	    if ( !widget->isHidden()
+		 && !widget->isDesktop()
+		 && !widget->isPopup()
+		 && (!widget->testWFlags(Qt::WType_Dialog)
+		     || !widget->parentWidget()))
+		break;
+	    widget = list->next();
+	}
+	delete list;
+	if ( widget == 0 )
+	    emit qApp->lastWindowClosed();
+    }
     if ( isMain )
 	qApp->quit();
     if ( deleted )
