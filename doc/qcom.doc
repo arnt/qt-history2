@@ -94,6 +94,8 @@
   of a queryInterface() call. It should be called for every new copy of
   a pointer to this interface.
 
+  The Q_REFCOUNT macro expands to the default implementation of this function.
+
   \sa queryInterface(), release()
 */
 
@@ -118,6 +120,8 @@
 
   This function should be called whenever a copy of a pointer to this
   interface is no longer needed.
+
+  The Q_REFCOUNT macro expands to the default implementation of this function.
 
   \sa addRef()
 */
@@ -309,6 +313,130 @@
   \code
   return QComponentFactory::unregisterComponent( QUuid(DD19964B-A2C8-42AE-AAF9-8ADC509BCA03) );
   \endcode
+*/
+
+
+
+/*!
+  \class QInterfacePtr qcom.h
+  \brief The QInterfacePtr class provides a reference counting wrapper for interface pointers.
+
+  \ingroup componentmodel
+
+  Using interfaces sometimes is tedious, as it requires a considerable amount of code
+  to keep the reference count in balance. This opens a whole new class of possible errors,
+  especially when interface pointers are passed around.
+
+  The QInterfacePtr template class provides an automated counting of references. The reference
+  count to the interface is increased upon allocation, and decreased when the variable goes
+  out of scope:
+
+  \code
+  if ( ... ) {
+      QInterfacePtr<SpecialInterface> special = iface;
+      special->function();
+  }
+  \endcode
+
+  QInterfacePtr can also be used in calls to \link QUnknownInterface::queryInterface() queryInterface()
+  \endlink :
+
+  \code
+  QInterfacePtr<SpecialInterface> special;
+  component->queryInterface( IID_Special, &special );
+  if ( special )
+     special->function();
+  \endcode
+*/
+
+/*!
+  \fn QInterfacePtr::QInterfacePtr()
+
+  Creates an empty QInterfacePtr. Use the assignment operator to set an interface.
+*/
+
+/*!
+  \fn QInterfacePtr::QInterfacePtr( T* i )
+
+  Creates a QInterfacePtr for \a i. The reference count of \a i is increased.
+*/
+
+/*!
+  \fn QInterfacePtr::QInterfacePtr( const QInterfacePtr<T> &p )
+
+  Creates a copy of \a p. The reference count of the interface of \a p 
+  is increased.
+*/
+
+/*!
+  \fn QInterfacePtr::~QInterfacePtr()
+
+  Destroyes the QInterfacePtr object, and releases the interface.
+*/
+
+/*!
+  \fn QInterfacePtr<T> &QInterfacePtr::operator=( const QInterfacePtr<T> &p )
+  
+  Assigns \a p to this QInterfacePtr. The reference count of the interface of \a p 
+  is increased, and any former interface is released.
+*/
+
+/*!
+  \fn QInterfacePtr<T> &QInterfacePtr::operator=( T* i )
+
+  Assigns \a i to this QInterfacePtr. The reference count of \a i is increased,
+  and any former interface is released.
+*/
+
+/*!
+  \fn bool QInterfacePtr::operator==( const QInterfacePtr<T> &p ) const
+
+  Returns TRUE if this object and \a p reference the same interface, otherwise
+  returns FALSE.
+*/
+
+/*!
+  \fn bool QInterfacePtr::operator!=( const QInterfacePtr<T> &p ) const
+
+  Retruns TRUE if this object and \a p reference different interfaces, otherwise
+  returns FALSE.
+*/
+
+/*!
+  \fn bool QInterfacePtr::isNull() const
+
+  Returns TRUE if this object does not reference an interface, otherwise returns
+  returns FALSE.
+*/
+
+/*!
+  \fn T* QInterfacePtr::operator->() const
+
+  Returns a pointer to the interface referenced by this object.
+*/
+
+/*!
+  \fn T& QInterfacePtr::operator*() const
+
+  Returns a reference to the interface referenced by this object.
+*/
+
+/*!
+  \fn QInterfacePtr::operator T*() const
+
+  Returns the interface.
+*/
+
+/*!
+  \fn QUnknownInterace** QInterfacePtr::operator &() const
+
+  Returns a pointer to a pointer of the interface as a QUnknownInterface.
+*/
+
+/*!
+  \fn T** QInterfacePtr::operator &()
+
+  Returns a pointer to a pointer of the interface.
 */
 
 #endif // QT_NO_COMPONENT

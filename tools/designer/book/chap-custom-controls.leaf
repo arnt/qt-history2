@@ -589,11 +589,11 @@ Note that if two different interface implementations, e.g. from two
 
 	    \endsidebar
 
-	    \index Macros!Q_EXPORT_INTERFACE
-	    \index Q_EXPORT_INTERFACE
-	    The \Func Q_EXPORT_INTERFACE macro.
+	    \index Macros!Q_EXPORT_COMPONENT
+	    \index Q_EXPORT_COMPONENT
+	    The \Func Q_EXPORT_COMPONENT macro.
 
-\skipto Q_EXPORT_INTERFACE
+\skipto Q_EXPORT_COMPONENT
 \printuntil }
 
 	    This macro is the only code that identifies your module as a
