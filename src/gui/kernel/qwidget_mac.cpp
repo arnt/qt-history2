@@ -954,11 +954,11 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 
         WindowRef window = 0;
         if(OSStatus ret = qt_mac_create_window(wclass, wattr, &r, &window))
-            qDebug("Qt: internal: %s:%d If you reach this error please contact Trolltech and include the\n"
+            qWarning("Qt: internal: %s:%d If you reach this error please contact Trolltech and include the\n"
                    "      WidgetFlags used in creating the widget (%ld)", __FILE__, __LINE__, ret);
         QWidget *me = this;
         if(SetWindowProperty(window, kWidgetCreatorQt, kWidgetPropertyQWidget, sizeof(me), &me) != noErr)
-            qDebug("Qt: internal: %s:%d This should not happen!", __FILE__, __LINE__); //no real way to recover
+            qWarning("Qt: internal: %s:%d This should not happen!", __FILE__, __LINE__); //no real way to recover
         if(!desktop) { //setup an event callback handler on the window
             SetAutomaticControlDragTrackingEnabledForWindow(window, true);
             InstallWindowEventHandler(window, make_win_eventUPP(), GetEventTypeCount(window_events),
@@ -1491,9 +1491,6 @@ void QWidget::setWindowState(uint newstate)
     bool needShow = false;
     if(isTopLevel()) {
         WindowPtr window = qt_mac_window_for(this);
-        if((oldstate & Qt::WindowMinimized) != (newstate & Qt::WindowMinimized))
-            CollapseWindow(window, (newstate & Qt::WindowMinimized) ? true : false);
-
         if((oldstate & Qt::WindowFullScreen) != (newstate & Qt::WindowFullScreen)) {
             if(newstate & Qt::WindowFullScreen) {
                 if(QTLWExtra *tlextra = d->topData()) {
@@ -1517,7 +1514,24 @@ void QWidget::setWindowState(uint newstate)
             }
         }
 
-        if((oldstate & Qt::WindowMaximized) != (newstate & Qt::WindowMaximized)) {
+        if((oldstate & Qt::WindowMinimized) != (newstate & Qt::WindowMinimized)) 
+            CollapseWindow(window, (newstate & Qt::WindowMinimized) ? true : false);
+
+        if(newstate & Qt::WindowMaximized) {
+            if(QTLWExtra *tlextra = d->topData()) {
+                if(tlextra->normalGeometry.width() < 0) {
+                    if(testAttribute(Qt::WA_Resized))
+                        tlextra->normalGeometry = geometry();
+                    else
+                        tlextra->normalGeometry = QRect(pos(), qt_initial_size(this));
+                }
+            }
+        } else if(!(newstate & Qt::WindowFullScreen)) {
+            d->topData()->normalGeometry = QRect(0, 0, -1, -1);
+        }
+        if(!(newstate & Qt::WindowMinimized) &&
+            ((oldstate & Qt::WindowMaximized) != (newstate & Qt::WindowMaximized) 
+             || (oldstate & Qt::WindowMinimized) != (newstate & Qt::WindowMinimized))) {
             if(newstate & Qt::WindowMaximized) {
                 Rect bounds;
                 data->fstrut_dirty = true;
@@ -1531,12 +1545,6 @@ void QWidget::setWindowState(uint newstate)
                         bounds.bottom = bounds.top + extra->maxh;
                 }
                 if(QTLWExtra *tlextra = d->topData()) {
-                    if(tlextra->normalGeometry.width() < 0) {
-                        if(testAttribute(Qt::WA_Resized))
-                            tlextra->normalGeometry = geometry();
-                        else
-                            tlextra->normalGeometry = QRect(pos(), qt_initial_size(this));
-                    }
                     if(data->fstrut_dirty)
                         updateFrameStrut();
                     bounds.left += tlextra->fleft;
@@ -1549,7 +1557,8 @@ void QWidget::setWindowState(uint newstate)
                     bounds.bottom -= tlextra->fbottom;
                 }
                 QRect orect(geometry().x(), geometry().y(), width(), height()),
-                    nrect(bounds.left, bounds.top, bounds.right - bounds.left, bounds.bottom - bounds.top);
+                      nrect(bounds.left, bounds.top, bounds.right - bounds.left, 
+                            bounds.bottom - bounds.top);
                 if(orect != nrect) { // no real point..
                     Rect oldr;
                     if(QTLWExtra *tlextra = d->topData())
@@ -1561,8 +1570,8 @@ void QWidget::setWindowState(uint newstate)
 
                     SetWindowStandardState(window, &bounds);
                     ZoomWindow(window, inZoomOut, false);
-
                     data->crect = nrect;
+
                     if(isVisible()) {
                         //issue a resize
                         QResizeEvent qre(size(), orect.size());
@@ -1574,9 +1583,8 @@ void QWidget::setWindowState(uint newstate)
                 }
             } else {
                 ZoomWindow(window, inZoomIn, false);
-                d->topData()->normalGeometry = QRect(0, 0, -1, -1);
             }
-        }
+        } 
     }
 
     data->widget_state &= ~(Qt::WState_Minimized | Qt::WState_Maximized | Qt::WState_FullScreen);
