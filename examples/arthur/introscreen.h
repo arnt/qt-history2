@@ -22,6 +22,7 @@ private:
     QPixmap bottomGradient;
     QPoint oldMousePoint;
     QTextDocument *textDocument;
+    bool mouseDown;
 };
 
 #endif // INTROSCREEN_H
