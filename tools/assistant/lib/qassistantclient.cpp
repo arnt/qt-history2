@@ -98,7 +98,12 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent, const 
 	assistantCommand = "assistant";
     else
 	assistantCommand = path + "/assistant";
-	socket = new QSocket( this );
+
+#if defined(Q_OS_MACX)
+    assistantCommand += ".app/Contents/MacOS/assistant";
+#endif
+
+    socket = new QSocket( this );
     connect( socket, SIGNAL( connected() ),
 	    SLOT( socketConnected() ) );
     connect( socket, SIGNAL( connectionClosed() ),
