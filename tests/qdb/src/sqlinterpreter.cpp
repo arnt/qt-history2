@@ -720,15 +720,9 @@ bool ResultSet::setGroupSet( const QVariant& v )
     List sortList;
     for ( uint f = 0; f < groupByFields.count(); ++f ) {
 	List fieldDescription;
-	fieldDescription.append( head->fields[groupByFields[f].toInt()].name );
-	fieldDescription.append( head->fields[groupByFields[f].toInt()].type );
-	fieldDescription.append( QVariant() );
-	fieldDescription.append( QVariant() );
-	QVariant sort = QVariant( FALSE, 1 ); /*bool*/
-	List sortDescription;
-	sortDescription.append( fieldDescription );
-	sortDescription.append( sort );
-	sortList.append( sortDescription );
+	fieldDescription.append( groupByFields[f].toInt() );
+	fieldDescription.append( QVariant( FALSE, 1 ) /*bool*/ );
+	sortList.append( fieldDescription );
     }
     if ( !sort( sortList ) )
 	return FALSE;
