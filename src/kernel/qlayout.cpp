@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#73 $
 **
 ** Implementation of layout classes
 **
@@ -110,6 +110,7 @@ public:
 
 private:
     void recalcHFW( int w, int s );
+    void addHfwData ( QLayoutBox *box );
     void init();
     QSize findSize( QCOORD QLayoutStruct::*, int ) const;
     void addData ( QLayoutBox *b, bool r = TRUE, bool c = TRUE );
@@ -516,6 +517,31 @@ void QLayoutArray::setupLayoutData()
     needRecalc = FALSE;
 }
 
+
+
+
+
+void QLayoutArray::addHfwData ( QLayoutBox *box )
+{
+    QArray<QLayoutStruct> &rData = *hfwData;
+    if ( box->hasHeightForWidth() ) {
+	int hint = box->heightForWidth( colData[box->col].size );
+	rData[box->row].sizeHint = QMAX( hint,
+					 rData[box->row].sizeHint );
+	rData[box->row].minimumSize = QMAX( hint,
+					    rData[box->row].minimumSize );
+    } else {
+
+        QSize hint = box->sizeHint();
+	QSize minS = box->minimumSize();
+	rData[box->row].sizeHint = QMAX( hint.height(),
+				     rData[box->row].sizeHint );
+	rData[box->row].minimumSize = QMAX( minS.height(),
+					rData[box->row].minimumSize );
+    }
+}
+
+
 /*
   similar to setupLayoutData, but uses
   heightForWidth( colData ) instead of sizeHint
@@ -527,20 +553,14 @@ void QLayoutArray::setupHfwLayoutData()
     int i;
     for ( i = 0; i < rr; i++ ) {
 	rData[i] = rowData[i];
+	rData[i].minimumSize = rData[i].sizeHint = 0;
     }
     QListIterator<QLayoutBox> it( things );
     QLayoutBox * box;
     while ( (box=it.current()) != 0 ) {
 	++it;
-	if ( box->hasHeightForWidth() ) {
-	    int hint = box->heightForWidth( colData[box->col].size );
-	    rData[box->row].sizeHint = QMAX( hint,
-					     rData[box->row].sizeHint );
-	    rData[box->row].minimumSize = QMAX( hint,
-						rData[box->row].minimumSize );
-	}
+	addHfwData( box );
     }
-
     if ( multi ) {
 	QListIterator<QMultiBox> it( *multi );
 	QMultiBox * mbox;
@@ -559,7 +579,7 @@ void QLayoutArray::setupHfwLayoutData()
 	    //(however, distributeMultiBox ignores sizeHint now...)
 	    QSize min = box->minimumSize();
 	    if ( r1 == r2 ) {
-		addData( box, TRUE, FALSE );
+		addHfwData( box );
 	    } else {
 		distributeMultiBox( rData, r1, r2,
 				    min.height(), hint.height() );
@@ -893,7 +913,7 @@ bool QGridLayout::hasHeightForWidth() const
 
 int QGridLayout::heightForWidth( int w ) const
 {
-    return ((QGridLayout*)this)->array->heightForWidth( w, defaultBorder() ) 
+    return ((QGridLayout*)this)->array->heightForWidth( w, defaultBorder() )
 	+ 2*margin();
 }
 
