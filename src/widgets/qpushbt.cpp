@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#48 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#47 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#48 $")
 
 
 /*----------------------------------------------------------------------------
@@ -414,7 +414,7 @@ void QPushButton::drawButton( QPainter *paint )
     }
     else if ( gs == MotifStyle ) {		// Motif push button
 	if ( defButton ) {			// default Motif button
-	    drawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g );
+	    drawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE );
 	    x1 += extraMotifWidth/2;
 	    y1 += extraMotifHeight/2;
 	    x2 -= extraMotifWidth/2;
