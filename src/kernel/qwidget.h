@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#120 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#121 $
 **
 ** Definition of QWidget class
 **
@@ -44,10 +44,12 @@ public:
     bool	 isDesktop()	const;
 
     bool	 isEnabled()	const;
+public slots:
     virtual void setEnabled( bool );
 
   // Widget coordinates
 
+public:
     const QRect &frameGeometry() const;
     const QRect &geometry()	const;
     int		 x()		const;
@@ -125,10 +127,12 @@ public:
     void	 setIconText( const char * );
 
     bool	 hasMouseTracking() const;
+public slots:
     void	 setMouseTracking( bool enable );
 
   // Keyboard input focus functions
 
+public:
     enum FocusPolicy 
     { NoFocus = 0, TabFocus = 0x1, ClickFocus = 0x2, StrongFocus = 0x3 };
 
@@ -155,6 +159,7 @@ public:
   // Update/refresh functions
 
     bool	 isUpdatesEnabled() const;
+public slots:
     void	 setUpdatesEnabled( bool enable );
     void	 update();
     void	 update( int x, int y, int w, int h);
@@ -168,6 +173,7 @@ public:
     virtual void hide();
     void	 iconify();
 
+public:
     virtual bool close( bool forceKill=FALSE );
     bool	 isVisible()	const;
     bool	 isVisibleToTLW() const;
