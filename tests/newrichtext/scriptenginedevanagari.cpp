@@ -507,7 +507,14 @@ void ScriptEngineDevanagari::shape( ShapedItem *result )
     if ( openType && openType->supportsScript( QFont::Devanagari ) ) {
 	openTypeShape( QFont::Devanagari, openType, result, reordered, featuresToApply );
     } else {
-	ScriptEngineBasic::shape( result );
+	d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
+	int error = d->fontEngine->stringToCMap( reordered.unicode(), d->num_glyphs, d->glyphs, &d->num_glyphs );
+	if ( error == FontEngineIface::OutOfMemory ) {
+	    d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
+	    d->fontEngine->stringToCMap( reordered.unicode(), d->num_glyphs, d->glyphs, &d->num_glyphs );
+	}
+
+	heuristicSetGlyphAttributes( result );
     }
 
     if ( result->d->length > 127 )
@@ -523,8 +530,21 @@ void ScriptEngineDevanagari::position( ShapedItem *result )
 	openTypePosition( QFont::Devanagari, openType, result );
 	return;
     }
-
-    ScriptEngineBasic::position( result );
+    ShapedItemPrivate *d = result->d;
+    d->offsets = (Offset *) realloc( d->offsets, d->num_glyphs * sizeof( Offset ) );
+    memset( d->offsets, 0, d->num_glyphs * sizeof( Offset ) );
+    d->advances = (Offset *) realloc( d->advances, d->num_glyphs * sizeof( Offset ) );
+    d->ascent = d->fontEngine->ascent();
+    d->descent = d->fontEngine->descent();
+    for ( int i = 0; i < d->num_glyphs; i++ ) {
+	QGlyphInfo gi = d->fontEngine->boundingBox( d->glyphs[i] );
+	d->advances[i].x = gi.xoff;
+	d->advances[i].y = gi.yoff;
+// 	qDebug("setting advance of glyph %d to %d", i, gi.xoff );
+	int y = d->offsets[i].y + gi.y;
+	d->ascent = QMAX( d->ascent, -y );
+	d->descent = QMAX( d->descent, y + gi.height );
+    }
 }
 
 void ScriptEngineDevanagari::openTypeShape( int script, const OpenTypeIface *openType, ShapedItem *result, const QString &reordered, unsigned short *featuresToApply )
