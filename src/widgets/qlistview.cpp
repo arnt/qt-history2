@@ -4531,6 +4531,15 @@ void QCheckListItem::init()
 }
 
 
+/*!  Destroys the item, deleting all its children, freeing up all
+  allocated resources.
+*/
+QCheckListItem::~QCheckListItem()
+{
+    delete reserved;
+}
+
+
 /*! \fn QCheckListItem::Type QCheckListItem::type() const
 
   Returns the type of this item.

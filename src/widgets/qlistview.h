@@ -379,6 +379,7 @@ public:
 		    const QPixmap & );
     QCheckListItem( QListView *parent, const QString &text,
 		    const QPixmap & );
+    ~QCheckListItem();
 
     void paintCell( QPainter *,  const QColorGroup & cg,
 		    int column, int width, int alignment );
