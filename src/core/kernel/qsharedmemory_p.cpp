@@ -16,7 +16,6 @@
 #if !defined(QT_QWS_NO_SHM)
 
 #if defined(QT_POSIX_QSHM)
-#include <fcntl.h>
 #include <sys/mman.h>
 
 QSharedMemory::QSharedMemory (int size, const QString &filename, char c)

@@ -26,12 +26,11 @@
 //
 //
 
-#include "qstring.h"
 
 #if !defined (QT_QWS_NO_SHM)
 
-#include <sys/types.h>
-#include <sys/ipc.h>
+#include "qplatformdefs.h"
+#include "qstring.h"
 
 class QSharedMemory {
 public:
