@@ -16,9 +16,9 @@
 \title The Qt/Embedded-specific classes
 
 Qt/Embedded classes fall into two groups: the majority are used by
-every Qt/Embedded program, and some are used only by the Qt/Embedded server. 
+every Qt/Embedded program, and some are only used by the Qt/Embedded server. 
 The Qt/Embedded server program can also be a client, as in the case of a
-single-process installation. All Qt/Embedded specific source files live
+single-process installation. All Qt/Embedded specific source files are
 in \c src/kernel and are suffixed \c{_qws}. The &raquo; symbol
 indicates inheritance.
 
@@ -28,24 +28,25 @@ indicates inheritance.
 
 There is one of these per application. At application startup time it
 reads the font definition file from \c $QTDIR/etc/fonts/fontdir (or \c
-/usr/local/etc/qt-embedded/fonts/fontdir if QTDIR is undefined). It
-keeps track of all font information and maintains a cache of rendered
-fonts. It also creates the font factories: QFontManager::QFontManager
+/usr/local/etc/qt-embedded/fonts/fontdir if \c QTDIR is undefined). It
+keeps track of all the font information and maintains a cache of rendered
+fonts. It also creates the font factories. \c
+QFontManager::QFontManager()
 is the place to add constructors for new factories. It provides a
 high-level interface for requesting a particular font and calls
-QFontFactories to load fonts from disk on demand. Note that this only
+\c QFontFactories to load fonts from disk on demand. Note that this only
 applies to BDF and TrueType fonts; Qt/Embedded's optimised \c .qpf
-font file format bypasses the QFontManager mechanism altogether. 
+font file format bypasses the \c QFontManager mechanism altogether. 
 
 There should be no need to modify this class unless you wish to change
-font matching or caching behaviour.
+font matching or caching behavior.
 
 \section1 QDiskFont
 
 This contains information about a single on-disk font file (e.g.
 \c{/usr/local/etc/qt-embedded/times.ttf}). It holds the file path,
 information about whether the font is scalable, its weight, size,
-Qt/Embedded name, etc. This information is used so that QFontManager
+Qt/Embedded name, etc. This information is used so that \c QFontManager
 can find the closest matching disk font (it uses a scoring mechanism
 weighted towards matching names, then whether the font's italic, then
 its weight). 
@@ -54,12 +55,12 @@ There should be no reason to modify this class.
 
 \section1 QRenderedFont
 
-There is one and only one QRenderedFont for every unique font
+There is one and only one \c QRenderedFont for every unique font
 currently loaded by the system (that is, each unique combination of
 name, size, weight, italic or not, anti-aliased or not).
-QRenderedFonts are reference counted; once no one is using the
-QRenderedFont it is deleted along with its cache of glyph bitmaps. The
-QDiskFont it was loaded from remains opened by its QFontFactory.
+\c{QRenderedFont}s are reference counted; once no one is using the
+\c QRenderedFont it is deleted along with its cache of glyph bitmaps. The
+\c QDiskFont it was loaded from remains opened by its \c QFontFactory.
 
 There should be no reason to modify this class, unless you wish to
 change the way in which glyphs are cached.
@@ -69,10 +70,10 @@ change the way in which glyphs are cached.
 
 These provide support for particular font formats, for instance the
 scalable Truetype and Type1 formats (both supported in
-QFontFactoryTtf, which uses Freetype 2) and the bitmap BDF format used
+\c QFontFactoryTtf, which uses Freetype 2) and the bitmap BDF format used
 by X. It's called to open an on-disk font; once a font is opened it
 remains opened so that the creation of new font instances from the
-disk font is fast. It can also create a QRenderedFont and convert from
+disk font is fast. It can also create a \c QRenderedFont and convert from
 Unicode values to an index into the font file. For compactness, glyphs
 are stored in the order and indexes they are defined in the font
 rather than in Unicode order. 
@@ -83,30 +84,31 @@ for a custom vector font format).
 
 \section1 QGlyph
 
-This describes a particular image of a character from a QRenderedFont:
+This describes a particular image of a character from a \c QRenderedFont:
 for example, the letter 'A' at 10 points in Times New Roman, bold italic,
-anti-aliased. It contains pointers to a QGlyphMetrics structure with
-information about the character and to the raw data for the glyph:
-this is either a 1-bit mask or an 8-bit alpha channel. Each QRenderedFont
+anti-aliased. It contains pointers to a \c QGlyphMetrics structure with
+information about the character, and to the raw data for the glyph:
+this is either a 1-bit mask or an 8-bit alpha channel. Each \c QRenderedFont
 creates these on demand and caches them once created (note that this is
 not currently implemented for TrueType fonts). 
 
 You would only need to modify this class if you were, for example,
 modifying Qt/Embedded to support textured fonts, in which case you
-would also need to modify QGfxRaster.
+would also need to modify \c QGfxRaster.
 
 \section1 QMemoryManagerPixmap/QMemoryManager
 
 This handles requests for space for pixmaps and also keeps track of
-QPF format fonts (these are small 'state dumps' of QRenderedFonts,
-typically 2-20KB in size; they can be mmap'd direct from disk in order
-to save memory). If a QPF font is found which matches a font request
-no new QRenderedFont need be created for it. It's possible to strip out
-all QFontFactory support and simply use QPFs if your font needs are modest
-(for instance, if you only require a few fixed point sizes). Note that
-no best-match loading is performed with QPFs, as opposed to those
-loaded via QFontManager, so if you don't have the correct QPF for a point
-size, text in that size will simply not be displayed. 
+QPF format fonts (these are small 'state dumps' of \c{QRenderedFont}s,
+typically 2-20KB in size; they can be memory mapped (mmap'd) direct
+from disk in order to save memory). If a QPF font is found which
+matches a font request no new \c QRenderedFont need be created for it.
+It's possible to strip out all \c QFontFactory support and simply use
+QPFs if your font needs are modest (for instance, if you only require
+a few fixed point sizes). Note that no best-match loading is performed
+with QPFs, as opposed to those loaded via \c QFontManager, so if you
+don't have the correct QPF for a point size, text in that size will
+simply not be displayed. 
 
 There should be no need to modify this class.
 
@@ -117,60 +119,62 @@ support for mapping of coordinates for rotating framebuffers, allow
 manipulation of the colour palette and provide access to offscreen
 graphics memory for devices with separate framebuffer memories.
 
-This is used for caching pixmaps and allowing accelerated pixmap=\>screen
-blt's. QLinuxFbScreen and the accelerated screens use the Linux \c /dev/fb
-interface to get access to graphics memory and information about the
-characteristics of the device. The framebuffer device to open is specified
-by QWS_DISPLAY. Only QTransformedScreen implements the support for rotated
-framebuffers. QVfbScreen provides an X window containing an emulated
-framebuffer (a chunk of shared memory is set aside as the 'framebuffer'
-and blt'd into the X window): this is intended as a debugging device
-allowing users to debug their applications under Qt/Embedded without leaving 
-X. The accelerated screen drivers check to see if they can drive the
-device specified by QWS_CARD_SLOT (which defaults to the usual position
-of an AGP slot if not specified) and mmap its on-chip registers from
-\c /dev/mem. They may also do chip-specific setup (initialising registers to
-known values and so on). Finally, QScreen's are used to create new
-QScreenCursors and QGfxes. 
+This is used for caching pixmaps and allowing accelerated
+pixmap-to-screen bit block transfers (blt's). \c QLinuxFbScreen and
+the accelerated screens use the Linux \c /dev/fb interface to get
+access to graphics memory and information about the characteristics of
+the device. The framebuffer device to open is specified by \c
+QWS_DISPLAY. Only \c QTransformedScreen implements the support for
+rotated framebuffers. \c QVfbScreen provides an X window containing an
+emulated framebuffer (a chunk of shared memory is set aside as the
+'framebuffer' and blt'd into the X window): this is intended as a
+debugging device allowing users to debug their applications under
+Qt/Embedded without leaving X. The accelerated screen drivers check to
+see if they can drive the device specified by \c QWS_CARD_SLOT (which
+defaults to the usual position of an AGP slot if not specified) and
+mmap its on-chip registers from \c /dev/mem. They may also do
+chip-specific setup (initialising registers to known values and so
+on). Finally, \c QScreen's are used to create new \c QScreenCursors
+and \c{QGfx}es. 
 
 If you wish to modify the way pixmaps are allocated in memory,
-subclass or modify QLinuxFbScreen. If you're writing an accelerated
-driver you will need to subclass QScreen or QLinuxFbScreen.
+subclass or modify \c QLinuxFbScreen. If you're writing an accelerated
+driver you will need to subclass \c QScreen or \c QLinuxFbScreen.
 
 \section1 QScreenCursor &raquo; accelerated cursor &raquo; QVfbCursor
 
 This handles drawing the on-screen mouse cursor, and saving and
 restoring the screen under it for the non-accelerated cursor types.
 
-Subclassing QScreenCursor is optional in an accelerated driver (you
+Subclassing \c QScreenCursor is optional in an accelerated driver (you
 would only want to do so if the hardware supports a hardware cursor).
 
 \section1 QGfx &raquo; RasterBase &raquo; Raster &raquo; accelerated driver &raquo; QGfxVfb &raquo; QGfxTransformedRaster
 
 This class encapsulates drawing operations, a little like a low-level
-QPainter. QGfxRaster and its descendants are specifically intended
+\c QPainter. \c QGfxRaster and its descendants are specifically intended
 for drawing into a raw framebuffer. They can take an offset for drawing
 operations and a clipping region in order to support drawing into windows.
-You will need to subclass the QGfxRaster template in order to implement
+You will need to subclass the \c QGfxRaster template in order to implement
 an accelerated driver. 
 
-If you're brave, modifying QGfxRaster would allow you to customise how
+If you're brave, modifying \c QGfxRaster would allow you to customise how
 drawing is done or add support for a new bit depth/pixel format.
 
 \section1 QLock, QLockHolder
 
 This encapsulates a System V semaphore, used for synchronising access
-to memory shared between Qt/Embedded clients. QLockHolder is a utility class
-to make managing and destroying QLocks easier. 
+to memory shared between Qt/Embedded clients. \c QLockHolder is a utility class
+to make managing and destroying \c{QLock}s easier. 
 
 There should be no need to modify this class unless porting
 Qt/Embedded to an operating system without System V IPC.
 
 \section1 QDirectPainter
 
-This is a QPainter which also gives you a pointer to the framebuffer
+This is a \c QPainter which also gives you a pointer to the framebuffer
 of the window it's pointing to, the window's clip region and so on.
-It's intended to easily allow you to do your own pixel-level manipulation
+It's intended to allow you to easily do your own pixel-level manipulation
 of window contents. 
 
 There should be no reason to modify this class.
@@ -186,31 +190,31 @@ Qt/Embedded to an operating system without a Linux-style \c /dev/dsp.
 \section1 QWSWindow
 
 This contains the server's notion of an individual top level window:
-the region of the framebuffer it's allocated, the client that created it
-and so forth. 
+the region of the framebuffer it's allocated, the client that created
+it, and so forth. 
 
 There should be no reason to modify this class.
 
 \section1 QWSKeyboardHandler &raquo; subtypes
 
-This handles keyboard/button input. QWSKeyboardHandler is subclassed
+This handles keyboard/button input. \c QWSKeyboardHandler is subclassed
 to provide for reading \c /dev/tty, an arbitrary low-level USB event device
 (for USB keyboards) and some PDA button devices. 
 
-Modifying QWSKeyboardHandler would allow you to support different
+Modifying \c QWSKeyboardHandler would allow you to support different
 types of keyboard (currently only a fairly standard US PC style
 keyboard is supported); subclassing it is the preferred way to handle
 non-pointer input devices.
 
 \section1 QWSMouseHandler &raquo; QCalibratedMouseHandler &raquo; mouse types
 
-This handles mouse/touch-panel input. Descendants of QCalibratedMouseHandler
+This handles mouse/touch-panel input. Descendants of \c QCalibratedMouseHandler
 make use of filtering code which prevents 'jittering' of the pointer on
 touchscreens; some embedded devices do this filtering in the kernel in
-which case the driver doesn't need to inherit from QCalibratedMouseHandler.
+which case the driver doesn't need to inherit from \c QCalibratedMouseHandler.
 
-Subclassing QCalibratedMouseHandler is preferred for touch-panels without
-kernel filtering; inheriting QWSMouseHandler is the way to add any other
+Subclassing \c QCalibratedMouseHandler is preferred for touch-panels without
+kernel filtering; inheriting \c QWSMouseHandler is the way to add any other
 type of pointing device (pen tablets, touchscreens, mice, trackballs
 and so forth).
 
@@ -220,21 +224,21 @@ This class exists only in the Qt/Embedded server and keeps track of
 all the top-level windows in the system, as well as the keyboard and mouse.
 
 You would only want to modify this if making deep and drastic
-modifications to Qt/Embedded window behaviour (alpha blended windows
+modifications to Qt/Embedded window behavior (alpha blended windows
 for example).
 
 \section1 QWSServer 
 
 This manages the Qt/Embedded server's Unix-domain socket connections to
-clients. It sends and receives QWS protocol events and calls QWSDisplay
+clients. It sends and receives QWS protocol events and calls \c QWSDisplay
 in order to do such things as change the allocation region of windows.
 
 The only reason to modify this would be to use something other than
 some sort of socket-like mechanism to communicate between Qt/Embedded
-applications (in which case modify QWSClient too). If you have
-something like Unix domain sockets, modify QWSSocket/QWSServerSocket
+applications (in which case modify \c QWSClient too). If you have
+something like Unix domain sockets, modify \c QWSSocket/\c QWSServerSocket
 instead. Don't add extra QWS events to communicate between
-applications, use QCOP instead.
+applications, use \c QCop instead.
 
 \section1 QWSClient
 
@@ -247,13 +251,13 @@ Qt/Embedded applications.
 
 \section1 QWSDisplayData
 
-This manages a client's QWSClient, reading and interpreting events
+This manages a client's \c QWSClient, reading and interpreting events
 from the QWS server. It connects to the QWS server on application
 startup, getting information about the framebuffer and creating the
 memory manager. Other information about the framebuffer comes directly
-from \c /dev/fb in QLinuxFbScreen. 
+from \c /dev/fb in \c QLinuxFbScreen. 
 
-There should be no reason to modify this.
+There should be no reason to modify this class.
 
 \section1 QWSCommands
 
@@ -263,26 +267,26 @@ There should be no reason to modify them.
 
 \section1 QCopChannel
 
-QCop is a simple IPC mechanism for communication between Qt/Embedded
-applications. String messages with optional binary data can be sent
-to different channels. 
+\c QCop is a simple inter-process communication (IPC) mechanism for
+communication between Qt/Embedded applications. String messages with
+optional binary data can be sent to different channels. 
 
 The mechanism itself is designed to be bare-bones in order for users
-to build whatever mechanism they like on top of it.
+to build whatever higher-level layer they like on top of it.
 
 \section1 QWSManager
 
 This provides Qt/Embedded window management, drawing a title bar
-and handling user requests to move, resize the window and so on.
+and handling user requests to move and resize windows, and so on.
 
 There should be no reason to modify it but you should subclass it
-if you want to modify window behaviour (point to click versus
+if you want to modify window behavior (point to click versus
 focus follows mouse, for instance).
 
 \section1 QWSDecoration
 
 Descendants of this class are different styles for the Qt/Embedded
-window manager, for instance QWSWindowsDecoration draws Qt/Embedded
+window manager, for instance \c QWSWindowsDecoration draws Qt/Embedded
 window frames in the style of Windows CE. 
 
 Subclass it in order to provide a new window manager appearance (the
@@ -294,13 +298,13 @@ This provides the QWS client's interface to the QWS property system
 (a simpler version of the X property system, it allows you to attach
 arbitrary data to top-level windows, keyed by an integer). 
 
-There should be no reason to modify it.
+There should be no reason to modify this class.
 
 \section1 QWSRegionManager
 
 Used by both client and server to help manage top-level window regions.
 
-There should be no reason to modify it.
+There should be no reason to modify this class.
 
 \section1 QWSSocket, QWSServerSocket
 
