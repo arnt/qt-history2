@@ -5082,13 +5082,14 @@ void QTextEdit::optimSetText( const QString &str )
 }
 
 /*! \internal */
-QTextEditOptimPrivate::FormatTag * QTextEdit::optimAppendTag( int index,
+QTextEditOptimPrivate::Tag * QTextEdit::optimAppendTag( int index,
 							  const QString & tag )
 {
-    QTextEditOptimPrivate::FormatTag * t = new QTextEditOptimPrivate::FormatTag, * tmp;
-
+    QTextEditOptimPrivate::Tag * t = new QTextEditOptimPrivate::Tag, * tmp;
+    
     if ( d->od->tags == 0 )
 	d->od->tags = t;
+    t->bold = t->italic = t->underline = FALSE;
     t->line  = d->od->numLines;
     t->index = index;
     t->tag   = tag;
@@ -5100,8 +5101,9 @@ QTextEditOptimPrivate::FormatTag * QTextEdit::optimAppendTag( int index,
     t->next = 0;
     d->od->lastTag = t;
     tmp = d->od->tagIndex[ t->line ];
-    if ( !tmp || (tmp && tmp->index > t->index) )
+    if ( !tmp || (tmp && tmp->index > t->index) ) {
 	d->od->tagIndex.replace( t->line, t );
+    }
     return t;
 }
 
@@ -5114,9 +5116,21 @@ QTextEditOptimPrivate::FormatTag * QTextEdit::optimAppendTag( int index,
   formatting, while right-tags mark the ending point. A right-tag is the
   same as a left-tag, but with a '/' appearing before the tag keyword.
   E.g a valid left-tag: <red>, and a valid right-tag: </red>.
-  Currently, tags can only be used to change the color of a piece of text.
+  Tags can be nested, but they have to be closed in the same order as
+  they are opened. E.g: 
+  <red><blue>blue</blue>red</red>  - is valid, while:
+  <red><blue>blue</red>red</blue>  - is invalid since the red tag is
+  closed before the blue tag. Note that a tag does not have to be
+  closed:
+  <blue>Lots of text - and then some..
+  is perfectly valid for setting all text appearing after the tag 
+  to blue.
+  A tag can be used to change the color of a piece of text, or set one
+  of the following formatting attributes: bold, italic and underline.
+  The bold, italic and underline attributes can be abbreviated to b, i
+  and u.
   Possible valid tags:
-  <red>, <#ff0000>, </red>
+  <red>, <#ff0000>, </red>, <bold>, <b>, </italic>, </i>
   Example of valid text:
 
   This is some <red>red text</red>, while this is some <green>green
@@ -5125,7 +5139,7 @@ QTextEditOptimPrivate::FormatTag * QTextEdit::optimAppendTag( int index,
 
   Limitations:
   1. A tag cannot span several lines.
-  2. Very limited error checking - mismatching right-tags is the
+  2. Very limited error checking - mismatching left/right-tags is the
   only thing that is detected.
 
 */
@@ -5135,8 +5149,9 @@ void QTextEdit::optimParseTags( QString * line )
     int i, startIndex = -1, endIndex = -1;
     int state = 0; // 0 = outside tag, 1 = inside tag
     bool tagOpen, tagClose;
+    int bold = 0, italic = 0, underline = 0;
     QString tagStr;
-    QPtrStack<QTextEditOptimPrivate::FormatTag> tagStack;
+    QPtrStack<QTextEditOptimPrivate::Tag> tagStack;
 
     for ( i = 0; i < len; i++ ) {
 	tagOpen = (*line)[i] == '<';
@@ -5160,14 +5175,32 @@ void QTextEdit::optimParseTags( QString * line )
 	    state = 0;
 	    endIndex = i;
 	    if ( !tagStr.isEmpty() ) {
-		QTextEditOptimPrivate::FormatTag * tag, * cur, * tmp;
+		QTextEditOptimPrivate::Tag * tag, * cur, * tmp;
+		bool format = TRUE;
+		
+		if ( tagStr == "bold" || tagStr == "b" )
+		    bold++;
+		else if ( tagStr == "/bold" || tagStr == "/b" )
+		    bold--;
+		else if ( tagStr == "italic" || tagStr == "i" )
+		    italic++;
+		else if ( tagStr == "/italic" || tagStr == "/i" )
+		    italic--;
+		else if ( tagStr == "underline" || tagStr == "u" )
+		    underline++;
+		else if ( tagStr == "/underline" || tagStr == "/u" )
+		    underline--;
+		else
+		    format = FALSE;
 		tag = optimAppendTag( startIndex, tagStr );
+		tag->type = format ? QTextEditOptimPrivate::Format
+			    : QTextEditOptimPrivate::Color;
 		if ( tagStr[0] == '/' ) {
 		    // ok, this is a right-tag - search for the left-tag
 		    // and possible parent tag
 		    cur = tag->prev;
 		    while ( cur ) {
-			if ( cur->leftTag ) {
+			if ( cur->leftTag ) { // push right-tags encountered
 			    tagStack.push( cur );
 			} else {
 			    tmp = tagStack.pop();
@@ -5182,6 +5215,12 @@ void QTextEdit::optimParseTags( QString * line )
 					tag->parent = tmp;
 				    }
 				    break;
+				} 
+				else if ( !cur->leftTag ) {
+#ifdef QT_CHECK_RANGE				
+				    qWarning( "QTextEdit::optimParseTags(): mismatching %s-tag for '<" + cur->tag + ">' in line %d.", cur->tag[0] == '/' ? "left" : "right", cur->line + 1 );
+#endif
+				    return; // something is amiss - give up
 				}
 			    } else if ( ("/" + cur->tag) != tmp->tag ) {
 #ifdef QT_CHECK_RANGE				
@@ -5191,6 +5230,19 @@ void QTextEdit::optimParseTags( QString * line )
 			    }
 			}
 			cur = cur->prev;
+		    }
+		} else {
+		    tag->bold = bold > 0;
+		    tag->italic = italic > 0;
+		    tag->underline = underline > 0;
+		    tmp = tag->prev;
+		    while ( tmp && tmp->leftTag ) {
+			tmp = tmp->leftTag->prev;
+		    }
+		    if ( tmp ) {
+			tag->bold |= tmp->bold;
+			tag->italic |= tmp->italic;
+			tag->underline |= tmp->underline;
 		    }
 		}
 	    }
@@ -5239,10 +5291,10 @@ void QTextEdit::optimAppend( const QString &str )
 
   Find the first open left-tag appearing before \a line.
  */
-QTextEditOptimPrivate::FormatTag * QTextEdit::optimPreviousLeftTag( int line )
+QTextEditOptimPrivate::Tag * QTextEdit::optimPreviousLeftTag( int line )
 {
-    QTextEditOptimPrivate::FormatTag * ftag = 0;
-    QMapConstIterator<int,QTextEditOptimPrivate::FormatTag *> it;
+    QTextEditOptimPrivate::Tag * ftag = 0;
+    QMapConstIterator<int,QTextEditOptimPrivate::Tag *> it;
     if ( (it = d->od->tagIndex.find( line )) != d->od->tagIndex.end() )
 	ftag = it.data();
     if ( !ftag ) {
@@ -5272,14 +5324,27 @@ QTextEditOptimPrivate::FormatTag * QTextEdit::optimPreviousLeftTag( int line )
 /*! \internal */
 void QTextEdit::optimSetTextFormat( QTextDocument * td, QTextCursor * cur,
 				    QTextFormat * f, int start, int end,
-				    const QString & tag )
+				    QTextEditOptimPrivate::Tag * tag )
 {
     cur->setIndex( start );
     td->setSelectionStart( 0, cur );
     cur->setIndex( end );
     td->setSelectionEnd( 0, cur );
-    f->setColor( QColor( tag ) );
-    td->setFormat( 0, f, QTextFormat::Color );
+    f->setBold( tag->bold );
+    f->setItalic( tag->italic );
+    f->setUnderline( tag->underline );
+    // plain format tags might need coloring
+    if ( tag->type == QTextEditOptimPrivate::Format ) {
+	tag = tag->prev;
+	while ( tag && (tag->type == QTextEditOptimPrivate::Format || 
+			tag->leftTag) ) {
+	    tag = tag->leftTag ? tag->parent : tag->prev;
+	}
+    }
+    if ( tag )
+	f->setColor( QColor( tag->tag ) );
+    td->setFormat( 0, f, QTextFormat::Color | QTextFormat::Bold |
+		   QTextFormat::Italic | QTextFormat::Underline );
     td->removeSelection( 0 );
 }
 
@@ -5325,10 +5390,10 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
     // add tag formatting
     if ( d->od->tags ) {
 	int i = startLine;
-	QMapConstIterator<int,QTextEditOptimPrivate::FormatTag *> it;
-	QTextEditOptimPrivate::FormatTag * tag = 0, * tmp = 0;
+	QMapConstIterator<int,QTextEditOptimPrivate::Tag *> it;
+	QTextEditOptimPrivate::Tag * tag = 0, * tmp = 0;
   	QTextCursor cur( td );
-	// Step 1 - find previous lef-tag
+	// Step 1 - find previous left-tag
   	tmp = optimPreviousLeftTag( i );
 	for ( ; i < startLine + nLines; i++ ) {
 	    if ( (it = d->od->tagIndex.find( i )) != d->od->tagIndex.end() )
@@ -5344,7 +5409,7 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
 		}
 		if ( (tag->index - lastIndex) > 0 && tmp ) {
 		    optimSetTextFormat( td, &cur, &f, lastIndex, tag->index,
-					tmp->tag );
+					tmp );
 		}
 		lastIndex = tag->index;
 		tmp = tag;
@@ -5353,9 +5418,10 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
 	    // Step 3 - color last part of the line - if necessary
 	    if ( tmp && tmp->parent )
 		tmp = tmp->parent;
-	    if ( (cur.parag()->length()-1 - lastIndex) > 0 && tmp )
+	    if ( (cur.parag()->length()-1 - lastIndex) > 0 && tmp && !tmp->leftTag ) {
 		optimSetTextFormat( td, &cur, &f, lastIndex,
-				    cur.parag()->length() - 1, tmp->tag );
+				    cur.parag()->length() - 1, tmp );
+	    }
 	    cur.setParag( cur.parag()->next() );
 	}
 // debug
@@ -5363,8 +5429,9 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
 // 	tag = d->od->tags;
 // 	qWarning("###");
 // 	while ( tag ) {
-// 	    qWarning( "Tag: %p, parent: %09p, leftTag: %09p, Name: %-20s, ParentName: %s", tag,
-// 		       tag->parent, tag->leftTag, tag->tag.latin1(), tag->parent ? tag->parent->tag.latin1():"<none>" );
+// 	    qWarning( "Tag: %p, parent: %09p, leftTag: %09p, Name: %-15s, ParentName: %s, %d%d%d", tag,
+// 		       tag->parent, tag->leftTag, tag->tag.latin1(), tag->parent ? tag->parent->tag.latin1():"<none>",
+// 		      tag->bold, tag->italic, tag->underline );
 // 	    tag = tag->next;
 // 	}
     }

@@ -75,13 +75,20 @@ class QTextEditPrivate;
 class QTextEditOptimPrivate
 {
 public:
-    struct FormatTag {
+    // No left-tag has any value for leftTag or parent. No right-tag
+    // has any formatting flags set.
+    enum TagType { Color = 0, Format = 1 };
+    struct Tag {
+	TagType type:2;
+	bool bold:1;
+	bool italic:1;
+	bool underline:1;
 	int line;
 	int index;
-	FormatTag * leftTag; // ptr to left-tag in a left-right tag pair
-	FormatTag * parent;  // ptr to parent left-tag in a nested tag
-	FormatTag * prev;
-	FormatTag * next;
+	Tag * leftTag; // ptr to left-tag in a left-right tag pair
+	Tag * parent;  // ptr to parent left-tag in a nested tag
+	Tag * prev;
+	Tag * next;
 	QString tag;
     };
     QTextEditOptimPrivate()
@@ -94,14 +101,13 @@ public:
     }
     ~QTextEditOptimPrivate()
     {
-	FormatTag * itr = tags;
+	Tag * itr = tags;
 	while ( tags ) {
 	    itr  = tags;
 	    tags = tags->next;
 	    delete itr;
 	}
     }
-
     int len;
     int numLines;
     int maxLineWidth;
@@ -110,9 +116,9 @@ public:
 	int index;
     };
     Selection selStart, selEnd, search;
-    QMap<int, QString> lines;
-    FormatTag * tags, * lastTag;
-    QMap<int, FormatTag *> tagIndex;
+    Tag * tags, * lastTag;
+    QMap<int, QString> lines; // qptrvector?
+    QMap<int, Tag *> tagIndex; // qptrvector?
 };
 #endif
 
@@ -487,11 +493,10 @@ private:
     QString optimSelectedText() const;
     bool optimFind( const QString & str, bool, bool, bool, int *, int * );
     void optimParseTags( QString * str );
-    QTextEditOptimPrivate::FormatTag * optimPreviousLeftTag( int line );
+    QTextEditOptimPrivate::Tag * optimPreviousLeftTag( int line );
     void optimSetTextFormat( QTextDocument *, QTextCursor *, QTextFormat * f,
-			     int, int, const QString & );
-    QTextEditOptimPrivate::FormatTag * optimAppendTag( int index,
-						       const QString & tag );
+			     int, int, QTextEditOptimPrivate::Tag * t );
+    QTextEditOptimPrivate::Tag * optimAppendTag( int index, const QString & tag );
 
 // private slots:
 //     void optimDoAutoScroll();
