@@ -253,7 +253,8 @@ static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* 
     \enum Qt::DateFormat
 
     \value TextDate (default) Qt format
-    \value ISODate ISO 8601 format
+    \value ISODate ISO 8601 extended format (YYYY-MM-DD, or with time,
+    YYYY-MM-DDTHH:MM:SS)
     \value LocalDate locale dependent format
 */
 
@@ -1348,8 +1349,8 @@ int QTime::msec() const
   second before midnight would be "23:59:59".
 
   If \a f is Qt::ISODate, the string format corresponds to the ISO
-  8601 specification for representations of dates, which is also
-  HH:MM:SS.
+  8601 extended specification for representations of dates, which is
+  also HH:MM:SS.
 
   If \a f is Qt::LocalDate, the string format depends on the locale
   settings of the system.
@@ -1980,8 +1981,8 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
   QTime::toString() to generate the string).
 
   If \a f is Qt::ISODate, the string format corresponds to the ISO
-  8601 specification for representations of dates and times, which is
-  YYYY-MM-DDTHH:MM:SS.
+  8601 extended specification for representations of dates and times,
+  which is YYYY-MM-DDTHH:MM:SS.
 
   If \a f is Qt::LocalDate, the string format depends on the locale
   settings of the system.
