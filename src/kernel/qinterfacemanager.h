@@ -40,7 +40,7 @@
 
 #ifndef QT_H
 #include "qlibrary.h"
-#include "quuiddefs.h"
+#include "qcomponentinterface.h"
 #include "qdict.h"
 #include "qmap.h"
 #include "qdir.h"
@@ -93,12 +93,28 @@ public:
 
 	// Create a library object, and try to get the desired interface
 	plugin = new QLibrary( file, defPol );
+
 	bool useful = FALSE;
 
 	Type* iFace = (Type*)plugin->queryInterface( interfaceId );
 	if ( iFace ) {
-	    // Map all found features to the library
-	    QStringList fl = iFace->featureList();
+	    QFeatureListInterface *fliFace = 0;
+	    QComponentInterface *cpiFace = 0;
+	    fliFace = (QFeatureListInterface*)iFace->queryInterface( IID_QFeatureListInterface );
+	    if ( !fliFace )
+		fliFace = (QFeatureListInterface*)plugin->queryInterface( IID_QFeatureListInterface );
+	    if ( !fliFace ) {
+		cpiFace = (QComponentInterface*)iFace->queryInterface( IID_QComponentInterface );
+		if ( !cpiFace )
+		    cpiFace = (QComponentInterface*)plugin->queryInterface( IID_QComponentInterface );
+	    }
+	    QStringList fl;
+	    if ( fliFace )
+		// Map all found features to the library
+		fl = fliFace->featureList();
+	    else if ( cpiFace )
+		fl << cpiFace->name();
+
 	    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
 		useful = TRUE;
 #ifdef QT_DEBUG_COMPONENT
@@ -114,6 +130,10 @@ public:
 		plugDict.replace( *f, plugin );
 #endif
 	    }
+	    if ( fliFace )
+		fliFace->release();
+	    if ( cpiFace )
+		cpiFace->release();
 	    iFace->release();
 	}
 	if ( defPol != QLibrary::Immediately )
@@ -145,10 +165,29 @@ public:
 	// Unregister all features of this plugin
 	Type *iFace = (Type*)plugin->queryInterface( interfaceId );
 	if ( iFace ) {
-	    QStringList fl = iFace->featureList();
+	    QFeatureListInterface *fliFace = 0;
+	    QComponentInterface *cpiFace = 0;
+	    fliFace = (QFeatureListInterface*)iFace->queryInterface( IID_QFeatureListInterface );
+	    if ( !fliFace )
+		fliFace = (QFeatureListInterface*)plugin->queryInterface( IID_QFeatureListInterface );
+	    if ( !fliFace ) {
+		cpiFace = (QComponentInterface*)iFace->queryInterface( IID_QComponentInterface );
+		if ( !cpiFace )
+		    cpiFace = (QComponentInterface*)plugin->queryInterface( IID_QComponentInterface );
+	    }
+	    QStringList fl;
+	    if ( fliFace )
+		fl = iFace->featureList();
+	    else if ( cpiFace )
+		fl << cpiFace->name();
+
 	    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ )
 		plugDict.remove( *f );
 
+	    if ( fliFace )
+		fliFace->release();
+	    if ( cpiFace )
+		cpiFace->release();
 	    iFace->release();
 	}
 	bool unloaded = plugin->unload();
