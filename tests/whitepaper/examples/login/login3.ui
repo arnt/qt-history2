@@ -13,7 +13,7 @@
         </rect>
     </property>
     <property name="caption">
-        <string>French (Layouts)</string>
+        <string>French [Layouts]</string>
     </property>
     <vbox>
         <property name="name">
