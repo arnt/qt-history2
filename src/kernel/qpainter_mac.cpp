@@ -298,7 +298,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
             if ( pa.size() != a.size() ) {
                 index   = 0;
                 npoints = pa.size();
-            }           
+            }
         }
     }
     // Hmm
@@ -326,51 +326,6 @@ void QPainter::drawWinFocusRect(int x,int y,int w,int h,
                                 const QColor &bgColor)
 {
   drawWinFocusRect(x,y,w,h,FALSE,bgColor);
-}
-
-void QPainter::drawWinFocusRect( int x, int y, int w, int h,
-                                 bool xorPaint,const QColor &bgColor )
-{
-    return;
-    if ( !isActive() || txop == TxRotShear )
-        return;
-    static char winfocus_line[] = { 1, 1 };
-
-    QPen     old_pen = cpen;
-    RasterOp old_rop = (RasterOp)rop;
-
-    if ( xorPaint ) {
-        if ( QColor::numBitPlanes() <= 8 )
-            setPen( color1 );
-        else
-            setPen( white );
-        setRasterOp( XorROP );
-    } else {
-        if ( qGray( bgColor.rgb() ) < 128 )
-            setPen( white );
-        else
-            setPen( black );
-    }
-
-    if ( testf(ExtDev|VxF|WxF) ) {
-        if ( testf(ExtDev) ) {
-            QPDevCmdParam param[1];
-            QRect r( x, y, w, h );
-            param[0].rect = &r;
-            if ( !pdev->cmd(PDC_DRAWRECT,this,param) || !hd )
-                return;
-        }
-        map( x, y, w, h, &x, &y, &w, &h );
-    }
-    if ( w <= 0 || h <= 0 ) {
-        if ( w == 0 || h == 0 )
-            return;
-        fix_neg_rect( &x, &y, &w, &h );
-    }
-    //XDrawRectangle( dpy, hd, gc, x, y, w-1, h-1 );
-    setRasterOp( old_rop );
-    setPen( old_pen );
-
 }
 
 typedef QIntDict<QPaintDevice> QPaintDeviceDict;
@@ -420,7 +375,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     flags = IsActive | DirtyFont;               // init flags
     int dt = pdev->devType();                   // get the device type
 
-    if ( (pdev->devFlags & QInternal::ExternalDevice) != 0 )    
+    if ( (pdev->devFlags & QInternal::ExternalDevice) != 0 )
     // this is an extended device
         setf(ExtDev);
     else if ( dt == QInternal::Pixmap )         // device is a pixmap
@@ -591,8 +546,8 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
                 ty = -abbox.y();        // text position - off-by-one?
                 if ( aw == 0 || ah == 0 )
                     return;
-                double rx = (double)bbox.width() * mat1.m11() / (double)aw; 
-                double ry = (double)bbox.height() * mat1.m22() /(double)ah; 
+                double rx = (double)bbox.width() * mat1.m11() / (double)aw;
+                double ry = (double)bbox.height() * mat1.m22() /(double)ah;
                 mat2 = QWMatrix( rx, 0, 0, ry, 0, 0 );
             }
             else {
@@ -812,7 +767,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
             if ( pa.size() != a.size() ) {
                index   = 0;
                 npoints = pa.size();
-            }           
+            }
         }
     }
     int x1, y1, x2, y2, xsave, ysave;
@@ -832,7 +787,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
             x2--;
     } else {
         plot_pixel = cpen.style() == SolidLine; // plot last pixel
-    }   
+    }
     int loopc;
     pdev->fixport();
     updateBrush();
@@ -987,7 +942,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
             if ( pa.size() != a.size() ) {
                 index  = 0;
                 nlines = pa.size()/2;
-            }           
+            }
         }
     }
 
@@ -1131,7 +1086,7 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
             if ( pa.size() != a.size() ) {
                 index = 0;
                 npoints = pa.size();
-            }           
+            }
         }
     }
     if ( cpen.style() != NoPen ) {

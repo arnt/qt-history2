@@ -590,17 +590,6 @@ void QWidget::deleteSysExtra()
   //printf("%s %d\n",__FILE__,__LINE__);
 }
 
-bool QWidget::isActiveWindow() const
-{
-  //printf("QWidget::isActiveWindow: %s %d\n",__FILE__,__LINE__);
-  myactive=(WId)FrontWindow();
-  if(myactive==winid) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
 void QWidget::setActiveWindow()
 {
   //printf("QWidget::setActiveWindow: %s %d\n",__FILE__,__LINE__);

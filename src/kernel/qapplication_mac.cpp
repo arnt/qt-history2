@@ -94,30 +94,6 @@ bool QApplication::processNextEvent(bool canWait)
 
 extern WId myactive;
 
-int QApplication::enter_loop()
-{
-  printf("QApplication::enter_loop: %s %d\n",__FILE__,__LINE__);
-    loop_level++;
-    quit_now = FALSE;
-
-    bool old_app_exit_loop = app_exit_loop;
-    app_exit_loop = FALSE;
-
-    while ( !quit_now && !app_exit_loop )
-        processNextEvent( TRUE );
-
-    app_exit_loop = old_app_exit_loop;
-    loop_level--;
-
-    return 0;
-}
-
-void QApplication::exit_loop()
-{
-  printf("QApplication::exit_loop: %s %d\n",__FILE__,__LINE__);
-  app_exit_loop = TRUE;
-}
-
 static const int KeyTbl[]={
     144667,          Qt::Key_Escape,         // misc keys
     143369,             Qt::Key_Tab,

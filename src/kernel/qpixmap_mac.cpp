@@ -20,27 +20,6 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     data->d = 1;
 }
 
-QPixmap::QPixmap( const QPixmap &pixmap )
-    : QPaintDevice( QInternal::Pixmap )
-{
-  //printf("%s %d\n",__FILE__,__LINE__);
-    if ( pixmap.paintingActive() ) {            // make a deep copy
-        data = 0;
-        operator=( pixmap );
-    } else {
-        data = pixmap.data;
-        data->ref();
-        devFlags = pixmap.devFlags;             // copy QPaintDevice flags
-        hd = pixmap.hd;                         // copy QPaintDevice drawable
-    }
-}
-
-QPixmap::~QPixmap()
-{
-  //printf("%s %d\n",__FILE__,__LINE__);
-  deref();
-}
-
 /*
 QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 {

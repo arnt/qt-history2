@@ -17,17 +17,6 @@ bool QClipboard::event(QEvent * e)
   return false;
 }
 
-QString QClipboard::text() const
-{
-  printf("%s %d\n",__FILE__,__LINE__);
-  return QString();
-}
-
-void QClipboard::setText(const QString &text)
-{
-  printf("%s %d\n",__FILE__,__LINE__);
-}
-
 void QClipboard::clear()
 {
   printf("%s %d\n",__FILE__,__LINE__);
