@@ -327,7 +327,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 	else
 	    lb->insertItem( str );
     }
-    grid->addWidget( lb, 0, 0, 4, 6);
+    grid->addWidget( lb, 2, 0, 3, 1);
     connect( lb, SIGNAL(selected(int)), SLOT(listBoxItemSelected(int)) );
     QToolTip::add( lb, "list box" );
     (void)new MyWhatsThis( lb );
@@ -398,7 +398,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     tabs = new QTabWidget( central );
     //tabs->setTabPosition( QTabWidget::Bottom );
     tabs->setMargin( 4 );
-    grid->addWidget( tabs, 1, 2, 3, 2 );
+    grid->addWidget( tabs, 3, 1, 1, 2 );
     QMultiLineEdit *mle = new QMultiLineEdit( tabs, "multiLineEdit" );
     edit = mle;
     mle->setWordWrap( QMultiLineEdit::WidgetWidth );
@@ -435,7 +435,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     QLineEdit *le = new QLineEdit( central, "lineEdit" );
 
 
-    grid->addWidget( le, 1, 2, 4, 3 );
+    grid->addWidget( le, 4, 1, 1, 2 );
     connect( le, SIGNAL(textChanged(const QString&)),
 	     SLOT(lineEditTextChanged(const QString&)) );
     QToolTip::add( le, "single line editor" );
@@ -705,7 +705,7 @@ bool WidgetView::eventFilter( QObject *obj, QEvent *event )
 
 void WidgetView::open()
 {
-    QFileDialog::getOpenFileName( QString::null, "Textfiles (*.txt)", this );
+    //###### QFileDialog::getOpenFileName( QString::null, "Textfiles (*.txt)", this );
 }
 
 
