@@ -102,7 +102,12 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	    // so we need to make the mid and button color the same
 	    QColorGroup myCG = cg;
 	    QBrush fill;
-
+	    
+	    // quick trick to make sure toolbuttons drawn sunken
+	    // when they are activated...
+	    if ( flags & Style_On )
+		flags |= Style_Sunken;
+	    
 	    fill = myCG.brush( QColorGroup::Button );
 	    myCG.setBrush( QColorGroup::Mid, fill );
 	    drawPrimitive( PE_ButtonBevel, p, r, myCG, flags, data );
