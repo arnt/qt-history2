@@ -596,36 +596,3 @@ QUnknownInterface* QLibrary::queryInterface( const QUuid& request )
 }
 
 #endif // QT_NO_COMPONENT
-
-
-/*!
-  \class QCleanupHandler qcleanuphandler.h
-
-  \brief The QCleanupHandler class provides a save way for memory cleanup of static global objects.
-*/
-
-/*!
-  \fn QCleanupHandler::~QCleanupHandler()
-
-  This destructor will delete all handled objects.
-*/
-
-/*!
-  \fn void QCleanupHandler::add( Type* object )
-
-  Adds \a object to the list that will be destroyed upon
-  destruction of the cleanup handler itself.
-*/
-
-/*!
-  \fn void QCleanupHandler::remove( Type* object )
-
-  Removes \a object from this handler.
-*/
-
-/*!
-  \fn bool QCleanupHandler::isEmpty() const
-
-  Return TRUE if there are any undeleted objects this handler
-  has to care about.
-*/
