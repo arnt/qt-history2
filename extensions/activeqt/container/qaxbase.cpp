@@ -1375,10 +1375,10 @@ QString MetaObjectGenerator::guessTypes( const TYPEDESC &tdesc, ITypeInfo *info,
 	str = "bool";
 	break;
     case VT_I1:
-	str = "char";
+	str = "int"; //"char";
 	break;
     case VT_I2:
-	str = "short";
+	str = "int"; //"short";
 	break;
     case VT_I4:
     case VT_INT:
@@ -2560,10 +2560,10 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
     if (propname == "control") {
 	switch(call) {
 	case QMetaObject::ReadProperty:
-	    *(QString*)v = control();
+	    *(QString*)*v = control();
 	    break;
 	case QMetaObject::WriteProperty:
-	    setControl(*(QString*)v);
+	    setControl(*(QString*)*v);
 	    break;
 	case QMetaObject::ResetProperty:
 	    clear();
