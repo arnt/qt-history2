@@ -5258,6 +5258,11 @@ void QWidget::setSizePolicy( QSizePolicy policy )
     updateGeometry();
 }
 
+/*
+  \fn void QWidget::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw )
+\overload
+*/
+
 
 /*!
   Returns the preferred height for this widget, given the width \a w.

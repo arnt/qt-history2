@@ -378,7 +378,8 @@ public:
     virtual QSize	sizeHint() const;
     virtual QSize	minimumSizeHint() const;
     virtual QSizePolicy	sizePolicy() const;
-    virtual void		setSizePolicy( QSizePolicy );
+    virtual void	setSizePolicy( QSizePolicy );
+    void 		setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = FALSE );
     virtual int heightForWidth(int) const;
 
     virtual void  	adjustSize();
@@ -879,6 +880,11 @@ inline bool QWidget::ownPalette() const
     return own_palette;
 }
 #endif
+
+inline void QWidget::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = FALSE )
+{
+    setSizePolicy( QSizePolicy( hor, ver, hfw) );
+}
 
 // Extra QWidget data
 //  - to minimize memory usage for members that are seldom used.
