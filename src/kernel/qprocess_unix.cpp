@@ -585,13 +585,13 @@ bool QProcess::start( QStringList *env )
     int sStderr[2];
 
     // open sockets for piping
-    if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStdin ) ) {
+    if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStdin ) == -1 ) {
 	return FALSE;
     }
-    if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStderr ) ) {
+    if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStderr ) == -1 ) {
 	return FALSE;
     }
-    if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStdout ) ) {
+    if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStdout ) == -1 ) {
 	return FALSE;
     }
 
