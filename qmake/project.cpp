@@ -1165,8 +1165,7 @@ QMakeProject::isActiveConfig(const QString &x, bool regex, QMap<QString, QString
     //simple matching
     QStringList &configs = (place ? (*place)["CONFIG"] : vars["CONFIG"]);
     for(QStringList::Iterator it = configs.begin(); it != configs.end(); ++it) {
-        if((regex && re.exactMatch((*it))) || (!regex && (*it) == x))
-        if(re.exactMatch((*it)))
+        if(((regex && re.exactMatch((*it))) || (!regex && (*it) == x)) && re.exactMatch((*it)))
             return true;
     }
     return false;
@@ -1496,7 +1495,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         QRegExp regx(args[1]);
         const QStringList &l = place[args[0]];
         for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
-            if(regx.exactMatch((*it)))
+            if(regx.exactMatch((*it)) || (*it) == args[1])
                 return true;
         }
         return false;
@@ -1533,7 +1532,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
             QRegExp regx(args[2]);
             QStringList &l = proj.values(args[1]);
             for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
-                if(regx.exactMatch((*it))) {
+                if(regx.exactMatch((*it)) || (*it) == args[2]) {
                     ret = true;
                     break;
                 }
