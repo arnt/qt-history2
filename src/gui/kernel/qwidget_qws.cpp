@@ -1790,6 +1790,8 @@ int QWidget::bytesPerLine() const
 
 void QWidget::resetInputContext()
 {
+    if (!hasFocus())
+        return;
 #ifndef QT_NO_QWS_IM
     QInputContext::reset();
 #endif

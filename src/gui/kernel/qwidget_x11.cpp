@@ -2798,6 +2798,8 @@ void QWidgetPrivate::createInputContext()
 */
 void QWidget::resetInputContext()
 {
+    if (!hasFocus())
+        return;
 #ifndef QT_NO_IM
     QInputContext *qic = q->inputContext();
     if( qic )

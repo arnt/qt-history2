@@ -2115,6 +2115,8 @@ void QWidget::clearMask()
 
 void QWidget::resetInputContext()
 {
+    if (!hasFocus())
+        return;
     qt_mac_unicode_reset_input(this);
 }
 

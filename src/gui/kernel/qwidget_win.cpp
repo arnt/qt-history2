@@ -523,6 +523,8 @@ void QWidgetPrivate::setFont_sys(QFont *f)
 
 void QWidget::resetInputContext()
 {
+    if (!hasFocus())
+        return;
     QInputContext::accept();
 }
 
