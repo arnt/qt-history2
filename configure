@@ -8,12 +8,31 @@
 # To remove the need for the first test, do this:
 # QTDIR=`pwd` export QTDIR
 
+relconf=`basename $0`
+relpath=`dirname $0`
+relpath=`(cd $relpath; pwd)`
+
+if [ "$relpath" != `pwd` ]; then
+    echo "Producing build tree.."
+    for a in `find $relpath`; do
+       my_a=`echo $a | sed "s,^${relpath}/,,"`
+       echo "Creating $my_a.."
+       if [ -d $a ]; then
+	    mkdir -p $my_a
+       else
+            a_dir=`dirname $my_a`
+	    [ ! -d $a_dir ] && mkdir -p $a_dir
+	    ln -sf $a $my_a
+       fi
+    done
+    relpath=`pwd`
+fi
+
+QTDIR="$relpath"
 QMAKE_SWITCHES=""
 QMAKE_VARS=""
 QMAKE_CONFIG=""
-relpath=`dirname $0`
-relpath=`(cd $relpath; pwd)`
-CONFIG_CMDLINE="$relpath/`basename $0` $@"
+CONFIG_CMDLINE="$relpath/$relconf $@"
 HELP=
 
 if [ "$1" = -h -o "$1" = -help -o "$1" = --help ]
@@ -197,6 +216,9 @@ else
 	exit 0
     fi
 fi
+
+# Remove the build options file
+[ -f .qmake.cache ] && rm .qmake.cache
 
 fi # help
 
@@ -555,7 +577,7 @@ then
 	    echo
 	    for p in $PLATFORMS
 	    do
-		echo "    $0 $* -platform $p"
+		echo "    $relconf $* -platform $p"
 	    done
 	    echo
 	    echo "The build script does not currently recognize all platforms"
@@ -736,7 +758,7 @@ if [ "$HELP" = "yes" ]; then
     fi
 
     cat <<EOF
-Usage: configure [-debug] [-release] [-qt-gif] [-no-gif] [-sm] [-no-sm] \\
+Usage:  $relconf [-debug] [-release] [-qt-gif] [-no-gif] [-sm] [-no-sm] \\
         [-qt-zlib] [-system-zlib] [-qt-libpng] [-system-libpng] \\
         [-no-jpeg] [-system-jpeg] [-no-thread] [-thread] [-enable-kde2] \\
         [-Istring] [-lstring] [-Lstring] [-Rstring] [-enable-<module>] \\
@@ -752,7 +774,7 @@ each option:
     -static ............ Create and use a static Qt library (libqt.a)
 
  *  -no-gif ............ Do not compile in GIF reading support.
-    -qt-gif ............ Compile in GIF reading support. See src/kernel/qgif.h
+    -qt-gif ............... Compile in GIF reading support. See src/kernel/qgif.h
 
  $SMN  -no-sm ............. Do not support X Session Management.
  $SMY  -sm ................ Support X Session Management, links in -lSM -lICE.
@@ -784,17 +806,17 @@ each option:
  *  -freetype .......... Qt/Embedded only: add FreeType2 font support.
 
     -enable-kde2 ....... Builds the Qt Designer with KDE2 support, so that
-                         KDE2 widgets can be used directly in
-                         the Qt Designer. \$KDEDIR must be
-                         set to point to a KDE2 installation.
+			 KDE2 widgets can be used directly in
+			 the Qt Designer. \$KDEDIR must be
+			 set to point to a KDE2 installation.
                          See http://www.kde.org
 
-    -embedded arch...... This will enable embedded for Qt, you must have a
-                         proper license for this switch to work.
+    -embedded arch...... This will enable embedded for Qt, you must have a proper
+			 license for this switch to work.
 
     -make directory .... This will generated makefiles for all projectfiles
-                         in directory. You can specify this option multiple
-                         times so as to only make specific directories.
+			 in directory. You can specify this option multiple
+			 times so as to only make specific directories.
 
     -platform target ... The platform you are building on ($PLATFORM)
     -xplatform target .. The platform when cross-compiling.
@@ -810,16 +832,13 @@ each option:
     -lstring ........... Add an explicit library.
 
     
-    -enable-<module> .......... Enables a module where module is one of the
-                                below.
-    -disable-<module> ......... Disables a module, where module can can be one
-                                of: $MODULES_HELP
+    -enable-<module> .......... Enables a module where module is one of the below.
+    -disable-<module> ......... Disables a module, where module can can be one of: 
+                                $MODULES_HELP
 
-    -with-<module setting> .... This will activate a setting as described
-                                below.
-    -without-<module setting> . This will deactivate a setting for any enabled
-                                module, consult each Qt module for their
-                                specific settings.
+    -with-<module setting> .... This will activate a setting as described below.
+    -without-<module setting> . This will deactivate a setting for any enabled module, 
+			        consult each Qt module for their specific settings.
 EOF
 
    [ "x$ERROR" = "xyes" ] && exit 1
@@ -850,12 +869,11 @@ then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}release"
     QMAKE_CONFIG="$QMAKE_CONFIG release"
 fi
-
-#if [ "x$THREAD" = "xyes" ]
-#then
-#    QMAKE_OUTDIR="${QMAKE_OUTDIR}-mt"
-#    QMAKE_CONFIG="$QMAKE_CONFIG thread"
-#fi
+if [ "x$THREAD" = "xyes" ]
+then
+    QMAKE_OUTDIR="${QMAKE_OUTDIR}-mt"
+    QMAKE_CONFIG="$QMAKE_CONFIG thread"
+fi
 # QMAKE_OUTDIR="${QMAKE_OUTDIR}-`uname -n`"
 
 if [ "x$EMBEDDED" != "xno" ]
@@ -880,18 +898,18 @@ QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE
 [ -z "$QMAKE_PROJECTS" ] && QMAKE_PROJECTS=`find $relpath/. -name '*.pro' -print | sort | sed 's-/\./-/-'`
 
 # Make sure QMAKE_PROJECTS contains src/qt.pro and src/moc/moc.pro
-echo "${MODULES}" | grep "$relpath/src/qt.pro"
+echo "${MODULES}" | grep "src/qt.pro"
 if [ '!' $? ]
 then
-    echo "Adding $relpath/src/qt.pro to list of projects"
-    QMAKE_PROJECTS="$relpath/src/qt.pro ${QMAKE_PROJECTS}"
+    echo "Adding src/qt.pro to list of projects"
+    QMAKE_PROJECTS="src/qt.pro ${QMAKE_PROJECTS}"
 fi
 
-echo "${MODULES}" | grep "$relpath/src/moc/moc.pro"
+echo "${MODULES}" | grep "src/moc/moc.pro"
 if [ '!' $? ]
 then
-    echo "Adding $relpath/src/moc/moc.pro to list of projects"
-    QMAKE_PROJECTS="$relpath/src/moc/moc.pro ${QMAKE_PROJECTS}"
+    echo "Adding src/moc/moc.pro to list of projects"
+    QMAKE_PROJECTS="src/moc/moc.pro ${QMAKE_PROJECTS}"
 fi
 
 [ '!' -z "$D_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"DEFINES+=$D_FLAGS\""
@@ -1021,88 +1039,6 @@ for a in $QMAKE_PROJECTS ; do
 
     case $a in
     *-kde.pro|*qtmain.pro) continue ;;
-    *src\/qt.pro)
-	echo -n "  for $a"
-	if [ "$VERBOSE" = "yes" ]; then
-	    echo " (`basename $CONF`)"
-	    echo -n $EXEC
-	fi
-	echo
-	rm -f $dir/$MFILE
-	rm -f $dir/Makefile.thread
-	rm -f $dir/Makefile.nothread
-        if [ "x$THREAD" = "xyes" ]
-	then
-	    PIPE="$QTDIR/bin/qmake $QMAKE_ALL_ARGS CONFIG-=thread -o $N.nothread \
-		-mkspec $XMKSPEC $a"
-	    MPIPE="$QTDIR/bin/qmake $QMAKE_ALL_ARGS CONFIG-=thread -o Makefile.nothread \
-		-mkspec $XMKSPEC qt.pro"
-	    PIPEMT="$QTDIR/bin/qmake \
-		`echo $QMAKE_ALL_ARGS | sed -e s/$QMAKE_OUTDIR/$QMAKE_OUTDIR-mt/g` \
-		CONFIG+=thread -o $N.thread -mkspec $XMKSPEC $a"
-	    MPIPEMT="$QTDIR/bin/qmake \
-		`echo $QMAKE_ALL_ARGS | sed -e s/$QMAKE_OUTDIR/$QMAKE_OUTDIR-mt/g` \
-		CONFIG+=thread -o Makefile.thread -mkspec $XMKSPEC qt.pro"
-	    /bin/sh -c "$PIPE"
-	    /bin/sh -c "$PIPEMT"
-	    cat > $N <<EOF
-#
-# This Makefile is automatically generated by configure. DO NOT EDIT.
-#
-# Compile both the threaded and non-threaded Qt
-#
-
-all: thread nothread
-
-nothread: Makefile.nothread FORCE
-	\$(MAKE) -k -f Makefile.nothread
-
-thread: Makefile.thread FORCE
-	\$(MAKE) -k -f Makefile.thread
-
-Makefile.nothread:
-	$MPIPE
-	
-Makefile.thread:
-	$MPIPEMT
-
-clean:
-	if [ -f Makefile.nothread ]; then make -f Makefile.nothread clean; fi
-	if [ -f Makefile.thread ]; then make -f Makefile.thread clean; fi
-	
-FORCE:
-
-EOF
-	else
-	    PIPE="$QTDIR/bin/qmake $QMAKE_ALL_ARGS CONFIG-=thread -o $N.nothread \
-		-mkspec $XMKSPEC $a"
-	    MPIPE="$QTDIR/bin/qmake $QMAKE_ALL_ARGS CONFIG-=thread -o Makefile.nothread \
-		-mkspec $XMKSPEC qt.pro"
-	    /bin/sh -c "$PIPE"
-	    cat > $N <<EOF
-#
-# This Makefile is automatically generated by configure. DO NOT EDIT.
-#
-# Compile non-threaded Qt
-#
-
-all: nothread
-
-nothread: Makefile.nothread FORCE
-	\$(MAKE) -f Makefile.nothread
-
-Makefile.nothread:
-	$MPIPE
-
-clean:
-	if [ -f Makefile.nothread ]; then make -f Makefile.nothread clean; fi
-
-FORCE:
-
-EOF
-	fi
-	continue
-        ;;
     *moc*) CONF=$MKSPEC ;;
     *) CONF=$XMKSPEC
     esac
