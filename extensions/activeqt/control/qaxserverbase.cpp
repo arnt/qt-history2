@@ -755,7 +755,10 @@ QAxServerBase::QAxServerBase( QObject *o )
     init();
 
     qt.object = o;
-    isWidget = o->isWidgetType();
+    if ( o ) {
+	isWidget = o->isWidgetType();
+	class_name = o->className();
+    }
 }
 
 /*!
