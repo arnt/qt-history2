@@ -617,6 +617,12 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 	}
 
     case PE_Splitter:
+	if (flags & Style_Horizontal)
+	    flags &= ~Style_Horizontal;
+	else
+	    flags |= Style_Horizontal;
+	// fall through intended
+
     case PE_DockWindowResizeHandle:
 	{
 	    const int motifOffset = 10;
