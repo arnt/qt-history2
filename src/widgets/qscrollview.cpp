@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#29 $
 **
 ** Implementation of QScrollView class
 **
@@ -624,12 +624,18 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	switch ( e->type() ) {
 	  case Event_Resize:
 	    d->autoResize(this);
-	    break;
-	  case Event_Destroy:
-	    d->deleteChildRec(r);
 	}
     }
     return FALSE;  // always continue with standard event processing
+}
+
+bool QScrollView::event( QEvent *e )
+{
+    if ( e->type() == Event_ChildRemoved ) {
+	removeChild(((QChildEvent*)e)->child());
+    } else {
+	QFrame::event(e);
+    }
 }
 
 /*!
