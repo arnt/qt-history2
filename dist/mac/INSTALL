@@ -7,18 +7,18 @@ the directories where you choose to install Qt.
 
 1.  Unpack the archive if you have not done so already:
 
-	cd /usr/local
+	cd /Developer/
 	gunzip %DISTNAME%.tar.gz	# uncompress the archive
 	tar xf %DISTNAME%.tar	# unpack it
 
-    This creates the directory /usr/local/%DISTNAME% containing the
+    This creates the directory /Developer/%DISTNAME% containing the
     files from the main archive.
 
     Rename %DISTNAME% to qt (or make a symlink):
 
 	mv %DISTNAME% qt
 
-    The rest of this file assumes that Qt is installed in /usr/local/qt.
+    The rest of this file assumes that Qt is installed in /Developer/qt.
 
 
 2.  Set some environment variables in the file .profile (or .login,
@@ -35,7 +35,7 @@ the directories where you choose to install Qt.
     In .profile (if your shell is bash, ksh, zsh or sh), add the
     following lines:
 
-	QTDIR=/usr/local/qt
+	QTDIR=/Developer/qt
 	PATH=$QTDIR/bin:$PATH
 	MANPATH=$QTDIR/doc/man:$MANPATH
 	DYLD_LIBRARY_PATH=$QTDIR/lib:$DYLD_LIBRARY_PATH
@@ -44,7 +44,7 @@ the directories where you choose to install Qt.
 
     In .login (in case your shell is csh or tcsh), add the following lines:
 
-	setenv QTDIR /usr/local/qt
+	setenv QTDIR /Developer/qt
 	setenv PATH $QTDIR/bin:$PATH
 	setenv MANPATH $QTDIR/doc/man:$MANPATH
 	setenv DYLD_LIBRARY_PATH $QTDIR/lib:$DYLD_LIBRARY_PATH
@@ -54,7 +54,7 @@ the directories where you choose to install Qt.
         * variables. If you experience any error messages with the above
         * instructions, you may want to replace them with:
         *
-	*  setenv QTDIR /usr/local/qt
+	*  setenv QTDIR /DEveloper/qt
 	*  setenv PATH $QTDIR/bin:$PATH
 	*  setenv MANPATH $QTDIR/doc/man
 	*  setenv DYLD_LIBRARY_PATH $QTDIR/lib
@@ -74,6 +74,7 @@ the directories where you choose to install Qt.
 
     Type:
 
+        cd $QTDIR
 	./configure
 
     This will configure the Qt library for your machine. Note that
