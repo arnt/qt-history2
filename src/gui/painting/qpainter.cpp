@@ -357,6 +357,24 @@ bool QPainter::isActive() const
 }
 
 /*!
+  Initializes the painters pen, background and font to the same as \a widget.
+*/
+void QPainter::initFrom(const QWidget *widget)
+{
+    Q_ASSERT_X(widget, "QPainter::initFrom(const QWidget *widget)", "Widget cannot be 0");
+    QPalette pal = widget->palette();
+    d->state->pen = pal.color(QPalette::Foreground);
+    d->state->bgBrush = pal.background();
+    d->state->font = widget->font();
+    if (d->engine) {
+        d->engine->setDirty(QPaintEngine::DirtyPen);
+        d->engine->setDirty(QPaintEngine::DirtyBrush);
+        d->engine->setDirty(QPaintEngine::DirtyFont);
+    }
+}
+
+
+/*!
     Saves the current painter state (pushes the state onto a stack). A
     save() must be followed by a corresponding restore(). end()
     unwinds the stack.

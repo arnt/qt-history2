@@ -61,6 +61,8 @@ public:
     bool end();
     bool isActive() const;
 
+    void initFrom(const QWidget *widget);
+
     const QFont &font() const;
     void setFont(const QFont &f);
 
