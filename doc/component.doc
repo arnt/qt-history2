@@ -146,9 +146,9 @@ struct IntegerInterface : public QUnknownInterface
 };
 \endcode
 
-Most platforms provide a tool to generate a UUID that is associated with
+Many platforms provide a tool to generate a UUID that is associated with
 this interface. The Qt distribution includes \e quuidgen which is a GUI tool 
-that makes it easy to copy the generated ID directly into the source code, e.g.
+that makes it easy to copy the generated ID directly into the source code:
 
 \code
 // {2FFC826E-AA74-4528-8FC9-2FDE08F77CD4} 
@@ -160,6 +160,9 @@ that makes it easy to copy the generated ID directly into the source code, e.g.
 It is common to use the name of the interface together with the prefix \e IID_
 as the descriptor for an interface ID.
 
+quuidgen is located in the tools/quuidgen subdirectory of your Qt distribution and is not build by
+default, as the required header files or libraries are not present on all platforms. If you have
+difficulties building the quuidgen tool, use e.g. www.google.com and search for \e libuuid
 
 \section1 Implementing an Interface
 
