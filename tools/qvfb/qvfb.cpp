@@ -97,7 +97,8 @@ void QVFb::init( int display_id, int w, int h, int d, const QString &skin_name )
         scroller->setWidget(view);
         setCentralWidget(scroller);
         scroller->show();
-        resize(sizeHint());
+        // Resize QVFb to the new size
+        resize(view->sizeHint() + (frameSize() - size()));
     }
 
     currentSkin = skin_name;
