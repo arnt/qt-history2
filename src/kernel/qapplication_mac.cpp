@@ -902,14 +902,15 @@ bool QApplication::processNextEvent( bool canWait )
     if(qt_is_gui_used) {
 	sendPostedEvents();
 	EventRecord event;
+	event.what = 0;
 	do {
 	    do {
 		if(app_exit_loop)
 		    return FALSE;
 
 #ifdef WEIRD_MOUSE_EMULATE
-		if(!GetNextEvent(everyEvent, &event) && 
-		   (qt_button_down || mac_mouse_grabber )) {
+	    if(!GetNextEvent(everyEvent, &event) && 
+	       (qt_button_down || mac_mouse_grabber )) {
 
 		    Point point;
 		    GetGlobalMouse(&point);
@@ -931,6 +932,8 @@ bool QApplication::processNextEvent( bool canWait )
 #else
 		GetNextEvent(everyEvent, &event);
 #endif
+		//process it
+	    if(event.what)
 		nevents++;
 		if(macProcessEvent( (MSG *)(&event) ) == 1)
 		    return TRUE;
