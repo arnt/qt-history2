@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#22 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -9,10 +9,9 @@
 **
 *****************************************************************************/
 
-#include <qpainter.h>
-#include <qlist.h>
+#include "qpainter.h"
+#include "qlist.h"
 #include "qasyncimageio.h"
-
 #include <stdlib.h>
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#128 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#129 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -21,7 +21,7 @@
 #include "qtimer.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#128 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#129 $");
 
 
 // Motif style parameters
@@ -79,7 +79,7 @@ static void popupSubMenuLater( int msec, QObject * receiver ) {
 #error "Remove QPopupMenu dict!"
 #endif
 
-#include <qptrdict.h>
+#include "qptrdict.h"
 
 
 struct QPopupMenuExtra {

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#128 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#129 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#128 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#129 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -373,7 +373,7 @@ int QListBoxPixmap::width( const QListBox * ) const
 #error "Remove QListBox dict."
 #endif
 
-#include <qintdict.h>
+#include "qintdict.h"
 
 static QIntDict<int> *qlb_maxLenDict = 0;
 

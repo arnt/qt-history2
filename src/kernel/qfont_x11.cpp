@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#86 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#85 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#86 $");
 
 
 static const int fontFields = 14;
@@ -69,6 +69,7 @@ public:
     QString findFont( bool *exact );
 };
 
+#undef  PRIV
 #define PRIV ((QFont_Private*)this)
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#142 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#143 $
 **
 ** Implementation of QObject class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#142 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#143 $");
 
 
 /*!
@@ -201,8 +201,11 @@ bool  qKillTimer( QObject *obj );
 void  qRemovePostedEvents( QObject * );
 
 
+#if !defined(Q_MOC_CONNECTIONLIST_DECLARED)
+#define Q_MOC_CONNECTIONLIST_DECLARED
 Q_DECLARE(QListM,QConnection);			// list of connections
 Q_DECLARE(QListIteratorM,QConnection);		// connection list iterator
+#endif
 Q_DECLARE(QDictM,QListM_QConnection);		// dict for multiple signals
 Q_DECLARE(QDictIteratorM,QListM_QConnection);	// dict iterator
 

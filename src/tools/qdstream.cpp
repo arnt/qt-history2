@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.cpp#36 $
+** $Id: //depot/qt/main/src/tools/qdstream.cpp#37 $
 **
 ** Implementation of QDataStream class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdstream.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdstream.cpp#37 $");
 
 
 /*!
@@ -76,6 +76,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qdstream.cpp#36 $");
  *****************************************************************************/
 
 #if defined(CHECK_STATE)
+#undef  CHECK_STREAM_PRECOND
 #define CHECK_STREAM_PRECOND  if ( !dev ) {				\
 				warning( "QDataStream: No device" );	\
 				return *this; }

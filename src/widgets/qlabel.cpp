@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#67 $
 **
 ** Implementation of QLabel widget class
 **
@@ -18,14 +18,14 @@
 #include "qmovie.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#66 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#67 $");
 
 
 #if QT_VERSION == 200
 #error "Remove QLabel dict!"
 #endif
 
-#include <qintdict.h>
+#include "qintdict.h"
 
 struct QLabel_Private
 {
