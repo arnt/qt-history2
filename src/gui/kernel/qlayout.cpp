@@ -901,8 +901,8 @@ bool QLayout::activate()
             int h = minimumHeightForWidth(ms.width());
             if (h > ms.height())
                 ms = QSize(0, 0);
-            mw->setMinimumSize(ms);
         }
+        mw->setMinimumSize(ms);
         break;
     }
     case SetNoConstraint:
