@@ -13,8 +13,10 @@
 ****************************************************************************/
 
 #include <private/qpainter_p.h>
+#include "qapplication.h"
 #include "qbrush.h"
 #include "qgl.h"
+#include "qmap.h"
 #include "qpaintengine_opengl.h"
 #include "qpen.h"
 
@@ -59,7 +61,7 @@ bool QOpenGLPaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, b
     glViewport(0, 0, dgl->width(), dgl->height());
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0, dgl->width(), dgl->height(), 0, -1, 1);
+    glOrtho(0, dgl->width(), dgl->height(), 0, -999999, 999999);
     return true;
 }
 
@@ -128,7 +130,6 @@ void QOpenGLPaintEngine::updateXForm(QPainterState *ps)
     dgl->makeCurrent();
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixf(&mat[0][0]);
-//     glTranslatef(mtx.dx(), mtx.dy(), 0);
 }
 
 void QOpenGLPaintEngine::updateClipRegion(QPainterState *ps)
@@ -248,31 +249,85 @@ void QOpenGLPaintEngine::drawWinFocusRect(const QRect &r, bool xorPaint, const Q
 
 void QOpenGLPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
+    QPointArray a;
 
+    int x, y, w, h;
+    r.rect(&x, &y, &w, &h);
+
+    w--;
+    h--;
+    int rxx = w*xRnd/200;
+    int ryy = h*yRnd/200;
+    int rxx2 = 2*rxx;
+    int ryy2 = 2*ryy;
+    int xx, yy;
+
+    // ###### WWA: this should use the new makeArc (with xmat)
+    a.makeEllipse(x, y, rxx2, ryy2);
+    int s = a.size()/4;
+    int i = 0;
+    while (i < s) {
+	a.point(i, &xx, &yy);
+	xx += w - rxx2;
+	a.setPoint(i++, xx, yy);
+    }
+    i = 2*s;
+    while (i < 3*s) {
+	a.point(i, &xx, &yy);
+	yy += h - ryy2;
+	a.setPoint(i++, xx, yy);
+    }
+    while ( i < 4*s ) {
+	a.point(i, &xx, &yy);
+	xx += w - rxx2;
+	yy += h - ryy2;
+	a.setPoint(i++, xx, yy);
+    }
+    drawPolyInternal(a);
 }
 
 void QOpenGLPaintEngine::drawEllipse(const QRect &r)
 {
     QPointArray pa;
     pa.makeEllipse(r.x(), r.y(), r.width(), r.height());
-    drawPolyline(pa, 0, pa.size());
+    drawPolyInternal(pa);
 }
 
 void QOpenGLPaintEngine::drawArc(const QRect &r, int a, int alen)
 {
     QPointArray pa;
     pa.makeArc(r.x(), r.y(), r.width(), r.height(), a, alen);
-    drawPolyline(pa, 0, pa.size());
+    drawPolyInternal(pa, false);
 }
 
 void QOpenGLPaintEngine::drawPie(const QRect &r, int a, int alen)
 {
+    int x, y, w, h;
+    r.rect(&x, &y, &w, &h);
 
+    QPointArray pa;
+    pa.makeArc(x, y, w, h, a, alen);
+    int n = pa.size();
+    int cx, cy;
+    cx = x+w/2;
+    cy = y+h/2;
+    pa.resize( n+2 );
+    pa.setPoint(n, cx, cy); // add legs
+    pa.setPoint(n+1, pa.at(0));
+    drawPolyInternal(pa);
 }
 
 void QOpenGLPaintEngine::drawChord(const QRect &r, int a, int alen)
 {
+    int x, y, w, h;
+    r.rect(&x, &y, &w, &h);
 
+    QPointArray pa;
+    pa.makeArc(x, y, w-1, h-1, a, alen); // arc polygon
+    int n = pa.size();
+    pa.resize(n + 1);
+    pa.setPoint(n, pa.at(0)); // connect endpoints
+    drawPolyInternal(pa);
 }
 
 void QOpenGLPaintEngine::drawLineSegments(const QPointArray &pa, int index, int nlines)
@@ -310,19 +365,55 @@ void QOpenGLPaintEngine::drawPolygon(const QPointArray &pa, bool, int index, int
     glEnd();
 }
 
+void QOpenGLPaintEngine::drawPolyInternal(const QPointArray &a, bool close)
+{
+    if (a.size() < 2)
+	return;
+
+    int x1, y1, x2, y2; // connect last to first point
+    a.point(a.size()-1, &x1, &y1);
+    a.point(0, &x2, &y2);
+    bool do_close = close && !(x1 == x2 && y1 == y2);
+
+    if (close && d->cbrush.style() != NoBrush) { // draw filled polygon
+	dgl->qglColor(d->cbrush.color());
+	drawPolygon(a, FALSE, 0, a.size());
+	if (d->cpen.style() == NoPen) { // draw fake outline
+	    drawPolyline(a, 0, a.size());
+	    if (do_close)
+		drawLine(QPoint(x1,y1), QPoint(x2,y2));
+	}
+    }
+    if (d->cpen.style() != NoPen) { // draw outline
+	dgl->qglColor(d->cpen.color());
+	drawPolyline(a, 0, a.size());
+	if (do_close)
+	    drawLine(QPoint(x1,y1), QPoint(x2,y2));
+    }
+}
+
 void QOpenGLPaintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
 {
     drawPolygon(pa, false, index, npoints);
 }
 
-void QOpenGLPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
+void QOpenGLPaintEngine::drawCubicBezier(const QPointArray &a, int index)
 {
-
+    QPointArray pa(a);
+    if (index != 0 || a.size() > 4) {
+	pa = QPointArray(4);
+	for (int i = 0; i < 4; i++)
+	    pa.setPoint(i, a.point(index + i));
+    }
+    if (d->cpen.style() != NoPen) {
+	pa = pa.cubicBezier();
+	drawPolyline(pa, 0, pa.size());
+    }
 }
 
-// ### assumes an int is 32 bits
-// returns the number closest to v, that is a power of 2
-static int nearest_gl_size(int v)
+// ### NB! assumes 32 bit ints
+// returns the highest number closest to v, which is a power of 2
+static int nearest_gl_texture_size(int v)
 {
     int n = 0, last = 0;
     for (int s = 0; s < 32; ++s) {
@@ -336,30 +427,66 @@ static int nearest_gl_size(int v)
     return 1 << last;
 }
 
+static bool add_texture_cleanup = true;
+QMap<int, GLuint> tx_cache;
+
+static void cleanup_texture_cache()
+{
+    GLuint textures[tx_cache.size()];
+    for(int i = 0; i < tx_cache.size(); ++i)
+	textures[i] = tx_cache.value(i);
+    glDeleteTextures(1, textures);
+}
+
+static void bind_texture_from_cache(const QPixmap &pm)
+{
+    if (tx_cache.contains(pm.serialNumber())) {
+	glBindTexture(GL_TEXTURE_2D, tx_cache.value(pm.serialNumber()));
+    } else {
+        // not cached - cache it!
+	if (add_texture_cleanup) {
+	    qAddPostRoutine(cleanup_texture_cache);
+	    add_texture_cleanup = false;
+	}
+
+	// Scale the pixmap if needed. GL textures needs to have the
+	// dimensions 2^n+2(border) x 2^m+2(border).
+	QImage tx;
+	int tx_w = nearest_gl_texture_size(pm.width());
+	int tx_h = nearest_gl_texture_size(pm.height());
+	if (tx_w != pm.width() || tx_h !=  pm.height()) {
+	    QImage im = pm;
+	    tx = QGLWidget::convertToGLFormat(im.scale(tx_w, tx_h));
+	} else {
+	    tx = QGLWidget::convertToGLFormat(pm);
+	}
+
+	GLuint tx_id;
+	glGenTextures(1, &tx_id);
+	glBindTexture(GL_TEXTURE_2D, tx_id);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tx.width(), tx.height(), 0, GL_RGBA,
+		     GL_UNSIGNED_BYTE, tx.bits());
+	tx_cache.insert(pm.serialNumber(), tx_id);
+    }
+}
+
+
 void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &)
 {
-    QImage tx;
-
-    // Scale the pixmap if needed. GL textures needs to have the
-    // dimensions 2^n+2(border) x 2^m+2(border).
-    if (nearest_gl_size(pm.width()) != pm.width()
-	|| nearest_gl_size(pm.height()) !=  pm.height()) {
-	QImage im = pm;
-	tx = QGLWidget::convertToGLFormat(im.scale(nearest_gl_size(pm.width()),
-						   nearest_gl_size(pm.height())));
-    } else {
-	tx = QGLWidget::convertToGLFormat(pm);
-    }
+    // see if we have this pixmap cached as a texture - if not cache it
+    bind_texture_from_cache(pm);
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glEnable(GL_TEXTURE_2D);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, tx.width(), tx.height(), 0, GL_RGBA,
-		 GL_UNSIGNED_BYTE, tx.bits());
-    GLfloat col[4];
-    glGetFloatv(GL_CURRENT_COLOR, col);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    GLfloat c[4];
+    glGetFloatv(GL_CURRENT_COLOR, c);
     glColor4f(1.0, 1.0, 1.0, 1.0);
-    glBegin( GL_QUADS );
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+
+    glBegin(GL_QUADS);
     {
 	glTexCoord2f(0.0, 1.0); glVertex2i(r.x(), r.y());
 	glTexCoord2f(1.0, 1.0); glVertex2i(r.x()+r.width(), r.y());
@@ -367,8 +494,10 @@ void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRe
 	glTexCoord2f(0.0, 0.0); glVertex2i(r.x(), r.y()+r.height());
     }
     glEnd();
+
+    glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
-    glColor4f(col[0], col[1], col[2], col[3]);
+    glColor4f(c[0], c[1], c[2], c[3]);
 }
 
 void QOpenGLPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)

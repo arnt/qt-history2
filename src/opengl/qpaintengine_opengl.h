@@ -47,6 +47,7 @@ public:
     void drawPie(const QRect &r, int a, int alen);
     void drawChord(const QRect &r, int a, int alen);
     void drawLineSegments(const QPointArray &, int index = 0, int nlines = -1);
+    void drawPolyInternal(const QPointArray &pa, bool close = true);
     void drawPolyline(const QPointArray &pa, int index = 0, int npoints = -1);
     void drawPolygon(const QPointArray &pa, bool winding = false, int index = 0, int npoints =- 1);
     void drawConvexPolygon(const QPointArray &pa, int index = 0, int npoints = -1);
