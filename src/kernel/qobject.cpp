@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#88 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#87 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#88 $")
 
 
 /*----------------------------------------------------------------------------
@@ -1020,7 +1020,7 @@ static void err_member_notfound( int code, const QObject *object,
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn QObject *QObject::sender()
+  \fn const QObject *QObject::sender()
   Returns a pointer to the object that sent the last signal received by
   this object.
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#30 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#31 $
 **
 ** Definition of QObject class
 **
@@ -82,7 +82,7 @@ protected:
     void	activate_signal( const char *signal, int );
     void	activate_signal( const char *signal, long );
     void	activate_signal( const char *signal, const char * );
-    QObject	*sender();
+    const QObject *sender();
 
     virtual void initMetaObject();
 
@@ -133,7 +133,7 @@ inline bool QObject::disconnect( const QObject *receiver, const char *member )
     return disconnect( this, 0, receiver, member );
 }
 
-inline QObject *QObject::sender()
+inline const QObject *QObject::sender()
 {
     return sigSender;
 }
