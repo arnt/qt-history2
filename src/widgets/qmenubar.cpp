@@ -51,6 +51,7 @@
 #include "qlayout.h"
 #include "qcleanuphandler.h"
 #include <ctype.h>
+#include "../kernel/qinternal_p.h"
 
 class QMenuDataData {
     // attention: also defined in qmenudata.cpp
@@ -905,20 +906,6 @@ QMenuBar::Separator QMenuBar::separator() const
   Event handlers
  *****************************************************************************/
 
-static QPixmap *doubleBuffer = 0;
-static QCleanupHandler<QPixmap> qmb_cleanup_pixmap;
-static QPixmap *getDoubleBuffer( int w, int h )
-{
-    if ( !doubleBuffer ) {
-	doubleBuffer = new QPixmap( w, h );
-	qmb_cleanup_pixmap.add( doubleBuffer );
-    }
-
-    else if ( w > doubleBuffer->width() || h > doubleBuffer->height() )
-	    doubleBuffer->resize( w, h );
-    return doubleBuffer;
-}
-
 /*!
   Called from QFrame::paintEvent().
 */
@@ -946,23 +933,17 @@ void QMenuBar::drawContents( QPainter *p )
 	    else
 		g = palette().disabled();
 	    reg = reg.subtract( r );
-	    QPixmap *db = getDoubleBuffer( r.width(), r.height() );
-	    db->fill( this, r.x(), r.y() );
-	    QPainter pntr( db, this);
-	    pntr.setFont( p->font() );
-	    pntr.setPen( p->pen() );
-	    pntr.setBrush( p->brush() );
-	    style().drawMenuBarItem( &pntr, 0, 0, r.width(),
+	    QSharedDoubleBuffer buffer( p, r );
+	    buffer.painter()->setFont( p->font() );
+	    buffer.painter()->setPen( p->pen() );
+	    buffer.painter()->setBrush( p->brush() );
+	    style().drawMenuBarItem( buffer.painter(), r.x(), r.y(), r.width(),
 				     r.height(), mi, g, (i == actItem),
 				     actItemDown,
 				  ( hasFocus() || hasmouse || popupvisible ) );
-	    p->drawPixmap( r.x(), r.y(), *db, 0, 0, r.width(), r.height() );
 	}
     }
-    p->save();
-    p->setClipRegion( reg );
-    p->fillRect( contentsRect(), colorGroup().brush( QColorGroup::Button ) );
-    p->restore();
+    erase( reg );
 
     // Draw the menu bar contents in the current style
     style().drawMenuBarPanel( p, 0, 0, width(), height(), g );
