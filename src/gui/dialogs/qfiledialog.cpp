@@ -2057,7 +2057,7 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
     args.caption = caption;
     args.directory = qt_working_dir;
     args.filter = filter;
-    args.mode = ExistingFile;
+    args.mode = ExistingFiles;
     
 #if defined(Q_WS_WIN)
     if (::qt_cast<QWindowsStyle*>(qApp->style()))
