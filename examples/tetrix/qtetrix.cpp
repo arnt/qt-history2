@@ -41,6 +41,8 @@ void drawTetrixButton( QPainter *p, int x, int y, int w, int h,
 ShowNextPiece::ShowNextPiece( QWidget *parent, const char *name )
     : QFrame( parent, name )
 {
+    setBackgroundColor(gray);
+
     setFrameStyle( QFrame::Panel | QFrame::Sunken );
     xOffset = -1;     // -1 until first resizeEvent.
 }

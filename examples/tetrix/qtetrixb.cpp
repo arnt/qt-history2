@@ -19,6 +19,8 @@ const int waitAfterLineTime = 500;
 QTetrixBoard::QTetrixBoard( QWidget *p, const char *name )
     : QFrame( p, name )
 {
+    setBackgroundColor(gray);
+
     setFrameStyle( QFrame::Panel | QFrame::Sunken );
     paint = 0;
     timer = new QTimer(this);
