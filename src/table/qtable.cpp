@@ -3910,8 +3910,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 				      itm ? itm->isReplaceable() : TRUE ) ) ) {
 		    setEditMode( ( !itm || itm && itm->isReplaceable()
 				   ? Replacing : Editing ), tmpRow, tmpCol );
-		    QKeyEvent ev( e->type(), e->key(), e->ascii(), e->state(), e->text(), e->isAutoRepeat(), e->count() );
-		    QApplication::sendEvent( w, &ev );
+		    QApplication::sendEvent( w, e );
 		}
 	    }
 	}
