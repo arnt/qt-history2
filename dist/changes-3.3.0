@@ -81,8 +81,8 @@ Qt Assistant
 Compilers
 ---------
 
-Qt 3.3.x does no longer officially support IRIX MIPSpro o32 or Sun CC
-5.0.
+Qt 3.3.x does no longer officially support the IRIX MIPSpro o32 mode
+or Sun CC 5.0.
 
 
 ****************************************************************************
