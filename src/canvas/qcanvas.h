@@ -130,17 +130,27 @@ public:
     void hide();
 
     virtual void setVisible(bool yes);
-    bool visible() const
+    bool isVisible() const
 	{ return (bool)vis; }
     virtual void setSelected(bool yes);
-    bool selected() const
+    bool isSelected() const
 	{ return (bool)sel; }
     virtual void setEnabled(bool yes);
-    bool enabled() const
+    bool isEnabled() const
 	{ return (bool)ena; }
     virtual void setActive(bool yes);
+    bool isActive() const
+	{ return (bool)act; }
+#ifndef QT_NO_COMPAT
+    bool visible() const
+	{ return (bool)vis; }
+    bool selected() const
+	{ return (bool)sel; }
+    bool enabled() const
+	{ return (bool)ena; }
     bool active() const
 	{ return (bool)act; }
+#endif
 
     enum RttiValues {
 	Rtti_Item = 0,

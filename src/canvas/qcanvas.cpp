@@ -681,7 +681,7 @@ void QCanvas::resize(int w, int h)
     QCanvasItem* item;
     QPtrList<QCanvasItem> hidden;
     for (QPtrDictIterator<void> it=d->itemDict; it.currentKey(); ++it) {
-	if (((QCanvasItem*)it.currentKey())->visible()) {
+	if (((QCanvasItem*)it.currentKey())->isVisible()) {
 	    ((QCanvasItem*)it.currentKey())->hide();
 	    hidden.append(((QCanvasItem*)it.currentKey()));
 	}
@@ -752,7 +752,7 @@ void QCanvas::retune(int chunksze, int mxclusters)
     if ( chunksize!=chunksze ) {
 	QPtrList<QCanvasItem> hidden;
 	for (QPtrDictIterator<void> it=d->itemDict; it.currentKey(); ++it) {
-	    if (((QCanvasItem*)it.currentKey())->visible()) {
+	    if (((QCanvasItem*)it.currentKey())->isVisible()) {
 		((QCanvasItem*)it.currentKey())->hide();
 		hidden.append(((QCanvasItem*)it.currentKey()));
 	    }
@@ -1755,7 +1755,7 @@ The rtti() function is used for identifying subclasses of QCanvasItem.
 The canvas() function returns a pointer to the canvas which contains the
 canvas item.
 
-QCanvasItem provides the show() and visible() functions like those in
+QCanvasItem provides the show() and isVisible() functions like those in
 QWidget.
 
 QCanvasItem also provides the setEnabled(), setActive() and
@@ -1989,7 +1989,7 @@ This abstract virtual function draws the canvas item using \a painter.
 */
 void QCanvasItem::setCanvas(QCanvas* c)
 {
-    bool v=visible();
+    bool v=isVisible();
     setVisible(FALSE);
     if (cnv) {
 	cnv->removeItem(this);
@@ -2037,7 +2037,7 @@ void QCanvasItem::setVisible(bool yes)
 	}
     }
 }
-/*! \fn bool QCanvasItem::visible() const
+/*! \fn bool QCanvasItem::isVisible() const
 
   Returns TRUE if the canvas item is visible otherwise returns FALSE.
 
@@ -2050,7 +2050,7 @@ void QCanvasItem::setVisible(bool yes)
   \sa setVisible(), z()
 */
 
-/*! \fn bool QCanvasItem::selected() const
+/*! \fn bool QCanvasItem::isSelected() const
 
   Returns TRUE if the canvas item is selected; otherwise returns FALSE.
 */
@@ -2061,7 +2061,7 @@ void QCanvasItem::setVisible(bool yes)
   The QCanvas, QCanvasItem and the Qt-supplied QCanvasItem subclasses do
   not make use of this value.  The setSelected() function is supplied
   because many applications need it, but it is up to you how you use the
-  selected() value.
+  isSelected() value.
 */
 void QCanvasItem::setSelected(bool yes)
 {
@@ -2072,7 +2072,7 @@ void QCanvasItem::setSelected(bool yes)
 }
 
 /*!
-  \fn bool QCanvasItem::enabled() const
+  \fn bool QCanvasItem::isEnabled() const
   Returns TRUE if the QCanvasItem is enabled; otherwise returns FALSE.
 */
 
@@ -2082,7 +2082,7 @@ void QCanvasItem::setSelected(bool yes)
   The QCanvas, QCanvasItem and the Qt-supplied QCanvasItem subclasses do
   not make use of this value.  The setEnabled() function is supplied
   because many applications need it, but it is up to you how you use the
-  selected() value.
+  isEnabled() value.
 */
 void QCanvasItem::setEnabled(bool yes)
 {
@@ -2093,7 +2093,7 @@ void QCanvasItem::setEnabled(bool yes)
 }
 
 /*!
-  \fn bool QCanvasItem::active() const
+  \fn bool QCanvasItem::isActive() const
   Returns TRUE if the QCanvasItem is active; otherwise returns FALSE.
 */
 
@@ -2103,7 +2103,7 @@ void QCanvasItem::setEnabled(bool yes)
   The QCanvas, QCanvasItem and the Qt-supplied QCanvasItem subclasses do
   not make use of this value.  The setActive() function is supplied
   because many applications need it, but it is up to you how you use the
-  selected() value.
+  isActive() value.
 */
 void QCanvasItem::setActive(bool yes)
 {
@@ -2518,7 +2518,7 @@ QCanvasItemList QCanvas::collisions(const QPointArray& chunklist,
 */
 void QCanvasItem::addToChunks()
 {
-    if (visible() && canvas()) {
+    if (isVisible() && canvas()) {
 	QPointArray pa = chunks();
 	for (int i=0; i<(int)pa.count(); i++)
 	    canvas()->addItemToChunk(this,pa[i].x(),pa[i].y());
@@ -2531,7 +2531,7 @@ void QCanvasItem::addToChunks()
 */
 void QCanvasItem::removeFromChunks()
 {
-    if (visible() && canvas()) {
+    if (isVisible() && canvas()) {
 	QPointArray pa = chunks();
 	for (int i=0; i<(int)pa.count(); i++)
 	    canvas()->removeItemFromChunk(this,pa[i].x(),pa[i].y());
@@ -2545,7 +2545,7 @@ void QCanvasItem::removeFromChunks()
 */
 void QCanvasItem::changeChunks()
 {
-    if (visible() && canvas()) {
+    if (isVisible() && canvas()) {
 	QPointArray pa = chunks();
 	for (int i=0; i<(int)pa.count(); i++)
 	    canvas()->setChangedChunk(pa[i].x(),pa[i].y());
@@ -3108,7 +3108,7 @@ QPointArray QCanvasItem::chunks() const
     QPointArray r;
     int n=0;
     QRect br = boundingRect();
-    if (visible() && canvas()) {
+    if (isVisible() && canvas()) {
 	int chunksize=canvas()->chunkSize();
 	br &= QRect(0,0,canvas()->width(),canvas()->height());
 	if ( br.isValid() ) {
@@ -3131,7 +3131,7 @@ QPointArray QCanvasItem::chunks() const
 */
 void QCanvasSprite::addToChunks()
 {
-    if (visible() && canvas()) {
+    if (isVisible() && canvas()) {
 	int chunksize=canvas()->chunkSize();
 	for (int j=topEdge()/chunksize; j<=bottomEdge()/chunksize; j++) {
 	    for (int i=leftEdge()/chunksize; i<=rightEdge()/chunksize; i++) {
@@ -3149,7 +3149,7 @@ void QCanvasSprite::addToChunks()
 */
 void QCanvasSprite::removeFromChunks()
 {
-    if (visible() && canvas()) {
+    if (isVisible() && canvas()) {
 	int chunksize=canvas()->chunkSize();
 	for (int j=topEdge()/chunksize; j<=bottomEdge()/chunksize; j++) {
 	    for (int i=leftEdge()/chunksize; i<=rightEdge()/chunksize; i++) {
@@ -4722,7 +4722,7 @@ void QCanvasText::draw(QPainter& painter)
 */
 void QCanvasText::changeChunks()
 {
-    if (visible() && canvas()) {
+    if (isVisible() && canvas()) {
 	int chunksize=canvas()->chunkSize();
 	for (int j=brect.top()/chunksize; j<=brect.bottom()/chunksize; j++) {
 	    for (int i=brect.left()/chunksize; i<=brect.right()/chunksize; i++) {
@@ -4737,7 +4737,7 @@ void QCanvasText::changeChunks()
 */
 void QCanvasText::addToChunks()
 {
-    if (visible() && canvas()) {
+    if (isVisible() && canvas()) {
 	int chunksize=canvas()->chunkSize();
 	for (int j=brect.top()/chunksize; j<=brect.bottom()/chunksize; j++) {
 	    for (int i=brect.left()/chunksize; i<=brect.right()/chunksize; i++) {
@@ -4752,7 +4752,7 @@ void QCanvasText::addToChunks()
 */
 void QCanvasText::removeFromChunks()
 {
-    if (visible() && canvas()) {
+    if (isVisible() && canvas()) {
 	int chunksize=canvas()->chunkSize();
 	for (int j=brect.top()/chunksize; j<=brect.bottom()/chunksize; j++) {
 	    for (int i=brect.left()/chunksize; i<=brect.right()/chunksize; i++) {
@@ -4886,7 +4886,7 @@ QCanvasSprite::QCanvasSprite(QCanvasPixmapArray* a, QCanvas* canvas) :
 */
 void QCanvasSprite::setSequence(QCanvasPixmapArray* a)
 {
-    bool isvisible = visible();
+    bool isvisible = isVisible();
     if ( isvisible && images )
 	hide();
     images = a;
@@ -4903,7 +4903,7 @@ Marks any chunks the sprite touches as changed.
 */
 void QCanvasSprite::changeChunks()
 {
-    if (visible() && canvas()) {
+    if (isVisible() && canvas()) {
 	int chunksize=canvas()->chunkSize();
 	for (int j=topEdge()/chunksize; j<=bottomEdge()/chunksize; j++) {
 	    for (int i=leftEdge()/chunksize; i<=rightEdge()/chunksize; i++) {
@@ -5029,7 +5029,7 @@ void QCanvasSprite::move(double x, double y) { QCanvasItem::move(x,y); }
 */
 void QCanvasSprite::move(double nx, double ny, int nf)
 {
-    if (visible() && canvas()) {
+    if (isVisible() && canvas()) {
 	hide();
 	QCanvasItem::move(nx,ny);
 	if ( nf >= 0 && nf < frameCount() )
