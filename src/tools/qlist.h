@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#29 $
+** $Id: //depot/qt/main/src/tools/qlist.h#30 $
 **
 ** Definition of QList template/macro class
 **
@@ -91,7 +91,13 @@ public:
     type *toLast()	      { return (type *)QGListIterator::toLast(); }
     operator type *() const   { return (type *)QGListIterator::get(); }
     type *operator*()         { return (type *)QGListIterator::get(); }
+
+    // No good, since QList<char> (ie. QStrList fails...
+    //
+    // MSVC++ gives warning
+    // Sunpro C++ 4.1 gives error
     //    type *operator->()        { return (type *)QGListIterator::get(); }
+
     type *current()   const   { return (type *)QGListIterator::get(); }
     type *operator()()	      { return (type *)QGListIterator::operator()();}
     type *operator++()	      { return (type *)QGListIterator::operator++(); }
