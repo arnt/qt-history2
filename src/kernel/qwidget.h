@@ -539,6 +539,8 @@ protected:
 #if defined(Q_WS_MAC)
     void dirtyClippedRegion(bool);
     bool isClippedRegionDirty();
+    virtual void setRegionDirty(bool);
+    virtual void macWidgetChangedWindow();
 #endif
 
 private slots:
