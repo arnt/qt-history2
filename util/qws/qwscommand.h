@@ -45,14 +45,14 @@ static bool qws_read_command( QSocketDevice *socket, char *&simpleData, int &sim
 			      int &bytesRead )
 {
     if ( rawLen == -1 ) {
-	if ( socket->size() < sizeof( rawLen ) )
+	if ( socket->bytesAvailable() < sizeof( rawLen ) )
 	    return FALSE;
 	rawLen = qws_read_uint( socket );
     }
 
     if ( !bytesRead ) {
 	if ( simpleLen ) {
-	    if ( socket->size() < uint(simpleLen) )
+	    if ( socket->bytesAvailable() < uint(simpleLen) )
 		return FALSE;
 	    bytesRead = socket->readBlock( simpleData, simpleLen );
 	} else
@@ -62,7 +62,7 @@ static bool qws_read_command( QSocketDevice *socket, char *&simpleData, int &sim
     if ( bytesRead ) {
 	if ( !rawLen )
 	    return TRUE;
-	if ( socket->size() < uint(rawLen) )
+	if ( socket->bytesAvailable() < uint(rawLen) )
 	    return FALSE;
 	rawData = new char[ rawLen ];
 	bytesRead += socket->readBlock( rawData, rawLen );

@@ -428,7 +428,6 @@ void QWSServer::doClient()
     QWSClient* client = (QWSClient*)sender();
     QWSCommand* command=client->readMoreCommand();
 
-
     while ( command ) {
 	if ( command->type == QWSCommand::RegionAck ) {
 	    int id = ((QWSRegionAckCommand*)command)->simpleData.eventid;
