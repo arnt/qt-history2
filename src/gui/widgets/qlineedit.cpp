@@ -2020,9 +2020,11 @@ QMenu *QLineEdit::createPopupMenu()
 #ifdef Q_WS_X11
 #ifndef QT_NO_IM
     QInputContext *qic = inputContext();
-    QList<QAction *> imActions = qic->actions();
-    for (int i = 0; i < imActions.size(); ++i)
-        popup->addAction(imActions.at(i));
+    if (qic) {
+        QList<QAction *> imActions = qic->actions();
+        for (int i = 0; i < imActions.size(); ++i)
+            popup->addAction(imActions.at(i));
+    }
 #endif
 #endif
     return popup;
