@@ -2738,31 +2738,34 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		    r.setLeft( r.left() + current->l * treeStepSize() );
 
 		p->save();
-		p->translate( r.left(), r.top() );
-		int ac = d->h->mapToLogical( c );
-		// map to Left currently. This should change once we
-		// can really reverse the listview.
-		int align = columnAlignment( ac );
-		if ( align == AlignAuto ) align = AlignLeft;
-		if ( d->useDoubleBuffer ) {
-		    QRect a( 0, 0, r.width(), current->i->height() );
-		    QSharedDoubleBuffer buffer( p, a, QSharedDoubleBuffer::Force );
-		    if ( buffer.isBuffered() )
-			paintEmptyArea( buffer.painter(), a );
-		    buffer.painter()->setFont( p->font() );
-		    buffer.painter()->setPen( p->pen() );
-		    buffer.painter()->setBrush( p->brush() );
-		    current->i->paintCell( buffer.painter(), cg, ac, r.width(),
-					   align );
-		} else {
-		    current->i->paintCell( p, cg, ac, r.width(),
-					   align );
+		// No need to paint if the cell isn't technically visible
+		if ( !( r.width() == 0 || r.height() == 0 ) ) {
+		    p->translate( r.left(), r.top() );
+		    int ac = d->h->mapToLogical( c );
+		    // map to Left currently. This should change once we
+		    // can really reverse the listview.
+		    int align = columnAlignment( ac );
+		    if ( align == AlignAuto ) align = AlignLeft;
+		    if ( d->useDoubleBuffer ) {
+			QRect a( 0, 0, r.width(), current->i->height() );
+			QSharedDoubleBuffer buffer( p, a, QSharedDoubleBuffer::Force );
+			if ( buffer.isBuffered() )
+			    paintEmptyArea( buffer.painter(), a );
+			buffer.painter()->setFont( p->font() );
+			buffer.painter()->setPen( p->pen() );
+			buffer.painter()->setBrush( p->brush() );
+			current->i->paintCell( buffer.painter(), cg, ac, r.width(),
+			    align );
+		    } else {
+			current->i->paintCell( p, cg, ac, r.width(),
+			    align );
+		    }
 		}
 		p->restore();
 		x += cs;
 		c++;
 	    }
-
+	    
 	    if ( current->i == d->focusItem && hasFocus() &&
 		 !d->allColumnsShowFocus ) {
 		p->save();
