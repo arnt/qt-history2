@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#194 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#195 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -9664,8 +9664,8 @@ QString & QString::visual(int index, int len)
 
     QChar *chars = new QChar[len];
 
-    int i;
-    for ( i=0, pos = index; pos < (index+len); i++, pos++)
+    int i = 0;
+    for ( pos = index; pos < (uint)(index+len); i++, pos++)
 	chars[i] = at(pos);
 
     reverse(chars, level, index, index+len);
