@@ -119,8 +119,8 @@ QAbstractItemModel::ItemFlags TableModel::flags(const QModelIndex &index) const
     The dataChanged() signal is emitted if the item is changed.
 */
 
-bool TableModel::setData(const QModelIndex &index, int role,
-                         const QVariant &value)
+bool TableModel::setData(const QModelIndex &index,
+                         const QVariant &value, int role)
 {
     if (!index.isValid() || role != EditRole)
         return false;

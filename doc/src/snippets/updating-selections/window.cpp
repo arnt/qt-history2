@@ -55,13 +55,13 @@ void MainWindow::updateSelection(const QItemSelection &selected,
 
     foreach (index, items) {
         QString text = QString("(%1,%2)").arg(index.row()).arg(index.column());
-        model->setData(index, QAbstractItemModel::EditRole, text);
+        model->setData(index, text);
     }
 
     items = deselected.indexes();
 
     foreach (index, items)
-        model->setData(index, QAbstractItemModel::EditRole, "");
+        model->setData(index, "");
 }
 
 void MainWindow::changeCurrent(const QModelIndex &current,
