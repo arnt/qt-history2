@@ -31,7 +31,7 @@ C++ Project into an existing project.
 
 \section3 C++ Project Files
 
-Click C++ Project to start a new project. This option invokes the
+Click \Bold {C++ Project} to start a new project. This option invokes the
 \l{Project Settings Dialog}. C++ projects are saved as \File .pro
 files, which include the information \QD needs to manage projects.
 When you add a form to your project in \QD, it is automatically added
@@ -43,14 +43,14 @@ implementation file, e.g. form.cpp, from the \File .ui file.
 
 \section3 Dialog Forms
 
-Click Dialog to create a plain dialog form. Typically, this type of
+Click \Bold Dialog to create a plain dialog form. Typically, this type of
 form is used to present the user with configuration 
-options, or to present related sets of choices, e.g. printer setting
-dialogs, find and replace dialogs, etc. 
+options, or to present related sets of choices, for example, printer setting
+dialogs and find and replace dialogs. 
 
 \section3 Wizard Forms 
 
-Click Wizard to create a wizard form. A wizard is a special type of
+Click \Bold Wizard to create a wizard form. A wizard is a special type of
 input dialog that consists of a sequence of dialog pages. A wizard's
 purpose is to assist a user by automating a task by walking the user
 through the process step by step. Wizards are useful for complex or
@@ -61,55 +61,56 @@ page titles.
 
 \section3 Widget Forms 
 
-Click Widget to create a form whose superclass is QWidget rather than
+Click \Bold Widget to create a form whose superclass is QWidget rather than
 QDialog.
 
 \section3 Main Window Form
 
-Click Main Window to invoke the \l{Main Window Wizard}. This wizard
-is used to create actions, menu options and toolbars through which the
-user can invoke actions. This form is used to create typical
+Click \Bold{Main Window} to invoke the \l{Main Window Wizard}. This
+wizard is used to create actions, menu options and toolbars through
+which the user can invoke actions. This form is used to create typical
 main-window style applications. 
 
 \section3 Configuration Dialog Form 
 
-This creates a form with a listbox on the left, and a tabwidget
-filling the body of the form, along with Help, OK and Cancel buttons.
+Click \Bold {Configuration Dialog} creates a form with a listbox on
+the left, and a tabwidget filling the body of the form, along with
+Help, OK and Cancel buttons.
 
 \section3 Dialog with Buttons (Bottom) Form  
 
-The Dialog with Buttons (Bottom) form is a template with default
+The \Bold {Dialog with Buttons (Bottom)} form is a template with default
 buttons at the bottom of the form.
 
 \section3 Dialog with Buttons Form (Right)
 
-The Dialog with Buttons (Right) form is a template with default
+The \Bold {Dialog with Buttons (Right)} form is a template with default
 buttons at the right of the form.
 
 \omit
 \section3 New Template Form
 
-Click New Template to create a form for designing templates. 
+Click \Bold {New Template} to create a form for designing templates. 
 \endomit
 
 \section3 Tab Dialog Form
 
-The Tab Dialog form has a tab widget as its central widget, along with
+The \Bold {Tab Dialog} form has a tab widget as its central widget, along with
 Help, OK and Cancel buttons along the bottom.
 
 \section3 C++ Source File 
 
-Click C++ Source File to create a new empty C++ file. The file will
+Click \Bold {C++ Source File} to create a new empty C++ file. The file will
 automatically be added to the project when it is saved.
 
 \section3 C++ Header File
 
-Click C++ Header File to create a new empty C++ header file. The file
+Click \Bold {C++ Header File} to create a new empty C++ header file. The file
 will automatically be added to the project when it is saved.
 
 \section3 C++ Main File
 
-Click C++ Main File to invoke the \Dialog {Configure Main-File
+Click \Bold {C++ Main File} to invoke the \l {Configure Main-File
 Dialog} which will create a basic \File main.cpp file automatically. 
 
 \img qd-fileopen.png
@@ -121,19 +122,21 @@ Dialog} which will create a basic \File main.cpp file automatically.
 Click \Menu File|Open (or press\Key Ctrl+O) to invoke the
 \Dialog{Open} dialog. Use this dialog to open existing files. 
 
-The \Dialog Open dialog defaults the directory and file type. To
-choose a different directory, click the 'Look In' combobox. Choose a
-file and the name will appear in the 'File Name' combobox. To choose a
-different file type, click the 'File Type' combobox. Click the 'Create
-New Folder' toolbar button to create a new directory. Click the 'List
-View' toolbar button to view folders and files in a list with only the
-names showing. Click the 'Details' toolbar button to view the folders
-and file names along with their size, type, date, and attributes.
-Click the Size, Type, Date, or Attributes column headers to sort the
-folders or files.
+The \Dialog Open dialog shows the current directory and default file
+type. To choose a different directory, click the 'Look In' combobox.
+Choose a file and the name will appear in the 'File Name' combobox. To
+choose a different file type, click the 'File Type' combobox. Click
+the 'Create New Folder' toolbar button to create a new directory.
+Click the 'List View' toolbar button to view folders and files in a
+list with only the names showing. Click the 'Details' toolbar button
+to view the folders and file names along with their size, type, date,
+and attributes. Click the Size, Type, Date, or Attributes column
+headers to sort the folders or files.
 
 Click \Button Open to open the selected file. Click \CANCEL
-to leave the dialog without opening a new file. 
+to leave the dialog without opening a new file.
+
+Note: For Windows, the System File Dialogs are used. 
 
 \img qd-filesaveasdialog.png
 \caption Save As
@@ -141,22 +144,24 @@ to leave the dialog without opening a new file.
 \target dialog-file-save-as
 \section2 Save As 
 
-Click \Menu{File|Save As} to invoke the \Dialog{Save As} dialog. Use this
-dialog to save files to a directory.
+Click \Menu{File|Save As} to invoke the \Dialog{Save As} dialog. Use
+this dialog to save files to a directory.
 
-The \Dialog{Save As} dialog defaults the directory and file type.
-To choose a different directory, click the 'Look In' combobox. Choose
-a file and the name will appear in the 'File Name' combobox. To choose
-a different file type, click the 'File Type'combobox. Click the
-'Create New Folder' toolbar button to create a new directory. Click
-the 'List View' toolbar button to view folders and files in a list
-with only the names showing. Click the 'Details' toolbar button to
-view the folders and file names along with their size, type, date, and
-attributes. Click the Size, Type, Date, or Attributes column headers
-to sort the folders or files.
+The \Dialog{Save As} dialog shows the current directory and default
+file type. To choose a different directory, click the 'Look In'
+combobox. Choose a file and the name will appear in the 'File Name'
+combobox. To choose a different file type, click the 'File
+Type'combobox. Click the 'Create New Folder' toolbar button to create
+a new directory. Click the 'List View' toolbar button to view folders
+and files in a list with only the names showing. Click the 'Details'
+toolbar button to view the folders and file names along with their
+size, type, date, and attributes. Click the Size, Type, Date, or
+Attributes column headers to sort the folders or files.
 
-Click \Button Save to save the selected file. Click \CANCEL to leave the dialog
-without saving the file. 
+Click \Button Save to save the selected file. Click \CANCEL to leave
+the dialog without saving the file. 
+
+Note: For Windows, the System File Dialogs are used.
 
 \img qd-filecreatetemplate.png
 \caption Create Template 
@@ -198,7 +203,7 @@ the column headers to sort the slots. To create a new slot, click the
 should replace by typing the new name in the 'Slot' line edit. The
 'Return Type' is also a default that can be changed by typing in the
 line edit. To change the 'Specifier' or 'Access', click the combobox
-and choose a the required specifier or access. To remove a slot, click
+and choose the required specifier or access. To remove a slot, click
 the slot you want to delete, and then click the \Button{Delete Slot}
 button.
 
@@ -219,9 +224,9 @@ When this dialog is invoked, all existing connections are shown in the
 listbox. The column headers Sender, Signal, Receiver, and Slot provide
 details about each connection. Click the column headers to sort the
 connections. To remove a connection from the listbox, click the
-connection you want to disconnect and then click the \Button
-{Disconnect}. To edit a connection, click the \Button {Edit...} button
-to invoke the \Dialog{Edit Connections Dialog}. 
+connection you want to disconnect and then click \Button {Disconnect}.
+To edit a connection, click the \Button {Edit...} button to invoke the
+\Dialog{Edit Connections Dialog}. 
 
 Changes made in this dialog take immediate effect. Click the \Button
 Close button to leave the dialog.
@@ -238,9 +243,10 @@ layout properties.
 
 \section3 Settings
 
-In the Settings section, you can change the name of the form by typing in the
-'Class Name' line edit. You can also enter text to the 'Comment' and
-'Author' line edits or leave them blank, since they are not required.
+In the Settings section, you can change or add the name of the class
+that will be created by typing in the 'Class Name' line edit. You can
+also enter text to the 'Comment' and 'Author' line edits or leave them
+blank, since they are not required.
 
 \section3 Pixmaps
 
@@ -254,12 +260,13 @@ If you do not want \QD to handle the images, (or are not using a
 project) choose either 'Save Inline' or 'Use Function'. 'Save Inline'
 saves the pixmaps in the \File .ui files. The disadvantage of this
 approach is that it stores images in the forms in which they're used,
-i.e. images cannot be shared across forms. Click 'Use Function' to use
-your own icon-loader function for loading pixmaps. Type the function's
-name (with no signature) in the 'Use Function' line edit. This
-function will be used in the generated code for loading pixmaps. Your
-function will be called with the text you put in the pixmap property
-(e.g. the image name) whenever an image is required.    
+meaning that images cannot be shared across forms. Click 'Use
+Function' to use your own icon-loader function for loading pixmaps.
+Type the function's name (with no signature) in the 'Use Function'
+line edit. This function will be used in the generated code for
+loading pixmaps. Your function will be called with the text you put in
+the pixmap property (e.g. the image name) whenever an image is
+required.    
 
 \section3 Layouts
 
@@ -296,17 +303,17 @@ The 'General' section of the General tab has three checkboxes that are
 checked by default. Click the 'Restore last workspace on startup'
 checkbox to save the size and positions of the windows and toolbars of
 \QD. The next time you start up \QD, the windows and toolbars are
-restored to your selected preferences. Click the 'Show Splash Screen
-on startup' checkbox to display the \QD splashscreen when you start up
-the application. Click the 'Disable Database Auto-Edit in Preview' checkbox to
-disable the ability to update or delete data in the database to which
-you are connected when working with database widgets. To change the
-path \QD uses to find it's online documentation, click the
-'Documentation Path' line edit and type a new path. It would be
-unlikely to have to change this path. Another
-way to change the path is to click the \Button {ellipsis...} button
-located to the right of the line edit. This invokes the \Dialog{Find
-Directory Dialog}.
+restored to their last positions. Click the 'Show Splash Screen on
+startup' checkbox to display the \QD splash screen when you start up
+the application. Click the 'Disable Database Auto-Edit in Preview'
+checkbox to disable the ability to update or delete data in the
+database to which you are connected when working with database
+widgets. To change the path \QD uses to find it's online
+documentation, click the 'Documentation Path' line edit and type a new
+path. It would be unlikely to have to change this path. Another way to
+change the path is to click the \Button {(ellipsis)} button located
+to the right of the line edit. This invokes the \Dialog{Find Directory
+Dialog}.
 
 The 'Grid' section has options for customizing the grid on the form. The
 'Show Grid' checkbox located above the 'Grid' section is checked by
@@ -344,7 +351,7 @@ to each element, you can view the changes in the 'Preview' line edit.
 
 The 'Options' section has the Wordwrap, Completion, and Parentheses
 Matching checkboxes checked by default. Click the checkboxes to
-deselect them.  
+de-select them.  
 
 Click \OK to accept changes to \Dialog Preferences dialog. Click
 \CANCEL to leave the dialog without making any changes. 
@@ -432,8 +439,8 @@ Settings Dialog}. Use this dialog to make changes to the project settings.
 The 'Settings' tab shows information about the project. The Project
 File line edit defaults the project name. To change the name, type a new
 name in the line edit. To save the project, click the \Button
-{ellipsis...} button located next to Project File to invoke the
-\Dialog{Save As Dialog}. The 'Language' line edit is disabled. Click
+{(ellipsis)} button located next to Project File to invoke the
+\Dialog{Save As Dialog}. The 'Language' combobox is disabled. Click
 the 'Description' line edit if you want to add additional information
 about the project.
 
@@ -451,19 +458,19 @@ Dialog}.
 
 \section3 C++ Tab
 
-Click the C++ Tab to change \Cmd qmake options. See the qmake
+Click the C++ Tab to change the \Cmd qmake options. See the qmake
 documentation for details on what these options mean. Click the
 'Template' combobox and choose application or library to create
 makefiles for building applications or libraries. Click the 'Config'
 combobox to select the project configuration and compiler options for
 all platforms, or specific platforms. Type the Config value in the
 line edit. Click the 'Libs' combobox to select a platform. Type the
-library values in the line edit. Click the 'Defines' combobox and
-select a platform. 'Defines' values are added as compiler C
-preprocessor macros. Type the 'Defines' values in the line edit. Click
-the 'Includepath' combobox to select a platform. Includepath specifies
-the #include directories that should be searched when compiling the
-project. Type the 'Includepath' values in the line edit.   
+libraries in the line edit. Click the 'Defines' combobox and
+select a platform. 'Defines' values are added as compiler pre-processor
+macros. Type the 'Defines' values in the line edit. Click the
+'Includepath' combobox to select a platform. Includepath specifies the
+directories that should be searched for include files when compiling
+the project. Type the 'Includepath' values in the line edit.   
 
 Cick \OK to accept changes to the project settings. Click
 \CANCEL to exit the dialog without making any changes to the project
@@ -480,18 +487,18 @@ settings.
 Click \Menu{Search|Find} (or press \Key Ctrl+F) to invoke the \l{Find
 Text Dialog}. Use this dialog to find specific text in a project file.
 
-To find the text you want in a file, type the text in the
-'Find' combobox. You can make the search more specific by checking any
-or all of the checkboxes in the 'Options' section. Click the 'Whole
-words only' checkbox to narrow the search to whole words. Click 'Case
+To find the text you want in a file, type the text in the 'Find'
+combobox. You can make the search more specific by checking any or all
+of the checkboxes in the 'Options' section. Click the 'Whole words
+only' checkbox to narrow the search to whole words. Click 'Case
 Sensitive' to search for text that is identical to the text typed in
 the combobox. Click 'Start at Beginning' to start the search from the
 beginning of the file. The 'Direction' section offers the 'Forward'
-radio button and the 'Backward' radio button to specify the direction to
-perform the search in the file. Click the \Button Find button to start
-the search. When the text is found, it is highlighted in the file.
-Continue clicking \Button Find to search for subsequent occurrences of
-the search text. 
+radio button and the 'Backward' radio button to specify the direction
+to perform the search in the file. Click the \Button Find button to
+start the search. When the text is found, it is highlighted in the
+file. Continue clicking \Button Find to search for subsequent
+occurrences of the search text. 
 
 Click the \Button Close button to leave the dialog.
 
@@ -558,13 +565,13 @@ the dialog.
 Click \Menu{Help|About Qt...} to invoke the \Dialog{Qt Designer
 Dialog}. This dialog provides information about Qt.
 
-Click the 'x' located at the top right corner of the dialog to close
+Click the 'x' located at the title of the dialog to close
 the dialog.
 
 \img qd-configmainfile.png
 \caption Configure Main-File Dialog
 
-Click File|New|C++ Main-File to invoke the \Dialog {Configure
+Click \Menu {File|New|C++ Main-File} to invoke the \Dialog{Configure
 Main-File} dialog. Use this dialog to configure the main file and its
 forms.
 
@@ -575,7 +582,7 @@ edit by clicking it.
 Click \OK to accept the configurations and \QD will create a default
 \File main.cpp file. Click \CANCEL to leave the dialog.
 
-Note for database programmers. If you create a \File main.cpp file
+Note for database programmers: If you create a \File main.cpp file
 using \QD, this file will \e not include the \Func createConnections()
 function. We do not include this function because it needs the
 username and password for the database connection, and you may prefer
@@ -623,25 +630,25 @@ closing or exiting the form and without saving the form.
 \section1 Save Form As Dialog
 
 The \Dialog {Save Form As} dialog is invoked in three different ways.
-One way is to click File|Save for a form in a project that has never
-saved. Another way to invoke the dialog is by clicking File|Close for
+One way is to click \Menu{File|Save} for a form in a project that has never
+saved. Another way to invoke the dialog is by clicking \Menu{File|Close} for
 a form that has not been previously saved and has had changes made to
-it. The third way to invoke the dialog is by clicking File|Exit for a
+it. The third way to invoke the dialog is by clicking \Menu{File|Exit} for a
 form that has not been saved previously or that has been saved but has
-had changes made to it. File|Close and File|Exit invoke the
+had changes made to it. \Menu{File|Close} and \Menu{File|Exit} invoke the
 \Dialog{Save Form Dialog}. Click \Button Yes to invoke the
 \Dialog{Save Form As} dialog. 
 
-The \Dialog{Save Form As} dialog defaults the directory and file type.
-To choose a different directory, click the 'Look In' combobox. Choose
-a file and the name will appear in the 'File Name' combobox. To choose
-a different file type, click the 'File Type'combobox. Click the
-'Create New Folder' toolbar button to create a new directory. Click
-the 'List View' toolbar button to view folders and files in a list
-with only the names showing. Click the 'Details' toolbar button to
-view the folders and file names along with their size, type, date, and
-attributes. Click the Size, Type, Date, or Attributes column headers
-to sort the folders or files.
+The \Dialog{Save Form As} dialog shows the current directory and the
+default file type. To choose a different directory, click the 'Look
+In' combobox. Choose a file and the name will appear in the 'File
+Name' combobox. To choose a different file type, click the 'File
+Type'combobox. Click the 'Create New Folder' toolbar button to create
+a new directory. Click the 'List View' toolbar button to view folders
+and files in a list with only the names showing. Click the 'Details'
+toolbar button to view the folders and file names along with their
+size, type, date, and attributes. Click the Size, Type, Date, or
+Attributes column headers to sort the folders or files.
 
 Click \Button Save to save the selected form. Click \CANCEL to leave
 the dialog without saving the form. 
@@ -681,16 +688,16 @@ the dialog without making changes to the connections.
 
 Invoke this dialog to locate a directory. 
 
-The \Dialog {Find Directory} dialog defaults the directory and file type. To
-choose a different directory, click the 'Look In' combobox. Choose a
-file and the name will appear in the 'File Name' combobox. To choose a
-different file type, click the 'File Type'combobox. Click the 'Create
-New Folder' toolbar button to create a new directory. Click the 'List
-View' toolbar button to view folders and files in a list with only the
-names showing. Click the 'Details' toolbar button to view the folders
-and file names along with their size, type, date, and attributes.
-Click the Size, Type, Date, or Attributes column headers to sort the
-folders or files.
+The \Dialog {Find Directory} dialog shows the current directory and
+the default file type. To choose a different directory, click the
+'Look In' combobox. Choose a file and the name will appear in the
+'File Name' combobox. To choose a different file type, click the 'File
+Type' combobox. Click the 'Create New Folder' toolbar button to create
+a new directory. Click the 'List View' toolbar button to view folders
+and files in a list with only the names showing. Click the 'Details'
+toolbar button to view the folders and file names along with their
+size, type, date, and attributes. Click the Size, Type, Date, or
+Attributes column headers to sort the folders or files.
 
 Click \OK to accept the directory. Click \CANCEL to leave the dialog
 without choosing a directory.
@@ -703,17 +710,18 @@ without choosing a directory.
 
 Invoke this dialog to select a pixmap to use in the current project. 
 
-The \Dialog {Choose a Pixmap} dialog defaults the directory and file
-type. To choose a different directory, click the 'Look In' combobox.
-Choose a file and the name will appear in the 'File Name' combobox. To
-choose a different file type, click the 'File Type'combobox. Click the
-'Create New Folder' toolbar button to create a new directory. Click
-the 'List View' toolbar button to view folders and files in a list
-with only the names showing. Click the 'Details' toolbar button to
-view the folders and file names along with their size, type, date, and
-attributes. Click the Size, Type, Date, or Attributes column headers
-to sort the folders or files. View a sample of the pixmap file you
-select in the listbox in the right side of the dialog.
+The \Dialog {Choose a Pixmap} dialog shows the current directory and
+the default file type. To choose a different directory, click the
+'Look In' combobox. Choose a file and the name will appear in the
+'File Name' combobox. To choose a different file type, click the 'File
+Type'combobox. Click the 'Create New Folder' toolbar button to create
+a new directory. Click the 'List View' toolbar button to view folders
+and files in a list with only the names showing. Click the 'Details'
+toolbar button to view the folders and file names along with their
+size, type, date, and attributes. Click the Size, Type, Date, or
+Attributes column headers to sort the folders or files. View a sample
+of the pixmap file you select in the listbox in the right side of the
+dialog.
 
 Click \OK to accept the pixmap file. Click \CANCEL to leave the dialog
 without choosing a pixmap file.
@@ -721,10 +729,10 @@ without choosing a pixmap file.
 \target dialog-edit-custom-widgets
 \section1 Edit Custom Widgets Dialog
 
-Invoke this dialog by clicking Tools|Custom|Edit Custom Widgets. Use
-this dialog to create custom widgets.
+Invoke this dialog by clicking \Menu {Tools|Custom|Edit Custom
+Widgets}. Use this dialog to create custom widgets.
 
-Custom widgets are created in code. They may comprise of a combination
+Custom widgets are created in code. They may contain a combination
 of existing widgets but with additional functionality, slots and
 signals, or they may be written from scratch, or a mixture of both. A
 custom widget is often a specialization (subclass) of another widget
@@ -755,20 +763,20 @@ Definition tab if you are not already there. You should change the
 'Class' name from 'MyCustomWidget' to a unique name by typing in the
 line edit. Type in the 'Headerfile' line edit to change the name or
 type the name of a header file you want to use. To search for a saved
-header file in a directory, click the \Button {ellipsis ...} button to
+header file in a directory, click the \Button {ellipsis} button to
 the right of the Headerfile line edit to invoke the \Dialog {Open
 Dialog}. Click the 'Select Access' combobox to choose how the file
-will be included. Global include files will be included using brackets
-(<>). Local files will be included using quotation marks. If you have
-a pixmap that you want to use to identify your widget on the toolbar,
-click the \Button {ellipsis...} button to the right of the 'Pixmap'
-label. This invokes the \Dialog{Choose a Pixmap Dialog}. Click the
-'Size Hint' spin boxes to select the recommended size for the widget.
-If you do not want to have a recommended size, enter -1/-1 in the
-spinboxes. Click the 'Size Policy' spinboxes to select the vertical
-size properties of the widget. Click the 'Container Widget' checkbox
-if the custom widget you are creating should be able to contain other
-widgets (children).
+will be included. Global include files will be included using angle
+brackets (<>). Local files will be included using quotation marks. If
+you have a pixmap that you want to use to identify your widget on the
+toolbar, click the \Button {ellipsis} button to the right of the
+'Pixmap' label. This invokes the \Dialog{Choose a Pixmap Dialog}.
+Click the 'Size Hint' spin boxes to select the recommended size for
+the widget. If you do not want to have a recommended size, enter -1/-1
+in the spinboxes. Click the 'Size Policy' comboboxes to select the
+vertical size properties of the widget. Click the 'Container Widget'
+checkbox if the custom widget you are creating should be able to
+contain other widgets (children).
 
 \img qd-editcustwidsigtab.png
 \caption Edit Custom Widgets- Signals Tab
@@ -776,25 +784,25 @@ widgets (children).
 \section2 The Signals Tab
 
 Click the Signals tab to view a list of all the signals the selected
-widget can emit. To add a new signal, click the \Button {New Signal}
-button. Click the 'Signal' line edit and provide an argument for the
-signal and give the signal a unique name. To delete a signal from the
-listbox, click the signal to choose it and then click the \Button
-{Delete Signal} button.
+custom widget can emit. To add a new signal, click the \Button {New
+Signal} button. Click the 'Signal' line edit and provide an argument
+for the signal and give the signal a unique name. To delete a signal
+from the listbox, click the signal to choose it and then click the
+\Button {Delete Signal} button.
 
 \img qd-custwidslotstab.png
 \caption Edit Custom Widgets- Slots Tab
 
 \section2 The Slots Tab
 
-Click the Slots tab to view a list of all the slots of the selected
+Click the Slots tab to view a list of all the slots for the selected
 custom widget. Click the 'Slot' or 'Access' cloumn headers to sort
-the signals in the listbox. To add a slot, click the \Button {New
+the slots in the listbox. To add a slot, click the \Button {New
 Slot} button. Click the 'Slot' line edit and provide an argument for
 the slot and give the slot a unique name. Click the 'Access' combobox
 to choose between public or protected access for your widget. To
-delete a slot from the listbox, click the slot and then click the
-\Button {Delete Slot}.
+delete a slot from the listbox, click the slot and then click \Button
+{Delete Slot}.
 
 \img qd-custwidproptab.png
 \caption Edit Custom Widgets- Properties Tab
@@ -822,10 +830,10 @@ Click \Button Close to leave the \Dialog {Edit Custom Widgets} dialog.
 Invoke the \Dialog {Choose Images} dialog to choose images to use in a
 project.
 
-This dialog defaults the directory and file type. To choose a
-different directory, click the 'Look In' combobox. Choose a file and
-the name will appear in the 'File Name' combobox. To choose a
-different file type, click the 'File Type'combobox. As you choose
+This dialog shows the current the directory and the default file type.
+To choose a different directory, click the 'Look In' combobox. Choose
+a file and the name will appear in the 'File Name' combobox. To choose
+a different file type, click the 'File Type'combobox. As you choose
 different files, you can preview the images in the window located on
 the right side of the dialog. Click the 'Create New Folder' toolbar
 button to create a new directory. Click the 'List View' toolbar button
@@ -834,8 +842,8 @@ the 'Details' toolbar button to view the folders and file names along
 with their size, type, date, and attributes. Click the Size, Type,
 Date, or Attributes column headers to sort the folders or files. 
 
-Click \Button Open to open the selected file. Click \CANCEL to leave the dialog
-without opening a file.
+Click \Button Open to open the selected file. Click \CANCEL to leave
+the dialog without opening a file.
 
 \img qd-chooseanimage.png
 \caption Choose an Image
@@ -843,11 +851,12 @@ without opening a file.
 \target dialog-choose-an-image
 \section1 Choose an Image Dialog
 
-Invoke the \Dialog{Choose an Image} choose an image to use for a widget. 
+The \Dialog{Choose an Image} dialog is used to choose an image to use
+for a widget. 
 
 To choose an image from the listbox, click the image and then click
 \OK. To add an image, click the \Button Add button to invoke the
-\Dialog {Choose Images... Dialog}. To delete and image, click the
+\Dialog {Choose Images... Dialog}. To delete an image, click the
 image in the listbox and then click the \Button Delete button. 
 
 Click \CANCEL to leave the dialog without making any changes to images.
@@ -858,7 +867,7 @@ Click \CANCEL to leave the dialog without making any changes to images.
 \target dialog-select-color
 \section1 Select Color Dialog
 
-Invoke the \Dialog {Select Color} dialog to select color preferences
+The \Dialog {Select Color} dialog is used to select color preferences
 or to create color palettes. 
 
 Choose a color from the 'Basic Colors' section and a sample of
@@ -885,7 +894,7 @@ custom colors.
 \target dialog-edit-palette
 \section1 Edit Palette Dialog
 
-Invoke the \Dialog {Edit Palette} dialog to change the palette of the
+The \Dialog {Edit Palette} dialog is used to change the palette of the
 current widget or form. You can use a generated palette, or select
 colors for each color group and each color role. The palette can be
 tested with different widget layouts in the preview section.
@@ -907,7 +916,7 @@ the dialog without making changes to the palette.
 \target dialog-tune-palette
 \section1 Tune Palette Dialog
 
-Invoke the \Dialog {Tune Palette} dialog to choose options for a
+The \Dialog {Tune Palette} dialog is used to choose options for a
 widget's palette.
 
 Click the 'Select Palette' combobox to choose options for active,
@@ -918,7 +927,7 @@ If you choose 'Inactive Palette' or 'Disabled Palette', all categories
 are disabled except 'Auto'. Click the 'Auto' section checkboxes to
 build the inactive or disabled palettes from the active palette. For
 an active palette, click the 'Central color roles' combobox to select a
-color role for the palette. Click the \Button 'Choose Pixmap' button
+color role for the palette. Click the \Button {Choose Pixmap} button
 to invoke the \Dialog {Choose a Pixmap Dialog}. Click the \Button
 {Select Color} button to invoke the \Dialog {Select Color Dialog}.
 Check the 'Build from button color' checkbox in the '3-D shadow
@@ -937,21 +946,20 @@ dialog without making changes to the palette.
 \target dialog-select-font
 \section1 Select Font Dialog
 
-Invoke the \Dialog {Select Font} dialog to make changes to the font size
-and style. 
+The \Dialog {Select Font} dialog is used to make changes to the font
+size and style. 
 
 Click the 'Font' listbox to choose a font type. The current selected
 type appears in the line edit above the 'Font' listbox. Click the
 'Font Style' listbox to choose a style for the font. The choices
 available in the listbox are limited to the type of font you choose.
-Not all fonts have all styles available. The current selected style
-appears in the line edit above the 'Font Style' listbox. Click the
-'Size' listbox to choose a size for the font. The current selected
-size appears in the line edit above the 'Size' line edit. Click the
-checkboxes in the 'Effects' section to create a 'Strikeout' or
-'Underline' effect for the selected font. Click the 'Script' and
-choose a style of writing. View your font selections and styles in the
-'Sample' listbox. 
+Not all fonts have all styles available. The selected style appears in
+the line edit above the 'Font Style' listbox. Click the 'Size' listbox
+to choose a size for the font. The current selected size appears in
+the line edit above the 'Size' line edit. Click the checkboxes in the
+'Effects' section to create a 'Strikeout' or 'Underline' effect for
+the selected font. Click the 'Script' and choose a style of writing.
+View your font selections and styles in the 'Sample' listbox. 
 
 Click \OK to accept changes to the font. Click \CANCEL to leave the
 dialog without making any changes to the font.
@@ -962,8 +970,7 @@ dialog without making any changes to the font.
 \target dialog-text
 \section1 Text Dialog
 
-Invoke the \Dialog Text dialog to type text. Type text in
-the line edit. 
+The \Dialog Text dialog is used to type text. 
 
 Click \OK to accept the text. Click \CANCEL to leave the dialog
 without saving any text.
@@ -986,9 +993,9 @@ to leave the dialog without making changes to the title.
 \target dialog-dialog-page-title
 \section1 Page Title Dialog
 
-Right click a tab widget on the form to invoke the \Dialog {Page
-Title} dialog. Use this dialog to change the name of each tab in the
-Tab widget.
+Right click a tab widget on the form and select \Bold {Edit Page
+Title} to invoke the \Dialog {Page Title} dialog. Use this dialog to
+change the name of each tab in the Tab widget.
 
 Click \OK to accept new page titles. Click \CANCEL to
 leave the dialog without making any changes.  
@@ -1007,7 +1014,7 @@ To add an item to the listbox, click the \Button {New Item}. If you
 want to change the default name of the item, click the 'Text' line
 edit in the 'Item Properties' section and type a new name for the
 item. Click the \Button {Select a Pixmap} to invoke the \Dialog
-{Choose an Image Dialog}. Click a #### pixmap and then click the
+{Choose an Image Dialog}. Click a pixmap and then click the
 \Button {Delete Pixmap} button to delete the selected pixmap. To
 delete an item from the listbox, click the item and then click the
 \Button Delete button. To move an item up or down in the listbox,
@@ -1038,12 +1045,12 @@ listbox. To add sub-items to an existing item, click the item and then
 click the \Button {New Subitem} button. Click the 'Column' spinbox to
 choose a column for which the item text or pixmap will be placed.
 Click the 'Text' line edit to type text for a column, or to change the
-name of an item or subitem. Click a #### pixmap and then click the
+name of an item or subitem. Click a pixmap and then click the
 \Button {Delete Pixmap} button to delete the selected pixmap. To
 delete an item from the listbox, click the item and then click the
 \Button Delete button. To move an item up or down within the hierarchy
 level, click the \Button {Move Up} or \Button {Move Down} buttons. To
-move the an item up or down one level, click the \Button{Move Left} or
+move an item up or down one level, click the \Button{Move Left} or
 \Button {Move Right} buttons. 
 
 \img qd-editlistviewcolumns.png
@@ -1055,7 +1062,7 @@ Click this tab to change the column configuration of the listview. To
 add a column, click the \Button {New Column} button. The new column is
 shown at the top of the listbox. To change the column name, click a
 column in the listbox and then click the 'Text' line edit and type a
-new name. To add a pixmap, click the \Button {ellipsis...} button,
+new name. To add a pixmap, click the \Button {ellipsis} button,
 which invokes the \Dialog {Choose an Image Dialog}. To remove a
 pixmap, click the \Button {Delete Pixmap} button. Click the
 'Clickable' checkbox if you want the columns to respond to mouse
@@ -1144,7 +1151,7 @@ menu to invoke the \Dialog {Edit Forward Declarations} dialog. Use
 this dialog to add, edit, or remove declarations in the source code.
 
 To add a new declaration, click the \Button Add button. A line edit
-will appear for you to type the declaration. Press enter after you
+will appear for you to type the declaration. Press \Bold Enter after you
 have typed the declaration. To delete a declaration from the listbox,
 click the declaration and then click \Button Remove. To rename an
 existing declaration, click the declaration and then click \Button
@@ -1167,7 +1174,7 @@ dialog. Use this dialog to add, edit, or remove includes in the source
 code.
 
 To add a new include, click the \Button Add button. A line edit
-will appear for you to type the include. Press enter after you
+will appear for you to type the include. Press \Bold Enter after you
 have typed the include. To delete an include from the listbox, click
 the include and then click \Button Remove. To rename an existing
 include, click the include and then click \Button Rename. The cursor
@@ -1189,7 +1196,7 @@ dialog. Use this dialog to add, edit, or remove includes in the source
 code.
 
 To add a new include, click the \Button Add button. A line edit
-will appear for you to type the include. Press enter after you
+will appear for you to type the include. Press \Bold Enter after you
 have typed the include. To delete an include from the listbox,
 click the include and then click \Button Remove. To rename an
 existing include, click the include and then click \Button

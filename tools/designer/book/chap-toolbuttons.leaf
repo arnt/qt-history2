@@ -11,12 +11,12 @@ just under the menu bar; click the handle to restore the toolbar to
 the last position it occupied. You can drag a toolbar's handle to
 move the toolbar to a different position in the toolbar area. Toolbars
 can be dragged out of the toolbar area entirely and made into
-stand-alone tool palettes. To hide a tool palette click its close
-button. To restore a hidden tool palette, right click the tool area,
-then click the name of the tool palette you wish to restore.
+stand-alone tool dock windows. To hide a tool dock window click its close
+button. To restore a hidden tool dock window, right click the tool area,
+then click the name of the tool dock window you wish to restore.
 
 \img qd-filetoolbuttons3.png
-\caption file toolbuttons
+\caption File Toolbuttons
 
 \section1 The File Toolbar Buttons
 
@@ -25,7 +25,7 @@ then click the name of the tool palette you wish to restore.
 \Key Ctrl+N) to create a new project, form or file. This option
 invokes the \l{New File Dialog}.
 
-\i \Toolbutton Open\BR Click this toolbar button (or press\Key Ctrl+O)
+\i \Toolbutton Open\BR Click this toolbar button (or press \Key Ctrl+O)
 to open existing projects, forms or files. This button invokes the
 \l{File Open Dialog} which is used to select files. 
 
@@ -41,7 +41,7 @@ toggle between the projects.
 \endlist
 
 \img qd-edittoolbuttons3.png
-\caption edit toolbuttons
+\caption Edit Toolbuttons
 
 \section1 The Edit Toolbar Buttons
 
@@ -68,7 +68,7 @@ the current form or file.
 \endlist
 
 \img qd-searchttoolbuttons3.png
-\caption search toolbuttons
+\caption Search Toolbuttons
 
 \section1 The Search Toolbar Buttons
 
@@ -79,7 +79,7 @@ invoke the \l{Find Text Dialog}.
 \i \Toolbutton{Find Incremental}\BR Click this toolbar button (or press
 \Key Alt+I) to place the cursor in the text box located next to the
 \Toolbutton {Find} toolbar button. Type characters into the text box; as
-you type \QD will highlight the first occurrence of the text that it
+you type, \QD will highlight the first occurrence of the text that it
 finds in the file. Press the \Key Enter key to go to the next
 occurrence of the text.
 
@@ -94,19 +94,19 @@ will be added. Click the \Toolbutton Pointer toolbar button to leave
 this mode.
 
 \img qd-toolstoolbuttons4.png
-\caption tools
+\caption Tools
 
 \section2 Tools
 
 \list
 \i \Toolbutton Pointer\BR Click this toolbar button (or press \Key F2) to
-deselect any selected widget toolbar button. The pointer is also used
+de-select any selected widget toolbar button. The pointer is also used
 to stop inserting new widgets if you double clicked a widget toolbar
 button.
 
 \i \Toolbutton{Connect Signals and Slots}\BR Click this toolbar button (or
-press \Key F3) to connect signals and slots. Then, click on a widget and
-drag the pink rubber band to the widget (or form) that you want to
+press \Key F3) to connect signals and slots. Then click on a widget and
+drag the connection line to the widget (or the form) that you want to
 connect to. Release the mouse button and the \l{Edit Connections
 Dialog} will appear.
 
@@ -123,7 +123,7 @@ to revert your changes, leave tab order mode, then undo.
 \endlist
 
 \img qd-buttonstoolbuttons3.png
-\caption buttons
+\caption Buttons
 
 \section2 Buttons
 
@@ -134,18 +134,19 @@ to place a Pushbutton on the form.
 \i \Toolbutton ToolButton\BR Click this toolbar button, then click the form,
 to place a Toolbutton on the form.
 
-\i \Toolbutton RadioButton\BR Click this toolbar button, then click the
-form, to place a Radiobutton on the form. Always place RadioButtons
-inside ButtonGroups so that Qt will automatically ensure that only one
-RadioButton in the group is active at any one time.
+\i \Toolbutton RadioButton\BR Click this toolbar button, then click
+the form, to place a Radiobutton on the form. It is recommended that
+you place RadioButtons inside ButtonGroups so that Qt will
+automatically ensure that only one RadioButton in the group is active
+at any one time.
 
-\i \Toolbutton CheckBox\BR Click this toolbar button, then
-click the form, to place a CheckBox on the form.
+\i \Toolbutton CheckBox\BR Click this toolbar button, then click the
+form, to place a CheckBox on the form.
 
 \endlist
 
 \img qd-containertoolbuttons3.png
-\caption containers
+\caption Containers
 
 \section2 Containers
 
@@ -162,12 +163,12 @@ click the form, to place a Frame on the form.
 \i \Toolbutton TabWidget\BR Click this toolbar button, then
 click the form, to place a TabWidget on the form. To add or remove
 tabs, right click the tab widget and choose 'Add Page' or 'Remove
-Page' as required. 
+Page'. 
 
 \endlist
 
 \img qd-viewstoolbuttons5.png
-\caption views 
+\caption Views 
 
 \section2 Views
 
@@ -179,7 +180,7 @@ form, to place a ListBox on the form.
 form, to place a ListView on the form.
 
 \i \Toolbutton {Icon View}\BR Click this toolbar button, then click the
-form, to place an Icon on the form.
+form, to place an IconView on the form.
 
 \i \Toolbutton Table\BR Click this toolbar button, then click the form to
 place a Table on the form.
@@ -187,7 +188,7 @@ place a Table on the form.
 \endlist
 
 \img qd-databasetoolbuttons3.png
-\caption database toolbuttons
+\caption Database Toolbuttons
 
 \section2 Database
 
@@ -204,7 +205,7 @@ form, to place a DataView on the form.
 \endlist
 
 \img qd-inputtoolbuttons3.png
-\caption input toolbuttons
+\caption Input Toolbuttons
 
 \section2 Input
 
@@ -242,7 +243,7 @@ form, to place a Dial on the form.
 \endlist
 
 \img qd-displaytoolbuttons3.png
-\caption display toolbuttons
+\caption Display Toolbuttons
 
 \section2 Display
 
@@ -268,7 +269,7 @@ form, to place a TextBrowser on the form.
 \endlist
 
 \img qd-customwidgettoolbutton.png
-\caption custom widget toolbutton
+\caption Custom Widget Toolbutton
 
 \section2 Custom
 
@@ -281,7 +282,7 @@ toolbar button only appears if you have created a custom widget using
 \endlist
 
 \img qd-layouttoolbuttons3.png
-\caption layout toolbuttons
+\caption Layout Toolbuttons
 
 \section2 The Layout Toolbar Buttons
 
@@ -303,8 +304,9 @@ toolbar button to group them vertically. Note that for complex widgets it
 is sometimes easiest to select widgets and layouts by clicking them in
 the Widgets tab of the \l{Object Explorer Window}.
 
-\i \Toolbutton {Lay out in a Grid}\BR Click this toolbar button (or press
-\Key Ctrl+G)
+\i \Toolbutton {Lay out in a Grid}\BR Click the widgets you want and
+then click this toolbar button (or press \Key Ctrl+G) to lay out
+widgets in a grid.  
 
 \i \Toolbutton {Lay Out Horizontally (in Splitter)}\BR Click this toolbar
 button to lay out the selected groups of widgets or layouts side by
@@ -315,12 +317,12 @@ easiest to select widgets and layouts by clicking them in the Widgets
 tab of the \l{Object Explorer Window}.
 
 \i \Toolbutton {Lay Out Vertically (in Splitter)}\BR Click this toolbar
-button to lay out the selected groups of widgets or layouts one above the other
-with a splitter between each group. Use \Key{Shift+Click} to select
-each widget or layout, and then choose this toolbar button to group
-them vertically. Note that for complex widgets it is sometimes easiest
-to select widgets and layouts by clicking them in the Widgets tab of
-the \l{Object Explorer Window}.
+button to lay out the selected groups of widgets or layouts one above
+the other with a splitter between each group. Use \Key{Shift+Click} to
+select each widget or layout, and then choose this toolbar button to
+group them vertically. Note that for complex widgets it is sometimes
+easiest to select widgets and layouts by clicking them in the Widgets
+tab of the \l{Object Explorer Window}.
 
 \i \Toolbutton {Break Layout}\BR Click this toolbar button (or press
 \Key Ctrl+B) to break a layout. Click on the layout and select this
@@ -333,7 +335,7 @@ consumes extra space in the layout.
 \endlist
 
 \img qd-helptoolbuttons3.png
-\caption help toolbutton
+\caption Help Toolbutton
 
 \section1 The Help Toolbar Button
 

@@ -32,19 +32,21 @@ Click \Button Next to move on to the next wizard page.
 
 The 'Setup Toolbar' wizard page is used to populate a toolbar with
 actions from each of the default action categories. Click the Category
-combobox to select which set of actions you wish to work on.
-The Actions listbox lists the actions available for the current
-category. The Toolbar listbox lists the toolbar buttons you want to
-create. Click the blue left and right arrow buttons to move actions
-into or out of the Toolbar list box. Click the blue up and down arrow
-buttons to move actions up and down within the Toolbar list
-box. Note that the '\<Separator\>' item in the Actions list box may be
-moved to the Toolbar list box as often as required and will cause a
-separator to appear in the finished toolbar.
+combobox to select which set of actions you wish to work on. The
+Actions listbox lists the actions available for the current category.
+The Toolbar listbox lists the toolbar buttons you want to create.
+Click the blue left and right arrow buttons to move actions into or
+out of the Toolbar list box. Click the blue up and down arrow buttons
+to move actions up and down within the Toolbar list box. Note that the
+'\<Separator\>' item in the Actions list box may be moved to the
+Toolbar list box as often as required and will cause a separator to
+appear in the finished toolbar.
 
 Click \Button Back if you want to return to the 'Choose available
 menus and toolbars' wizard page. Click \Button Finish to populate the
-main window and to exit the wizard.
+main window and to exit the wizard. Click \CANCEL on any of the wizard
+pages to leave the wizard without making any changes. 
+
 
 \section1 Data Table Wizard 
 
@@ -71,16 +73,16 @@ Click \Button Next to move on to the next wizard page.
 
 \section2 Displayed Fields 
 
-The 'Displayed Fields' wizard page is used to select fields 
-that will be displayed in the table. By default, every field except the
-table or view's primary key, is initially placed in the 'Displayed
-Fields' list. Click the blue left and right arrow buttons to move
-fields from the 'Available Fields' listbox and into or out of the
-'Displayed Fields' listbox. Click the blue up and down arrow buttons
-to move fields up and down within the 'Displayed Fields' listbox. The
-order in which fields appear in the 'Displayed Fields' listbox is the
-order they are shown in the Data Table, with the top-most field being
-in the left-most column.
+The 'Displayed Fields' wizard page is used to select fields that will
+be displayed in the table. By default, every field except the table or
+view's primary key, is initially placed in the 'Displayed Fields'
+list. Click the blue left and right arrow buttons to move fields from
+the 'Available Fields' listbox and into or out of the 'Displayed
+Fields' listbox. Click the blue up and down arrow buttons to move
+fields up and down within the 'Displayed Fields' listbox. The order in
+which fields appear in the 'Displayed Fields' listbox is the order
+they are shown in the Data Table, with the top-most field being in the
+left-most column.
 
 Click \Button Next to move on to the next wizard page. Click \Button
 Back if you want to return to the 'Choose the Database and Table'
@@ -129,12 +131,13 @@ the wizard. If you want user edits, e.g. inserts and updates, to be
 automatically applied when the user navigates to another record, check
 the 'AutoEditing' checkbox. If 'AutoEditing' is unchecked, users must
 press \Key Enter to confirm their edit before moving to another
-record, or their edit will be lost. This property can be changed later
-if desired.
+record, or their edit will be lost.
 
 Click \Button Finish to create the datatable widget with all of the
-options you selected in the wizard. Click \Button
-Back if you want to return to the 'SQL' wizard page.
+options you selected in the wizard. Click \Button Back if you want to
+return to the 'SQL' wizard page. Click \CANCEL on any of the wizard
+pages to leave the wizard without making any changes. 
+
 
 \section1 Data Browser Wizard
 
@@ -258,8 +261,9 @@ record, or their edit will be lost. This property can be changed later
 if desired.
 
 Click \Button Finish to create the databrowser widget with all of the
-options you selected in the wizard. Click \Button
-Back if you want to return to the 'Layout' wizard page.
+options you selected in the wizard. Click \Button Back if you want to
+return to the 'Layout' wizard page.  Click \CANCEL on any of the
+wizard pages to leave the wizard without making any changes.
 
 \section1 Data View Wizard
 
@@ -320,6 +324,7 @@ selected all the option you want on the previous wizard pages.
 
 Click \Button Finish to create the databrowser widget with all of the
 options you selected in the wizard. Click \Button Back if you want to
-return to the 'Layout' wizard page.
+return to the 'Layout' wizard page. Click \CANCEL on any of the wizard
+pages to leave the wizard without making any changes. 
 
 
